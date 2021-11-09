@@ -1,0 +1,30 @@
+    //import { Lead } from "./Lead";
+
+    export class LeadView {
+            id: number;
+            date: Date;        
+            name: string;         
+            experience:string;         
+            mobile: string;         
+            email: string;         
+            status: Number;
+            classestaken: string;
+            ratings:Number;
+            timeslots: string;
+            leadId: number;
+            slots:string;
+
+            public constructor(leadId:number, date:Date,name:string,experience:string, mobile:string,email:string,status:Number,classestaken:number,
+                ratings:Number,timeslots:string,slots:string){
+                this.leadId = leadId;
+                this.name = name;
+                this.experience=experience;
+                this.slots=slots;
+                this.mobile=mobile;
+                this.status=status;
+                this.ratings=ratings;
+                this.timeslots=timeslots;
+                this.email=email;
+            }
+    }
+    
