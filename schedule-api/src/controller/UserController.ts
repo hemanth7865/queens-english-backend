@@ -72,8 +72,8 @@ export class UserController {
         user.leadId = lead.id;
         user.lead = lead;
 
-   
-        return this.usersRepository.save(user);
+        this.usersRepository.save(user)
+        return {"success":true,"data": user, "total":1};
     }
 
 
@@ -133,7 +133,6 @@ export class UserController {
         const unique = Array.from(new Set(selectedIds)) 
         for (const element  of slotsResult ) {  
             results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique})`);
-          console.log(results);
         }
           for (const element  of results ) {  
             let slotsResult:any[] = [];   
@@ -153,7 +152,7 @@ export class UserController {
         }
 
 
-        return leadView;
+        return {"success":true,"data": leadView, "total":leadView.length};
       
     }
 
@@ -194,7 +193,7 @@ export class UserController {
           
         };
       
-        return leadView;
+        return {"success":true,"data": leadView, "total":leadView.length};
     }
 
     
