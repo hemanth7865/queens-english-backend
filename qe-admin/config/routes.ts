@@ -73,6 +73,18 @@
     component: './TableList',
   },
   {
+    name: 'batch list',
+    icon: 'table',
+    path: '/batch',
+    component: './BatchList',
+  },
+  {
+    name: 'teacher batch list',
+    icon: 'table',
+    path: '/teacherBatch',
+    component: './TeacherBatchList',
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },

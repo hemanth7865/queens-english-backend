@@ -1,0 +1,26 @@
+/* date */
+input[type='date']::before {
+  margin-right: 0.5em;
+  color: #aaa;
+  content: attr(placeholder) !important;
+}
+input[type='date']:focus::before,
+input[type='date']:valid::before {
+  content: '';
+}
+
+.inputfile {
+  position: absolute;
+  z-index: -1;
+  width: 0.1px;
+  height: 0.1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.inputfile + label {
+  display: inline-block;
+  width: 230px;
+  color: black;
+  border: 1px solid #ccc;
+}
