@@ -49,24 +49,24 @@ const Login: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (!userInfoFetched) {
-      fetchUserInfo()
-        .then(() => {
-          /** 此方法会跳转到 redirect 参数所在的位置 */
-          if (!history) return;
-          setUserInfoFetched(true);
-          if (!history) return;
-          const { query } = history.location;
-          const { redirect } = query as { redirect: string };
-          history.push(redirect || '/');
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-    console.log('component loaded');
-  }, []);
+  // useEffect(() => {
+  //   if (!userInfoFetched) {
+  //     fetchUserInfo()
+  //       .then(() => {
+  //         /** 此方法会跳转到 redirect 参数所在的位置 */
+  //         if (!history) return;
+  //         setUserInfoFetched(true);
+  //         if (!history) return;
+  //         const { query } = history.location;
+  //         const { redirect } = query as { redirect: string };
+  //         history.push(redirect || '/');
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //   }
+  //   console.log('component loaded');
+  // }, []);
 
   const handleSubmit = async (values: API.LoginParams) => {
     try {
@@ -106,8 +106,8 @@ const Login: React.FC = () => {
       </div>
       <div className={styles.content}>
         <div style={{ width: '100%' }}></div>
-        <h2 style={{ textAlign: 'center' }}>Loading...</h2>
-        <div style={{ display: 'none' }}>
+        {/* <h2 style={{ textAlign: 'center' }}>Loading...</h2> */}
+        <div>
           <LoginForm
             // logo={<img alt="logo" src="/logo.svg" />}
             title="The Queen's English"
@@ -115,16 +115,16 @@ const Login: React.FC = () => {
             initialValues={{
               autoLogin: true,
             }}
-            // actions={[
-            //   <FormattedMessage
-            //     key="loginWith"
-            //     id="pages.login.loginWith"
-            //     defaultMessage="其他登录方式"
-            //   />,
-            //   <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.icon} />,
-            //   <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.icon} />,
-            //   <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
-            // ]}
+            actions={[
+              <FormattedMessage
+                key="loginWith"
+                id="pages.login.loginWith"
+                defaultMessage="其他登录方式"
+              />,
+              <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.icon} />,
+              <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.icon} />,
+              <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
+            ]}
             submitter={{
               searchConfig: {
                 submitText: "Login"

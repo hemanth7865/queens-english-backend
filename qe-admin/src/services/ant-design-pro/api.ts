@@ -25,15 +25,29 @@ const getForwardPath = (url: string) => {
 }
 
 /** 获取当前的用户 GET /api/currentUser */
+// export async function currentUser(options?: { [key: string]: any }) {
+//   return request<API.CurrentUser[]>
+//   (getForwardPath('/api/azurefunctionsproxy/currentAdminUser'), {
+//     method: 'GET',
+//     ...(options || {}),
+//   })
+//   .then((res) => {
+//     if (res.length) {
+//       return res[0];
+//     }
+//     throw new Error('Invalid user session');
+//   });
+// }
+
 export async function currentUser(options?: { [key: string]: any }) {
-  return request<API.CurrentUser[]>
-  (getForwardPath('/api/azurefunctionsproxy/currentAdminUser'), {
+  return request<API.CurrentUser>
+  (getForwardPath('/api/currentUser'), {
     method: 'GET',
     ...(options || {}),
   })
   .then((res) => {
-    if (res.length) {
-      return res[0];
+    if (res) {
+      return res;
     }
     throw new Error('Invalid user session');
   });
