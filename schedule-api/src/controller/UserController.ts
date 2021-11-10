@@ -110,6 +110,14 @@ export class UserController {
         let leadView:LeadView[]=[];
         let slotsResult:any[] = [];   
 
+        const offset =  parseInt(request.query['current']);
+        const limit  =  parseInt(request.query['pageSize']);
+        var limitString = '';
+        if (offset==null && limit) {
+
+            var limitString =  'limit  ${offset * limit} , ${limit}'
+        }
+
         let availabilitydate =  request.query['date'];;
         let start_slot =  parseInt(request.query['start_slot']);
         let end_slot  =  parseInt(request.query['end_slot']);
@@ -124,35 +132,48 @@ export class UserController {
         map.set(4, 'THU');  
         map.set(5, 'FRI');  
         map.set(6, 'SAT'); 
+        console.log('week_day' + week_day);
 
 
-        var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday = `+ week_day  + ` and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot + `;`;
+        let totalQuery =  `select count(*) as totalCount  from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot + `;`;
+        console.log("Test1");
+        var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot +`;`;
+       
+        console.log("Test2");
+       
         slotsResult = await getManager().query(quer);
+        console.log('slotsresult'+slotsResult);
+        let total = await getManager().query(totalQuery);
         let slotsResultIds = slotsResult.forEach((element)=>element.leadId);
         let selectedIds = slotsResult.map(({ leadId }) => leadId);
         const unique = Array.from(new Set(selectedIds)) 
+        console.log('selectedIds');
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique})`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
         }
+        console.log("result");
           for (const element  of results ) {  
+              console.log('loop');
             let slotsResult:any[] = [];   
             console.log(element.leadId);
+            console.log('total' + 0);
              var quer =  "select weekday , start_slot, end_slot from lead_availability where leadId="+element.leadId + ";"
-            slotsResult = await getManager().query(quer);
+           console.log("query");
+             slotsResult = await getManager().query(quer);
             var slot = "";
             slotsResult.forEach((element) => {
                 console.log('element'+element);
                 console.log('element'+element);
              slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
             });
-            var  l = new LeadView(element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
+            var  l = new LeadView(element.id, element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
             1,2,slot,element.slots);
         
             leadView.push(l);
+            console.log('end');
         }
 
-
-        return {"success":true,"data": leadView, "total":leadView.length};
+          return {"success":true,"data": leadView, "total":0, "current":offset, pageSize:limit};
       
     }
 
@@ -171,10 +192,12 @@ export class UserController {
         map.set(5, 'FRI');  
         map.set(6, 'SAT'); 
 
-        const offset =  parseInt(request.query['offset']);
-        const limit  =  parseInt(request.query['limit']);
-         results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots from users u inner join leads le on u.leadId=le.id limit ` + offset +","+ limit);
-         //  results.forEach(async (element,index,self) => {     
+        const offset =  parseInt(request.query['current']);
+        const limit  =  parseInt(request.query['pageSize']);
+        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`);
+        var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
+         console.log(total);
+        //  results.forEach(async (element,index,self) => {     
           for (const element  of results ) {  
             let slotsResult:any[] = [];   
             console.log(element.leadId);
@@ -186,14 +209,14 @@ export class UserController {
                 console.log('element'+element);
              slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
             });
-            var  l = new LeadView(element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
+            var  l = new LeadView(element.id, element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
             1,2,slot,element.slots);
         
             leadView.push(l);
           
         };
       
-        return {"success":true,"data": leadView, "total":leadView.length};
+        return {"success":true,"data": leadView, "total":total[0].totalCount, "current":offset, pageSize:limit};
     }
 
     
