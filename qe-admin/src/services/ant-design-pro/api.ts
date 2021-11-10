@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from 'umi';
 
-const API_URL =  ``; //process.env.API_URL;
+const API_URL =  `http://localhost:3000`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
 
 const apiKeyQueryString = (url: string, key: string) => {
@@ -41,7 +41,7 @@ const getForwardPath = (url: string) => {
 
 export async function currentUser(options?: { [key: string]: any }) {
   return request<API.CurrentUser>
-  (getForwardPath('/api/currentUser'), {
+  (('/api/currentUser'), {
     method: 'GET',
     ...(options || {}),
   })
@@ -120,7 +120,7 @@ export async function batches(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/api/batches', {
+  return request<API.RuleList>(`/be/leads`, {
     method: 'GET',
     params: {
       ...params,

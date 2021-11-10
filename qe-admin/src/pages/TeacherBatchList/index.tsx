@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined} from '@ant-design/icons';
 import {
   Button,
   message,
@@ -39,6 +39,7 @@ import Icon from '@ant-design/icons';
 import './index.css';
 import Availability from './availability';
 import moment from 'moment';
+import WeekdaySchedule from './components/WeekdaySchedule'
 
 /**
  * @en-US Add node
@@ -719,30 +720,19 @@ const TeacherBatchList: React.FC = () => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name="availabiltyWeek">
-                    <Button>Availability</Button>
+                    <label>Week Availability</label>
+                    <WeekdaySchedule weekday = {1}/>
+                    <WeekdaySchedule weekday = {2}/>
+                    <WeekdaySchedule weekday = {3}/>
+                    <WeekdaySchedule weekday = {4}/>
+                    <WeekdaySchedule weekday = {5}/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="availabiltyWeekend">
-                    <Button type="button" onClick={showModal}>
-                      weekend availability
-                    </Button>
-                    <Modal
-                      title="Weekend availability"
-                      visible={isModalVisible}
-                      onOk={handleOk}
-                      onCancel={handleCancel}
-                    >
-                      <Checkbox>week</Checkbox>
-                      <TimePicker format="HH:mm" placeholder="start time" />
-                      <TimePicker format="HH:mm" placeholder="end time" />
-                      <a>
-                        <PlusOutlined /> add
-                      </a>
-                      <a>
-                        <DeleteOutlined /> delete
-                      </a>
-                    </Modal>
+                  <label>Weekend Availability</label>
+                  <WeekdaySchedule weekday = {6}/>
+                  <WeekdaySchedule weekday = {7}/>
                   </Form.Item>
                 </Col>
               </Row>

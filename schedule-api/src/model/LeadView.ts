@@ -14,8 +14,9 @@
             leadId: number;
             slots:string;
 
-            public constructor(leadId:number, date:Date,name:string,experience:string, mobile:string,email:string,status:Number,classestaken:number,
+            public constructor(id:number, leadId:number, date:Date,name:string,experience:string, mobile:string,email:string,status:Number,classestaken:number,
                 ratings:Number,timeslots:string,slots:string){
+                this.id = id;
                 this.leadId = leadId;
                 this.name = name;
                 this.experience=experience;
