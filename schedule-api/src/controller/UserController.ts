@@ -110,13 +110,19 @@ export class UserController {
         let leadView:LeadView[]=[];
         let slotsResult:any[] = [];   
 
-        const offset =  parseInt(request.query['current']);
+        var offset =  parseInt(request.query['current']);
         const limit  =  parseInt(request.query['pageSize']);
+
+        if (offset==1) {
+            offset = 0;
+        }
+
         var limitString = '';
         if (offset==null && limit) {
 
             var limitString =  'limit  ${offset * limit} , ${limit}'
         }
+
 
         let availabilitydate =  request.query['date'];;
         let start_slot =  parseInt(request.query['start_slot']);
@@ -192,9 +198,12 @@ export class UserController {
         map.set(5, 'FRI');  
         map.set(6, 'SAT'); 
 
-        const offset =  parseInt(request.query['current']);
+        var offset =  parseInt(request.query['current']);
         const limit  =  parseInt(request.query['pageSize']);
-        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`);
+        if (offset==1) {
+            offset = 0;
+        }
+        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset + offset * limit) +","+ limit + `;`);
         var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
          console.log(total);
         //  results.forEach(async (element,index,self) => {     
