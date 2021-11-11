@@ -151,6 +151,8 @@ export async function teacherBatches(
 }
 
 
+
+
 /** 获取规则列表 GET /api/rule */
 export async function rule(
   params: {
@@ -181,11 +183,15 @@ export async function updateRule(options?: { [key: string]: any }) {
 
 /** 新建规则 POST /api/rule */
 export async function addRule(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/be/leads', {
+  console.log('option', options)
+  return request<any>('/be/leads', {
     method: 'POST',
     ...(options || {}),
+
   });
 }
+
+
 
 /** 删除规则 DELETE /api/rule */
 export async function removeRule(options?: { [key: string]: any }) {

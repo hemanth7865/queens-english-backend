@@ -274,7 +274,7 @@ const TeacherBatchList: React.FC = () => {
 
   //validations
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     console.log('form submitted');
     const dataForm = {
       firstname: formData.firstName,
@@ -304,23 +304,25 @@ const TeacherBatchList: React.FC = () => {
         joiningDate: formData.joiningDate,
       },
     };
-    async (values: API.LoginParams) => {
+    // async (values: API.LoginParams) => {
       try {
         // 登录
-        const msg = await addRule({ ...values, type });
+        console.log('data', dataForm)
+        const msg = await addRule({ ...dataForm });
         if (msg.status === 'ok') {
-          const defaultLoginSuccessMessage = intl.formatMessage({
-            id: 'pages.login.success',
-            defaultMessage: '登录成功！',
-          });
-          message.success(defaultLoginSuccessMessage);
-          await fetchUserInfo();
-          /** 此方法会跳转到 redirect 参数所在的位置 */
-          if (!history) return;
-          const { query } = history.location;
-          const { redirect } = query as { redirect: string };
-          history.push(redirect || '/');
-          return;
+          // const defaultLoginSuccessMessage = intl.formatMessage({
+          //   id: 'pages.login.success',
+          //   defaultMessage: '登录成功！',
+          // });
+          // message.success(defaultLoginSuccessMessage);
+          // await fetchUserInfo();
+          // /** 此方法会跳转到 redirect 参数所在的位置 */
+          // if (!history) return;
+          // const { query } = history.location;
+          // const { redirect } = query as { redirect: string };
+          // history.push(redirect || '/');
+          // return;
+          console.log('API call sucessfull', msg)
         }
         console.log(msg);
         // 如果失败去设置用户错误信息
@@ -332,24 +334,23 @@ const TeacherBatchList: React.FC = () => {
         });
         message.error(defaultLoginFailureMessage);
       }
-    };
     console.log('formData', formData);
     console.log('dataForm', dataForm);
     const dataFormJson = JSON.stringify(dataForm);
     console.log('json', dataFormJson);
   };
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
+  // const showModal = () => {
+  //   setIsModalVisible(true);
+  // };
 
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
+  // const handleOk = () => {
+  //   setIsModalVisible(false);
+  // };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+  // const handleCancel = () => {
+  //   setIsModalVisible(false);
+  // };
 
   return (
     <PageContainer>
