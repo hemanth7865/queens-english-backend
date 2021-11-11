@@ -141,7 +141,7 @@ export async function teacherBatches(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/api/teacherBatches', {
+  return request<API.RuleList>('/be/leadsview', {
     method: 'GET',
     params: {
       ...params,
@@ -181,7 +181,7 @@ export async function updateRule(options?: { [key: string]: any }) {
 
 /** 新建规则 POST /api/rule */
 export async function addRule(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/api/rule', {
+  return request<API.RuleListItem>('/be/leads', {
     method: 'POST',
     ...(options || {}),
   });

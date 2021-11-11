@@ -9,16 +9,20 @@ export type WeekdayScheduleProps = {
 const WeekdaySchedule: React.FC<WeekdayScheduleProps> = (props) => {
     const [value, handleValue] = useState({})
 
-    const handleChange = ()=>{
-        console.log(value)
+    const handleChange = (props)=>{
+        console.log(value, props.weekday)
     }
 
     const handleTimer = (time, timeString)=>{
-        console.log('timerpick', time, timeString)
+        console.log('timerpick', timeString)
     }
     return(
     <Row>
-    <Col span={24}><Checkbox onChange = {handleChange}>{props.weekday} <TimePicker.RangePicker  format = 'HH:mm' onChange = {(time, timeString)=>{handleTimer(time, timeString)}}/><PlusOutlined /><DeleteOutlined /> </Checkbox></Col>
+    <Col span={24} style = {{margin: "5px"}}>
+      <Checkbox onChange = {(props)=>{handleChange(props)}} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.weekday}</Checkbox>
+      <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=>{handleTimer(time, timeString)}}/>
+      <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
+      <a><DeleteOutlined /></a></Col>
   </Row>
     )
 }

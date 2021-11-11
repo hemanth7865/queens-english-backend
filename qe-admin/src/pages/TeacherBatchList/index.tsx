@@ -152,7 +152,6 @@ const TeacherBatchList: React.FC = () => {
     weekAvailabilty: '',
     weekendAvailabilty: '',
     status: '',
-    error: {},
   });
   const [tempData, setTempData] = useState({});
   const actionRef = useRef<ActionType>();
@@ -305,25 +304,35 @@ const TeacherBatchList: React.FC = () => {
         joiningDate: formData.joiningDate,
       },
     };
-
-    //   "nationality": 1,
-    //   "statusId": 1,
-    //   "nationalityId": 1,
-    //   "category": 1,
-    //   "lead_type": 1,
-    //   "photo":"photo",
-    //   "created_at": "2021-11-05 15:14:04",
-    //   "updated_at": "2021-11-05 15:14:04",
-    //   "lead": {
-    //     "resume": "data.resume",
-    //   "qualification": "dataqualification",
-    //   "totalexperiance": "data.totalexperiance",
-    //       "video": "data.vide",
-    //   "certificates": "data.certificates",
-    //    "created_at": "2021-11-05 15:14:04",
-    //   "updated_at": "2021-11-05 15:14:04",
-    //    "joiningdate": "2021-11-05 15:14:04"
-    //   },
+    async (values: API.LoginParams) => {
+      try {
+        // 登录
+        const msg = await addRule({ ...values, type });
+        if (msg.status === 'ok') {
+          const defaultLoginSuccessMessage = intl.formatMessage({
+            id: 'pages.login.success',
+            defaultMessage: '登录成功！',
+          });
+          message.success(defaultLoginSuccessMessage);
+          await fetchUserInfo();
+          /** 此方法会跳转到 redirect 参数所在的位置 */
+          if (!history) return;
+          const { query } = history.location;
+          const { redirect } = query as { redirect: string };
+          history.push(redirect || '/');
+          return;
+        }
+        console.log(msg);
+        // 如果失败去设置用户错误信息
+        setUserLoginState(msg);
+      } catch (error) {
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: '登录失败，请重试！',
+        });
+        message.error(defaultLoginFailureMessage);
+      }
+    };
     console.log('formData', formData);
     console.log('dataForm', dataForm);
     const dataFormJson = JSON.stringify(dataForm);
@@ -373,12 +382,12 @@ const TeacherBatchList: React.FC = () => {
             placement="right"
             onClose={onClose}
             visible={visible}
-            width={520}
+            width={760}
           >
             <Form onFinish={handleFormSubmit}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}>
+                  {/* <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}> */}
                     <Input
                       type="text"
                       placeholder="First Name"
@@ -386,10 +395,10 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.firstName}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}>
+                  {/* <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}> */}
                     <Input
                       type="text"
                       placeholder="Last Name"
@@ -397,22 +406,16 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.lastName}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* joining and start date */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="joiningDate"
                     rules={[{ required: true, message: 'Joining Date' }]}
-                  >
-                    {/* <DatePicker
-                      title="joiningDate"
-                      placeholder="Joining Date"
-                      style={{ width: '100%' }}
-                      onChange={(date, dateString) => handleDatePickerChange1(date, dateString, 1)}
-                    /> */}
+                  > */}
                     <Input
                       placeholder="Joining Date"
                       type="date"
@@ -420,17 +423,11 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.joiningDate}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="startDate" rules={[{ required: true, message: 'Start Date' }]}>
-                    {/* <DatePicker
-                      title="formData.startDate"
-                      placeholder="Start Date"
-                      style={{ width: '100%' }}
-                      value={formData.startDate}
-                      onChange={(date, dateString) => handleDatePickerChange2(date, dateString, 1)}
-                    /> */}
+                  {/* <Form.Item name="startDate" rules={[{ required: true, message: 'Start Date' }]}> */}
+                    
                     <Input
                       placeholder="Start Date"
                       type="date"
@@ -438,23 +435,17 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.startDate}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* Date of Birth and gender */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="dateOfBirth"
                     rules={[{ required: true, message: 'Enter date of birthday' }]}
-                  >
-                    {/* <DatePicker
-                      title="formData.startDate"
-                      placeholder="Date of Birth"
-                      style={{ width: '100%' }}
-                      value={formData.startDate}
-                      onChange={(date, dateString) => handleDatePickerChange3(date, dateString, 1)}
-                    /> */}
+                  > */}
+                    
                     <Input
                       placeholder="DateofBirth"
                       type="date"
@@ -462,13 +453,13 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.dateOfBirth}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="gender"
                     rules={[{ required: true, message: 'Please select an gender' }]}
-                  >
+                  > */}
                     <select
                       placeholder="Gender"
                       value={formData.gender}
@@ -486,16 +477,16 @@ const TeacherBatchList: React.FC = () => {
                         );
                       })}
                     </select>
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* Mobile and Whatsup */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="mobile"
                     rules={[{ required: true, message: 'Enter the mobile number' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="Mobile"
@@ -503,13 +494,13 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.mobile}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="whatsApp"
                     rules={[{ required: true, message: 'Enter the whatsApp number' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="WhatsApp"
@@ -517,13 +508,13 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.whatsapp}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* Email and address */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="email" rules={[{ required: true, message: 'email' }]}>
+                  {/* <Form.Item name="email" rules={[{ required: true, message: 'email' }]}> */}
                     <Input
                       type="text"
                       placeholder="Email"
@@ -531,10 +522,10 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.email}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="address" rules={[{ required: true, message: 'address' }]}>
+                  {/* <Form.Item name="address" rules={[{ required: true, message: 'address' }]}> */}
                     <Input
                       type="text"
                       placeholder="Address"
@@ -542,16 +533,16 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.address}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* Nationality and category */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="nationality"
                     rules={[{ required: true, message: 'Enter the Nationality' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="Nationality"
@@ -559,13 +550,13 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.nationality}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="category"
                     rules={[{ required: true, message: 'Enter the Category number' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="Category"
@@ -573,16 +564,16 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.category}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* Education/Qualification and total experience */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="qualification"
                     rules={[{ required: true, message: 'Enter the Education/Qualification' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="Education/Qualification"
@@ -590,13 +581,13 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.education}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="totalExperience"
                     rules={[{ required: true, message: 'Enter the Total Experience' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="Total Experience"
@@ -604,16 +595,16 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.experience}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* Teacher Type and Language Known */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="teacherType"
                     rules={[{ required: true, message: 'Enter the Teacher Type' }]}
-                  >
+                  > */}
                     <select
                       placeholder="Teacher Type"
                       value={formData.teacherType}
@@ -630,13 +621,13 @@ const TeacherBatchList: React.FC = () => {
                         );
                       })}
                     </select>
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="languageKnown"
                     rules={[{ required: true, message: 'Enter the Languages Known' }]}
-                  >
+                  > */}
                     <Input
                       type="text"
                       placeholder="Languages Known"
@@ -644,7 +635,7 @@ const TeacherBatchList: React.FC = () => {
                       value={formData.languagesKnown}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               {/* upload resume and upload video profile */}
@@ -690,7 +681,7 @@ const TeacherBatchList: React.FC = () => {
               {/* upload certificate and upload photo */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="uploadCertificate">
+                  {/* <Form.Item name="uploadCertificate"> */}
                     <input
                       type="file"
                       id="certificate"
@@ -700,7 +691,7 @@ const TeacherBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                     <label for="certificate">Upload Certificate</label>
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
                   <Form.Item name="uploadPhoto">
@@ -721,25 +712,25 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="availabiltyWeek">
                     <label>Week Availability</label>
-                    <WeekdaySchedule weekday = {1}/>
-                    <WeekdaySchedule weekday = {2}/>
-                    <WeekdaySchedule weekday = {3}/>
-                    <WeekdaySchedule weekday = {4}/>
-                    <WeekdaySchedule weekday = {5}/>
+                    <WeekdaySchedule weekday = "Monday"/>
+                    <WeekdaySchedule weekday = "Tuesday"/>
+                    <WeekdaySchedule weekday = "Wednesday"/>
+                    <WeekdaySchedule weekday = "Thursady"/>
+                    <WeekdaySchedule weekday = "Friday"/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="availabiltyWeekend">
                   <label>Weekend Availability</label>
-                  <WeekdaySchedule weekday = {6}/>
-                  <WeekdaySchedule weekday = {7}/>
+                  <WeekdaySchedule weekday = "Saturday"/>
+                  <WeekdaySchedule weekday = "Sunday"/>
                   </Form.Item>
                 </Col>
               </Row>
               {/* status */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
+                  {/* <Form.Item
                     name="status"
                     rules={[
                       {
@@ -747,7 +738,7 @@ const TeacherBatchList: React.FC = () => {
                         message: 'please enter Status',
                       },
                     ]}
-                  >
+                  > */}
                     <select
                       placeholder="Status"
                       value={formData.status}
@@ -764,7 +755,7 @@ const TeacherBatchList: React.FC = () => {
                         );
                       })}
                     </select>
-                  </Form.Item>
+                  {/* </Form.Item> */}
                 </Col>
               </Row>
               <Input type="submit" value="Add Teacher" />
