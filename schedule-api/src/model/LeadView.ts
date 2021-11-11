@@ -18,6 +18,7 @@
                 ratings:Number,timeslots:string,slots:string){
                 this.id = id;
                 this.leadId = leadId;
+                this.date = date;
                 this.name = name;
                 this.experience=experience;
                 this.slots=slots;
