@@ -309,7 +309,12 @@ const TeacherBatchList: React.FC = () => {
       try {
         // 登录
         console.log('data', dataForm)
-        const msg = await addTeacherSchedule({ body: JSON.stringify(dataForm) });
+        const msg = await addTeacherSchedule(
+          { header: {
+            'Content-Type': 'application/json',
+          },
+            body: dataForm}
+          );
         if (msg.status === 'ok') {
           // const defaultLoginSuccessMessage = intl.formatMessage({
           //   id: 'pages.login.success',

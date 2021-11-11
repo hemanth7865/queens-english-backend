@@ -28,7 +28,10 @@ export class UserController {
         let lead = new Lead();
         lead.created_at = new Date();
         lead.updated_at = new Date();
-        lead.id = request.body.lead.id;
+        if(request.body.lead.id){
+
+            lead.id = request.body.lead.id;
+        }
         lead.joining_date = request.body.lead.joining_date;
         lead.resume = "Resume";
         lead.video = "video";
@@ -38,22 +41,22 @@ export class UserController {
         lead = await this.leadRepository.save(lead);
         let i =0;
 
-        request.body.leadAvailability.forEach( async (element) => {
-            var availability = new LeadAvailability();
-            availability.start_date = element.startdate;
-            availability.start_slot = element.start_slot;
-            availability.end_slot = element.end_slot;
-            availability.weekday = element.weekday;
-            availability.id = element.id;
-            availability.lead = lead;
-            availability.created_at = new Date();
-            availability.updated_at = new Date();
-            availability = await this.leadAvailabilityRepository.save(availability);
-            leadAvailability[i++] = availability;
-        });
+        // request.body.leadAvailability.forEach( async (element) => {
+        //     var availability = new LeadAvailability();
+        //     availability.start_date = element.startdate;
+        //     availability.start_slot = element.start_slot;
+        //     availability.end_slot = element.end_slot;
+        //     availability.weekday = element.weekday;
+        //     availability.id = element.id;
+        //     availability.lead = lead;
+        //     availability.created_at = new Date();
+        //     availability.updated_at = new Date();
+        //     availability = await this.leadAvailabilityRepository.save(availability);
+        //     leadAvailability[i++] = availability;
+        // });
 
         let user = new Users();
-        user.leadAvailability = leadAvailability
+        // user.leadAvailability = leadAvailability
         user.firstname = request.body.firstname;
         user.lastname = request.body.lastname;
         user.gender = request.body.gender;

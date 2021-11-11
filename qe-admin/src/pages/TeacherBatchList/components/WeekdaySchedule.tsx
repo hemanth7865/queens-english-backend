@@ -7,22 +7,38 @@ export type WeekdayScheduleProps = {
   };
 
 const WeekdaySchedule: React.FC<WeekdayScheduleProps> = (props) => {
-    const [value, handleValue] = useState({})
+    const [value, setValue] = useState(
+          {
+            starttime: '',
+            endtime: ''
+          }
+    )
 
-    const handleChange = (props)=>{
-        console.log(value, props.weekday)
+    const [value1, setValue1] = useState(
+      {
+       weekday: ''
+      }
+)
+    
+
+    const formData = {
+      starttime: value[0],
+      endtime: value[1],
+      weekday: props.weekday
     }
 
-    const handleTimer = (time, timeString)=>{
-        console.log('timerpick', timeString)
-    }
+    console.log('form', formData)
+    
+
     return(
     <Row>
     <Col span={24} style = {{margin: "5px"}}>
-      <Checkbox onChange = {(props)=>{handleChange(props)}} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.weekday}</Checkbox>
-      <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=>{handleTimer(time, timeString)}}/>
+      
+      <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.weekday}</Checkbox>
+      <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
       <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
-      <a><DeleteOutlined /></a></Col>
+      <a><DeleteOutlined /></a>        
+       </Col>
   </Row>
     )
 }
