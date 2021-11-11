@@ -24,7 +24,9 @@ export class UserController {
         var leadAvailability:LeadAvailability[] = [];
 
         
-        console.log(request.body);
+        console.log('body is ' + request.body);
+        console.log('body is ' + request.body[0]);
+        console.log('body is ' + request.body[1]);
         let lead = new Lead();
         lead.created_at = new Date();
         lead.updated_at = new Date();
@@ -156,7 +158,7 @@ export class UserController {
         const unique = Array.from(new Set(selectedIds)) 
     
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, l.totlaclasses as totalclasses from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
         }
  
           for (const element  of results ) {  
@@ -173,8 +175,10 @@ export class UserController {
                 console.log('element'+element);
              slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
             });
-            var  l = new LeadView(element.id, element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.slots);
+            const yourDate = new Date()
+            
+            var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
+            1,2,slot,element.slots, element.totlaclasses);
         
             leadView.push(l);
             console.log('totalResult', totalResult);
@@ -219,8 +223,9 @@ export class UserController {
                 console.log('element'+element);
              slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
             });
-            var  l = new LeadView(element.id, element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.slots);
+            const yourDate = new Date()
+            var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
+            1,2,slot,element.slots,element.totlaclasses);
         
             leadView.push(l);
           
