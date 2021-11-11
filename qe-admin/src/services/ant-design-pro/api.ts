@@ -150,7 +150,28 @@ export async function teacherBatches(
   });
 }
 
+//api for teacher batches for id
+export async function teacherBatchesView(
+  id,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }, 
 
+) {
+  console.log('id', id)
+  return request<API.RuleList>(`/be/leadsFullView/${id}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
 
 
 /** 获取规则列表 GET /api/rule */

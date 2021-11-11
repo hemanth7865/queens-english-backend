@@ -27,7 +27,9 @@ const WeekdaySchedule: React.FC<WeekdayScheduleProps> = (props) => {
       weekday: props.weekday
     }
 
-    console.log('form', formData)
+    if(formData.starttime && formData.endtime && formData.weekday){
+      console.log('form', formData)
+    }
     
 
     return(

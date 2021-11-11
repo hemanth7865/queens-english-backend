@@ -233,6 +233,7 @@ export class UserController {
     
    
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
+        console.log('leadviewone')
         let users = new Users();   
         const leadId = parseInt(request.query['leadId']);
         console.log('leadid', leadId);
