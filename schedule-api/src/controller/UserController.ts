@@ -28,7 +28,8 @@ export class UserController {
         let lead = new Lead();
         lead.created_at = new Date();
         lead.updated_at = new Date();
-        lead.id = request.body.lead.id;
+        if (request.body.lead.id)
+            lead.id = request.body.lead.id;
         lead.joining_date = request.body.lead.joining_date;
         lead.resume = "Resume";
         lead.video = "video";

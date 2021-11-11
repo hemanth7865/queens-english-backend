@@ -296,6 +296,7 @@ const TeacherBatchList: React.FC = () => {
       weekAvailabilty: formData.weekAvailabilty,
       weekendAvailabilty: formData.weekendAvailabilty,
       status: formData.status,
+      statusId: 1,
       lead: {
         resume: formData.resume,
         video: formData.videoProfile,
@@ -304,12 +305,18 @@ const TeacherBatchList: React.FC = () => {
         qualification: formData.education,
         joiningDate: formData.joiningDate,
       },
+      leadAvailability: []
     };
     // async (values: API.LoginParams) => {
       try {
         // 登录
         console.log('data', dataForm)
-        const msg = await addTeacherSchedule({ body: JSON.stringify(dataForm) });
+        const msg = await addTeacherSchedule(
+          { headers: {
+            'Content-Type': 'application/json',
+          },
+            body: JSON.stringify(dataForm) }
+          );
         if (msg.status === 'ok') {
           // const defaultLoginSuccessMessage = intl.formatMessage({
           //   id: 'pages.login.success',
