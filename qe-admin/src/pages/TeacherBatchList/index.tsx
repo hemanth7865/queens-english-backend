@@ -33,6 +33,7 @@ import {
   updateRule,
   removeRule,
   teacherBatches,
+  addTeacherSchedule,
 } from '@/services/ant-design-pro/api';
 
 import Icon from '@ant-design/icons';
@@ -308,7 +309,7 @@ const TeacherBatchList: React.FC = () => {
       try {
         // 登录
         console.log('data', dataForm)
-        const msg = await addRule({ ...dataForm });
+        const msg = await addTeacherSchedule({ body: JSON.stringify(dataForm) });
         if (msg.status === 'ok') {
           // const defaultLoginSuccessMessage = intl.formatMessage({
           //   id: 'pages.login.success',
@@ -328,6 +329,7 @@ const TeacherBatchList: React.FC = () => {
         // 如果失败去设置用户错误信息
         setUserLoginState(msg);
       } catch (error) {
+        console.log('addRule error', error);
         const defaultLoginFailureMessage = intl.formatMessage({
           id: 'pages.login.failure',
           defaultMessage: '登录失败，请重试！',

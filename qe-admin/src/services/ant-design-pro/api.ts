@@ -184,10 +184,18 @@ export async function updateRule(options?: { [key: string]: any }) {
 /** 新建规则 POST /api/rule */
 export async function addRule(options?: { [key: string]: any }) {
   console.log('option', options)
+  return request<any>('/api/rule', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+/** POST /be/leads */
+export async function addTeacherSchedule(options?: { [key: string]: any }) {
+  console.log('option', options)
   return request<any>('/be/leads', {
     method: 'POST',
     ...(options || {}),
-
   });
 }
 
