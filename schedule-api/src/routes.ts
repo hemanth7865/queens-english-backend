@@ -12,7 +12,7 @@ export const Routes = [{
     action: "listLeadDetails"
 }, {
     method: "get",
-    route: "/leadsFullView",
+    route: "/leadsFullView/:id",
     controller: UserController,
     action: "leadFullDetails"
 },

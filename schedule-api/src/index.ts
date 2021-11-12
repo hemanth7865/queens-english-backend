@@ -5,12 +5,16 @@ import * as bodyParser from "body-parser";
 import {Request, Response} from "express";
 import {Routes} from "./routes";
 import {User} from "./entity/User";
+var cors = require('cors')
 
 createConnection().then(async connection => {
 
     // create express app
     const app = express();
     app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: false}))
+    app.options('*', cors()) 
+    app.use(cors());
 
     // register express routes from defined application routes
     Routes.forEach(route => {
