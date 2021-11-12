@@ -133,8 +133,8 @@ const TeacherBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   //form states
   const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
+    firstName: '',
+    lastName: '',
     joiningDate: '',
     email: '',
     address: '',
@@ -192,10 +192,6 @@ const TeacherBatchList: React.FC = () => {
    * */
   const intl = useIntl();
 
-
-  React.useEffect(() => {
-    populateDataToEdit();
-  }, [tempDataView]);
 
 const handleOneView = async (id) => {
   try {
@@ -317,30 +313,12 @@ const handleOneView = async (id) => {
     // console.log('input one');
   };
 
-  const populateDataToEdit = () => {
-    const formDataToEdit = {};
-    for (let key in tempDataView) {
-      formDataToEdit[key] = tempDataView[key];
-    }
-
-    for (let key in tempDataView.lead) {
-      formDataToEdit[key] = tempDataView[key];
-    }
-
-    console.log('formDataToEdit', formDataToEdit);
-    
-
-    setFormData((value) => ({
-      ...value,
-      ...formDataToEdit
-    }));
-  }
 
   const handleFormSubmit = async () => {
     console.log('form submitted');
     const dataForm = {
-      firstname: formData.firstname,
-      lastname: formData.lastname,
+      firstname: formData.firstName,
+      lastname: formData.lastName,
       email: formData.email,
       address: formData.address,
 
@@ -368,14 +346,6 @@ const handleOneView = async (id) => {
       },
       leadAvailability: []
     };
-
-    // case of edit record
-    console.log('tempDataView', tempDataView);
-    
-    if (tempDataView) {
-      dataForm.id = tempDataView.id;
-      dataForm.lead.id = tempDataView.lead.id;
-    }
     // async (values: API.LoginParams) => {
       try {
         // 登录
@@ -386,8 +356,7 @@ const handleOneView = async (id) => {
           },
             body: JSON.stringify(dataForm) }
           );
-          console.log('msg', msg);
-        if (msg.success) {
+        if (msg.status === 'ok') {
           // const defaultLoginSuccessMessage = intl.formatMessage({
           //   id: 'pages.login.success',
           //   defaultMessage: '登录成功！',
@@ -402,8 +371,6 @@ const handleOneView = async (id) => {
           // return;
           console.log('API call sucessfull', msg)
           setVisible(false)
-          setVisibleEdit(false)
-          return;
         }
         console.log(msg);
         // 如果失败去设置用户错误信息
@@ -423,7 +390,6 @@ const handleOneView = async (id) => {
   };
 
   const handleFormSubmitEdit = async ()=>{
-<<<<<<< HEAD
     console.log('form submitted');
     const dataForm = {
       firstname: formData.firstName,
@@ -482,13 +448,8 @@ const handleOneView = async (id) => {
         message.error(defaultLoginFailureMessage);
       }
     console.log('formData', formData);
-=======
-    handleFormSubmit();
->>>>>>> a9146612070d83d527d8dc33c55764d8372bcc83
   }
 
-  
-  console.log('leadavailabilty', <WeekdaySchedule />)
 
 
   return (
@@ -531,8 +492,8 @@ const handleOneView = async (id) => {
                     <Input
                       type="text"
                       placeholder="First Name"
-                      name="firstname"
-                      value={formData.firstname}
+                      name="firstName"
+                      value={formData.firstName}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -542,8 +503,8 @@ const handleOneView = async (id) => {
                     <Input
                       type="text"
                       placeholder="Last Name"
-                      name="lastname"
-                      value={formData.lastname}
+                      name="lastName"
+                      value={formData.lastName}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -1063,8 +1024,8 @@ const handleOneView = async (id) => {
                     <Input
                       type="text"
                       placeholder={tempDataView.firstname}
-                      name="firstname"
-                      value={formData.firstname}
+                      name="firstName"
+                      value={formData.firstName}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -1073,9 +1034,9 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}> */}
                     <Input
                       type="text"
-                      placeholder="Last Name"
-                      name="lastname"
-                      value={formData.lastname}
+                      placeholder={tempDataView.lastname}
+                      name="lastName"
+                      value={formData.lastName}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -1101,7 +1062,7 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="startDate" rules={[{ required: true, message: 'Start Date' }]}> */}
                     
                     <Input
-                      placeholder="Start Date"
+                      placeholder="start Date"
                       type="date"
                       name="startDate"
                       value={formData.startDate}
@@ -1119,7 +1080,7 @@ const handleOneView = async (id) => {
                   > */}
                     
                     <Input
-                      placeholder="DateofBirth"
+                      placeholder="Date of Birth"
                       type="date"
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
@@ -1161,7 +1122,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="Mobile"
+                      placeholder={tempDataView.mobile}
                       name="mobile"
                       value={formData.mobile}
                       onChange={handleFormChange}
@@ -1175,7 +1136,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="WhatsApp"
+                      placeholder={tempDataView.whatsapp}
                       name="whatsapp"
                       value={formData.whatsapp}
                       onChange={handleFormChange}
@@ -1189,7 +1150,7 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="email" rules={[{ required: true, message: 'email' }]}> */}
                     <Input
                       type="text"
-                      placeholder="Email"
+                      placeholder={tempDataView.email}
                       name="email"
                       value={formData.email}
                       onChange={handleFormChange}
@@ -1200,7 +1161,7 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="address" rules={[{ required: true, message: 'address' }]}> */}
                     <Input
                       type="text"
-                      placeholder="Address"
+                      placeholder={tempDataView.address}
                       name="address"
                       value={formData.address}
                       onChange={handleFormChange}
@@ -1217,7 +1178,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="Nationality"
+                      placeholder={tempDataView.nationalityId}
                       name="nationality"
                       value={formData.nationality}
                       onChange={handleFormChange}
@@ -1231,7 +1192,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="Category"
+                      placeholder={tempDataView.category}
                       name="category"
                       value={formData.category}
                       onChange={handleFormChange}
@@ -1248,7 +1209,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="Education/Qualification"
+                      placeholder={tempDataView.lead.qualification}
                       name="education"
                       value={formData.education}
                       onChange={handleFormChange}
@@ -1262,7 +1223,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="Total Experience"
+                      placeholder={tempDataView.lead.total_exp}
                       name="experience"
                       value={formData.experience}
                       onChange={handleFormChange}
@@ -1302,7 +1263,7 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder="Languages Known"
+                      placeholder={tempDataView.languages}
                       name="languagesKnown"
                       value={formData.languagesKnown}
                       onChange={handleFormChange}
