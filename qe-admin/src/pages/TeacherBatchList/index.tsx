@@ -422,6 +422,10 @@ const handleOneView = async (id) => {
       leadAvailability: []
     };
     // async (values: API.LoginParams) => {
+      if (tempDataView) {
+        dataForm.id = tempDataView.id;
+        dataForm.lead.id = tempDataView.lead.id;
+      }
       try {
         // 登录
         console.log('data', dataForm)
@@ -972,15 +976,9 @@ const handleOneView = async (id) => {
           PHOTO - 
           <Col span={10}>PHOTO</Col>
           <Col span={14}>
-              {tempDataView?(
-                <p>loading</p>
-              ): (
-               
-              <div>
-                 
                 {console.log('tempDatasvs', tempDataView)}
                 <p>Name : {tempDataView.firstname}</p>
-                <p>Joining Date : {tempDataView.lead.joining_date}</p>
+                {/* <p>Joining Date : {tempDataView.lead.joining_date}</p> */}
                 <p>Start Date : {tempDataView.startDate}</p>
                 <p>Gender : {tempDataView.gender}</p>
                 <p>Mobile : {tempDataView.mobile}</p>
@@ -990,22 +988,21 @@ const handleOneView = async (id) => {
                 <p>Nationality : {tempDataView.nationalityId}</p>
                 <p>Category : {tempDataView.category}</p>
                 <p>Gender : {tempDataView.gender}</p>
-                <p>Education : {tempDataView.lead.qualification}</p>
-                <p>Experience : {tempDataView.lead.total_exp}</p>
+                {/* <p>Education : {tempDataView.lead.qualification}</p>
+                <p>Experience : {tempDataView.lead.total_exp}</p> */}
                 <p>Teacher Type : {tempDataView.teacherType}</p>
                 <p>Languages Known : {tempDataView.languages}</p>
-                <p>Resume: {tempDataView.lead.resume}</p>
+                {/* <p>Resume: {tempDataView.lead.resume}</p>
                 <p>Video Profile: {tempDataView.lead.video}</p>
-                <p>Certificates: {tempDataView.lead.certificates}</p>
+                <p>Certificates: {tempDataView.lead.certificates}</p> */}
                 <p>Availabilty During the Week</p>
                 <p>Availabilty During the Weekend</p>
                 <p>Status : {tempDataView.statusId}</p>
-                </div>)}
           </Col>
         </Row>
 
               
-
+        {console.log('temp id', tempDataView.leadId, tempDataView.lead)}
         <Button type="primary" onClick={showDrawerEdit}>
           {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
           Edit Teacher
@@ -1023,6 +1020,7 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}> */}
                     <Input
                       type="text"
+                      // placeholder = "firstname"
                       placeholder={tempDataView.firstname}
                       name="firstName"
                       value={formData.firstName}
@@ -1034,7 +1032,8 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}> */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.lastname}
+                      placeholder = "lastname"
+                      // placeholder={tempDataView.lastname}
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleFormChange}
@@ -1122,7 +1121,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.mobile}
+                      placeholder = "mobile"
+                      // placeholder={tempDataView.mobile}
                       name="mobile"
                       value={formData.mobile}
                       onChange={handleFormChange}
@@ -1136,7 +1136,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.whatsapp}
+                      placeholder = "mobile"
+                      // placeholder={tempDataView.whatsapp}
                       name="whatsapp"
                       value={formData.whatsapp}
                       onChange={handleFormChange}
@@ -1150,7 +1151,8 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="email" rules={[{ required: true, message: 'email' }]}> */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.email}
+                      placeholder = "email"
+                      // placeholder={tempDataView.email}
                       name="email"
                       value={formData.email}
                       onChange={handleFormChange}
@@ -1161,7 +1163,8 @@ const handleOneView = async (id) => {
                   {/* <Form.Item name="address" rules={[{ required: true, message: 'address' }]}> */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.address}
+                      placeholder = "address"
+                      // placeholder={tempDataView.address}
                       name="address"
                       value={formData.address}
                       onChange={handleFormChange}
@@ -1178,7 +1181,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.nationalityId}
+                      placeholder = "nationalility"
+                      // placeholder={tempDataView.nationalityId}
                       name="nationality"
                       value={formData.nationality}
                       onChange={handleFormChange}
@@ -1192,7 +1196,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.category}
+                      placeholder = "category"
+                      // placeholder={tempDataView.category}
                       name="category"
                       value={formData.category}
                       onChange={handleFormChange}
@@ -1209,7 +1214,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.lead.qualification}
+                      placeholder = "qualification"
+                      // placeholder={tempDataView.lead.qualification}
                       name="education"
                       value={formData.education}
                       onChange={handleFormChange}
@@ -1223,7 +1229,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.lead.total_exp}
+                      placeholder = "exp"
+                      // placeholder={tempDataView.lead.total_exp}
                       name="experience"
                       value={formData.experience}
                       onChange={handleFormChange}
@@ -1263,7 +1270,8 @@ const handleOneView = async (id) => {
                   > */}
                     <Input
                       type="text"
-                      placeholder={tempDataView.languages}
+                      placeholder = "language"
+                      // placeholder={tempDataView.languages}
                       name="languagesKnown"
                       value={formData.languagesKnown}
                       onChange={handleFormChange}
