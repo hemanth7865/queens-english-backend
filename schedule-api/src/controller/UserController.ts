@@ -31,12 +31,12 @@ export class UserController {
         lead.created_at = new Date();
         lead.updated_at = new Date();
         lead.id = request.body.lead.id;
-        lead.joining_date = request.body.lead.joining_date;
+        lead.joiningdate = request.body.lead.joining_date;
         lead.resume = "Resume";
         lead.video = "video";
         lead.qualification=request.body.lead.qualification;
         lead.certificates = request.body.lead.certificates;
-        lead.total_exp=request.body.lead.totalexperiance;
+        lead.totalexp=request.body.lead.totalexperiance;
         lead = await this.leadRepository.save(lead);
         let i =0;
 
@@ -128,8 +128,8 @@ export class UserController {
 
 
         let availabilitydate =  request.query['date'];;
-        let start_slot =  parseInt(request.query['startTime']);
-        let end_slot  =  parseInt(request.query['endTime']);
+        let start_slot =  parseInt(request.query['starttime']);
+        let end_slot  =  parseInt(request.query['endtime']);
         let week_day  =  parseInt(request.query['weekday']);
         
         var map = new Map();  
@@ -158,7 +158,7 @@ export class UserController {
         const unique = Array.from(new Set(selectedIds)) 
     
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, l.totlaclasses as totalclasses from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
         }
  
           for (const element  of results ) {  
@@ -208,7 +208,7 @@ export class UserController {
         if (offset==1) {
             offset = 0;
         }
-        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset + offset * limit) +","+ limit + `;`);
+        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset + offset * limit) +","+ limit + `;`);
         var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
          console.log(total);
         //  results.forEach(async (element,index,self) => {     
