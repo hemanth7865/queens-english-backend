@@ -192,7 +192,6 @@ const TeacherBatchList: React.FC = () => {
    * */
   const intl = useIntl();
 
-  let viewOne
 
 const handleOneView = async (id) => {
   try {
@@ -209,9 +208,8 @@ const handleOneView = async (id) => {
   }
 };
 
-console.log('viewone', viewOne)
-console.log('tempdateview', tempDataView)
-
+// console.log('viewone', viewOne)
+  console.log('tempdateview', tempDataView)
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
     {
@@ -283,7 +281,7 @@ console.log('tempdateview', tempDataView)
               handleOneView(entity.leadId)
               setCurrentRow(entity);
               setShowDetail(true);
-              
+              // console.log(tempDataView)
             }}
           >
             view
@@ -392,8 +390,69 @@ console.log('tempdateview', tempDataView)
   };
 
   const handleFormSubmitEdit = async ()=>{
+    console.log('form submitted');
+    const dataForm = {
+      firstname: formData.firstName,
+      lastname: formData.lastName,
+      email: formData.email,
+      address: formData.address,
 
+      startDate: formData.startDate,
+      dob: formData.dateOfBirth,
+      gender: formData.gender,
+      mobile: formData.mobile,
+      whatsapp: formData.whatsapp,
+      nationality: formData.nationality,
+      category: formData.category,
+      teacherType: formData.teacherType,
+      languages: formData.languagesKnown,
+      photo: formData.photo,
+      weekAvailabilty: formData.weekAvailabilty,
+      weekendAvailabilty: formData.weekendAvailabilty,
+      status: formData.status,
+      statusId: 1,
+      lead: {
+        resume: formData.resume,
+        video: formData.videoProfile,
+        certificates: formData.certificate,
+        totalexperience: formData.experience,
+        qualification: formData.education,
+        joiningDate: formData.joiningDate,
+      },
+      leadAvailability: []
+    };
+    // async (values: API.LoginParams) => {
+      try {
+        // 登录
+        console.log('data', dataForm)
+        const msg = await addTeacherSchedule(
+          { headers: {
+            'Content-Type': 'application/json',
+          },
+            body: JSON.stringify(dataForm) }
+          );
+        if (msg.status === 'ok') {
+         
+          console.log('API call sucessfull', msg)
+          setVisible(false)
+        }
+        console.log(msg);
+        // 如果失败去设置用户错误信息
+        setUserLoginState(msg);
+      } catch (error) {
+        console.log('addRule error', error);
+        const defaultLoginFailureMessage = intl.formatMessage({
+          id: 'pages.login.failure',
+          defaultMessage: '登录失败，请重试！',
+        });
+        message.error(defaultLoginFailureMessage);
+      }
+    console.log('formData', formData);
   }
+
+  
+  console.log('leadavailabilty', <WeekdaySchedule />)
+
 
   return (
     <PageContainer>
@@ -917,7 +976,11 @@ console.log('tempdateview', tempDataView)
           <Col span={14}>
               {tempDataView?(
                 <p>loading</p>
-              ): (<div>
+              ): (
+               
+              <div>
+                 
+                {console.log('tempDatasvs', tempDataView)}
                 <p>Name : {tempDataView.firstname}</p>
                 <p>Joining Date : {tempDataView.lead.joining_date}</p>
                 <p>Start Date : {tempDataView.startDate}</p>
@@ -940,12 +1003,10 @@ console.log('tempdateview', tempDataView)
                 <p>Availabilty During the Weekend</p>
                 <p>Status : {tempDataView.statusId}</p>
                 </div>)}
-                
-             
-            
-            
           </Col>
         </Row>
+
+              
 
         <Button type="primary" onClick={showDrawerEdit}>
           {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
@@ -956,7 +1017,7 @@ console.log('tempdateview', tempDataView)
           placement="right"
           onClose={onCloseEdit}
           visible={visibleEdit}
-          width={720}
+          width={760}
         >
         <Form onFinish={handleFormSubmitEdit}>
               <Row gutter={16}>

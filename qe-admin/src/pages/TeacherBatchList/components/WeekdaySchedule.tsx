@@ -21,14 +21,16 @@ const WeekdaySchedule: React.FC<WeekdayScheduleProps> = (props) => {
 )
     
 
-    const formData = {
+    const leadWeekAvailability = {
       starttime: value[0],
       endtime: value[1],
       weekday: props.weekday
     }
 
-    if(formData.starttime && formData.endtime && formData.weekday){
-      console.log('form', formData)
+    let leadAvailability
+    if(leadWeekAvailability.starttime && leadWeekAvailability.endtime && leadWeekAvailability.weekday){
+      console.log('form', leadWeekAvailability)
+      leadAvailability = leadWeekAvailability
     }
     
 

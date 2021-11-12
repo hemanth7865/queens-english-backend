@@ -163,7 +163,7 @@ export async function teacherBatchesView(
   options?: { [key: string]: any }, 
 
 ) {
-  console.log('id', id)
+  // console.log('id', id)
   return request<API.RuleList>(`/be/leadsFullView/${id}`, {
     method: 'GET',
     params: {
@@ -220,6 +220,14 @@ export async function addTeacherSchedule(options?: { [key: string]: any }) {
   });
 }
 
+/** EDIT /be/leads */
+export async function editTeacherSchedule(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/leads', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
 
 
 /** 删除规则 DELETE /api/rule */
