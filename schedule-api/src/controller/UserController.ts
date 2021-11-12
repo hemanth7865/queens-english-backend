@@ -24,19 +24,14 @@ export class UserController {
         var leadAvailability:LeadAvailability[] = [];
 
         
-        console.log(request.body);
+        console.log('body is ' + request.body);
+        console.log('body is ' + request.body[0]);
+        console.log('body is ' + request.body[1]);
         let lead = new Lead();
         lead.created_at = new Date();
         lead.updated_at = new Date();
-<<<<<<< HEAD
-        if(request.body.lead.id){
-
-            lead.id = request.body.lead.id;
-        }
-=======
         if (request.body.lead.id)
             lead.id = request.body.lead.id;
->>>>>>> 0e803301e8e217712e371ab509e9656f6d5cbd41
         lead.joining_date = request.body.lead.joining_date;
         lead.resume = "Resume";
         lead.video = "video";
@@ -119,6 +114,7 @@ export class UserController {
         let slotsResult:any[] = [];   
 
         var offset =  parseInt(request.query['current']);
+        var current =  parseInt(request.query['current']);
         const limit  =  parseInt(request.query['pageSize']);
 
         if (offset==1) {
@@ -132,8 +128,8 @@ export class UserController {
         }
 
         let availabilitydate =  request.query['date'];;
-        let start_slot =  parseInt(request.query['start_slot']);
-        let end_slot  =  parseInt(request.query['end_slot']);
+        let start_slot =  parseInt(request.query['startTime']);
+        let end_slot  =  parseInt(request.query['endTime']);
         let week_day  =  parseInt(request.query['weekday']);
         
         var map = new Map();  
@@ -149,24 +145,24 @@ export class UserController {
 
 
         let totalQuery =  `select count(*) as totalCount  from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot + `;`;
-        console.log("Test1");
+        console.log("Test1",totalQuery);
         var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot +`;`;
-       
+        let totalResult = await getManager().query(totalQuery);
         console.log("Test2");
        
         slotsResult = await getManager().query(quer);
-        console.log('slotsresult'+slotsResult);
+   
         let total = await getManager().query(totalQuery);
         let slotsResultIds = slotsResult.forEach((element)=>element.leadId);
         let selectedIds = slotsResult.map(({ leadId }) => leadId);
         const unique = Array.from(new Set(selectedIds)) 
-        console.log('selectedIds');
+    
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.total_exp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, l.totlaclasses as totalclasses from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
         }
-        console.log("result");
+ 
           for (const element  of results ) {  
-              console.log('loop');
+            
             let slotsResult:any[] = [];   
             console.log(element.leadId);
             console.log('total' + 0);
@@ -179,14 +175,16 @@ export class UserController {
                 console.log('element'+element);
              slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
             });
-            var  l = new LeadView(element.id, element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.slots);
+            const yourDate = new Date()
+            
+            var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
+            1,2,slot,element.slots, element.totlaclasses);
         
             leadView.push(l);
-            console.log('end');
+            console.log('totalResult', totalResult);
         }
 
-          return {"success":true,"data": leadView, "total":0, "current":offset, pageSize:limit};
+          return {"success":true,"data": leadView, "total":totalResult[0].totalCount, "current":current, pageSize:limit};
       
     }
 
@@ -225,8 +223,9 @@ export class UserController {
                 console.log('element'+element);
              slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
             });
-            var  l = new LeadView(element.id, element.leadId, new Date(), element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.slots);
+            const yourDate = new Date()
+            var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
+            1,2,slot,element.slots,element.totlaclasses);
         
             leadView.push(l);
           
@@ -238,20 +237,42 @@ export class UserController {
     
    
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
-        console.log('leadviewone')
+
+        var map = new Map();  
+  
+        map.set(0, 'SUN');     
+        map.set(1, 'MON');       
+        map.set(2, 'TUE');   
+        map.set(3, 'WED');   
+        map.set(4, 'THU');  
+        map.set(5, 'FRI');  
+        map.set(6, 'SAT'); 
+
+        let slotsResult:any[] = []; 
         let users = new Users();   
-        const leadId = parseInt(request.query['leadId']);
+        const leadId = parseInt(request.params.id);
         console.log('leadid', leadId);
-        users = await this.usersRepository.createQueryBuilder("Users")
-        .where("users.leadId = :id", { id: leadId }).getOne();
-        const lead = await this.leadRepository.createQueryBuilder("Lead")
+        console.log(users)
+        users = await getManager().createQueryBuilder(Users, "user")
+        .where("user.leadId = :id", { id: leadId }).getOne();
+        const lead = await getManager().createQueryBuilder(Lead, "lead")
         .where("lead.id = :id", { id: leadId }).getOne();
         console.log(users)
+        users.lead = lead;
         const leadav:LeadAvailability[] = [];
-        const list:any = await this.leadAvailabilityRepository.createQueryBuilder("LeadAvailability")
+        const list:any = await getManager().createQueryBuilder(LeadAvailability, "leadAvailability")
         .where("leadAvailability.leadId = :id", { id: leadId }).getMany();
         users.leadAvailability=list;
-       return users;
+        var quer =  "select weekday , start_slot, end_slot from lead_availability where leadId="+leadId + ";"
+        slotsResult = await getManager().query(quer);
+        var slot = "";
+        slotsResult.forEach((element) => {
+            console.log('element'+element);
+            console.log('element'+element);
+         slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
+        });
+        users.slots=slot;
+       return {"success":true,"data": users, "total":1, "current":1, pageSize:1};
     }
 
     async leadAvialability(request: Request, response: Response, next: NextFunction) {
@@ -291,8 +312,9 @@ export class UserController {
         let userToRemove = await this.usersRepository.findOne(request.params.id);
         userToRemove.statusId = 3;
         return this.usersRepository.save(userToRemove);
-        
+  
        
     }
+ 
 
 }

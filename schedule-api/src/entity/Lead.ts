@@ -25,6 +25,8 @@ export class Lead extends BaseEntity {
     
     @Column({'nullable':true})
         ratings: number;
+    @Column({'nullable':true})
+        totlaclasses: number;
     
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})

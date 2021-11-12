@@ -10,6 +10,7 @@ import {LeadAvailability} from "./LeadAvailability";
 export class Users extends BaseEntity {
     name: string;
     exp: string;
+    totlaclasses: number;
     Users() {}
     @PrimaryGeneratedColumn()
         id: number;
