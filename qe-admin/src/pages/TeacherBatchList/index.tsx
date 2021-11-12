@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PlusOutlined} from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined} from '@ant-design/icons';
 import {
   Button,
   message,
@@ -153,8 +153,8 @@ const TeacherBatchList: React.FC = () => {
     videoProfile: '',
     certificate: '',
     photo: '',
-    weekAvailabilty: '',
-    weekendAvailabilty: '',
+    weekAvailabilty: [],
+    weekendAvailabilty: [],
     status: '',
   });
   const [tempDataView, setTempDataView] = useState({});
@@ -344,7 +344,7 @@ const handleOneView = async (id) => {
         qualification: formData.education,
         joiningDate: formData.joiningDate,
       },
-      leadAvailability: []
+      leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
       try {
@@ -383,10 +383,10 @@ const handleOneView = async (id) => {
         });
         message.error(defaultLoginFailureMessage);
       }
-    console.log('formData', formData);
+    // console.log('formData', formData);
     console.log('dataForm', dataForm);
-    const dataFormJson = JSON.stringify(dataForm);
-    console.log('json', dataFormJson);
+    // const dataFormJson = JSON.stringify(dataForm);
+    // console.log('json', dataFormJson);
   };
 
   const handleFormSubmitEdit = async ()=>{
@@ -419,7 +419,7 @@ const handleOneView = async (id) => {
         qualification: formData.education,
         joiningDate: formData.joiningDate,
       },
-      leadAvailability: []
+      leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
       if (tempDataView) {
@@ -453,6 +453,49 @@ const handleOneView = async (id) => {
       }
     console.log('formData', formData);
   }
+
+  let leadAvailabilities = []
+  //lead availability
+  const WeekdayAvailability = (props)=>{
+    const [value, setValue] = useState(
+      {
+        start_slot: '',
+        end_slot: ''
+      }
+    )
+
+    const [value1, setValue1] = useState(
+      {
+      weekday: ''
+      }
+    )
+
+
+    const leadWeekAvailability = {
+      start_slot: value[0],
+      end_slot: value[1],
+      weekday: props.weekday
+    }
+
+    
+    if(leadWeekAvailability.start_slot && leadWeekAvailability.end_slot && leadWeekAvailability.weekday){
+      leadAvailabilities.push(leadWeekAvailability)
+      
+    }console.log('form', leadAvailabilities)
+
+    return(
+      <Row>
+      <Col span={24} style = {{margin: "5px"}}>
+        
+        <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.week}</Checkbox>
+        <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
+        <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
+        <a><DeleteOutlined /></a>        
+         </Col>
+    </Row>
+      )
+  }
+
 
 
 
@@ -817,18 +860,18 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item name="availabiltyWeek">
                     <label>Week Availability</label>
-                    <WeekdaySchedule weekday = "Monday"/>
-                    <WeekdaySchedule weekday = "Tuesday"/>
-                    <WeekdaySchedule weekday = "Wednesday"/>
-                    <WeekdaySchedule weekday = "Thursady"/>
-                    <WeekdaySchedule weekday = "Friday"/>
+                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
+                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
+                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
+                    <WeekdayAvailability weekday = {5} week = "Friday"/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="availabiltyWeekend">
                   <label>Weekend Availability</label>
-                  <WeekdaySchedule weekday = "Saturday"/>
-                  <WeekdaySchedule weekday = "Sunday"/>
+                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
+                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
                   </Form.Item>
                 </Col>
               </Row>
@@ -1353,18 +1396,19 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item name="availabiltyWeek">
                     <label>Week Availability</label>
-                    <WeekdaySchedule weekday = "Monday"/>
-                    <WeekdaySchedule weekday = "Tuesday"/>
-                    <WeekdaySchedule weekday = "Wednesday"/>
-                    <WeekdaySchedule weekday = "Thursady"/>
-                    <WeekdaySchedule weekday = "Friday"/>
+                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
+                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
+                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
+                    <WeekdayAvailability weekday = {5} week = "Friday"/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="availabiltyWeekend">
                   <label>Weekend Availability</label>
-                  <WeekdaySchedule weekday = "Saturday"/>
-                  <WeekdaySchedule weekday = "Sunday"/>
+                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
+                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
+                  
                   </Form.Item>
                 </Col>
               </Row>
