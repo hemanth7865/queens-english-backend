@@ -133,8 +133,8 @@ const TeacherBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   //form states
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    firstname: '',
+    lastname: '',
     joiningDate: '',
     email: '',
     address: '',
@@ -193,6 +193,10 @@ const TeacherBatchList: React.FC = () => {
   const intl = useIntl();
 
   let viewOne
+
+  React.useEffect(() => {
+    populateDataToEdit();
+  }, [tempDataView]);
 
 const handleOneView = async (id) => {
   try {
@@ -315,12 +319,30 @@ console.log('tempdateview', tempDataView)
     // console.log('input one');
   };
 
+  const populateDataToEdit = () => {
+    const formDataToEdit = {};
+    for (let key in tempDataView) {
+      formDataToEdit[key] = tempDataView[key];
+    }
+
+    for (let key in tempDataView.lead) {
+      formDataToEdit[key] = tempDataView[key];
+    }
+
+    console.log('formDataToEdit', formDataToEdit);
+    
+
+    setFormData((value) => ({
+      ...value,
+      ...formDataToEdit
+    }));
+  }
 
   const handleFormSubmit = async () => {
     console.log('form submitted');
     const dataForm = {
-      firstname: formData.firstName,
-      lastname: formData.lastName,
+      firstname: formData.firstname,
+      lastname: formData.lastname,
       email: formData.email,
       address: formData.address,
 
@@ -348,6 +370,14 @@ console.log('tempdateview', tempDataView)
       },
       leadAvailability: []
     };
+
+    // case of edit record
+    console.log('tempDataView', tempDataView);
+    
+    if (tempDataView) {
+      dataForm.id = tempDataView.id;
+      dataForm.lead.id = tempDataView.lead.id;
+    }
     // async (values: API.LoginParams) => {
       try {
         // 登录
@@ -358,7 +388,8 @@ console.log('tempdateview', tempDataView)
           },
             body: JSON.stringify(dataForm) }
           );
-        if (msg.status === 'ok') {
+          console.log('msg', msg);
+        if (msg.success) {
           // const defaultLoginSuccessMessage = intl.formatMessage({
           //   id: 'pages.login.success',
           //   defaultMessage: '登录成功！',
@@ -373,6 +404,8 @@ console.log('tempdateview', tempDataView)
           // return;
           console.log('API call sucessfull', msg)
           setVisible(false)
+          setVisibleEdit(false)
+          return;
         }
         console.log(msg);
         // 如果失败去设置用户错误信息
@@ -392,7 +425,7 @@ console.log('tempdateview', tempDataView)
   };
 
   const handleFormSubmitEdit = async ()=>{
-
+    handleFormSubmit();
   }
 
   return (
@@ -435,8 +468,8 @@ console.log('tempdateview', tempDataView)
                     <Input
                       type="text"
                       placeholder="First Name"
-                      name="firstName"
-                      value={formData.firstName}
+                      name="firstname"
+                      value={formData.firstname}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -446,8 +479,8 @@ console.log('tempdateview', tempDataView)
                     <Input
                       type="text"
                       placeholder="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
+                      name="lastname"
+                      value={formData.lastname}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -965,8 +998,8 @@ console.log('tempdateview', tempDataView)
                     <Input
                       type="text"
                       placeholder={tempDataView.firstname}
-                      name="firstName"
-                      value={formData.firstName}
+                      name="firstname"
+                      value={formData.firstname}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
@@ -976,8 +1009,8 @@ console.log('tempdateview', tempDataView)
                     <Input
                       type="text"
                       placeholder="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
+                      name="lastname"
+                      value={formData.lastname}
                       onChange={handleFormChange}
                     />
                   {/* </Form.Item> */}
