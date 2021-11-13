@@ -946,3 +946,35 @@
         </Drawer>
       </Drawer>
     </PageContainer>
+
+
+
+    {tempDataView.length != 0?(
+                  tempDataView.map((data)=>{
+                    return(
+                      <div>
+                        <p>Name : {data.firstname} {data.lastname}</p>
+                          {/* <p>Joining Date : {data.lead.joining_date}</p> */}
+                          <p>Start Date : {data.startDate}</p>
+                          <p>Gender : {data.gender}</p>
+                          <p>Mobile : {data.mobile}</p>
+                          <p>WhatsApp : {data.whatsapp}</p>
+                          <p>Email : {data.email}</p>
+                          <p>Address : {data.address}</p>
+                          <p>Nationality : {data.nationalityId}</p>
+                          <p>Category : {data.category}</p>
+                          <p>Gender : {data.gender}</p>
+                          {/* <p>Education : {data.lead.qualification}</p>
+                          <p>Experience : {data.lead.total_exp}</p> */}
+                          <p>Teacher Type : {data.teacherType}</p>
+                          <p>Languages Known : {data.languages}</p>
+                          {/* <p>Resume: {data.lead.resume}</p>
+                          <p>Video Profile: {data.lead.video}</p>
+                          <p>Certificates: {data.lead.certificates}</p> */}
+                          <p>Availabilty During the Week</p>
+                          <p>Availabilty During the Weekend</p>
+                          <p>Status : {data.statusId}</p>
+                      </div>
+                    )
+                  })
+                ):(<p>load</p>)}

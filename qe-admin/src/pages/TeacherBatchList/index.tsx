@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PlusOutlined, DeleteOutlined} from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, EyeOutlined, ClockCircleOutlined} from '@ant-design/icons';
 import {
   Button,
   message,
@@ -13,6 +13,7 @@ import {
   Modal,
   Checkbox,
   TimePicker,
+  Tooltip
   // Popover,
   // Upload,
   // Descriptions,
@@ -268,7 +269,19 @@ const handleOneView = async (id) => {
       title: <FormattedMessage id="pages.searchTable.titleRatings" defaultMessage="Ratings" />,
       dataIndex: 'ratings',
     },
-    //view
+    //time slots
+    {
+      title: <FormattedMessage id="pages.searchTable.titleRatings" defaultMessage="Time Slots" />,
+      dataIndex: 'slots',
+      render: (dom, entity) => {
+        return (
+          <Tooltip title={dom}>
+              <ClockCircleOutlined/>
+            </Tooltip>
+        );
+      },
+      
+    },
     {
       title: <FormattedMessage id="pages.searchTable.titleView" defaultMessage="view" />,
       // dataIndex: 'view',
@@ -283,7 +296,7 @@ const handleOneView = async (id) => {
               // console.log(tempDataView)
             }}
           >
-            view
+            <EyeOutlined />
           </a>
         );
       },
@@ -318,29 +331,32 @@ const handleOneView = async (id) => {
     const dataForm = {
       firstname: formData.firstName,
       lastname: formData.lastName,
+      dob: formData.dateOfBirth,
+      mobile: formData.mobile,
       email: formData.email,
       address: formData.address,
-
-      startDate: formData.startDate,
-      dob: formData.dateOfBirth,
-      gender: formData.gender,
-      mobile: formData.mobile,
       whatsapp: formData.whatsapp,
-      nationality: formData.nationality,
-      category: formData.category,
-      teacherType: formData.teacherType,
-      languages: formData.languagesKnown,
-      photo: formData.photo,
       status: formData.status,
-      statusId: 1,
-      lead: {
+      gender: formData.gender,
+      nationalityId: formData.nationality,
+      category: formData.category,
+      languages: formData.languagesKnownn,
+      startDate: formData.startDate,
+      lead_type: 1,
+      photo: formData.photo,
+      startDate: formData.startDate,
+      lead:[{
         resume: formData.resume,
+        qualification: formData.education,
+        totalexp: formData.experience,
         video: formData.videoProfile,
         certificates: formData.certificate,
-        totalexperience: formData.experience,
-        qualification: formData.education,
-        joiningDate: formData.joiningDate,
-      },
+        joiningdate: formData.joiningDate,
+        ratings: 1,
+        classestaken: 10,
+        lead_type: formData.teacherType,
+      }],
+      statusId: 1,
       leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
@@ -391,34 +407,39 @@ const handleOneView = async (id) => {
     const dataForm = {
       firstname: formData.firstName,
       lastname: formData.lastName,
+      dob: formData.dateOfBirth,
+      mobile: formData.mobile,
       email: formData.email,
       address: formData.address,
-      startDate: formData.startDate,
-      dob: formData.dateOfBirth,
-      gender: formData.gender,
-      mobile: formData.mobile,
       whatsapp: formData.whatsapp,
+      status: formData.status,
+      gender: formData.gender,
       nationality: formData.nationality,
       category: formData.category,
-      teacherType: formData.teacherType,
-      languages: formData.languagesKnown,
+      languages: formData.languagesKnownn,
+      startDate: formData.startDate,
+      lead_type: 1,
       photo: formData.photo,
-      status: formData.status,
-      statusId: 1,
-      lead: {
+      startDate: formData.startDate,
+      lead:[{
         resume: formData.resume,
+        qualification: formData.education,
+        totalexperience: formData.experience,
         video: formData.videoProfile,
         certificates: formData.certificate,
-        totalexperience: formData.experience,
-        qualification: formData.education,
         joiningDate: formData.joiningDate,
-      },
+        ratings: 1,
+        classestaken: 10,
+        lead_type: formData.teacherType,
+      }],
+      
+      statusId: 1,
       leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
       if (tempDataView) {
         dataForm.id = tempDataView.id;
-        dataForm.lead.id = tempDataView.lead.id;
+        // dataForm.lead.id = tempDataView.lead.id;
       }
       try {
         // 登录
@@ -466,10 +487,10 @@ const handleOneView = async (id) => {
 
 
     const leadWeekAvailability = {
-      start_slot: Math.floor( value[0]),
-      end_slot: Math.floor(value[1]),
+      start_slot: value[0],
+      end_slot: value[1],
       weekday: props.weekday,
-      startdate: "2021-11-05T09:44:04.000Z"
+      startDate: "2021-11-05T09:44:04.000Z"
     }
 
     
@@ -483,7 +504,7 @@ const handleOneView = async (id) => {
       <Col span={24} style = {{margin: "5px"}}>
         
         <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.week}</Checkbox>
-        <TimePicker.RangePicker  format = 'HH' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
+        <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
         <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
         <a><DeleteOutlined /></a>        
          </Col>
@@ -1050,8 +1071,8 @@ const handleOneView = async (id) => {
                   <Form.Item >
                     <Input
                       type="text"
-                      // placeholder = "firstname"
-                      placeholder={tempDataView.firstname}
+                      placeholder = "firstname"
+                      // placeholder={tempDataView.firstname}
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleFormChange}
@@ -1062,8 +1083,8 @@ const handleOneView = async (id) => {
                   <Form.Item name="last Name" >
                     <Input
                       type="text"
-                      placeholder = "lastname"
-                      // placeholder={tempDataView.lastname}
+                      // placeholder = {tempDataView.lastname}
+                      placeholder="last name"
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleFormChange}
@@ -1109,7 +1130,7 @@ const handleOneView = async (id) => {
                   >
                     
                     <Input
-                      placeholder="Date of Birth"
+                      placeholder={tempDataView.dob}
                       type="date"
                       name="dateOfBirth"
                       value={formData.dateOfBirth}
@@ -1122,7 +1143,7 @@ const handleOneView = async (id) => {
                     name="gender"
                   >
                     <select
-                      placeholder="Gender"
+                      placeholder={tempDataView.gender}
                       value={formData.gender}
                       name="gender"
                       onChange={handleFormChange}
@@ -1149,7 +1170,7 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "mobile"
+                      placeholder = {tempDataView.mobile}
                       // placeholder={tempDataView.mobile}
                       name="mobile"
                       value={formData.mobile}
@@ -1163,8 +1184,8 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "mobile"
-                      // placeholder={tempDataView.whatsapp}
+                      
+                      placeholder={tempDataView.whatsapp}
                       name="whatsapp"
                       value={formData.whatsapp}
                       onChange={handleFormChange}
@@ -1178,8 +1199,7 @@ const handleOneView = async (id) => {
                   <Form.Item name="email" >
                     <Input
                       type="text"
-                      placeholder = "email"
-                      // placeholder={tempDataView.email}
+                      placeholder={tempDataView.email}
                       name="email"
                       value={formData.email}
                       onChange={handleFormChange}
@@ -1190,8 +1210,7 @@ const handleOneView = async (id) => {
                   <Form.Item name="address" >
                     <Input
                       type="text"
-                      placeholder = "address"
-                      // placeholder={tempDataView.address}
+                      placeholder={tempDataView.address}
                       name="address"
                       value={formData.address}
                       onChange={handleFormChange}
@@ -1207,8 +1226,7 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "nationalility"
-                      // placeholder={tempDataView.nationalityId}
+                      placeholder={tempDataView.nationalityId}
                       name="nationality"
                       value={formData.nationality}
                       onChange={handleFormChange}
@@ -1221,8 +1239,7 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "category"
-                      // placeholder={tempDataView.category}
+                      placeholder={tempDataView.category}
                       name="category"
                       value={formData.category}
                       onChange={handleFormChange}
@@ -1293,8 +1310,7 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "language"
-                      // placeholder={tempDataView.languages}
+                      placeholder={tempDataView.languages}
                       name="languagesKnown"
                       value={formData.languagesKnown}
                       onChange={handleFormChange}
