@@ -20,8 +20,8 @@ export class Lead extends BaseEntity {
     @Column({'nullable':true,type:"text"})
         video: string;
    
-    @Column({'nullable':true,type:"datetime"})
-        joiningdate: string;
+    @Column({'nullable':true,type:"date"})
+        joiningdate: Date;
     
     @Column({'nullable':true})
         ratings: number;

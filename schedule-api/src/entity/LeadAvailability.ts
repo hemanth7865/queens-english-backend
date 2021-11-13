@@ -11,12 +11,18 @@ export class LeadAvailability extends BaseEntity {
     @PrimaryGeneratedColumn()
         id: number;
 
-    @Column("datetime")
+    @Column({'nullable':true, type:"datetime"})
         start_date:Date
     @Column({'nullable':true})
         start_slot: Number;
     @Column({'nullable':true})
         end_slot: Number;
+    
+    @Column({'nullable':true})
+        start_min: Number;
+    @Column({'nullable':true})
+        end_min: Number;
+
     @Column({'nullable':true})
         weekday: Number;
      

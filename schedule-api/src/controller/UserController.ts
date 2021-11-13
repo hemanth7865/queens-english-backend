@@ -22,39 +22,66 @@ export class UserController {
         console.log("saving user");
 
         var leadAvailability:LeadAvailability[] = [];
+        var leadTem:Lead[] = [];
+        var lead = new Lead();
+        var user = new Users();
+        for (var element of request.body.lead){
+            lead.created_at = new Date();
+            lead.updated_at = new Date();
+            if (element.id){
+                lead.id = element.id;
+            }
+            lead.joiningdate = element.joiningDate;
+            lead.resume = "Resume";
+            lead.video = "video";
+            lead.qualification=element.qualification;
+            lead.certificates = element.certificates;
+            lead.ratings = parseInt(element.ratings);
+            lead.totalexp=element.totalexperience;
+            lead = await this.leadRepository.save(lead);
+            console.log('lead id is ', lead.id);
+            user.leadId = lead.id;
+            //user.leadData = lead;
+            user.lead=[lead];
+            user.leadId=lead.id;
+            console.log("lead ", lead.id);
+        }
 
-        
-        console.log('body is ' + request.body);
-        console.log('body is ' + request.body[0]);
-        console.log('body is ' + request.body[1]);
-        let lead = new Lead();
-        lead.created_at = new Date();
-        lead.updated_at = new Date();
-        lead.id = request.body.lead.id;
-        lead.joiningdate = request.body.lead.joining_date;
-        lead.resume = "Resume";
-        lead.video = "video";
-        lead.qualification=request.body.lead.qualification;
-        lead.certificates = request.body.lead.certificates;
-        lead.totalexp=request.body.lead.totalexperiance;
-        lead = await this.leadRepository.save(lead);
-        let i =0;
+            // user.lead = [lead];
 
+        //console.log('lead is', lead);
+
+        let i = 0;
         request.body.leadAvailability.forEach( async (element) => {
             var availability = new LeadAvailability();
-            availability.start_date = element.startdate;
+            availability.start_date = element.startDate;
             availability.start_slot = element.start_slot;
-            availability.end_slot = element.end_slot;
+            //console.log('start slot' + element.start_slot);
+            if (element.start_slot){
+               let time = element.start_slot.split(":");
+               availability.start_slot = time[0];   
+               console.log('time is ', time);
+               availability.start_min = time[1];
+            }
+            if (element.end_slot){
+                let time = element.end_slot.split(":");
+                availability.end_slot = time[0];
+                availability.end_min = time[1];
+             }
+            
             availability.weekday = element.weekday;
             availability.id = element.id;
             availability.lead = lead;
             availability.created_at = new Date();
             availability.updated_at = new Date();
-            availability = await this.leadAvailabilityRepository.save(availability);
+            availability = await this.leadAvailabilityRepository.save(availability);   
             leadAvailability[i++] = availability;
+       
+            //console.log('Lead availability', leadAvailability);
         });
 
-        let user = new Users();
+        console.log('leadAvailability', leadAvailability);
+
         user.leadAvailability = leadAvailability
         user.firstname = request.body.firstname;
         user.lastname = request.body.lastname;
@@ -62,20 +89,21 @@ export class UserController {
         user.mobile = request.body.mobile;
         user.email= request.body.email;
         user.id = request.body.id;
+        user.startDate = request.body.startDate;
         user.address = request.body.address;
         user.whatsapp = request.body.whatsapp;
-        user.nationalityId = 1;
-        user.dob = new Date();
+        user.nationalityId = request.body.nationalityId;
+        user.dob = request.body.dob;
         user.statusId = request.body.statusId;
         user.photo = request.body.photo;
         user.languages = request.body.languages;
         user.created_at = new Date();
         user.updated_at = new Date();
         user.leadId = lead.id;
-        user.lead = lead;
-
-        this.usersRepository.save(user)
-        return {"success":true,"data": user, "total":1};
+        console.log('user', user);
+        user = await this.usersRepository.save(user)
+       // user.lead = leadTem;
+        return {"success":true,"data": [user], "total":1};
     }
 
 
@@ -111,6 +139,7 @@ export class UserController {
         let results:Users[]=[];
         let leadView:LeadView[]=[];
         let slotsResult:any[] = [];   
+        var leadTem:Lead[] = [];
 
         var offset =  parseInt(request.query['current']);
         var current =  parseInt(request.query['current']);
@@ -121,70 +150,82 @@ export class UserController {
         }
 
         var limitString = '';
-        if (offset==null && limit) {
-
-            var limitString =  'limit  ${offset * limit} , ${limit}'
+        console.log('limit', limit);
+        console.log('offset', offset);
+        if (limit) {
+            limitString =  ` limit `+ offset * limit + ` , `+  limit
         }
+        console.log('limitString', limitString);
 
 
         let availabilitydate =  request.query['date'];;
-        let start_slot =  parseInt(request.query['starttime']);
-        let end_slot  =  parseInt(request.query['endtime']);
+        let start_slot =  request.query['start_slot'];
+        let end_slot  =  request.query['end_slot'];
         let week_day  =  parseInt(request.query['weekday']);
-        
+        let start_min;
+        let end_min;
+        if (start_slot){
+            let time = start_slot.split(":");
+            start_slot = time[0];   
+            console.log('time is ', time);
+            start_min = time[1];
+         }
+         if (end_slot){
+             let time = end_slot.split(":");
+             end_slot = time[0]
+             console.log('time is ', time);;
+             end_min = time[1];
+          }
+   
+
+       
         var map = new Map();  
   
-        map.set(0, 'SUN');     
-        map.set(1, 'MON');       
-        map.set(2, 'TUE');   
-        map.set(3, 'WED');   
-        map.set(4, 'THU');  
-        map.set(5, 'FRI');  
-        map.set(6, 'SAT'); 
-        console.log('week_day' + week_day);
-
-
+        map.set(0, 'Sun');     
+        map.set(1, 'Mon');       
+        map.set(2, 'Tue');   
+        map.set(3, 'Wed');   
+        map.set(4, 'Thu');  
+        map.set(5, 'Fri');  
+        map.set(6, 'Sat'); 
         let totalQuery =  `select count(*) as totalCount  from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot + `;`;
-        console.log("Test1",totalQuery);
-        var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot +`;`;
+
+        var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot + ` and start_min >= `+ start_min +` and end_slot <=`+ end_min + `;`;
         let totalResult = await getManager().query(totalQuery);
-        console.log("Test2");
+
+        console.log(quer,quer);
        
         slotsResult = await getManager().query(quer);
-   
         let total = await getManager().query(totalQuery);
         let slotsResultIds = slotsResult.forEach((element)=>element.leadId);
         let selectedIds = slotsResult.map(({ leadId }) => leadId);
         const unique = Array.from(new Set(selectedIds)) 
+
+        
     
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses , u.startDate as startdate from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+        console.log("Result size is ", results.length);
         }
  
           for (const element  of results ) {  
             
             let slotsResult:any[] = [];   
-            console.log(element.leadId);
-            console.log('total' + 0);
-             var quer =  "select weekday , start_slot, end_slot from lead_availability where leadId="+element.leadId + ";"
-           console.log("query");
+             var quer =  "select weekday , start_slot, end_slot , start_min, end_min from lead_availability where leadId="+element.leadId + ";"
              slotsResult = await getManager().query(quer);
             var slot = "";
             slotsResult.forEach((element) => {
-                console.log('element'+element);
-                console.log('element'+element);
-             slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
+             slot = slot + map.get(element.weekday) + " " + element.start_slot+":"+element.start_min + " " + element.end_slot +":"+element.start_min + " ";
             });
             const yourDate = new Date()
             
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.slots, element.totlaclasses);
+            1,2,slot, element.totlaclasses);
         
             leadView.push(l);
-            console.log('totalResult', totalResult);
         }
 
-          return {"success":true,"data": leadView, "total":totalResult[0].totalCount, "current":current, pageSize:limit};
+          return {"success":true,"data": leadView, "total":unique.length, "current":current, pageSize:limit};
       
     }
 
@@ -194,38 +235,39 @@ export class UserController {
         var results:Users[]=[];
         var leadView:LeadView[]=[];
         var map = new Map();  
+        var leadTem:Lead[] = [];
   
-        map.set(0, 'SUN');     
-        map.set(1, 'MON');       
-        map.set(2, 'TUE');   
-        map.set(3, 'WED');   
-        map.set(4, 'THU');  
-        map.set(5, 'FRI');  
-        map.set(6, 'SAT'); 
+        map.set(0, 'Sun');     
+        map.set(1, 'Mon');       
+        map.set(2, 'Tue');   
+        map.set(3, 'Wed');   
+        map.set(4, 'Thu');  
+        map.set(5, 'Fri');  
+        map.set(6, 'Sat'); 
 
         var offset =  parseInt(request.query['current']);
         const limit  =  parseInt(request.query['pageSize']);
         if (offset==1) {
             offset = 0;
         }
-        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset + offset * limit) +","+ limit + `;`);
+        console.log("Query start");
+        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`);
+        console.log('results size', results.length)
         var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
-         console.log(total);
+         //console.log(total);
         //  results.forEach(async (element,index,self) => {     
           for (const element  of results ) {  
             let slotsResult:any[] = [];   
-            console.log(element.leadId);
+            //console.log(element.leadId);
              var quer =  "select weekday , start_slot, end_slot from lead_availability where leadId="+element.leadId + ";"
             slotsResult = await getManager().query(quer);
             var slot = "";
             slotsResult.forEach((element) => {
-                console.log('element'+element);
-                console.log('element'+element);
-             slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
+                slot = slot + map.get(element.weekday) + " " + element.start_slot+":"+element.start_min + " " + element.end_slot +":"+element.start_min + " ";
             });
             const yourDate = new Date()
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.slots,element.totlaclasses);
+            1,2,slot,element.totlaclasses);
         
             leadView.push(l);
           
@@ -237,16 +279,17 @@ export class UserController {
     
    
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
-
+        let usersList:Users[] = [];
         var map = new Map();  
+        var leadTem:Lead[] = [];
   
-        map.set(0, 'SUN');     
-        map.set(1, 'MON');       
-        map.set(2, 'TUE');   
-        map.set(3, 'WED');   
-        map.set(4, 'THU');  
-        map.set(5, 'FRI');  
-        map.set(6, 'SAT'); 
+        map.set(0, 'Sun');     
+        map.set(1, 'Mon');       
+        map.set(2, 'Tue');   
+        map.set(3, 'Wed');   
+        map.set(4, 'Thu');  
+        map.set(5, 'Fri');  
+        map.set(6, 'Sat'); 
 
         let slotsResult:any[] = []; 
         let users = new Users();   
@@ -255,24 +298,37 @@ export class UserController {
         console.log(users)
         users = await getManager().createQueryBuilder(Users, "user")
         .where("user.leadId = :id", { id: leadId }).getOne();
+       
         const lead = await getManager().createQueryBuilder(Lead, "lead")
         .where("lead.id = :id", { id: leadId }).getOne();
-        console.log(users)
-        users.lead = lead;
+        leadTem[0] = lead;
+        console.log(users);
+        if (lead && leadTem)
+             users.lead = leadTem;
         const leadav:LeadAvailability[] = [];
         const list:any = await getManager().createQueryBuilder(LeadAvailability, "leadAvailability")
         .where("leadAvailability.leadId = :id", { id: leadId }).getMany();
-        users.leadAvailability=list;
-        var quer =  "select weekday , start_slot, end_slot from lead_availability where leadId="+leadId + ";"
+        if (users)
+            users.leadAvailability=list;
+        var quer =  "select weekday , start_slot, end_slot, start_min, end_min from lead_availability where leadId="+leadId + ";"
         slotsResult = await getManager().query(quer);
         var slot = "";
         slotsResult.forEach((element) => {
             console.log('element'+element);
             console.log('element'+element);
-         slot = slot + map.get(element.weekday) + " " + element.start_slot + " " + element.end_slot +":";
+            if (element.start_min == 0) {
+                element.start_min = "00"
+            } 
+            if (element.end_min == 0) {
+                element.end_min = "00"
+            } 
+        slot = slot + map.get(element.weekday) + " " + element.start_slot + ":" +element.start_min+ " " + element.end_slot +":" + element.end_min + " ";
         });
-        users.slots=slot;
-       return {"success":true,"data": users, "total":1, "current":1, pageSize:1};
+        if (slot)
+            users.slots=slot;
+        if (users)
+            usersList[0] = users;
+        return {"success":true,"data": usersList, "total":1, "current":1, pageSize:1};
     }
 
     async leadAvialability(request: Request, response: Response, next: NextFunction) {
