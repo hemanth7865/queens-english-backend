@@ -28,6 +28,9 @@ export class Lead extends BaseEntity {
     @Column({'nullable':true})
         classestaken: number;
     
+    @Column({'nullable':true})
+        leadtype: number;
+
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})
         created_at:Date

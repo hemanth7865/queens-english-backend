@@ -34,6 +34,7 @@ export class UserController {
             lead.joiningdate = element.joiningDate;
             lead.resume = "Resume";
             lead.video = "video";
+            lead.leadtype = element.leadtype;
             lead.qualification=element.qualification;
             lead.certificates = element.certificates;
             lead.ratings = parseInt(element.ratings);
@@ -204,7 +205,7 @@ export class UserController {
         
     
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses , u.startDate as startdate from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses , u.startDate as startdate, le.leadytype as leadtype from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
         console.log("Result size is ", results.length);
         }
  
@@ -220,7 +221,7 @@ export class UserController {
             const yourDate = new Date()
             
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot, element.totlaclasses);
+            1,2,slot, element.totlaclasses, element.leadtype);
         
             leadView.push(l);
         }
@@ -251,7 +252,7 @@ export class UserController {
             offset = 0;
         }
         console.log("Query start");
-        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`);
+        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`);
         console.log('results size', results.length)
         var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
          //console.log(total);
@@ -267,7 +268,7 @@ export class UserController {
             });
             const yourDate = new Date()
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.totlaclasses);
+            1,2,slot,element.totlaclasses, element.leadtype);
         
             leadView.push(l);
           
@@ -279,7 +280,7 @@ export class UserController {
     
    
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
-        let usersList:Users[] = [];
+      
         var map = new Map();  
         var leadTem:Lead[] = [];
   
@@ -326,9 +327,8 @@ export class UserController {
         });
         if (slot)
             users.slots=slot;
-        if (users)
-            usersList[0] = users;
-        return {"success":true,"data": usersList, "total":1, "current":1, pageSize:1};
+
+        return {"success":true,"data": users, "total":1, "current":1, pageSize:1};
     }
 
     async leadAvialability(request: Request, response: Response, next: NextFunction) {
