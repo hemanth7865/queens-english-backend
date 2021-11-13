@@ -20,7 +20,7 @@ input[type='date']:valid::before {
 
 .inputfile + label {
   display: inline-block;
-  width: 230px;
-  color: black;
+  width: 348px;
+  color: grey;
   border: 1px solid #ccc;
 }
