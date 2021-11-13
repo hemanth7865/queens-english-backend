@@ -153,8 +153,7 @@ const TeacherBatchList: React.FC = () => {
     videoProfile: '',
     certificate: '',
     photo: '',
-    weekAvailabilty: [],
-    weekendAvailabilty: [],
+    leadAvailability: leadAvailabilities,
     status: '',
   });
   const [tempDataView, setTempDataView] = useState({});
@@ -332,8 +331,6 @@ const handleOneView = async (id) => {
       teacherType: formData.teacherType,
       languages: formData.languagesKnown,
       photo: formData.photo,
-      weekAvailabilty: formData.weekAvailabilty,
-      weekendAvailabilty: formData.weekendAvailabilty,
       status: formData.status,
       statusId: 1,
       lead: {
@@ -374,7 +371,7 @@ const handleOneView = async (id) => {
         }
         console.log(msg);
         // 如果失败去设置用户错误信息
-        setUserLoginState(msg);
+        // setUserLoginState(msg);
       } catch (error) {
         console.log('addRule error', error);
         const defaultLoginFailureMessage = intl.formatMessage({
@@ -396,7 +393,6 @@ const handleOneView = async (id) => {
       lastname: formData.lastName,
       email: formData.email,
       address: formData.address,
-
       startDate: formData.startDate,
       dob: formData.dateOfBirth,
       gender: formData.gender,
@@ -407,8 +403,6 @@ const handleOneView = async (id) => {
       teacherType: formData.teacherType,
       languages: formData.languagesKnown,
       photo: formData.photo,
-      weekAvailabilty: formData.weekAvailabilty,
-      weekendAvailabilty: formData.weekendAvailabilty,
       status: formData.status,
       statusId: 1,
       lead: {
@@ -472,9 +466,10 @@ const handleOneView = async (id) => {
 
 
     const leadWeekAvailability = {
-      start_slot: value[0],
-      end_slot: value[1],
-      weekday: props.weekday
+      start_slot: Math.floor( value[0]),
+      end_slot: Math.floor(value[1]),
+      weekday: props.weekday,
+      startdate: "2021-11-05T09:44:04.000Z"
     }
 
     
@@ -488,7 +483,7 @@ const handleOneView = async (id) => {
       <Col span={24} style = {{margin: "5px"}}>
         
         <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.week}</Checkbox>
-        <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
+        <TimePicker.RangePicker  format = 'HH' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
         <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
         <a><DeleteOutlined /></a>        
          </Col>
@@ -858,7 +853,7 @@ const handleOneView = async (id) => {
               {/* Availability */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="availabiltyWeek">
+                  <Form.Item name="leadAvailability">
                     <label>Week Availability</label>
                     <WeekdayAvailability weekday = {1} week = "Monday"/>
                     <WeekdayAvailability weekday = {2} week = "Tuesday"/>
@@ -868,7 +863,7 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="availabiltyWeekend">
+                  <Form.Item name="leadAvailability">
                   <label>Weekend Availability</label>
                   <WeekdayAvailability weekday = {6} week = "Saturday"/>
                   <WeekdayAvailability weekday = {7} week = "Sunday"/>
@@ -1394,7 +1389,7 @@ const handleOneView = async (id) => {
               {/* Availability */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="availabiltyWeek">
+                  <Form.Item name="leadAvailability">
                     <label>Week Availability</label>
                     <WeekdayAvailability weekday = {1} week = "Monday"/>
                     <WeekdayAvailability weekday = {2} week = "Tuesday"/>
@@ -1404,7 +1399,7 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="availabiltyWeekend">
+                  <Form.Item name="leadAvailability">
                   <label>Weekend Availability</label>
                   <WeekdayAvailability weekday = {6} week = "Saturday"/>
                   <WeekdayAvailability weekday = {7} week = "Sunday"/>
