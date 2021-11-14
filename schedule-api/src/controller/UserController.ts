@@ -206,7 +206,7 @@ export class UserController {
         
     
         for (const element  of slotsResult ) {  
-            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses , u.startDate as startdate, le.leadytype as leadtype from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
+            results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , '' as slots, le.classestaken as totalclasses , u.startDate as startdate, le.leadytype as leadtype, le.joinindate as joiningdate from users u inner join leads le on u.leadId=le.id and u.leadId in (${unique}) ${limitString};`);
         console.log("Result size is ", results.length);
         }
  
@@ -219,7 +219,7 @@ export class UserController {
             slotsResult.forEach((element) => {
              slot = slot + map.get(element.weekday) + " " + element.start_slot+":"+element.start_min + " " + element.end_slot +":"+element.start_min + " ";
             });
-            const yourDate = new Date()
+            const yourDate = new Date(element.joiningdate);
             
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
             1,2,slot, element.totlaclasses, element.leadtype);
@@ -248,13 +248,70 @@ export class UserController {
         map.set(6, 'Sat'); 
 
         var offset =  parseInt(request.query['current']);
+        var current = offset;
         const limit  =  parseInt(request.query['pageSize']);
         if (offset==1) {
             offset = 0;
         }
-        console.log("Query start");
-        results = await getManager().query(`select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`);
-        console.log('results size', results.length)
+
+        // Read query parameters
+        var query_string = '';
+
+        const date =  request.query['date'];;
+        if (date) {
+            query_string = query_string + ` and le.joiningdate =  '${date}' ` ;
+        }
+
+        const name =  request.query['name'];;
+        if (name) {
+            query_string = query_string + ` and (u.firstname like '%${name}%' or u.lastname like '%${name}%' )` ;
+        }
+        const mobile =  request.query['mobile'];
+        if (mobile) {
+            query_string = query_string + ` and u.mobile =${mobile} ` ;
+        }
+        var totalexp  =  request.query['totalexp'];
+        if (totalexp) {
+            totalexp = parseFloat(totalexp);
+            query_string = query_string + ` and le.totalexp =${totalexp} ` ;
+        }
+        var classesTaken = request.query['classesTaken'];
+        if (classesTaken) {
+            classesTaken = parseInt(classesTaken);
+            query_string = query_string + ` and le.classestaken=${classesTaken} ` ;
+        }
+        var ratings = request.query['ratings'];
+        if (ratings) {
+            ratings = parseInt(ratings);
+            query_string = query_string + ` and le.ratings =${ratings} ` ;
+        }
+
+        let start_slot = request.query['start_slot'];
+        let end_slot = request.query['end_slot'];
+
+        let week_day  =  parseInt(request.query['weekday']);
+        let start_min;
+        let end_min;
+        if (start_slot){
+            let time = start_slot.split(":");
+            start_slot = time[0];   
+            console.log('time is ', time);
+            start_min = time[1];
+            query_string = query_string + ` and weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot + ` and start_min >= `+ start_min  ;
+         }
+         if (end_slot){
+             let time = end_slot.split(":");
+             end_slot = time[0]
+             console.log('time is ', time);;
+             end_min = time[1];
+             query_string = query_string +` and end_slot <=`+ end_slot +  `and end_slot <=`+ end_min ;
+          }
+         
+        console.log("Query start", query_string);
+        var finalQuery = `select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype, le.joiningdate as joiningdate from users u inner join leads le on u.leadId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+        console.log('finalQuery', finalQuery);
+        results = await getManager().query(finalQuery);
+        console.log('results size', results.length);
         var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
          //console.log(total);
         //  results.forEach(async (element,index,self) => {     
@@ -265,9 +322,16 @@ export class UserController {
             slotsResult = await getManager().query(quer);
             var slot = "";
             slotsResult.forEach((element) => {
-                slot = slot + map.get(element.weekday) + " " + element.start_slot+":"+element.start_min + " " + element.end_slot +":"+element.start_min + " ";
+                if (!element.start_min) {
+                    element.start_min = "00";
+                }
+                if (!element.end_min) {
+                    element.end_min = "00";
+                }
+                slot = slot + map.get(element.weekday) + ": " + element.start_slot+":"+element.start_min + " to " + element.end_slot +":"+element.end_min + " ";
             });
-            const yourDate = new Date()
+            const yourDate = new Date(element.joiningdate);
+            console.log('yourDate', yourDate);
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
             1,2,slot,element.totlaclasses, element.leadtype);
         
@@ -275,7 +339,7 @@ export class UserController {
           
         };
       
-        return {"success":true,"data": leadView, "total":total[0].totalCount, "current":offset, pageSize:limit};
+        return {"success":true,"data": leadView, "total":total[0].totalCount, "current":current, pageSize:limit};
     }
 
     

@@ -12,6 +12,7 @@ export class Users extends BaseEntity {
     exp: string;
     totlaclasses: number;
     leadtype:number;
+    joiningdate:Date;
     Users() {}
     @PrimaryGeneratedColumn()
         id: number;
