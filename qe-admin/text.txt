@@ -978,3 +978,34 @@
                     )
                   })
                 ):(<p>load</p>)}
+
+
+
+        <Row>
+          
+          <Col span={10}> PHOTO -  PHOTO</Col>
+          <Col span={14}>
+                {console.log('tempDatasvs', tempDataView)}
+                <p>Name : {tempDataView.firstname} {tempDataView.lastname}</p>
+                {/* <p>Joining Date : {tempDataView.lead.joining_date}</p> */}
+                <p>Start Date : {tempDataView.startDate}</p>
+                <p>Gender : {tempDataView.gender}</p>
+                <p>Mobile : {tempDataView.mobile}</p>
+                <p>WhatsApp : {tempDataView.whatsapp}</p>
+                <p>Email : {tempDataView.email}</p>
+                <p>Address : {tempDataView.address}</p>
+                <p>Nationality : {tempDataView.nationalityId}</p>
+                <p>Category : {tempDataView.category}</p>
+                <p>Gender : {tempDataView.gender}</p>
+                {/* <p>Education : {tempDataView.lead.qualification}</p>
+                <p>Experience : {tempDataView.lead.total_exp}</p> */}
+                <p>Teacher Type : {tempDataView.teacherType}</p>
+                <p>Languages Known : {tempDataView.languages}</p>
+                {/* <p>Resume: {tempDataView.lead.resume}</p>
+                <p>Video Profile: {tempDataView.lead.video}</p>
+                <p>Certificates: {tempDataView.lead.certificates}</p> */}
+                <p>Availabilty During the Week</p>
+                <p>Availabilty During the Weekend</p>
+                <p>Status : {tempDataView.statusId}</p>
+          </Col>
+        </Row>

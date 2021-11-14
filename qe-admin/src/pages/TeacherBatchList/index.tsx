@@ -439,7 +439,7 @@ const handleOneView = async (id) => {
     // async (values: API.LoginParams) => {
       if (tempDataView) {
         dataForm.id = tempDataView.id;
-        // dataForm.lead.id = tempDataView.lead.id;
+        dataForm.lead.id = tempDataView.lead.id;
       }
       try {
         // 登录
@@ -1023,34 +1023,191 @@ const handleOneView = async (id) => {
         }}
         closable={false}
       >
-        <Row>
-          
-          <Col span={10}> PHOTO -  PHOTO</Col>
-          <Col span={14}>
-                {console.log('tempDatasvs', tempDataView)}
-                <p>Name : {tempDataView.firstname} {tempDataView.lastname}</p>
-                {/* <p>Joining Date : {tempDataView.lead.joining_date}</p> */}
-                <p>Start Date : {tempDataView.startDate}</p>
-                <p>Gender : {tempDataView.gender}</p>
-                <p>Mobile : {tempDataView.mobile}</p>
-                <p>WhatsApp : {tempDataView.whatsapp}</p>
-                <p>Email : {tempDataView.email}</p>
-                <p>Address : {tempDataView.address}</p>
-                <p>Nationality : {tempDataView.nationalityId}</p>
-                <p>Category : {tempDataView.category}</p>
-                <p>Gender : {tempDataView.gender}</p>
-                {/* <p>Education : {tempDataView.lead.qualification}</p>
-                <p>Experience : {tempDataView.lead.total_exp}</p> */}
-                <p>Teacher Type : {tempDataView.teacherType}</p>
-                <p>Languages Known : {tempDataView.languages}</p>
-                {/* <p>Resume: {tempDataView.lead.resume}</p>
-                <p>Video Profile: {tempDataView.lead.video}</p>
-                <p>Certificates: {tempDataView.lead.certificates}</p> */}
-                <p>Availabilty During the Week</p>
-                <p>Availabilty During the Weekend</p>
-                <p>Status : {tempDataView.statusId}</p>
-          </Col>
-        </Row>
+              <Row>
+                <Col style={{fontWeight: 900, alignContent:'center', alignItems:'center'}}  span={24}>  
+                <center><h2>View Teacher</h2></center>
+                </Col>
+              </Row>
+                10:56
+                <Row style={{fontWeight: 500}} gutter={40, 60}>  
+                  <Col span={7} >Photo</Col>
+                  <Col span={6}>  
+                  Name:
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.firstname + ' ' + tempDataView.lastname}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Joining Date :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                        return <span>{lead.joiningdate}</span>
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Start Date :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.startDate}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Date of Birth :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.dob}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Gender :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.gender}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Mobile :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.mobile}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  WhatsApp :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.whatsapp}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Email :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.email}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Address :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.address}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Nationality :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.nationalityId}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Category :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.category}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Gender :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.gender}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Education :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                        return <span>{lead.qualification}</span>
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Experiance :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                        return <span>{lead.totalexp + ' Years'} </span>
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Teacher Type :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                      switch (lead.teacherType) {
+                                        case 1:
+                                          return <div>{'Native'} </div>
+                                        case 2:
+                                          return <div>{'Non Native'} </div>
+                                        default:
+                                          return <div>{'Native'} </div>
+                                      }
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Languages Known :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.languages}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Resume:
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                        return <span>{lead.resume}</span>
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Video Profile:
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                        return <span>{lead.video}</span>
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Certificates :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                        return <span>{lead.Certificates}</span>
+                                      })}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Availabilty During the Week
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.slots}
+                  </Col>
+                  <Col span={7} ></Col>
+                  <Col span={6}>  
+                  Status :
+                  </Col>
+                  <Col span={11}>  
+                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                                      switch (lead.statusId) {
+                                        case 1:
+                                          return <div>{'Active'} </div>
+                                        case 2:
+                                          return <div>{'Leave'} </div>
+                                        default:
+                                          return <div>{'Active'} </div>
+                                      }
+                                      })}
+                  </Col>
+                </Row>
 
               
         {console.log('temp id', tempDataView.leadId, tempDataView.lead)}
@@ -1071,8 +1228,8 @@ const handleOneView = async (id) => {
                   <Form.Item >
                     <Input
                       type="text"
-                      placeholder = "firstname"
-                      // placeholder={tempDataView.firstname}
+                      // placeholder = "firstname"
+                      placeholder={tempDataView.firstname}
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleFormChange}
