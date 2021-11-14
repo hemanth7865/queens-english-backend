@@ -283,10 +283,15 @@ const handleOneView = async (id) => {
       render: (dom, entity) => {
         return (
           <Tooltip title={dom}>
-              <ClockCircleOutlined/>
-            </Tooltip>
+            <ClockCircleOutlined/>
+          </Tooltip>
         );
       },
+      renderFormItem: () => {
+          return (
+            <TimePicker.RangePicker  format = 'HH:mm' />
+          );
+        }
       
     },
     {
@@ -474,7 +479,6 @@ const handleOneView = async (id) => {
         message.error(defaultLoginFailureMessage);
       }
       setVisibleEdit(false)
-      setVisible(false)
     console.log('formData', formData);
   }
 
@@ -1041,7 +1045,7 @@ const handleOneView = async (id) => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
               <Row>
                 <Col style={{fontWeight: 900, alignContent:'center', alignItems:'center'}}  span={24}>  
