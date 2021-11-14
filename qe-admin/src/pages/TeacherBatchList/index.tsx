@@ -214,8 +214,9 @@ const handleOneView = async (id) => {
   console.log('tempdateview', tempDataView)
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
-    {
-      title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" style = {{color: 'blue'}}/>,
+    
+      {
+      title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" style = {{color: 'blue', backgroundColor: 'blue'}}/>,
       dataIndex: 'date',
     },
     //teacher name
@@ -302,17 +303,8 @@ const handleOneView = async (id) => {
           </a>
         );
       },
-    },
-    // {
-    //   title: <FormattedMessage id="pages.searchTable.titleEdit" defaultMessage="edit" />,
-    //   render: (dom, entity) => {
-    //     return (
-    //       <a>
-    //         edit
-    //       </a>
-    //     );
-    //   },
-    // },
+    }
+    
   ];
 
   // const handleAddTeacher = (str) => {
@@ -327,14 +319,7 @@ const handleOneView = async (id) => {
     // console.log('input one');
   };
 
-  const handleFormChange1 = (e) => {
-    console.log('e', e.target.value, e)
-    setTempDataView((value) => ({
-      ...value,
-      [e.target.name]: e.target.value,
-    }));
-    // console.log('input one');
-  };
+  
 
   const handleFormSubmit = async () => {
     console.log('form submitted');
@@ -416,29 +401,28 @@ const handleOneView = async (id) => {
   const handleFormSubmitEdit = async ()=>{
     console.log('form submitted');
     const dataForm = {
-      firstname: formData.firstName,
-      lastname: formData.lastName,
-      dob: formData.dateOfBirth,
-      mobile: formData.mobile,
-      email: formData.email,
-      address: formData.address,
-      whatsapp: formData.whatsapp,
+      firstname: formData.firstName?formData.firstName:tempDataView.firstname,
+      lastname: formData.lastName?formData.lastName:tempDataView.lastname,
+      dob: formData.dateOfBirth?formData.dateOfBirth:tempDataView.dob,
+      mobile: formData.mobile?formData.mobile:tempDataView.mobile,
+      email: formData.email?formData.email:tempDataView.email,
+      address: formData.address?formData.address:tempDataView.address,
+      whatsapp: formData.whatsapp?formData.whatsapp:tempDataView.whatsapp,
       status: formData.status,
-      gender: formData.gender,
-      nationality: formData.nationality,
-      category: formData.category,
-      languages: formData.languagesKnownn,
-      startDate: formData.startDate,
+      gender: formData.gender?formData.gender:tempDataView.gender,
+      nationality: formData.nationality?formData.nationality:tempDataView.nationalityId,
+      category: formData.category?formData.category:tempDataView.category,
+      languages: formData.languagesKnown?formData.languagesKnown:tempDataView.languages,
+      startDate: formData.startDate?formData.startDate:tempDataView.startDate,
       lead_type: 1,
       photo: formData.photo,
-      startDate: formData.startDate,
       lead:[{
         resume: formData.resume,
         qualification: formData.education,
-        totalexperience: formData.experience,
+        totalexp: formData.experience,
         video: formData.videoProfile,
         certificates: formData.certificate,
-        joiningDate: formData.joiningDate,
+        joiningdate: formData.joiningDate,
         ratings: 1,
         classestaken: 10,
         lead_type: formData.teacherType,
@@ -1241,10 +1225,10 @@ const handleOneView = async (id) => {
                     <Input
                       type="text"
                       // placeholder = "firstname"
-                      placeholder="first name"
-                      name={formData.firstname}
-                      value={formData.firstname?formData.firstname:tempDataView.firstname}
-                      onChange={handleFormChange1}
+                      placeholder={tempDataView.firstname}
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
@@ -1252,8 +1236,7 @@ const handleOneView = async (id) => {
                   <Form.Item name="last Name" >
                     <Input
                       type="text"
-                      // placeholder = {tempDataView.lastname}
-                      placeholder="last name"
+                      placeholder = {tempDataView.lastname}
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleFormChange}
@@ -1268,8 +1251,9 @@ const handleOneView = async (id) => {
                     name="joiningDate"
                     
                   >
+                    
                     <Input
-                      placeholder="Joining Date"
+                      placeholder="joining date"
                       type="date"
                       name="joiningDate"
                       value={formData.joiningDate}
@@ -1281,7 +1265,7 @@ const handleOneView = async (id) => {
                   <Form.Item name="startDate" >
                     
                     <Input
-                      placeholder="start Date"
+                      placeholder={tempDataView.startDate}
                       type="date"
                       name="startDate"
                       value={formData.startDate}
