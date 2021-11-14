@@ -35,8 +35,10 @@ import {
   removeRule,
   teacherBatches,
   addTeacherSchedule,
-  teacherBatchesView
+  teacherBatchesView,
+  teacherRemove
 } from '@/services/ant-design-pro/api';
+
 
 import Icon from '@ant-design/icons';
 import './index.css';
@@ -214,15 +216,17 @@ const handleOneView = async (id) => {
   console.log('tempdateview', tempDataView)
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
-    
-      {
-      title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" style = {{color: 'blue', backgroundColor: 'blue'}}/>,
+    {
+      title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" />,
       dataIndex: 'date',
+      valueType: 'date',
+      
     },
     //teacher name
     {
       title: <FormattedMessage id="pages.searchTable.titleName" defaultMessage="Name" />,
       dataIndex: 'name',
+      
     },
     //mobile number
     {
@@ -351,7 +355,7 @@ const handleOneView = async (id) => {
         classestaken: 10,
         lead_type: formData.teacherType,
       }],
-      statusId: 1,
+      statusId: formData.status,
       leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
@@ -418,18 +422,26 @@ const handleOneView = async (id) => {
       photo: formData.photo,
       lead:[{
         resume: formData.resume,
-        qualification: formData.education,
-        totalexp: formData.experience,
+        qualification: formData.education?formData.education:(tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+          return lead.qualification
+        })),
+        totalexp: formData.experience?formData.experience:(tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+          return lead.totalexp 
+        })),
         video: formData.videoProfile,
         certificates: formData.certificate,
-        joiningdate: formData.joiningDate,
+        joiningdate: formData.joiningDate?formData.joiningDate:(tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+          return lead.joiningdate
+        })),
         ratings: 1,
         classestaken: 10,
         lead_type: formData.teacherType,
       }],
       
-      statusId: 1,
-      leadAvailability: leadAvailabilities
+      statusId: formData.status,
+      leadAvailability: leadAvailabilities?leadAvailabilities:(tempDataView.leadAvailability&&tempDataView.leadAvailability.map(function (lead, i) {
+        return lead
+      }))
     };
     // async (values: API.LoginParams) => {
       if (tempDataView) {
@@ -462,6 +474,7 @@ const handleOneView = async (id) => {
         message.error(defaultLoginFailureMessage);
       }
       setVisibleEdit(false)
+      setVisible(false)
     console.log('formData', formData);
   }
 
@@ -509,15 +522,27 @@ const handleOneView = async (id) => {
   }
 
 
-
-
+  const deleteTeacher = async (id)=>{
+    console.log('clicked delete teacher')
+    try {
+      let msg = await teacherRemove(id, {headers: {
+        'Content-Type': 'application/json',
+      }});
+      if (msg.status === 'ok') {
+        console.log('API call sucessfull', msg)
+      }
+      console.log(msg)
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
   return (
     <PageContainer>
       {/* {console.log('teacherbatches', teacherBatches)} */}
       <ProTable<API.RuleListItem, API.PageParams>
         headerTitle={intl.formatMessage({
-          id: 'pages.searchTable.title',
-          defaultMessage: 'Enquiry form',
+          id: 'pages.searchTable.titleTeacher',
+          defaultMessage: 'Teacher Management',
         })}
         actionRef={actionRef}
         rowKey="key"
@@ -533,8 +558,7 @@ const handleOneView = async (id) => {
         // }}
         toolBarRender={() => [
           <Button type="primary" key="primary" onClick={showDrawer}>
-            <PlusOutlined />{' '}
-            {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
+            
             Add Teacher
           </Button>,
           <Drawer
@@ -1024,118 +1048,117 @@ const handleOneView = async (id) => {
                 <center><h2>View Teacher</h2></center>
                 </Col>
               </Row>
-                10:56
                 <Row style={{fontWeight: 500}} gutter={40, 60}>  
                   <Col span={7} >Photo</Col>
                   <Col span={6}>  
-                  Name:
+                  <p>Name</p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.firstname + ' ' + tempDataView.lastname}
+                  <p>{tempDataView.firstname + ' ' + tempDataView.lastname}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Joining Date :
+                  <p>Joining Date </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                         return <span>{lead.joiningdate}</span>
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Start Date :
+                  <p>Start Date </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.startDate}
+                  <p>{tempDataView.startDate}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Date of Birth :
+                  <p>Date of Birth </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.dob}
+                  <p>{tempDataView.dob}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Gender :
+                  <p>Gender </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.gender}
+                  <p>{tempDataView.gender}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Mobile :
+                  <p>Mobile </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.mobile}
+                  <p>{tempDataView.mobile}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  WhatsApp :
+                  <p>WhatsApp </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.whatsapp}
+                  <p>{tempDataView.whatsapp}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Email :
+                  <p>Email </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.email}
+                  <p>{tempDataView.email}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Address :
+                  <p>Address </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.address}
+                  <p>{tempDataView.address}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Nationality :
+                  <p>Nationality </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.nationalityId}
+                  <p>{tempDataView.nationalityId}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Category :
+                  <p>Category </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.category}
+                  <p>{tempDataView.category}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Gender :
+                  <p>Gender </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.gender}
+                  <p>{tempDataView.gender}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Education :
+                  <p>Education </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                         return <span>{lead.qualification}</span>
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Experiance :
+                  <p>Experiance </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                         return <span>{lead.totalexp + ' Years'} </span>
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Teacher Type :
+                  <p>Teacher Type </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                       switch (lead.teacherType) {
                                         case 1:
                                           return <div>{'Native'} </div>
@@ -1144,73 +1167,71 @@ const handleOneView = async (id) => {
                                         default:
                                           return <div>{'Native'} </div>
                                       }
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Languages Known :
+                  <p>Languages Known </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.languages}
+                  <p>{tempDataView.languages}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Resume:
+                  <p>Resume </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p> {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                         return <span>{lead.resume}</span>
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Video Profile:
+                  <p> Video Profile </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                         return <span>{lead.video}</span>
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Certificates :
+                  <p>Certificates </p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
                                         return <span>{lead.Certificates}</span>
-                                      })}
+                                      })}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Availabilty During the Week
+                  <p>Availabilty During the Week</p>
                   </Col>
                   <Col span={11}>  
-                  {tempDataView.slots}
+                  <p>{tempDataView.slots}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
-                  Status :
+                  <p>Status </p>
                   </Col>
-                  <Col span={11}>  
-                  {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
-                                      switch (lead.statusId) {
-                                        case 1:
-                                          return <div>{'Active'} </div>
-                                        case 2:
-                                          return <div>{'Leave'} </div>
-                                        default:
-                                          return <div>{'Active'} </div>
-                                      }
-                                      })}
+                  <Col span={11}> 
+                  <p>{tempDataView.statusId == 0? ( <div>{'Active'} </div>):(tempDataView.statusId == 1? (<div>{'OnHold'} </div>): (<div>{'Leave'} </div>))} 
+                  </p>
                   </Col>
-                </Row>
-
+                  </Row><br/>
+                  <Row>
+                  <Col span={10}> 
+                    
+                  </Col>
+                  <Col span={12}> 
+                    <Button type="primary" onClick={showDrawerEdit}>
+                      {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
+                      Edit Teacher
+                    </Button>
+                  </Col>
+                  
+                  </Row>
               
-        {console.log('temp id', tempDataView.leadId, tempDataView.lead)}
-        <Button type="primary" onClick={showDrawerEdit}>
-          {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
-          Edit Teacher
-        </Button>
         <Drawer
           title="Edit Teacher"
           placement="right"
@@ -1253,7 +1274,9 @@ const handleOneView = async (id) => {
                   >
                     
                     <Input
-                      placeholder="joining date"
+                      placeholder={tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                        return lead.joiningdate
+                      })}
                       type="date"
                       name="joiningDate"
                       value={formData.joiningDate}
@@ -1324,7 +1347,6 @@ const handleOneView = async (id) => {
                     <Input
                       type="text"
                       placeholder = {tempDataView.mobile}
-                      // placeholder={tempDataView.mobile}
                       name="mobile"
                       value={formData.mobile}
                       onChange={handleFormChange}
@@ -1409,8 +1431,9 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "qualification"
-                      // placeholder={tempDataView.lead.qualification}
+                      placeholder={tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                        return lead.qualification
+                      })}
                       name="education"
                       value={formData.education}
                       onChange={handleFormChange}
@@ -1423,7 +1446,9 @@ const handleOneView = async (id) => {
                   >
                     <Input
                       type="text"
-                      placeholder = "exp"
+                      placeholder = {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                        return lead.totalexp
+                      })}
                       // placeholder={tempDataView.lead.total_exp}
                       name="experience"
                       value={formData.experience}
@@ -1440,7 +1465,16 @@ const handleOneView = async (id) => {
                    
                   >
                     <select
-                      placeholder="Teacher Type"
+                      placeholder={tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+                        switch (lead.teacherType) {
+                          case 1:
+                            return 'Native'
+                          case 2:
+                            return 'Non Native'
+                          default:
+                            return 'Native'
+                        }
+                        })}
                       value={formData.teacherType}
                       name="teacherType"
                       onChange={handleFormChange}
@@ -1475,17 +1509,6 @@ const handleOneView = async (id) => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name="uploadResume">
-                    {/* <label>
-                      <Input
-                        type="file"
-                        placeholder="Upload Resume"
-                        name="resume"
-                        value={formData.resume}
-                        onChange={handleFormChange}
-                        style={{ display: 'none' }}
-                      />
-                      Resume Upload
-                    </label> */}
                     <input
                       type="file"
                       id="file"
@@ -1587,7 +1610,15 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Input type="submit" value="Edit Teacher" />
+              <Row>
+              <Col span = {12}>
+              <Input type="submit" value="Save Changes" style = {{color: 'white', backgroundColor: 'blue'}}/>
+              </Col>
+              <Col span = {12}>
+              <Button onClick = {()=>{deleteTeacher(tempDataView.leadId)}}>Delete</Button>
+              </Col>
+              </Row>
+              
             </Form>
         </Drawer>
       </Drawer>

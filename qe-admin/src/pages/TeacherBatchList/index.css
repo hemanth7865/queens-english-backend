@@ -24,3 +24,4 @@ input[type='date']:valid::before {
   color: grey;
   border: 1px solid #ccc;
 }
+

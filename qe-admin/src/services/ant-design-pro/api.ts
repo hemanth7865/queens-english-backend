@@ -175,6 +175,13 @@ export async function teacherBatchesView(
   });
 }
 
+export async function teacherRemove(id, options?: { [key: string]: any }) {
+  return request<Record<string, any>>(`/be/users/${id}`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
 
 /** 获取规则列表 GET /api/rule */
 export async function rule(

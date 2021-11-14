@@ -79,8 +79,7 @@
     component: './BatchList',
   },
   {
-    name: 'teacher batch list',
-    icon: 'table',
+    name: 'Teacher Management',
     path: '/teacherBatch',
     component: './TeacherBatchList',
   },
