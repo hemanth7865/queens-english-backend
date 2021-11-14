@@ -297,22 +297,50 @@ export class UserController {
             start_slot = time[0];   
             console.log('time is ', time);
             start_min = time[1];
-            query_string = query_string + ` and weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot + ` and start_min >= `+ start_min  ;
+            
          }
          if (end_slot){
              let time = end_slot.split(":");
              end_slot = time[0]
              console.log('time is ', time);;
              end_min = time[1];
-             query_string = query_string +` and end_slot <=`+ end_slot +  `and end_slot <=`+ end_min ;
+            
           }
+
+          var unique=[0];
+
+          if (start_slot && end_slot) {
+            var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday in ( `+ week_day  + `) and start_slot >= `+ start_slot +` and end_slot <=`+ end_slot + ` and start_min >= `+ start_min +` and end_min <=`+ end_min + `;`;
+            console.log('quer', quer);
+            let totalResult = await getManager().query(quer);
+            console.log('totalResult',totalResult);
+            let slotsResultIds:any = []
+
+            for (var element of totalResult) {
+                slotsResultIds.push(element.leadId);
+            }
+
+           // let slotsResultIds = totalResult.forEach((element)=>element.leadId);
+            console.log('slotsResultIds', slotsResultIds);
+            
+            //let selectedIds = slotsResultIds.map(({ leadId }) => leadId);
+           // console.log('ids', selectedIds);
+            unique = Array.from(new Set(slotsResultIds)) 
+            console.log('ids', unique);
+            if (unique.length>0) {
+                query_string = query_string +` and u.leadId in (${unique}) `;
+            }
+    
+          }
+
+          
          
         console.log("Query start", query_string);
         var finalQuery = `select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype, le.joiningdate as joiningdate from users u inner join leads le on u.leadId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
         console.log('finalQuery', finalQuery);
         results = await getManager().query(finalQuery);
         console.log('results size', results.length);
-        var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id;`);
+        var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id ${query_string};`);
          //console.log(total);
         //  results.forEach(async (element,index,self) => {     
           for (const element  of results ) {  
@@ -339,7 +367,7 @@ export class UserController {
           
         };
       
-        return {"success":true,"data": leadView, "total":total[0].totalCount, "current":current, pageSize:limit};
+        return {"success":true,"data": leadView, "total":results.length, "current":current, pageSize:limit};
     }
 
     
@@ -388,7 +416,7 @@ export class UserController {
             if (element.end_min == 0) {
                 element.end_min = "00"
             } 
-        slot = slot + map.get(element.weekday) + " " + element.start_slot + ":" +element.start_min+ " " + element.end_slot +":" + element.end_min + " ";
+        slot = slot + map.get(element.weekday) + ":" + element.start_slot + ":" +element.start_min+ " to " + element.end_slot +":" + element.end_min + " ";
         });
         if (slot)
             users.slots=slot;
