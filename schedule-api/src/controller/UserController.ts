@@ -31,14 +31,15 @@ export class UserController {
             if (element.id){
                 lead.id = element.id;
             }
-            lead.joiningdate = element.joiningDate;
+            lead.joiningdate = element.joiningdate;
             lead.resume = "Resume";
             lead.video = "video";
             lead.leadtype = element.leadtype;
             lead.qualification=element.qualification;
+            lead.classestaken = element.classestaken;
             lead.certificates = element.certificates;
             lead.ratings = parseInt(element.ratings);
-            lead.totalexp=element.totalexperience;
+            lead.totalexp=parseFloat(element.totalexp);
             lead = await this.leadRepository.save(lead);
             console.log('lead id is ', lead.id);
             user.leadId = lead.id;
