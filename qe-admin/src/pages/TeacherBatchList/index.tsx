@@ -157,6 +157,8 @@ const TeacherBatchList: React.FC = () => {
     leadAvailability: leadAvailabilities,
     status: '',
   });
+
+ 
   const [tempDataView, setTempDataView] = useState({});
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
@@ -213,7 +215,7 @@ const handleOneView = async (id) => {
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
     {
-      title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" />,
+      title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" style = {{color: 'blue'}}/>,
       dataIndex: 'date',
     },
     //teacher name
@@ -325,6 +327,14 @@ const handleOneView = async (id) => {
     // console.log('input one');
   };
 
+  const handleFormChange1 = (e) => {
+    console.log('e', e.target.value, e)
+    setTempDataView((value) => ({
+      ...value,
+      [e.target.name]: e.target.value,
+    }));
+    // console.log('input one');
+  };
 
   const handleFormSubmit = async () => {
     console.log('form submitted');
@@ -383,7 +393,7 @@ const handleOneView = async (id) => {
           // history.push(redirect || '/');
           // return;
           console.log('API call sucessfull', msg)
-          setVisible(false)
+          
         }
         console.log(msg);
         // 如果失败去设置用户错误信息
@@ -396,6 +406,7 @@ const handleOneView = async (id) => {
         });
         message.error(defaultLoginFailureMessage);
       }
+      setVisible(false)
     // console.log('formData', formData);
     console.log('dataForm', dataForm);
     // const dataFormJson = JSON.stringify(dataForm);
@@ -453,7 +464,7 @@ const handleOneView = async (id) => {
         if (msg.status === 'ok') {
          
           console.log('API call sucessfull', msg)
-          setVisible(false)
+          
         }
         console.log(msg);
         // 如果失败去设置用户错误信息
@@ -466,6 +477,7 @@ const handleOneView = async (id) => {
         });
         message.error(defaultLoginFailureMessage);
       }
+      setVisibleEdit(false)
     console.log('formData', formData);
   }
 
@@ -925,7 +937,7 @@ const handleOneView = async (id) => {
             <div>
               <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen" />{' '}
               <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
-              <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
+              <FormattedMessage id="pages.searchTable.item"  />
               &nbsp;&nbsp;
               <span>
                 <FormattedMessage
@@ -1229,10 +1241,10 @@ const handleOneView = async (id) => {
                     <Input
                       type="text"
                       // placeholder = "firstname"
-                      placeholder={tempDataView.firstname}
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleFormChange}
+                      placeholder="first name"
+                      name={formData.firstname}
+                      value={formData.firstname?formData.firstname:tempDataView.firstname}
+                      onChange={handleFormChange1}
                     />
                   </Form.Item>
                 </Col>
