@@ -257,7 +257,7 @@ const handleOneView = async (id) => {
       title: (
         <FormattedMessage id="pages.searchTable.titleExperience" defaultMessage="Experience" />
       ),
-      dataIndex: 'experience',
+      dataIndex: 'totalexp',
     },
     //status
     {
@@ -265,22 +265,26 @@ const handleOneView = async (id) => {
       dataIndex: 'status',
       hideInForm: true,
       valueEnum: {
-        0: {
+        1: {
           text: (
-            <FormattedMessage id="pages.searchTable.nameStatus.active" defaultMessage="active" />
+            <FormattedMessage id="pages.searchTable.nameStatus.active" defaultMessage="Active" />
           ),
           status: 'active',
         },
         
-        1: {
+        2: {
           text: (
-            <FormattedMessage id="pages.searchTable.nameStatus.onhold" defaultMessage="on hold" />
+            <FormattedMessage id="pages.searchTable.nameStatus.onhold" defaultMessage="On Hold" />
           ),
           status: 'on hold',
         },
-        2: {
-          text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="leave" />,
-          status: 'leave',
+        3: {
+          text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="In Active" />,
+          status: 'in active',
+        },
+        4: {
+          text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="Leave" />,
+          status: 'on leave',
         },
       },
     },
@@ -323,13 +327,21 @@ const handleOneView = async (id) => {
             console.log('start_slot', start_slot)
             return { start_slot: start_slot, end_slot: end_slot }
           }
-      }
-      
+      },
+    },
+    //weekday
+    {
+      title: <FormattedMessage id="pages.searchTable.titleWeekday" defaultMessage="Weekday" />,
+      dataIndex: 'weekday',
+      hideInTable: true,
+
       
     },
+    
     {
       title: <FormattedMessage id="pages.searchTable.titleView" defaultMessage="view" />,
-      // dataIndex: 'view',
+      dataIndex: 'view',
+      hideInSearch: true,
       render: (dom, entity) => {
         return (
           <a
@@ -1082,7 +1094,7 @@ const handleOneView = async (id) => {
       >
               <Row>
                 <Col style={{fontWeight: 900, alignContent:'center', alignItems:'center'}}  span={24}>  
-                <center><h2>View Teacher</h2></center>
+                <center><h2 style={{color:"blue"}}>View Teacher</h2></center>
                 </Col>
               </Row>
                 <Row style={{fontWeight: 500}} gutter={40, 60}>  
@@ -1252,7 +1264,7 @@ const handleOneView = async (id) => {
                   <p>Status </p>
                   </Col>
                   <Col span={11}> 
-                  <p>{tempDataView.statusId == 0? ( <div>{'Active'} </div>):(tempDataView.statusId == 1? (<div>{'OnHold'} </div>): (<div>{'Leave'} </div>))} 
+                  <p>{tempDataView.statusId == 1? ( <div>{'Active'} </div>):(tempDataView.statusId == 2? (<div>{'OnHold'} </div>): (tempDataView.statusId == 3 ? (<div>{'In Active'} </div>):<div>{'Leave'} </div>))} 
                   </p>
                   </Col>
                   </Row><br/>
@@ -1650,10 +1662,10 @@ const handleOneView = async (id) => {
               </Row>
               <Row>
               <Col span = {12}>
-              <Input type="submit" value="Save Changes" style = {{color: 'white', backgroundColor: 'blue'}}/>
+              <Input type="submit" value="Save Changes" style = {{color: 'white', backgroundColor: 'DodgerBlue'}}/>
               </Col>
               <Col span = {12}>
-              <Button onClick = {()=>{deleteTeacher(tempDataView.leadId)}}>Delete</Button>
+              <Button onClick = {()=>{deleteTeacher(tempDataView.id)}} block type = "primary">Delete</Button>
               </Col>
               </Row>
               

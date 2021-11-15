@@ -1009,3 +1009,41 @@
                 <p>Status : {tempDataView.statusId}</p>
           </Col>
         </Row>
+
+
+
+        valueEnum: {
+        1: {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameweekday.monday" defaultMessage="Monday" />
+          ),
+          weekday: 'monday',
+        },
+        
+        2: {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameweekday.tuesday" defaultMessage="Tuesday" />
+          ),
+          weekday: 'tuesday',
+        },
+        3: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.wednesday" defaultMessage="Wednesday" />,
+          weekday: 'wednesday',
+        },
+        4: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.thursday" defaultMessage="Thursday" />,
+          weekday: 'thursday',
+        },
+        5: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.friday" defaultMessage="Friday" />,
+          weekday: 'friday',
+        },
+        6: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.saturday" defaultMessage="Saturday" />,
+          weekday: 'saturday',
+        },
+        7: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.sunday" defaultMessage="Sunday" />,
+          weekday: 'sunday',
+        },
+      },
