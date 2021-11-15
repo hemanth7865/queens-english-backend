@@ -983,7 +983,7 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Input type="submit" value="Add Teacher" />
+              <Input type="submit" value="Add Teacher"  style = {{color: 'white', backgroundColor: 'DodgerBlue'}}/>
             </Form>
           </Drawer>,
         ]}
