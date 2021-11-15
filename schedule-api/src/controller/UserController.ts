@@ -289,7 +289,7 @@ export class UserController {
         let start_slot = request.query['start_slot'];
         let end_slot = request.query['end_slot'];
 
-        let week_day  =  parseInt(request.query['weekday']);
+        let week_day  =  request.query['weekday'];
         let start_min;
         let end_min;
         if (start_slot){
