@@ -222,7 +222,7 @@ export class UserController {
             const yourDate = new Date(element.joiningdate);
             
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot, element.totlaclasses, element.leadtype);
+            element.ratings,element.classestaken,slot, element.leadtype);
         
             leadView.push(l);
         }
@@ -336,7 +336,7 @@ export class UserController {
           
          
         console.log("Query start", query_string);
-        var finalQuery = `select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype, le.joiningdate as joiningdate from users u inner join leads le on u.leadId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+        var finalQuery = `select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken from users u inner join leads le on u.leadId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
         console.log('finalQuery', finalQuery);
         results = await getManager().query(finalQuery);
         console.log('results size', results.length);
@@ -361,7 +361,7 @@ export class UserController {
             const yourDate = new Date(element.joiningdate);
             console.log('yourDate', yourDate);
             var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            1,2,slot,element.totlaclasses, element.leadtype);
+            element.classestaken,element.ratings,slot, element.leadtype);
         
             leadView.push(l);
           
