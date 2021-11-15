@@ -620,7 +620,7 @@ const handleOneView = async (id) => {
             <Form onFinish={handleFormSubmit}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="first name" >
+                  <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}>
                     <Input
                       type="text"
                       placeholder="First Name"
@@ -631,7 +631,7 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="last Name" >
+                  <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}>
                     <Input
                       type="text"
                       placeholder="Last Name"
@@ -647,6 +647,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="joiningDate"
+                    rules={[{ required: true, message: 'Joining Date' }]}
                   >
                     <Input
                       placeholder="Joining Date"
@@ -658,7 +659,8 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="startDate" >
+                  <Form.Item name="startDate" 
+                  rules={[{ required: true, message: 'Start Date' }]}>
                     
                     <Input
                       placeholder="Start Date"
@@ -675,7 +677,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="dateOfBirth"
-                   
+                    rules={[{ required: true, message: 'Enter date of birthday' }]}
                   >
                     
                     <Input
@@ -690,7 +692,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="gender"
-                    
+                    rules={[{ required: true, message: 'Please select an gender' }]}
                   >
                     <select
                       placeholder="Gender"
@@ -773,7 +775,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="nationality"
-                   
+                    rules={[{ required: true, message: 'Enter the Nationality' }]}
                   >
                     <Input
                       type="text"
@@ -787,6 +789,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="category"
+                    rules={[{ required: true, message: 'Enter the Nationality' }]}
                   >
                     <Input
                       type="text"
@@ -803,7 +806,6 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="qualification"
-                   
                   >
                     <Input
                       type="text"
@@ -817,7 +819,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="totalExperience"
-                    
+                    rules={[{ required: true, message: 'Enter the Education/Qualification' }]}
                   >
                     <Input
                       type="text"
@@ -834,7 +836,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="teacherType"
-                    
+                    rules={[{ required: true, message: 'Enter the Teacher Type' }]}
                   >
                     <select
                       placeholder="Teacher Type"
@@ -872,17 +874,6 @@ const handleOneView = async (id) => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name="uploadResume">
-                    {/* <label>
-                      <Input
-                        type="file"
-                        placeholder="Upload Resume"
-                        name="resume"
-                        value={formData.resume}
-                        onChange={handleFormChange}
-                        style={{ display: 'none' }}
-                      />
-                      Resume Upload
-                    </label> */}
                     <input
                       type="file"
                       id="file"
@@ -937,32 +928,17 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
               </Row>
-              {/* Availability */}
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Week Availability</label>
-                    <WeekdayAvailability weekday = {1} week = "Monday" startDate = {tempDataView}/>
-                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
-                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
-                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
-                    <WeekdayAvailability weekday = {5} week = "Friday"/>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                  <label>Weekend Availability</label>
-                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
-                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
-                  </Form.Item>
-                </Col>
-              </Row>
               {/* status */}
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
                     name="status"
-                    
+                    rules={[
+                      {
+                        required: true,
+                        message: 'please enter Status',
+                      },
+                    ]}  
                   >
                     <select
                       placeholder="Status"
@@ -983,6 +959,27 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
               </Row>
+              {/* Availability */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="leadAvailability">
+                    <label>Week Availability</label>
+                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
+                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
+                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
+                    <WeekdayAvailability weekday = {5} week = "Friday"/>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="leadAvailability">
+                  <label>Weekend Availability</label>
+                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
+                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
+                  </Form.Item>
+                </Col>
+              </Row>
+              
               <Input type="submit" value="Add Teacher"  style = {{color: 'white', backgroundColor: 'DodgerBlue'}}/>
             </Form>
           </Drawer>,
@@ -1613,6 +1610,37 @@ const handleOneView = async (id) => {
                   </Form.Item>
                 </Col>
               </Row>
+              {/* status */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="status"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'please enter Status',
+                      },
+                    ]}
+                  >
+                    <select
+                      placeholder="Status"
+                      value={formData.status}
+                      name="status"
+                      onChange={handleFormChange}
+                      style={{ width: '348px', color: 'grey' }}
+                    >
+                      <option value="status">Status</option>
+                      {['active', 'onHold', 'leave'].map((i, j) => {
+                        return (
+                          <option key={i} value={j}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </Form.Item>
+                </Col>
+              </Row>
               {/* Availability */}
               <Row gutter={16}>
                 <Col span={12}>
@@ -1631,32 +1659,6 @@ const handleOneView = async (id) => {
                   <WeekdayAvailability weekday = {6} week = "Saturday"/>
                   <WeekdayAvailability weekday = {7} week = "Sunday"/>
                   
-                  </Form.Item>
-                </Col>
-              </Row>
-              {/* status */}
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="status"
-                    
-                  >
-                    <select
-                      placeholder="Status"
-                      value={formData.status}
-                      name="status"
-                      onChange={handleFormChange}
-                      style={{ width: '348px', color: 'grey' }}
-                    >
-                      <option value="status">Status</option>
-                      {['active', 'onHold', 'leave'].map((i, j) => {
-                        return (
-                          <option key={i} value={j}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
                   </Form.Item>
                 </Col>
               </Row>
