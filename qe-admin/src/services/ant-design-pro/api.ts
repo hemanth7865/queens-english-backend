@@ -140,7 +140,9 @@ export async function teacherBatches(
     pageSize?: number;
   },
   options?: { [key: string]: any },
-) {
+)
+ {
+   console.log('option', options)
   return request<API.RuleList>('/be/leadsview', {
     method: 'GET',
     params: {

@@ -45,6 +45,7 @@ import './index.css';
 import Availability from './availability';
 import moment from 'moment';
 import WeekdaySchedule from './components/WeekdaySchedule'
+import {parse, format} from 'date-fns'
 
 /**
  * @en-US Add node
@@ -220,7 +221,25 @@ const handleOneView = async (id) => {
       title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" />,
       dataIndex: 'date',
       valueType: 'date',
-      
+     
+      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+        const status = form.getFieldValue('status');
+        if (`${status}` === '0') {
+          return false;
+        }
+        if (`${status}` === '3') {
+          return (
+            <Input
+              {...rest}
+              placeholder={intl.formatMessage({
+                id: 'pages.searchTable.exception',
+                defaultMessage: 'Please enter the reason for the exception!',
+              })}
+            />
+          );
+        }
+        return defaultRender(item);
+      },
     },
     //teacher name
     {
@@ -252,15 +271,16 @@ const handleOneView = async (id) => {
           ),
           status: 'active',
         },
+        
         1: {
-          text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="leave" />,
-          status: 'leave',
-        },
-        2: {
           text: (
             <FormattedMessage id="pages.searchTable.nameStatus.onhold" defaultMessage="on hold" />
           ),
           status: 'on hold',
+        },
+        2: {
+          text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="leave" />,
+          status: 'leave',
         },
       },
     },
@@ -278,7 +298,7 @@ const handleOneView = async (id) => {
     },
     //time slots
     {
-      title: <FormattedMessage id="pages.searchTable.titleRatings" defaultMessage="Time Slots" />,
+      title: <FormattedMessage id="pages.searchTable.titleSlots" defaultMessage="Time Slots" />,
       dataIndex: 'slots',
       render: (dom, entity) => {
         return (
@@ -287,11 +307,24 @@ const handleOneView = async (id) => {
           </Tooltip>
         );
       },
-      renderFormItem: () => {
+      renderFormItem: (value) => {
+          
           return (
+            
             <TimePicker.RangePicker  format = 'HH:mm' />
-          );
-        }
+           
+          )
+        },
+      search: {
+        transform: (value: any) =>{
+          console.log('val', value, parse(value[0], 'yyyy-MM-dd HH:mm:ss', new Date()).getHours())
+          const start_slot = format(parse(value[0], 'yyyy-MM-dd HH:mm:ss', new Date()), 'H:mm')
+          const end_slot = format(parse(value[1], 'yyyy-MM-dd HH:mm:ss', new Date()), 'H:mm')
+            console.log('start_slot', start_slot)
+            return { start_slot: start_slot, end_slot: end_slot }
+          }
+      }
+      
       
     },
     {
@@ -503,7 +536,7 @@ const handleOneView = async (id) => {
       start_slot: value[0],
       end_slot: value[1],
       weekday: props.weekday,
-      startDate: "2021-11-05T09:44:04.000Z"
+      startDate: props.tempDataView
     }
 
     
@@ -517,7 +550,7 @@ const handleOneView = async (id) => {
       <Col span={24} style = {{margin: "5px"}}>
         
         <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.week}</Checkbox>
-        <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
+        <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}} />
         <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
         <a><DeleteOutlined /></a>        
          </Col>
@@ -897,7 +930,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item name="leadAvailability">
                     <label>Week Availability</label>
-                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {1} week = "Monday" startDate = {tempDataView}/>
                     <WeekdayAvailability weekday = {2} week = "Tuesday"/>
                     <WeekdayAvailability weekday = {3} week = "Wednesday"/>
                     <WeekdayAvailability weekday = {4} week = "Thursady"/>
@@ -1243,6 +1276,7 @@ const handleOneView = async (id) => {
           visible={visibleEdit}
           width={780}
         >
+          {console.log('second', tempDataView)}
         <Form onFinish={handleFormSubmitEdit}>
               <Row gutter={16}>
                 <Col span={12}>
