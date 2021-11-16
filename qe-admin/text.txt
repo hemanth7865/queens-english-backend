@@ -1047,3 +1047,22 @@
           weekday: 'sunday',
         },
       },
+
+
+      <select
+                      placeholder="Gender"
+                      value={formData.gender}
+                      name="gender"
+                      onChange={handleFormChange}
+                      style={{ width: '348px', color: 'grey' }}
+                      class="required"
+                    >
+                      <option value="gender">Gender</option>
+                      {['Male', 'Woman', 'Not applicable'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>

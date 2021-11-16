@@ -161,7 +161,8 @@ const TeacherBatchList: React.FC = () => {
     status: '',
   });
 
- 
+  //state for select option
+  const [selectValue, setSelectValue] = useState({})
   const [tempDataView, setTempDataView] = useState({});
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
@@ -214,7 +215,7 @@ const handleOneView = async (id) => {
 };
 
 // console.log('viewone', viewOne)
-  console.log('tempdateview', tempDataView)
+  // console.log('tempdateview', tempDataView)
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
     {
@@ -283,6 +284,10 @@ const handleOneView = async (id) => {
           status: 'in active',
         },
         4: {
+          text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="Leave" />,
+          status: 'on leave',
+        },
+        0: {
           text: <FormattedMessage id="pages.searchTable.nameStatus.leave" defaultMessage="Leave" />,
           status: 'on leave',
         },
@@ -365,7 +370,7 @@ const handleOneView = async (id) => {
   //   console.log(str);
   // };
 
-  const handleFormChange = (e) => {
+  const handleFormChange = (e, value) => {
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
@@ -373,6 +378,10 @@ const handleOneView = async (id) => {
     // console.log('input one');
   };
 
+  const handleSelectChange = (value)=>{
+    console.log('status', value)
+    setSelectValue(value)
+  }
   
 
   const handleFormSubmit = async () => {
@@ -386,12 +395,12 @@ const handleOneView = async (id) => {
       address: formData.address,
       whatsapp: formData.whatsapp,
       status: formData.status,
-      gender: formData.gender,
+      gender: selectValue,
       nationalityId: formData.nationality,
       category: formData.category,
       languages: formData.languagesKnownn,
       startDate: formData.startDate,
-      lead_type: 1,
+      lead_type: formData.teacherType,
       photo: formData.photo,
       startDate: formData.startDate,
       lead:[{
@@ -419,24 +428,10 @@ const handleOneView = async (id) => {
             body: JSON.stringify(dataForm) }
           );
         if (msg.status === 'ok') {
-          // const defaultLoginSuccessMessage = intl.formatMessage({
-          //   id: 'pages.login.success',
-          //   defaultMessage: '登录成功！',
-          // });
-          // message.success(defaultLoginSuccessMessage);
-          // await fetchUserInfo();
-          // /** 此方法会跳转到 redirect 参数所在的位置 */
-          // if (!history) return;
-          // const { query } = history.location;
-          // const { redirect } = query as { redirect: string };
-          // history.push(redirect || '/');
-          // return;
           console.log('API call sucessfull', msg)
           
         }
         console.log(msg);
-        // 如果失败去设置用户错误信息
-        // setUserLoginState(msg);
       } catch (error) {
         console.log('addRule error', error);
         const defaultLoginFailureMessage = intl.formatMessage({
@@ -448,8 +443,6 @@ const handleOneView = async (id) => {
       setVisible(false)
     // console.log('formData', formData);
     console.log('dataForm', dataForm);
-    // const dataFormJson = JSON.stringify(dataForm);
-    // console.log('json', dataFormJson);
   };
 
   const handleFormSubmitEdit = async ()=>{
@@ -489,9 +482,7 @@ const handleOneView = async (id) => {
       }],
       
       statusId: formData.status,
-      leadAvailability: leadAvailabilities?leadAvailabilities:(tempDataView.leadAvailability&&tempDataView.leadAvailability.map(function (lead, i) {
-        return lead
-      }))
+      leadAvailability: leadAvailabilities?leadAvailabilities:(tempDataView.leadAvailability)
     };
     // async (values: API.LoginParams) => {
       if (tempDataView) {
@@ -548,28 +539,36 @@ const handleOneView = async (id) => {
       start_slot: value[0],
       end_slot: value[1],
       weekday: props.weekday,
-      startDate: props.tempDataView
+      startDate: '2021'
     }
 
     
     if(leadWeekAvailability.start_slot && leadWeekAvailability.end_slot && leadWeekAvailability.weekday){
       leadAvailabilities.push(leadWeekAvailability)
       
-    }console.log('form', leadAvailabilities)
-
+    }
+    // console.log('props from availability', props.temp)
+    const format = 'HH:mm';
     return(
       <Row>
-      <Col span={24} style = {{margin: "5px"}}>
+      <Col  span = {7}>
         
-        <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.week}</Checkbox>
-        <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}} />
-        <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>
+        <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)}  >{props.week}</Checkbox>
+      </Col>
+      <Col  span = {14}>
+        <TimePicker.RangePicker 
+            format={format} 
+            onChange = {(time, timeString)=> {setValue(timeString)}} />
+      </Col>
+      <Col  span = {1}>
+        <a><PlusOutlined /></a>
+      </Col>
+      <Col span = {2}>
         <a><DeleteOutlined /></a>        
          </Col>
     </Row>
       )
   }
-
 
   const deleteTeacher = async (id)=>{
     console.log('clicked delete teacher')
@@ -615,7 +614,7 @@ const handleOneView = async (id) => {
             placement="right"
             onClose={onClose}
             visible={visible}
-            width={780}
+            width={820}
           >
             <Form onFinish={handleFormSubmit}>
               <Row gutter={16}>
@@ -694,23 +693,15 @@ const handleOneView = async (id) => {
                     name="gender"
                     rules={[{ required: true, message: 'Please select an gender' }]}
                   >
-                    <select
+                    <Select
                       placeholder="Gender"
-                      value={formData.gender}
                       name="gender"
-                      onChange={handleFormChange}
-                      style={{ width: '348px', color: 'grey' }}
-                      class="required"
+                      onChange={handleSelectChange}
                     >
-                      <option value="gender">Gender</option>
-                      {['Male', 'Woman', 'Not applicable'].map((i) => {
-                        return (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      <Option value="Male">Male</Option>
+                      <Option value="Female">Female</Option>
+                      <Option value="Not Applicable">Not Applicable</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
               </Row>
@@ -854,6 +845,15 @@ const handleOneView = async (id) => {
                         );
                       })}
                     </select>
+                    {/* <Select
+                      placeholder="Gender"
+                      name="gender"
+                      onChange={handleSelectChange}
+                    >
+                      <Option value="Male">Male</Option>
+                      <Option value="Female">Female</Option>
+                      <Option value="Not Applicable">Not Applicable</Option>
+                    </Select> */}
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -948,7 +948,7 @@ const handleOneView = async (id) => {
                       style={{ width: 350, color: 'grey' }}
                     >
                       <option value="status">Status</option>
-                      {['active', 'onHold', 'leave'].map((i, j) => {
+                      {['leave','active', 'onHold'].map((i, j) => {
                         return (
                           <option key={i} value={j}>
                             {i}
@@ -964,7 +964,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item name="leadAvailability">
                     <label>Week Availability</label>
-                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {1} week = "Monday" />
                     <WeekdayAvailability weekday = {2} week = "Tuesday"/>
                     <WeekdayAvailability weekday = {3} week = "Wednesday"/>
                     <WeekdayAvailability weekday = {4} week = "Thursady"/>
@@ -1285,7 +1285,6 @@ const handleOneView = async (id) => {
           visible={visibleEdit}
           width={780}
         >
-          {console.log('second', tempDataView)}
         <Form onFinish={handleFormSubmitEdit}>
               <Row gutter={16}>
                 <Col span={12}>
@@ -1630,7 +1629,7 @@ const handleOneView = async (id) => {
                       style={{ width: '348px', color: 'grey' }}
                     >
                       <option value="status">Status</option>
-                      {['active', 'onHold', 'leave'].map((i, j) => {
+                      {['leave','active', 'onHold'].map((i, j) => {
                         return (
                           <option key={i} value={j}>
                             {i}
@@ -1646,7 +1645,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item name="leadAvailability">
                     <label>Week Availability</label>
-                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {1} week = "Monday" temp = {tempDataView}/>
                     <WeekdayAvailability weekday = {2} week = "Tuesday"/>
                     <WeekdayAvailability weekday = {3} week = "Wednesday"/>
                     <WeekdayAvailability weekday = {4} week = "Thursady"/>
