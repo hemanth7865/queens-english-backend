@@ -120,7 +120,7 @@ export async function batches(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>(`/be/leads`, {
+  return request<API.RuleList>(`/api/batches`, {
     method: 'GET',
     params: {
       ...params,

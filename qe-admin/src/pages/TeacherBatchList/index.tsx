@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PlusOutlined, DeleteOutlined, EyeOutlined, ClockCircleOutlined} from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, EyeOutlined, ClockCircleOutlined, UploadOutlined} from '@ant-design/icons';
 import {
   Button,
   message,
@@ -13,9 +13,8 @@ import {
   Modal,
   Checkbox,
   TimePicker,
-  Tooltip
-  // Popover,
-  // Upload,
+  Tooltip,
+  Upload,
   // Descriptions,
 } from 'antd';
 import React, { useState, useRef } from 'react';
@@ -163,6 +162,12 @@ const TeacherBatchList: React.FC = () => {
 
   //state for select option
   const [selectValue, setSelectValue] = useState({})
+  const [selectTeacher, setSelectTeacher] = useState({})
+  const [selectStatus, setSelectStatus] = useState({})
+
+  //state for adding images
+  const [uploadResume, setUploadResume] = useState()
+
   const [tempDataView, setTempDataView] = useState({});
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
@@ -366,9 +371,6 @@ const handleOneView = async (id) => {
     
   ];
 
-  // const handleAddTeacher = (str) => {
-  //   console.log(str);
-  // };
 
   const handleFormChange = (e, value) => {
     setFormData((value) => ({
@@ -383,6 +385,24 @@ const handleOneView = async (id) => {
     setSelectValue(value)
   }
   
+  const propsUpload = {
+    name: 'file',
+    action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+    headers: {
+      authorization: 'authorization-text',
+    },
+    onChange(info) {
+      if (info.file.status !== 'uploading') {
+        console.log(info.file, info.file.name);
+      }
+      if (info.file.status === 'done') {
+        setUploadResume(info.file.name)
+        message.success(`${info.file.name} file uploaded successfully`);
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+  };
 
   const handleFormSubmit = async () => {
     console.log('form submitted');
@@ -400,11 +420,11 @@ const handleOneView = async (id) => {
       category: formData.category,
       languages: formData.languagesKnownn,
       startDate: formData.startDate,
-      lead_type: formData.teacherType,
+      lead_type: selectTeacher,
       photo: formData.photo,
       startDate: formData.startDate,
       lead:[{
-        resume: formData.resume,
+        resume: uploadResume,
         qualification: formData.education,
         totalexp: formData.experience,
         video: formData.videoProfile,
@@ -414,7 +434,7 @@ const handleOneView = async (id) => {
         classestaken: 10,
         lead_type: formData.teacherType,
       }],
-      statusId: formData.status,
+      statusId: selectStatus,
       leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
@@ -829,31 +849,13 @@ const handleOneView = async (id) => {
                     name="teacherType"
                     rules={[{ required: true, message: 'Enter the Teacher Type' }]}
                   >
-                    <select
+                    <Select
                       placeholder="Teacher Type"
-                      value={formData.teacherType}
-                      name="teacherType"
-                      onChange={handleFormChange}
-                      style={{ width: 348, color: 'grey' }}
+                      onChange={(value)=>{setSelectTeacher(value)}}
                     >
-                      <option value="teacherType">Teacher Type</option>
-                      {['native', 'not native'].map((i) => {
-                        return (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    {/* <Select
-                      placeholder="Gender"
-                      name="gender"
-                      onChange={handleSelectChange}
-                    >
-                      <Option value="Male">Male</Option>
-                      <Option value="Female">Female</Option>
-                      <Option value="Not Applicable">Not Applicable</Option>
-                    </Select> */}
+                      <Option value="Native">Native</Option>
+                      <Option value="Non Native">Non Native</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -874,7 +876,7 @@ const handleOneView = async (id) => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name="uploadResume">
-                    <input
+                    {/* <input
                       type="file"
                       id="file"
                       class="inputfile"
@@ -882,7 +884,10 @@ const handleOneView = async (id) => {
                       name="resume"
                       onChange={handleFormChange}
                     />
-                    <label for="file">Upload Resume</label>
+                    <label for="file">Upload Resume</label> */}
+                    <Upload {...propsUpload}>
+                      <Button icon={<UploadOutlined />}>Click to Upload Resume</Button>
+                    </Upload>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -940,22 +945,21 @@ const handleOneView = async (id) => {
                       },
                     ]}  
                   >
-                    <select
+                    <Select
                       placeholder="Status"
-                      value={formData.status}
-                      name="status"
-                      onChange={handleFormChange}
-                      style={{ width: 350, color: 'grey' }}
+                      onChange={(value)=>{setSelectStatus(value)}}
                     >
-                      <option value="status">Status</option>
-                      {['leave','active', 'onHold'].map((i, j) => {
-                        return (
-                          <option key={i} value={j}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      <Option value="1">Active</Option>
+                      <Option value="2">On Hold</Option>
+                      <Option value="0">Leave</Option>
+                    </Select>
+                    {/* <Select
+                      placeholder="Teacher Type"
+                      onChange={(value)=>{setSelectTeacher(value)}}
+                    >
+                      <Option value="Native">Native</Option>
+                      <Option value="Non Native">Non Native</Option>
+                    </Select> */}
                   </Form.Item>
                 </Col>
               </Row>
