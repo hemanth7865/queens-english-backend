@@ -1,6 +1,20 @@
 import {UserController} from "./controller/UserController";
+import {LoginController} from "./controller/LoginController";
 
-export const Routes = [{
+export const Routes = [
+    {
+        method: "post",
+        route: "/login",
+        controller: LoginController,
+        action: "login"
+    },
+    {
+        method: "get",
+        route: "/currentUser",
+        controller: LoginController,
+        action: "currentUser"
+    },
+{
     method: "get",
     route: "/leads",
     controller: UserController,
