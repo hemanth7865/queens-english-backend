@@ -169,17 +169,17 @@ const TeacherBatchList: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   //state for select option
-  const [selectValue, setSelectValue] = useState({})
-  const [selectTeacher, setSelectTeacher] = useState({})
-  const [selectStatus, setSelectStatus] = useState({})
+  const [selectValue, setSelectValue] = useState('')
+  const [selectTeacher, setSelectTeacher] = useState('')
+  const [selectStatus, setSelectStatus] = useState('')
 
   //state for adding images
   const [uploadResume, setUploadResume] = useState()
 
   //state for adding datepicker
-  const [dateJoining, setDateJoining] = useState({})
-  const [dateStart, setDateStart] = useState({})
-  const [dateBirth, setDateOfBirth] = useState({})
+  const [dateJoining, setDateJoining] = useState('')
+  const [dateStart, setDateStart] = useState('')
+  const [dateBirth, setDateOfBirth] = useState('')
 
   //add drawer
   const showDrawer = () => {
@@ -393,6 +393,8 @@ const handleOneView = async (id) => {
     setSelectValue(value)
   }
   
+  const dateFormat = 'YYYY/MM/DD';
+
   const propsUpload = {
     name: 'file',
     action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
@@ -481,18 +483,18 @@ const handleOneView = async (id) => {
     const dataForm = {
       firstname: formData.firstName?formData.firstName:tempDataView.firstname,
       lastname: formData.lastName?formData.lastName:tempDataView.lastname,
-      dob: formData.dateOfBirth?formData.dateOfBirth:tempDataView.dob,
+      dob: dateBirth?dateBirth:tempDataView.dob,
       mobile: formData.mobile?formData.mobile:tempDataView.mobile,
       email: formData.email?formData.email:tempDataView.email,
       address: formData.address?formData.address:tempDataView.address,
       whatsapp: formData.whatsapp?formData.whatsapp:tempDataView.whatsapp,
       status: formData.status,
-      gender: formData.gender?formData.gender:tempDataView.gender,
+      gender: selectValue?selectValue:tempDataView.gender,
       nationality: formData.nationality?formData.nationality:tempDataView.nationalityId,
       category: formData.category?formData.category:tempDataView.category,
       languages: formData.languagesKnown?formData.languagesKnown:tempDataView.languages,
-      startDate: formData.startDate?formData.startDate:tempDataView.startDate,
-      lead_type: 1,
+      startDate: dateStart?dateStart:tempDataView.startDate,
+      lead_type: selectTeacher,
       photo: formData.photo,
       lead:[{
         resume: formData.resume,
@@ -504,15 +506,14 @@ const handleOneView = async (id) => {
         })),
         video: formData.videoProfile,
         certificates: formData.certificate,
-        joiningdate: formData.joiningDate?formData.joiningDate:(tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
+        joiningdate: dateJoining?dateJoining:(tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
           return lead.joiningdate
         })),
         ratings: 1,
         classestaken: 10,
         lead_type: formData.teacherType,
       }],
-      
-      statusId: formData.status,
+      statusId: selectStatus?selectStatus:tempDataView.statusId,
       leadAvailability: leadAvailabilities?leadAvailabilities:(tempDataView.leadAvailability)
     };
     // async (values: API.LoginParams) => {
@@ -953,13 +954,6 @@ const handleOneView = async (id) => {
                       <Option value="2">On Hold</Option>
                       <Option value="0">Leave</Option>
                     </Select>
-                    {/* <Select
-                      placeholder="Teacher Type"
-                      onChange={(value)=>{setSelectTeacher(value)}}
-                    >
-                      <Option value="Native">Native</Option>
-                      <Option value="Non Native">Non Native</Option>
-                    </Select> */}
                   </Form.Item>
                 </Col>
               </Row>
@@ -1111,9 +1105,7 @@ const handleOneView = async (id) => {
                   <p>Joining Date </p>
                   </Col>
                   <Col span={11}>  
-                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
-                                        return <span>{lead.joiningdate}</span>
-                                      })}</p>
+                  <p>{tempDataView.lead&&tempDataView.lead.map(function (lead, i) {return <span>{lead.joiningdate}</span>})}</p>
                   </Col>
                   <Col span={7} ></Col>
                   <Col span={6}>  
@@ -1320,30 +1312,19 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="joiningDate"
-                    
                   >
-                    
-                    <Input
-                      placeholder={tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
-                        return lead.joiningdate
-                      })}
-                      type="date"
-                      name="joiningDate"
-                      value={formData.joiningDate}
-                      onChange={handleFormChange}
-                    />
+                    <DatePicker 
+                    placeholder = {tempDataView.lead&&tempDataView.lead.map(function (lead, i) {return lead.joiningdate})}
+                    style = {{width : '348px'}}
+                    onChange={(date,dateString)=>{setDateJoining(dateString)}} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="startDate" >
-                    
-                    <Input
-                      placeholder={tempDataView.startDate}
-                      type="date"
-                      name="startDate"
-                      value={formData.startDate}
-                      onChange={handleFormChange}
-                    />
+                    <DatePicker 
+                    placeholder = {tempDataView.startDate}
+                    style = {{width : '348px'}}
+                    onChange={(date,dateString)=>{setDateStart(dateString)}} />
                   </Form.Item>
                 </Col>
               </Row>
@@ -1351,40 +1332,27 @@ const handleOneView = async (id) => {
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
-                    name="dateOfBirth"
-                    
+                    name="dateOfBirth" 
                   >
-                    
-                    <Input
-                      placeholder={tempDataView.dob}
-                      type="date"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={handleFormChange}
-                    />
+                     <DatePicker 
+                    placeholder = {tempDataView.dob}
+                    style = {{width : '348px'}}
+                    onChange={(date,dateString)=>{setDateOfBirth(dateString)}} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
                     name="gender"
                   >
-                    <select
+                    <Select
                       placeholder={tempDataView.gender}
-                      value={formData.gender}
                       name="gender"
-                      onChange={handleFormChange}
-                      style={{ width: '348px', color: 'grey' }}
-                      class="required"
+                      onChange={handleSelectChange}
                     >
-                      <option value="gender">Gender</option>
-                      {['Male', 'Woman', 'Not applicable'].map((i) => {
-                        return (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      <Option value="Male">Male</Option>
+                      <Option value="Female">Female</Option>
+                      <Option value="Not Applicable">Not Applicable</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
               </Row>
@@ -1512,33 +1480,20 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="teacherType"
-                   
+                    rules={[
+                      {
+                        required: true,
+                        message: 'please enter Teacher Type',
+                      },
+                    ]}
                   >
-                    <select
-                      placeholder={tempDataView.lead&&tempDataView.lead.map(function (lead, i) {
-                        switch (lead.teacherType) {
-                          case 1:
-                            return 'Native'
-                          case 2:
-                            return 'Non Native'
-                          default:
-                            return 'Native'
-                        }
-                        })}
-                      value={formData.teacherType}
-                      name="teacherType"
-                      onChange={handleFormChange}
-                      style={{ width: '348px' }}
+                    <Select
+                      placeholder="Native"
+                      onChange={(value)=>{setSelectTeacher(value)}}
                     >
-                      <option value="teacherType">Teacher Type</option>
-                      {['native', 'not native'].map((i) => {
-                        return (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      <Option value="Native">Native</Option>
+                      <Option value="Non Native">Non Native</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -1625,22 +1580,15 @@ const handleOneView = async (id) => {
                       },
                     ]}
                   >
-                    <select
-                      placeholder="Status"
-                      value={formData.status}
-                      name="status"
-                      onChange={handleFormChange}
-                      style={{ width: '348px', color: 'grey' }}
+                    
+                    <Select
+                      placeholder={tempDataView.statusId}
+                      onChange={(value)=>{setSelectStatus(value)}}
                     >
-                      <option value="status">Status</option>
-                      {['leave','active', 'onHold'].map((i, j) => {
-                        return (
-                          <option key={i} value={j}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      <Option value="1">Active</Option>
+                      <Option value="2">On Hold</Option>
+                      <Option value="0">Leave</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
               </Row>
