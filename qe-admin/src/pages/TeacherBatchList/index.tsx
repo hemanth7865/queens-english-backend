@@ -160,6 +160,14 @@ const TeacherBatchList: React.FC = () => {
     status: '',
   });
 
+
+
+  const [tempDataView, setTempDataView] = useState({});
+  const actionRef = useRef<ActionType>();
+  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
   //state for select option
   const [selectValue, setSelectValue] = useState({})
   const [selectTeacher, setSelectTeacher] = useState({})
@@ -168,11 +176,11 @@ const TeacherBatchList: React.FC = () => {
   //state for adding images
   const [uploadResume, setUploadResume] = useState()
 
-  const [tempDataView, setTempDataView] = useState({});
-  const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  //state for adding datepicker
+  const [dateJoining, setDateJoining] = useState({})
+  const [dateStart, setDateStart] = useState({})
+  const [dateBirth, setDateOfBirth] = useState({})
+
   //add drawer
   const showDrawer = () => {
     setVisible(true);
@@ -404,12 +412,16 @@ const handleOneView = async (id) => {
     },
   };
 
+  function onChangeDate(date, dateString) {
+    console.log(date, dateString);
+  }
+
   const handleFormSubmit = async () => {
     console.log('form submitted');
     const dataForm = {
       firstname: formData.firstName,
       lastname: formData.lastName,
-      dob: formData.dateOfBirth,
+      dob: dateBirth,
       mobile: formData.mobile,
       email: formData.email,
       address: formData.address,
@@ -419,17 +431,16 @@ const handleOneView = async (id) => {
       nationalityId: formData.nationality,
       category: formData.category,
       languages: formData.languagesKnownn,
-      startDate: formData.startDate,
+      startDate: dateStart,
       lead_type: selectTeacher,
       photo: formData.photo,
-      startDate: formData.startDate,
       lead:[{
         resume: uploadResume,
         qualification: formData.education,
         totalexp: formData.experience,
         video: formData.videoProfile,
         certificates: formData.certificate,
-        joiningdate: formData.joiningDate,
+        joiningdate: dateJoining,
         ratings: 1,
         classestaken: 10,
         lead_type: formData.teacherType,
@@ -668,26 +679,19 @@ const handleOneView = async (id) => {
                     name="joiningDate"
                     rules={[{ required: true, message: 'Joining Date' }]}
                   >
-                    <Input
-                      placeholder="Joining Date"
-                      type="date"
-                      name="joiningDate"
-                      value={formData.joiningDate}
-                      onChange={handleFormChange}
-                    />
+                    <DatePicker 
+                    placeholder = "Joining Date"
+                    style = {{width : '370px'}}
+                    onChange={(date,dateString)=>{setDateJoining(dateString)}} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="startDate" 
                   rules={[{ required: true, message: 'Start Date' }]}>
-                    
-                    <Input
-                      placeholder="Start Date"
-                      type="date"
-                      name="startDate"
-                      value={formData.startDate}
-                      onChange={handleFormChange}
-                    />
+                    <DatePicker 
+                    placeholder = "Start Date"
+                    style = {{width : '370px'}}
+                    onChange={(date,dateString)=>{setDateStart(dateString)}} />
                   </Form.Item>
                 </Col>
               </Row>
@@ -698,14 +702,10 @@ const handleOneView = async (id) => {
                     name="dateOfBirth"
                     rules={[{ required: true, message: 'Enter date of birthday' }]}
                   >
-                    
-                    <Input
-                      placeholder="DateofBirth"
-                      type="date"
-                      name="dateOfBirth"
-                      value={formData.dateOfBirth}
-                      onChange={handleFormChange}
-                    />
+                    <DatePicker 
+                    placeholder = "Joining Date"
+                    style = {{width : '370px'}}
+                    onChange={(date,dateString)=>{setDateOfBirth(dateString)}} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -886,7 +886,7 @@ const handleOneView = async (id) => {
                     />
                     <label for="file">Upload Resume</label> */}
                     <Upload {...propsUpload}>
-                      <Button icon={<UploadOutlined />}>Click to Upload Resume</Button>
+                      <Button icon={<UploadOutlined />} style = {{width : '370px'}} >Upload Resume</Button>
                     </Upload>
                   </Form.Item>
                 </Col>
