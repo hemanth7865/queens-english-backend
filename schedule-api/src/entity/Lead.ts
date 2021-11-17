@@ -12,7 +12,7 @@ export class Lead extends BaseEntity {
     @Column({'nullable':true,type:"text"})
         qualification: string;
     @Column({'nullable':true,type:"double"})
-        total_exp: Double;
+        totalexp: Double;
     @Column({'nullable':true,type:"text"})
         resume:string;
     @Column({'nullable':true,type:"text"})
@@ -20,14 +20,17 @@ export class Lead extends BaseEntity {
     @Column({'nullable':true,type:"text"})
         video: string;
    
-    @Column({'nullable':true,type:"datetime"})
-        joining_date: string;
+    @Column({'nullable':true,type:"date"})
+        joiningdate: Date;
     
     @Column({'nullable':true})
         ratings: number;
     @Column({'nullable':true})
-        totlaclasses: number;
+        classestaken: number;
     
+    @Column({'nullable':true})
+        leadtype: number;
+
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})
         created_at:Date
