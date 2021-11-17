@@ -10,7 +10,10 @@ import {LeadAvailability} from "./LeadAvailability";
 export class Users extends BaseEntity {
     name: string;
     exp: string;
-    totlaclasses: number;
+    classestaken: number;
+    leadtype:number;
+    joiningdate:Date;
+    ratings:number;
     Users() {}
     @PrimaryGeneratedColumn()
         id: number;
@@ -28,7 +31,7 @@ export class Users extends BaseEntity {
         address: string;
     @Column({'nullable':true, type:"text"})
         whatsapp: string;
-    @Column({'nullable':true, type:"datetime"})
+    @Column({'nullable':true, type:"date"})
         dob:Date;
     @Column({'nullable':true})
         nationalityId: number;
@@ -50,6 +53,10 @@ export class Users extends BaseEntity {
         photo: string;
     @Column({'nullable':true,type:"text"})
         languages: string;
+
+
+        @Column({'nullable':true,type:"date"})
+            startDate:Date    
     
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})
@@ -61,12 +68,15 @@ export class Users extends BaseEntity {
     
     @Column({'nullable':true})
         leadId:number;
+
         @Column({'nullable':true})
         slots:string;
 
 @OneToOne(() => Lead)
     @JoinColumn()
-    lead: Lead;
+    leadData: Lead;
+
+    lead:Lead[];   
 
     leadAvailability: LeadAvailability[];
 

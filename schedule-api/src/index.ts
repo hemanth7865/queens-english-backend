@@ -5,7 +5,6 @@ import * as bodyParser from "body-parser";
 import {Request, Response} from "express";
 import {Routes} from "./routes";
 import {User} from "./entity/User";
-import * as CookieParser from 'cookie-parser';
 var cors = require('cors')
 
 createConnection().then(async connection => {
@@ -14,7 +13,6 @@ createConnection().then(async connection => {
     const app = express();
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: false}))
-    app.use(CookieParser('test12344321'))
     app.options('*', cors()) 
     app.use(cors());
 
