@@ -65,7 +65,7 @@
     "react-dev-inspector": "^1.1.1",
     "react-dom": "^17.0.0",
     "react-helmet-async": "^1.0.4",
-    "umi": "^3.5.0",
+    "umi": "^3.5.20",
     "umi-serve": "^1.9.10"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "@umijs/preset-react": "^1.8.17",
     "@umijs/yorkie": "^2.0.3",
     "carlo": "^0.9.46",
-    "cross-env": "^7.0.0",
+    "cross-env": "^7.0.3",
     "cross-port-killer": "^1.1.1",
     "detect-installer": "^1.0.1",
     "enzyme": "^3.11.0",
