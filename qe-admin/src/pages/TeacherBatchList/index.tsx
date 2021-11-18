@@ -235,25 +235,6 @@ const handleOneView = async (id) => {
       title: <FormattedMessage id="pages.searchTable.titleDate" defaultMessage="Date" />,
       dataIndex: 'date',
       valueType: 'date',
-     
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-        if (`${status}` === '0') {
-          return false;
-        }
-        if (`${status}` === '3') {
-          return (
-            <Input
-              {...rest}
-              placeholder={intl.formatMessage({
-                id: 'pages.searchTable.exception',
-                defaultMessage: 'Please enter the reason for the exception!',
-              })}
-            />
-          );
-        }
-        return defaultRender(item);
-      },
     },
     //teacher name
     {
@@ -271,7 +252,7 @@ const handleOneView = async (id) => {
       title: (
         <FormattedMessage id="pages.searchTable.titleExperience" defaultMessage="Experience" />
       ),
-      dataIndex: 'totalexp',
+      dataIndex: 'experience',
     },
     //status
     {
@@ -651,7 +632,7 @@ const handleOneView = async (id) => {
             <Form onFinish={handleFormSubmit}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}>
+                  <Form.Item name="first name" rules={[{ required: true, message: 'Please enter the First Name' }]}>
                     <Input
                       type="text"
                       placeholder="First Name"
@@ -760,7 +741,7 @@ const handleOneView = async (id) => {
               {/* Email and address */}
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="email" >
+                  <Form.Item name="email"  rules={[{ required: true, type: "email", message: "Enter a valid email" }]}>
                     <Input
                       type="text"
                       placeholder="Email"
@@ -787,7 +768,9 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="nationality"
-                    rules={[{ required: true, message: 'Enter the Nationality' }]}
+                    rules={[{ required: true, 
+                      pattern: /^[0-9]*$/,
+                      message: 'Enter the Nationality Number' }]}
                   >
                     <Input
                       type="text"
@@ -801,7 +784,7 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="category"
-                    rules={[{ required: true, message: 'Enter the Nationality' }]}
+                    rules={[{ required: true, message: 'Enter the category' }]}
                   >
                     <Input
                       type="text"
@@ -831,7 +814,9 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="totalExperience"
-                    rules={[{ required: true, message: 'Enter the Education/Qualification' }]}
+                    rules={[{ required: true, 
+                      pattern: /^[0-9]*$/,
+                      message: 'Enter the total years of experience' }]}
                   >
                     <Input
                       type="text"
@@ -1573,16 +1558,10 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item
                     name="status"
-                    rules={[
-                      {
-                        required: true,
-                        message: 'please enter Status',
-                      },
-                    ]}
                   >
-                    
                     <Select
-                      placeholder={tempDataView.statusId}
+                      placeholder={tempDataView.statusId == 1? ( 'Active'
+                       ):(tempDataView.statusId == 2? ('OnHold' ): (tempDataView.statusId == 3 ? ('In Active' ):'Leave'))} 
                       onChange={(value)=>{setSelectStatus(value)}}
                     >
                       <Option value="1">Active</Option>
