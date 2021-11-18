@@ -24,6 +24,11 @@ export class LeadAvailability extends BaseEntity {
         end_min: Number;
 
     @Column({'nullable':true})
+        startMin: Number;
+    @Column({'nullable':true})
+        endMin: Number;
+
+    @Column({'nullable':true})
         weekday: Number;
      
     @CreateDateColumn()
