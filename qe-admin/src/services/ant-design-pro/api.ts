@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from 'umi';
 
-const API_URL =  ``; //process.env.API_URL;
+const API_URL =  `http://localhost:3000`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
 
 const apiKeyQueryString = (url: string, key: string) => {
@@ -41,7 +41,7 @@ const getForwardPath = (url: string) => {
 
 export async function currentUser(options?: { [key: string]: any }) {
   return request<API.CurrentUser>
-  (getForwardPath('/api/currentUser'), {
+  (('/be/currentUser'), {
     method: 'GET',
     ...(options || {}),
   })
@@ -73,7 +73,7 @@ export async function outLogin(options?: { [key: string]: any }) {
 
 /** 登录接口 POST /api/login/account */
 export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
-  return request<API.LoginResult>('/api/login/account', {
+  return request<API.LoginResult>('/be/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -109,6 +109,82 @@ export async function factLicenses(
   });
 }
 
+//api for batches
+export async function batches(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>(`/api/batches`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+//api for teacher batches
+export async function teacherBatches(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+)
+ {
+   console.log('option', options)
+  return request<API.RuleList>('/be/leadsview', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+
+//api for teacher batches for id
+export async function teacherBatchesView(
+  id,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }, 
+
+) {
+  // console.log('id', id)
+  return request<API.RuleList>(`/be/leadsFullView/${id}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+export async function teacherRemove(id, options?: { [key: string]: any }) {
+  return request<Record<string, any>>(`/be/users/${id}`, {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
+
 /** 获取规则列表 GET /api/rule */
 export async function rule(
   params: {
@@ -139,11 +215,31 @@ export async function updateRule(options?: { [key: string]: any }) {
 
 /** 新建规则 POST /api/rule */
 export async function addRule(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/api/rule', {
+  console.log('option', options)
+  return request<any>('/api/rule', {
     method: 'POST',
     ...(options || {}),
   });
 }
+
+/** POST /be/leads */
+export async function addTeacherSchedule(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/leads', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+/** EDIT /be/leads */
+export async function editTeacherSchedule(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/leads', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 
 /** 删除规则 DELETE /api/rule */
 export async function removeRule(options?: { [key: string]: any }) {

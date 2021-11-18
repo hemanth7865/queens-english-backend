@@ -7,11 +7,17 @@
  * https://pro.ant.design/docs/deploy
  */
 export default {
-  dev: {
+ 
+  dev: {  //mock
     '/api/': {
       target: 'http://localhost:3000/api',
       changeOrigin: true,
       pathRewrite: { '^/api': '' },
+    },
+    '/be/': { //backend
+      target: 'http://localhost:3000',
+      changeOrigin: true,
+      pathRewrite: { '^/be': '' },
     },
   },
   test: {
@@ -29,3 +35,6 @@ export default {
     },
   },
 };
+
+
+

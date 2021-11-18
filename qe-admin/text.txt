@@ -1,0 +1,1068 @@
+ <PageContainer>
+      {/* {console.log('teacherbatches', teacherBatches)} */}
+      <ProTable<API.RuleListItem, API.PageParams>
+        headerTitle={intl.formatMessage({
+          id: 'pages.searchTable.title',
+          defaultMessage: 'Enquiry form',
+        })}
+        actionRef={actionRef}
+        rowKey="key"
+        search={{
+          labelWidth: 120,
+        }}
+        request={teacherBatches}
+        columns={columns}
+        // rowSelection={{
+        //   onChange: (_, selectedRows) => {
+        //     setSelectedRows(selectedRows);
+        //   },
+        // }}
+        toolBarRender={() => [
+          <Button type="primary" key="primary" onClick={showDrawer}>
+            <PlusOutlined />{' '}
+            {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
+            Add Teacher
+          </Button>,
+          <Drawer
+            title="Add Teacher"
+            placement="right"
+            onClose={onClose}
+            visible={visible}
+            width={760}
+          >
+            <Form onFinish={handleFormSubmit}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder="First Name"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder="Last Name"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* joining and start date */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="joiningDate"
+                    rules={[{ required: true, message: 'Joining Date' }]}
+                  > */}
+                    <Input
+                      placeholder="Joining Date"
+                      type="date"
+                      name="joiningDate"
+                      value={formData.joiningDate}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item name="startDate" rules={[{ required: true, message: 'Start Date' }]}> */}
+                    
+                    <Input
+                      placeholder="Start Date"
+                      type="date"
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Date of Birth and gender */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="dateOfBirth"
+                    rules={[{ required: true, message: 'Enter date of birthday' }]}
+                  > */}
+                    
+                    <Input
+                      placeholder="DateofBirth"
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="gender"
+                    rules={[{ required: true, message: 'Please select an gender' }]}
+                  > */}
+                    <select
+                      placeholder="Gender"
+                      value={formData.gender}
+                      name="gender"
+                      onChange={handleFormChange}
+                      style={{ width: '348px', color: 'grey' }}
+                      class="required"
+                    >
+                      <option value="gender">Gender</option>
+                      {['Male', 'Woman', 'Not applicable'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Mobile and Whatsup */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="mobile"
+                    rules={[{ required: true, message: 'Enter the mobile number' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="Mobile"
+                      name="mobile"
+                      value={formData.mobile}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="whatsApp"
+                    rules={[{ required: true, message: 'Enter the whatsApp number' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="WhatsApp"
+                      name="whatsapp"
+                      value={formData.whatsapp}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Email and address */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item name="email" rules={[{ required: true, message: 'email' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder="Email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item name="address" rules={[{ required: true, message: 'address' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder="Address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Nationality and category */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="nationality"
+                    rules={[{ required: true, message: 'Enter the Nationality' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="Nationality"
+                      name="nationality"
+                      value={formData.nationality}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="category"
+                    rules={[{ required: true, message: 'Enter the Category number' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="Category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Education/Qualification and total experience */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="qualification"
+                    rules={[{ required: true, message: 'Enter the Education/Qualification' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="Education/Qualification"
+                      name="education"
+                      value={formData.education}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="totalExperience"
+                    rules={[{ required: true, message: 'Enter the Total Experience' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="Total Experience"
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Teacher Type and Language Known */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="teacherType"
+                    rules={[{ required: true, message: 'Enter the Teacher Type' }]}
+                  > */}
+                    <select
+                      placeholder="Teacher Type"
+                      value={formData.teacherType}
+                      name="teacherType"
+                      onChange={handleFormChange}
+                      style={{ width: 348, color: 'grey' }}
+                    >
+                      <option value="teacherType">Teacher Type</option>
+                      {['native', 'not native'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="languageKnown"
+                    rules={[{ required: true, message: 'Enter the Languages Known' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder="Languages Known"
+                      name="languagesKnown"
+                      value={formData.languagesKnown}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* upload resume and upload video profile */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="uploadResume">
+                    {/* <label>
+                      <Input
+                        type="file"
+                        placeholder="Upload Resume"
+                        name="resume"
+                        value={formData.resume}
+                        onChange={handleFormChange}
+                        style={{ display: 'none' }}
+                      />
+                      Resume Upload
+                    </label> */}
+                    <input
+                      type="file"
+                      id="file"
+                      class="inputfile"
+                      value={formData.resume}
+                      name="resume"
+                      onChange={handleFormChange}
+                    />
+                    <label for="file">Upload Resume</label>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="videoProfile">
+                    <input
+                      type="file"
+                      id="videoProfile"
+                      class="inputfile"
+                      value={formData.videoProfile}
+                      name="videoProfile"
+                      onChange={handleFormChange}
+                    />
+                    <label for="videoProfile">Upload Video Profile</label>
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* upload certificate and upload photo */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item name="uploadCertificate"> */}
+                    <input
+                      type="file"
+                      id="certificate"
+                      class="inputfile"
+                      value={formData.certificate}
+                      name="certificate"
+                      onChange={handleFormChange}
+                    />
+                    <label for="certificate">Upload Certificate</label>
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="uploadPhoto">
+                    <input
+                      type="file"
+                      id="photo"
+                      class="inputfile"
+                      value={formData.photo}
+                      name="photo"
+                      onChange={handleFormChange}
+                    />
+                    <label for="photo">Upload Photo</label>
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* Availability */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="leadAvailability">
+                    <label>Week Availability</label>
+                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
+                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
+                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
+                    <WeekdayAvailability weekday = {5} week = "Friday"/>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="leadAvailability">
+                  <label>Weekend Availability</label>
+                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
+                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* status */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="status"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'please enter Status',
+                      },
+                    ]}
+                  > */}
+                    <select
+                      placeholder="Status"
+                      value={formData.status}
+                      name="status"
+                      onChange={handleFormChange}
+                      style={{ width: 350, color: 'grey' }}
+                    >
+                      <option value="status">Status</option>
+                      {['active', 'onHold', 'leave'].map((i, j) => {
+                        return (
+                          <option key={i} value={j}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              <Input type="submit" value="Add Teacher" />
+            </Form>
+          </Drawer>,
+        ]}
+      />
+      {selectedRowsState?.length > 0 && (
+        <FooterToolbar
+          extra={
+            <div>
+              <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen" />{' '}
+              <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
+              <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
+              &nbsp;&nbsp;
+              <span>
+                <FormattedMessage
+                  id="pages.searchTable.totalServiceCalls"
+                  defaultMessage="Total number of service calls"
+                />{' '}
+                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{' '}
+                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
+              </span>
+            </div>
+          }
+        >
+          <Button
+            onClick={async () => {
+              await handleRemove(selectedRowsState);
+              setSelectedRows([]);
+              actionRef.current?.reloadAndRest?.();
+            }}
+          >
+            <FormattedMessage
+              id="pages.searchTable.batchDeletion"
+              defaultMessage="Batch deletion"
+            />
+          </Button>
+          <Button type="primary">
+            <FormattedMessage
+              id="pages.searchTable.batchApproval"
+              defaultMessage="Batch approval"
+            />
+          </Button>
+        </FooterToolbar>
+      )}
+      <ModalForm
+        title={intl.formatMessage({
+          id: 'pages.searchTable.createForm.newRule',
+          defaultMessage: 'New rule',
+        })}
+        width="400px"
+        visible={createModalVisible}
+        onVisibleChange={handleModalVisible}
+        onFinish={async (value) => {
+          const success = await handleAdd(value as API.RuleListItem);
+          if (success) {
+            handleModalVisible(false);
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+      >
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage
+                  id="pages.searchTable.ruleName"
+                  defaultMessage="Rule name is required"
+                />
+              ),
+            },
+          ]}
+          width="md"
+          name="name"
+        />
+        <ProFormTextArea width="md" name="desc" />
+      </ModalForm>
+      <UpdateForm
+        onSubmit={async (value) => {
+          const success = await handleUpdate(value);
+          if (success) {
+            handleUpdateModalVisible(false);
+            setCurrentRow(undefined);
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+        onCancel={() => {
+          handleUpdateModalVisible(false);
+          if (!showDetail) {
+            setCurrentRow(undefined);
+          }
+        }}
+        updateModalVisible={updateModalVisible}
+        values={currentRow || {}}
+      />
+
+      <Drawer
+        width={600}
+        visible={showDetail}
+        onClose={() => {
+          setCurrentRow(undefined);
+          setShowDetail(false);
+        }}
+        closable={false}
+      >
+        <Row>
+          PHOTO - 
+          <Col span={10}>PHOTO</Col>
+          <Col span={14}>
+                {console.log('tempDatasvs', tempDataView)}
+                <p>Name : {tempDataView.firstname}</p>
+                {/* <p>Joining Date : {tempDataView.lead.joining_date}</p> */}
+                <p>Start Date : {tempDataView.startDate}</p>
+                <p>Gender : {tempDataView.gender}</p>
+                <p>Mobile : {tempDataView.mobile}</p>
+                <p>WhatsApp : {tempDataView.whatsapp}</p>
+                <p>Email : {tempDataView.email}</p>
+                <p>Address : {tempDataView.address}</p>
+                <p>Nationality : {tempDataView.nationalityId}</p>
+                <p>Category : {tempDataView.category}</p>
+                <p>Gender : {tempDataView.gender}</p>
+                {/* <p>Education : {tempDataView.lead.qualification}</p>
+                <p>Experience : {tempDataView.lead.total_exp}</p> */}
+                <p>Teacher Type : {tempDataView.teacherType}</p>
+                <p>Languages Known : {tempDataView.languages}</p>
+                {/* <p>Resume: {tempDataView.lead.resume}</p>
+                <p>Video Profile: {tempDataView.lead.video}</p>
+                <p>Certificates: {tempDataView.lead.certificates}</p> */}
+                <p>Availabilty During the Week</p>
+                <p>Availabilty During the Weekend</p>
+                <p>Status : {tempDataView.statusId}</p>
+          </Col>
+        </Row>
+
+              
+        {console.log('temp id', tempDataView.leadId, tempDataView.lead)}
+        <Button type="primary" onClick={showDrawerEdit}>
+          {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
+          Edit Teacher
+        </Button>
+        <Drawer
+          title="Edit Teacher"
+          placement="right"
+          onClose={onCloseEdit}
+          visible={visibleEdit}
+          width={760}
+        >
+        <Form onFinish={handleFormSubmitEdit}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item name="first name" rules={[{ required: true, message: 'First name' }]}> */}
+                    <Input
+                      type="text"
+                      // placeholder = "firstname"
+                      placeholder={tempDataView.firstname}
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item name="last Name" rules={[{ required: true, message: 'last Name' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder = "lastname"
+                      // placeholder={tempDataView.lastname}
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* joining and start date */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="joiningDate"
+                    rules={[{ required: true, message: 'Joining Date' }]}
+                  > */}
+                    <Input
+                      placeholder="Joining Date"
+                      type="date"
+                      name="joiningDate"
+                      value={formData.joiningDate}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item name="startDate" rules={[{ required: true, message: 'Start Date' }]}> */}
+                    
+                    <Input
+                      placeholder="start Date"
+                      type="date"
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Date of Birth and gender */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="dateOfBirth"
+                    rules={[{ required: true, message: 'Enter date of birthday' }]}
+                  > */}
+                    
+                    <Input
+                      placeholder="Date of Birth"
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="gender"
+                    rules={[{ required: true, message: 'Please select an gender' }]}
+                  > */}
+                    <select
+                      placeholder="Gender"
+                      value={formData.gender}
+                      name="gender"
+                      onChange={handleFormChange}
+                      style={{ width: '230px' }}
+                      class="required"
+                    >
+                      <option value="gender">Gender</option>
+                      {['Male', 'Woman', 'Not applicable'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Mobile and Whatsup */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="mobile"
+                    rules={[{ required: true, message: 'Enter the mobile number' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "mobile"
+                      // placeholder={tempDataView.mobile}
+                      name="mobile"
+                      value={formData.mobile}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="whatsApp"
+                    rules={[{ required: true, message: 'Enter the whatsApp number' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "mobile"
+                      // placeholder={tempDataView.whatsapp}
+                      name="whatsapp"
+                      value={formData.whatsapp}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Email and address */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item name="email" rules={[{ required: true, message: 'email' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder = "email"
+                      // placeholder={tempDataView.email}
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item name="address" rules={[{ required: true, message: 'address' }]}> */}
+                    <Input
+                      type="text"
+                      placeholder = "address"
+                      // placeholder={tempDataView.address}
+                      name="address"
+                      value={formData.address}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Nationality and category */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="nationality"
+                    rules={[{ required: true, message: 'Enter the Nationality' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "nationalility"
+                      // placeholder={tempDataView.nationalityId}
+                      name="nationality"
+                      value={formData.nationality}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="category"
+                    rules={[{ required: true, message: 'Enter the Category number' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "category"
+                      // placeholder={tempDataView.category}
+                      name="category"
+                      value={formData.category}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Education/Qualification and total experience */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="qualification"
+                    rules={[{ required: true, message: 'Enter the Education/Qualification' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "qualification"
+                      // placeholder={tempDataView.lead.qualification}
+                      name="education"
+                      value={formData.education}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="totalExperience"
+                    rules={[{ required: true, message: 'Enter the Total Experience' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "exp"
+                      // placeholder={tempDataView.lead.total_exp}
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* Teacher Type and Language Known */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="teacherType"
+                    rules={[{ required: true, message: 'Enter the Teacher Type' }]}
+                  > */}
+                    <select
+                      placeholder="Teacher Type"
+                      value={formData.teacherType}
+                      name="teacherType"
+                      onChange={handleFormChange}
+                      style={{ width: '230px' }}
+                    >
+                      <option value="teacherType">Teacher Type</option>
+                      {['native', 'not native'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="languageKnown"
+                    rules={[{ required: true, message: 'Enter the Languages Known' }]}
+                  > */}
+                    <Input
+                      type="text"
+                      placeholder = "language"
+                      // placeholder={tempDataView.languages}
+                      name="languagesKnown"
+                      value={formData.languagesKnown}
+                      onChange={handleFormChange}
+                    />
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              {/* upload resume and upload video profile */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="uploadResume">
+                    {/* <label>
+                      <Input
+                        type="file"
+                        placeholder="Upload Resume"
+                        name="resume"
+                        value={formData.resume}
+                        onChange={handleFormChange}
+                        style={{ display: 'none' }}
+                      />
+                      Resume Upload
+                    </label> */}
+                    <input
+                      type="file"
+                      id="file"
+                      class="inputfile"
+                      value={formData.resume}
+                      name="resume"
+                      onChange={handleFormChange}
+                    />
+                    <label for="file">Upload Resume</label>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="videoProfile">
+                    <input
+                      type="file"
+                      id="videoProfile"
+                      class="inputfile"
+                      value={formData.videoProfile}
+                      name="videoProfile"
+                      onChange={handleFormChange}
+                    />
+                    <label for="videoProfile">Upload Video Profile</label>
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* upload certificate and upload photo */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item name="uploadCertificate"> */}
+                    <input
+                      type="file"
+                      id="certificate"
+                      class="inputfile"
+                      value={formData.certificate}
+                      name="certificate"
+                      onChange={handleFormChange}
+                    />
+                    <label for="certificate">Upload Certificate</label>
+                  {/* </Form.Item> */}
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="uploadPhoto">
+                    <input
+                      type="file"
+                      id="photo"
+                      class="inputfile"
+                      value={formData.photo}
+                      name="photo"
+                      onChange={handleFormChange}
+                    />
+                    <label for="photo">Upload Photo</label>
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* Availability */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="leadAvailability">
+                    <label>Week Availability</label>
+                    <WeekdayAvailability weekday = {1} week = "Monday"/>
+                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
+                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
+                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
+                    <WeekdayAvailability weekday = {5} week = "Friday"/>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="leadAvailability">
+                  <label>Weekend Availability</label>
+                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
+                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
+                  
+                  </Form.Item>
+                </Col>
+              </Row>
+              {/* status */}
+              <Row gutter={16}>
+                <Col span={12}>
+                  {/* <Form.Item
+                    name="status"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'please enter Status',
+                      },
+                    ]}
+                  > */}
+                    <select
+                      placeholder="Status"
+                      value={formData.status}
+                      name="status"
+                      onChange={handleFormChange}
+                      style={{ width: '230px' }}
+                    >
+                      <option value="status">Status</option>
+                      {['active', 'onHold', 'leave'].map((i, j) => {
+                        return (
+                          <option key={i} value={j}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  {/* </Form.Item> */}
+                </Col>
+              </Row>
+              <Input type="submit" value="Edit Teacher" />
+            </Form>
+        </Drawer>
+      </Drawer>
+    </PageContainer>
+
+
+
+    {tempDataView.length != 0?(
+                  tempDataView.map((data)=>{
+                    return(
+                      <div>
+                        <p>Name : {data.firstname} {data.lastname}</p>
+                          {/* <p>Joining Date : {data.lead.joining_date}</p> */}
+                          <p>Start Date : {data.startDate}</p>
+                          <p>Gender : {data.gender}</p>
+                          <p>Mobile : {data.mobile}</p>
+                          <p>WhatsApp : {data.whatsapp}</p>
+                          <p>Email : {data.email}</p>
+                          <p>Address : {data.address}</p>
+                          <p>Nationality : {data.nationalityId}</p>
+                          <p>Category : {data.category}</p>
+                          <p>Gender : {data.gender}</p>
+                          {/* <p>Education : {data.lead.qualification}</p>
+                          <p>Experience : {data.lead.total_exp}</p> */}
+                          <p>Teacher Type : {data.teacherType}</p>
+                          <p>Languages Known : {data.languages}</p>
+                          {/* <p>Resume: {data.lead.resume}</p>
+                          <p>Video Profile: {data.lead.video}</p>
+                          <p>Certificates: {data.lead.certificates}</p> */}
+                          <p>Availabilty During the Week</p>
+                          <p>Availabilty During the Weekend</p>
+                          <p>Status : {data.statusId}</p>
+                      </div>
+                    )
+                  })
+                ):(<p>load</p>)}
+
+
+
+        <Row>
+          
+          <Col span={10}> PHOTO -  PHOTO</Col>
+          <Col span={14}>
+                {console.log('tempDatasvs', tempDataView)}
+                <p>Name : {tempDataView.firstname} {tempDataView.lastname}</p>
+                {/* <p>Joining Date : {tempDataView.lead.joining_date}</p> */}
+                <p>Start Date : {tempDataView.startDate}</p>
+                <p>Gender : {tempDataView.gender}</p>
+                <p>Mobile : {tempDataView.mobile}</p>
+                <p>WhatsApp : {tempDataView.whatsapp}</p>
+                <p>Email : {tempDataView.email}</p>
+                <p>Address : {tempDataView.address}</p>
+                <p>Nationality : {tempDataView.nationalityId}</p>
+                <p>Category : {tempDataView.category}</p>
+                <p>Gender : {tempDataView.gender}</p>
+                {/* <p>Education : {tempDataView.lead.qualification}</p>
+                <p>Experience : {tempDataView.lead.total_exp}</p> */}
+                <p>Teacher Type : {tempDataView.teacherType}</p>
+                <p>Languages Known : {tempDataView.languages}</p>
+                {/* <p>Resume: {tempDataView.lead.resume}</p>
+                <p>Video Profile: {tempDataView.lead.video}</p>
+                <p>Certificates: {tempDataView.lead.certificates}</p> */}
+                <p>Availabilty During the Week</p>
+                <p>Availabilty During the Weekend</p>
+                <p>Status : {tempDataView.statusId}</p>
+          </Col>
+        </Row>
+
+
+
+        valueEnum: {
+        1: {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameweekday.monday" defaultMessage="Monday" />
+          ),
+          weekday: 'monday',
+        },
+        
+        2: {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameweekday.tuesday" defaultMessage="Tuesday" />
+          ),
+          weekday: 'tuesday',
+        },
+        3: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.wednesday" defaultMessage="Wednesday" />,
+          weekday: 'wednesday',
+        },
+        4: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.thursday" defaultMessage="Thursday" />,
+          weekday: 'thursday',
+        },
+        5: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.friday" defaultMessage="Friday" />,
+          weekday: 'friday',
+        },
+        6: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.saturday" defaultMessage="Saturday" />,
+          weekday: 'saturday',
+        },
+        7: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.sunday" defaultMessage="Sunday" />,
+          weekday: 'sunday',
+        },
+      },
+
+
+      <select
+                      placeholder="Gender"
+                      value={formData.gender}
+                      name="gender"
+                      onChange={handleFormChange}
+                      style={{ width: '348px', color: 'grey' }}
+                      class="required"
+                    >
+                      <option value="gender">Gender</option>
+                      {['Male', 'Woman', 'Not applicable'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
