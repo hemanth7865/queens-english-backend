@@ -15,6 +15,7 @@ import {
   TimePicker,
   Tooltip,
   Upload,
+  RangePicker
   // Descriptions,
 } from 'antd';
 import React, { useState, useRef } from 'react';
@@ -134,6 +135,7 @@ const TeacherBatchList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
+  const [editvisible, seteditvisible] = useState<boolean>(false);
   //form states
   const [formData, setFormData] = useState({
     firstName: '',
@@ -156,17 +158,18 @@ const TeacherBatchList: React.FC = () => {
     videoProfile: '',
     certificate: '',
     photo: '',
-    leadAvailability: leadAvailabilities,
+    leadAvailability: null,
     status: '',
   });
 
 
 
-  const [tempDataView, setTempDataView] = useState({});
+
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [tempDataView, setTempDataView] = useState({});
 
   //state for select option
   const [selectValue, setSelectValue] = useState('')
@@ -175,6 +178,8 @@ const TeacherBatchList: React.FC = () => {
 
   //state for adding images
   const [uploadResume, setUploadResume] = useState()
+  
+  const [selectLead1, setSelectLead1] = useState([])
 
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState('')
@@ -187,10 +192,12 @@ const TeacherBatchList: React.FC = () => {
   };
   const onClose = () => {
     setVisible(false);
+    seteditvisible(false);
   };
 
   const showDrawerEdit = () => {
     setVisibleEdit(true);
+    seteditvisible(true);
   };
   const onCloseEdit = () => {
     setVisibleEdit(false);
@@ -333,6 +340,41 @@ const handleOneView = async (id) => {
       title: <FormattedMessage id="pages.searchTable.titleWeekday" defaultMessage="Weekday" />,
       dataIndex: 'weekday',
       hideInTable: true,
+      valueEnum: {
+        1: {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameweekday.monday" defaultMessage="Monday" />
+          ),
+          weekday: 'monday',
+        },
+        
+        2: {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameweekday.tuesday" defaultMessage="Tuesday" />
+          ),
+          weekday: 'tuesday',
+        },
+        3: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.wednesday" defaultMessage="Wednesday" />,
+          weekday: 'wednesday',
+        },
+        4: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.thursday" defaultMessage="Thursday" />,
+          weekday: 'thursday',
+        },
+        5: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.friday" defaultMessage="Friday" />,
+          weekday: 'friday',
+        },
+        6: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.saturday" defaultMessage="Saturday" />,
+          weekday: 'saturday',
+        },
+        7: {
+          text: <FormattedMessage id="pages.searchTable.nameweekday.sunday" defaultMessage="Sunday" />,
+          weekday: 'sunday',
+        },
+      },
 
       
     },
@@ -374,7 +416,7 @@ const handleOneView = async (id) => {
     setSelectValue(value)
   }
   
-  const dateFormat = 'YYYY/MM/DD';
+  const dateFormat = 'HH:mm:ss';
 
   const propsUpload = {
     name: 'file',
@@ -394,10 +436,6 @@ const handleOneView = async (id) => {
       }
     },
   };
-
-  function onChangeDate(date, dateString) {
-    console.log(date, dateString);
-  }
 
   const handleFormSubmit = async () => {
     console.log('form submitted');
@@ -495,7 +533,7 @@ const handleOneView = async (id) => {
         lead_type: formData.teacherType,
       }],
       statusId: selectStatus?selectStatus:tempDataView.statusId,
-      leadAvailability: leadAvailabilities?leadAvailabilities:(tempDataView.leadAvailability)
+      leadAvailability: leadAvailabilities
     };
     // async (values: API.LoginParams) => {
       if (tempDataView) {
@@ -531,7 +569,9 @@ const handleOneView = async (id) => {
     console.log('formData', formData);
   }
 
+
   let leadAvailabilities = []
+  console.log('LA',  leadAvailabilities)
   //lead availability
   const WeekdayAvailability = (props)=>{
     const [value, setValue] = useState(
@@ -552,26 +592,66 @@ const handleOneView = async (id) => {
       start_slot: value[0],
       end_slot: value[1],
       weekday: props.weekday,
-      startDate: '2021'
+      startDate: dateStart
+    }
+
+    let dataLead = props.tempData
+    let slotStart, slotEnd
+    let leadSlot
+    if(dataLead){
+      console.log('le', dataLead.toString().split(',')[0].slice(4))
+      dataLead = dataLead.toString()
+      slotStart = dataLead.split(',')[0].slice(4)
+      slotEnd = dataLead.split(',')[1]
+      console.log('slotss', slotStart)
+      leadSlot = {
+        start_slot: slotStart,
+        end_slot: slotEnd,
+        startDate: dateStart,
+        weekday: props.weekday
+      }
     }
 
     
+
     if(leadWeekAvailability.start_slot && leadWeekAvailability.end_slot && leadWeekAvailability.weekday){
       leadAvailabilities.push(leadWeekAvailability)
-      
     }
-    // console.log('props from availability', props.temp)
+    
+    if(dataLead){
+      leadAvailabilities.push(leadSlot)
+      console.log('Laa', leadAvailabilities)
+    }
+    
+    // let end_slot = monday[1]
+    // let start_slot = monday[0].slice(4)
+
     const format = 'HH:mm';
     return(
       <Row>
       <Col  span = {7}>
-        
-        <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)}  >{props.week}</Checkbox>
+        {
+          dataLead?(
+            <Checkbox name = "weekday"  checked = "true" >{props.week}</Checkbox>
+          ):(
+            <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)}  >{props.week}</Checkbox>
+          )
+        }
       </Col>
       <Col  span = {14}>
-        <TimePicker.RangePicker 
+        
+        {dataLead?(<TimePicker.RangePicker 
             format={format} 
-            onChange = {(time, timeString)=> {setValue(timeString)}} />
+            defaultValue={[
+              moment(`${slotStart}`, format),
+              moment(`${slotEnd}`, format)
+          ]}
+            />):(
+              <TimePicker.RangePicker 
+            format={format} 
+            onChange = {(time, timeString)=> {setValue(timeString)}}
+            />
+            )}
       </Col>
       <Col  span = {1}>
         <a><PlusOutlined /></a>
@@ -582,6 +662,38 @@ const handleOneView = async (id) => {
     </Row>
       )
   }
+  let timeSlots = tempDataView?tempDataView.slots:''
+  let monday, tuesday, wednesday, thursday, friday, saturday, sunday
+  if (timeSlots) {
+    timeSlots = timeSlots
+      .split("to")
+      .toString()
+      .split(" , ")
+      .toString()
+      .split(" ");
+    monday = timeSlots.filter((lead) => {
+      return lead.startsWith("Mon");
+    });
+    tuesday = timeSlots.filter((lead) => {
+      return lead.startsWith("Tue");
+    });
+    wednesday = timeSlots.filter((lead) => {
+      return lead.startsWith("Wed");
+    });
+    thursday = timeSlots.filter((lead) => {
+      return lead.startsWith("Thu");
+    });
+    friday = timeSlots.filter((lead) => {
+      return lead.startsWith("Fri");
+    });
+    saturday = timeSlots.filter((lead) => {
+      return lead.startsWith("Sat");
+    });
+    sunday = timeSlots.filter((lead) => {
+      return lead.startsWith("Sun");
+    });
+  }
+  //console.log('timeslots', timeSlots)
 
   const deleteTeacher = async (id)=>{
     console.log('clicked delete teacher')
@@ -1064,14 +1176,17 @@ const handleOneView = async (id) => {
       />
 
       <Drawer
-        width={600}
+        width={780}
         visible={showDetail}
         onClose={() => {
           setCurrentRow(undefined);
           setShowDetail(false);
+          seteditvisible(false);
         }}
         closable={true}
       >
+        {!editvisible ? (
+          <>
               <Row>
                 <Col style={{fontWeight: 900, alignContent:'center', alignItems:'center'}}  span={24}>  
                 <center><h2 style={{color:"blue"}}>View Teacher</h2></center>
@@ -1248,7 +1363,6 @@ const handleOneView = async (id) => {
                   </Row><br/>
                   <Row>
                   <Col span={10}> 
-                    
                   </Col>
                   <Col span={12}> 
                     <Button type="primary" onClick={showDrawerEdit}>
@@ -1256,16 +1370,10 @@ const handleOneView = async (id) => {
                       Edit Teacher
                     </Button>
                   </Col>
-                  
                   </Row>
-              
-        <Drawer
-          title="Edit Teacher"
-          placement="right"
-          onClose={onCloseEdit}
-          visible={visibleEdit}
-          width={780}
-        >
+        </>):(      
+        <>
+        
         <Form onFinish={handleFormSubmitEdit}>
               <Row gutter={16}>
                 <Col span={12}>
@@ -1576,18 +1684,18 @@ const handleOneView = async (id) => {
                 <Col span={12}>
                   <Form.Item name="leadAvailability">
                     <label>Week Availability</label>
-                    <WeekdayAvailability weekday = {1} week = "Monday" temp = {tempDataView}/>
-                    <WeekdayAvailability weekday = {2} week = "Tuesday"/>
-                    <WeekdayAvailability weekday = {3} week = "Wednesday"/>
-                    <WeekdayAvailability weekday = {4} week = "Thursady"/>
-                    <WeekdayAvailability weekday = {5} week = "Friday"/>
+                    <WeekdayAvailability weekday = {1} week = "Monday" tempData = {monday}/>
+                    <WeekdayAvailability weekday = {2} week = "Tuesday" tempData = {tuesday}/>
+                    <WeekdayAvailability weekday = {3} week = "Wednesday" tempData = {wednesday}/>
+                    <WeekdayAvailability weekday = {4} week = "Thursady" tempData = {thursday}/>
+                    <WeekdayAvailability weekday = {5} week = "Friday" tempData = {friday}/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="leadAvailability">
                   <label>Weekend Availability</label>
-                  <WeekdayAvailability weekday = {6} week = "Saturday"/>
-                  <WeekdayAvailability weekday = {7} week = "Sunday"/>
+                  <WeekdayAvailability weekday = {6} week = "Saturday" tempData = {saturday}/>
+                  <WeekdayAvailability weekday = {7} week = "Sunday" tempData = {sunday}/>
                   
                   </Form.Item>
                 </Col>
@@ -1602,7 +1710,7 @@ const handleOneView = async (id) => {
               </Row>
               
             </Form>
-        </Drawer>
+        </>)}
       </Drawer>
     </PageContainer>
   );
