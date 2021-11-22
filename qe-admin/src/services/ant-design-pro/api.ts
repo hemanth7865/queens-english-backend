@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from 'umi';
 
-const API_URL =  `http://localhost:3000`; //process.env.API_URL;
+const API_URL =  `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
 
 const apiKeyQueryString = (url: string, key: string) => {
