@@ -70,13 +70,13 @@ export class UserController {
         pageSize  : parseInt(request.query['pageSize']),
          date : request.query['date'],
          name : request.query['name'],
-        mobile :  request.query['mobile'],
+         phoneNumber :  request.query['phoneNumber'],
         totalexp  :  request.query['totalexp'],
          classesTaken : request.query['classesTaken'],
         ratings : request.query['ratings'],
         start_slot : request.query['start_slot'],
         end_slot : request.query['end_slot'],
-        week_day  : request.query['weekday']
+        weekday  : request.query['weekday']
            }       
 
        var teacherService = new TeacherService();

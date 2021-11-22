@@ -1,5 +1,5 @@
 
-import {getRepository} from "typeorm";
+import {Any, getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
 import {User} from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
@@ -141,6 +141,7 @@ export class TeacherService {
             user.email= data.email;
             user.type = data.type;
             user.id = data.id;
+            user.userId = data.userId;
             user.startDate = data.startDate;
             user.address = data.address;
             user.whatsapp = data.whatsapp;
@@ -167,6 +168,7 @@ export class TeacherService {
         var map = new Map();  
         var leadTem:Teacher[] = [];
         var filter = false;
+        var parametersList = [];
   
         map.set(0, 'Sun');     
         map.set(1, 'Mon');       
@@ -186,41 +188,51 @@ export class TeacherService {
         }
 
         // Read query parameters
+        let query_list = [];
         let query_string='';
 
        // const date =  request.query['date'];;
+       console.log(parameters);
        const date = parameters.date;
         if (date) {
             query_string = query_string + ` and le.joiningdate =  '${date}' ` ;
+            query_list.push(` le.joiningdate =  '${date}' `);
         }
 
        // const name =  request.query['name'];
        const name =  parameters.name
         if (name) {
             query_string = query_string + ` and (u.firstName like '%${name}%' or u.lastName like '%${name}%' )` ;
+            query_list.push(` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ) `);
+ 
         }
         //const mobile =  request.query['mobile'];
         const mobile = parameters.phoneNumber;
         if (mobile) {
             query_string = query_string + ` and u.phoneNumber =${mobile} ` ;
+            query_list.push(` u.phoneNumber =${mobile} `);
+            console.log('query phonen umber ', mobile);
         }
         //var totalexp  =  request.query['totalexp'];
         var totalexp  =  parameters.totalexp;
         if (totalexp) {
             totalexp = parseFloat(totalexp);
             query_string = query_string + ` and le.totalexp =${totalexp} ` ;
+            query_list.push(` le.totalexp =${totalexp} `);
         }
        // var classesTaken = request.query['classesTaken'];
        var classesTaken = parameters.classesTaken;
         if (classesTaken) {
             classesTaken = parseInt(classesTaken);
             query_string = query_string + ` and le.classestaken=${classesTaken} ` ;
+            query_list.push(` le.classestaken=${classesTaken} `);
         }
         //var ratings = request.query['ratings'];
         var ratings = parameters.ratings;
         if (ratings) {
             ratings = parseInt(ratings);
             query_string = query_string + ` and le.ratings =${ratings} ` ;
+            query_list.push(`  le.ratings =${ratings} `);
         }
 
        // let start_slot = request.query['start_slot'];
@@ -252,18 +264,18 @@ export class TeacherService {
           }
 
           var unique=[0];
-          console.log(`Query string is siva ${query_string}`);
+          console.log(`query string ${query_list}`);
 
           if (start_slot && end_slot) {
               filter = true;
-            var quer =  `select teacherId, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} <= endMin and endMin >=${startMin} ;`;
+            var quer =  `select teacherId, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
             console.log('quer', quer);
             let totalResult = await getManager().query(quer);
             console.log('totalResult',totalResult);
             let slotsResultIds:any = [0]
 
             for (var element of totalResult) {
-                slotsResultIds.push(element.leadId);
+                slotsResultIds.push(element.teacherId);
             }
 
            // let slotsResultIds = totalResult.forEach((element)=>element.leadId);
@@ -276,8 +288,10 @@ export class TeacherService {
             console.log('Query string is ', query_string);     
             if (unique) {
                 query_string = query_string +` and u.teacherId in (${unique}) `;
+                query_list.push(` u.teacherId in (${unique}) `);
             } else {
                 query_string = query_string +` and u.teacherId in (0) `;
+                query_list.push(`  u.teacherId in (0) `);
             }
          
         
@@ -286,23 +300,51 @@ export class TeacherService {
 
           
          
-        console.log("Query start", query_string);
-        console.log("filter is ", filter);
+      //  console.log("Query start", query_string);
+       // console.log("filter is ", filter);
         var finalQuery;
-        if (query_string || filter) {
-            console.log("true conditin");
-             finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u inner join teacher le on u.teacherId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
-        } else {
-            finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u inner join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
-        }
+       var total;
+         
+       // if (query_string || query_list.length>0) {
+            console.log("query string1234",query_string);
+            query_list.forEach((value, index) => {
+                query_string = ' where ';
+               if (index != 0 && index !=query_list.length-1) {
+                    query_string = query_list[index] + ' and '; 
+                    console.log('query12345', query_string);
+               } else {
+                query_string = query_string + query_list[index];
+               }
+            });
+            console.log("value sis ", query_string);
+           // query_string = query_list && query_list.join(' and ') ;
+             finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+             //total = await getManager().query(`select count(*) as totalCount from user u left join teacher le on u.teacherId=le.id`);
+          //  } //else {
+            //finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
+            //total = await getManager().query(`select count(*) as totalCount from user u `);
+       // }
         
         console.log('finalQuery', finalQuery);
         results = await getManager().query(finalQuery);
+        total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
         console.log('results size', results.length);
-        var total = await getManager().query(`select count(*) as totalCount from user u inner join teacher le on u.teacherId=le.id ${query_string};`);
+        //var total = await getManager().query(`select count(*) as totalCount from user u inner join teacher le on u.teacherId=le.id and ${query_string};`);
          //console.log(total);
         //  results.forEach(async (element,index,self) => {     
-          for (const element  of results ) {  
+          
+        //if (results.length ==0) {
+          //  if (query_string || filter) {
+           //     console.log("true conditin");
+            //    finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.statusId as statusId, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u where ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+             //   } else {
+              //  finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.statusId as statusId, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u  limit ` + (offset * limit) +","+ limit + `;`;
+    
+  //          }
+    //        results = await getManager().query(finalQuery);
+            
+      //  }
+        for (const element  of results ) {  
             let slotsResult:any[] = [];   
             //console.log(element.leadId);
              var quer =  "select weekday , start_slot, end_slot from teacher_availability where teacherId="+element.teacherId + ";"
@@ -317,9 +359,12 @@ export class TeacherService {
                 }
                 slot = slot + map.get(element.weekday) + ": " + element.start_slot+":"+element.start_min + " to " + element.end_slot +":"+element.end_min + " ";
             });
-            const yourDate = new Date(element.joiningdate);
-            console.log('yourDate', yourDate);
-            var  l = new LeadView(element.userId, element.id, 1, yourDate.toISOString().split('T')[0],  element.name, element.exp, 
+            var yourDate;
+            if (element.joiningdate) {
+                yourDate = new Date(element.joiningdate).toISOString().split('T')[0];
+            }
+           // console.log('yourDate', yourDate);
+            var  l = new LeadView(element.userId, element.id, element.teacherId, yourDate,  element.name, element.exp, 
             element.phoneNumber,element.email,element.statusId,
             element.classestaken,element.ratings,slot, element.leadtype, element.type);
         
@@ -328,7 +373,7 @@ export class TeacherService {
         };
         
       
-        return {"success":true,"data": leadView, "total":results.length, "current":current, pageSize:limit};
+        return {"success":true,"data": leadView, "total":total[0].total, "current":current, pageSize:limit};
     }
 
     
