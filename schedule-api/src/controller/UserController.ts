@@ -1,113 +1,32 @@
 import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
 import {User} from "../entity/User";
-import {Users} from "../entity/Users";
-import { Lead } from "../entity/Lead";
+import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
-import { LeadAvailability } from "../entity/LeadAvailability";
+import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
+import { TeacherService } from "../services/TeacherService";
 
 export class UserController {
 
-    private usersRepository = getRepository(Users);
-    private leadAvailabilityRepository = getRepository(LeadAvailability);
-    private leadRepository = getRepository(Lead);
-    private userRepository = getRepository(User);
+    private usersRepository = getRepository(User);
+    private teacherAvailabilityRepository = getRepository(TeacherAvailability);
+    private teacherRepository = getRepository(Teacher);
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
     }
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
-        console.log("saving user");
-
-        var leadAvailability:LeadAvailability[] = [];
-        var leadTem:Lead[] = [];
-        var lead = new Lead();
-        var user = new Users();
-        for (var element of request.body.lead){
-            lead.created_at = new Date();
-            lead.updated_at = new Date();
-            if (element.id){
-                lead.id = element.id;
-            }
-            lead.joiningdate = element.joiningdate;
-            lead.resume = "Resume";
-            lead.video = "video";
-            lead.leadtype = element.leadtype;
-            lead.qualification=element.qualification;
-            lead.classestaken = element.classestaken;
-            lead.certificates = element.certificates;
-            lead.ratings = parseInt(element.ratings);
-            lead.totalexp=parseFloat(element.totalexp);
-            lead = await this.leadRepository.save(lead);
-            console.log('lead id is ', lead.id);
-            user.leadId = lead.id;
-            //user.leadData = lead;
-            user.lead=[lead];
-            user.leadId=lead.id;
-            console.log("lead ", lead.id);
+        console.log('contorller');
+        var teacherService = new TeacherService();
+        var user;
+        try{
+            user = await teacherService.saveTeacher(request.body);
+        }catch(error)
+        {
+        console.log()
         }
-
-            // user.lead = [lead];
-
-        //console.log('lead is', lead);
-
-        let i = 0;
-        request.body.leadAvailability.forEach( async (element) => {
-            var availability = new LeadAvailability();
-            availability.start_date = element.startDate;
-            availability.start_slot = element.start_slot;
-            //console.log('start slot' + element.start_slot);
-            if (element.start_slot){
-               let time = element.start_slot.split(":");
-               availability.start_slot = time[0];   
-               console.log('time is ', time);
-               availability.start_min = time[1];
-               availability.startMin = time[0] * 60 + time[1];
-            }
-            if (element.end_slot){
-                let time = element.end_slot.split(":");
-                availability.end_slot = time[0];
-                availability.end_min = time[1];
-                availability.endMin = time[0] * 60 + time[1];
-             }
-            
-            availability.weekday = element.weekday;
-            if (element.id)
-                availability.id = element.id;
-            availability.lead = lead;
-            availability.created_at = new Date();
-            availability.updated_at = new Date();
-            availability = await this.leadAvailabilityRepository.save(availability);   
-            leadAvailability[i++] = availability;
-       
-            //console.log('Lead availability', leadAvailability);
-        });
-
-        console.log('leadAvailability', leadAvailability);
-
-        user.leadAvailability = leadAvailability
-        user.firstname = request.body.firstname;
-        user.lastname = request.body.lastname;
-        user.gender = request.body.gender;
-        user.mobile = request.body.mobile;
-        user.email= request.body.email;
-        user.id = request.body.id;
-        user.startDate = request.body.startDate;
-        user.address = request.body.address;
-        user.whatsapp = request.body.whatsapp;
-        user.nationalityId = request.body.nationalityId;
-        user.dob = request.body.dob;
-        user.statusId = request.body.statusId;
-        user.photo = request.body.photo;
-        user.languages = request.body.languages;
-        user.created_at = new Date();
-        user.updated_at = new Date();
-        user.leadId = lead.id;
-        console.log('user', user);
-        user = await this.usersRepository.save(user)
-       // user.lead = leadTem;
         return {"success":true,"data": [user], "total":1};
     }
 
@@ -141,10 +60,10 @@ export class UserController {
     }
 
     async filterLeadDetails(request: Request, response: Response, next: NextFunction) {
-        let results:Users[]=[];
+        let results:User[]=[];
         let leadView:LeadView[]=[];
         let slotsResult:any[] = [];   
-        var leadTem:Lead[] = [];
+        var leadTem:Teacher[] = [];
 
         var offset =  parseInt(request.query['current']);
         var current =  parseInt(request.query['current']);
@@ -222,7 +141,7 @@ export class UserController {
           for (const element  of results ) {  
             
             let slotsResult:any[] = [];   
-             var quer =  "select weekday , start_slot, end_slot , start_min, end_min from lead_availability where leadId="+element.leadId + ";"
+             var quer =  "select weekday , start_slot, end_slot , start_min, end_min from lead_availability where leadId="+element.teacherId + ";"
              slotsResult = await getManager().query(quer);
             var slot = "";
             slotsResult.forEach((element) => {
@@ -230,8 +149,8 @@ export class UserController {
             });
             const yourDate = new Date(element.joiningdate);
             
-            var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,'',element.statusId,
-            element.ratings,element.classestaken,slot, element.leadtype);
+            var  l = new LeadView(element.userId, element.teacherId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.phoneNumber,'',element.statusId,
+            element.ratings,element.classestaken,slot, element.leadtype, element.cosmos_ref);
         
             leadView.push(l);
         }
@@ -243,214 +162,58 @@ export class UserController {
 
     
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
-        var results:Users[]=[];
-        var leadView:LeadView[]=[];
-        var map = new Map();  
-        var leadTem:Lead[] = [];
-        var filter = false;
+        console.log("list lead details");
+
+       var parameters = {
+
+         current:  parseInt(request.query['current']),
+        pageSize  : parseInt(request.query['pageSize']),
+         date : request.query['date'],
+         name : request.query['name'],
+        mobile :  request.query['mobile'],
+        totalexp  :  request.query['totalexp'],
+         classesTaken : request.query['classesTaken'],
+        ratings : request.query['ratings'],
+        start_slot : request.query['start_slot'],
+        end_slot : request.query['end_slot'],
+        week_day  : request.query['weekday']
+           }       
+
+       var teacherService = new TeacherService();
+       var user;
+
+       let resp;
   
-        map.set(0, 'Sun');     
-        map.set(1, 'Mon');       
-        map.set(2, 'Tue');   
-        map.set(3, 'Wed');   
-        map.set(4, 'Thu');  
-        map.set(5, 'Fri');  
-        map.set(6, 'Sat'); 
-
-        var offset =  parseInt(request.query['current']);
-        var current = offset;
-        const limit  =  parseInt(request.query['pageSize']);
-        if (offset==1) {
-            offset = 0;
-        }
-
-        // Read query parameters
-        let query_string='';
-
-        const date =  request.query['date'];;
-        if (date) {
-            query_string = query_string + ` and le.joiningdate =  '${date}' ` ;
-        }
-
-        const name =  request.query['name'];;
-        if (name) {
-            query_string = query_string + ` and (u.firstname like '%${name}%' or u.lastname like '%${name}%' )` ;
-        }
-        const mobile =  request.query['mobile'];
-        if (mobile) {
-            query_string = query_string + ` and u.mobile =${mobile} ` ;
-        }
-        var totalexp  =  request.query['totalexp'];
-        if (totalexp) {
-            totalexp = parseFloat(totalexp);
-            query_string = query_string + ` and le.totalexp =${totalexp} ` ;
-        }
-        var classesTaken = request.query['classesTaken'];
-        if (classesTaken) {
-            classesTaken = parseInt(classesTaken);
-            query_string = query_string + ` and le.classestaken=${classesTaken} ` ;
-        }
-        var ratings = request.query['ratings'];
-        if (ratings) {
-            ratings = parseInt(ratings);
-            query_string = query_string + ` and le.ratings =${ratings} ` ;
-        }
-
-        let start_slot = request.query['start_slot'];
-        let end_slot = request.query['end_slot'];
-
-        let week_day  =  request.query['weekday'];
-        let start_min;
-        let end_min;
-        let startMin;
-        let endMin;
-        if (start_slot){
-            let time = start_slot.split(":");
-            start_slot = time[0];   
-            console.log('time is ', time);
-            start_min = time[1];
-            startMin = time[0] * 60 + time[1];
-            
-         }
-         if (end_slot){
-             let time = end_slot.split(":");
-             end_slot = time[0]
-             console.log('time is ', time);;
-             end_min = time[1];
-             endMin = time[0] * 60 + time[1];
-            
-          }
-
-          var unique=[0];
-          console.log(`Query string is siva ${query_string}`);
-
-          if (start_slot && end_slot) {
-              filter = true;
-            var quer =  `select leadId, weekday , start_slot, end_slot from lead_availability where weekday in (  ${week_day}  ) and ${startMin} <= endMin and endMin >=${startMin} ;`;
-            console.log('quer', quer);
-            let totalResult = await getManager().query(quer);
-            console.log('totalResult',totalResult);
-            let slotsResultIds:any = [0]
-
-            for (var element of totalResult) {
-                slotsResultIds.push(element.leadId);
-            }
-
-           // let slotsResultIds = totalResult.forEach((element)=>element.leadId);
-            console.log('slotsResultIds', slotsResultIds);
-            
-            //let selectedIds = slotsResultIds.map(({ leadId }) => leadId);
-           // console.log('ids', selectedIds);
-            unique = Array.from(new Set(slotsResultIds)) 
-            console.log('ids', unique);
-            console.log('Query string is ', query_string);     
-            if (unique) {
-                query_string = query_string +` and u.leadId in (${unique}) `;
-            } else {
-                query_string = query_string +` and u.leadId in (0) `;
-            }
-         
-        
-    
-          }
-
-          
-         
-        console.log("Query start", query_string);
-        console.log("filter is ", filter);
-        var finalQuery;
-        if (query_string || filter) {
-            console.log("true conditin");
-             finalQuery = `select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken from users u inner join leads le on u.leadId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
-        } else {
-            finalQuery = `select concat(u.firstname , "  ", u.lastname) as name,  u.mobile, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.leadId  as leadId , u.id as id, '' as slots, le.leadtype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken from users u inner join leads le on u.leadId=le.id limit ` + (offset * limit) +","+ limit + `;`;
-        }
-        
-        console.log('finalQuery', finalQuery);
-        results = await getManager().query(finalQuery);
-        console.log('results size', results.length);
-        var total = await getManager().query(`select count(*) as totalCount from users u inner join leads le on u.leadId=le.id ${query_string};`);
-         //console.log(total);
-        //  results.forEach(async (element,index,self) => {     
-          for (const element  of results ) {  
-            let slotsResult:any[] = [];   
-            //console.log(element.leadId);
-             var quer =  "select weekday , start_slot, end_slot from lead_availability where leadId="+element.leadId + ";"
-            slotsResult = await getManager().query(quer);
-            var slot = "";
-            slotsResult.forEach((element) => {
-                if (!element.start_min) {
-                    element.start_min = "00";
-                }
-                if (!element.end_min) {
-                    element.end_min = "00";
-                }
-                slot = slot + map.get(element.weekday) + ": " + element.start_slot+":"+element.start_min + " to " + element.end_slot +":"+element.end_min + " ";
-            });
-            const yourDate = new Date(element.joiningdate);
-            console.log('yourDate', yourDate);
-            var  l = new LeadView(element.id, element.leadId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.mobile,element.email,element.statusId,
-            element.classestaken,element.ratings,slot, element.leadtype);
-        
-            leadView.push(l);
-          
-        };
-      
-        return {"success":true,"data": leadView, "total":results.length, "current":current, pageSize:limit};
+       try{
+           resp = await teacherService.listLeadDetails(request.body, parameters);
+       }catch(error)
+       {
+       console.log(error);
+       }
+       
+        return resp;
     }
 
     
    
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
       
-        var map = new Map();  
-        var leadTem:Lead[] = [];
+        let resp;
+        let teacherService = new TeacherService();
+
+        const teacherId = parseInt(request.params.id);
   
-        map.set(0, 'Sun');     
-        map.set(1, 'Mon');       
-        map.set(2, 'Tue');   
-        map.set(3, 'Wed');   
-        map.set(4, 'Thu');  
-        map.set(5, 'Fri');  
-        map.set(6, 'Sat'); 
-
-        let slotsResult:any[] = []; 
-        let users = new Users();   
-        const leadId = parseInt(request.params.id);
-        console.log('leadid', leadId);
-        console.log(users)
-        users = await getManager().createQueryBuilder(Users, "user")
-        .where("user.leadId = :id", { id: leadId }).getOne();
+       try{
+           resp = await teacherService.leadFullDetails(request.body, teacherId);
+           console.log(resp);
+       }catch(error)
+       {
+       console.log(error);
+       }
        
-        const lead = await getManager().createQueryBuilder(Lead, "lead")
-        .where("lead.id = :id", { id: leadId }).getOne();
-        leadTem[0] = lead;
-        console.log(users);
-        if (lead && leadTem)
-             users.lead = leadTem;
-        const leadav:LeadAvailability[] = [];
-        const list:any = await getManager().createQueryBuilder(LeadAvailability, "leadAvailability")
-        .where("leadAvailability.leadId = :id", { id: leadId }).getMany();
-        if (users)
-            users.leadAvailability=list;
-        var quer =  "select weekday , start_slot, end_slot, start_min, end_min from lead_availability where leadId="+leadId + ";"
-        slotsResult = await getManager().query(quer);
-        var slot = "";
-        slotsResult.forEach((element) => {
-            console.log('element'+element);
-            console.log('element'+element);
-            if (element.start_min == 0) {
-                element.start_min = "00"
-            } 
-            if (element.end_min == 0) {
-                element.end_min = "00"
-            } 
-        slot = slot + map.get(element.weekday) + ":" + element.start_slot + ":" +element.start_min+ " to " + element.end_slot +":" + element.end_min + " ";
-        });
-        if (slot)
-            users.slots=slot;
-
-        return {"success":true,"data": users, "total":1, "current":1, pageSize:1};
+        
+       console.log(resp);
+        return resp;
     }
 
     async leadAvialability(request: Request, response: Response, next: NextFunction) {
@@ -460,28 +223,12 @@ export class UserController {
         let end_slot  =  request.query['end_slot'];
         let week_day  =  request.query['week_slot'];
 
-        let slots:LeadAvailability[] = [];
-        slots =await this.leadAvailabilityRepository.createQueryBuilder("LeadAvailability")
+        let slots:TeacherAvailability[] = [];
+        slots =await this.teacherAvailabilityRepository.createQueryBuilder("TeacherAvailability")
         .where('leadavailability.date >= :date ', {date:availabilitydate}).andWhere('leadavailability.week_date in (:days) ', {days:week_day})
         .andWhere('start_slot.date >= :start_slot',{start_slot:start_slot}).andWhere('end_slot.date <= :end_slot',{end_slot:end_slot}).getMany();
 
        return slots;
-    }
-
-
-
-   
-    async all(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.find();
-    }
-
-    async one(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.findOne(request.params.id);
-    }
-
-    async save(request: Request, response: Response, next: NextFunction) {
-        console.log("saving user");
-        return this.userRepository.save(request.body);
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {

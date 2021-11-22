@@ -1,12 +1,12 @@
 import {Entity, Column,  PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany} from "typeorm";
 import { Status } from "./Status";
 import {Nationality} from "./Nationality";
-import { Users } from "./Users";
-import { LeadAvailability } from "./LeadAvailability";
+import { User } from "./User";
+import { TeacherAvailability } from "./TeacherAvailability";
 
-@Entity("leads")
-export class Lead extends BaseEntity {
-    Lead() {}
+@Entity("teacher")
+export class Teacher extends BaseEntity {
+    Teacher() {}
     @PrimaryGeneratedColumn()
         id: number;
     @Column({'nullable':true,type:"text"})
@@ -29,7 +29,7 @@ export class Lead extends BaseEntity {
         classestaken: number;
     
     @Column({'nullable':true})
-        leadtype: number;
+        teachertype: string;
 
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})
@@ -39,7 +39,7 @@ export class Lead extends BaseEntity {
     @Column({'nullable':true,type:"datetime"})
         updated_at:Date
 
-    @OneToMany(() => LeadAvailability, leadAvailability => leadAvailability.lead)
-    leadAvailability: LeadAvailability[];
+    @OneToMany(() => TeacherAvailability, teacherAvailability => teacherAvailability.teacher)
+    teacherAvailability: TeacherAvailability[];
 
 }

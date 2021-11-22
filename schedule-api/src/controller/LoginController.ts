@@ -1,19 +1,18 @@
 import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
 import {User} from "../entity/User";
-import {Users} from "../entity/Users";
-import { Lead } from "../entity/Lead";
+import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
-import { LeadAvailability } from "../entity/LeadAvailability";
+import { TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
 import { USERS } from "../data/users";
 import { JWSTokenHandler } from "../helpers/JWSTokenHandler";
 
 export class LoginController {
 
-    private usersRepository = getRepository(Users);
-    private leadAvailabilityRepository = getRepository(LeadAvailability);
-    private leadRepository = getRepository(Lead);
+    private usersRepository = getRepository(User);
+    private leadAvailabilityRepository = getRepository(TeacherAvailability);
+    private leadRepository = getRepository(Teacher);
     private userRepository = getRepository(User);
 
     async login(request: Request, response: Response, next: NextFunction) {
