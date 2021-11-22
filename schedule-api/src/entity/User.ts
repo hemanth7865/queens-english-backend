@@ -39,7 +39,7 @@ export class User extends BaseEntity {
         address: string;
     @Column({'nullable':true, type:"text"})
         whatsapp: string;
-    @Column({'nullable':false, type:"text"})
+    @Column({'nullable':true, type:"text"})
         type: string;
     @Column({'nullable':true, type:"date"})
         dob:Date;

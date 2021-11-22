@@ -82,7 +82,12 @@ export class TeacherService {
                 teacher.teachertype = element.teacher_type;
                 teacher.certificates = element.certificates;
                 teacher.ratings = parseInt(element.ratings);
+                if (!teacher.ratings)
+                    teacher.ratings = 0;
+
                 teacher.totalexp=parseFloat(element.totalexp);
+                if (!teacher.totalexp)
+                    teacher.totalexp = 0;
                 teacher = await this.teacherRepository.save(teacher);
                 console.log('lead id is ', teacher.id);
                 user.teacherId = teacher.id;
@@ -96,8 +101,7 @@ export class TeacherService {
                 var availability = new TeacherAvailability();
                 availability.start_date = element.startDate;
                 availability.start_slot = element.start_slot;
-                availability.availabilityType = 1;
-                //console.log('start slot' + element.start_slot);
+                console.log('start slot' + element.start_slot);
                 if (element.start_slot){
                    let time = element.start_slot.split(":");
                    availability.start_slot = time[0];   
@@ -118,7 +122,11 @@ export class TeacherService {
                 availability.teacher = teacher;
                 availability.created_at = new Date();
                 availability.updated_at = new Date();
-                availability = await this.teacherAvailabilityRepository.save(availability);   
+                availability = await this.teacherAvailabilityRepository.save(availability); 
+                availability.start_slot=  element.start_slot;
+                availability.end_slot=  element.end_slot;
+
+
                 teacherAvailability[i++] = availability;
 
             });
@@ -131,7 +139,7 @@ export class TeacherService {
             user.gender = data.gender;
             user.phoneNumber = data.phoneNumber;
             user.email= data.email;
-            user.type = data.usertype;
+            user.type = data.type;
             user.id = data.id;
             user.startDate = data.startDate;
             user.address = data.address;
@@ -283,9 +291,9 @@ export class TeacherService {
         var finalQuery;
         if (query_string || filter) {
             console.log("true conditin");
-             finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u inner join teacher le on u.teacherId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+             finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u inner join teacher le on u.teacherId=le.id ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
         } else {
-            finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u inner join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
+            finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u inner join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
         }
         
         console.log('finalQuery', finalQuery);
@@ -311,8 +319,9 @@ export class TeacherService {
             });
             const yourDate = new Date(element.joiningdate);
             console.log('yourDate', yourDate);
-            var  l = new LeadView(element.userId, element.teacherId, yourDate.toISOString().split('T')[0], element.name, element.exp, element.phoneNumber,element.email,element.statusId,
-            element.classestaken,element.ratings,slot, element.leadtype, element.type, element.id);
+            var  l = new LeadView(element.userId, element.id, 1, yourDate.toISOString().split('T')[0],  element.name, element.exp, 
+            element.phoneNumber,element.email,element.statusId,
+            element.classestaken,element.ratings,slot, element.leadtype, element.type);
         
             leadView.push(l);
           
@@ -343,10 +352,12 @@ export class TeacherService {
         console.log('leadid', leadId);
         console.log(users)
         users = await getManager().createQueryBuilder(User, "user")
-        .where("user.teacherId = :id", { id: leadId }).getOne();
+        .where("user.userId = :id", { id: leadId }).getOne();
+
+        console.log('users' , users);
        
         const lead = await getManager().createQueryBuilder(Teacher, "teacher")
-        .where("teacher.id = :id", { id: leadId }).getOne();
+        .where("teacher.id = :id", { id: users && users.teacherId }).getOne();
         leadTem[0] = lead;
         console.log(users);
         if (lead && leadTem)
