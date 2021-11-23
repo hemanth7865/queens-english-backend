@@ -1,5 +1,6 @@
 import { LoginController } from "./controller/LoginController";
 import {UserController} from "./controller/UserController";
+import { BatchController} from "./controller/BatchController";
 
 export const Routes = [
     {
@@ -47,4 +48,10 @@ export const Routes = [
     route: "/users/:id",
     controller: UserController,
     action: "remove"
+},
+{
+    method: "post",
+    route: "/batch",
+    controller: BatchController,
+    action: "batchCreate"
 }];

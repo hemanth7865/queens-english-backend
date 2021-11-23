@@ -5,7 +5,7 @@
             userId: number;
             date: string;        
             name: string;         
-            experience:string;         
+            totalexp:string;         
             phoneNumber: string;         
             email: string;         
             status: number;
@@ -25,7 +25,7 @@
                 this.id = id;
                 this.leadId = leadId;
                 this.date = date;
-                this.experience=experience;
+                this.totalexp=experience;
                 this.phoneNumber=mobile;
                 this.email=email;                
                 this.status=status;
