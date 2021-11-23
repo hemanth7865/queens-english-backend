@@ -1,13 +1,14 @@
     //import { Lead } from "./Lead";
 
     export class LeadView {
-            id: number;
+            id: string;
+            userId: number;
             date: string;        
             name: string;         
             experience:string;         
-            mobile: string;         
+            phoneNumber: string;         
             email: string;         
-            status: Number;
+            status: number;
             classestaken: string;
             ratings:Number;
             timeslots: string;
@@ -15,22 +16,27 @@
             slots:string;
             classesTaken:number;
             leadType : Number;
+            cosmos_ref: string;
+            type:string;
 
-            public constructor(id:number, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:Number,classestaken:number,
-                ratings:Number,slots:string,leadType:number){
+            public constructor(userId:number, id:string, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:number,classestaken:number,
+                ratings:number,slots:string,leadType:number, type:string){
+                this.userId = userId;
                 this.id = id;
                 this.leadId = leadId;
                 this.date = date;
-                this.name = name;
-                this.email=email;
                 this.experience=experience;
-                this.slots=slots;
-                this.mobile=mobile;
+                this.phoneNumber=mobile;
+                this.email=email;                
                 this.status=status;
+                this.classesTaken=classestaken;
                 this.ratings=ratings;
                 this.slots=slots;
-                this.classesTaken=classestaken;
+                this.slots=slots;
+                this.type = type;
                 this.leadType = leadType;
+                this.name = name;
+
             }
     }
     

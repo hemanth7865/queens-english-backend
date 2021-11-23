@@ -3,21 +3,26 @@
    "version": "0.0.1",
    "description": "Awesome project developed with TypeORM.",
    "devDependencies": {
-      "ts-node": "3.3.0",
       "@types/node": "^8.0.29",
-      "typescript": "3.3.3333"
+      "ts-node": "3.3.0",
+      "typescript": "^3.9.10"
    },
    "dependencies": {
       "body-parser": "^1.18.1",
       "cookie-parser": "^1.4.6",
       "cors": "^2.8.5",
       "express": "^4.15.4",
+      "http": "0.0.1-security",
       "jws": "^4.0.0",
       "mysql2": "^2.3.3-rc.0",
       "reflect-metadata": "^0.1.10",
+      "request": "^2.88.2",
+      "request-promise-native": "^1.0.9",
+      "tsc": "^2.0.3",
       "typeorm": "0.2.38"
    },
    "scripts": {
-      "start": "ts-node src/index.ts"
+      "start": "ts-node src/index.ts",
+      "build": "tsc --build"
    }
 }
