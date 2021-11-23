@@ -76,7 +76,8 @@ export class UserController {
         ratings : request.query['ratings'],
         start_slot : request.query['start_slot'],
         end_slot : request.query['end_slot'],
-        weekday  : request.query['weekday']
+        weekday  : request.query['weekday'],
+        status  : request.query['status']
            }       
 
        var teacherService = new TeacherService();

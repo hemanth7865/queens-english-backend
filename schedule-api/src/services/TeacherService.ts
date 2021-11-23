@@ -227,6 +227,14 @@ export class TeacherService {
             query_string = query_string + ` and le.classestaken=${classesTaken} ` ;
             query_list.push(` le.classestaken=${classesTaken} `);
         }
+
+        var status = parameters.status;
+        if (status) {
+            status = parseInt(status);
+            query_string = query_string + ` and u.statusId=${status} ` ;
+            query_list.push(` u.statusId=${status} `);
+        }
+
         //var ratings = request.query['ratings'];
         var ratings = parameters.ratings;
         if (ratings) {
