@@ -307,8 +307,11 @@ export class TeacherService {
          
        // if (query_string || query_list.length>0) {
             console.log("query string1234",query_string);
-            query_string = ' where ';
-            query_list.forEach((value, index) => {   
+            if (query_list.length>0) {
+                query_string = ' where ';
+            }
+           
+            query_list.forEach((value, index) => {                
                console.log(query_list.join(' and '));   
                if ( index !=query_list.length-1) {
                     query_string = query_string + query_list[index] + ' and '; 
