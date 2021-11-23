@@ -8,7 +8,7 @@ import { TeacherAvailability } from "./TeacherAvailability";
 export class CosmosClass extends BaseEntity {
     CoachClass() {}
     
-        id: number;
+        id: string;
     @PrimaryGeneratedColumn()
         cosmos_ref: number;
        
@@ -23,8 +23,8 @@ export class CosmosClass extends BaseEntity {
     @Column({'nullable':true})
     endingLessonId: string;
     
-    @Column({'nullable':true})
-    classEndDate: string;
+    @Column({'nullable':true, type:"date"})
+    classEndDate: Date;
     
     @Column({'nullable':true})
         noofclasses: number;
