@@ -1,99 +1,47 @@
 // @ts-nocheck
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Drawer } from 'antd';
-import React, { useState, useRef } from 'react';
-import { useIntl, FormattedMessage } from 'umi';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import { addRule, updateRule, removeRule, batches } from '@/services/ant-design-pro/api';
-import 'antd/dist/antd.css';
-import 'antd-button-color/dist/css/style.css';
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, message, Drawer, Form, Col, Row,Input ,Checkbox } from "antd";
+import React, { useState, useRef } from "react";
+import { useIntl, FormattedMessage } from "umi";
+import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
+import type { ProColumns, ActionType } from "@ant-design/pro-table";
+import ProTable from "@ant-design/pro-table";
+import { ModalForm, ProFormText, ProFormTextArea } from "@ant-design/pro-form";
+import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
+import ProDescriptions from "@ant-design/pro-descriptions";
+import type { FormValueType } from "./components/UpdateForm";
+import UpdateForm from "./components/UpdateForm";
+import {
+  addRule,
+  updateRule,
+  removeRule,
+  batches,
+} from "@/services/ant-design-pro/api";
+import "antd/dist/antd.css";
+import "antd-button-color/dist/css/style.css";
 /**
  * @en-US Add node
  * @zh-CN 添加节点
  * @param fields
  */
-// const handleAdd = async (fields: API.RuleListItem) => {
-//   const hide = message.loading('正在添加');
-//   try {
-//     await addRule({ ...fields });
-//     hide();
-//     message.success('Added successfully');
-//     return true;
-//   } catch (error) {
-//     hide();
-//     message.error('Adding failed, please try again!');
-//     return false;
-//   }
-// };
-
-// /**
-//  * @en-US Update node
-//  * @zh-CN 更新节点
-//  *
-//  * @param fields
-//  */
-// const handleUpdate = async (fields: FormValueType) => {
-//   const hide = message.loading('Configuring');
-//   try {
-//     await updateRule({
-//       name: fields.name,
-//       desc: fields.desc,
-//       key: fields.key,
-//     });
-//     hide();
-
-//     message.success('Configuration is successful');
-//     return true;
-//   } catch (error) {
-//     hide();
-//     message.error('Configuration failed, please try again!');
-//     return false;
-//   }
-// };
-
-// /**
-//  *  Delete node
-//  * @zh-CN 删除节点
-//  *
-//  * @param selectedRows
-//  */
-// const handleRemove = async (selectedRows: API.RuleListItem[]) => {
-//   const hide = message.loading('正在删除');
-//   if (!selectedRows) return true;
-//   try {
-//     await removeRule({
-//       key: selectedRows.map((row) => row.key),
-//     });
-//     hide();
-//     message.success('Deleted successfully and will refresh soon');
-//     return true;
-//   } catch (error) {
-//     hide();
-//     console.log('error', error);
-//     message.error('Delete failed, please try again', error);
-//     return false;
-//   }
-// };
 
 const handleDelete = (entity) => {
   console.log(entity);
-  const confirmDelete = window.confirm(`Do you want to delete ${entity.batchId} ?`);
+  const confirmDelete = window.confirm(
+    `Do you want to delete ${entity.batchId} ?`
+  );
   if (confirmDelete) {
     try {
       removeRule(entity);
     } catch (error) {
-      message.error('Delete failed, please try again');
+      message.error("Delete failed, please try again");
     }
   }
 };
 
+const handleAddTeacherSubmit = () =>{
+  console.log("Submit")
+}
 const BatchList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -104,13 +52,15 @@ const BatchList: React.FC = () => {
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 分布更新窗口的弹窗
    * */
-  const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
+  const [updateModalVisible, handleUpdateModalVisible] =
+    useState<boolean>(false);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [addTeacher, setAddTeacher] = useState(false);
 
   const [tempData, setTempData] = useState({});
   // const [deleteData, setDeleteData] = useState();
@@ -123,40 +73,75 @@ const BatchList: React.FC = () => {
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
-      title: <FormattedMessage id="pages.searchTable.titledates" defaultMessage="Date" />,
-      dataIndex: 'dates',
-      valueType: 'textarea',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titledates"
+          defaultMessage="Date"
+        />
+      ),
+      dataIndex: "dates",
+      valueType: "textarea",
     },
     {
-      title: <FormattedMessage id="pages.searchTable.batchId" defaultMessage="Batch ID" />,
-      dataIndex: 'batchId',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.batchId"
+          defaultMessage="Batch ID"
+        />
+      ),
+      dataIndex: "batchId",
     },
     {
-      title: <FormattedMessage id="pages.searchTable.titleCreatedBy" defaultMessage="Created By" />,
-      dataIndex: 'createdBy',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleCreatedBy"
+          defaultMessage="Created By"
+        />
+      ),
+      dataIndex: "createdBy",
     },
     //Teacher row
     {
-      title: <FormattedMessage id="pages.searchTable.titleTeacher" defaultMessage="Teacher" />,
-      dataIndex: 'teacher',
-      valueType: 'textarea',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleTeacher"
+          defaultMessage="Teacher"
+        />
+      ),
+      dataIndex: "teacher",
+      valueType: "textarea",
     },
     //Students row
     {
-      title: <FormattedMessage id="pages.searchTable.titleStudents" defaultMessage="Student" />,
-      dataIndex: 'students',
-      valueType: 'textarea',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleStudents"
+          defaultMessage="Student"
+        />
+      ),
+      dataIndex: "students",
+      valueType: "textarea",
     },
     //Time slot
     {
-      title: <FormattedMessage id="pages.searchTable.titleTimeSlot" defaultMessage="Time Slot" />,
-      dataIndex: 'timeSlot',
-      valueType: 'textarea',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleTimeSlot"
+          defaultMessage="Time Slot"
+        />
+      ),
+      dataIndex: "timeSlot",
+      valueType: "textarea",
     },
     //button
     {
-      title: <FormattedMessage id="pages.searchTable.titleStatus" defaultMessage="Status" />,
-      dataIndex: 'status',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleStatus"
+          defaultMessage="Status"
+        />
+      ),
+      dataIndex: "status",
       hideInForm: true,
       valueEnum: {
         0: {
@@ -208,10 +193,13 @@ const BatchList: React.FC = () => {
     //view
     {
       title: (
-        <FormattedMessage id="pages.searchTable.updateForm.view.nameLabel" defaultMessage="view" />
+        <FormattedMessage
+          id="pages.searchTable.updateForm.view.nameLabel"
+          defaultMessage="view"
+        />
       ),
-      dataIndex: 'view',
-      tip: 'The rule name is the unique key',
+      dataIndex: "view",
+      tip: "The rule name is the unique key",
       render: (dom, entity) => {
         return (
           <a
@@ -219,6 +207,7 @@ const BatchList: React.FC = () => {
               setCurrentRow(entity);
               setShowDetail(true);
               setTempData(entity);
+              setAddTeacher(false);
             }}
           >
             {dom}
@@ -227,15 +216,23 @@ const BatchList: React.FC = () => {
       },
     },
     {
-      title: <FormattedMessage id="pages.searchTable.updateForm.titleedit" defaultMessage="edit" />,
-      dataIndex: 'edit',
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.updateForm.titleedit"
+          defaultMessage="edit"
+        />
+      ),
+      dataIndex: "edit",
     },
     {
       title: (
-        <FormattedMessage id="pages.searchTable.updateForm.titledelete" defaultMessage="delete" />
+        <FormattedMessage
+          id="pages.searchTable.updateForm.titledelete"
+          defaultMessage="delete"
+        />
       ),
-      dataIndex: 'delete',
-      tip: 'The rule name is the unique key',
+      dataIndex: "delete",
+      tip: "The rule name is the unique key",
       render: (dom, entity) => {
         return (
           <a
@@ -243,7 +240,7 @@ const BatchList: React.FC = () => {
               // console.log(entity);
               setCurrentRow(entity);
               handleDelete(entity);
-              console.log('currentrow', currentRow);
+              console.log("currentrow", currentRow);
             }}
           >
             delete
@@ -270,8 +267,8 @@ const BatchList: React.FC = () => {
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
         headerTitle={intl.formatMessage({
-          id: 'pages.searchTable.title',
-          defaultMessage: 'Enquiry form',
+          id: "pages.searchTable.title",
+          defaultMessage: "Enquiry form",
         })}
         actionRef={actionRef}
         rowKey="key"
@@ -283,10 +280,13 @@ const BatchList: React.FC = () => {
             type="primary"
             key="primary"
             onClick={() => {
-              handleModalVisible(true);
+              handleModalVisible(false);
+              setShowDetail(true);
+              setAddTeacher(true);
             }}
           >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="New" />
+            {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
+            Add Teacher
           </Button>,
         ]}
         request={batches}
@@ -303,17 +303,26 @@ const BatchList: React.FC = () => {
         <FooterToolbar
           extra={
             <div>
-              <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen" />{' '}
-              <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
-              <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
+              <FormattedMessage
+                id="pages.searchTable.chosen"
+                defaultMessage="Chosen"
+              />{" "}
+              <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{" "}
+              <FormattedMessage
+                id="pages.searchTable.item"
+                defaultMessage="项"
+              />
               &nbsp;&nbsp;
               <span>
                 <FormattedMessage
                   id="pages.searchTable.totalServiceCalls"
                   defaultMessage="Total number of service calls"
-                />{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{' '}
-                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
+                />{" "}
+                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{" "}
+                <FormattedMessage
+                  id="pages.searchTable.tenThousand"
+                  defaultMessage="万"
+                />
               </span>
             </div>
           }
@@ -341,8 +350,8 @@ const BatchList: React.FC = () => {
       )}
       <ModalForm
         title={intl.formatMessage({
-          id: 'pages.searchTable.createForm.newRule',
-          defaultMessage: 'New rule',
+          id: "pages.searchTable.createForm.newRule",
+          defaultMessage: "New rule",
         })}
         width="400px"
         visible={createModalVisible}
@@ -374,7 +383,7 @@ const BatchList: React.FC = () => {
         />
         <ProFormTextArea width="md" name="desc" />
       </ModalForm>
-      <UpdateForm
+      {/* <UpdateForm
         onSubmit={async (value) => {
           const success = await handleUpdate(value);
           if (success) {
@@ -393,7 +402,7 @@ const BatchList: React.FC = () => {
         }}
         updateModalVisible={updateModalVisible}
         values={currentRow || {}}
-      />
+      /> */}
 
       <Drawer
         width={600}
@@ -402,32 +411,98 @@ const BatchList: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
-        {/* {console.log(tempData)} */}
-        {currentRow?.name && (
-          <ProDescriptions<API.RuleListItem>
-            column={2}
-            title={currentRow?.name}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.name,
-            }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
-          />
+        {addTeacher ? (
+          <>
+            Add Teacher
+            <Row>
+              <Col span={12}>
+                <Form
+                  name="basic"
+                  labelCol={{ span: 8 }}
+                  wrapperCol={{ span: 16 }}
+                  initialValues={{ remember: true }}
+                  onFinish={handleAddTeacherSubmit}
+                  autoComplete="off"
+                >
+                  <Form.Item
+                    label="Username"
+                    name="username"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your username!",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your password!",
+                      },
+                    ]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="remember"
+                    valuePropName="checked"
+                    wrapperCol={{ offset: 8, span: 16 }}
+                  >
+                    <Checkbox>Remember me</Checkbox>
+                  </Form.Item>
+
+                  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                      Submit
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Col>
+              <Col span={12}>
+                <p>a</p>
+                <p>a</p>
+                <p>a</p>
+              </Col>
+            </Row>
+          </>
+        ) : (
+          <>
+            {currentRow?.name && (
+              <ProDescriptions<API.RuleListItem>
+                column={2}
+                title={currentRow?.name}
+                request={async () => ({
+                  data: currentRow || {},
+                })}
+                params={{
+                  id: currentRow?.name,
+                }}
+                columns={
+                  columns as ProDescriptionsItemProps<API.RuleListItem>[]
+                }
+              />
+            )}
+            <h2>{tempData.batchId}</h2>
+            <p>Date - {tempData.dates}</p>
+            <p>Created By - {tempData.createdBy}</p>
+            <p>Assigned Teacher - {tempData.teacher}</p>
+            <p>student - {tempData.students}</p>
+            <p>Time Slot - {tempData.timeSlot}</p>
+            <p>
+              {/* Status - {tempData.status == 0 ? <button>success</button> : <button>upcoming</button>} */}
+              switch - {handleSwitch(tempData.status)}
+            </p>{" "}
+          </>
         )}
-        <h2>{tempData.batchId}</h2>
-        <p>Date - {tempData.dates}</p>
-        <p>Created By - {tempData.createdBy}</p>
-        <p>Assigned Teacher - {tempData.teacher}</p>
-        <p>student - {tempData.students}</p>
-        <p>Time Slot - {tempData.timeSlot}</p>
-        <p>
-          {/* Status - {tempData.status == 0 ? <button>success</button> : <button>upcoming</button>} */}
-          switch - {handleSwitch(tempData.status)}
-        </p>
       </Drawer>
     </PageContainer>
   );
