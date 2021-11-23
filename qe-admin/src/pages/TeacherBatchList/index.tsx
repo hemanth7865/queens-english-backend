@@ -156,7 +156,7 @@ const TeacherBatchList: React.FC = () => {
     education: "",
     experience: "",
     teacherType: "",
-    languagesKnown: "",
+    languages: "",
     resume: "",
     videoProfile: "",
     certificate: "",
@@ -229,7 +229,7 @@ const TeacherBatchList: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       setTempDataView(msg.data);
-      console.log(msg);
+      console.log('view one',msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -267,7 +267,7 @@ const TeacherBatchList: React.FC = () => {
           defaultMessage="Mobile"
         />
       ),
-      dataIndex: "mobile",
+      dataIndex: "phoneNumber",
     },
     //experience
     {
@@ -307,25 +307,7 @@ const TeacherBatchList: React.FC = () => {
               defaultMessage="On Hold"
             />
           ),
-          status: "on hold",
-        },
-        3: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.leave"
-              defaultMessage="In Active"
-            />
-          ),
-          status: "in active",
-        },
-        4: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.leave"
-              defaultMessage="Leave"
-            />
-          ),
-          status: "on leave",
+          status: "on Hold",
         },
         0: {
           text: (
@@ -334,7 +316,7 @@ const TeacherBatchList: React.FC = () => {
               defaultMessage="Leave"
             />
           ),
-          status: "on leave",
+          status: "Leave",
         },
       },
     },
@@ -488,8 +470,8 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log(entity);
-              handleOneView(entity.leadId);
+              console.log('entity', entity);
+              handleOneView(entity.userId);
               setCurrentRow(entity);
               setShowDetail(true);
               // console.log(tempDataView)
@@ -517,42 +499,22 @@ const TeacherBatchList: React.FC = () => {
 
   const dateFormat = "HH:mm:ss";
 
-  const propsUpload = {
-    name: "file",
-    action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-    headers: {
-      authorization: "authorization-text",
-    },
-    onChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.file.name);
-      }
-      if (info.file.status === "done") {
-        setUploadResume(info.file.name);
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-  };
-
   const handleFormSubmit = async () => {
     console.log("form submitted");
     const dataForm = {
-      firstname: formData.firstName,
-      lastname: formData.lastName,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
       dob: dateBirth,
-      mobile: formData.mobile,
+      phoneNumber: formData.mobile,
       email: formData.email,
       address: formData.address,
       whatsapp: formData.whatsapp,
-      status: formData.status,
       gender: selectValue,
       nationalityId: formData.nationality,
       category: formData.category,
-      languages: formData.languagesKnownn,
+      languages: formData.languages,
       startDate: dateStart,
-      lead_type: selectTeacher,
+      type: selectTeacher,
       photo: formData.photo,
       lead: [
         {
@@ -564,7 +526,7 @@ const TeacherBatchList: React.FC = () => {
           joiningdate: dateJoining,
           ratings: 1,
           classestaken: 10,
-          lead_type: formData.teacherType,
+          teachertype: formData.teacherType,
         },
       ],
       statusId: selectStatus,
@@ -600,12 +562,12 @@ const TeacherBatchList: React.FC = () => {
   const handleFormSubmitEdit = async () => {
     console.log("form submitted");
     const dataForm = {
-      firstname: formData.firstName
+      firstName: formData.firstName
         ? formData.firstName
-        : tempDataView.firstname,
-      lastname: formData.lastName ? formData.lastName : tempDataView.lastname,
+        : tempDataView.firstName,
+      lastName: formData.lastName ? formData.lastName : tempDataView.lastName,
       dob: dateBirth ? dateBirth : tempDataView.dob,
-      mobile: formData.mobile ? formData.mobile : tempDataView.mobile,
+      phoneNumber: formData.mobile ? formData.mobile : tempDataView.phoneNumber,
       email: formData.email ? formData.email : tempDataView.email,
       address: formData.address ? formData.address : tempDataView.address,
       whatsapp: formData.whatsapp ? formData.whatsapp : tempDataView.whatsapp,
@@ -619,34 +581,34 @@ const TeacherBatchList: React.FC = () => {
         ? formData.languagesKnown
         : tempDataView.languages,
       startDate: dateStart ? dateStart : tempDataView.startDate,
-      lead_type: selectTeacher,
+      type: selectTeacher,
       photo: formData.photo,
       lead: [
         {
           resume: formData.resume,
           qualification: formData.education
             ? formData.education
-            : tempDataView.lead &&
-            tempDataView.lead.map(function (lead, i) {
+            : tempDataView.teacher &&
+            tempDataView.teacher.map(function (lead, i) {
               return lead.qualification;
             }),
           totalexp: formData.experience
             ? formData.experience
-            : tempDataView.lead &&
-            tempDataView.lead.map(function (lead, i) {
+            : tempDataView.teacher &&
+            tempDataView.teacher.map(function (lead, i) {
               return lead.totalexp;
             }),
           video: formData.videoProfile,
           certificates: formData.certificate,
           joiningdate: dateJoining
             ? dateJoining
-            : tempDataView.lead &&
-            tempDataView.lead.map(function (lead, i) {
+            : tempDataView.teacher &&
+            tempDataView.teacher.map(function (lead, i) {
               return lead.joiningdate;
             }),
           ratings: 1,
           classestaken: 10,
-          lead_type: formData.teacherType,
+          teachertype: formData.teacherType,
         },
       ],
       statusId: selectStatus ? selectStatus : tempDataView.statusId,
@@ -654,8 +616,8 @@ const TeacherBatchList: React.FC = () => {
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
-      dataForm.id = tempDataView.id;
-      dataForm.lead.id = tempDataView.lead.id;
+      dataForm.userId = tempDataView.userId;
+      dataForm.teacherId = tempDataView.teacherId;
     }
     try {
       // 登录
@@ -702,7 +664,7 @@ const TeacherBatchList: React.FC = () => {
       start_slot: value[0],
       end_slot: value[1],
       weekday: props.weekday,
-      startDate: dateStart,
+      start_date: dateStart,
     };
 
     let dataLead = props.tempData;
@@ -717,7 +679,7 @@ const TeacherBatchList: React.FC = () => {
       leadSlot = {
         start_slot: slotStart,
         end_slot: slotEnd,
-        startDate: dateStart,
+        start_date: dateStart?dateStart:tempDataView.startDate,
         weekday: props.weekday,
       };
     }
@@ -935,7 +897,7 @@ const TeacherBatchList: React.FC = () => {
                     ]}
                   >
                     <DatePicker
-                      placeholder="Joining Date"
+                      placeholder="Date of Birth"
                       style={{ width: "370px" }}
                       onChange={(date, dateString) => {
                         setDateOfBirth(dateString);
@@ -1118,7 +1080,7 @@ const TeacherBatchList: React.FC = () => {
                       type="text"
                       placeholder="Languages Known"
                       name="languagesKnown"
-                      value={formData.languagesKnown}
+                      value={formData.languages}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
@@ -1128,14 +1090,15 @@ const TeacherBatchList: React.FC = () => {
 
                 <Col span={12}>
                   <Form.Item name="uploadResume">
-                    <Upload {...propsUpload}>
-                      <Button
-                        icon={<UploadOutlined />}
-                        style={{ width: "370px" }}
-                      >
-                        Upload Resume
-                      </Button>
-                    </Upload>
+                  <input
+                      type="file"
+                      id="videoProfile"
+                      class="inputfile"
+                      value={formData.videoProfile}
+                      name="videoProfile"
+                      onChange={handleFormChange}
+                    />
+                    <label for="videoProfile">Upload Resume</label>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -1269,7 +1232,7 @@ const TeacherBatchList: React.FC = () => {
                 <p>Name</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.firstname + " " + tempDataView.lastname}</p>
+                <p>{tempDataView.firstName + " " + tempDataView.lastName}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1277,8 +1240,8 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
+                  {tempDataView.teacher &&
+                    tempDataView.teacher.map(function (lead, i) {
                       return <span>{lead.joiningdate}</span>;
                     })}
                 </p>
@@ -1309,7 +1272,7 @@ const TeacherBatchList: React.FC = () => {
                 <p>Mobile </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.mobile}</p>
+                <p>{tempDataView.phoneNumber}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1348,19 +1311,12 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Gender </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.gender}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
                 <p>Education </p>
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
+                  {tempDataView.teacher &&
+                    tempDataView.teacher.map(function (lead, i) {
                       return <span>{lead.qualification}</span>;
                     })}
                 </p>
@@ -1371,8 +1327,8 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
+                  {tempDataView.teacher &&
+                    tempDataView.teacher.map(function (lead, i) {
                       return <span>{lead.totalexp + " Years"} </span>;
                     })}
                 </p>
@@ -1383,17 +1339,7 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
-                      switch (lead.teacherType) {
-                        case 1:
-                          return <div>{"Native"} </div>;
-                        case 2:
-                          return <div>{"Non Native"} </div>;
-                        default:
-                          return <div>{"Native"} </div>;
-                      }
-                    })}
+                  {tempDataView.type}
                 </p>
               </Col>
               <Col span={7}></Col>
@@ -1410,8 +1356,8 @@ const TeacherBatchList: React.FC = () => {
               <Col span={11}>
                 <p>
                   {" "}
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
+                  {tempDataView.teacher &&
+                    tempDataView.teacher.map(function (lead, i) {
                       return <span>{lead.resume}</span>;
                     })}
                 </p>
@@ -1422,8 +1368,8 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
+                  {tempDataView.teacher &&
+                    tempDataView.teacher.map(function (lead, i) {
                       return <span>{lead.video}</span>;
                     })}
                 </p>
@@ -1434,8 +1380,8 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.lead &&
-                    tempDataView.lead.map(function (lead, i) {
+                  {tempDataView.teacher &&
+                    tempDataView.teacher.map(function (lead, i) {
                       return <span>{lead.Certificates}</span>;
                     })}
                 </p>
@@ -1485,14 +1431,14 @@ const TeacherBatchList: React.FC = () => {
                     <Input
                       name="firstName"
                       onChange={handleFormChange}
-                      defaultValue= {tempDataView.firstname}
+                      defaultValue= {tempDataView.firstName}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="last Name">
                     <Input
-                      defaultValue={tempDataView.lastname}
+                      defaultValue={tempDataView.lastName}
                       name="lastName"
                       onChange={handleFormChange}
                     />
@@ -1504,8 +1450,8 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="joiningDate">
                     <DatePicker
-                      defaultValue={moment(`${tempDataView.lead &&
-                        tempDataView.lead.map(function (lead, i) {
+                      defaultValue={moment(`${tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead, i) {
                           return lead.joiningdate;
                         })}`, 'YYYY/MM/DD')} 
                       format='YYYY/MM/DD' 
@@ -1563,7 +1509,7 @@ const TeacherBatchList: React.FC = () => {
                   <Form.Item name="mobile">
                     <Input
                       type="text"
-                      defaultValue={tempDataView.mobile}
+                      defaultValue={tempDataView.phoneNumber}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
@@ -1626,8 +1572,8 @@ const TeacherBatchList: React.FC = () => {
                   <Form.Item name="qualification">
                     <Input
                       defaultValue={
-                        tempDataView.lead &&
-                        tempDataView.lead.map(function (lead, i) {
+                        tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead, i) {
                           return lead.qualification;
                         })
                       }
@@ -1640,8 +1586,8 @@ const TeacherBatchList: React.FC = () => {
                   <Form.Item name="totalExperience">
                     <Input
                       defaultValue={
-                        tempDataView.lead &&
-                        tempDataView.lead.map(function (lead, i) {
+                        tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead, i) {
                           return lead.totalexp;
                         })
                       }
@@ -1656,15 +1602,9 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item
                     name="teacherType"
-                    rules={[
-                      {
-                        required: true,
-                        message: "please enter Teacher Type",
-                      },
-                    ]}
                   >
                     <Select
-                      defaultValue = "Native"
+                      defaultValue = {tempDataView.type}
                       onChange={(value) => {
                         setSelectTeacher(value);
                       }}
