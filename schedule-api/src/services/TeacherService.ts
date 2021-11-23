@@ -147,7 +147,7 @@ export class TeacherService {
             user.whatsapp = data.whatsapp;
             user.nationalityId = data.nationalityId;
             user.dob = data.dob;
-            user.statusId = data.statusId;
+            user.status = data.status;
             user.photo = data.photo;
             user.languages = data.languages;
             user.created_at = new Date();
@@ -231,8 +231,8 @@ export class TeacherService {
         var status = parameters.status;
         if (status) {
             status = parseInt(status);
-            query_string = query_string + ` and u.statusId=${status} ` ;
-            query_list.push(` u.statusId=${status} `);
+            query_string = query_string + ` and u.status=${status} ` ;
+            query_list.push(` u.status=${status} `);
         }
 
         //var ratings = request.query['ratings'];
@@ -330,10 +330,10 @@ export class TeacherService {
             });
             console.log("value sis ", query_string);
            // query_string = query_list && query_list.join(' and ') ;
-             finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+             finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
              //total = await getManager().query(`select count(*) as totalCount from user u left join teacher le on u.teacherId=le.id`);
           //  } //else {
-            //finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.statusId as statusId, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
+            //finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
             //total = await getManager().query(`select count(*) as totalCount from user u `);
        // }
         
@@ -348,9 +348,9 @@ export class TeacherService {
         //if (results.length ==0) {
           //  if (query_string || filter) {
            //     console.log("true conditin");
-            //    finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.statusId as statusId, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u where ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+            //    finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.status as status, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u where ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
              //   } else {
-              //  finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.statusId as statusId, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u  limit ` + (offset * limit) +","+ limit + `;`;
+              //  finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.status as status, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u  limit ` + (offset * limit) +","+ limit + `;`;
     
   //          }
     //        results = await getManager().query(finalQuery);
@@ -377,7 +377,7 @@ export class TeacherService {
             }
            // console.log('yourDate', yourDate);
             var  l = new LeadView(element.userId, element.id, element.teacherId, yourDate,  element.name, element.exp, 
-            element.phoneNumber,element.email,element.statusId,
+            element.phoneNumber,element.email,element.status,
             element.classestaken,element.ratings,slot, element.leadtype, element.type);
         
             leadView.push(l);
