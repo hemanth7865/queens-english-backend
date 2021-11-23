@@ -400,19 +400,23 @@ export class TeacherService {
         .where("user.userId = :id", { id: leadId }).getOne();
 
         console.log('users' , users);
-       
+        var teacherId:number ;
+        if (users != null) {
+            teacherId = users.teacherId;
+        }
+       console.log("teacher id ", teacherId)
         const lead = await getManager().createQueryBuilder(Teacher, "teacher")
-        .where("teacher.id = :id", { id: users && users.teacherId }).getOne();
+        .where("teacher.id = :id", { id: teacherId }).getOne();
         leadTem[0] = lead;
         console.log(users);
         if (lead && leadTem)
              users.teacher = leadTem;
         const leadav:TeacherAvailability[] = [];
         const list:any = await getManager().createQueryBuilder(TeacherAvailability, "teacherAvailability")
-        .where("teacherAvailability.teacherId = :id", { id: leadId }).getMany();
+        .where("teacherAvailability.teacherId = :id", { id: teacherId }).getMany();
         if (users)
             users.teacherAvailability=list;
-        var quer =  "select weekday , start_slot, end_slot, start_min, end_min from teacher_availability where teacherId="+leadId + ";"
+        var quer =  "select weekday , start_slot, end_slot, start_min, end_min from teacher_availability where teacherId="+teacherId + ";"
         slotsResult = await getManager().query(quer);
         var slot = "";
         slotsResult.forEach((element) => {
