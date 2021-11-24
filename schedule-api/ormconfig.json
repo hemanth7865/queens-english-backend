@@ -4,8 +4,8 @@
    "host": "localhost",
    "port": 3306,
    "username": "root",
-   "password": "hatakeninashi@99",
-   "database": "mydb",
+   "password": "admin",
+   "database": "batch_db",
    "synchronize": true,
    "logging": false,
    "entities": [
