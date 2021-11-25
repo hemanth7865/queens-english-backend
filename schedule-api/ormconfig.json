@@ -5,7 +5,7 @@
    "port": 3306,
    "username": "root",
    "password": "admin",
-   "database": "mydb",
+   "database": "batch_db",
    "synchronize": true,
    "logging": false,
    "entities": [

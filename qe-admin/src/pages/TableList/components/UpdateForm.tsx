@@ -83,6 +83,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             },
           ]}
         />
+        {console.log("test")}
         <ProFormTextArea
           name="desc"
           width="md"
