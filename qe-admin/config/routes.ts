@@ -84,6 +84,11 @@
     component: './TeacherBatchList',
   },
   {
+    name: 'Student Management',
+    path: '/studentBatch',
+    component: './StudentList',
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },
