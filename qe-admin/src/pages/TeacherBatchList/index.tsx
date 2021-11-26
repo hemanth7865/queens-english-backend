@@ -22,6 +22,7 @@ import {
   Tooltip,
   Upload,
   RangePicker,
+  notification
   // Descriptions,
 } from "antd";
 import React, { useState, useRef } from "react";
@@ -277,7 +278,7 @@ const TeacherBatchList: React.FC = () => {
           defaultMessage="Experience"
         />
       ),
-      dataIndex: "experience",
+      dataIndex: "totalexp",
     },
     //status
     {
@@ -299,17 +300,7 @@ const TeacherBatchList: React.FC = () => {
           ),
           status: "active",
         },
-
         2: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.onhold"
-              defaultMessage="On Hold"
-            />
-          ),
-          status: "on Hold",
-        },
-        0: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.leave"
@@ -317,6 +308,24 @@ const TeacherBatchList: React.FC = () => {
             />
           ),
           status: "Leave",
+        },
+        3: {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.onhold"
+              defaultMessage="On Hold"
+            />
+          ),
+          status: "On Hold",
+        },
+        4: {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.onhold"
+              defaultMessage="In Active"
+            />
+          ),
+          status: "In Active",
         },
       },
     },
@@ -529,7 +538,7 @@ const TeacherBatchList: React.FC = () => {
           teachertype: formData.teacherType,
         },
       ],
-      statusId: selectStatus,
+      status: selectStatus,
       leadAvailability: leadAvailabilities,
     };
     // async (values: API.LoginParams) => {
@@ -611,7 +620,7 @@ const TeacherBatchList: React.FC = () => {
           teachertype: formData.teacherType,
         },
       ],
-      statusId: selectStatus ? selectStatus : tempDataView.statusId,
+      status: selectStatus ? selectStatus : tempDataView.status,
       leadAvailability: leadAvailabilities,
     };
     // async (values: API.LoginParams) => {
@@ -645,7 +654,6 @@ const TeacherBatchList: React.FC = () => {
     console.log("formData", formData);
     console.log("dataForm", dataForm);
     onClose();
-    
   };
 
   let leadAvailabilities = [];
@@ -697,10 +705,10 @@ const TeacherBatchList: React.FC = () => {
 
     const format = "HH:mm";
     return (
-      <Row>
+      <Row style = {{margin: 5}}>
         <Col span={7}>
           {dataLead ? (
-            <Checkbox name="weekday" checked="true">
+            <Checkbox name="weekday" checked="true" onChange={(e) => setValue1(props.weekday)}>
               {props.week}
             </Checkbox>
           ) : (
@@ -717,6 +725,9 @@ const TeacherBatchList: React.FC = () => {
                 moment(`${slotStart}`, format),
                 moment(`${slotEnd}`, format),
               ]}
+              onChange={(time, timeString) => {
+                setValue(timeString);
+              }}
             />
           ) : (
             <TimePicker.RangePicker
@@ -773,6 +784,24 @@ const TeacherBatchList: React.FC = () => {
   }
   //console.log('timeslots', timeSlots)
 
+  //delete teacher
+  const openNotification = (id) => {
+    const key = id;
+    const btn = (
+      <Button type="primary" size="small" onClick={() => deleteTeacher(key)}>
+        Confirm
+      </Button>
+    );
+    notification.open({
+      message: 'Notification Title',
+      description:
+        `Do you want to delete ?`,
+      btn,
+      key,
+      onClose: close,
+    });
+  };
+
   const deleteTeacher = async (id) => {
     console.log("clicked delete teacher");
     try {
@@ -784,7 +813,7 @@ const TeacherBatchList: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      console.log(msg);
+      console.log('delete', msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -1162,8 +1191,8 @@ const TeacherBatchList: React.FC = () => {
                       }}
                     >
                       <Option value="1">Active</Option>
-                      <Option value="2">On Hold</Option>
-                      <Option value="0">Leave</Option>
+                      <Option value="2">Leave</Option>
+                      <Option value="3">On Hold</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -1399,14 +1428,14 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>
-                  {tempDataView.statusId == 1 ? (
+                  {tempDataView.status == 1 ? (
                     <div>{"Active"} </div>
-                  ) : tempDataView.statusId == 2 ? (
+                  ) : tempDataView.status == 3 ? (
                     <div>{"OnHold"} </div>
-                  ) : tempDataView.statusId == 3 ? (
-                    <div>{"In Active"} </div>
-                  ) : (
+                  ) : tempDataView.status == 2 ? (
                     <div>{"Leave"} </div>
+                  ) : (
+                    <div>{"In Active"} </div>
                   )}
                 </p>
               </Col>
@@ -1689,18 +1718,18 @@ const TeacherBatchList: React.FC = () => {
                     <Select
                       defaultValue = {tempDataView.statusId == 1
                         ? "Active"
-                        : tempDataView.statusId == 2
+                        : tempDataView.statusId == 3
                           ? "OnHold"
-                          : tempDataView.statusId == 3
-                            ? "In Active"
-                            : "Leave"}
+                          : tempDataView.statusId == 2
+                            ? "Leave"
+                            : "In Active"}
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
                     >
                       <Option value="1">Active</Option>
-                      <Option value="2">On Hold</Option>
-                      <Option value="0">Leave</Option>
+                      <Option value="2">Leave</Option>
+                      <Option value="3">On Hold</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -1754,18 +1783,17 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
               </Row>
               <Row>
-                <Col span={12}>
+                <Col span={8}>
                   <Input
                     type="submit"
                     value="Save Changes"
                     style={{ color: "white", backgroundColor: "DodgerBlue" }}
                   />
                 </Col>
-                <Col span={12}>
+                <Col span = {8}></Col>
+                <Col span={8}>
                   <Button
-                    onClick={() => {
-                      deleteTeacher(tempDataView.id);
-                    }}
+                    onClick={()=>{openNotification(tempDataView.userId)}}
                     block
                     type="primary"
                   >
