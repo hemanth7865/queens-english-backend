@@ -6,6 +6,8 @@ import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
+import { v4 as uuid } from "uuid";
+
 const https = require('https')
 
 
@@ -67,36 +69,39 @@ export class TeacherService {
             var teacherItem:Teacher[] = [];
             var teacher = new Teacher();
             var user = new User();
-            for (var element of data.lead){
-                teacher.created_at = new Date();
-                teacher.updated_at = new Date();
-                if (element.id){
-                    teacher.id = element.id;
+            if (data.lead) {
+                for (let element of data.lead){
+                    teacher.created_at = new Date();
+                    teacher.updated_at = new Date();
+                    if (element.id){
+                        teacher.id = element.id;
+                    } 
+                    teacher.joiningdate = element.joiningdate;
+                    teacher.resume = "Resume";
+                    teacher.video = "video";
+                    teacher.teachertype = element.teacher_type;
+                    teacher.qualification=element.qualification;
+                    teacher.classestaken = element.classestaken;
+                    teacher.teachertype = element.teacher_type;
+                    teacher.certificates = element.certificates;
+                    teacher.ratings = parseInt(element.ratings);
+                    if (!teacher.ratings)
+                        teacher.ratings = 0;
+    
+                    teacher.totalexp=parseFloat(element.totalexp);
+                    if (!teacher.totalexp)
+                        teacher.totalexp = 0;
+                    teacher = await this.teacherRepository.save(teacher);
+                    console.log('lead id is ', teacher.id);
+                    user.id = teacher.id;
+                    user.teacher=[teacher];
+                    console.log("lead ", teacher.id);
                 }
-                teacher.joiningdate = element.joiningdate;
-                teacher.resume = "Resume";
-                teacher.video = "video";
-                teacher.teachertype = element.teacher_type;
-                teacher.qualification=element.qualification;
-                teacher.classestaken = element.classestaken;
-                teacher.teachertype = element.teacher_type;
-                teacher.certificates = element.certificates;
-                teacher.ratings = parseInt(element.ratings);
-                if (!teacher.ratings)
-                    teacher.ratings = 0;
-
-                teacher.totalexp=parseFloat(element.totalexp);
-                if (!teacher.totalexp)
-                    teacher.totalexp = 0;
-                teacher = await this.teacherRepository.save(teacher);
-                console.log('lead id is ', teacher.id);
-                user.teacherId = teacher.id;
-                user.teacher=[teacher];
-                user.teacherId=teacher.id;
-                console.log("lead ", teacher.id);
             }
+            
     
             let i = 0;
+            if (data.leadAvailability) {
             data.leadAvailability.forEach( async (element) => {
                 var availability = new TeacherAvailability();
                 availability.start_date = element.startDate;
@@ -117,7 +122,7 @@ export class TeacherService {
                  }
                 
                 availability.weekday = element.weekday;
-                if (element.id)
+                if (element.id) 
                     availability.id = element.id;
                 availability.teacher = teacher;
                 availability.created_at = new Date();
@@ -130,6 +135,7 @@ export class TeacherService {
                 teacherAvailability[i++] = availability;
 
             });
+        }
     
             console.log('leadAvailability', teacherAvailability);
     
@@ -139,9 +145,9 @@ export class TeacherService {
             user.gender = data.gender;
             user.phoneNumber = data.phoneNumber;
             user.email= data.email;
-            user.type = data.type;
-            user.id = data.id;
-            user.userId = data.userId;
+            user.type = data.type;             
+            if (data.id)
+                user.id = data.id;
             user.startDate = data.startDate;
             user.address = data.address;
             user.whatsapp = data.whatsapp;
@@ -152,7 +158,6 @@ export class TeacherService {
             user.languages = data.languages;
             user.created_at = new Date();
             user.updated_at = new Date();
-            user.teacherId = teacher.id;
             console.log('user', user);
             user = await this.usersRepository.save(user)
             return user;
@@ -276,14 +281,14 @@ export class TeacherService {
 
           if (start_slot && end_slot) {
               filter = true;
-            var quer =  `select teacherId, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
+            var quer =  `select id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
             console.log('quer', quer);
             let totalResult = await getManager().query(quer);
             console.log('totalResult',totalResult);
             let slotsResultIds:any = [0]
 
             for (var element of totalResult) {
-                slotsResultIds.push(element.teacherId);
+                slotsResultIds.push(element.id);
             }
 
            // let slotsResultIds = totalResult.forEach((element)=>element.leadId);
@@ -295,11 +300,11 @@ export class TeacherService {
             console.log('ids', unique);
             console.log('Query string is ', query_string);     
             if (unique) {
-                query_string = query_string +` and u.teacherId in (${unique}) `;
-                query_list.push(` u.teacherId in (${unique}) `);
+                query_string = query_string +` and u.id in (${unique}) `;
+                query_list.push(` u.id in (${unique}) `);
             } else {
-                query_string = query_string +` and u.teacherId in (0) `;
-                query_list.push(`  u.teacherId in (0) `);
+                query_string = query_string +` and u.id in (0) `;
+                query_list.push(`  u.id in (0) `);
             }
          
         
@@ -330,7 +335,7 @@ export class TeacherService {
             });
             console.log("value sis ", query_string);
            // query_string = query_list && query_list.join(' and ') ;
-             finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
+             finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
              //total = await getManager().query(`select count(*) as totalCount from user u left join teacher le on u.teacherId=le.id`);
           //  } //else {
             //finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
@@ -359,7 +364,7 @@ export class TeacherService {
         for (const element  of results ) {  
             let slotsResult:any[] = [];   
             //console.log(element.leadId);
-             var quer =  "select weekday , start_slot, end_slot from teacher_availability where teacherId="+element.teacherId + ";"
+             var quer =  "select weekday , start_slot, end_slot from teacher_availability where teacherId='"+element.teacherId + "';"
             slotsResult = await getManager().query(quer);
             var slot = "";
             slotsResult.forEach((element) => {
@@ -376,7 +381,7 @@ export class TeacherService {
                 yourDate = new Date(element.joiningdate).toISOString().split('T')[0];
             }
            // console.log('yourDate', yourDate);
-            var  l = new LeadView(element.userId, element.id, element.teacherId, yourDate,  element.name, element.exp, 
+            var  l = new LeadView(element.id, element.teacherId, yourDate,  element.name, element.exp, 
             element.phoneNumber,element.email,element.status,
             element.classestaken,element.ratings,slot, element.leadtype, element.type);
         
@@ -409,26 +414,23 @@ export class TeacherService {
         console.log('leadid', leadId);
         console.log(users)
         users = await getManager().createQueryBuilder(User, "user")
-        .where("user.userId = :id", { id: leadId }).getOne();
+        .where("user.id = :id", { id: leadId }).getOne();
 
         console.log('users' , users);
-        var teacherId:number ;
-        if (users != null) {
-            teacherId = users.teacherId;
-        }
+       
        console.log("teacher id ", teacherId)
         const lead = await getManager().createQueryBuilder(Teacher, "teacher")
-        .where("teacher.id = :id", { id: teacherId }).getOne();
+        .where("teacher.id = :id", { id: leadId }).getOne();
         leadTem[0] = lead;
         console.log(users);
         if (lead && leadTem)
              users.teacher = leadTem;
         const leadav:TeacherAvailability[] = [];
         const list:any = await getManager().createQueryBuilder(TeacherAvailability, "teacherAvailability")
-        .where("teacherAvailability.teacherId = :id", { id: teacherId }).getMany();
+        .where("teacherAvailability.id = :id", { id: leadId }).getMany();
         if (users)
             users.teacherAvailability=list;
-        var quer =  "select weekday , start_slot, end_slot, start_min, end_min from teacher_availability where teacherId="+teacherId + ";"
+        var quer =  "select weekday , start_slot, end_slot, start_min, end_min from teacher_availability where teacherId='"+teacherId + "';"
         slotsResult = await getManager().query(quer);
         var slot = "";
         slotsResult.forEach((element) => {

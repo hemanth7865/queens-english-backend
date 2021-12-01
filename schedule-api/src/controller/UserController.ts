@@ -114,8 +114,7 @@ export class UserController {
       
         let resp;
         let teacherService = new TeacherService();
-
-        const teacherId = parseInt(request.params.id);
+        const teacherId = request.params.id;
   
        try{
            resp = await teacherService.leadFullDetails(request.body, teacherId);

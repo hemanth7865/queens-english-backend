@@ -9,8 +9,8 @@ import { Batch } from "./Batch";
 export class TeacherAvailability extends BaseEntity {
     TeacherAvailability() {}
     
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
 
     @Column({'nullable':true, type:"datetime"})
         start_date:Date

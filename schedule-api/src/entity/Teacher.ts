@@ -7,8 +7,8 @@ import { TeacherAvailability } from "./TeacherAvailability";
 @Entity("teacher")
 export class Teacher extends BaseEntity {
     Teacher() {}
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
     @Column({'nullable':true,type:"text"})
         qualification: string;
     @Column({'nullable':true,type:"double"})

@@ -4,13 +4,13 @@ import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { TeacherAvailability } from "./TeacherAvailability";
 
-@Entity("cosmos_data")
-export class CosmosClass extends BaseEntity {
-    CoachClass() {}
+@Entity("classes")
+export class Classes extends BaseEntity {
+    Classes() {}
     
+       // id: string;
+    @PrimaryGeneratedColumn("uuid")
         id: string;
-    @PrimaryGeneratedColumn()
-        cosmos_ref: number;
        
     @Column({'nullable':true,type:"text"})
         classCode: string;
@@ -19,12 +19,18 @@ export class CosmosClass extends BaseEntity {
         batchNumber: string;
     @Column({'nullable':true})
         teacherId: string;
+
+    @Column({'nullable':true})
+        startingLessonId: string;
     
     @Column({'nullable':true})
-    endingLessonId: string;
+        endingLessonId: string;
+
+    @Column({'nullable':true, type:"datetime"})
+        classStartDate: Date;        
     
-    @Column({'nullable':true, type:"date"})
-    classEndDate: Date;
+    @Column({'nullable':true, type:"datetime"})
+        classEndDate: Date;
     
     @Column({'nullable':true})
         noofclasses: number;

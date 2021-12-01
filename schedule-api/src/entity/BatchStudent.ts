@@ -6,17 +6,20 @@ import { Teacher } from "./Teacher";
 import { Batch } from "./Batch";
 
 @Entity("batch_students")
-export class BatchStudents extends BaseEntity {
+export class BatchStudent extends BaseEntity {
     BatchStudents() {}
     
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
 
-    @Column({'nullable':true, type:"datetime"})
-        batchId:Date
+    @Column({'nullable':true})
+        batchId:string
     
     @Column({'nullable':true})
-        studentId: Number;
+        studentId: string;
+
+    @Column({'nullable':true})
+        type: string;
      
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})

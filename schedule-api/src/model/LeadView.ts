@@ -2,7 +2,6 @@
 
     export class LeadView {
             id: string;
-            userId: number;
             date: string;        
             name: string;         
             totalexp:string;         
@@ -19,9 +18,8 @@
             cosmos_ref: string;
             type:string;
 
-            public constructor(userId:number, id:string, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:number,classestaken:number,
+            public constructor(id:string, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:number,classestaken:number,
                 ratings:number,slots:string,leadType:number, type:string){
-                this.userId = userId;
                 this.id = id;
                 this.leadId = leadId;
                 this.date = date;

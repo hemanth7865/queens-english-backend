@@ -9,26 +9,28 @@ import { Batch } from "./Batch";
 export class BatchAvailability extends BaseEntity {
     BatchAvailability() {}
     
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
 
     @Column({'nullable':true, type:"datetime"})
         start_date:Date
+        @Column({'nullable':true, type:"datetime"})
+        end_date:Date
 
     @Column({'nullable':true})
-        start_slot: Number;
+        start_slot: number;
     @Column({'nullable':true})
-        end_slot: Number;
+        end_slot: number;
     
     @Column({'nullable':true})
-        start_min: Number;
+        start_min: number;
     @Column({'nullable':true})
         end_min: Number;
 
     @Column({'nullable':true})
-        startMin: Number;
+        startMin: number;
     @Column({'nullable':true})
-        endMin: Number;
+        endMin: number;
 
     @Column({'nullable':true})
         weekday: Number;

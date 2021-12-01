@@ -51,15 +51,15 @@ export const Routes = [
 },
 {
     method: "post",
-    route: "/batch",
+    route: "/createBatch",
     controller: BatchController,
-    action: "batchCreate"
+    action: "createBatch"
 },
 {
     method: "get",
-    route: "/listbatch",
+    route: "/listBatch",
     controller: BatchController,
-    action: "getBatches"
+    action: "listBatch"
 },
 {
     method: "get",

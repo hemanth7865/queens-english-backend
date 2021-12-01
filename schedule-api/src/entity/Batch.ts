@@ -3,14 +3,14 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { BatchAvailability } from "./BatchAvailability";
-import { BatchStudents } from "./BatchStudentDetails";
-import { CosmosClass } from "./CosmosClass";
+import { BatchStudent } from "./BatchStudent";
+import { Classes } from "./Classes";
 
 @Entity("batch")
 export class Batch extends BaseEntity {
     Batch() {}
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
     @Column({'nullable':true,type:"text"})
         teacherId: string;
     @Column({'nullable':true,type:"double"})
@@ -31,16 +31,15 @@ export class Batch extends BaseEntity {
     @Column({'nullable':true,type:"datetime"})
         updated_at:Date
 
-    @OneToMany(() => BatchAvailability, batchAvailability => batchAvailability.batch)
-    batchAvailability: BatchAvailability[];
-
-    @OneToOne(() => CosmosClass)
+    @OneToOne(() => BatchAvailability)
     @JoinColumn()
-    cosmosClass: CosmosClass;
+    batchAvailability: BatchAvailability;
 
-    
+    @OneToOne(() => Classes)
+    @JoinColumn()
+    classes: Classes;    
 
-    @OneToMany(() => BatchStudents, batchStudents => batchStudents.batch)
-    batchStudent: BatchStudents[];
+    @OneToMany(() => BatchStudent, batchStudent => batchStudent.batch)
+    students: BatchStudent[];
 
 }
