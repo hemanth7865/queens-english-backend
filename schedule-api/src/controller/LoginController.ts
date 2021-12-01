@@ -19,13 +19,48 @@ export class LoginController {
 
     async login(request: Request, response: Response, next: NextFunction) {
         const req = request.body;
-        let userToRemove = await this.adminRepository.find({select:["firstname","lastname","email","phone"] ,where: { email: req.email, password: req.password} }); 
-        if (userToRemove.length>0) {
-   
-           return {"success":true,"data": userToRemove, "total":1, "current":1, pageSize:1};
-        }   else {
-           return {"success":false,"data": userToRemove, "total":1, "current":1, pageSize:1};
-        }   
+        
+        const cookies = request.signedCookies;
+        const token = cookies['qe-admin-token'];
+        let foundUser = await this.adminRepository.findOne({select:["firstname","lastname","email","phone"] ,where: { email: req.email, password: req.password} }); 
+        if (token) {
+            console.log('token', token);
+            const decodedToken = new JWSTokenHandler().decode(token);
+            console.log('decodedToken', req.email);
+            
+            const tokenPayload = JSON.parse(decodedToken.payload || '{}'); 
+            
+            if (foundUser) {
+                return response.status(200).send({
+                    status: "ok",
+                    type: "mobile",
+                    currentAuthority: 'Admin'
+                }).end();
+            }
+        }
+
+      
+        const tokenPayload = {
+            email: foundUser.email,
+            password: "*******",
+            expiry: (new Date().getTime() + (24 * 60 * 60))
+        };
+        const sessionToken = new JWSTokenHandler().signToken(JSON.stringify(tokenPayload));
+
+        let options = {
+            maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
+            httpOnly: true,
+            signed: true
+        }
+    
+        response.cookie('qe-admin-token', sessionToken, options)
+
+        return response.status(200).send({
+            status: "ok",
+            type: "email",
+            currentAuthority: 'Admin',
+            token: sessionToken
+        }).end();
   
     }
 
