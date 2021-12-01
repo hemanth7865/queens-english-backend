@@ -3,7 +3,6 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { Teacher } from "./Teacher";
-import { Batch } from "./Batch";
 
 @Entity("teacher_availability")
 export class TeacherAvailability extends BaseEntity {

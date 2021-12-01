@@ -3,7 +3,7 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { Teacher } from "./Teacher";
-import { Batch } from "./Batch";
+import { Classes } from "./Classes";
 
 @Entity("batch_students")
 export class BatchStudent extends BaseEntity {
@@ -29,7 +29,7 @@ export class BatchStudent extends BaseEntity {
     @Column({'nullable':true,type:"datetime"})
         updated_at:Date
     
-    @ManyToOne(() => Batch, batch => batch.batchAvailability)
-    batch: Batch;
+  //  @ManyToOne(() => Classes, classes => classes.batchAvailability)
+    classes: Classes;
 
 }

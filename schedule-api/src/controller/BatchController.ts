@@ -5,15 +5,17 @@ import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
 import { TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
-import { Batch } from "../entity/Batch";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchService } from "../services/BatchService";
+import { BatchView } from "../model/BatchView";
+import { BatchStudent } from "../entity/BatchStudent";
+import { Classes } from "../entity/Classes";
 
 export class BatchController {
 
     private usersRepository = getRepository(User);
     private batchAvailabilityRepository = getRepository(BatchAvailability);
-    private batchRepository = getRepository(Batch);
+    private batchStudentRepository = getRepository(BatchStudent);
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -37,13 +39,59 @@ export class BatchController {
         console.log("Batch List");
         console.log("Classes List");
         var current =  parseInt(request.query['current']);
-         var pageSize  = parseInt(request.query['pageSize']);
+        var pageSize  = parseInt(request.query['pageSize']);
+        var batchView:BatchView[]=[];
 
-         var quer =  `select * from batch limit ${current}, ${pageSize};`;
-         console.log('quer', quer);
-         var results = await getManager().query(quer);
- 
-        return {"success":true,"data": results, "total":results.length};
+        var parameters = {
+            current:  parseInt(request.query['current']),
+           pageSize  : parseInt(request.query['pageSize']),
+            date : request.query['batchId'],
+            name : request.query['createdBy'],
+            phoneNumber :  request.query['start_slot'],
+           totalexp  :  request.query['end_slot'],
+            classesTaken : request.query['teacher'],
+           ratings : request.query['students'],
+           start_slot : request.query['date'],
+           }       
+
+           
+
+        var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit ${current}, ${pageSize};`;
+        console.log("Query ", quer);
+        var results = await getManager().query(quer);
+        let  studentCount=[]
+
+        for (const element of results) {
+            let firstName;
+           studentCount = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
+        .where("batchStudent.batchId = :id", { id: element.id }).getMany();
+        var classes = await getManager().createQueryBuilder(Classes, "classes")
+        .where("classes.id = :id", { id: element.id }).getOne();
+        var user = await getManager().createQueryBuilder(User, "user")
+        .where("user.id = :id", { id: element.id }).getOne();
+        if (user && user.firstName){
+            firstName = user.firstName;
+        }
+        let startTime;
+        let endTime;
+        let startMin;
+        let endMin;
+        if (classes.lessonStartTime){
+             startTime = new Date(classes.lessonStartTime).getHours();
+             startMin = new Date(classes.lessonStartTime).getMinutes();
+        }
+        
+        if (classes.lessonEndTime){
+            endTime = new Date(classes.lessonEndTime).getHours();
+            endMin = new Date(classes.lessonStartTime).getMinutes();
+        }
+
+            let view = new BatchView(element.id, new Date(),classes.batchNumber, 'Admin', firstName, studentCount.length, `${startTime}:${startMin}-${endTime}:${endMin}`,"Active");
+            batchView.push(view);
+        }
+        
+
+              return {"success":true,"data": batchView, "total":batchView.length, "current":current,"pageSize":pageSize};
     }
 
 
@@ -51,11 +99,22 @@ export class BatchController {
         console.log("Classes List");
        var current =  parseInt(request.query['current']);
         var pageSize  = parseInt(request.query['pageSize']);
+        var batchView:BatchView[]=[];
 
-        var quer =  `select * from classes limit ${current}, ${pageSize};`;
+        var quer =  `select id,  createdBy from batch limit ${current}, ${pageSize};`;
         var results = await getManager().query(quer);
+        let  studentCount=[]
 
-              return {"success":true,"data": results, "total":results.length};
+        for (const element of results) {
+
+           studentCount = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
+        .where("batchStudent.batchId = :id", { id: element.id }).getMany();
+            let view = new BatchView(element.id, new Date(),"Batch Id", element.createdBy, 'teacher', 10, "2:00-300","Active");
+            batchView.push(view);
+        }
+        
+
+              return {"success":true,"data": batchView, "total":batchView.length, "current":current,"pageSize":pageSize};
     }
 
 

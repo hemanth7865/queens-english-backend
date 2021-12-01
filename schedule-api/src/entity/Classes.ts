@@ -3,6 +3,8 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { TeacherAvailability } from "./TeacherAvailability";
+import { BatchAvailability } from "./BatchAvailability";
+import { BatchStudent } from "./BatchStudent";
 
 @Entity("classes")
 export class Classes extends BaseEntity {
@@ -21,25 +23,28 @@ export class Classes extends BaseEntity {
         teacherId: string;
 
     @Column({'nullable':true})
+        createdBy: string;
+
+    @Column({'nullable':true})
         startingLessonId: string;
     
     @Column({'nullable':true})
         endingLessonId: string;
 
-    @Column({'nullable':true, type:"datetime"})
-        classStartDate: Date;        
+    @Column({'nullable':true,type:"text"})
+        classStartDate: string;        
     
-    @Column({'nullable':true, type:"datetime"})
-        classEndDate: Date;
+    @Column({'nullable':true})
+        classEndDate: string;
     
     @Column({'nullable':true})
         noofclasses: number;
     
-    @Column({'nullable':true, type:"datetime"})
-        lessonStartTime: Date;
+    @Column({'nullable':true})
+        lessonStartTime: string;
 
-    @Column({'nullable':true, type:"datetime"})
-        lessonEndTime: Date;
+    @Column({'nullable':true})
+        lessonEndTime: string;
 
     @Column({'nullable':true, type:"text"})
         version:string
@@ -51,11 +56,22 @@ export class Classes extends BaseEntity {
         type: string
 
     @CreateDateColumn()
-    @Column({'nullable':true,type:"datetime"})
+    @Column({'nullable':true})
         created_at:Date
 
     @UpdateDateColumn()
-    @Column({'nullable':true,type:"datetime"})
+    @Column({'nullable':true})
         updated_at:Date
+
+    //@OneToOne(() => BatchAvailability)
+    //@JoinColumn()
+    batchAvailability: BatchAvailability;
+
+    @OneToOne(() => Classes)
+    @JoinColumn()
+    classes: Classes;    
+
+    @OneToMany(() => BatchStudent, batchStudent => batchStudent.classes)
+    students: BatchStudent[];
 
 }
