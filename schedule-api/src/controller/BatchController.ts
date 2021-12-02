@@ -73,15 +73,15 @@ export class BatchController {
           console.log(parameters);
           const batchId = parameters.batchId;
            if (batchId) {
-               query_string = query_string + ` and cl.batchId =  '${batchId}' ` ;
-               query_list.push(` le.joiningdate =  '${batchId}' `);
+               query_string = query_string + ` batchNumber =  '${batchId}' ` ;
+               query_list.push(` batchNumber =  '${batchId}' ` );
            }
    
         //const mobile =  request.query['mobile'];
            const createdBy = parameters.createdBy;
            if (createdBy) {
-               query_string = query_string + ` and u.createdBy =${createdBy} ` ;
-               query_list.push(` u.phoneNumber =${createdBy} `);
+               query_string = query_string + ` createdBy =${createdBy} ` ;
+               query_list.push(` createdBy like '%${createdBy}%' ` );
                console.log('query phonen umber ', createdBy);
            }
    
@@ -118,19 +118,40 @@ export class BatchController {
              console.log(`query string ${query_list}`);
    
              if (start_slot && end_slot) {
-                var quer =  `select id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
-                console.log('quer', quer);
-               let totalResult = await getManager().query(quer);
-               console.log('totalResult',totalResult);
-               let slotsResultIds:any = [0]
-   
-               for (var element of totalResult) {
-                   slotsResultIds.push(element.id);
-               }
-   
+                query_string = query_string + `  ${startMin} >= startMin and ${endMin}<=endMin;` ;
+               query_list.push(`  ${startMin} >= startMin and ${endMin}<=endMin;`);  
             }
 
-        var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit ${current}, ${pageSize};`;
+            let teacher = parameters.teacher;
+
+            if (teacher) {
+               var teacherQuery = `select id from user where (firstName like '%${teacher}%' or lastName like '%${teacher}%' )`;
+               var teacherDetails = await getManager().query(teacherQuery);
+               var ids = '';
+               for (var i of teacherDetails){
+                   ids = ids + `${i.id}`;
+               }
+               let  studentCount=[]
+              console.log('Teacher details', teacherDetails);
+                       
+            }
+
+            if (query_list.length>0) {
+                query_string = ' where ';
+            }
+           
+            query_list.forEach((value, index) => {                
+               console.log(query_list.join(' and '));   
+               if ( index !=query_list.length-1) {
+                    query_string = query_string + query_list[index] + ' and '; 
+                    console.log('query12345', query_string);
+               } else {
+                query_string = query_string + query_list[index];
+               }
+            });
+            console.log("value sis ", query_string);
+
+        var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${current}, ${pageSize};`;
         console.log("Query ", quer);
         var results = await getManager().query(quer);
         let  studentCount=[]
@@ -195,33 +216,41 @@ export class BatchController {
   //  var cronString = '*' +' '+ moment().add(2,'minutes').minute() +' '+ '*' +' '+ '*'+' '+ '*' +' *';
    // console.log('cron expression', cronString);
 
-    var task = cron.schedule('* 0/2 * * *', async function () {
+    var task = cron.schedule('*/2 * * * *', async function () {
         var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit 1, 2;`;
         console.log("Query ", quer);
         var results = await getManager().query(quer);
-        var start_slot='';
-        var start_min='';
-        var startMin='';
-        var end_slot='';
-        var end_min='';
-        var endMin='';
+        let start_slot=0;
+        let start_min=0;
+        var startMin=0;
+        var end_slot=0;
+        var end_min=0;
+        var endMin=0;
         
         for (var element of results) {
-            let start_slot = new Date(element.lessonStartTime).getHours();
-            let  start_min=new Date(element.lessonStartTime).getMinutes();
-            let  startMin=start_min  + start_slot*60;
-            let  end_slot=new Date(element.lessonEndTime).getHours();
-            let end_min=new Date(element.lessonEndTime).getMinutes();;
-            let endMin=end_slot*60 + end_min;
-            var results = await getManager().query(`UPDATE classes SET start_slot=${start_slot}, start_min=${start_min}, startMin=${startMin}, end_slot=${end_slot}, end_min=${end_min}, endMin = ${endMin}  WHERE id = ${element.id};`);
-            console.log("cron job started", results);
+            try{
+                console.log('element',element);
+                console.log('element.lessonStartTime',new Date(element.lessonStartTime));
+                console.log('element.lessonEndTime',element.lessonEndTime);
+                start_slot   = parseInt(element.lessonStartTime.substring(11,13));
+                start_min  = parseInt(element.lessonStartTime.substring(15,17));
+                console.log('start_slot', start_slot);
+                let  startMin=start_min  + start_slot*60;
+                end_slot   = parseInt(element.lessonEndTime.substring(11,13));
+                end_min  = parseInt(element.lessonEndTime.substring(15,17));
+                let endMin=end_slot*60 + end_min;
+                var results = await getManager().query(`UPDATE classes SET start_slot=${start_slot}, start_min=${start_min}, startMin=${startMin}, end_slot=${end_slot}, end_min=${end_min}, endMin = ${endMin}  WHERE id = '${element.id}';`);
+                console.log("cron job started", results);
+            }catch(error){
+                console.log(error);                
+            }
         }
         
         
      }, false);
      task.start();
      console.log('end of method');
-    return {"success":true,"data": "data", "total":"data", "current":0,"pageSize":1};
+    return {"success":true,"message": "Job execution initiated !!!!"};
     }
 
 

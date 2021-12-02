@@ -31,6 +31,25 @@ export class Classes extends BaseEntity {
     @Column({'nullable':true})
         endingLessonId: string;
 
+        @Column({'nullable':true})
+        start_slot: Number;
+    @Column({'nullable':true})
+        end_slot: Number;
+    
+    @Column({'nullable':true})
+        start_min: Number;
+    @Column({'nullable':true})
+        end_min: Number;
+
+    @Column({'nullable':true})
+        startMin: Number;
+    @Column({'nullable':true})
+        endMin: Number;
+
+    @Column({'nullable':true})
+        weekday: Number;
+
+
     @Column({'nullable':true,type:"text"})
         classStartDate: string;        
     
