@@ -218,6 +218,14 @@ export class TeacherService {
             query_list.push(` u.phoneNumber =${mobile} `);
             console.log('query phonen umber ', mobile);
         }
+
+        //const mobile =  request.query['mobile'];
+        const type = parameters.type;
+        if (type) {
+            query_string = query_string + ` and u.type like '%${type}%' ` ;
+            query_list.push(` u.type like '%${type}%'  `);
+            console.log('user typer ', type);
+        }
         //var totalexp  =  request.query['totalexp'];
         var totalexp  =  parameters.totalexp;
         if (totalexp) {

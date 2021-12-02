@@ -90,7 +90,8 @@ export class UserController {
         start_slot : request.query['start_slot'],
         end_slot : request.query['end_slot'],
         weekday  : request.query['weekday'],
-        status  : request.query['status']
+        status  : request.query['status'],
+        type  : request.query['type'],
         }       
 
        var teacherService = new TeacherService();

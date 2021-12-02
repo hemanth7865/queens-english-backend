@@ -52,8 +52,16 @@ export class BatchController {
             classesTaken : request.query['teacher'],
            ratings : request.query['students'],
            start_slot : request.query['date'],
-           }       
-
+           } 
+           
+           //var offset =  parseInt(request.query['current']);
+           var offset = parseInt(request.query['current']);
+           var current = offset;
+           //const limit  =  parseInt(request.query['pageSize']);
+           var limit = parameters.pageSize;
+           if (offset==1) {
+               offset = 0;
+           }
            
 
         var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit ${current}, ${pageSize};`;
