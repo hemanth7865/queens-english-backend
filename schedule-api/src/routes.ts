@@ -66,4 +66,10 @@ export const Routes = [
     route: "/listclass",
     controller: BatchController,
     action: "getClasses"
+},
+{
+    method: "get",
+    route: "/runBatchJob",
+    controller: BatchController,
+    action: "runBatchJob"
 }];

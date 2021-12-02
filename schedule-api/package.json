@@ -5,6 +5,8 @@
    "devDependencies": {
       "@types/node": "^8.0.29",
       "@types/uuid": "^8.3.3",
+      "cron": "^1.8.2",
+      "node-cron": "^3.0.0",
       "ts-node": "3.3.0",
       "typescript": "^3.9.10"
    },
