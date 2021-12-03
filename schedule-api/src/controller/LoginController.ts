@@ -23,27 +23,21 @@ export class LoginController {
         const cookies = request.signedCookies;
         const token = cookies['qe-admin-token'];
         let foundUser = await this.adminRepository.findOne({select:["firstname","lastname","email","phone"] ,where: { email: req.email, password: req.password} }); 
-        if (token) {
-            console.log('token', token);
-            const decodedToken = new JWSTokenHandler().decode(token);
-            console.log('decodedToken', req.email);
-            
-            const tokenPayload = JSON.parse(decodedToken.payload || '{}'); 
-            
-            if (foundUser) {
-                return response.status(200).send({
-                    status: "ok",
-                    type: "mobile",
-                    currentAuthority: 'Admin'
-                }).end();
-            } else {
-                return response.status(401).send({
-                    status: "Ko",
-                    type: "mobile",
-                    currentAuthority: 'Admin'
-                }).end(); 
-            }
+
+        if (foundUser) {
+            return response.status(200).send({
+                status: "ok",
+                type: "mobile",
+                currentAuthority: 'Admin'
+            }).end();
+        } else {
+            return response.status(401).send({
+                status: "Ko",
+                type: "mobile",
+                currentAuthority: 'Admin'
+            }).end(); 
         }
+    
 
       
         const tokenPayload = {
@@ -101,4 +95,4 @@ export class LoginController {
 
     }
 
-}
+}   
