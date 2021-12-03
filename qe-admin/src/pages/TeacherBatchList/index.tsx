@@ -237,7 +237,7 @@ const TeacherBatchList: React.FC = () => {
   };
 
   // console.log('viewone', viewOne)
-  // console.log('tempdateview', tempDataView)
+  console.log('tempdateview', tempDataView)
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
     {
@@ -480,7 +480,7 @@ const TeacherBatchList: React.FC = () => {
           <a
             onClick={() => {
               console.log('entity', entity);
-              handleOneView(entity.userId);
+              handleOneView(entity.leadId);
               setCurrentRow(entity);
               setShowDetail(true);
               // console.log(tempDataView)
@@ -625,7 +625,7 @@ const TeacherBatchList: React.FC = () => {
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
-      dataForm.userId = tempDataView.userId;
+      dataForm.userId = tempDataView.id;
       dataForm.teacherId = tempDataView.teacherId;
     }
     try {

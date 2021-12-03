@@ -84,7 +84,7 @@
     component: './TeacherBatchList',
   },
   {
-    name: 'Student Management',
+    name: 'User Management',
     path: '/studentBatch',
     component: './StudentList',
   },

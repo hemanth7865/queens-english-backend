@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState} from 'react';
-import { Col, Descriptions, Row } from 'antd';
+import { Col, Descriptions, Row, Input } from 'antd';
 
 export type ViewStudentProps = {
     weekday: Number;
@@ -11,7 +11,7 @@ export type ViewStudentProps = {
 
 const ViewStudent: React.FC<ViewStudentProps> = (props) => {
 
-    const {name, batchCode, classAttended, classType, mobile, startDate, endDate, id, status} = props.details? props.details: ''
+    const {firstName,  mobile} = props.details? props.details: ''
 
     return(
         <div>
@@ -21,18 +21,15 @@ const ViewStudent: React.FC<ViewStudentProps> = (props) => {
             <Col span = {10}></Col>
             <Col span = {14}>
             <Descriptions >
-                <Descriptions.Item label="UserName" span = {3}>{name}</Descriptions.Item>
-                <Descriptions.Item label="batchCode" span = {3}>{batchCode}</Descriptions.Item>
-                <Descriptions.Item label="id" span = {3}>{id}</Descriptions.Item>
-                <Descriptions.Item label="classAttended" span = {3}>{classAttended}</Descriptions.Item>
-                <Descriptions.Item label="classType" span = {3}>{classType}</Descriptions.Item>
+                <Descriptions.Item label="UserName" span = {3}>{firstName}</Descriptions.Item>
                 <Descriptions.Item label="mobile" span = {3}>{mobile}</Descriptions.Item>
-                <Descriptions.Item label="startDate" span = {3}>{startDate}</Descriptions.Item>
-                <Descriptions.Item label="endDate" span = {3}>{endDate}</Descriptions.Item>
-                <Descriptions.Item label="status" span = {3}>{status}</Descriptions.Item>
+               
                    
                 
             </Descriptions>
+            <Input
+               defaultValue = {firstName}
+            />
             </Col>
             </Row>
         </div>

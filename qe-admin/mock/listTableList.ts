@@ -95,15 +95,11 @@ const genStudentBatches = (current: number, pageSize: number) => {
     const index = (current - 1) * 10 + i;
     tableListDataSource.push({
       key: index,
-      name: 'user' + index,
-      id: 'QE12345',
-      batchCode: 'QE12345',
-      startDate: moment().format('YYYY-MM-DD'),
-      endDate: moment().format('YYYY-MM-DD'),
+      firstName: 'firstName' + index,
+      lastName: 'lastName' + index,
+      email: 'user@gmail.com',
       mobile: '9876543210',
-      classType: '1:1',
-      classAttended: '134',
-      status: Math.floor(Math.random() * 10) % 3,
+      type: Math.floor(Math.random()*10)%2,
     });
   }
   tableListDataSource.reverse();

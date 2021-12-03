@@ -11,9 +11,9 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import {studentBatches } from '@/services/ant-design-pro/api';
-import AddStudent from './components/AddStudent';
-import EditStudent from './components/EditStudent';
+import {studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
+import AddUser from './components/AddUser';
+import EditUser from './components/EditUser';
 import ViewStudent from './components/ViewStudent';
 
 /**
@@ -43,6 +43,7 @@ const TableList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [tempData, setTempData] = useState();
+  const [tempDataEdit, setTempDataEdit] = useState({});
 
   /**
    * @en-US International configuration
@@ -58,51 +59,43 @@ const TableList: React.FC = () => {
     setVisible(false);
   };
 
-  const onCloseEdit = () => {
-    setVisibleEdit(false);
-  };
+  const handleOneDisplay = async (id)=>{
+    try {
+      let msg = await userBatchesView(id, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setTempDataEdit(msg.data);
+      console.log('view one',msg);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
+
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.updateForm.name.nameLabel"
+          id="pages.searchTable.updateForm.firstName.nameLabel"
           defaultMessage="Name"
         />
       ),
       dataIndex: 'name',
     },
-    {
-      title: <FormattedMessage id="pages.searchTable.titleId" defaultMessage="ID" />,
-      dataIndex: 'id',
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titlebatchCode"
-          defaultMessage="Batch Code"
-        />
-      ),
-      dataIndex: 'batchCode',
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titlestartDate"
-          defaultMessage="Start Date"
-        />
-      ),
-      dataIndex: 'startDate',
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleendDate"
-          defaultMessage="End Date"
-        />
-      ),
-      dataIndex: 'endDate',
-    },
+    // {
+    //   title: (
+    //     <FormattedMessage
+    //       id="pages.searchTable.updateForm.lastName.nameLabel"
+    //       defaultMessage="Last Name"
+    //     />
+    //   ),
+    //   dataIndex: 'lastName',
+    // },
     {
       title: (
         <FormattedMessage
@@ -110,102 +103,48 @@ const TableList: React.FC = () => {
           defaultMessage="Mobile"
         />
       ),
-      dataIndex: 'mobile',
+      dataIndex: 'phoneNumber',
     },
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleclassType"
-          defaultMessage="Class Type"
+          id="pages.searchTable.titleemail"
+          defaultMessage="Email"
         />
       ),
-      dataIndex: 'classType',
+      dataIndex: 'email',
     },
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleclassAttended"
-          defaultMessage="Class Attended"
+          id="pages.searchTable.titleType"
+          defaultMessage="User Type"
         />
       ),
-      dataIndex: 'classAttended',
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleStatus"
-          defaultMessage="Status"
-        />
-      ),
-      dataIndex: "status",
+      dataIndex: "type",
       hideInForm: true,
       valueEnum: {
-        0: {
+        'teacher': {
           text: (
             <FormattedMessage
-              id="pages.searchTable.nameStatus.active"
-              defaultMessage="Active"
+              id="pages.searchTable.nameStatus.teacher"
+              defaultMessage="Teacher"
             />
           ),
-          status: "active",
+          status: "Teacher",
         },
-        1: {
+        'student': {
           text: (
             <FormattedMessage
-              id="pages.searchTable.nameStatus.leave"
-              defaultMessage="Leave"
+              id="pages.searchTable.nameStatus.student"
+              defaultMessage="Student"
             />
           ),
-          status: "Leave",
-        },
-        2: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameStatus.onhold"
-              defaultMessage="On Hold"
-            />
-          ),
-          status: "On Hold",
+          status: "Student",
         },
       },
     },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleSlots"
-          defaultMessage="Time Slots"
-        />
-      ),
-      dataIndex: "slots",
-      render: (dom, entity) => {
-        return (
-          <a>
-            <ClockCircleOutlined />
-          </a>
-        );
-      },
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleview"
-          defaultMessage="View"
-        />
-      ),
-      dataIndex: "view",
-      hideInSearch: true,
-      render: (dom, entity) => {
-        return (
-          <a
-          onClick={() => {
-            setCurrentRow(entity);
-            setShowDetail(true);
-          }}>
-            <EyeOutlined />
-          </a>
-        );
-      },
-    },
+    
     {
       title: (
         <FormattedMessage
@@ -219,23 +158,24 @@ const TableList: React.FC = () => {
         return (
           <a
           onClick={() => {
-            setVisibleEdit(true);
+            console.log('entity', entity)
+            handleOneDisplay(entity.id)
+            setVisibleEdit(true)
             setTempData(entity);
           }}>
             <EditTwoTone />
           </a>
         );
       },
-    }
-
+    },
   ];
 
   return (
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
         headerTitle={intl.formatMessage({
-          id: 'pages.searchTable.title',
-          defaultMessage: 'Enquiry form',
+          id: 'pages.searchTable.titleUser',
+          defaultMessage: 'User Management',
         })}
         actionRef={actionRef}
         rowKey="key"
@@ -250,43 +190,30 @@ const TableList: React.FC = () => {
             key="primary"
             onClick={showDrawer}
           >
-           Add Student
+           Add User
           </Button>,
           <Drawer
-            title="Add Teacher"
+            title="Add User"
             placement="right"
             onClose={onClose}
             visible={visible}
             width={500}
           >
-            <AddStudent />
+            <AddUser />
           </Drawer>
         ]}
       />
 
-      {/* Drawer for view student */}
-      <Drawer
-        width={600}
-        visible={showDetail}
-        onClose={() => {
-          setCurrentRow(undefined);
-          setShowDetail(false);
-        }}
-        closable={false}
-      >
-        {console.log('current row', currentRow)}
-        <ViewStudent details = {currentRow}/>
-      </Drawer>
-      
       {/* Drawer for Edit student */}
      <Drawer 
-      title="Edit Teacher"
+      title="Edit User"
       placement="right"
-      onClose={onCloseEdit}
+      onClose={()=>{
+        setVisibleEdit(false)
+      }}
       visible={visibleEdit}
       width={500}>
-      {console.log('current row edit', tempData)}
-      <EditStudent data = {tempData}/>
+      <EditUser data = {tempDataEdit} />
      </Drawer>
     </PageContainer>
   );

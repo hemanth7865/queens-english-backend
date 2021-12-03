@@ -1842,3 +1842,28 @@ const TeacherBatchList: React.FC = () => {
 };
 
 export default TeacherBatchList;
+
+
+
+from the add user
+
+{/* <Col span = {24}>
+                <Form.Item name="mobile">
+                <Input.Group compact>
+                    <Select placeholder = "Select a country" onChange = {handleCountry}>
+                            {allCountries.map((country)=>{
+                                return <Option value = {country.name} key = {country.code}>{country.name}</Option>
+                            })}
+                    </Select>
+                    <Input
+                            style={{ width: '69%' }} 
+                            placeholder = "Enter Mobile Number"
+                            name = "mobile"
+                            onChange = {handleMobileChange}
+                        />
+                    {error? (
+                        <p style = {{color: 'red'}}>{error}</p>
+                    ): ''}
+                </Input.Group>
+                </Form.Item>
+            </Col> */}
