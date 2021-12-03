@@ -125,7 +125,7 @@ export class BatchController {
             let teacher = parameters.teacher;
 
             if (teacher) {
-               var teacherQuery = `select id from user where (firstName like '%${teacher}%' or lastName like '%${teacher}%' )`;
+               var teacherQuery = `select id, firstName, lastName from user where (firstName like '%${teacher}%' or lastName like '%${teacher}%' )`;
                var teacherDetails = await getManager().query(teacherQuery);
                var ids = '';
                for (var i of teacherDetails){
@@ -155,17 +155,18 @@ export class BatchController {
         console.log("Query ", quer);
         var results = await getManager().query(quer);
         let  studentCount=[]
+        let name="";
 
         for (const element of results) {
-            let firstName;
+           
            studentCount = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
         .where("batchStudent.batchId = :id", { id: element.id }).getMany();
         var classes = await getManager().createQueryBuilder(Classes, "classes")
         .where("classes.id = :id", { id: element.id }).getOne();
         var user = await getManager().createQueryBuilder(User, "user")
         .where("user.id = :id", { id: element.id }).getOne();
-        if (user && user.firstName){
-            firstName = user.firstName;
+        if (user && user.firstName && user.lastName){
+            name = user.firstName + ' ' + user.lastName;
         }
         let startTime;
         let endTime;
@@ -181,7 +182,7 @@ export class BatchController {
             endMin = new Date(classes.lessonStartTime).getMinutes();
         }
 
-            let view = new BatchView(element.id, new Date(),classes.batchNumber, 'Admin', firstName, studentCount.length, `${startTime}:${startMin}-${endTime}:${endMin}`,"Active");
+            let view = new BatchView(element.id, new Date(),classes.batchNumber, 'Admin', name, studentCount.length, `${startTime}:${startMin}-${endTime}:${endMin}`,"Active");
             batchView.push(view);
         }
         
@@ -216,7 +217,7 @@ export class BatchController {
   //  var cronString = '*' +' '+ moment().add(2,'minutes').minute() +' '+ '*' +' '+ '*'+' '+ '*' +' *';
    // console.log('cron expression', cronString);
 
-    var task = cron.schedule('*/2 * * * *', async function () {
+    var task = cron.schedule('*/10 * * * *', async function () {
         var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit 1, 2;`;
         console.log("Query ", quer);
         var results = await getManager().query(quer);
