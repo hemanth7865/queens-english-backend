@@ -5,14 +5,16 @@ import moment from "moment";
 import {addUserSchedule} from "@/services/ant-design-pro/api";
 
 export type EditUserProps = {
-    data: {}
+    data: {};
+    visible: '';
+    setVisible: ()=>void;
     onUpdate: () => void;
 };
 
 const {Option} = Select
 
 const EditUser: React.FC<EditUserProps> = (props) => {
-    // console.log('data', props.data)
+    //console.log('data', props.data, props.visible, props.setVisible)
     const {firstName, lastName, email, phoneNumber, type, key} = props.data
     // console.log('first', firstName, lastName, email, type, key)
     const [formData, setFormData] = useState({
@@ -69,6 +71,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             });
             message.error(defaultLoginFailureMessage);
           }
+          props.setVisible(false)
         console.log('formData', formData)
         console.log('dataForm', dataForm)
     }
@@ -80,7 +83,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                             lastName: props.data.lastName,
                             mobile: props.data.phoneNumber,
                             email: props.data.email,
-                            userType: type == 0?'Teacher':'Student'
+                            userType: type == 'teacher'?'Teacher':'Student'
                             })
     }
     useEffect(() => {

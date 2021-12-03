@@ -87,15 +87,6 @@ const TableList: React.FC = () => {
       ),
       dataIndex: 'name',
     },
-    // {
-    //   title: (
-    //     <FormattedMessage
-    //       id="pages.searchTable.updateForm.lastName.nameLabel"
-    //       defaultMessage="Last Name"
-    //     />
-    //   ),
-    //   dataIndex: 'lastName',
-    // },
     {
       title: (
         <FormattedMessage
@@ -199,7 +190,7 @@ const TableList: React.FC = () => {
             visible={visible}
             width={500}
           >
-            <AddUser />
+            <AddUser setVisible = {setVisible}/>
           </Drawer>
         ]}
       />
@@ -213,7 +204,7 @@ const TableList: React.FC = () => {
       }}
       visible={visibleEdit}
       width={500}>
-      <EditUser data = {tempDataEdit} />
+      <EditUser data = {tempDataEdit} visible = {visibleEdit} setVisible = {setVisibleEdit}/>
      </Drawer>
     </PageContainer>
   );

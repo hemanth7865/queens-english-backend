@@ -15,6 +15,7 @@ import {addUserSchedule} from "@/services/ant-design-pro/api";
 //console.log('ccc', CountryList)
 
 export type AddUserProps = {
+    setVisible: () => void;
     onUpdate: () => void;
 };
 
@@ -139,6 +140,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
             });
             message.error(defaultLoginFailureMessage);
           }
+        props.setVisible(false)
         console.log('formData', formData)
         console.log('dataForm', dataForm)
     }
