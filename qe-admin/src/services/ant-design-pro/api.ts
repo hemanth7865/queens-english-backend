@@ -156,7 +156,7 @@ export async function teacherBatches(
 
 //api for teacher batches for id
 export async function teacherBatchesView(
-  id,
+  id:any,
   params: {
     // query
     /** 当前的页码 */
@@ -177,7 +177,7 @@ export async function teacherBatchesView(
   });
 }
 
-export async function teacherRemove(id, options?: { [key: string]: any }) {
+export async function teacherRemove(id:any, options?: { [key: string]: any }) {
   return request<Record<string, any>>(`/be/users/${id}`, {
     method: 'DELETE',
     ...(options || {}),
@@ -248,3 +248,33 @@ export async function removeRule(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+//BATCH MANAGEMENT
+// LIST OF EXISTING BATCHES - GET
+
+export async function listBatch(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/listBatch', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+//ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
+export async function addeditbatch(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/createBatch', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+//REMOVE EXISTING BATCH -PUT

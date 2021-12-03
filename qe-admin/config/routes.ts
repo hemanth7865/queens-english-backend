@@ -74,7 +74,6 @@
   },
   {
     name: 'Batch Management',
-    icon: 'table',
     path: '/batch',
     component: './BatchList',
   },
