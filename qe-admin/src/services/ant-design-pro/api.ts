@@ -249,15 +249,33 @@ export async function removeRule(options?: { [key: string]: any }) {
   });
 }
 //BATCH MANAGEMENT
+//LIST OF USERS
+export async function listTeacherAndStudent(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: 0;
+    /** 页面的容量 */
+    pageSize?: 20;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/listBatch', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
 // LIST OF EXISTING BATCHES - GET
-
 export async function listBatch(
   params: {
     // query
     /** 当前的页码 */
-    current?: number;
+    current?: 0;
     /** 页面的容量 */
-    pageSize?: number;
+    pageSize?: 20;
   },
   options?: { [key: string]: any },
 ) {

@@ -43,6 +43,7 @@ import {
   updateRule,
   removeRule,
   batches,
+  listTeacherAndStudent,
   listBatch,
   addeditbatch,
 } from "@/services/ant-design-pro/api";
@@ -99,6 +100,7 @@ const BatchList: React.FC = () => {
   const [error, seterror] = useState("");
   const [classDateRange, setClassDateRange] = useState("");
   const [studentList,setStudentList] =useState([])
+  const [leadList,setLeadList]=useState({})
 
   const options = [];
   for (let i = 0; i < 100000; i++) {
@@ -129,6 +131,8 @@ const BatchList: React.FC = () => {
       }
       setTempData(msg.data);
       console.log("batches", msg.data);
+      //
+     
     } catch (error) {
       console.log("error", error);
     }
@@ -136,11 +140,31 @@ const BatchList: React.FC = () => {
       console.log("effect cleanup")
     };
   }, []);
-  //brb
-  // const [value, setValue] = useState({
-  //   start_slot: "",
-  //   end_slot: "",
-  // });
+
+  useEffect(async (params: any) => {
+    console.log("leadList",leadList)
+    try {
+      let msg1 = await listTeacherAndStudent({
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (msg1.status === "ok") {
+        console.log("API call sucessfull", msg1);
+      }
+      setLeadList(msg1.data);
+      console.log("leadList", msg1.data);
+      //
+     
+    } catch (error) {
+      console.log("error", error);
+    }
+    return () => {
+      console.log("effect cleanup")
+    };
+  }, []);
+  
+ 
   const [dateStart, setDateStart] = useState("");
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
   const [formData, setFormData] = useState({
@@ -646,7 +670,8 @@ const BatchList: React.FC = () => {
       >
         {" "}
         {addTeacherComponent ? (
-          <TeacherBatchList />
+          // <TeacherBatchList />
+          <></>
         ) : (
           <>
             {addTeacher ? (
