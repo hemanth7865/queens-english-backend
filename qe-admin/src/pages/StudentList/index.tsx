@@ -104,6 +104,7 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: 'email',
+      hideInSearch: true,
     },
     {
       title: (

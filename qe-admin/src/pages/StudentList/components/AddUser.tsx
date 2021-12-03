@@ -143,6 +143,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         props.setVisible(false)
         console.log('formData', formData)
         console.log('dataForm', dataForm)
+        window.location.reload()
     }
 
     //console.log('mesge', error)

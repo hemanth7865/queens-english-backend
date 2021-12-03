@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker } from 'antd';
 import moment from "moment";
-import {addUserSchedule} from "@/services/ant-design-pro/api";
+import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 
 export type EditUserProps = {
     data: {};
@@ -25,6 +25,21 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     })
 
     const [selectUserType, setSelectUserType] = useState('')
+
+    //validation messages for name, email and type fields
+    const validateMessages = {
+        required: '${label} is required!',
+        types: {
+          email: '${label} is not a valid email!',
+          string: '${label} is not a valid name!',
+        },
+        string: {
+            min: '${label} should be altleast two characters'
+        },
+        pattern: {
+            mismatch: '${label} should be a String'
+        }
+    };
 
 
     const handleInputChange = (event: { target: { name: any; value: any; }; })=>{
@@ -71,9 +86,11 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             });
             message.error(defaultLoginFailureMessage);
           }
-          props.setVisible(false)
+            props.setVisible(false)
+            
         console.log('formData', formData)
         console.log('dataForm', dataForm)
+        //window.location.reload()
     }
 
     const [form] = Form.useForm()
@@ -95,12 +112,18 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         <Form
         form = {form}
         onFinish={onFinish}
+        validateMessages={validateMessages}
         >
             <Row gutter = {16}>
                 <Col span = {12}>
                     <Form.Item
                         name="FirstName"
-                       
+                        rules = {[{
+                            required: true,
+                            min: 2,
+                            type: 'string',
+                            pattern:  /^[a-zA-Z]*$/,
+                        }]}
                     >
                         <Input
                             defaultValue = {firstName}
@@ -112,6 +135,12 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 <Col span = {12}>
                     <Form.Item
                         name="lastName"
+                        rules = {[{
+                            required: true,
+                            min: 2,
+                            type: 'string',
+                            pattern:  /^[a-zA-Z]*$/,
+                        }]}
                     >
                         <Input
                             name = "lastName"
@@ -132,6 +161,12 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 <Col span = {12}>
                     <Form.Item
                         name="email"
+                        rules = {[
+                            {
+                                required: true,
+                                type: 'email'
+                            }
+                        ]}
                     >
                         <Input
                             name = "email"
