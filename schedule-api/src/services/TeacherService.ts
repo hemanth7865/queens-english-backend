@@ -19,31 +19,6 @@ export class TeacherService {
 
     TeacherService(){ }
 
-    data = JSON.stringify({
-        todo: 'Buy the milk'
-      })
-
-    options = {
-        hostname: 'https://ed-uat-functions.azurewebsites.net/',
-        port: 443,
-        path: '/classProfile/${classProfile.id}/?code=${API_KEY}',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': this.data.length
-        }
-      }
-
-     uat =  {
-        apiEndpoint: 'https://ed-uat-functions.azurewebsites.net/api',
-        apiKey: 'NOW2ifNPyTeNEN751YkUoY8YWhv8UkQrJbJPE4wHT2WFMI7afSVh5g=='
-      }
-
-     API_URL = this.uat.apiEndpoint;
-   API_KEY = this.uat.apiKey;
-   ADMIN_TOKEN = `eyJhbGciOiJIUzI1NiJ9.eyJwaG9uZU51bWJlciI6Iis5MTk5OTgyOTM5MjQiLCJvdHAiOiIzMjg3NDUiLCJleHBpcnkiOjE2MzY3MDIzNjUyNTd9.UKfATwq2UXnD6qsgVkrPn8B-oYI3NbsG5LwYSFhZpjI`;
- 
-
     async saveTeacherOnCosmosDB(data:any) {
             
         const req = https.request(options, res => {
@@ -92,10 +67,8 @@ export class TeacherService {
                     if (!teacher.totalexp)
                         teacher.totalexp = 0;
                     teacher = await this.teacherRepository.save(teacher);
-                    console.log('lead id is ', teacher.id);
                     user.id = teacher.id;
                     user.teacher=[teacher];
-                    console.log("lead ", teacher.id);
                 }
             }
             
@@ -183,20 +156,16 @@ export class TeacherService {
         map.set(5, 'Fri');  
         map.set(6, 'Sat'); 
 
-        //var offset =  parseInt(request.query['current']);
         var offset = parameters.current;
         var current = offset;
-        //const limit  =  parseInt(request.query['pageSize']);
         var limit = parameters.pageSize;
         if (offset==1) {
             offset = 0;
         }
 
-        // Read query parameters
+
         let query_list = [];
         let query_string='';
-
-       // const date =  request.query['date'];;
        console.log(parameters);
        const date = parameters.date;
         if (date) {
@@ -204,14 +173,12 @@ export class TeacherService {
             query_list.push(` le.joiningdate =  '${date}' `);
         }
 
-       // const name =  request.query['name'];
        const name =  parameters.name
         if (name) {
             query_string = query_string + ` and (u.firstName like '%${name}%' or u.lastName like '%${name}%' )` ;
             query_list.push(` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ) `);
  
         }
-        //const mobile =  request.query['mobile'];
         const mobile = parameters.phoneNumber;
         if (mobile) {
             query_string = query_string + ` and u.phoneNumber =${mobile} ` ;
@@ -219,21 +186,20 @@ export class TeacherService {
             console.log('query phonen umber ', mobile);
         }
 
-        //const mobile =  request.query['mobile'];
         const type = parameters.type;
         if (type) {
             query_string = query_string + ` and u.type like '%${type}%' ` ;
             query_list.push(` u.type like '%${type}%'  `);
             console.log('user typer ', type);
         }
-        //var totalexp  =  request.query['totalexp'];
+
         var totalexp  =  parameters.totalexp;
         if (totalexp) {
             totalexp = parseFloat(totalexp);
             query_string = query_string + ` and le.totalexp =${totalexp} ` ;
             query_list.push(` le.totalexp =${totalexp} `);
         }
-       // var classesTaken = request.query['classesTaken'];
+
        var classesTaken = parameters.classesTaken;
         if (classesTaken) {
             classesTaken = parseInt(classesTaken);
@@ -248,7 +214,7 @@ export class TeacherService {
             query_list.push(` u.status=${status} `);
         }
 
-        //var ratings = request.query['ratings'];
+
         var ratings = parameters.ratings;
         if (ratings) {
             ratings = parseInt(ratings);
@@ -256,12 +222,10 @@ export class TeacherService {
             query_list.push(`  le.ratings =${ratings} `);
         }
 
-       // let start_slot = request.query['start_slot'];
+
         var start_slot = parameters.start_slot;
-        //let end_slot = request.query['end_slot'];
         var end_slot = parameters.end_slot;
 
-        //let week_day  =  request.query['weekday'];
         var week_day = parameters.weekday;
         let start_min;
         let end_min;
@@ -299,13 +263,7 @@ export class TeacherService {
                 slotsResultIds.push(element.id);
             }
 
-           // let slotsResultIds = totalResult.forEach((element)=>element.leadId);
-            console.log('slotsResultIds', slotsResultIds);
-            
-            //let selectedIds = slotsResultIds.map(({ leadId }) => leadId);
-           // console.log('ids', selectedIds);
             unique = Array.from(new Set(slotsResultIds)) 
-            console.log('ids', unique);
             console.log('Query string is ', query_string);     
             if (unique) {
                 query_string = query_string +` and u.id in (${unique}) `;
@@ -313,21 +271,14 @@ export class TeacherService {
             } else {
                 query_string = query_string +` and u.id in (0) `;
                 query_list.push(`  u.id in (0) `);
-            }
-         
+            } 
         
     
           }
 
-          
-         
-      //  console.log("Query start", query_string);
-       // console.log("filter is ", filter);
         var finalQuery;
-       var total;
+        var total;
          
-       // if (query_string || query_list.length>0) {
-            console.log("query string1234",query_string);
             if (query_list.length>0) {
                 query_string = ' where ';
             }
@@ -342,36 +293,17 @@ export class TeacherService {
                }
             });
             console.log("value sis ", query_string);
-           // query_string = query_list && query_list.join(' and ') ;
+          
              finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
-             //total = await getManager().query(`select count(*) as totalCount from user u left join teacher le on u.teacherId=le.id`);
-          //  } //else {
-            //finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.teacherId=le.id limit ` + (offset * limit) +","+ limit + `;`;
-            //total = await getManager().query(`select count(*) as totalCount from user u `);
-       // }
-        
+                     
         console.log('finalQuery', finalQuery);
         results = await getManager().query(finalQuery);
         total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
         console.log('results size', results.length);
-        //var total = await getManager().query(`select count(*) as totalCount from user u inner join teacher le on u.teacherId=le.id and ${query_string};`);
-         //console.log(total);
-        //  results.forEach(async (element,index,self) => {     
-          
-        //if (results.length ==0) {
-          //  if (query_string || filter) {
-           //     console.log("true conditin");
-            //    finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.status as status, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId, u.id as cosmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u where ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
-             //   } else {
-              //  finalQuery = `select concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(0 , "" , " Years") as exp, u.status as status, 0 as ratings, u.teacherId  as teacherId , u.userId as userId, u.teacherId,  u.id as comsmos_ref, '' as slots, '' as leadtype, '' as joiningdate, '' as ratings, '' as classestaken, u.id as cosmos_ref, u.type from user u  limit ` + (offset * limit) +","+ limit + `;`;
-    
-  //          }
-    //        results = await getManager().query(finalQuery);
-            
-      //  }
+        
         for (const element  of results ) {  
             let slotsResult:any[] = [];   
-            //console.log(element.leadId);
+
              var quer =  "select weekday , start_slot, end_slot from teacher_availability where teacherId='"+element.teacherId + "';"
             slotsResult = await getManager().query(quer);
             var slot = "";
@@ -388,7 +320,7 @@ export class TeacherService {
             if (element.joiningdate) {
                 yourDate = new Date(element.joiningdate).toISOString().split('T')[0];
             }
-           // console.log('yourDate', yourDate);
+
             var  l = new LeadView(element.id, element.teacherId, yourDate,  element.name, element.exp, 
             element.phoneNumber,element.email,element.status,
             element.classestaken,element.ratings,slot, element.leadtype, element.type);

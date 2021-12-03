@@ -28,8 +28,6 @@ export class BatchService {
           var batchAvailability:BatchAvailability[] = [];
           var batchStudent:BatchStudent[] = [];
           var classes = new Classes();
-
-            console.log("Reading classes");
             let i = 0;
               classes.classCode = data.classCode;
               classes.batchNumber = data.batchNumber;

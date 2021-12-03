@@ -36,13 +36,18 @@ export class LoginController {
                     type: "mobile",
                     currentAuthority: 'Admin'
                 }).end();
+            } else {
+                return response.status(401).send({
+                    status: "Ko",
+                    type: "mobile",
+                    currentAuthority: 'Admin'
+                }).end(); 
             }
         }
 
       
         const tokenPayload = {
             email: foundUser.email,
-            password: "*******",
             expiry: (new Date().getTime() + (24 * 60 * 60))
         };
         const sessionToken = new JWSTokenHandler().signToken(JSON.stringify(tokenPayload));
