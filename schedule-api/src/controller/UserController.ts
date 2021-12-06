@@ -90,7 +90,8 @@ export class UserController {
         start_slot : request.query['start_slot'],
         end_slot : request.query['end_slot'],
         weekday  : request.query['weekday'],
-        status  : request.query['status']
+        status  : request.query['status'],
+        type  : request.query['type'],
         }       
 
        var teacherService = new TeacherService();
@@ -114,8 +115,7 @@ export class UserController {
       
         let resp;
         let teacherService = new TeacherService();
-
-        const teacherId = parseInt(request.params.id);
+        const teacherId = request.params.id;
   
        try{
            resp = await teacherService.leadFullDetails(request.body, teacherId);

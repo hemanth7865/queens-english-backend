@@ -3,14 +3,13 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { Teacher } from "./Teacher";
-import { Batch } from "./Batch";
 
 @Entity("teacher_availability")
 export class TeacherAvailability extends BaseEntity {
     TeacherAvailability() {}
     
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
 
     @Column({'nullable':true, type:"datetime"})
         start_date:Date

@@ -19,6 +19,9 @@ export class Admin extends BaseEntity {
         email: string;
     @Column({'nullable':true,type:"text"})
         phone: string;
+
+    @Column({'nullable':true,type:"text"})
+        password: string;
     
         @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})
