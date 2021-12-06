@@ -225,7 +225,7 @@ export class TeacherService {
         const keyword = parameters.keyword;
         let query_search: string;
         if (!!keyword?.length) {
-            query_search = ` (le.firstName = '%${keyword}%' or le.lastName = '%${keyword}%' or le.phoneNumber = '%${keyword}%' )`
+            query_search = ` (u.firstName like '%${keyword}%' or u.lastName like '%${keyword}%' or u.phoneNumber like '%${keyword}%' )`
         }
 
 
@@ -300,7 +300,12 @@ export class TeacherService {
             });
 
             if (!!query_search?.length) {
-                query_string = query_string + ' or ' + query_search;
+                if (query_list.length === 0) {
+                    query_string += ' where ';
+                } else {
+                    query_string += ' and ';
+                }
+                query_string += query_search;
             }
 
             console.log("value sis ", query_string);
