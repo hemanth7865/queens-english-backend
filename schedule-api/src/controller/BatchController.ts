@@ -3,6 +3,7 @@ import {NextFunction, Request, Response} from "express";
 import {User} from "../entity/User";
 import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
+import { TeacherView } from "../model/TeacherView";
 import { TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
 import { BatchAvailability } from "../entity/BatchAvailability";
@@ -252,6 +253,32 @@ export class BatchController {
      task.start();
      console.log('end of method');
     return {"success":true,"message": "Job execution initiated !!!!"};
+    }
+
+    async getBatchDetails(request: Request, response: Response, next: NextFunction) {
+        let teacherView = new TeacherView();
+
+     
+        const batchId = request.params.id;
+    
+
+         var batchAvailability:BatchAvailability[] = [];
+          var batchStudent:BatchStudent[] = [];
+          var classes = new Classes();
+            let i = 0;
+      
+           classes = await getManager().createQueryBuilder(Classes, "classes")
+            .where("classes.id = :id", { id: batchId }).getOne();    
+            console.log('classes' , classes);          
+            const batchavail = await getManager().createQueryBuilder(BatchAvailability, "batchAvailability")
+            .where("batchAvailability.id = :id", { id: batchId }).getOne();
+            const students = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
+            .where("batchStudent.batchId = :id", { id: batchId }).getOne();
+            teacherView.classes = classes;
+            teacherView.batchAvailability = [batchavail];
+            teacherView.students = [students];
+            
+            return {"success":true,"data": teacherView, "total":1, "current":1, pageSize:1};   
     }
 
 
