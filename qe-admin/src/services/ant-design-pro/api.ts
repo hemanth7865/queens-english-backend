@@ -178,7 +178,6 @@ export async function teacherBatchesView(
   });
 }
 
-export async function teacherRemove(id:any, options?: { [key: string]: any }) {
 
 //api for user batches for id
 export async function userBatchesView(
@@ -353,6 +352,6 @@ export async function addeditbatch(options?: { [key: string]: any }) {
     method: 'POST',
     ...(options || {}),
   });
-}}
+}
 //REMOVE EXISTING BATCH -PUT
 
