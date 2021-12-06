@@ -260,7 +260,7 @@ export async function listTeacherAndStudent(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/be/listBatch', {
+  return request<API.RuleList>('/be/leadsview', {
     method: 'GET',
     params: {
       ...params,

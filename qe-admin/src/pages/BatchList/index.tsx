@@ -99,19 +99,30 @@ const BatchList: React.FC = () => {
   const [addTeacherComponent, setAddTeacherComponent] = useState(false);
   const [error, seterror] = useState("");
   const [classDateRange, setClassDateRange] = useState("");
-  const [studentList,setStudentList] =useState([])
-  const [leadList,setLeadList]=useState({})
-
+  const [studentList, setStudentList] = useState([]);
+  const [leadList, setLeadList] = useState({});
+  const [teacherName,setTeacherName] = useState('')
+  
   const options = [];
-  for (let i = 0; i < 100000; i++) {
-    const value = `${i.toString(36)}${i}`;
-    options.push({
-      value,
-      disabled: i === 10,
-    });
+  for (let i = 0; i < leadList.length; i++) {
+    if (leadList[i].type == "student") {
+      const value = leadList[i].leadId;
+      options.push({
+        value,
+      });
+    }
+  }
+  const teacherOptions = [];
+  for (let i = 0; i < leadList.length; i++) {
+    if (leadList[i].type == "teacher") {
+      const value = leadList[i].leadId;
+      teacherOptions.push({
+        value,
+      });
+    }
   }
   function handleStudentSelect(value) {
-    setStudentList([...value])
+    setStudentList([...value]);
   }
 
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -119,7 +130,7 @@ const BatchList: React.FC = () => {
   const [tempDataView, setTempDataView] = useState({});
   //listbatches
   useEffect(async (params: any) => {
-    console.log("studentList",studentList)
+    console.log("studentList", studentList);
     try {
       let msg = await listbatch({
         headers: {
@@ -132,39 +143,32 @@ const BatchList: React.FC = () => {
       setTempData(msg.data);
       console.log("batches", msg.data);
       //
-     
     } catch (error) {
       console.log("error", error);
     }
     return () => {
-      console.log("effect cleanup")
+      console.log("effect cleanup");
     };
   }, []);
 
-  useEffect(async (params: any) => {
-    console.log("leadList",leadList)
-    try {
-      let msg1 = await listTeacherAndStudent({
-        headers: {
-          "Content-Type": "application/json",
-        },
+  useEffect(() => {
+    fetch("http://localhost:3000/leadsview?current=0&pageSize=20")
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+      })
+      .then((data) => {
+        setLeadList(data?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        console.log("skgg", leadList);
       });
-      if (msg1.status === "ok") {
-        console.log("API call sucessfull", msg1);
-      }
-      setLeadList(msg1.data);
-      console.log("leadList", msg1.data);
-      //
-     
-    } catch (error) {
-      console.log("error", error);
-    }
-    return () => {
-      console.log("effect cleanup")
-    };
   }, []);
-  
- 
+
   const [dateStart, setDateStart] = useState("");
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
   const [formData, setFormData] = useState({
@@ -189,16 +193,13 @@ const BatchList: React.FC = () => {
    * @zh-CN 国际化配置
    * */
   const intl = useIntl();
-  const handleTimeRange = (value) =>{
-    setTimeRange([...value])
-    console.log("timeRange",timeRange)
-  }
+  const handleTimeRange = (value) => {
+    setTimeRange([...value]);
+    console.log("timeRange", timeRange);
+  };
   const handleClassDateRange = (value) => {
     setClassDateRange([...value]);
-    // console.log("dates", value);
-    // let formattedStartDate = classDateRange[0]._d.split(" ")
-    // let formattedEndDate = classDateRange[0]._d.split(" ")
-    // console.log('forma',formattedStartDate)
+
   };
   const handleSelectedAgeGroup = (value) => {
     console.log("ageGroup", value);
@@ -218,34 +219,123 @@ const BatchList: React.FC = () => {
     setDeleteConfirmModal(false);
   };
 
-
-  const handleFormSubmitEdit = async() => {
+  const handleTeacherChange = (value) =>{
+    setTeacherName(value)
+  }
+  const handleFormSubmitEdit = async () => {
     //REFORMATTED DATE RANGE
-    let formattedStartDate = classDateRange[0]._d.toString().split(" ")
-    let formattedEndDate = classDateRange[1]._d.toString().split(" ")
-    let startmonthNumber = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(formattedStartDate[1])+1;
-    let endMonthNumber = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(formattedEndDate[1])+1;
-    let finalStartDate =  formattedStartDate[3]+"-"+startmonthNumber.toString()+"-"+formattedStartDate[2]+'T'+formattedStartDate[4] +'.000Z';
-    let finalEndDate =  formattedEndDate[3]+"-"+endMonthNumber.toString()+"-"+formattedEndDate[2]+'T'+formattedEndDate[4] +'.000Z';
+    let formattedStartDate = classDateRange[0]._d.toString().split(" ");
+    let formattedEndDate = classDateRange[1]._d.toString().split(" ");
+    let startmonthNumber =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formattedStartDate[1]) + 1;
+    let endMonthNumber =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formattedEndDate[1]) + 1;
+    let finalStartDate =
+      formattedStartDate[3] +
+      "-" +
+      startmonthNumber.toString() +
+      "-" +
+      formattedStartDate[2] +
+      "T" +
+      formattedStartDate[4] +
+      ".000Z";
+    let finalEndDate =
+      formattedEndDate[3] +
+      "-" +
+      endMonthNumber.toString() +
+      "-" +
+      formattedEndDate[2] +
+      "T" +
+      formattedEndDate[4] +
+      ".000Z";
     //REFORMATTED TIME RANGE
-    let formatLessonStartTime= timeRange[0]._d.toString().split(" ")
-    let formatLessonEndTime=  timeRange[1]._d.toString().split(" ")
-    let lessonStartMonth= ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(formatLessonStartTime[1]) +1;
-    let  lessonEndMonth = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(formatLessonEndTime[1])+1;
-    let finalStartTime =  formatLessonStartTime[3]+"-"+lessonStartMonth.toString()+"-"+formatLessonStartTime[2]+'T'+formatLessonStartTime[4] +'.000Z';
-    let finalEndTime =  formatLessonStartTime[3]+"-"+lessonEndMonth.toString()+"-"+formatLessonEndTime[2]+'T'+formatLessonEndTime[4] +'.000Z';
-    
-   
+    let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
+    let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
+    let lessonStartMonth =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formatLessonStartTime[1]) + 1;
+    let lessonEndMonth =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formatLessonEndTime[1]) + 1;
+    let finalStartTime =
+      formatLessonStartTime[3] +
+      "-" +
+      lessonStartMonth.toString() +
+      "-" +
+      formatLessonStartTime[2] +
+      "T" +
+      formatLessonStartTime[4] +
+      ".000Z";
+    let finalEndTime =
+      formatLessonStartTime[3] +
+      "-" +
+      lessonEndMonth.toString() +
+      "-" +
+      formatLessonEndTime[2] +
+      "T" +
+      formatLessonEndTime[4] +
+      ".000Z";
+
     const dataForm = {
       classCode: formData.classCode,
       batchNumber: formData.batchNumber,
-      teacherId: formData.teacherId,
+      teacherId: teacherName,
       startingLessonId: formData.startingLessonId,
       endingLessonId: formData.endingLessonId,
       classStartDate: finalStartDate,
       classEndDate: finalEndDate,
-      lessonStartTime: finalStartTime, 
-      lessonEndTime: finalEndTime, 
+      lessonStartTime: finalStartTime,
+      lessonEndTime: finalEndTime,
       ageGroup: selectedAgeGroup,
       id: formData.id,
       batchAvailability: [{}],
@@ -266,14 +356,9 @@ const BatchList: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       console.log(msg);
-;
     } catch (error) {
-     
-     console.log("Failed")
+      console.log("Failed");
     }
-  
-    
-
   };
   const handleFormChange = (e, value) => {
     setFormData((value) => ({
@@ -281,7 +366,6 @@ const BatchList: React.FC = () => {
       [e.target.name]: e.target.value,
     }));
   };
-
 
   let timeSlots = tempDataView ? tempDataView.slots : "";
   let monday, tuesday, wednesday, thursday, friday, saturday, sunday;
@@ -748,14 +832,14 @@ const BatchList: React.FC = () => {
                       </Form.Item>
                     </Col>
                     <Col span={24}>
-                    <Form.Item
+                      <Form.Item
                         name="Date"
                         rules={[{ required: true, message: "Batch Date" }]}
                       >
-                      <RangePicker
-                        style={{ width: "551px" }}
-                        onChange={handleClassDateRange}
-                      />
+                        <RangePicker
+                          style={{ width: "551px" }}
+                          onChange={handleClassDateRange}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -781,13 +865,14 @@ const BatchList: React.FC = () => {
                           },
                         ]}
                       >
-                        <Input
-                          type="text"
-                          placeholder="Teacher Id"
-                          name="teacherId"
-                          value={formData.teacherId}
-                          onChange={handleFormChange}
-                        />
+                        <Select
+                          showSearch
+                          // style={{ width: 200 }}
+                          placeholder="Select a Teacher"
+                          optionFilterProp="children"
+                          onChange={handleTeacherChange}
+                          options={teacherOptions}
+                        />          
                       </Form.Item>
                     </Col>
                     <Col offset={1} span={7}>
@@ -828,7 +913,6 @@ const BatchList: React.FC = () => {
                           mode="multiple"
                           style={{ width: "100%" }}
                           placeholder="Please select Student(s)"
-                          defaultValue={["a10", "c12"]}
                           onChange={handleStudentSelect}
                           options={options}
                         />
