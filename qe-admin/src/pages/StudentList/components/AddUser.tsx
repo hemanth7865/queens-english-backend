@@ -6,7 +6,6 @@ import {
     isValidPhoneNumber,
     validatePhoneNumberLength,
     parsePhoneNumber,
-    AsYouType,
     getCountryCallingCode
   } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
@@ -111,39 +110,41 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
     const onFinish = async ()=>{
         console.log('form submitted')
-        const dataForm = {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            phoneNumber: formData.mobile,
-            email: formData.email,
-            type: selectUserType
-            
-        }
-        try {
-            // 登录
-            console.log("data", dataForm);
-            const msg = await addUserSchedule({
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(dataForm),
-            });
-            if (msg.status === "ok") {
-              console.log("API call sucessfull", msg);
+        if(!error){
+            const dataForm = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phoneNumber: formData.mobile,
+                email: formData.email,
+                type: selectUserType
             }
-            console.log(msg);
-          } catch (error) {
-            console.log("addRule error", error);
-            const defaultLoginFailureMessage = intl.formatMessage({
-              id: "pages.login.failure",
-              defaultMessage: "登录失败，请重试！",
-            });
-            message.error(defaultLoginFailureMessage);
-          }
-        props.setVisible(false)
-        console.log('formData', formData)
-        console.log('dataForm', dataForm)
-        window.location.reload()
+            try {
+                // 登录
+                console.log("data", dataForm);
+                const msg = await addUserSchedule({
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(dataForm),
+                });
+                if (msg.status === "ok") {
+                  console.log("API call sucessfull", msg);
+                }
+                console.log(msg);
+              } catch (error) {
+                console.log("addRule error", error);
+                const defaultLoginFailureMessage = intl.formatMessage({
+                  id: "pages.login.failure",
+                  defaultMessage: "登录失败，请重试！",
+                });
+                message.error(defaultLoginFailureMessage);
+              }
+            props.setVisible(false)
+            console.log('formData', formData)
+            console.log('dataForm', dataForm)
+        }
+        
+        //window.location.reload()
     }
 
     //console.log('mesge', error)
