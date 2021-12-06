@@ -273,12 +273,13 @@ export async function listBatch(
   params: {
     // query
     /** 当前的页码 */
-    current?: 0;
+    current?: number;
     /** 页面的容量 */
-    pageSize?: 20;
+    pageSize?: number;
   },
   options?: { [key: string]: any },
 ) {
+  console.log("lbp",params)
   return request<API.RuleList>('/be/listBatch', {
     method: 'GET',
     params: {
