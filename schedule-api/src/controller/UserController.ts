@@ -92,6 +92,7 @@ export class UserController {
         weekday  : request.query['weekday'],
         status  : request.query['status'],
         type  : request.query['type'],
+        keyword: request.query['keyword']
         }       
 
        var teacherService = new TeacherService();
