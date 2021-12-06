@@ -79,8 +79,6 @@ const genTeacherBatches = (current: number, pageSize: number) => {
       gender: 'Male',
       teacherType: 'native',
       languagesKnown: 'English, Hindi, Tamil, Telugu',
-      photo:
-        'https://fsb.zobj.net/crop.php?r=PHw6M8nynw8f59kkHPdDO81mARu8vHpTSK0q-pi4qxGpH72n_dSzq4_srynjgNuaJZNhcEvqEjXEmwFXHKQ7SdAedJiFFqwPIsCXv0ULAmOplapM-cnFdHmnGbbApq3BAGX1pXrVYF_ndFaOs1n3fh_2LncHQNBUap3vupNbnJIqVrjxexqrVys47lIvIcZycFSlHzp5TcZPCHai',
       // view: 'view',
     });
   }
@@ -88,9 +86,103 @@ const genTeacherBatches = (current: number, pageSize: number) => {
   return tableListDataSource;
 };
 
+//mock data for student list
+
+const genStudentBatches = (current: number, pageSize: number) => {
+  const tableListDataSource: API.RuleListItem[] = [];
+
+  for (let i = 0; i < pageSize; i += 1) {
+    const index = (current - 1) * 10 + i;
+    tableListDataSource.push({
+      key: index,
+      firstName: 'firstName' + index,
+      lastName: 'lastName' + index,
+      email: 'user@gmail.com',
+      mobile: '9876543210',
+      type: Math.floor(Math.random()*10)%2,
+    });
+  }
+  tableListDataSource.reverse();
+  return tableListDataSource;
+};
+
+
 let tableListDataSource = genList(1, 100);
 let batchListDataSource = genBatches(1, 100);
-let teacherBatchListDataSource = genTeacherBatches(1, 10);
+let teacherBatchListDataSource = genTeacherBatches(1, 100);
+let studentBatchListDataSource = genStudentBatches(1, 100);
+
+function getStudentBatches(req: Request, res: Response, u: string) {
+  let realUrl = u;
+  if (!realUrl || Object.prototype.toString.call(realUrl) !== '[object String]') {
+    realUrl = req.url;
+  }
+  const { current = 1, pageSize = 10 } = req.query;
+  const params = parse(realUrl, true).query as unknown as API.PageParams &
+    API.RuleListItem & {
+      sorter: any;
+      filter: any;
+    };
+
+  let dataSource = [...studentBatchListDataSource].slice(
+    ((current as number) - 1) * (pageSize as number),
+    (current as number) * (pageSize as number),
+  );
+  if (params.sorter) {
+    const sorter = JSON.parse(params.sorter);
+    dataSource = dataSource.sort((prev, next) => {
+      let sortNumber = 0;
+      Object.keys(sorter).forEach((key) => {
+        if (sorter[key] === 'descend') {
+          if (prev[key] - next[key] > 0) {
+            sortNumber += -1;
+          } else {
+            sortNumber += 1;
+          }
+          return;
+        }
+        if (prev[key] - next[key] > 0) {
+          sortNumber += 1;
+        } else {
+          sortNumber += -1;
+        }
+      });
+      return sortNumber;
+    });
+  }
+  if (params.filter) {
+    const filter = JSON.parse(params.filter as any) as {
+      [key: string]: string[];
+    };
+    if (Object.keys(filter).length > 0) {
+      dataSource = dataSource.filter((item) => {
+        return Object.keys(filter).some((key) => {
+          if (!filter[key]) {
+            return true;
+          }
+          if (filter[key].includes(`${item[key]}`)) {
+            return true;
+          }
+          return false;
+        });
+      });
+    }
+  }
+
+  if (params.name) {
+    dataSource = dataSource.filter((data) => data?.name?.includes(params.name || ''));
+  }
+  const result = {
+    data: dataSource,
+    total: tableListDataSource.length,
+    success: true,
+    pageSize,
+    current: parseInt(`${params.current}`, 10) || 1,
+  };
+
+  return res.json(result);
+}
+
 
 function getTeacherBatches(req: Request, res: Response, u: string) {
   let realUrl = u;
@@ -375,4 +467,5 @@ export default {
   'POST /api/rule': postRule,
   'GET /api/batches': getBatches,
   'GET /api/teacherBatches': getTeacherBatches,
+  'GET /api/studentBatches': getStudentBatches,
 };
