@@ -222,6 +222,12 @@ export class TeacherService {
             query_list.push(`  le.ratings =${ratings} `);
         }
 
+        const keyword = parameters.keyword;
+        let query_search: string;
+        if (!!keyword?.length) {
+            query_search = ` (le.firstName = '%${keyword}%' or le.lastName = '%${keyword}%' or le.phoneNumber = '%${keyword}%' )`
+        }
+
 
         var start_slot = parameters.start_slot;
         var end_slot = parameters.end_slot;
@@ -292,6 +298,11 @@ export class TeacherService {
                 query_string = query_string + query_list[index];
                }
             });
+
+            if (!!query_search?.length) {
+                query_string = query_string + ' or ' + query_search;
+            }
+
             console.log("value sis ", query_string);
           
              finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id  ${query_string} limit ` + (offset * limit) +","+ limit + `;`;
