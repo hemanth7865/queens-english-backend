@@ -51,6 +51,7 @@ import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
 import "./batchList.css";
 import DebounceSelect from "@/components/DebounceSelect";
+import {LESSONS} from "../../../config/lessons";
 /**
  * @en-US Add node
  * @zh-CN 添加节点
@@ -875,13 +876,22 @@ const BatchList: React.FC = () => {
                           { required: true, message: "Starting Lesson Id" },
                         ]}
                       >
-                        <Input
-                          type="text"
-                          placeholder="Starting Lesson ID"
-                          name="startingLessonId"
+                        <Select
+                          placeholder="Starting Lesson"
+                          onChange={(value) => {
+                            handleFormChange({
+                              target: {
+                                name: 'startingLessonId',
+                                value
+                              }
+                            })
+                          }}
                           value={formData.startingLessonId}
-                          onChange={handleFormChange}
-                        />
+                        >
+                          {
+                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
+                          }
+                        </Select>
                       </Form.Item>
                     </Col>
                     <Col span={24}>
@@ -891,13 +901,22 @@ const BatchList: React.FC = () => {
                           { required: true, message: "Ending Lesson Id" },
                         ]}
                       >
-                        <Input
-                          type="text"
-                          placeholder="Ending Lesson ID"
-                          name="endingLessonId"
-                          value={formData.endingLessonId}
-                          onChange={handleFormChange}
-                        />
+                        <Select
+                          placeholder="Ending Lesson"
+                          onChange={(value) => {
+                            handleFormChange({
+                              target: {
+                                name: 'endingLessonId',
+                                value
+                              }
+                            })
+                          }}
+                          value={formData.startingLessonId}
+                        >
+                          {
+                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
+                          }
+                        </Select>
                       </Form.Item>
                     </Col>
                     <Col span={24}>
