@@ -3,79 +3,125 @@ import {NextFunction, Request, Response} from "express";
 import {User} from "../entity/User";
 import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
+import { TeacherView } from "../model/TeacherView";
 import { TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
-import { Batch } from "../entity/Batch";
 import { BatchAvailability } from "../entity/BatchAvailability";
+import { BatchService } from "../services/BatchService";
+import { BatchView } from "../model/BatchView";
+import { BatchStudent } from "../entity/BatchStudent";
+import { Classes } from "../entity/Classes";
+var moment = require('moment');
+const cron = require('node-cron');
 
 export class BatchController {
 
     private usersRepository = getRepository(User);
     private batchAvailabilityRepository = getRepository(BatchAvailability);
-    private batchRepository = getRepository(Batch);
+    private batchStudentRepository = getRepository(BatchStudent);
+    private batchService = new BatchService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
     }
 
-    async saveBatch(request: Request, response: Response, next: NextFunction) {
+    async createBatch(request: Request, response: Response, next: NextFunction) {
         console.log("saving batch");
-
-        var batchAvailability:BatchAvailability[] = [];
-        var leadTem:Teacher[] = [];
-        var batch = new Batch();
-        var user = new User();
-        for (var element of request.body.lead){
-            batch.created_at = new Date();
-            batch.updated_at = new Date();
-            if (element.id){
-                batch.id = element.id;
-            }
-            batch.creationDate = element.joiningdate;
-            batch.teacherId=element.leadId;
-            batch.userId=element.userId;
-            batch = await this.batchRepository.save(batch);          
+     
+        var batch;
+        try{
+            batch = await this.batchService.createBatch(request.body);
+        }catch(error)
+        {
+        console.log()
         }
-
-            // user.lead = [lead];
-
-        //console.log('lead is', lead);
-
-        let i = 0;
-        request.body.batchAvailability.forEach( async (element) => {
-            var availability = new BatchAvailability();
-            availability.start_date = element.startDate;
-            availability.start_slot = element.start_slot;
-            //console.log('start slot' + element.start_slot);
-            if (element.start_slot){
-               let time = element.start_slot.split(":");
-               availability.start_slot = time[0];   
-               console.log('time is ', time);
-               availability.start_min = time[1];
-               availability.startMin = time[0] * 60 + time[1];
-            }
-            if (element.end_slot){
-                let time = element.end_slot.split(":");
-                availability.end_slot = time[0];
-                availability.end_min = time[1];
-                availability.endMin = time[0] * 60 + time[1];
-             }
-            
-            availability.weekday = element.weekday;
-            if (element.id)
-                availability.id = element.id;
-            availability.batch = batch;
-            availability.created_at = new Date();
-            availability.updated_at = new Date();
-            availability = await this.batchAvailabilityRepository.save(availability);   
-            batchAvailability[i++] = availability;
-       
-            //console.log('Lead availability', leadAvailability);
-        });
-        batch.batchAvailability =  batchAvailability;
-       // user.lead = leadTem;
         return {"success":true,"data": [batch], "total":1};
     }
 
+
+    async listBatch(request: Request, response: Response, next: NextFunction) {
+        console.log("Batch List");
+        var current =  parseInt(request.query['current']);
+        var pageSize  = parseInt(request.query['pageSize']);
+        var batchView:BatchView[]=[];      
+        var parameters = {
+            current:  request.query['current'],
+           pageSize  : request.query['pageSize'],
+            batchId : request.query['batchId'],
+            createdBy : request.query['createdBy'],
+            start_slot :  request.query['start_slot'],
+           end_slot  :  request.query['end_slot'],
+            teacher : request.query['teacher'],
+           students : request.query['students'],
+           date : request.query['date'],
+           week_day:request.query['weekday'],
+           } 
+        
+
+        let res;           
+        try{
+           res = await this.batchService.listBatch(request.body, parameters);
+           return res;
+        }catch(error)
+        {
+        console.log(error);
+        }
+
+             
+    }
+   
+    
+    async getBatchDetails(request: Request, response: Response, next: NextFunction) {
+        var res;        
+        try{
+            res = await this.batchService.getBatchDetails(request.params.id);
+            return res;
+         }catch(error)
+         {
+         console.log(error);
+         }
+    }
+
+    
+    async runBatchJob(request: Request, response: Response, next: NextFunction) {
+  //  var cronString = '*' +' '+ moment().add(2,'minutes').minute() +' '+ '*' +' '+ '*'+' '+ '*' +' *';
+   // console.log('cron expression', cronString);
+
+    var task = cron.schedule('*/10 * * * *', async function () {
+        var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit 1, 2;`;
+        console.log("Query ", quer);
+        var results = await getManager().query(quer);
+        let start_slot=0;
+        let start_min=0;
+        var startMin=0;
+        var end_slot=0;
+        var end_min=0;
+        var endMin=0;
+        
+        for (var element of results) {
+            try{
+                console.log('element',element);
+                console.log('element.lessonStartTime',new Date(element.lessonStartTime));
+                console.log('element.lessonEndTime',element.lessonEndTime);
+                start_slot   = parseInt(element.lessonStartTime.substring(11,13));
+                start_min  = parseInt(element.lessonStartTime.substring(15,17));
+                console.log('start_slot', start_slot);
+                let  startMin=start_min  + start_slot*60;
+                end_slot   = parseInt(element.lessonEndTime.substring(11,13));
+                end_min  = parseInt(element.lessonEndTime.substring(15,17));
+                let endMin=end_slot*60 + end_min;
+                var results = await getManager().query(`UPDATE classes SET start_slot=${start_slot}, start_min=${start_min}, startMin=${startMin}, end_slot=${end_slot}, end_min=${end_min}, endMin = ${endMin}  WHERE id = '${element.id}';`);
+                console.log("cron job started", results);
+            }catch(error){
+                console.log(error);                
+            }
+        }
+        
+        
+     }, false);
+     task.start();
+     console.log('end of method');
+    return {"success":true,"message": "Job execution initiated !!!!"};
+    }
 
 }

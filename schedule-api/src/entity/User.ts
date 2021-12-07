@@ -1,5 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
-ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany} from "typeorm";
+ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn} from "typeorm";
 import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { Teacher } from "./Teacher";
@@ -17,10 +17,8 @@ export class User extends BaseEntity {
     cosmos_ref: string;
     User() {}
 
-    @Column({'nullable':true})
+    @PrimaryGeneratedColumn("uuid")
         id: string;
-    @PrimaryGeneratedColumn()
-        userId:number;
     @Column("text")
         firstName: string;
     @Column("text")

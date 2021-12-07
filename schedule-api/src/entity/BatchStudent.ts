@@ -3,20 +3,23 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { User } from "./User";
 import { Teacher } from "./Teacher";
-import { Batch } from "./Batch";
+import { Classes } from "./Classes";
 
 @Entity("batch_students")
-export class BatchStudents extends BaseEntity {
+export class BatchStudent extends BaseEntity {
     BatchStudents() {}
     
-    @PrimaryGeneratedColumn()
-        id: number;
+    @PrimaryGeneratedColumn("uuid")
+        id: string;
 
-    @Column({'nullable':true, type:"datetime"})
-        batchId:Date
+    @Column({'nullable':true})
+        batchId:string
     
     @Column({'nullable':true})
-        studentId: Number;
+        studentId: string;
+
+    @Column({'nullable':true})
+        type: string;
      
     @CreateDateColumn()
     @Column({'nullable':true,type:"datetime"})
@@ -26,7 +29,7 @@ export class BatchStudents extends BaseEntity {
     @Column({'nullable':true,type:"datetime"})
         updated_at:Date
     
-    @ManyToOne(() => Batch, batch => batch.batchAvailability)
-    batch: Batch;
+  //  @ManyToOne(() => Classes, classes => classes.batchAvailability)
+    classes: Classes;
 
 }
