@@ -45,66 +45,37 @@ export class UserController {
     }
 
 
-    async leadDetails(request: Request, response: Response, next: NextFunction) {
-
-        
-        /*
-        
-        
-        const leadView = new LeadView();
-        const lead = await this.leadRepository.createQueryBuilder("Lead")
-        .where("lead.id = :id", { id: request.params.id }).getOne();
-        leadView.date=new Date();
-        const user = await this.usersRepository.createQueryBuilder("Users")
-        .where("user.leadId = :id", { id: request.params.id }).getOne();
-        const leadav:LeadAvailability[] = [];
-        const list:any = await this.leadAvailabilityRepository.createQueryBuilder("LeadAvailability")
-        .where("lead.id = :id", { id: request.params.id }).getMany();
-        leadav.push(list);
-        var slots = "";
-        leadav.forEach( (element) => {
-            slots + element.start_slot +" - " + element.end_slot;
-        });
-        leadView.timeslots = slots;
-        leadView.status = user.statusId;
-        leadView.experience = lead.total_exp + "years";
-        leadView.mobile = user.mobile;
-        leadView.name = user.firstname + " " + user.lastname;
-        return leadView;*/
-    }
-
-   
+     
     
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
         console.log("list lead details");
 
        var parameters = {
          current:  parseInt(request.query['current']),
-        pageSize  : parseInt(request.query['pageSize']),
+         pageSize  : parseInt(request.query['pageSize']),
          date : request.query['date'],
          name : request.query['name'],
          phoneNumber :  request.query['phoneNumber'],
-        totalexp  :  request.query['totalexp'],
+         totalexp  :  request.query['totalexp'],
          classesTaken : request.query['classesTaken'],
-        ratings : request.query['ratings'],
-        start_slot : request.query['start_slot'],
-        end_slot : request.query['end_slot'],
-        weekday  : request.query['weekday'],
-        status  : request.query['status'],
-        type  : request.query['type'],
-        keyword: request.query['keyword']
+         ratings : request.query['ratings'],
+         start_slot : request.query['start_slot'],
+         end_slot : request.query['end_slot'],
+         weekday  : request.query['weekday'],
+         status  : request.query['status'],
+         type  : request.query['type'],
+         keyword: request.query['keyword']
         }       
 
        var teacherService = new TeacherService();
        var user;
-
        let resp;
   
        try{
            resp = await teacherService.listLeadDetails(request.body, parameters);
        }catch(error)
        {
-       console.log(error);
+        console.log(error);
        }
        
         return resp;
@@ -125,8 +96,6 @@ export class UserController {
        {
        console.log(error);
        }
-       
-        
        console.log(resp);
         return resp;
     }
@@ -151,9 +120,7 @@ export class UserController {
         console.log('request.params.id' + request.params.id);
         let userToRemove = await this.usersRepository.findOne(request.params.id);
         userToRemove.status = 4;
-        return this.usersRepository.save(userToRemove);
-  
-       
+        return this.usersRepository.save(userToRemove);       
     }
  
 

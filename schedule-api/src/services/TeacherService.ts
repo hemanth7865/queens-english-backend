@@ -343,8 +343,7 @@ export class TeacherService {
         
             leadView.push(l);
           
-        };
-        
+        }; 
       
         return {"success":true,"data": leadView, "total":total[0].total, "current":current, pageSize:limit};
     }
