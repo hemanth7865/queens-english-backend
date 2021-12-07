@@ -55,6 +55,17 @@ export class LoginController {
         }
     }
 
+    async logout(request: Request, response: Response, next: NextFunction) {
+        const options = {
+            maxAge: 0, // would expire after 1 day
+            httpOnly: true,
+            signed: true
+        }
+    
+        response.cookie('qe-admin-token', '', options)
+        return response.status(200).send({ status: "ok" }).end();
+    }
+
     async currentUser(request: Request, response: Response, next: NextFunction) {
         console.log('currentUser', request.signedCookies);
         

@@ -11,6 +11,12 @@ export const Routes = [
     },
     {
         method: "get",
+        route: "/logout",
+        controller: LoginController,
+        action: "logout"
+    },
+    {
+        method: "get",
         route: "/currentUser",
         controller: LoginController,
         action: "currentUser"
