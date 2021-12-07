@@ -9,6 +9,8 @@ import { getManager } from "typeorm";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
 import { Classes } from "../entity/Classes";
+import { BatchView } from "../model/BatchView";
+import { TeacherView } from "../model/TeacherView";
 
 
 export class BatchService {
@@ -46,12 +48,17 @@ export class BatchService {
               classes.type = data.type;
               classes.createdBy = data.createdBy;
 
-              classes.created_at= new Date();
-              classes.updated_at= new Date();
+              
 
               if (data.id) {
                 classes.id = data.id;
-              } 
+                classes.updated_at= new Date();
+              } else {
+                classes.created_at= new Date();
+                classes.updated_at= new Date();
+              }
+
+              console.log("classes",classes);
 
               classes = await this.classesRepository.save(classes);         
                 
@@ -115,6 +122,160 @@ export class BatchService {
       throw new Error('Excetion while stroing teacher');
       }
 }
+
+
+async listBatch(request: Request, parameters) {
+  console.log(request);
+
+
+  var current =  parseInt(parameters.current);
+  var pageSize  = parseInt(parameters.pageSize);
+  var batchView:BatchView[]=[];
+
+     var offset = parseInt(parameters.current);
+     var current = offset;
+     //const limit  =  parseInt(request.query['pageSize']);
+     var limit = parameters.pageSize;
+     if (offset==1) {
+         offset = 0;
+     }
+
+     let query_list = [];
+     let query_string='';
+
+     console.log(parameters);
+    const batchId = parameters.batchId;
+     if (batchId) {
+         query_string = query_string + ` batchNumber =  '${batchId}' ` ;
+         query_list.push(` batchNumber =  '${batchId}' ` );
+     }
+
+     const createdBy = parameters.createdBy;
+     if (createdBy) {
+         query_string = query_string + ` createdBy =${createdBy} ` ;
+         query_list.push(` createdBy like '%${createdBy}%' ` );
+         console.log('query phonen umber ', createdBy);
+     }
+
+     var start_slot = parameters.start_slot;
+     var end_slot = parameters.end_slot;
+     var week_day = parameters.week_day;
+     let start_min;
+     let end_min;
+     let startMin;
+     let endMin;
+     if (start_slot){
+         let time = start_slot.split(":");
+         start_slot = time[0];   
+         console.log('time is ', time);
+         start_min = time[1];
+         startMin = time[0] * 60 + time[1];
+         
+      }
+
+      if (end_slot){
+          let time = end_slot.split(":");
+          end_slot = time[0]
+          console.log('time is ', time);;
+          end_min = time[1];
+          endMin = time[0] * 60 + time[1];
+         
+       }
+
+       var unique=[0];
+       console.log(`query string ${query_list}`);
+
+       if (start_slot && end_slot) {
+          query_string = query_string + `  ${startMin} >= startMin and ${endMin}<=endMin;` ;
+         query_list.push(`  ${startMin} >= startMin and ${endMin}<=endMin;`);  
+      }
+
+      let teacher = parameters.teacher;
+
+      if (teacher) {
+         var teacherQuery = `select id, firstName, lastName from user where (firstName like '%${teacher}%' or lastName like '%${teacher}%' )`;
+         var teacherDetails = await getManager().query(teacherQuery);
+         var ids = '';
+         for (var i of teacherDetails){
+             ids = ids + `${i.id}`;
+         }
+         let  studentCount=[]
+        console.log('Teacher details', teacherDetails);
+                 
+      }
+
+      if (query_list.length>0) {
+          query_string = ' where ';
+      }
+     
+      query_list.forEach((value, index) => {                
+         console.log(query_list.join(' and '));   
+         if ( index !=query_list.length-1) {
+              query_string = query_string + query_list[index] + ' and '; 
+              console.log('query12345', query_string);
+         } else {
+          query_string = query_string + query_list[index];
+         }
+      });
+      console.log("value sis ", query_string);
+
+  var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${current}, ${pageSize};`;
+  console.log("Query ", quer);
+  var results = await getManager().query(quer);
+  let  studentCount=[]
+  let name="";
+
+  for (const element of results) {
+     
+     studentCount = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
+  .where("batchStudent.batchId = :id", { id: element.id }).getMany();
+  var classes = await getManager().createQueryBuilder(Classes, "classes")
+  .where("classes.id = :id", { id: element.id }).getOne();
+  var user = await getManager().createQueryBuilder(User, "user")
+  .where("user.id = :id", { id: element.id }).getOne();
+  if (user && user.firstName && user.lastName){
+      name = user.firstName + ' ' + user.lastName;
+  }
+  let startTime;
+  let endTime;
+  let startMin;
+  let endMin;
+  if (classes.lessonStartTime){
+       startTime = new Date(classes.lessonStartTime).getHours();
+       startMin = new Date(classes.lessonStartTime).getMinutes();
+  }
+  
+  if (classes.lessonEndTime){
+      endTime = new Date(classes.lessonEndTime).getHours();
+      endMin = new Date(classes.lessonStartTime).getMinutes();
+  }
+
+      let view = new BatchView(element.id, new Date(),classes.batchNumber, 'Admin', name, studentCount.length, `${startTime}:${startMin}-${endTime}:${endMin}`,"Active");
+      batchView.push(view);
+  }
+  return {"success":true,"data": batchView, "total":batchView.length, "current":current,"pageSize":pageSize};
+}
+
+async getBatchDetails(id:any) {
+  let teacherView = new TeacherView();
+  const batchId =  id;
+   var batchAvailability:BatchAvailability[] = [];
+    var batchStudent:BatchStudent[] = [];
+    var classes = new Classes();
+      let i = 0;      
+     classes = await getManager().createQueryBuilder(Classes, "classes")
+      .where("classes.id = :id", { id: batchId }).getOne();
+      console.log('classes' , classes);
+      const batchavail = await getManager().createQueryBuilder(BatchAvailability, "batchAvailability")
+      .where("batchAvailability.id = :id", { id: batchId }).getOne();
+      const students = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
+      .where("batchStudent.batchId = :id", { id: batchId }).getOne();
+      teacherView.classes = classes;
+      teacherView.batchAvailability = [batchavail];
+      teacherView.students = [students];
+      return {"success":true,"data": teacherView, "total":1, "current":1, pageSize:1};   
+}
+
 
 
 

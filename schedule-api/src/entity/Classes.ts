@@ -74,11 +74,11 @@ export class Classes extends BaseEntity {
     @Column({'nullable':true, type:"text"})
         type: string
 
-    @CreateDateColumn()
+    //@CreateDateColumn()
     @Column({'nullable':true})
         created_at:Date
 
-    @UpdateDateColumn()
+   // @UpdateDateColumn()
     @Column({'nullable':true})
         updated_at:Date
 
