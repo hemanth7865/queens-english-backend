@@ -1,66 +1,58 @@
 import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
-import {User} from "../entity/User";
-import { Teacher } from "../entity/Teacher";
-import { LeadView } from "../model/LeadView";
-import { TeacherAvailability } from "../entity/TeacherAvailability";
-import { getManager } from "typeorm";
 import { USERS } from "../data/users";
 import { JWSTokenHandler } from "../helpers/JWSTokenHandler";
 import { Admin } from "../entity/Admin";
 
 export class LoginController {
-
-    private usersRepository = getRepository(User);
-    private leadAvailabilityRepository = getRepository(TeacherAvailability);
-    private leadRepository = getRepository(Teacher);
-    private userRepository = getRepository(User);
     private adminRepository = getRepository(Admin);
 
     async login(request: Request, response: Response, next: NextFunction) {
         const req = request.body;
-        
-        const cookies = request.signedCookies;
-        const token = cookies['qe-admin-token'];
-        let foundUser = await this.adminRepository.findOne({select:["firstname","lastname","email","phone"] ,where: { email: req.email, password: req.password} }); 
 
-        if (foundUser) {
-            return response.status(200).send({
-                status: "ok",
-                type: "mobile",
-                currentAuthority: 'Admin'
+        try {
+            const foundUser = await this.adminRepository.findOne(
+                {
+                    select: ["firstname", "lastname", "email", "phone"],
+                    where: { email: req.username, password: req.password }
+                }
+            );
+    
+            console.log('found user', foundUser, req)
+
+            if (foundUser) {
+                const tokenPayload = {
+                    email: foundUser.email,
+                    expiry: (new Date().getTime() + (24 * 60 * 60))
+                };
+                const sessionToken = new JWSTokenHandler().signToken(JSON.stringify(tokenPayload));
+    
+                const options = {
+                    maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
+                    httpOnly: true,
+                    signed: true
+                }
+            
+                response.cookie('qe-admin-token', sessionToken, options)
+    
+                return response.status(200).send({
+                    status: "ok",
+                    type: "account",
+                    currentAuthority: 'Admin'
+                }).end();
+            } else {
+                return response.status(401).send({
+                    status: "failed",
+                    type: "account",
+                }).end();
+            }
+        } catch (e) {
+            console.log('error', e);
+            return response.status(500).send({
+                status: "failed",
+                type: "account",
             }).end();
-        } else {
-            return response.status(401).send({
-                status: "Ko",
-                type: "mobile",
-                currentAuthority: 'Admin'
-            }).end(); 
         }
-    
-
-      
-        const tokenPayload = {
-            email: foundUser.email,
-            expiry: (new Date().getTime() + (24 * 60 * 60))
-        };
-        const sessionToken = new JWSTokenHandler().signToken(JSON.stringify(tokenPayload));
-
-        let options = {
-            maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
-            httpOnly: true,
-            signed: true
-        }
-    
-        response.cookie('qe-admin-token', sessionToken, options)
-
-        return response.status(200).send({
-            status: "ok",
-            type: "email",
-            currentAuthority: 'Admin',
-            token: sessionToken
-        }).end();
-  
     }
 
     async currentUser(request: Request, response: Response, next: NextFunction) {
@@ -79,7 +71,12 @@ export class LoginController {
         const decodedToken = new JWSTokenHandler().decode(token);
         console.log('decodedToken', decodedToken);
         const tokenPayload = JSON.parse(decodedToken.payload || '{}'); 
-        const foundUser = USERS.find((_u) => _u.phone === tokenPayload.phone && _u.code === tokenPayload.code);
+        const foundUser = await this.adminRepository.findOne(
+            {
+                select: ["firstname", "lastname", "email", "phone"],
+                where: { email: tokenPayload.email }
+            }
+        );
         if (!foundUser) {
             // return 401
             return response.status(401).send({
