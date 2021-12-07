@@ -74,7 +74,6 @@
   },
   {
     name: 'Batch Management',
-    icon: 'table',
     path: '/batch',
     component: './BatchList',
   },
@@ -82,6 +81,11 @@
     name: 'Teacher Management',
     path: '/teacherBatch',
     component: './TeacherBatchList',
+  },
+  {
+    name: 'User Management',
+    path: '/studentBatch',
+    component: './StudentList',
   },
   {
     path: '/',

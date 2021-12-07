@@ -1,7 +1,33 @@
 // @ts-nocheck
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, message, Drawer, Form, Col, Row,Input ,Checkbox } from "antd";
-import React, { useState, useRef } from "react";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  ClockCircleOutlined,
+  UploadOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  message,
+  Drawer,
+  Form,
+  Col,
+  Row,
+  Input,
+  Checkbox,
+  TimePicker,
+  DatePicker,
+  Divider,
+  Modal,
+  Select,
+  Tag,
+  Typography,
+} from "antd";
+const { Title } = Typography;
+import moment from "moment";
+const { RangePicker } = DatePicker;
+import React, { useState, useRef, useEffect } from "react";
 import { useIntl, FormattedMessage } from "umi";
 import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
@@ -11,14 +37,21 @@ import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
 import ProDescriptions from "@ant-design/pro-descriptions";
 import type { FormValueType } from "./components/UpdateForm";
 import UpdateForm from "./components/UpdateForm";
+import TeacherBatchList from "../TeacherBatchList";
 import {
   addRule,
   updateRule,
   removeRule,
   batches,
+  listTeacherAndStudent,
+  listBatch,
+  addeditbatch,
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
+import "./batchList.css";
+import DebounceSelect from "@/components/DebounceSelect";
+import {LESSONS} from "../../../config/lessons";
 /**
  * @en-US Add node
  * @zh-CN 添加节点
@@ -39,9 +72,9 @@ const handleDelete = (entity) => {
   }
 };
 
-const handleAddTeacherSubmit = () =>{
-  console.log("Submit")
-}
+const handleAddTeacherSubmit = () => {
+  console.log("Submit");
+};
 const BatchList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -61,16 +94,375 @@ const BatchList: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [addTeacher, setAddTeacher] = useState(false);
+  const [timeRange, setTimeRange] = useState([]);
+  const [batchDate, setbatchDate] = useState("");
+  const [availabilityType, setAvailabiltyType] = useState("");
+  const [createBatch, setCreateBatch] = useState(false);
+  const [addTeacherComponent, setAddTeacherComponent] = useState(false);
+  const [error, seterror] = useState("");
+  const [classDateRange, setClassDateRange] = useState("");
+  const [studentList, setStudentList] = useState([]);
+  const [leadList, setLeadList] = useState({});
+  const [teacherName, setTeacherName] = useState([]);
+  const [batchDetails,setBatchDetails] =useState({})
 
+  const options = [];
+  const studentMap = {};
+  for (let i = 0; i < leadList.length; i++) {
+    if (leadList[i].type == "teacher") {
+      const value = leadList[i].leadId;
+      options.push({
+        value,
+      });
+    }
+  }
+  const teacherMap = {};
+  const teacherOptions = [];
+  for (let i = 0; i < leadList.length; i++) {
+    if (leadList[i].type == "teacher") {
+      const value = leadList[i].leadId;
+      teacherOptions.push({
+        value,
+      });
+    }
+  }
+  function handleStudentSelect(value) {
+    setStudentList([...value]);
+  }
+
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
   const [tempData, setTempData] = useState({});
-  // const [deleteData, setDeleteData] = useState();
+  const [tempDataView, setTempDataView] = useState({});
+  //listbatches
+  useEffect(async (params: any) => {
+    try {
+      let msg = await listBatch({
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setTempData(msg.data);
+      console.log("batches", msg.data);
+      //
+    } catch (error) {
+      console.log("error", error);
+    }
+    return () => {
+      console.log("effect cleanup");
+    };
+  }, []);
 
+  useEffect(() => {
+    fetch("http://localhost:3000/leadsview?current=0&pageSize=20")
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+      })
+      .then((data) => {
+        setLeadList(data?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        console.log("leadList", leadList);
+      });
+  }, []);
+
+  async function fetchUserList(username) {
+    console.log("fetching user", username);
+    return fetch(
+      `http://localhost:3000/leadsview?current=0&type=teacher&pageSize=5&keyword=${username}`
+    )
+      .then((response) => response.json())
+      .then((body) =>
+        body.data.map((user) => ({
+          label: `${user.name}`,
+          value: user.id,
+        }))
+      );
+  }
+  async function fetchStudentList(username) {
+    console.log("fetching user", username);
+    return fetch(
+      `http://localhost:3000/leadsview?current=0&type=student&pageSize=5&keyword=${username}`
+    )
+      .then((response) => response.json())
+      .then((body) =>
+        body.data.map((user) => ({
+          label: `${user.name}`,
+          value: user.id,
+        }))
+      );
+  }
+
+  const [dateStart, setDateStart] = useState("");
+  const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
+  const [formData, setFormData] = useState({
+    classCode: "code",
+    batchNumber: "",
+    teacherId: "",
+    startingLessonId: "",
+    endingLessonId: "",
+    classStartDate: "",
+    classEndDate: "",
+    lessonStartTime: "",
+    lessonEndTime: "",
+    ageGroup: "",
+    id: "ed164748-688e-441e-960d-673e3ca71938",
+    batchAvailability: [{}],
+    students: [],
+  });
+  const [prePop,setPrePop]= useState({})
+
+  // const [deleteData, setDeleteData] = useState();
   /**
    * @en-US International configuration
    * @zh-CN 国际化配置
    * */
   const intl = useIntl();
+  const handleTimeRange = (value) => {
+    setTimeRange([...value]);
+    console.log("timeRange", timeRange);
+  };
+  const handleClassDateRange = (value) => {
+    setClassDateRange([...value]);
+  };
+  const handleSelectedAgeGroup = (value) => {
+    console.log("ageGroup", value);
+    setSelectedAgeGroup(value);
+  };
+  const handleClassDate = (value) => {};
+  const handleOk = () => {
+    try {
+      removeRule(entity);
+    } catch (error) {
+      message.error("Delete failed, please try again");
+    }
+    setDeleteConfirmModal(false);
+  };
 
+  const handleCancel = () => {
+    setDeleteConfirmModal(false);
+  };
+
+  const handleTeacherChange = (value) => {
+    setTeacherName(value);
+  };
+  const handleFormSubmitEdit = async () => {
+    //REFORMATTED DATE RANGE
+    let formattedStartDate = classDateRange[0]._d.toString().split(" ");
+    let formattedEndDate = classDateRange[1]._d.toString().split(" ");
+    let startmonthNumber =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formattedStartDate[1]) + 1;
+    let endMonthNumber =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formattedEndDate[1]) + 1;
+    let finalStartDate =
+      formattedStartDate[3] +
+      "-" +
+      startmonthNumber.toString() +
+      "-" +
+      formattedStartDate[2] +
+      "T" +
+      formattedStartDate[4] +
+      ".000Z";
+    let finalEndDate =
+      formattedEndDate[3] +
+      "-" +
+      endMonthNumber.toString() +
+      "-" +
+      formattedEndDate[2] +
+      "T" +
+      formattedEndDate[4] +
+      ".000Z";
+    //REFORMATTED TIME RANGE
+    let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
+    let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
+    let lessonStartMonth =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formatLessonStartTime[1]) + 1;
+    let lessonEndMonth =
+      [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ].indexOf(formatLessonEndTime[1]) + 1;
+    let finalStartTime =
+      formatLessonStartTime[3] +
+      "-" +
+      lessonStartMonth.toString() +
+      "-" +
+      formatLessonStartTime[2] +
+      "T" +
+      formatLessonStartTime[4] +
+      ".000Z";
+    let finalEndTime =
+      formatLessonStartTime[3] +
+      "-" +
+      lessonEndMonth.toString() +
+      "-" +
+      formatLessonEndTime[2] +
+      "T" +
+      formatLessonEndTime[4] +
+      ".000Z";
+
+    const dataForm = {
+      classCode: formData.classCode,
+      batchNumber: formData.batchNumber,
+      teacherId: teacherName.value,
+      startingLessonId: formData.startingLessonId,
+      endingLessonId: formData.endingLessonId,
+      classStartDate: finalStartDate,
+      classEndDate: finalEndDate,
+      lessonStartTime: finalStartTime,
+      lessonEndTime: finalEndTime,
+      ageGroup: selectedAgeGroup,
+      id: formData.id,
+      batchAvailability: [{}],
+      students: [...studentList],
+    };
+    console.log("formData", dataForm);
+
+    try {
+      // 登录
+      console.log("data", dataForm);
+      const msg = await addeditbatch({
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataForm),
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      console.log(msg);
+    } catch (error) {
+      console.log("Failed");
+    }
+  };
+  const handleFormChange = (e, value) => {
+    setFormData((value) => ({
+      ...value,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  let timeSlots = tempDataView ? tempDataView.slots : "";
+  let monday, tuesday, wednesday, thursday, friday, saturday, sunday;
+  if (timeSlots) {
+    timeSlots = timeSlots
+      .split("to")
+      .toString()
+      .split(" , ")
+      .toString()
+      .split(" ");
+    monday = timeSlots.filter((lead) => {
+      return lead.startsWith("Mon");
+    });
+    tuesday = timeSlots.filter((lead) => {
+      return lead.startsWith("Tue");
+    });
+    wednesday = timeSlots.filter((lead) => {
+      return lead.startsWith("Wed");
+    });
+    thursday = timeSlots.filter((lead) => {
+      return lead.startsWith("Thu");
+    });
+    friday = timeSlots.filter((lead) => {
+      return lead.startsWith("Fri");
+    });
+    saturday = timeSlots.filter((lead) => {
+      return lead.startsWith("Sat");
+    });
+    sunday = timeSlots.filter((lead) => {
+      return lead.startsWith("Sun");
+    });
+  }
+
+  const handleCurrentDateAndTime = (rowval:any) =>{
+
+    console.log('rowval',rowval);
+     var batchData ={}
+    fetch(`http://localhost:3000/listBatch/${rowval.id}`)
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then((data) => {
+      setBatchDetails(data.data)
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      // console.log("leadList", leadList);
+    });
+    let tempDate = rowval.date.split('T')
+    let tempTime = rowval.timeSlot.split('-')
+    let tempObj ={
+      startdate: tempDate[0],
+      enddate: tempDate[1],
+      starttime:tempTime[0],
+      endttime:tempTime[1],    
+    }
+    setPrePop(tempObj)
+    
+    console.log('harry',batchDetails)
+    // setTeacherName(batchDetails?.)
+    // setStudentList()
+  }
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: (
@@ -79,8 +471,8 @@ const BatchList: React.FC = () => {
           defaultMessage="Date"
         />
       ),
-      dataIndex: "dates",
-      valueType: "textarea",
+      dataIndex: "date",
+      valueType: "date",
     },
     {
       title: (
@@ -131,7 +523,10 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "timeSlot",
-      valueType: "textarea",
+      // valueType: "textarea",
+      renderFormItem: (value) => {
+        return <TimePicker.RangePicker format="HH:mm" />;
+      },
     },
     //button
     {
@@ -191,7 +586,7 @@ const BatchList: React.FC = () => {
       },
     },
     //view
-    {
+    {//brb
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.view.nameLabel"
@@ -200,22 +595,23 @@ const BatchList: React.FC = () => {
       ),
       dataIndex: "view",
       tip: "The rule name is the unique key",
+      hideInSearch: true,
       render: (dom, entity) => {
         return (
           <a
             onClick={() => {
-              setCurrentRow(entity);
+              setCurrentRow(dom);
               setShowDetail(true);
               setTempData(entity);
               setAddTeacher(false);
             }}
           >
-            {dom}
+            <EyeOutlined />
           </a>
         );
       },
     },
-    {
+    {//brb
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.titleedit"
@@ -223,6 +619,23 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "edit",
+      hideInSearch: true,
+      render: (dom, entity) => {
+        return (
+          <a
+            onClick={() => {
+              // console.log('entity',entity);
+              setCurrentRow(entity);
+              handleCurrentDateAndTime(entity);
+              setAddTeacher(true);
+              setShowDetail(true);
+              setCreateBatch(false);
+            }}
+          >
+            <EditOutlined />
+          </a>
+        );
+      },
     },
     {
       title: (
@@ -233,17 +646,18 @@ const BatchList: React.FC = () => {
       ),
       dataIndex: "delete",
       tip: "The rule name is the unique key",
+      hideInSearch: true,
       render: (dom, entity) => {
         return (
           <a
             onClick={() => {
               // console.log(entity);
               setCurrentRow(entity);
-              handleDelete(entity);
+              setDeleteConfirmModal(true);
               console.log("currentrow", currentRow);
             }}
           >
-            delete
+            <DeleteOutlined />
           </a>
         );
       },
@@ -251,6 +665,7 @@ const BatchList: React.FC = () => {
   ];
 
   const handleSwitch = (number) => {
+    console.log("skg", number);
     switch (number) {
       case 0:
         return <Button type="success">Upcoming</Button>;
@@ -263,12 +678,13 @@ const BatchList: React.FC = () => {
     }
   };
 
+  const dateFormat = 'YYYY-MM-DD'
   return (
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
         headerTitle={intl.formatMessage({
           id: "pages.searchTable.title",
-          defaultMessage: "Enquiry form",
+          defaultMessage: "BatchList",
         })}
         actionRef={actionRef}
         rowKey="key"
@@ -283,13 +699,15 @@ const BatchList: React.FC = () => {
               handleModalVisible(false);
               setShowDetail(true);
               setAddTeacher(true);
+              setCreateBatch(true);
+              setAddTeacherComponent(false);
             }}
           >
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
-            Add Teacher
+            Create Batch
           </Button>,
         ]}
-        request={batches}
+        request={listBatch}
         columns={columns}
         //the checkbox
         rowSelection={{
@@ -299,6 +717,14 @@ const BatchList: React.FC = () => {
           },
         }}
       />
+      <Modal
+        title="Delete?"
+        visible={deleteConfirmModal}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <p>Are you sure you want to delete the current batch?</p>
+      </Modal>
       {selectedRowsState?.length > 0 && (
         <FooterToolbar
           extra={
@@ -383,124 +809,306 @@ const BatchList: React.FC = () => {
         />
         <ProFormTextArea width="md" name="desc" />
       </ModalForm>
-      {/* <UpdateForm
-        onSubmit={async (value) => {
-          const success = await handleUpdate(value);
-          if (success) {
-            handleUpdateModalVisible(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-        onCancel={() => {
-          handleUpdateModalVisible(false);
-          if (!showDetail) {
-            setCurrentRow(undefined);
-          }
-        }}
-        updateModalVisible={updateModalVisible}
-        values={currentRow || {}}
-      /> */}
 
       <Drawer
-        width={600}
+        width={addTeacherComponent ? 1400 : 600}
         visible={showDetail}
         onClose={() => {
           setCurrentRow(undefined);
           setShowDetail(false);
+          setAddTeacherComponent(false);
         }}
         closable={true}
       >
-        {addTeacher ? (
-          <>
-            Add Teacher
-            <Row>
-              <Col span={12}>
-                <Form
-                  name="basic"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 16 }}
-                  initialValues={{ remember: true }}
-                  onFinish={handleAddTeacherSubmit}
-                  autoComplete="off"
-                >
-                  <Form.Item
-                    label="Username"
-                    name="username"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input your username!",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Password"
-                    name="password"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input your password!",
-                      },
-                    ]}
-                  >
-                    <Input.Password />
-                  </Form.Item>
-
-                  <Form.Item
-                    name="remember"
-                    valuePropName="checked"
-                    wrapperCol={{ offset: 8, span: 16 }}
-                  >
-                    <Checkbox>Remember me</Checkbox>
-                  </Form.Item>
-
-                  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                      Submit
-                    </Button>
-                  </Form.Item>
-                </Form>
-              </Col>
-              <Col span={12}>
-                <p>a</p>
-                <p>a</p>
-                <p>a</p>
-              </Col>
-            </Row>
-          </>
+        {" "}
+        {addTeacherComponent ? (
+          // <TeacherBatchList />
+          <></>
         ) : (
           <>
-            {currentRow?.name && (
-              <ProDescriptions<API.RuleListItem>
-                column={2}
-                title={currentRow?.name}
-                request={async () => ({
-                  data: currentRow || {},
-                })}
-                params={{
-                  id: currentRow?.name,
-                }}
-                columns={
-                  columns as ProDescriptionsItemProps<API.RuleListItem>[]
-                }
-              />
+            {addTeacher ? (
+              <>
+                {createBatch ? (
+                  <div style={{ fontWeight: 700, marginBottom: "20px" }}>
+                    Create Batch
+                  </div>
+                ) : (
+                  <div style={{ fontWeight: 700, marginBottom: "20px" }}>
+                    Edit Batch
+                  </div>
+                )}
+                <Form onFinish={handleFormSubmitEdit}>
+                  <Row>
+                    <Col span={24}>
+                      <Form.Item
+                        name="classCode"
+                        rules={[{ required: true, message: "Class Code" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Class Code"
+                          name="classCode"
+                          value={formData.classCode}
+                          defaultValue={!createBatch?currentRow?.classCode:''}
+                          onChange={handleFormChange}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="batchNumber"
+                        rules={[{ required: true, message: "Batch Number" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Batch Number"
+                          name="batchNumber"
+                          value={formData.batchNumber}
+                          defaultValue={currentRow?.batchId}
+                          onChange={handleFormChange}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="startingLessonId"
+                        rules={[
+                          { required: true, message: "Starting Lesson Id" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Starting Lesson"
+                          onChange={(value) => {
+                            handleFormChange({
+                              target: {
+                                name: 'startingLessonId',
+                                value
+                              }
+                            })
+                          }}
+                          value={formData.startingLessonId}
+                        >
+                          {
+                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
+                          }
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="endingLessonId"
+                        rules={[
+                          { required: true, message: "Ending Lesson Id" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Ending Lesson"
+                          onChange={(value) => {
+                            handleFormChange({
+                              target: {
+                                name: 'endingLessonId',
+                                value
+                              }
+                            })
+                          }}
+                          value={formData.startingLessonId}
+                        >
+                          {
+                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
+                          }
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="Date"
+                        rules={[{ required: true, message: "Batch Date" }]}
+                      >
+                        <RangePicker
+                          style={{ width: "551px" }}
+                          onChange={handleClassDateRange}
+                          defaultValue={[moment('2015-06-06', dateFormat), moment('2015-06-06', dateFormat)]}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="BatchTime"
+                        rules={[{ required: true, message: "Batch Time" }]}
+                      >
+                        <TimePicker.RangePicker
+                          format={"HH:mm"}
+                          defaultValue={currentRow?[moment(prePop.starttime,'HH:mm:ss'),moment(prePop.endttime,'HH:mm:ss')]:{}}
+                          onChange={handleTimeRange}
+                          style={{ width: "551px" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={16}>
+                      {/* {!createBatch ?fetchUserList(batchDetails.classes.teacherId):''} */}
+                      <Form.Item
+                        name="teacherId"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter your id",
+                          },
+                        ]}
+                      >
+                        <DebounceSelect
+                          showSearch
+                          value={teacherName}
+                          placeholder="Select teacher"
+                          fetchOptions={fetchUserList}
+                          onChange={(newValue) => {
+                            setTeacherName(newValue);
+                            console.log('test',teacherName)
+                          }}
+                          style={{
+                            width: "100%",
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col offset={1} span={7}>
+                      <Button
+                        size="default"
+                        onClick={() => {
+                          setAddTeacherComponent(true);
+                        }}
+                        on
+                        type="primary"
+                      >
+                        Add New Teacher
+                      </Button>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="ageGroup"
+                        rules={[
+                          { required: true, message: "Select age group" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Age Group"
+                          onChange={handleSelectedAgeGroup}
+                          value={selectedAgeGroup}
+                        >
+                          <Option value="preTeen">Pre-Teen</Option>
+                          <Option value="Teen">Teen</Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="studentList"
+                        rules={[{ required: true, message: "Select students" }]}
+                      >
+                        {/* <Select
+                          mode="multiple"
+                          style={{ width: "100%" }}
+                          placeholder="Please select Student(s)"
+                          onChange={handleStudentSelect}
+                          options={options}
+                        /> */}
+                         <DebounceSelect
+                          mode="tags"
+                          value={studentList}
+                          placeholder="Select students"
+                          fetchOptions={fetchStudentList}
+                          onChange={(newValue) => {
+                            setStudentList([...newValue]);
+                          }}
+                          style={{
+                            width: "100%",
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    
+                    <Col span={24}>
+                      <Button
+                        // size="large"
+                        style={{ width: "551px" }}
+                        type="primary"
+                        onClick={handleFormSubmitEdit}
+                      >
+                        Save
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form>
+              </>
+            ) : (
+              <>
+                {currentRow?.name && (
+                  <ProDescriptions<API.RuleListItem>
+                    column={2}
+                    title={currentRow?.name}
+                    request={async () => ({
+                      data: currentRow || {},
+                    })}
+                    params={{
+                      id: currentRow?.name,
+                    }}
+                    columns={
+                      columns as ProDescriptionsItemProps<API.RuleListItem>[]
+                    }
+                  />
+                )}
+                <div className="title">{tempData?.batchId}</div>
+                <Row>
+                  <Col span={8}>
+                    <div className="label">Date</div>
+                    <div className="label">Created By</div>
+                    <div className="label">Assigned Teacher</div>
+                    <div className="label">Student</div>
+                    <div className="label">TimeSlot</div>
+                    <div className="label">Status</div>
+                    <div className="label">
+                      <Button
+                        size="large"
+                        style={{ marginTop: "29px" }}
+                        type="primary"
+                      >
+                        Edit Batch
+                      </Button>
+                    </div>
+                  </Col>
+                  <Col span={2}>
+                    <Divider style={{ height: "300px" }} type="vertical" />
+                  </Col>
+                  <Col span={8}>
+                    <div className="label">
+                      {tempData?.date ? tempData.date.split("T")[0] : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.createdBy ? tempData.createdBy : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.teacher ? tempData?.teacher : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.students ? tempData?.students : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.timeSlot ? tempData?.timeSlot : "NA"}
+                    </div>
+                    <div className="label"> {tempData?.status}</div>
+                    <div className="label">
+                      <Button
+                        danger
+                        size="large"
+                        style={{ marginTop: "19px" }}
+                        type="primary"
+                      >
+                        Delete Batch
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              </>
             )}
-            <h2>{tempData.batchId}</h2>
-            <p>Date - {tempData.dates}</p>
-            <p>Created By - {tempData.createdBy}</p>
-            <p>Assigned Teacher - {tempData.teacher}</p>
-            <p>student - {tempData.students}</p>
-            <p>Time Slot - {tempData.timeSlot}</p>
-            <p>
-              {/* Status - {tempData.status == 0 ? <button>success</button> : <button>upcoming</button>} */}
-              switch - {handleSwitch(tempData.status)}
-            </p>{" "}
           </>
         )}
       </Drawer>

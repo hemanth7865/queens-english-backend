@@ -1,5 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
+// @ts-nocheck
 import { request } from 'umi';
 
 const API_URL =  `/`; //process.env.API_URL;
@@ -156,6 +157,30 @@ export async function teacherBatches(
 
 //api for teacher batches for id
 export async function teacherBatchesView(
+  id:any,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }, 
+
+) {
+  // console.log('id', id)
+  return request<API.RuleList>(`/be/leadsFullView/${id}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+//api for user batches for id
+export async function userBatchesView(
   id,
   params: {
     // query
@@ -177,9 +202,31 @@ export async function teacherBatchesView(
   });
 }
 
+
 export async function teacherRemove(id, options?: { [key: string]: any }) {
   return request<Record<string, any>>(`/be/users/${id}`, {
     method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
+
+//student get all method
+export async function studentBatches(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/leadsview', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }
@@ -222,8 +269,18 @@ export async function addRule(options?: { [key: string]: any }) {
   });
 }
 
+
 /** POST /be/leads */
 export async function addTeacherSchedule(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/leads', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+/** POST /be/leads */
+export async function addUserSchedule(options?: { [key: string]: any }) {
   console.log('option', options)
   return request<any>('/be/leads', {
     method: 'POST',
@@ -248,3 +305,53 @@ export async function removeRule(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+//BATCH MANAGEMENT
+//LIST OF USERS
+export async function listTeacherAndStudent(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: 0;
+    /** 页面的容量 */
+    pageSize?: 20;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/leadsview', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+// LIST OF EXISTING BATCHES - GET
+export async function listBatch(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  console.log("lbp",params)
+  return request<API.RuleList>('/be/listBatch', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+//ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
+export async function addeditbatch(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/createBatch', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+//REMOVE EXISTING BATCH -PUT
+
