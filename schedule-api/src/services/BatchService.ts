@@ -48,12 +48,17 @@ export class BatchService {
               classes.type = data.type;
               classes.createdBy = data.createdBy;
 
-              classes.created_at= new Date();
-              classes.updated_at= new Date();
+              
 
               if (data.id) {
                 classes.id = data.id;
-              } 
+                classes.updated_at= new Date();
+              } else {
+                classes.created_at= new Date();
+                classes.updated_at= new Date();
+              }
+
+              console.log("classes",classes);
 
               classes = await this.classesRepository.save(classes);         
                 
