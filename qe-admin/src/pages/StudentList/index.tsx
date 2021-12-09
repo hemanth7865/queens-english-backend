@@ -61,11 +61,7 @@ const TableList: React.FC = () => {
 
   const handleOneDisplay = async (id)=>{
     try {
-      let msg = await userBatchesView(id, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      let msg = await userBatchesView(id);
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
