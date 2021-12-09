@@ -64,10 +64,10 @@ export async function setAdminAccess(role: 'site' | 'admin', options?: { [key: s
   });
 }
 
-/** 退出登录接口 POST /api/login/outLogin */
+/** Logout GET /be/logout */
 export async function outLogin(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/login/outLogin', {
-    method: 'POST',
+  return request<Record<string, any>>('/be/logout', {
+    method: 'GET',
     ...(options || {}),
   });
 }
@@ -148,6 +148,7 @@ export async function teacherBatches(
     method: 'GET',
     params: {
       ...params,
+      type: 'teacher'
     },
     ...(options || {}),
   });
@@ -325,7 +326,22 @@ export async function listTeacherAndStudent(
     ...(options || {}),
   });
 }
-// LIST OF EXISTING BATCHES - GET
+// get individual batch - GET
+export async function getIndividualBatch(
+  rowId: string,
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }) {
+  return request<API.RuleList>('/be/listBatch', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
 export async function listBatch(
   params: {
     // query

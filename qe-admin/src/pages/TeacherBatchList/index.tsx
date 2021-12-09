@@ -221,11 +221,7 @@ const TeacherBatchList: React.FC = () => {
 
   const handleOneView = async (id) => {
     try {
-      let msg = await teacherBatchesView(id, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      let msg = await teacherBatchesView(id);
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }

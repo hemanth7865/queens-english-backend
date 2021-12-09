@@ -46,6 +46,7 @@ import {
   listTeacherAndStudent,
   listBatch,
   addeditbatch,
+  getIndividualBatch
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
@@ -138,9 +139,8 @@ const BatchList: React.FC = () => {
   useEffect(async (params: any) => {
     try {
       let msg = await listBatch({
-        headers: {
-          "Content-Type": "application/json",
-        },
+        current: 1,
+        pageSize: 20
       });
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -157,7 +157,7 @@ const BatchList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3000/leadsview?current=0&pageSize=20")
+    listTeacherAndStudent()
       .then((res) => {
         if (res.ok) {
           return res.json();
@@ -175,11 +175,13 @@ const BatchList: React.FC = () => {
   }, []);
 
   async function fetchUserList(username) {
-    console.log("fetching user", username);
-    return fetch(
-      `http://localhost:3000/leadsview?current=0&type=teacher&pageSize=5&keyword=${username}`
-    )
-      .then((response) => response.json())
+    console.log("fetching teacher user", username);
+    return listTeacherAndStudent({
+      type: 'teacher',
+      current: 1,
+      pageSize: 5,
+      keyword: username
+    })
       .then((body) =>
         body.data.map((user) => ({
           label: `${user.name}`,
@@ -188,11 +190,15 @@ const BatchList: React.FC = () => {
       );
   }
   async function fetchStudentList(username) {
-    console.log("fetching user", username);
-    return fetch(
-      `http://localhost:3000/leadsview?current=0&type=student&pageSize=5&keyword=${username}`
+    console.log("fetching student user", username);
+    return listTeacherAndStudent(
+      {
+        current: 1,
+        pageSize: 5,
+        type: 'student',
+        keyword: username
+      }
     )
-      .then((response) => response.json())
       .then((body) =>
         body.data.map((user) => ({
           label: `${user.name}`,
@@ -432,7 +438,7 @@ const BatchList: React.FC = () => {
   }
   
   const handleCurrentDateAndTime = (rowval: any) => {
-    fetch(`http://localhost:3000/listBatch/${rowval.id}`)
+    getIndividualBatch(rowval.id)
       .then((res) => {
         if (res.ok) {
           return res.json();

@@ -43,49 +43,33 @@
         icon: 'smile',
         component: './TableList',
       },
-      // {
-      //   path: '/admin/sub-page',
-      //   name: 'sub-page',
-      //   icon: 'smile',
-      //   component: './Welcome',
-      // },
       {
         component: './404',
       },
     ],
   },
   {
-    name: 'list.classes',
+    path: '/manage',
+    name: 'manage',
     icon: 'table',
-    path: '/classes',
-    component: './TableList',
-  },
-  {
-    name: 'list.students',
-    icon: 'table',
-    path: '/students',
-    component: './TableList',
-  },
-  {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
-  },
-  {
-    name: 'Batch Management',
-    path: '/batch',
-    component: './BatchList',
-  },
-  {
-    name: 'Teacher Management',
-    path: '/teacherBatch',
-    component: './TeacherBatchList',
-  },
-  {
-    name: 'User Management',
-    path: '/studentBatch',
-    component: './StudentList',
+    access: 'canManage',
+    routes: [
+      {
+        name: 'Batch',
+        path: '/manage/batch',
+        component: './BatchList',
+      },
+      {
+        name: 'Teacher',
+        path: '/manage/teacherBatch',
+        component: './TeacherBatchList',
+      },
+      {
+        name: 'User',
+        path: '/manage/studentBatch',
+        component: './StudentList',
+      }
+    ]
   },
   {
     path: '/',
