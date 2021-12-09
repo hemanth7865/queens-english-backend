@@ -7,7 +7,7 @@ import debounce from 'lodash/debounce';
 
 const DebounceSelect = ({ fetchOptions, debounceTimeout = 800, ...props }:any) => {
   const [fetching, setFetching] = React.useState(false);
-  const [options, setOptions] = React.useState([]);
+  const [options, setOptions] = React.useState(props.options || []);
   const fetchRef = React.useRef(0);
 
   const debounceFetcher = React.useMemo(() => {
@@ -38,6 +38,7 @@ const DebounceSelect = ({ fetchOptions, debounceTimeout = 800, ...props }:any) =
       onSearch={debounceFetcher}
       notFoundContent={fetching ? <Spin size="small" /> : null}
       {...props}
+      defaultValue="lucy"
       options={options}
     />
   )
