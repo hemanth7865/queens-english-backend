@@ -73,13 +73,6 @@ const handleDelete = (entity) => {
   }
 };
 
-const handleStudentPrePop = (studentArr) =>{
-
-}
-
-const handleAddTeacherSubmit = () => {
-  console.log("Submit");
-};
 const BatchList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
