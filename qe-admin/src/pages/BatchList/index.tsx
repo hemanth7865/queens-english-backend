@@ -455,10 +455,14 @@ const BatchList: React.FC = () => {
           endttime: tempTime[1],
         };
         setPrePop(tempObj);
-        setClassDateRange(tempObj?.batchData?[
+try {
+        setClassDateRange(tempObj?.batchData?.batchAvailability?.length > 0 && tempObj.batchData.batchAvailability[0] !== null ? [
           moment(tempObj.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
           moment(tempObj.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
         ]:undefined)
+} catch (e) {
+console.log('start date error', e)
+}
         setTimeRange(  tempObj?.starttime?
           [ moment(tempObj.starttime, "HH:mm"),
           moment(tempObj.endttime, "HH:mm")]:undefined)
@@ -958,10 +962,10 @@ const BatchList: React.FC = () => {
                         <RangePicker
                           style={{ width: "551px" }}
                           onChange={(value,e)=>{handleClassDateRange(value,e)}}
-                          defaultValue={ prePop?.batchData?[
+                        defaultValue={ prePop?.batchData?.batchAvailability?.length > 0 && prePop.batchData.batchAvailability[0] !== null ? [
                             moment(prePop.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
                             moment(prePop.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
-                          ]:{}}
+                          ]:{}} 
                         />
                       </Form.Item>
                     </Col>
