@@ -478,9 +478,10 @@ const BatchList: React.FC = () => {
           elem.label =  "Student"+index.toString()
           elem.key  =  elem.id
           console.log('changed', elem.value, elem.label,elem.key)
+          return elem
         }):[]
-        setStudentList(reformatData)
-        console.log("reformatData",reformatData)
+        setStudentList(...reformatData)
+        console.log("reformatData",...reformatData)
         setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
         console.log("rowval", batchDetails);
 
@@ -1054,22 +1055,23 @@ const BatchList: React.FC = () => {
                       <Form.Item
                         name="studentList"
                         rules={[{ required: true, message: "Select students" }]}
-                      >
-
+                      >  {console.log("lol",studentList)}
+                         {studentList?
                         <DebounceSelect
                           mode="tags"
                           value={studentList}
                           placeholder="Select students"
                           fetchOptions={fetchStudentList}
-                          defaultValue={studentList}
+                          // options = {currentRow?.id?studentList:[]}
+                          // defaultValue={currentRow?.id?studentList:null}
                           onChange={(newValue) => {
-                            console.log("duh",studentList)
+                            console.log("student",studentList)
                             setStudentList([...newValue]);
                           }}
                           style={{
                             width: "100%",
                           }}
-                        />
+                        />:<></>}
                       </Form.Item>
                     </Col>
 
