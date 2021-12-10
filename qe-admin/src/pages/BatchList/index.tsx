@@ -24,6 +24,7 @@ import {
   Tag,
   Typography,
 } from "antd";
+import { v4 as uuidv4 } from 'uuid';
 const { Title } = Typography;
 import moment from "moment";
 const { RangePicker } = DatePicker;
@@ -46,6 +47,7 @@ import {
   listTeacherAndStudent,
   listBatch,
   addeditbatch,
+  getIndividualBatch
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
@@ -59,7 +61,6 @@ import {LESSONS} from "../../../config/lessons";
  */
 
 const handleDelete = (entity) => {
-  console.log(entity);
   const confirmDelete = window.confirm(
     `Do you want to delete ${entity.batchId} ?`
   );
@@ -72,9 +73,6 @@ const handleDelete = (entity) => {
   }
 };
 
-const handleAddTeacherSubmit = () => {
-  console.log("Submit");
-};
 const BatchList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -100,11 +98,15 @@ const BatchList: React.FC = () => {
   const [createBatch, setCreateBatch] = useState(false);
   const [addTeacherComponent, setAddTeacherComponent] = useState(false);
   const [error, seterror] = useState("");
-  const [classDateRange, setClassDateRange] = useState("");
+  const [classDateRange, setClassDateRange] = useState();
   const [studentList, setStudentList] = useState([]);
   const [leadList, setLeadList] = useState({});
   const [teacherName, setTeacherName] = useState([]);
-  const [batchDetails,setBatchDetails] =useState({})
+  const [batchDetails, setBatchDetails] = useState({});
+  const [renderEdit,setRenderEdit] = useState(false)
+
+  const [startLesson,setStartLesson] = useState("");
+  const [endLesson,setEndLesson] = useState("")
 
   const options = [];
   const studentMap = {};
@@ -135,11 +137,11 @@ const BatchList: React.FC = () => {
   const [tempDataView, setTempDataView] = useState({});
   //listbatches
   useEffect(async (params: any) => {
+    console.log("uuid",uuidv4())
     try {
       let msg = await listBatch({
-        headers: {
-          "Content-Type": "application/json",
-        },
+        current: 1,
+        pageSize: 20
       });
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -156,12 +158,7 @@ const BatchList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3000/leadsview?current=0&pageSize=20")
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
+    listTeacherAndStudent()
       .then((data) => {
         setLeadList(data?.data);
       })
@@ -174,11 +171,13 @@ const BatchList: React.FC = () => {
   }, []);
 
   async function fetchUserList(username) {
-    console.log("fetching user", username);
-    return fetch(
-      `http://localhost:3000/leadsview?current=0&type=teacher&pageSize=5&keyword=${username}`
-    )
-      .then((response) => response.json())
+    console.log("fetching teacher user", username);
+    return listTeacherAndStudent({
+      type: 'teacher',
+      current: 1,
+      pageSize: 5,
+      keyword: username
+    })
       .then((body) =>
         body.data.map((user) => ({
           label: `${user.name}`,
@@ -187,11 +186,15 @@ const BatchList: React.FC = () => {
       );
   }
   async function fetchStudentList(username) {
-    console.log("fetching user", username);
-    return fetch(
-      `http://localhost:3000/leadsview?current=0&type=student&pageSize=5&keyword=${username}`
+    console.log("fetching student user", username);
+    return listTeacherAndStudent(
+      {
+        current: 1,
+        pageSize: 5,
+        type: 'student',
+        keyword: username
+      }
     )
-      .then((response) => response.json())
       .then((body) =>
         body.data.map((user) => ({
           label: `${user.name}`,
@@ -203,7 +206,7 @@ const BatchList: React.FC = () => {
   const [dateStart, setDateStart] = useState("");
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
   const [formData, setFormData] = useState({
-    classCode: "code",
+    classCode: "",
     batchNumber: "",
     teacherId: "",
     startingLessonId: "",
@@ -213,11 +216,11 @@ const BatchList: React.FC = () => {
     lessonStartTime: "",
     lessonEndTime: "",
     ageGroup: "",
-    id: "ed164748-688e-441e-960d-673e3ca71938",
+    id: "",
     batchAvailability: [{}],
     students: [],
   });
-  const [prePop,setPrePop]= useState({})
+  const [prePop, setPrePop] = useState({});
 
   // const [deleteData, setDeleteData] = useState();
   /**
@@ -225,11 +228,12 @@ const BatchList: React.FC = () => {
    * @zh-CN 国际化配置
    * */
   const intl = useIntl();
-  const handleTimeRange = (value) => {
+  const handleTimeRange = (value,e) => {
     setTimeRange([...value]);
     console.log("timeRange", timeRange);
   };
-  const handleClassDateRange = (value) => {
+  const handleClassDateRange = (value,e) => {
+    console.log('classDateRange',value)
     setClassDateRange([...value]);
   };
   const handleSelectedAgeGroup = (value) => {
@@ -255,6 +259,7 @@ const BatchList: React.FC = () => {
   };
   const handleFormSubmitEdit = async () => {
     //REFORMATTED DATE RANGE
+    console.log("createBatch")
     let formattedStartDate = classDateRange[0]._d.toString().split(" ");
     let formattedEndDate = classDateRange[1]._d.toString().split(" ");
     let startmonthNumber =
@@ -361,14 +366,14 @@ const BatchList: React.FC = () => {
       classCode: formData.classCode,
       batchNumber: formData.batchNumber,
       teacherId: teacherName.value,
-      startingLessonId: formData.startingLessonId,
-      endingLessonId: formData.endingLessonId,
+      startingLessonId: startLesson,
+      endingLessonId: endLesson,
       classStartDate: finalStartDate,
       classEndDate: finalEndDate,
       lessonStartTime: finalStartTime,
       lessonEndTime: finalEndTime,
       ageGroup: selectedAgeGroup,
-      id: formData.id,
+      id: createBatch ? uuidv4(): currentRow?.id,
       batchAvailability: [{}],
       students: [...studentList],
     };
@@ -385,13 +390,18 @@ const BatchList: React.FC = () => {
       });
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
+        setShowDetail(false)
+        setCurrentRow(undefined)
+        console.log('details',showDetail)
       }
       console.log(msg);
     } catch (error) {
       console.log("Failed");
-    }
+    
   };
+}
   const handleFormChange = (e, value) => {
+    console.log("ff",value,e.target.name,e.target.value)
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
@@ -429,40 +439,57 @@ const BatchList: React.FC = () => {
       return lead.startsWith("Sun");
     });
   }
+  
+  const handleCurrentDateAndTime = (rowval: any) => {
+    console.log("rowval",rowval.id)
+    getIndividualBatch(rowval.id)
+      .then((data) => {
+        setBatchDetails(data.data);
+        let tempDate = rowval.date.split("T");
+        let tempTime = rowval.timeSlot.split("-");
+        let tempStart = data.data;
+        let tempEnd = data.data;
+        var tempObj = {
+          batchData: data.data,
+          starttime: tempTime[0],
+          endttime: tempTime[1],
+        };
+        setPrePop(tempObj);
+        setClassDateRange(tempObj?.batchData?[
+          moment(tempObj.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
+          moment(tempObj.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
+        ]:undefined)
+        setTimeRange(  tempObj?.starttime?
+          [ moment(tempObj.starttime, "HH:mm"),
+          moment(tempObj.endttime, "HH:mm")]:undefined)
+        setStartLesson(tempObj?.batchData?.classes?.startingLessonId)
+        setEndLesson(tempObj?.batchData?.classes?.endingLessonId)
+        let reformatData = tempObj?tempObj?.batchData?.students.map((elem,index,arr)=>{
+          console.log('elem',elem)
+          elem.value = elem.id
+          elem.label =  "Student"+index.toString()
+          elem.key  =  elem.id
+          console.log('changed', elem.value, elem.label,elem.key)
+          return elem
+        }):[]
+        setStudentList([...reformatData])
+        console.log("reformatData",...reformatData)
+        setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
+        console.log("rowval", batchDetails);
 
-  const handleCurrentDateAndTime = (rowval:any) =>{
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setRenderEdit(true)
+        });
 
-    console.log('rowval',rowval);
-     var batchData ={}
-    fetch(`http://localhost:3000/listBatch/${rowval.id}`)
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-    })
-    .then((data) => {
-      setBatchDetails(data.data)
-    })
-    .catch((error) => {
-      console.log(error);
-    })
-    .finally(() => {
-      // console.log("leadList", leadList);
-    });
-    let tempDate = rowval.date.split('T')
-    let tempTime = rowval.timeSlot.split('-')
-    let tempObj ={
-      startdate: tempDate[0],
-      enddate: tempDate[1],
-      starttime:tempTime[0],
-      endttime:tempTime[1],    
-    }
-    setPrePop(tempObj)
-    
-    console.log('harry',batchDetails)
+    //
+    // console.log("batchDetails", batchDetails);
     // setTeacherName(batchDetails?.)
     // setStudentList()
-  }
+  };
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: (
@@ -586,7 +613,8 @@ const BatchList: React.FC = () => {
       },
     },
     //view
-    {//brb
+    {
+      //brb
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.view.nameLabel"
@@ -600,7 +628,8 @@ const BatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              setCurrentRow(dom);
+              setCurrentRow(entity);
+              console.log("setCurrentRow view",entity)
               setShowDetail(true);
               setTempData(entity);
               setAddTeacher(false);
@@ -611,7 +640,8 @@ const BatchList: React.FC = () => {
         );
       },
     },
-    {//brb
+    {
+      //brb
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.titleedit"
@@ -626,6 +656,8 @@ const BatchList: React.FC = () => {
             onClick={() => {
               // console.log('entity',entity);
               setCurrentRow(entity);
+              console.log("setCurrentRow edit",entity)
+
               handleCurrentDateAndTime(entity);
               setAddTeacher(true);
               setShowDetail(true);
@@ -665,7 +697,6 @@ const BatchList: React.FC = () => {
   ];
 
   const handleSwitch = (number) => {
-    console.log("skg", number);
     switch (number) {
       case 0:
         return <Button type="success">Upcoming</Button>;
@@ -678,7 +709,7 @@ const BatchList: React.FC = () => {
     }
   };
 
-  const dateFormat = 'YYYY-MM-DD'
+  const dateFormat = "YYYY-MM-DD";
   return (
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
@@ -701,6 +732,7 @@ const BatchList: React.FC = () => {
               setAddTeacher(true);
               setCreateBatch(true);
               setAddTeacherComponent(false);
+              setRenderEdit(true)
             }}
           >
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
@@ -817,6 +849,8 @@ const BatchList: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
           setAddTeacherComponent(false);
+          setRenderEdit(false)
+          setPrePop({})
         }}
         closable={true}
       >
@@ -828,7 +862,7 @@ const BatchList: React.FC = () => {
           <>
             {addTeacher ? (
               <>
-                {createBatch ? (
+                {createBatch  ? (
                   <div style={{ fontWeight: 700, marginBottom: "20px" }}>
                     Create Batch
                   </div>
@@ -837,6 +871,7 @@ const BatchList: React.FC = () => {
                     Edit Batch
                   </div>
                 )}
+                {renderEdit?
                 <Form onFinish={handleFormSubmitEdit}>
                   <Row>
                     <Col span={24}>
@@ -849,7 +884,9 @@ const BatchList: React.FC = () => {
                           placeholder="Class Code"
                           name="classCode"
                           value={formData.classCode}
-                          defaultValue={!createBatch?currentRow?.classCode:''}
+                          defaultValue={
+                            !createBatch?prePop?.batchData.classes.classCode:''
+                          }
                           onChange={handleFormChange}
                         />
                       </Form.Item>
@@ -879,13 +916,10 @@ const BatchList: React.FC = () => {
                         <Select
                           placeholder="Starting Lesson"
                           onChange={(value) => {
-                            handleFormChange({
-                              target: {
-                                name: 'startingLessonId',
-                                value
-                              }
-                            })
+                            setStartLesson(value)
                           }}
+                          defaultValue={
+                                              startLesson}
                           value={formData.startingLessonId}
                         >
                           {
@@ -904,14 +938,10 @@ const BatchList: React.FC = () => {
                         <Select
                           placeholder="Ending Lesson"
                           onChange={(value) => {
-                            handleFormChange({
-                              target: {
-                                name: 'endingLessonId',
-                                value
-                              }
-                            })
+                           setEndLesson(value)
                           }}
-                          value={formData.startingLessonId}
+                          value={endLesson}
+                          defaultValue={endLesson}
                         >
                           {
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
@@ -921,13 +951,17 @@ const BatchList: React.FC = () => {
                     </Col>
                     <Col span={24}>
                       <Form.Item
-                        name="Date"
+                        name="dateRangePicker"
                         rules={[{ required: true, message: "Batch Date" }]}
                       >
+                        {console.log("prePopRender",prePop)}
                         <RangePicker
                           style={{ width: "551px" }}
-                          onChange={handleClassDateRange}
-                          defaultValue={[moment('2015-06-06', dateFormat), moment('2015-06-06', dateFormat)]}
+                          onChange={(value,e)=>{handleClassDateRange(value,e)}}
+                          defaultValue={ prePop?.batchData?[
+                            moment(prePop.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
+                            moment(prePop.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
+                          ]:{}}
                         />
                       </Form.Item>
                     </Col>
@@ -935,17 +969,23 @@ const BatchList: React.FC = () => {
                       <Form.Item
                         name="BatchTime"
                         rules={[{ required: true, message: "Batch Time" }]}
-                      >
+                      > {currentRow?console.log(prePop):''}
                         <TimePicker.RangePicker
                           format={"HH:mm"}
-                          defaultValue={currentRow?[moment(prePop.starttime,'HH:mm:ss'),moment(prePop.endttime,'HH:mm:ss')]:{}}
-                          onChange={handleTimeRange}
+                          defaultValue={
+                              prePop?.starttime?
+                              [ moment(prePop.starttime, "HH:mm"),
+                              moment(prePop.endttime, "HH:mm")]
+                              :
+                              {}
+                              
+                          }
+                          onChange={(value,e)=>handleTimeRange(value,e)}
                           style={{ width: "551px" }}
                         />
                       </Form.Item>
                     </Col>
                     <Col span={16}>
-                      {/* {!createBatch ?fetchUserList(batchDetails.classes.teacherId):''} */}
                       <Form.Item
                         name="teacherId"
                         rules={[
@@ -960,9 +1000,11 @@ const BatchList: React.FC = () => {
                           value={teacherName}
                           placeholder="Select teacher"
                           fetchOptions={fetchUserList}
+                          options = { currentRow?.id ? [{value:currentRow.id,label:'teacher',key:currentRow.id}]:[]}
+                          defaultValue={currentRow?.id?{value:currentRow.id,label:'teacher',key:currentRow.id}:null}
                           onChange={(newValue) => {
                             setTeacherName(newValue);
-                            console.log('test',teacherName)
+                            console.log("teacherDeb", newValue);
                           }}
                           style={{
                             width: "100%",
@@ -989,12 +1031,14 @@ const BatchList: React.FC = () => {
                           { required: true, message: "Select age group" },
                         ]}
                       >
+                        {console.log('ageGroup',prePop)}
                         <Select
                           placeholder="Age Group"
                           onChange={handleSelectedAgeGroup}
                           value={selectedAgeGroup}
+                          defaultValue={!createBatch?prePop?.batchData.classes.ageGroup:''}
                         >
-                          <Option value="preTeen">Pre-Teen</Option>
+                          <Option value="Pre-Teen">Pre-Teen</Option>
                           <Option value="Teen">Teen</Option>
                         </Select>
                       </Form.Item>
@@ -1003,29 +1047,26 @@ const BatchList: React.FC = () => {
                       <Form.Item
                         name="studentList"
                         rules={[{ required: true, message: "Select students" }]}
-                      >
-                        {/* <Select
-                          mode="multiple"
-                          style={{ width: "100%" }}
-                          placeholder="Please select Student(s)"
-                          onChange={handleStudentSelect}
-                          options={options}
-                        /> */}
-                         <DebounceSelect
+                      >  {console.log("lol",studentList)}
+                         {studentList?
+                        <DebounceSelect
                           mode="tags"
                           value={studentList}
                           placeholder="Select students"
                           fetchOptions={fetchStudentList}
+                          options = {currentRow?.id?studentList:[]}
+                          defaultValue={currentRow?.id?studentList:null}
                           onChange={(newValue) => {
+                            console.log("student",studentList)
                             setStudentList([...newValue]);
                           }}
                           style={{
                             width: "100%",
                           }}
-                        />
+                        />:<></>}
                       </Form.Item>
                     </Col>
-                    
+
                     <Col span={24}>
                       <Button
                         // size="large"
@@ -1037,7 +1078,8 @@ const BatchList: React.FC = () => {
                       </Button>
                     </Col>
                   </Row>
-                </Form>
+                </Form>:''
+                }
               </>
             ) : (
               <>

@@ -148,6 +148,7 @@ export async function teacherBatches(
     method: 'GET',
     params: {
       ...params,
+      type: 'teacher'
     },
     ...(options || {}),
   });
@@ -325,7 +326,22 @@ export async function listTeacherAndStudent(
     ...(options || {}),
   });
 }
-// LIST OF EXISTING BATCHES - GET
+// get individual batch - GET
+export async function getIndividualBatch(
+  rowid: string,
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }) {
+  return request<API.RuleList>(`/be/listBatch/${rowid}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
 export async function listBatch(
   params: {
     // query
