@@ -465,7 +465,8 @@ const BatchList: React.FC = () => {
         setTimeRange(  tempObj?.starttime?
           [ moment(tempObj.starttime, "HH:mm"),
           moment(tempObj.endttime, "HH:mm")]:undefined)
-        
+          
+        setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
         console.log("rowval", batchDetails);
 
       })
