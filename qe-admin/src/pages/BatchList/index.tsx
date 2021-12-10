@@ -112,6 +112,9 @@ const BatchList: React.FC = () => {
   const [batchDetails, setBatchDetails] = useState({});
   const [renderEdit,setRenderEdit] = useState(false)
 
+  const [startLesson,setStartLesson] = useState("");
+  const [endLesson,setEndLesson] = useState("")
+
   const options = [];
   const studentMap = {};
   for (let i = 0; i < leadList.length; i++) {
@@ -133,6 +136,7 @@ const BatchList: React.FC = () => {
     }
   }
   function handleStudentSelect(value) {
+    console.log("rr",value)
     setStudentList([...value]);
   }
 
@@ -210,7 +214,7 @@ const BatchList: React.FC = () => {
   const [dateStart, setDateStart] = useState("");
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
   const [formData, setFormData] = useState({
-    classCode: "code",
+    classCode: "",
     batchNumber: "",
     teacherId: "",
     startingLessonId: "",
@@ -370,8 +374,8 @@ const BatchList: React.FC = () => {
       classCode: formData.classCode,
       batchNumber: formData.batchNumber,
       teacherId: teacherName.value,
-      startingLessonId: formData.startingLessonId,
-      endingLessonId: formData.endingLessonId,
+      startingLessonId: startLesson,
+      endingLessonId: endLesson,
       classStartDate: finalStartDate,
       classEndDate: finalEndDate,
       lessonStartTime: finalStartTime,
@@ -395,7 +399,7 @@ const BatchList: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
         setShowDetail(false)
-        setCurrentRow('')
+        setCurrentRow(undefined)
         console.log('details',showDetail)
       }
       console.log(msg);
@@ -405,6 +409,7 @@ const BatchList: React.FC = () => {
   };
 }
   const handleFormChange = (e, value) => {
+    console.log("ff",value,e.target.name,e.target.value)
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
@@ -465,7 +470,17 @@ const BatchList: React.FC = () => {
         setTimeRange(  tempObj?.starttime?
           [ moment(tempObj.starttime, "HH:mm"),
           moment(tempObj.endttime, "HH:mm")]:undefined)
-          
+        setStartLesson(tempObj?.batchData?.classes?.startingLessonId)
+        setEndLesson(tempObj?.batchData?.classes?.endingLessonId)
+        let reformatData = tempObj?tempObj?.batchData?.students.map((elem,index,arr)=>{
+          console.log('elem',elem)
+          elem.value = elem.id
+          elem.label =  "Student"+index.toString()
+          elem.key  =  elem.id
+          console.log('changed', elem.value, elem.label,elem.key)
+        }):[]
+        setStudentList(reformatData)
+        console.log("reformatData",reformatData)
         setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
         console.log("rowval", batchDetails);
 
@@ -908,15 +923,10 @@ const BatchList: React.FC = () => {
                         <Select
                           placeholder="Starting Lesson"
                           onChange={(value) => {
-                            handleFormChange({
-                              target: {
-                                name: 'startingLessonId',
-                                value
-                              }
-                            })
+                            setStartLesson(value)
                           }}
                           defaultValue={
-                            prePop?.classes?.startingLessonId?prePop?.classes?.startingLessonId :""}
+                                              startLesson}
                           value={formData.startingLessonId}
                         >
                           {
@@ -935,14 +945,10 @@ const BatchList: React.FC = () => {
                         <Select
                           placeholder="Ending Lesson"
                           onChange={(value) => {
-                            handleFormChange({
-                              target: {
-                                name: 'endingLessonId',
-                                value
-                              }
-                            })
+                           setEndLesson(value)
                           }}
-                          value={formData.startingLessonId}
+                          value={endLesson}
+                          defaultValue={endLesson}
                         >
                           {
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
@@ -1055,8 +1061,7 @@ const BatchList: React.FC = () => {
                           value={studentList}
                           placeholder="Select students"
                           fetchOptions={fetchStudentList}
-                          // options = { prePop?.batchData?.students?prePop.students:[]}
-                          // defaultValue={prePop?.batchData?.students?prePop.students:[]}
+                          defaultValue={studentList}
                           onChange={(newValue) => {
                             console.log("duh",studentList)
                             setStudentList([...newValue]);
