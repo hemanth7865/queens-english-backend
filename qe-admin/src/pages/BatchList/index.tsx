@@ -136,7 +136,6 @@ const BatchList: React.FC = () => {
     }
   }
   function handleStudentSelect(value) {
-    console.log("rr",value)
     setStudentList([...value]);
   }
 
@@ -480,7 +479,7 @@ const BatchList: React.FC = () => {
           console.log('changed', elem.value, elem.label,elem.key)
           return elem
         }):[]
-        setStudentList(...reformatData)
+        setStudentList([...reformatData])
         console.log("reformatData",...reformatData)
         setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
         console.log("rowval", batchDetails);
@@ -1062,8 +1061,8 @@ const BatchList: React.FC = () => {
                           value={studentList}
                           placeholder="Select students"
                           fetchOptions={fetchStudentList}
-                          // options = {currentRow?.id?studentList:[]}
-                          // defaultValue={currentRow?.id?studentList:null}
+                          options = {currentRow?.id?studentList:[]}
+                          defaultValue={currentRow?.id?studentList:null}
                           onChange={(newValue) => {
                             console.log("student",studentList)
                             setStudentList([...newValue]);
