@@ -38,7 +38,6 @@ const DebounceSelect = ({ fetchOptions, debounceTimeout = 800, ...props }:any) =
       onSearch={debounceFetcher}
       notFoundContent={fetching ? <Spin size="small" /> : null}
       {...props}
-      defaultValue="lucy"
       options={options}
     />
   )
