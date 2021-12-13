@@ -233,6 +233,9 @@ export class TeacherService {
         var end_slot = parameters.end_slot;
 
         var week_day = parameters.weekday;
+        if (!week_day) {
+            week_day = `1,2,3,4,5,6,7`;
+        }
         let start_min;
         let end_min;
         let startMin;
@@ -254,29 +257,29 @@ export class TeacherService {
             
           }
 
-          var unique=[0];
+          var unique=[-1];
           console.log(`query string ${query_list}`);
 
           if (start_slot && end_slot) {
               filter = true;
-            var quer =  `select id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
+            var quer =  `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
             console.log('quer', quer);
             let totalResult = await getManager().query(quer);
             console.log('totalResult',totalResult);
-            let slotsResultIds:any = [0]
+            let slotsResultIds:any = [-1]
 
             for (var element of totalResult) {
-                slotsResultIds.push(element.id);
+                slotsResultIds.push("'"+element.id+"'");
             }
 
             unique = Array.from(new Set(slotsResultIds)) 
             console.log('Query string is ', query_string);     
             if (unique) {
-                query_string = query_string +` and u.id in (${unique}) `;
+                query_string = query_string +` and u.id in ('${unique}') `;
                 query_list.push(` u.id in (${unique}) `);
             } else {
-                query_string = query_string +` and u.id in (0) `;
-                query_list.push(`  u.id in (0) `);
+                query_string = query_string +` and u.id in (-1) `;
+                query_list.push(`  u.id in (-1) `);
             } 
         
     
