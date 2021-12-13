@@ -8,6 +8,7 @@ import { BatchStudent } from "./BatchStudent";
 
 @Entity("classes")
 export class Classes extends BaseEntity {
+    name: string;
     Classes() {}
     
        // id: string;

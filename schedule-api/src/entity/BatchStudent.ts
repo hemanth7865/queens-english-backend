@@ -7,6 +7,7 @@ import { Classes } from "./Classes";
 
 @Entity("batch_students")
 export class BatchStudent extends BaseEntity {
+    name: string;
     BatchStudents() {}
     
     @PrimaryGeneratedColumn("uuid")

@@ -181,8 +181,8 @@ export class TeacherService {
         }
         const mobile = parameters.phoneNumber;
         if (mobile) {
-            query_string = query_string + ` and u.phoneNumber =${mobile} ` ;
-            query_list.push(` u.phoneNumber =${mobile} `);
+            query_string = query_string + ` and u.phoneNumber  like '%${mobile}%' ` ;
+            query_list.push(` u.phoneNumber  like '%${mobile}%' `);
             console.log('query phonen umber ', mobile);
         }
 

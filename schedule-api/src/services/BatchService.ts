@@ -60,8 +60,14 @@ export class BatchService {
 
               console.log("classes",classes);
 
-              classes = await this.classesRepository.save(classes);         
-                
+              classes = await this.classesRepository.save(classes);
+              if (data.teacherId) {    
+                var quer = `select id, firstName, lastName from user where (id like '%${data.teacherId}%')`;
+                var details = await getManager().query(quer);
+                if (details.length > 0 && details[0].firstName && details[0].lastName)
+                classes.name = details[0].firstName+ ' ' + details[0].lastName;
+              }
+            
 
           if (data.batchAvailability) {
             console.log("batchAvailability classes");
@@ -105,11 +111,20 @@ export class BatchService {
               console.log("Batch student");
                 var batchStud = new BatchStudent();
                 batchStud.type = element.type;
-                batchStud.studentId = element.id;
+                batchStud.studentId = element.studentId;
                 batchStud.batchId = classes.id;
                 batchStud.created_at = new Date();
                 batchStud.updated_at = new Date();
                 batchStud = await this.batchStudentRepository.save(batchStud); 
+                if (element.studentId) {    
+                  var quer = `select id, firstName, lastName from user where (id like '%${element.studentId}%')`;
+                  console.log("Student id ", quer);
+                  var details = await getManager().query(quer);
+                  if (details.length > 0 && details[0].firstName && details[0].lastName)
+                  batchStud.name = details[0].firstName+ ' ' + details[0].lastName;
+                  console.log('classes name', classes.name);
+              
+                }
                 batchStudent[i++]=batchStud;
                 };
             }
@@ -146,15 +161,14 @@ async listBatch(request: Request, parameters) {
      console.log(parameters);
     const batchId = parameters.batchId;
      if (batchId) {
-         query_string = query_string + ` batchNumber =  '${batchId}' ` ;
-         query_list.push(` batchNumber =  '${batchId}' ` );
+         query_string = query_string + ` batchNumber like  '%${batchId}%' ` ;
+         query_list.push(` batchNumber like  '%${batchId}%' ` );
      }
 
      const createdBy = parameters.createdBy;
      if (createdBy) {
          query_string = query_string + ` createdBy =${createdBy} ` ;
          query_list.push(` createdBy like '%${createdBy}%' ` );
-         console.log('query phonen umber ', createdBy);
      }
 
      var start_slot = parameters.start_slot;
@@ -212,12 +226,11 @@ async listBatch(request: Request, parameters) {
          console.log(query_list.join(' and '));   
          if ( index !=query_list.length-1) {
               query_string = query_string + query_list[index] + ' and '; 
-              console.log('query12345', query_string);
          } else {
           query_string = query_string + query_list[index];
          }
       });
-      console.log("value sis ", query_string);
+      console.log("value is ", query_string);
 
   var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${current}, ${pageSize};`;
   console.log("Query ", quer);

@@ -6,27 +6,33 @@ import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
 import { TeacherService } from "../services/TeacherService";
+import { Lesson } from "../entity/Lessons";
 
 export class UserController {
 
     private usersRepository = getRepository(User);
     private teacherAvailabilityRepository = getRepository(TeacherAvailability);
     private teacherRepository = getRepository(Teacher);
+    private lessonRepository = getRepository(Lesson);
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
     }
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
-        console.log('contorller');
+        console.log('Start::UserController::SaveLead');
         var teacherService = new TeacherService();
         var user;
+        request.setTimeout(() => {
+            return {"success":false,"data": "TimeOut", "total":0};
+        }, 120000);
         try{
             user = await teacherService.saveTeacher(request.body);
         }catch(error)
         {
-        console.log()
+            console.log('Exception::UserController::SaveLead');
         }
+        console.log('Start::UserController::SaveLead');
         return {"success":true,"data": [user], "total":1};
     }
 
@@ -35,6 +41,9 @@ export class UserController {
         console.log('contorller');
         var teacherService = new TeacherService();
         var user;
+        request.setTimeout(() => {
+            return {"success":false,"data": "TimeOut", "total":0};
+        }, 120000);
         try{
             user = await teacherService.saveTeacher(request.body);
         }catch(error)
@@ -81,13 +90,20 @@ export class UserController {
         return resp;
     }
 
-    
+    async lessons(request: Request, response: Response, next: NextFunction) {
+        var slots = await this.lessonRepository.find();
+        return {"success":true,"data": [slots], "total":1};
+    }
    
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
       
         let resp;
         let teacherService = new TeacherService();
         const teacherId = request.params.id;
+
+        request.setTimeout(() => {
+            return {"success":false,"data": "TimeOut", "total":0};
+        }, 120000);
   
        try{
            resp = await teacherService.leadFullDetails(request.body, teacherId);
@@ -106,6 +122,10 @@ export class UserController {
         let start_slot =  request.query['start_slot'];
         let end_slot  =  request.query['end_slot'];
         let week_day  =  request.query['week_slot'];
+
+        request.setTimeout(() => {
+            return {"success":false,"data": "TimeOut", "total":0};
+        }, 120000);
 
         let slots:TeacherAvailability[] = [];
         slots =await this.teacherAvailabilityRepository.createQueryBuilder("TeacherAvailability")
