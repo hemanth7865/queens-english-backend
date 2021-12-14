@@ -23,9 +23,6 @@ export class UserController {
         console.log('Start::UserController::SaveLead');
         var teacherService = new TeacherService();
         var user;
-        request.setTimeout(() => {
-            return {"success":false,"data": "TimeOut", "total":0};
-        }, 120000);
         try{
             user = await teacherService.saveTeacher(request.body);
         }catch(error)
@@ -41,9 +38,7 @@ export class UserController {
         console.log('contorller');
         var teacherService = new TeacherService();
         var user;
-        request.setTimeout(() => {
-            return {"success":false,"data": "TimeOut", "total":0};
-        }, 120000);
+       
         try{
             user = await teacherService.saveTeacher(request.body);
         }catch(error)
