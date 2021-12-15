@@ -233,6 +233,9 @@ async listBatch(request: Request, parameters) {
       console.log("value is ", query_string);
 
   var quer =  `select id, teacherId,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${offset}, ${pageSize};`;
+      console.log("value sis ", query_string);
+      current--;
+  var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${current}, ${pageSize};`;
   console.log("Query ", quer);
   var results = await getManager().query(quer);
   let  studentCount=[]
