@@ -19,6 +19,7 @@ export class BatchController {
     private usersRepository = getRepository(User);
     private batchAvailabilityRepository = getRepository(BatchAvailability);
     private batchStudentRepository = getRepository(BatchStudent);
+    private classesRepository = getRepository(Classes);
     private batchService = new BatchService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
@@ -123,5 +124,15 @@ export class BatchController {
      console.log('end of method');
     return {"success":true,"message": "Job execution initiated !!!!"};
     }
+
+
+    async remove(request: Request, response: Response, next: NextFunction) {
+        console.log("Delete batch");
+        console.log('request.params.id' + request.params.id);
+        let classesToRemove = await this.classesRepository.findOne(request.params.id);
+        classesToRemove.status = 4;
+        return this.classesRepository.save(classesToRemove); 
+    }
+ 
 
 }

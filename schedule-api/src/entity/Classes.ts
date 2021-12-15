@@ -75,6 +75,9 @@ export class Classes extends BaseEntity {
     @Column({'nullable':true, type:"text"})
         type: string
 
+    @Column({'nullable':true})
+        status: number;
+
     //@CreateDateColumn()
     @Column({'nullable':true})
         created_at:Date

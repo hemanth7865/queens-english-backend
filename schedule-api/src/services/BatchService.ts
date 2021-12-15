@@ -232,7 +232,7 @@ async listBatch(request: Request, parameters) {
       });
       console.log("value is ", query_string);
 
-  var quer =  `select id,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${current}, ${pageSize};`;
+  var quer =  `select id, teacherId,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${offset}, ${pageSize};`;
   console.log("Query ", quer);
   var results = await getManager().query(quer);
   let  studentCount=[]
@@ -245,7 +245,7 @@ async listBatch(request: Request, parameters) {
   var classes = await getManager().createQueryBuilder(Classes, "classes")
   .where("classes.id = :id", { id: element.id }).getOne();
   var user = await getManager().createQueryBuilder(User, "user")
-  .where("user.id = :id", { id: element.id }).getOne();
+  .where("user.id = :id", { id: element.teacherId }).getOne();
   if (user && user.firstName && user.lastName){
       name = user.firstName + ' ' + user.lastName;
   }
@@ -253,17 +253,29 @@ async listBatch(request: Request, parameters) {
   let endTime;
   let startMin;
   let endMin;
+  let status;
   if (classes.lessonStartTime){
        startTime = new Date(classes.lessonStartTime).getHours();
        startMin = new Date(classes.lessonStartTime).getMinutes();
+       if (startMin == 0) {
+        startMin = "00";
+    }    
   }
   
   if (classes.lessonEndTime){
       endTime = new Date(classes.lessonEndTime).getHours();
       endMin = new Date(classes.lessonStartTime).getMinutes();
+      if (endMin == 0) {
+        endMin = "00";
+    } 
   }
+  if (classes.status == 4){
+   status = 'In Active'
+} else {
+  status = 'Active';
+}
 
-      let view = new BatchView(element.id, new Date(),classes.batchNumber, 'Admin', name, studentCount.length, `${startTime}:${startMin}-${endTime}:${endMin}`,"Active");
+      let view = new BatchView(element.id, new Date(),classes.batchNumber, 'Admin', name, studentCount.length, `${startTime}:${startMin}-${endTime}:${endMin}`,status);
       batchView.push(view);
   }
   return {"success":true,"data": batchView, "total":batchView.length, "current":current,"pageSize":pageSize};

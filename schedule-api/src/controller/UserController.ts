@@ -96,9 +96,7 @@ export class UserController {
         let teacherService = new TeacherService();
         const teacherId = request.params.id;
 
-        request.setTimeout(() => {
-            return {"success":false,"data": "TimeOut", "total":0};
-        }, 120000);
+      
   
        try{
            resp = await teacherService.leadFullDetails(request.body, teacherId);

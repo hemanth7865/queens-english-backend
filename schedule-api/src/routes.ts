@@ -62,6 +62,12 @@ export const Routes = [
     action: "remove"
 },
 {
+    method: "delete",
+    route: "/batch/:id",
+    controller: BatchController,
+    action: "remove"
+},
+{
     method: "post",
     route: "/createBatch",
     controller: BatchController,
