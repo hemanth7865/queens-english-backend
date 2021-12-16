@@ -143,7 +143,7 @@ export async function teacherBatches(
   options?: { [key: string]: any },
 )
  {
-   console.log('option', options)
+   console.log('option', params)
   return request<API.RuleList>('/be/leadsview', {
     method: 'GET',
     params: {
