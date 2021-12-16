@@ -5,6 +5,8 @@ import {
   EyeOutlined,
   ClockCircleOutlined,
   UploadOutlined,
+  
+  EditOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -22,8 +24,9 @@ import {
   Tooltip,
   Upload,
   RangePicker,
-  notification
-  // Descriptions,
+  notification,
+  Alert,
+  Space
 } from "antd";
 import React, { useState, useRef } from "react";
 import { useIntl, FormattedMessage } from "umi";
@@ -118,6 +121,18 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
     return false;
   }
 };
+
+const openNotificationWithIcon = type => {
+  notification[type]({
+    message: type == 'error'?'Failed to add teacher': 'Success! Teacher Added',
+    description:
+      '',
+  });
+  setTimeout(() => {
+    window.location.reload()
+  }, 1000);
+};
+
 
 const TeacherBatchList: React.FC = () => {
   /**
@@ -245,6 +260,17 @@ const TeacherBatchList: React.FC = () => {
       ),
       dataIndex: "date",
       valueType: "date",
+      hideInSearch:true,
+      
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titlemobileno"
+          defaultMessage="Mobile"
+        />
+      ),
+      dataIndex: "phoneNumber",
     },
     //teacher name
     {
@@ -257,15 +283,7 @@ const TeacherBatchList: React.FC = () => {
       dataIndex: "name",
     },
     //mobile number
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titlemobileno"
-          defaultMessage="Mobile"
-        />
-      ),
-      dataIndex: "phoneNumber",
-    },
+
     //experience
     {
       title: (
@@ -385,7 +403,7 @@ const TeacherBatchList: React.FC = () => {
       },
     },
     //weekday
-    {
+{
       title: (
         <FormattedMessage
           id="pages.searchTable.titleWeekday"
@@ -394,74 +412,24 @@ const TeacherBatchList: React.FC = () => {
       ),
       dataIndex: "weekday",
       hideInTable: true,
-      valueEnum: {
-        1: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.monday"
-              defaultMessage="Monday"
-            />
-          ),
-          weekday: "monday",
-        },
-
-        2: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.tuesday"
-              defaultMessage="Tuesday"
-            />
-          ),
-          weekday: "tuesday",
-        },
-        3: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.wednesday"
-              defaultMessage="Wednesday"
-            />
-          ),
-          weekday: "wednesday",
-        },
-        4: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.thursday"
-              defaultMessage="Thursday"
-            />
-          ),
-          weekday: "thursday",
-        },
-        5: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.friday"
-              defaultMessage="Friday"
-            />
-          ),
-          weekday: "friday",
-        },
-        6: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.saturday"
-              defaultMessage="Saturday"
-            />
-          ),
-          weekday: "saturday",
-        },
-        7: {
-          text: (
-            <FormattedMessage
-              id="pages.searchTable.nameweekday.sunday"
-              defaultMessage="Sunday"
-            />
-          ),
-          weekday: "sunday",
-        },
+      renderFormItem: (value) => {
+        return <Select mode="tags">
+          <Option value = "1">Monday</Option>
+          <Option value = "2">Tuesday</Option>
+          <Option value = "3">Wednesday</Option>
+          <Option value = "4">Thursday</Option>
+          <Option value = "5">Friday</Option>
+          <Option value = "6">Saturday</Option>
+          <Option value = "7">Sunday</Option>
+          </Select>
       },
-    },
-
+      search: {
+        transform: (value)=>{
+          console.log('value', value)
+          return {weekday: value}
+        }
+      }
+},
     {
       title: (
         <FormattedMessage
@@ -479,10 +447,57 @@ const TeacherBatchList: React.FC = () => {
               handleOneView(entity.leadId);
               setCurrentRow(entity);
               setShowDetail(true);
-              // console.log(tempDataView)
             }}
           >
             <EyeOutlined />
+          </a>
+        );
+      },
+    },
+    
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.updateForm.titleedit"
+          defaultMessage="edit"
+        />
+      ),
+      dataIndex: "edit",
+      hideInSearch: true,
+      render: (dom, entity) => {
+        return (
+          <a
+            onClick={() => {
+              console.log('entity',entity);
+              setShowDetail(true);
+              handleOneView(entity.leadId);
+              setCurrentRow(entity);
+              showDrawerEdit();
+            }}
+          >
+            <EditOutlined />
+          </a>
+        );
+      },
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.updateForm.titledelete"
+          defaultMessage="delete"
+        />
+      ),
+      dataIndex: "delete",
+      tip: "The rule name is the unique key",
+      hideInSearch: true,
+      render: (dom, entity) => {
+        return (
+          <a
+            onClick={() => {
+
+            }}
+          >
+            <DeleteOutlined />
           </a>
         );
       },
@@ -547,6 +562,10 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
+      if(msg){
+        window.location.reload();
+        openNotificationWithIcon('success')
+      }
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
@@ -557,6 +576,7 @@ const TeacherBatchList: React.FC = () => {
         id: "pages.login.failure",
         defaultMessage: "登录失败，请重试！",
       });
+      openNotificationWithIcon('error')
       message.error(defaultLoginFailureMessage);
     }
     setVisible(false);
@@ -635,6 +655,10 @@ const TeacherBatchList: React.FC = () => {
       });
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
+        openNotificationWithIcon('success')
+      }
+      if(msg){
+        openNotificationWithIcon('success')
       }
       console.log(msg);
       // 如果失败去设置用户错误信息
@@ -646,6 +670,9 @@ const TeacherBatchList: React.FC = () => {
         defaultMessage: "登录失败，请重试！",
       });
       message.error(defaultLoginFailureMessage);
+      if(msg){
+        openNotificationWithIcon('error')
+      }
     }
     console.log("formData", formData);
     console.log("dataForm", dataForm);
@@ -702,6 +729,7 @@ const TeacherBatchList: React.FC = () => {
     const format = "HH:mm";
     return (
       <Row style = {{margin: 5}}>
+        
         <Col span={7}>
           {dataLead ? (
             <Checkbox name="weekday" checked="true" onChange={(e) => setValue1(props.weekday)}>
@@ -846,6 +874,7 @@ const TeacherBatchList: React.FC = () => {
             width={820}
           >
             <Form onFinish={handleFormSubmit}>
+              
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
@@ -1094,8 +1123,8 @@ const TeacherBatchList: React.FC = () => {
                         setSelectTeacher(value);
                       }}
                     >
-                      <Option value="Native">Native</Option>
-                      <Option value="Non Native">Non Native</Option>
+                      <Option value="teacher">teacher</Option>
+                      <Option value="student">student</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -1113,7 +1142,7 @@ const TeacherBatchList: React.FC = () => {
 
                 {/* upload resume and upload video profile */}
 
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="uploadResume">
                   <input
                       type="file"
@@ -1138,11 +1167,11 @@ const TeacherBatchList: React.FC = () => {
                     />
                     <label for="videoProfile">Upload Video Profile</label>
                   </Form.Item>
-                </Col>
+                </Col> */}
 
                 {/* upload certificate and upload photo */}
 
-                <Col span={12}>
+                {/* <Col span={12}>
                   <input
                     type="file"
                     id="certificate"
@@ -1152,7 +1181,6 @@ const TeacherBatchList: React.FC = () => {
                     onChange={handleFormChange}
                   />
                   <label for="certificate">Upload Certificate</label>
-                  {/* </Form.Item> */}
                 </Col>
                 <Col span={12}>
                   <Form.Item name="uploadPhoto">
@@ -1166,7 +1194,7 @@ const TeacherBatchList: React.FC = () => {
                     />
                     <label for="photo">Upload Photo</label>
                   </Form.Item>
-                </Col>
+                </Col> */}
 
                 {/* status */}
 
@@ -1201,7 +1229,7 @@ const TeacherBatchList: React.FC = () => {
                     <WeekdayAvailability weekday={1} week="Monday" />
                     <WeekdayAvailability weekday={2} week="Tuesday" />
                     <WeekdayAvailability weekday={3} week="Wednesday" />
-                    <WeekdayAvailability weekday={4} week="Thursady" />
+                    <WeekdayAvailability weekday={4} week="Thursday" />
                     <WeekdayAvailability weekday={5} week="Friday" />
                   </Form.Item>
                 </Col>
@@ -1645,68 +1673,14 @@ const TeacherBatchList: React.FC = () => {
                       defaultValue={tempDataView.languages}
                       name="languagesKnown"
                       onChange={handleFormChange}
+                      placeholder ={"Languages Known"}
                     />
                   </Form.Item>
                 </Col>
 
                 {/* upload resume and upload video profile */}
 
-                <Col span={12}>
-                  <Form.Item name="uploadResume">
-                    <input
-                      type="file"
-                      id="file"
-                      class="inputfile"
-                      value={formData.resume}
-                      name="resume"
-                      onChange={handleFormChange}
-                    />
-                    <label for="file">Upload Resume</label>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="videoProfile">
-                    <input
-                      type="file"
-                      id="videoProfile"
-                      class="inputfile"
-                      value={formData.videoProfile}
-                      name="videoProfile"
-                      onChange={handleFormChange}
-                    />
-                    <label for="videoProfile">Upload Video Profile</label>
-                  </Form.Item>
-                </Col>
-
-                {/* upload certificate and upload photo */}
-
-                <Col span={12}>
-                  {/* <Form.Item name="uploadCertificate"> */}
-                  <input
-                    type="file"
-                    id="certificate"
-                    class="inputfile"
-                    value={formData.certificate}
-                    name="certificate"
-                    onChange={handleFormChange}
-                  />
-                  <label for="certificate">Upload Certificate</label>
-                  {/* </Form.Item> */}
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="uploadPhoto">
-                    <input
-                      type="file"
-                      id="photo"
-                      class="inputfile"
-                      value={formData.photo}
-                      name="photo"
-                      onChange={handleFormChange}
-                    />
-                    <label for="photo">Upload Photo</label>
-                  </Form.Item>
-                </Col>
-
+                
                 {/* status */}
 
                 <Col span={12}>
@@ -1752,7 +1726,7 @@ const TeacherBatchList: React.FC = () => {
                     />
                     <WeekdayAvailability
                       weekday={4}
-                      week="Thursady"
+                      week="Thursday"
                       tempData={thursday}
                     />
                     <WeekdayAvailability
