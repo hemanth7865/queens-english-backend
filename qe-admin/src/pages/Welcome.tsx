@@ -15,11 +15,12 @@ const CodePreview: React.FC = ({ children }) => (
 export default (): React.ReactNode => {
   const intl = useIntl();
   const { initialState } = useModel('@@initialState');
+  // ${initialState?.currentUser?.name},
   return (
     <PageContainer>
       <Card>
       <Typography.Text strong>
-          <FormattedMessage id="pages.welcome.greetings" defaultMessage={`Hello ${initialState?.currentUser?.name},`} />
+          <FormattedMessage id="pages.welcome.greetings" defaultMessage={`Hello`} />
         </Typography.Text>
         <br />
        <Typography.Text>
