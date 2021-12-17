@@ -21,7 +21,7 @@ export const Routes = [
     route: "/lessons",
     controller: UserController,
     action: "lessons",
-    authenticate:true
+    // authenticate:true
   },
   {
     method: "get",
