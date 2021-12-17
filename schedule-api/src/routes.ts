@@ -21,6 +21,7 @@ export const Routes = [
     route: "/lessons",
     controller: UserController,
     action: "lessons",
+    authenticate:true
   },
   {
     method: "get",
@@ -124,35 +125,41 @@ export const Routes = [
     route: "/session/:id",
     controller: SessionController,
     action: "getSessionDetail",
+    authenticate:true
   },
   {
     method: "get",
     route: "/session/batch/:id",
     controller: SessionController,
     action: "getBatchSessions",
+    authenticate:true
   },
   {
     method: "get",
     route: "/session/batch/:id/:lessonId",
     controller: SessionController,
     action: "getBatchLessonSession",
+    authenticate:true
   },
   {
     method: "get",
     route: "/session",
     controller: SessionController,
     action: "getSessions",
+    authenticate:true
   },
   {
     method: "post",
     route: "/session",
     controller: SessionController,
     action: "createSession",
+    authenticate:true
   },
   {
     method: "put",
     route: "/session/:id",
     controller: SessionController,
     action: "updateSession",
+    authenticate:true
   },
 ];
