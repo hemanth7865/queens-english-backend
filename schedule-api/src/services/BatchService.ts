@@ -297,10 +297,10 @@ async getBatchDetails(id:any) {
       const batchavail = await getManager().createQueryBuilder(BatchAvailability, "batchAvailability")
       .where("batchAvailability.id = :id", { id: batchId }).getOne();
       const students = await getManager().createQueryBuilder(BatchStudent, "batchStudent")
-      .where("batchStudent.batchId = :id", { id: batchId }).getOne();
+      .where("batchStudent.batchId = :id", { id: batchId }).getMany();
       teacherView.classes = classes;
       teacherView.batchAvailability = [batchavail];
-      teacherView.students = [students];
+      teacherView.students = students;
       return {"success":true,"data": teacherView, "total":1, "current":1, pageSize:1};   
 }
 
