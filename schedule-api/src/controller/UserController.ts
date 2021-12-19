@@ -1,6 +1,6 @@
-import {getRepository} from "typeorm";
-import {NextFunction, Request, Response} from "express";
-import {User} from "../entity/User";
+import { getRepository } from "typeorm";
+import { NextFunction, Request, Response } from "express";
+import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
@@ -23,14 +23,13 @@ export class UserController {
         console.log('Start::UserController::SaveLead');
         var teacherService = new TeacherService();
         var user;
-        try{
+        try {
             user = await teacherService.saveTeacher(request.body);
-        }catch(error)
-        {
+        } catch (error) {
             console.log('Exception::UserController::SaveLead');
         }
-        console.log('Start::UserController::SaveLead');
-        return {"success":true,"data": [user], "total":1};
+        console.log('End::UserController::SaveLead');
+        return { "success": true, "data": [user], "total": 1 };
     }
 
 
@@ -38,94 +37,88 @@ export class UserController {
         console.log('contorller');
         var teacherService = new TeacherService();
         var user;
-       
-        try{
+
+        try {
             user = await teacherService.saveTeacher(request.body);
-        }catch(error)
-        {
-        console.log()
+        } catch (error) {
+            console.log()
         }
-        return {"success":true,"data": [user], "total":1};
+        return { "success": true, "data": [user], "total": 1 };
     }
 
 
-     
-    
+
+
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
         console.log("list lead details");
 
-       var parameters = {
-         current:  parseInt(request.query['current']),
-         pageSize  : parseInt(request.query['pageSize']),
-         date : request.query['date'],
-         name : request.query['name'],
-         phoneNumber :  request.query['phoneNumber'],
-         totalexp  :  request.query['totalexp'],
-         classesTaken : request.query['classesTaken'],
-         ratings : request.query['ratings'],
-         start_slot : request.query['start_slot'],
-         end_slot : request.query['end_slot'],
-         weekday  : request.query['weekday'],
-         status  : request.query['status'],
-         type  : request.query['type'],
-         keyword: request.query['keyword']
-        }       
+        var parameters = {
+            current: parseInt(request.query['current']),
+            pageSize: parseInt(request.query['pageSize']),
+            date: request.query['date'],
+            name: request.query['name'],
+            phoneNumber: request.query['phoneNumber'],
+            totalexp: request.query['totalexp'],
+            classesTaken: request.query['classesTaken'],
+            ratings: request.query['ratings'],
+            start_slot: request.query['start_slot'],
+            end_slot: request.query['end_slot'],
+            weekday: request.query['weekday'],
+            status: request.query['status'],
+            type: request.query['type'],
+            keyword: request.query['keyword']
+        }
 
-       var teacherService = new TeacherService();
-       var user;
-       let resp;
-  
-       try{
-           resp = await teacherService.listLeadDetails(request.body, parameters);
-       }catch(error)
-       {
-        console.log(error);
-       }
-       
+        var teacherService = new TeacherService();
+        var user;
+        let resp;
+
+        try {
+            resp = await teacherService.listLeadDetails(request.body, parameters);
+        } catch (error) {
+            console.log(error);
+        }
+
         return resp;
     }
 
     async lessons(request: Request, response: Response, next: NextFunction) {
         var slots = await this.lessonRepository.find();
-        return {"success":true,"data": [slots], "total":1};
+        return { "success": true, "data": [slots], "total": 1 };
     }
-   
+
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
-      
+
         let resp;
         let teacherService = new TeacherService();
         const teacherId = request.params.id;
-
-      
-  
-       try{
-           resp = await teacherService.leadFullDetails(request.body, teacherId);
-           console.log(resp);
-       }catch(error)
-       {
-       console.log(error);
-       }
-       console.log(resp);
+        try {
+            resp = await teacherService.leadFullDetails(request.body, teacherId);
+            console.log(resp);
+        } catch (error) {
+            console.log(error);
+        }
+        console.log(resp);
         return resp;
     }
 
     async leadAvialability(request: Request, response: Response, next: NextFunction) {
         console.log("Request Parameter" + request.query);
-        let availabilitydate =  request.query['date'];;
-        let start_slot =  request.query['start_slot'];
-        let end_slot  =  request.query['end_slot'];
-        let week_day  =  request.query['week_slot'];
+        let availabilitydate = request.query['date'];;
+        let start_slot = request.query['start_slot'];
+        let end_slot = request.query['end_slot'];
+        let week_day = request.query['week_slot'];
 
         request.setTimeout(() => {
-            return {"success":false,"data": "TimeOut", "total":0};
+            return { "success": false, "data": "TimeOut", "total": 0 };
         }, 120000);
 
-        let slots:TeacherAvailability[] = [];
-        slots =await this.teacherAvailabilityRepository.createQueryBuilder("TeacherAvailability")
-        .where('leadavailability.date >= :date ', {date:availabilitydate}).andWhere('leadavailability.week_date in (:days) ', {days:week_day})
-        .andWhere('start_slot.date >= :start_slot',{start_slot:start_slot}).andWhere('end_slot.date <= :end_slot',{end_slot:end_slot}).getMany();
+        let slots: TeacherAvailability[] = [];
+        slots = await this.teacherAvailabilityRepository.createQueryBuilder("TeacherAvailability")
+            .where('leadavailability.date >= :date ', { date: availabilitydate }).andWhere('leadavailability.week_date in (:days) ', { days: week_day })
+            .andWhere('start_slot.date >= :start_slot', { start_slot: start_slot }).andWhere('end_slot.date <= :end_slot', { end_slot: end_slot }).getMany();
 
-       return slots;
+        return slots;
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {
@@ -133,8 +126,8 @@ export class UserController {
         console.log('request.params.id' + request.params.id);
         let userToRemove = await this.usersRepository.findOne(request.params.id);
         userToRemove.status = 4;
-        return this.usersRepository.save(userToRemove);       
+        return this.usersRepository.save(userToRemove);
     }
- 
+
 
 }
