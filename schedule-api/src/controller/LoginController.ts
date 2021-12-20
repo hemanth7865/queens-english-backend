@@ -35,7 +35,7 @@ export class LoginController {
 
         response.cookie("qe-admin-token", sessionToken, options);
 
-        return response
+        response
           .status(200)
           .send({
             status: "ok",
@@ -45,7 +45,7 @@ export class LoginController {
           })
           .end();
       } else {
-        return response
+        response
           .status(401)
           .send({
             status: "failed",
@@ -55,7 +55,7 @@ export class LoginController {
       }
     } catch (e) {
       console.log("error", e);
-      return response
+      response
         .status(500)
         .send({
           status: "failed",
@@ -73,7 +73,7 @@ export class LoginController {
     };
 
     response.cookie("qe-admin-token", "", options);
-    return response.status(200).send({ status: "ok" }).end();
+    response.status(200).send({ status: "ok" }).end();
   }
 
   async currentUser(request: Request, response: Response, next: NextFunction) {
@@ -83,7 +83,7 @@ export class LoginController {
     const token = cookies["qe-admin-token"];
     if (!token) {
       // return 401
-      return response
+      response
         .status(401)
         .send({
           message: "Invalid user session. Please login.",
@@ -101,7 +101,7 @@ export class LoginController {
     });
     if (!foundUser) {
       // return 401
-      return response
+      response
         .status(401)
         .send({
           message: "Invalid user session. Please login.",
@@ -109,7 +109,7 @@ export class LoginController {
         .end();
     }
 
-    return response
+    response
       .status(200)
       .send({
         success: true,

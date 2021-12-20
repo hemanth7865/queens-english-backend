@@ -35,12 +35,11 @@ createConnection()
           );
           if (result instanceof Promise) {
             result.then((result) => {
-              result !== null && result !== undefined
-                ? res.send.bind(result)
-                : undefined;
+              if (result !== null && result !== undefined) {
+                console.log("response" + JSON.stringify(result));
+                res.send(result);
+              }
             });
-          } else if (result !== null && result !== undefined) {
-            res.json(result);
           }
         }
       );
@@ -65,7 +64,7 @@ function authenticateToken(req, res, next) {
 
   if (token == null) return res.sendStatus(401);
   jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err: any, username: any) => {
-    console.log(err);
+    // console.log(err);
     if (err) return res.sendStatus(403);
     req.user = username;
     next();

@@ -49,7 +49,7 @@ export class SessionController {
         return { success: false, message: "Session doesn't exist" };
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error in getting the sessions:" + error);
       return { success: false, message: "Unknown Error fetching session details" };
     }
     return { success: true, session: session };
