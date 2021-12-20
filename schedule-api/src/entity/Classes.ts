@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany } from "typeorm";
 import { BatchAvailability } from "./BatchAvailability";
 import { BatchStudent } from "./BatchStudent";
+import { User } from "./User";
 
 @Entity("classes")
 export class Classes extends BaseEntity {
@@ -88,4 +89,7 @@ export class Classes extends BaseEntity {
     @OneToMany(() => BatchStudent, batchStudent => batchStudent.classes)
     students: BatchStudent[];
 
+    @OneToOne(() => User)
+    @JoinColumn({name : "teacherId"})
+    teacher: User;
 }

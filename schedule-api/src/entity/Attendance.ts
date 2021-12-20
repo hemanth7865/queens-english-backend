@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { Session } from "./Session";
+import { User } from "./User";
 
 @Entity("attendance")
 export class Attendance extends BaseEntity {
@@ -38,4 +39,8 @@ export class Attendance extends BaseEntity {
 
   @ManyToOne(() => Session, session => session.attendances)
   session: Session;
+
+  @OneToOne(() => User)
+  @JoinColumn({name : "studentId"})
+  student: User;
 }

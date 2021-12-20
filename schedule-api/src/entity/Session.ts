@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Classes } from "./Classes";
 import { Attendance } from "./Attendance";
+import { User } from "./User";
 
 @Entity("session")
 export class Session extends BaseEntity {
@@ -54,4 +55,8 @@ export class Session extends BaseEntity {
   @OneToMany(() => Attendance, attendance => attendance.session)
   @JoinColumn({ name: "sessionId" })
   attendances: Attendance[];
+
+  @OneToOne(() => User)
+  @JoinColumn({name : "teacherId"})
+  teacher: User;
 }

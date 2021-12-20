@@ -304,6 +304,8 @@ export class BatchService {
     let i = 0;
     classes = await getManager()
       .createQueryBuilder(Classes, "classes")
+      .leftJoin("classes.teacher", "teacher")
+      .addSelect(['teacher.firstName','teacher.lastName'])
       .where("classes.id = :id", { id: batchId })
       .getOne();
     console.log("classes", classes);
@@ -311,8 +313,10 @@ export class BatchService {
       .createQueryBuilder(BatchAvailability, "batchAvailability")
       .where("batchAvailability.id = :id", { id: batchId })
       .getOne();
-    const students = await getManager()
-      .createQueryBuilder(BatchStudent, "batchStudent")
+    const students = await getRepository(BatchStudent)
+      .createQueryBuilder("batchStudent")
+      .leftJoin("batchStudent.student", "student")
+      .addSelect(['student.firstName','student.lastName'])
       .where("batchStudent.batchId = :id", { id: batchId })
       .getMany();
     teacherView.classes = classes;

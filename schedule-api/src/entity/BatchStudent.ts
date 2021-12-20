@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, Table } from "typeorm";
 import { Classes } from "./Classes";
+import { User } from "./User";
 
 @Entity("batch_students")
 export class BatchStudent extends BaseEntity {
@@ -25,6 +26,10 @@ export class BatchStudent extends BaseEntity {
     @UpdateDateColumn()
     @Column({ 'nullable': true, type: "datetime" })
     updated_at: Date
+
+    @OneToOne(() => User)
+    @JoinColumn({name : "id"})
+    student: User;
 
     classes: Classes;
 

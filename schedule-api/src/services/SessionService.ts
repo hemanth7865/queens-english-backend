@@ -2,6 +2,7 @@ import { setegid } from "process";
 import { getRepository, getConnection, Transaction } from "typeorm";
 import { Attendance } from "../entity/Attendance";
 import { Session } from "../entity/Session";
+import { User } from "../entity/User";
 
 export class SessionService {
   private sessionRepository = getRepository(Session);
@@ -92,7 +93,11 @@ export class SessionService {
           attendance.updated_at = session.updated_at;
           id == null
             ? await queryRunner.manager.save(attendance)
-            : await queryRunner.manager.update(Attendance, attendance.id, attendance);
+            : await queryRunner.manager.update(
+                Attendance,
+                attendance.id,
+                attendance
+              );
         }
       }
       await queryRunner.commitTransaction();
@@ -118,7 +123,7 @@ export class SessionService {
   async getBatchLessonSession(id: string, lessonId: string) {
     return await this.sessionRepository.findOne({
       where: { batchId: id, lessonId: lessonId },
-      relations: ["attendances"],
+      relations: ["attendances", "attendances.student", "teacher"],
     });
   }
 
@@ -127,7 +132,7 @@ export class SessionService {
   }
   async getSessionDetail(id: number) {
     return await this.sessionRepository.findOne(id, {
-      relations: ["attendances"],
+      relations: ["attendances", "attendances.student", "teacher"],
     });
   }
 }
