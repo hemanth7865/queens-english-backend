@@ -34,11 +34,11 @@ createConnection()
             next
           );
           if (result instanceof Promise) {
-            result.then((result) =>
+            result.then((result) => {
               result !== null && result !== undefined
-                ? () => {}
-                : console.error("Error processing the result")
-            );
+                ? res.send.bind(result)
+                : undefined;
+            });
           } else if (result !== null && result !== undefined) {
             res.json(result);
           }

@@ -32,8 +32,8 @@ export class SessionService {
       if (data.attendance) {
         for (const element of data.attendance) {
           let attendance = new Attendance();
-          let { isPresent, studentId, start_time, end_time } = element;
-          attendance.is_present = isPresent;
+          let { is_present, studentId, start_time, end_time } = element;
+          attendance.is_present = is_present;
           attendance.studentId = studentId;
           attendance.start_time = start_time;
           attendance.end_time = end_time;
