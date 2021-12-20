@@ -78,12 +78,12 @@ export class SessionService {
       await queryRunner.startTransaction();
 
       await queryRunner.manager.update(Session, session.id, session);
-      if (data.attendance) {
-        for (const element of data.attendance) {
+      if (data.attendances) {
+        for (const element of data.attendances) {
           let attendance = new Attendance();
-          let { id, isPresent, studentId, start_time, end_time } = element;
+          let { id, is_present, studentId, start_time, end_time } = element;
           attendance.id = id;
-          attendance.is_present = isPresent;
+          attendance.is_present = is_present;
           attendance.studentId = studentId;
           attendance.start_time = start_time;
           attendance.end_time = end_time;

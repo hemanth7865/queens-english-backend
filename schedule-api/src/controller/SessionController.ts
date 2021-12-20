@@ -19,7 +19,7 @@ export class SessionController {
     } catch (error) {
       return { success: false, error: error.toString() };
     }
-    return { success: true, sessionId: session };
+    return { success: true, session: session };
   }
 
   async updateSession(

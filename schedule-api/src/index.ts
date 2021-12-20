@@ -36,8 +36,8 @@ createConnection()
           if (result instanceof Promise) {
             result.then((result) =>
               result !== null && result !== undefined
-                ? res.send(result)
-                : undefined
+                ? () => {}
+                : console.error("Error processing the result")
             );
           } else if (result !== null && result !== undefined) {
             res.json(result);
