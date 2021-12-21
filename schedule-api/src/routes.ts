@@ -2,6 +2,8 @@ import { LoginController } from "./controller/LoginController";
 import { UserController } from "./controller/UserController";
 import { BatchController } from "./controller/BatchController";
 import { SessionController } from "./controller/SessionController";
+import { AssessmentController } from "./controller/AssessmentController";
+import { Assessment } from "./entity/Assessment";
 
 export const Routes = [
   {
@@ -160,6 +162,35 @@ export const Routes = [
     route: "/session/:id",
     controller: SessionController,
     action: "updateSession",
+    authenticate:true
+  },
+
+  {
+    method: "get",
+    route: "/assessment/batch/:id",
+    controller: AssessmentController,
+    action: "getBatchAssessments",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/assessment",
+    controller: AssessmentController,
+    action: "getAssessments",
+    authenticate:true
+  },
+  {
+    method: "put",
+    route: "/assessment/:id",
+    controller: AssessmentController,
+    action: "updateAssessment",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/assessment/:id",
+    controller: AssessmentController,
+    action: "getAssessmentDetail",
     authenticate:true
   },
 ];
