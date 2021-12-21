@@ -385,7 +385,7 @@ export class TeacherService {
              users.teacher = leadTem;
         const leadav:TeacherAvailability[] = [];
         const list:any = await getManager().createQueryBuilder(TeacherAvailability, "teacherAvailability")
-        .where("teacherAvailability.id = :id", { id: leadId }).getMany();
+        .where("teacherAvailability.teacherId = :id", { id: leadId }).getMany();
         if (users)
             users.teacherAvailability=list;
         var quer =  "select weekday , start_slot, end_slot, start_min, end_min from teacher_availability where teacherId='"+teacherId + "';"
