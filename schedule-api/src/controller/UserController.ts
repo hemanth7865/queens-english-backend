@@ -22,14 +22,14 @@ export class UserController {
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         console.log('Start::UserController::SaveLead');
         var teacherService = new TeacherService();
-        var user;
+        var resp;
         try {
-            user = await teacherService.saveTeacher(request.body);
+            resp = await teacherService.saveTeacher(request.body);
         } catch (error) {
             console.log('Exception::UserController::SaveLead');
         }
         console.log('End::UserController::SaveLead');
-        return { "success": true, "data": [user], "total": 1 };
+        return resp;
     }
 
 
