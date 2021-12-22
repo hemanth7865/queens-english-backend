@@ -49,7 +49,7 @@ export class TeacherService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     try {
-        console.log("Transaction Started");
+      console.log("Transaction Started");
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
@@ -73,14 +73,13 @@ export class TeacherService {
       const res1 = await axios
         .post(options.url, options.body)
         .then(async (res) => {
-            console.log("Posted to cosmos and response is ", res);
+          console.log("Posted to cosmos and response is ", res);
           data.id = res.data.id;
           console.log("Id created in cosmos is ", res.data.id);
           console.log("Creating data in sql database ", res.data.id);
           var user = await this.saveTeacherSql(data);
           //Promise.resolve(res);
           return user;
-         
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -132,7 +131,8 @@ export class TeacherService {
 
       let i = 0;
       if (data.leadAvailability) {
-        data.leadAvailability.forEach(async (element) => {
+        for (let element of  data.leadAvailability) {
+        //data.leadAvailability.forEach(async (element) => {
           var availability = new TeacherAvailability();
           availability.start_date = element.startDate;
           availability.start_slot = element.start_slot;
@@ -161,9 +161,8 @@ export class TeacherService {
           );
           availability.start_slot = element.start_slot;
           availability.end_slot = element.end_slot;
-
           teacherAvailability[i++] = availability;
-        });
+        }
       }
 
       console.log("leadAvailability", teacherAvailability);
@@ -266,7 +265,7 @@ export class TeacherService {
 
     var status = parameters.status;
     if (status) {
-      status = parseInt(status);
+      status = parseInt(status);    
       query_string = query_string + ` and u.status=${status} `;
       query_list.push(` u.status=${status} `);
     }
@@ -347,7 +346,6 @@ export class TeacherService {
       console.log(query_list.join(" and "));
       if (index != query_list.length - 1) {
         query_string = query_string + query_list[index] + " and ";
-        console.log("query12345", query_string);
       } else {
         query_string = query_string + query_list[index];
       }
