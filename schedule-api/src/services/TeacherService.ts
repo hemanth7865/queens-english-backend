@@ -30,12 +30,14 @@ export class TeacherService {
     };
     if (data.id) {
       options.body["id"] = data.id;
+      console.log('id is ', data.id);
     }
     var status;
+    if(!data.id) {
     axios
       .post(options.url, options.body)
       .then((res) => {
-        console.log(`statusCode: ${res.status}`);
+        //console.log(`statusCode: ${res.status}`);
         status = res.status;
         //   console.log(res);
       })
@@ -43,7 +45,22 @@ export class TeacherService {
         status = 500;
       });
     return status;
-  }
+  
+} else {
+    console.log('put method');
+    axios
+    .put(options.url, options.body)
+    .then((res) => {
+      console.log(`statusCode: ${res.status}`);
+      status = res.status;
+      //   console.log(res);
+    })
+    .catch((error) => {
+      status = 500;
+    });
+  return status;
+}
+}
 
   async saveTeacher(data: any) {
     const connection = getConnection();
@@ -68,9 +85,11 @@ export class TeacherService {
       if (data.id) {
         options.body["id"] = data.id;
       }
-      console.log("Inserting data to cosmos ", options);
+     
       var status;
-      const res1 = await axios
+      var res1={} ;
+      if (!data.id) {
+      res1= await axios
         .post(options.url, options.body)
         .then(async (res) => {
           console.log("Posted to cosmos and response is ", res);
@@ -84,6 +103,22 @@ export class TeacherService {
         .catch((error) => {
           return Promise.reject(error);
         });
+    } else {
+        console.log("put method");
+        res1= await axios
+        .put(options.url, options.body)
+        .then(async (res) => {
+         // console.log("Posted to cosmos and response is ", res);
+          console.log("Id created in cosmos is ", res.data.id);
+          console.log("Creating data in sql database ", res.data.id);
+          var user = await this.saveTeacherSql(data);
+          //Promise.resolve(res);
+          return user;
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    }
 
       await queryRunner.commitTransaction();
       return res1;
@@ -107,8 +142,8 @@ export class TeacherService {
         for (let element of data.lead) {
           teacher.created_at = new Date();
           teacher.updated_at = new Date();
-          if (element.id) {
-            teacher.id = element.id;
+          if (data.id) {
+            teacher.id = data.id;
           }
           teacher.joiningdate = element.joiningdate;
           teacher.resume = "Resume";
@@ -185,7 +220,7 @@ export class TeacherService {
       user.languages = data.languages;
       user.created_at = new Date();
       user.updated_at = new Date();
-      console.log("user", user);
+     // console.log("user", user);
       user = await this.usersRepository.save(user);
       return user;
     } catch (error) {
