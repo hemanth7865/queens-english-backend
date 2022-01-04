@@ -1,4 +1,4 @@
-import { Any, getRepository } from "typeorm";
+import { Any, getConnection, getRepository } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
@@ -10,15 +10,110 @@ import { BatchStudent } from "../entity/BatchStudent";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
+import axios from "axios";
 
 export class BatchService {
   private classesRepository = getRepository(Classes);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
+  private URL = process.env.URL;
+  private CODE = process.env.CODE;
 
   BatchService() {}
 
+  
   async createBatch(data: any) {
+    const connection = getConnection();
+    const queryRunner = connection.createQueryRunner();
+    var batchStudent: BatchStudent[] = [];
+    try {
+      console.log("Transaction Started");
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      //var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
+      if (data.students) {
+        let i = 0;
+        for (const element of data.students) {
+          console.log("Batch student");
+          var batchStud = new BatchStudent();
+          batchStud.type = element.type;
+          if (element.id)
+            batchStud.id = element.id;
+          batchStud.created_at = new Date();
+          batchStud.updated_at = new Date();
+          batchStudent[i++] = batchStud;
+        }
+      }
+
+      var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
+
+      const options = {
+        url: cosomos_url,
+        //url: "https://ed-uat-functions.azurewebsites.net/api/classProfile/bac2bcce-9ce7-4f2c-b76a-9560cad7f5be/?code=3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
+        json: true,
+        body: {
+          "type": data.type,
+          "batchNumber": data.batchNumber,
+          "teacherId": data.teacherId,
+          "classStartDate": data.classStartDate,
+          "classEndDate":data.classEndDate,
+          "lessonStartTime": data.lessonStartTime,
+          "lessonEndTime": data.lessonEndTime,
+          "ageGroup": data.ageGroup,
+          "startingLessonId": data.startingLessonId,
+          "endingLessonId": data.endingLessonId,
+          "version":data.version,
+          "partitionKey": data.partitionKey,
+          "classCode": data.classCode,
+          "students":JSON.stringify(batchStudent),
+        },
+      };
+      if (data.id) {
+        options.body["id"] = data.id;
+      }
+     
+      var status;
+      var res1={} ;
+      if (!data.id) {
+      res1= await axios
+        .post(options.url, options.body)
+        .then(async (res) => {
+          console.log("Posted to cosmos and response is ", res);
+          data.id = res.data.id;
+          var batch = await this.createBatchSql(data);
+          return batch;
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    } else {
+        console.log("Update batch");
+        res1= await axios
+        .put(options.url, options.body)
+        .then(async (res) => {
+         data.id = res.data.id;
+          var batch = await this.createBatchSql(data);
+          return batch;
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    }
+
+      await queryRunner.commitTransaction();
+      return res1;
+    } catch (error) {
+      console.error(error);
+      await queryRunner.rollbackTransaction();
+      return { status: false, message: "Service Error" };
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  
+  async createBatchSql(data: any) {
+    
     var cosmos = new Classes();
 
     try {

@@ -74,11 +74,11 @@ export class TeacherService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      var cosomos_url = this.URL+`/api/user/?code=`+this.CODE;
+      //var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
 
       const options = {
-        url: cosomos_url,
-       // url: "https://ed-uat-functions.azurewebsites.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
+        //url: cosomos_url,
+        url: "https://ed-uat-functions.azurewebsites.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
         json: true,
         body: {
           type: "teacher",

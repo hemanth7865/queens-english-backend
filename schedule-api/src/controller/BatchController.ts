@@ -13,17 +13,6 @@ export class BatchController {
     private classesRepository = getRepository(Classes);
     private batchService = new BatchService();
 
-    async allLeads(request: Request, response: Response, next: NextFunction) {
-        console.log("Featch All Teachers information");
-        var teachers;
-        try {
-            teachers = await this.usersRepository.find();
-        } catch (error) {
-            return { success: false, error: error.toString() };
-        }
-        return { success: true, session: teachers };
-
-    }
 
     async createBatch(request: Request, response: Response, next: NextFunction) {
         console.log("saving batch");
