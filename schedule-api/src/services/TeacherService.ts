@@ -13,11 +13,15 @@ export class TeacherService {
   private teacherAvailabilityRepository = getRepository(TeacherAvailability);
   private teacherRepository = getRepository(Teacher);
 
+  private URL = process.env.URL;
+  private CODE = process.env.CODE;
+
   TeacherService() {}
 
   async saveTeacherOnCosmosDB(data: any) {
+      console.log('code is ', `process.env.URL/api/user?code=process.env.code`);
     const options = {
-      url: "https://ed-uat-functions.azurewebsites1.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
+      url: `process.env.URL/api/user?code=process.env.code`,
       json: true,
       body: {
         type: "teacher",
@@ -70,8 +74,11 @@ export class TeacherService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      var cosomos_url = this.URL+`/api/user/?code=`+this.CODE;
+
       const options = {
-        url: "https://ed-uat-functions.azurewebsites.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
+        url: cosomos_url,
+       // url: "https://ed-uat-functions.azurewebsites.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
         json: true,
         body: {
           type: "teacher",
