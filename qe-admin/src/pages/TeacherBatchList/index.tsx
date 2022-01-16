@@ -160,6 +160,7 @@ const TeacherBatchList: React.FC = () => {
     firstName: "",
     lastName: "",
     joiningDate: "",
+    type:"teacher",
     email: "",
     address: "",
     startDate: "",
@@ -426,7 +427,7 @@ const TeacherBatchList: React.FC = () => {
       search: {
         transform: (value)=>{
           console.log('value', value)
-          return {weekday: value}
+          return { weekday: value.join(',') };
         }
       }
 },
@@ -534,7 +535,7 @@ const TeacherBatchList: React.FC = () => {
       category: formData.category,
       languages: formData.languages,
       startDate: dateStart,
-      type: selectTeacher,
+      type: 'teacher',
       photo: formData.photo,
       lead: [
         {
@@ -606,7 +607,7 @@ const TeacherBatchList: React.FC = () => {
         ? formData.languagesKnown
         : tempDataView.languages,
       startDate: dateStart ? dateStart : tempDataView.startDate,
-      type: selectTeacher,
+      type: 'teacher',
       photo: formData.photo,
       lead: [
         {

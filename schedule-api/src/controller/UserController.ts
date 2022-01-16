@@ -7,6 +7,7 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
+const { usersLogger } = require("../Logger.js");
 
 export class UserController {
 
@@ -20,7 +21,8 @@ export class UserController {
     }
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
-        console.log('Start::UserController::SaveLead');
+        usersLogger.info('Start::UserController::SaveLead');
+        usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var teacherService = new TeacherService();
         var resp;
         try {

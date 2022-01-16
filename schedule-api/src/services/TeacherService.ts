@@ -7,81 +7,36 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import { v4 as uuid } from "uuid";
 import axios from "axios";
+import { stringify } from "querystring";
+import { join } from "path";
+const { usersLogger } = require("../Logger.js");
 
 export class TeacherService {
   private usersRepository = getRepository(User);
   private teacherAvailabilityRepository = getRepository(TeacherAvailability);
   private teacherRepository = getRepository(Teacher);
+  private COSMOS_URL = process.env.COSMOS_URL;
+  private COSMOS_CODE = process.env.COSMOS_CODE;
 
-  private URL = process.env.URL;
-  private CODE = process.env.CODE;
 
   TeacherService() {}
-
-  async saveTeacherOnCosmosDB(data: any) {
-      console.log('code is ', `process.env.URL/api/user?code=process.env.code`);
-    const options = {
-      url: `process.env.URL/api/user?code=process.env.code`,
-      json: true,
-      body: {
-        type: "teacher",
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        isAdministrator: false,
-        phoneNumber: data.phoneNumber,
-      },
-    };
-    if (data.id) {
-      options.body["id"] = data.id;
-      console.log('id is ', data.id);
-    }
-    var status;
-    if(!data.id) {
-    axios
-      .post(options.url, options.body)
-      .then((res) => {
-        //console.log(`statusCode: ${res.status}`);
-        status = res.status;
-        //   console.log(res);
-      })
-      .catch((error) => {
-        status = 500;
-      });
-    return status;
-  
-} else {
-    console.log('put method');
-    axios
-    .put(options.url, options.body)
-    .then((res) => {
-      console.log(`statusCode: ${res.status}`);
-      status = res.status;
-      //   console.log(res);
-    })
-    .catch((error) => {
-      status = 500;
-    });
-  return status;
-}
-}
 
   async saveTeacher(data: any) {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
+
     try {
-      console.log("Transaction Started");
+      usersLogger.info('Save/Update User details in cosmos DB');
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
       //var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
 
       const options = {
-        //url: cosomos_url,
-        url: "https://ed-uat-functions.azurewebsites.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
+        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
         json: true,
         body: {
-          type: "teacher",
+          type: data.type,
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
@@ -89,13 +44,14 @@ export class TeacherService {
           phoneNumber: data.phoneNumber,
         },
       };
-      if (data.id) {
-        options.body["id"] = data.id;
+  
+      if (data.userId) {
+        options.body["id"] = data.userId;
       }
      
       var status;
       var res1={} ;
-      if (!data.id) {
+      if (!data.userId) {
       res1= await axios
         .post(options.url, options.body)
         .then(async (res) => {
@@ -108,23 +64,25 @@ export class TeacherService {
           return user;
         })
         .catch((error) => {
+          return {status:400,error:error.response.data};
           return Promise.reject(error);
         });
     } else {
-        console.log("put method");
-        res1= await axios
-        .put(options.url, options.body)
-        .then(async (res) => {
+        usersLogger.info("Update teacher information");
+        usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
+      //  res1= await axios
+       // .put(options.url, options.body)
+        //.then(async (res) => {
          // console.log("Posted to cosmos and response is ", res);
-          console.log("Id created in cosmos is ", res.data.id);
-          console.log("Creating data in sql database ", res.data.id);
+          //console.log("Id created in cosmos is ", res.data.id);
+          //console.log("Creating data in sql database ", res.data.id);
           var user = await this.saveTeacherSql(data);
           //Promise.resolve(res);
           return user;
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        });
+        //})
+       // .catch((error) => {
+         // return Promise.reject(error);
+        //});
     }
 
       await queryRunner.commitTransaction();
@@ -132,7 +90,7 @@ export class TeacherService {
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
-      return { status: false, message: "Service Error" };
+      return { status: 501, error: error.response.data };
     } finally {
       await queryRunner.release();
     }
@@ -147,6 +105,9 @@ export class TeacherService {
       var user = new User();
       if (data.lead) {
         for (let element of data.lead) {
+          if (data.userId) {
+            teacher.id = data.userId; 
+          }
           teacher.created_at = new Date();
           teacher.updated_at = new Date();
           if (data.id) {
@@ -168,8 +129,10 @@ export class TeacherService {
           teacher = await this.teacherRepository.save(teacher);
           user.id = teacher.id;
           user.teacher = [teacher];
+          usersLogger.info(`Updated data is ${JSON.stringify(user)}}`);
         }
       }
+    
 
       let i = 0;
       if (data.leadAvailability) {
@@ -216,7 +179,7 @@ export class TeacherService {
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
       user.type = data.type;
-      if (data.id) user.id = data.id;
+      if (data.iserId) user.id = data.userId;
       user.startDate = data.startDate;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
@@ -233,6 +196,7 @@ export class TeacherService {
     } catch (error) {
       console.log(error);
       throw new Error("Excetion while stroing teacher");
+      return {status:500,error:'Unable to update/register user'};
     }
   }
 
@@ -356,27 +320,31 @@ export class TeacherService {
 
     if (start_slot && end_slot) {
       filter = true;
-      var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
-      console.log("quer", quer);
-      let totalResult = await getManager().query(quer);
-      console.log("totalResult", totalResult);
-      let slotsResultIds: any = [-1];
-
-      for (var element of totalResult) {
-        slotsResultIds.push("'" + element.id + "'");
+      let slotsResultIds;
+      slotsResultIds = await this.getMatchedTeacherIds(
+        week_day,
+        startMin,
+        endMin
+      );
+      console.log("elements", slotsResultIds);
+      let idsList=[];
+      for (let element of slotsResultIds) {
+        idsList = [...idsList,"'"+ element + "'"];
       }
-
-      unique = Array.from(new Set(slotsResultIds));
-      console.log("Query string is ", query_string);
-      if (unique) {
-        query_string = query_string + ` and u.id in ('${unique}') `;
-        query_list.push(` u.id in (${unique}) `);
+      usersLogger.info(`Finale query ids ${JSON.stringify(idsList)}`);
+    
+      if (slotsResultIds.length > 0) {
+        var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(",")})`;
+        console.log("quer", quer);
+        let totalResult = await getManager().query(quer);
+        console.log("totalResult", totalResult);
+        query_list.push(` u.id in (${idsList.join(",")})`);
       } else {
-        query_string = query_string + ` and u.id in (-1) `;
         query_list.push(`  u.id in (-1) `);
       }
     }
-
+  
+   
     var finalQuery;
     var total;
 
@@ -478,6 +446,33 @@ export class TeacherService {
     };
   }
 
+
+  async getMatchedTeacherIds(week_day: string, startMin, endMin) {
+    let slotsResultIds = [];
+    let searchIds;
+    let tempList = [];
+    let week = week_day.split(",");
+
+    for (let element of week) {
+      var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${element}  ) and (${startMin} >= startMin and ${endMin}<=endMin) and (${startMin} <= endMin and  ${endMin}>=startMin);`;
+      console.log("quer", quer);
+      let totalResult = await getManager().query(quer);
+
+      if (totalResult.length == 0) {
+        slotsResultIds = [];
+        return [];
+      } else {
+        for (var el of totalResult) {
+          slotsResultIds = [...slotsResultIds,el.id];
+        }
+      }
+  
+    }
+    usersLogger.info(`Filterd ids  ${JSON.stringify(slotsResultIds)}`);
+    return slotsResultIds;
+  }
+
+
   async leadFullDetails(data: any, teacherId: number) {
     var map = new Map();
     var leadTem: Teacher[] = [];
@@ -553,3 +548,5 @@ export class TeacherService {
 function options(options: any, arg1: (res: any) => void) {
   throw new Error("Function not implemented.");
 }
+
+
