@@ -66,8 +66,13 @@
       },
       {
         name: 'User',
-        path: '/manage/studentBatch',
+        path: '/manage/UserBatch',
         component: './StudentList',
+      },
+      {
+        name: 'Student',
+        path: '/manage/StudentBatch',
+        component: './StudentsBatchList',
       }
     ]
   },

@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getRepository, MssqlParameter } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
@@ -7,6 +7,7 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
+import { StudentService } from "../services/StudentService";
 const { usersLogger } = require("../Logger.js");
 
 export class UserController {
@@ -24,9 +25,15 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var teacherService = new TeacherService();
+        var studentrService = new StudentService();
         var resp;
         try {
-            resp = await teacherService.saveTeacher(request.body);
+            if(request.body.type == 'student') {
+                resp = await studentrService.saveStudentDetails(request.body);
+            } else {
+                resp = await teacherService.saveTeacher(request.body);
+            }
+           
         } catch (error) {
             console.log('Exception::UserController::SaveLead');
         }
