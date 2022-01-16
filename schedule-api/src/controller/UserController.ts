@@ -52,7 +52,7 @@ export class UserController {
 
 
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
-        console.log("list lead details");
+        usersLogger.info("Fetch details from database::listLeadDetails");
 
         var parameters = {
             current: parseInt(request.query['current']),
