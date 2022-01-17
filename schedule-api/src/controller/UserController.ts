@@ -134,7 +134,7 @@ export class UserController {
         console.log("Delete user");
         console.log('request.params.id' + request.params.id);
         let userToRemove = await this.usersRepository.findOne(request.params.id);
-        userToRemove.status = 4;
+        userToRemove.status = "inactive";
         return this.usersRepository.save(userToRemove);
     }
 
