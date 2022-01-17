@@ -7,7 +7,7 @@
             totalexp:string;         
             phoneNumber: string;         
             email: string;         
-            status: number;
+            status: string;
             classestaken: string;
             ratings:Number;
             timeslots: string;
@@ -18,7 +18,7 @@
             cosmos_ref: string;
             type:string;
 
-            public constructor(id:string, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:number,classestaken:number,
+            public constructor(id:string, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
                 ratings:number,slots:string,leadType:number, type:string){
                 this.id = id;
                 this.leadId = leadId;

@@ -9,6 +9,7 @@ import { v4 as uuid } from "uuid";
 import axios from "axios";
 import { stringify } from "querystring";
 import { join } from "path";
+import { Student } from "../entity/Student";
 const { usersLogger } = require("../Logger.js");
 
 export class TeacherService {
@@ -498,6 +499,13 @@ export class TeacherService {
 
     console.log("users", users);
 
+   let student = await getManager()
+      .createQueryBuilder(Student, "student")
+      .where("student.id = :id", { id: leadId })
+      .getOne();
+
+    console.log("student", student);
+
     console.log("teacher id ", teacherId);
     const lead = await getManager()
       .createQueryBuilder(Teacher, "teacher")
@@ -542,7 +550,9 @@ export class TeacherService {
     });
     if (slot) users.slots = slot;
 
-    return { success: true, data: users, total: 1, current: 1, pageSize: 1 };
+    let response = [ JSON.stringify(users),JSON.stringify(student)];
+
+    return { success: true, data: response, total: 1, current: 1, pageSize: 1 };
   }
 }
 
