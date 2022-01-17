@@ -176,27 +176,33 @@ const TeacherBatchList: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    joiningDate: "",
-    type:"student",
-    email: "",
-    address: "",
-    startDate: "",
-    dateOfBirth: "",
-    gender: "",
-    mobile: "",
-    whatsapp: "",
-    nationality: "",
-    category: "",
-    education: "",
-    experience: "",
-    teacherType: "",
-    languages: "",
-    resume: "",
-    videoProfile: "",
-    certificate: "",
-    photo: "",
-    leadAvailability: null,
-    status: "",
+    mobile: '',
+    email: '',
+    status : '',
+    studentName : '',
+    teacherName :'',
+    mobile :'',
+    batchCode :'',
+    alternativeMobile :'',
+    studentID :'',
+    age :'',
+    address :'',
+    address :'',
+    classType :'',
+    referralCode :'',
+    days :'',
+    kids :'',
+    dateOfBirth :'',
+    poc :'',
+    startDate :'',
+    endDate :'',
+    startLesson :'',
+    firstFeedback :'',
+    fifthFeedback :'',
+    fifteenthFeedback :'',
+    classesCompleted :'',
+    customersReferred :'',
+
   });
 
   const actionRef = useRef<ActionType>();
@@ -490,10 +496,6 @@ const handleMobileChange = (event) => {
 console.log('country', selectCountry, selectCountryCode)
 
 
-  const handleSelectChange = (value) => {
-    console.log("status", value);
-    setSelectValue(value);
-  };
 
   const dateFormat = "HH:mm:ss";
 
@@ -845,7 +847,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="First Name"
                                 name="firstName"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -862,7 +864,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Last Name"
                                 name="lastName"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -879,7 +881,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Teacher Name"
                                 name="teacherName"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -932,7 +934,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Email"
                                 name="email"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -954,7 +956,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Batch Code"
                                 name="batchCodes"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -963,7 +965,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Student ID"
                                 name="studentID"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -984,7 +986,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Age"
                                 name="age"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -993,7 +995,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Address"
                                 name="address"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1002,7 +1004,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Class type"
                                 name="classType"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1011,7 +1013,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="poc"
                                 name="poc"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1020,7 +1022,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Days"
                                 name="days"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1029,7 +1031,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Kids/Adults"
                                 name="kids"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1038,7 +1040,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Referral Code"
                                 name="referralCode"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1083,7 +1085,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="No of Classes Completed"
                                 name="classesCompleted"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1092,7 +1094,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Number of customers referred"
                                 name="customersReferred"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1101,7 +1103,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="comments"
                                 name="comments"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1110,7 +1112,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="crossed End Date"
                                 name="crossedEndDate"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1119,7 +1121,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="watsappGroup"
                                 name="watsappGroup"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1129,7 +1131,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Bottle Send"
                                 name="bottleSend"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1139,7 +1141,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="1st Class Feedback Completed"
                                 name="firstFeedback"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1148,7 +1150,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="5th Class Feedback Completed"
                                 name="fifthFeedback"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1157,7 +1159,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="15th Class Feedback Completed"
                                 name="fifteenthFeedback"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1427,7 +1429,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="First Name"
                                 name="firstName"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1444,7 +1446,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Last Name"
                                 name="lastName"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1461,7 +1463,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Teacher Name"
                                 name="teacherName"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1514,7 +1516,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Email"
                                 name="email"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1532,11 +1534,11 @@ console.log('country', selectCountry, selectCountryCode)
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="batchCodes">                    
+                        <Form.Item name="batchCode">                    
                             <Input
                                 placeholder="Batch Code"
-                                name="batchCodes"
-                                onChange={handleSelectChange}
+                                name="batchCode"
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1545,7 +1547,25 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Student ID"
                                 name="studentID"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="studentName">                    
+                            <Input
+                                placeholder="Student ID"
+                                name="studentName"
+                                onChange={handleFormChange}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="teacherName">                    
+                            <Input
+                                placeholder="Student ID"
+                                name="teacherName"
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1566,7 +1586,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Age"
                                 name="age"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1575,7 +1595,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Address"
                                 name="address"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1584,7 +1604,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Class type"
                                 name="classType"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1593,7 +1613,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="poc"
                                 name="poc"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1602,7 +1622,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Days"
                                 name="days"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1611,7 +1631,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Kids/Adults"
                                 name="kids"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1620,7 +1640,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Referral Code"
                                 name="referralCode"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1665,7 +1685,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="No of Classes Completed"
                                 name="classesCompleted"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1674,7 +1694,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Number of customers referred"
                                 name="customersReferred"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1683,7 +1703,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="comments"
                                 name="comments"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1692,7 +1712,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="crossed End Date"
                                 name="crossedEndDate"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1701,7 +1721,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="watsappGroup"
                                 name="watsappGroup"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1711,7 +1731,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="Bottle Send"
                                 name="bottleSend"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1721,7 +1741,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="1st Class Feedback Completed"
                                 name="firstFeedback"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1730,7 +1750,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="5th Class Feedback Completed"
                                 name="fifthFeedback"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>
@@ -1739,7 +1759,7 @@ console.log('country', selectCountry, selectCountryCode)
                             <Input
                                 placeholder="15th Class Feedback Completed"
                                 name="fifteenthFeedback"
-                                onChange={handleSelectChange}
+                                onChange={handleFormChange}
                             />
                         </Form.Item>
                     </Col>

@@ -148,12 +148,14 @@ export class StudentService {
       user.created_at = new Date();
       user.updated_at = new Date();
      // console.log("user", user);
+     usersLogger.info(`user data is ${JSON.stringify(user)}`);
       user = await this.usersRepository.save(user);
- 
+      usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
       let student = new Student();
 
     if (user.id) {
-      student.id = id;
+      usersLogger.info(`User Id set  ${JSON.stringify(user.id)}`);
+      student.id = user.id;
       student.updated_at = new Date();
     } else {
       student.created_at = new Date();
@@ -179,7 +181,7 @@ export class StudentService {
     student.customersReferred = data.customersReferred;
 
       student = await this.studentRepository.save(student);
-      usersLogger.info("Student object inserted ", JSON.stringify(student));
+      usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
       //user.id = student.id; 
      
       return {...user,...student};

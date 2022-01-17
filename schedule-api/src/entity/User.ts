@@ -50,7 +50,7 @@ export class User extends BaseEntity {
         nationality: Nationality;*/
     
     @Column({'nullable':true})
-        status: number;
+        status: string;
     /*@ManyToOne(
         () => Status,
         (status) => status.id   
