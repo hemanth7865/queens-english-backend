@@ -16,6 +16,7 @@ export class UserController {
     private teacherAvailabilityRepository = getRepository(TeacherAvailability);
     private teacherRepository = getRepository(Teacher);
     private lessonRepository = getRepository(Lesson);
+    private studentrService = new StudentService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -25,11 +26,11 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var teacherService = new TeacherService();
-        var studentrService = new StudentService();
+     
         var resp;
         try {
             if(request.body.type == 'student') {
-                resp = await studentrService.saveStudentDetails(request.body);
+                resp = await this.studentrService.saveStudentDetails(request.body);
             } else {
                 resp = await teacherService.saveTeacher(request.body);
             }
@@ -101,8 +102,18 @@ export class UserController {
         let resp;
         let teacherService = new TeacherService();
         const teacherId = request.params.id;
+        var type = request.query['type']
         try {
-            resp = await teacherService.leadFullDetails(request.body, teacherId);
+            if (type == 'student') {
+                usersLogger.info("Fetching student full details");
+                    resp = this.studentrService.fetchStudentFilterData(teacherId);
+            } else {
+                usersLogger.info("Fetching lead full details");
+                resp = await teacherService.leadFullDetails(request.body, teacherId);
+            } 
+            
+              
+            
             console.log(resp);
         } catch (error) {
             console.log(error);

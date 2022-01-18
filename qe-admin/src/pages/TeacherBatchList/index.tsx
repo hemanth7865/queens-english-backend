@@ -469,7 +469,7 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log('entity',entity);
+            
               setShowDetail(true);
               handleOneView(entity.leadId);
               setCurrentRow(entity);
@@ -1687,20 +1687,20 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="status">
                     <Select
-                      defaultValue = {tempDataView.statusId == 1
+                      defaultValue = {tempDataView.statusId == 'active'
                         ? "Active"
-                        : tempDataView.statusId == 3
+                        : tempDataView.statusId == 'onhold'
                           ? "OnHold"
-                          : tempDataView.statusId == 2
+                          : tempDataView.statusId == 'leave'
                             ? "Leave"
                             : "In Active"}
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
                     >
-                      <Option value="1">Active</Option>
-                      <Option value="2">Leave</Option>
-                      <Option value="3">On Hold</Option>
+                      <Option value="active">Active</Option>
+                      <Option value="leave">Leave</Option>
+                      <Option value="onhold">On Hold</Option>
                     </Select>
                   </Form.Item>
                 </Col>

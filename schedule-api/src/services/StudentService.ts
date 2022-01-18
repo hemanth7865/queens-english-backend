@@ -141,7 +141,7 @@ export class StudentService {
       user.address = data.address;
       user.whatsapp = data.whatsapp;
       user.nationalityId = data.nationalityId;
-      user.dob = data.dob;
+      user.dob = new Date();
       user.status = data.status;
       user.photo = data.photo;
       user.languages = data.languages;
@@ -163,6 +163,9 @@ export class StudentService {
     }
 
     student.teacherName = data.teacherName;
+    student.studentName = data.studentName;
+    student.address = data.address;
+    student.age = data.age;
     student.batchCode = data.batchCode;
     student.classType = data.classType;
     student.referralCode = data.referralCode;
@@ -170,10 +173,15 @@ export class StudentService {
     student.studentType = data.studentType;
     student.dateOfBirth = data.dateOfBirth;
     student.poc = data.poc;
+    student.studentID = data.studentID;
+    student.days = data.days;
+    student.studentType = data.studentType;
+    student.dateOfBirth = new Date();
+    student.alternativeMobile = data.alternativeMobile;
 
-    student.startingDate = data.startingDate;
-    student.endingDate = data.endingDate;
-    student.startingLesson = data.startingLesson;
+    student.startDate = new Date();
+    student.endDate = new Date();
+    student.startLesson = new Date();
     student.firstFeedback = data.firstFeedback;
     student.fifthFeedback = data.fifthFeedback;
     student.fifteenthFeedback = data.fifteenthFeedback;
@@ -206,6 +214,8 @@ export class StudentService {
     student.teacherName = element.teacherName;
     student.batchCode = element.batchCode;
     student.classType = element.classType;
+    student.studentName = element.studentName;
+    student.studentID = element.studentID;
     student.referralCode = element.referralCode;
     student.days = element.days;
     student.studentType = element.studentType;
@@ -213,9 +223,9 @@ export class StudentService {
     student.poc = element.poc;
     student.alternativeMobile = element.alternativeMobile;
 
-    student.startingDate = element.startingDate;
-    student.endingDate = element.endingDate;
-    student.startingLesson = element.startingLesson;
+    student.startDate = element.startDate;
+    student.endDate = element.endDate;
+    student.startLesson = element.startLesson;
     student.firstFeedback = element.firstFeedback;
     student.fifthFeedback = element.fifthFeedback;
     student.fifteenthFeedback = element.fifteenthFeedback;

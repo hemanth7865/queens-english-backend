@@ -550,9 +550,7 @@ export class TeacherService {
     });
     if (slot) users.slots = slot;
 
-    let response = [ JSON.stringify(users),JSON.stringify(student)];
-
-    return { success: true, data: response, total: 1, current: 1, pageSize: 1 };
+    return { success: true, data: users, total: 1, current: 1, pageSize: 1 };
   }
 }
 

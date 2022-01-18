@@ -180,6 +180,30 @@ export async function teacherBatchesView(
   });
 }
 
+export async function studentsBatchesView(
+  id:any,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }, 
+
+) {
+  // console.log('id', id)
+  return request<API.RuleList>(`/be/leadsFullView/${id}`, {
+    method: 'GET',
+    params: {
+      ...params,
+      type:'student',
+    },
+   
+    ...(options || {}),
+  });
+}
+
 
 //api for user batches for id
 export async function userBatchesView(

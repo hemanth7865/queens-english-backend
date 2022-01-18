@@ -25,7 +25,9 @@ export class Student extends BaseEntity {
   @Column({ nullable: true})
   alternativeMobile: string;
   @Column({ nullable: true})
-  studentId: string;
+  studentName: string;
+  @Column({ nullable: true})
+  studentID: string;
   @Column({ nullable: true})
   age: string;
   @Column({ nullable: true})
@@ -38,16 +40,16 @@ export class Student extends BaseEntity {
   days:number;
   @Column({ nullable: true})
   studentType:string;
-  @Column({ nullable: true })
+  @Column({ nullable: true, type:"date" })
   dateOfBirth: Date;
   @Column({ nullable: true })
   poc: string;
-  @Column({ nullable: true })
-  startingDate: Date;
-  @Column({ nullable: true })
-  endingDate: string; 
-  @Column({ nullable: true })
-  startingLesson: Date;
+  @Column({ nullable: true, type:"date" })
+  startDate: Date;
+  @Column({ nullable: true, type:"date" })
+  endDate: Date; 
+  @Column({ nullable: true, type:"date" })
+  startLesson: Date;
   @Column({ nullable: true })
   firstFeedback: string;
   @Column({ nullable: true })
