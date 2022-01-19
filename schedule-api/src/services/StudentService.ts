@@ -70,25 +70,25 @@ export class StudentService {
 
       let response;
       if (!data.id) {
-      //  response = await axios
-        //  .post(options.url, options.body)
-         // .then(async (res) => {
+        response = await axios
+          .post(options.url, options.body)
+          .then(async (res) => {
             usersLogger.info(
               `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
             );
-          //  usersLogger.info(`Update oracle DB:  data.phoneNumber`);
-           // data.id = res.data.id;
-            //usersLogger.info(`Data id from cosmos is ${data.id}`);
+            usersLogger.info(`Update oracle DB:  data.phoneNumber`);
+            data.id = res.data.id;
+           usersLogger.info(`Data id from cosmos is ${data.id}`);
             var user = await this.saveStudentSQL(data,data.id);
             usersLogger.info(
               `Successfully updated oracle db: ${data.phoneNumber}`
             );
             return user;
-       //   })
-        //  .catch((error) => {
-         //   console.log("error", error);
-          //  return { status: 400, data: error.response.data };
-         // });
+          })
+          .catch((error) => {
+            console.log("error", error);
+            return { status: 400, data: error.response.data };
+          });
       } else {
         response = await axios
           .put(options.url, options.body)
@@ -141,7 +141,7 @@ export class StudentService {
       user.address = data.address;
       user.whatsapp = data.whatsapp;
       user.nationalityId = data.nationalityId;
-      user.dob = new Date();
+      user.dob = data.dob;
       user.status = data.status;
       user.photo = data.photo;
       user.languages = data.languages;
@@ -176,12 +176,12 @@ export class StudentService {
     student.studentID = data.studentID;
     student.days = data.days;
     student.studentType = data.studentType;
-    student.dateOfBirth = new Date();
+    student.dateOfBirth = data.dob?data.dob:new Date();;
     student.alternativeMobile = data.alternativeMobile;
 
-    student.startDate = new Date();
-    student.endDate = new Date();
-    student.startLesson = new Date();
+    student.startDate = data.startDate?data.startDate:new Date();
+    student.endDate = data.endDate?data.endDate:new Date();;
+    student.startLesson = data.startLesson?data.startLesson:new Date();;
     student.firstFeedback = data.firstFeedback;
     student.fifthFeedback = data.fifthFeedback;
     student.fifteenthFeedback = data.fifteenthFeedback;

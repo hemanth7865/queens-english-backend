@@ -2,9 +2,7 @@ import { getRepository, MssqlParameter } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
-import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
-import { getManager } from "typeorm";
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
@@ -16,7 +14,7 @@ export class UserController {
     private teacherAvailabilityRepository = getRepository(TeacherAvailability);
     private teacherRepository = getRepository(Teacher);
     private lessonRepository = getRepository(Lesson);
-    private studentrService = new StudentService();
+    private studentService = new StudentService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -30,7 +28,7 @@ export class UserController {
         var resp;
         try {
             if(request.body.type == 'student') {
-                resp = await this.studentrService.saveStudentDetails(request.body);
+                resp = await this.studentService.saveStudentDetails(request.body);
             } else {
                 resp = await teacherService.saveTeacher(request.body);
             }
@@ -106,7 +104,7 @@ export class UserController {
         try {
             if (type == 'student') {
                 usersLogger.info("Fetching student full details");
-                    resp = this.studentrService.fetchStudentFilterData(teacherId);
+                    resp = this.studentService.fetchStudentFilterData(teacherId);
             } else {
                 usersLogger.info("Fetching lead full details");
                 resp = await teacherService.leadFullDetails(request.body, teacherId);

@@ -490,8 +490,7 @@ export class TeacherService {
     let slotsResult: any[] = [];
     let users = new User();
     const leadId = teacherId;
-    console.log("leadid", leadId);
-    console.log(users);
+
     users = await getManager()
       .createQueryBuilder(User, "user")
       .where("user.id = :id", { id: leadId })
