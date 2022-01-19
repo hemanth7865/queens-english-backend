@@ -4,6 +4,7 @@ import { User } from "../entity/User";
 import { getManager } from "typeorm";
 import { BatchService } from "../services/BatchService";
 import { Classes } from "../entity/Classes";
+import { UserMaster } from "../entity/UserMaster";
 var moment = require('moment');
 const cron = require('node-cron');
 
@@ -11,6 +12,7 @@ export class BatchController {
 
     private usersRepository = getRepository(User);
     private classesRepository = getRepository(Classes);
+    private userMasterRepository = getRepository(UserMaster);
     private batchService = new BatchService();
 
 
@@ -63,32 +65,40 @@ export class BatchController {
 
     async runBatchJob(request: Request, response: Response, next: NextFunction) {
 
-        var task = cron.schedule('*/10 * * * *', async function () {
-            var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime from classes limit 1, 2;`;
-            console.log("Query ", quer);
-            var results = await getManager().query(quer);
-            let start_slot, start_min, startMin, end_slot, end_min, endMin = 0;
-            for (var element of results) {
-                try {
-                    start_slot = parseInt(element.lessonStartTime.substring(11, 13));
-                    start_min = parseInt(element.lessonStartTime.substring(15, 17));
-                    console.log('start_slot', start_slot);
-                    let startMin = start_min + start_slot * 60;
-                    end_slot = parseInt(element.lessonEndTime.substring(11, 13));
-                    end_min = parseInt(element.lessonEndTime.substring(15, 17));
-                    let endMin = end_slot * 60 + end_min;
-                    var results = await getManager().query(`UPDATE classes SET start_slot=${start_slot}, start_min=${start_min}, startMin=${startMin}, end_slot=${end_slot}, end_min=${end_min}, endMin = ${endMin}  WHERE id = '${element.id}';`);
-                    console.log("cron job started", results);
-                } catch (error) {
-                    return { success: false, error: error.toString() };
-                }
+            var current = parseInt(request.query['current']);
+            var pageSize = parseInt(request.query['pageSize']);
+
+            var total = await getManager().query(`SELECT count(*) FROM USER_MASTER`);
+            var results = await getManager().query(`SELECT id FROM USER_MASTER`);
+            console.log('results',results);
+            var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+            console.log('total is ',total[0].total);
+            console.log('total is ',results[0].id);
+            for (var count=0;count<total[0].total;count++) {
+                try{
+                console.log('Result is ', results[count].id);
+                var condition = {
+                    where: { id: results[count].id },
+                  };
+                
+                var userMaster = await this.userMasterRepository.findOne(condition);
+                let user = new User();
+                user.id = userMaster.id;
+                user.firstName=userMaster.firstName;
+                user.lastName=userMaster.lastName;
+                user.email = userMaster.email;
+                user.type = userMaster.type;
+                user.phoneNumber = userMaster.phoneNumber;
+                this.usersRepository.save(user);
+            }catch(error){                
+                console.log('error',error);
             }
-
-
-        }, false);
-        task.start();
+        }
+        
+            
         return { "success": true, "message": "Job execution initiated !!!!" };
     }
+
 
 
     async remove(request: Request, response: Response, next: NextFunction) {

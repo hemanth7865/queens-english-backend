@@ -520,6 +520,8 @@ const TeacherBatchList: React.FC = () => {
 
   const dateFormat = "HH:mm:ss";
 
+  const datePickerFormat = "YYYY-MM-DD";
+
   const handleFormSubmit = async () => {
     console.log("form submitted");
     const dataForm = {
@@ -952,6 +954,8 @@ const TeacherBatchList: React.FC = () => {
                     ]}
                   >
                     <DatePicker
+                    defaultValue={moment("2015-01-01", datePickerFormat)}
+                    format={datePickerFormat}
                       placeholder="Date of Birth"
                       style={{ width: "370px" }}
                       onChange={(date, dateString) => {
@@ -1507,7 +1511,10 @@ const TeacherBatchList: React.FC = () => {
                       defaultValue={moment(`${tempDataView.teacher &&
                         tempDataView.teacher.map(function (lead, i) {
                           return lead.joiningdate;
-                        })}`, 'YYYY/MM/DD')} 
+                        })}`, 'YYYY/MM/DD') != undefined?moment(`${tempDataView.teacher &&
+                          tempDataView.teacher.map(function (lead, i) {
+                            return lead.joiningdate;
+                          })}`, 'YYYY/MM/DD') : moment("2099/01/01", "YYYY/MM/DD")} 
                       format='YYYY/MM/DD' 
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
@@ -1517,9 +1524,12 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
+                 
                   <Form.Item name="startDate">
+                    {tempDataView.startDate}
                     <DatePicker
-                      defaultValue={moment(`${tempDataView.startDate}`, 'YYYY/MM/DD')} 
+            // defaultPickerValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD") != null ?moment(`${tempDataView.startDate}`, "YYYY/MM/DD"):moment("2099/01/01", "YYYY/MM/DD")} 
+                      Value={moment(`${tempDataView.dob}`, "YYYY/MM/DD")?moment(`${tempDataView.dob}`, "YYYY/MM/DD"):null} 
                       format='YYYY/MM/DD' 
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
@@ -1534,7 +1544,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="dateOfBirth">
                     <DatePicker
-                      defaultValue={moment(`${tempDataView.dob}`, 'YYYY/MM/DD')} 
+                     defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")?moment(`${tempDataView.dob}`, "YYYY/MM/DD"):moment("2099/01/01", "YYYY/MM/DD")} 
                       format='YYYY/MM/DD' 
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
