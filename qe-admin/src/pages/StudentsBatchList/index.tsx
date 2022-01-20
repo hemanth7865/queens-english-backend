@@ -5,7 +5,7 @@ import {
   EyeOutlined,
   ClockCircleOutlined,
   UploadOutlined,
-  
+
   EditOutlined,
 } from "@ant-design/icons";
 import {
@@ -26,7 +26,8 @@ import {
   RangePicker,
   notification,
   Alert,
-  Space
+  Space,
+  Switch
 } from "antd";
 import * as CountryList from 'country-list'
 import React, { useState, useRef } from "react";
@@ -135,9 +136,9 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
 
 const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 
-const openNotificationWithIcon = (type,msg='Teacher') => {
+const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
   notification[type]({
-    message: type == 'error'?'Failed to add '+ msg: 'Success! ' + msg + ' Added',
+    message: type == 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
     description:
       '',
   });
@@ -172,6 +173,12 @@ const StudentsBatchList: React.FC = () => {
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [selectCountry, setSelectCountry] = useState('')
   const [selectCountryCode, setSelectCountryCode] = useState('')
+  const [bottleSend, setBottleSend] = useState(false)
+  const [firstFeedBack, setFirstFeedBack] = useState(false)
+  const [fifthFeedBack, setFifthFeedBack] = useState(false)
+  const [fifteenthFeedBack, setFifteenthFeedBack] = useState(false)
+
+
 
   //form states
   const [formData, setFormData] = useState({
@@ -179,29 +186,29 @@ const StudentsBatchList: React.FC = () => {
     lastName: "",
     mobile: '',
     email: '',
-    status : '',
-    studentName : '',
-    teacherName :'',
-    batchCode :'',
-    alternativeMobile :'',
-    studentID :'',
-    age :'',
-    address :'',
-    address :'',
-    classType :'',
-    referralCode :'',
-    days :'',
-    kids :'',
-    dob :'',
-    poc :'',
-    startDate :'',
-    endDate :'',
-    startLesson :'',
-    firstFeedback :'',
-    fifthFeedback :'',
-    fifteenthFeedback :'',
-    classesCompleted :'',
-    customersReferred :'',
+    status: '',
+    studentName: '',
+    teacherName: '',
+    batchCode: '',
+    alternativeMobile: '',
+    studentID: '',
+    age: '',
+    address: '',
+    address: '',
+    classType: '',
+    referralCode: '',
+    days: null,
+    kids: '',
+    dob: null,
+    poc: '',
+    startDate: null,
+    endDate: null,
+    startLesson: null,
+    firstFeedback: false,
+    fifthFeedback: false,
+    fifteenthFeedback: false,
+    classesCompleted: '',
+    customersReferred: '',
 
   });
 
@@ -218,9 +225,9 @@ const StudentsBatchList: React.FC = () => {
 
 
 
-  const [endDate, setEndDate] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [startLesson, setStartLesson] = useState("");
+  const [endDate, setEndDate] = useState();
+  const [startDate, setStartDate] = useState();
+  const [startLesson, setStartLesson] = useState();
 
 
   //state for select option
@@ -236,7 +243,7 @@ const StudentsBatchList: React.FC = () => {
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
   const [dateStart, setDateStart] = useState("");
-  const [dateBirth, setDateBirth] = useState("");
+  const [dateBirth, setDob] = useState("");
   const allCountries = CountryList.getData()
 
   const defaultCountry = allCountries.filter(country => country.name === 'India')
@@ -259,38 +266,38 @@ const StudentsBatchList: React.FC = () => {
   };
 
 
-  
-const handleMobileChange = (event) => {
-  const number = event.target.value
-  const message = isValidPhoneNumber(number, selectCountry ? selectCountry : 'IN')
-  console.log('msg', message, msg)
-  const msg = validatePhoneNumberLength(number, selectCountry ? selectCountry : 'IN')
-  if (msg === 'TOO_LONG') {
+
+  const handleMobileChange = (event) => {
+    const number = event.target.value
+    const message = isValidPhoneNumber(number, selectCountry ? selectCountry : 'IN')
+    console.log('msg', message, msg)
+    const msg = validatePhoneNumberLength(number, selectCountry ? selectCountry : 'IN')
+    if (msg === 'TOO_LONG') {
       setError('Phone number is too long')
-  } else if (msg === 'TOO_SHORT') {
+    } else if (msg === 'TOO_SHORT') {
       setError('Phone number is too short')
-  } else if (msg === 'NOT_A_NUMBER') {
+    } else if (msg === 'NOT_A_NUMBER') {
       setError('Not a Number')
-  } else if (msg === 'INVALID_COUNTRY') {
+    } else if (msg === 'INVALID_COUNTRY') {
       setError('Please Select country first')
-  } else if (msg === undefined) {
+    } else if (msg === undefined) {
       setError('')
-  } else {
+    } else {
       setError('Phone number is Invalid')
-  }
-  if (message === true && msg === undefined) {
+    }
+    if (message === true && msg === undefined) {
       console.log(`valid mobile number for ${selectCountry}`)
       setFormData((value) => ({
-          ...value,
-          [event.target.name]: event.target.value
+        ...value,
+        [event.target.name]: event.target.value
       }))
-  }
-  if (message === false && msg === undefined) {
+    }
+    if (message === false && msg === undefined) {
       setError('Enter a valid Mobile Number')
-  }
-  //console.log(validatePhoneNumberLength(number, 'IN'))
+    }
+    //console.log(validatePhoneNumberLength(number, 'IN'))
 
-}
+  }
 
 
   //edit drawer
@@ -315,7 +322,8 @@ const handleMobileChange = (event) => {
         console.log("API call sucessfull", msg);
       }
       setTempDataView(msg.data);
-      console.log('view one',msg);
+      setTempDataView(msg.data);
+      console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -325,7 +333,7 @@ const handleMobileChange = (event) => {
   console.log('tempdateview', tempDataView)
   const columns: ProColumns<API.RuleListItem>[] = [
     {
-  title: (
+      title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.firstName.nameLabel"
           defaultMessage="Name"
@@ -350,7 +358,7 @@ const handleMobileChange = (event) => {
         />
       ),
       dataIndex: 'email',
-    //  hideInSearch: true,
+      //  hideInSearch: true,
     },
     {
       title: (
@@ -360,7 +368,7 @@ const handleMobileChange = (event) => {
         />
       ),
       dataIndex: 'studentID',
-     // hideInSearch: true,
+      // hideInSearch: true,
     },
     {
       title: (
@@ -381,7 +389,7 @@ const handleMobileChange = (event) => {
       ),
       dataIndex: "type",
       hideInForm: true,
-      valueEnum: {  
+      valueEnum: {
         'active': {
           text: (
             <FormattedMessage
@@ -395,13 +403,13 @@ const handleMobileChange = (event) => {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.inactive"
-              defaultMessage="In Active"
+              defaultMessage="InActive"
             />
           ),
-          status: "In Active",
+          status: "InActive",
         },
       },
-    },   {
+    }, {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleView"
@@ -415,8 +423,8 @@ const handleMobileChange = (event) => {
           <a
             onClick={() => {
               console.log('entity', entity);
-              handleOneView(entity.leadId);
-              setCurrentRow(entity);
+              handleOneView(entity.id);
+              // setCurrentRow(entity);
               setShowDetail(true);
             }}
           >
@@ -425,7 +433,7 @@ const handleMobileChange = (event) => {
         );
       },
     },
-    
+
     {
       title: (
         <FormattedMessage
@@ -435,14 +443,16 @@ const handleMobileChange = (event) => {
       ),
       dataIndex: "edit",
       hideInSearch: true,
+
       render: (dom, entity) => {
+        { console.log(entity) }
         return (
           <a
             onClick={() => {
-              console.log('entity',entity);
+              console.log('entity', entity);
               setShowDetail(true);
-              handleOneView(entity.leadId);
-              setCurrentRow(entity);
+              handleOneView(entity.id);
+              // setCurrentRow(entity);
               showDrawerEdit();
             }}
           >
@@ -483,17 +493,25 @@ const handleMobileChange = (event) => {
     // console.log('input one');
   };
 
+  const handleSwitchChange = (e, value) => {
+    setFormData((value) => ({
+      ...value,
+      [e.target.name]: e.target.value,
+    }));
+    // console.log('input one');
+  };
+
   const handleCountry = (value) => {
     console.log('selected country', value)
     if (value) {
-        const code = CountryList.getCode(value)
-        const codeNumber = getCountryCallingCode(code)
-        console.log('code', code, codeNumber)
-        setSelectCountry(code)
-        setSelectCountryCode(codeNumber)
+      const code = CountryList.getCode(value)
+      const codeNumber = getCountryCallingCode(code)
+      console.log('code', code, codeNumber)
+      setSelectCountry(code)
+      setSelectCountryCode(codeNumber)
     }
-}
-console.log('country', selectCountry, selectCountryCode)
+  }
+  console.log('country', selectCountry, selectCountryCode)
 
 
 
@@ -508,29 +526,30 @@ console.log('country', selectCountry, selectCountryCode)
       countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
-      status :selectStatus,
-      studentName : formData.studentName,
-      teacherName : formData.teacherName,
-      mobile : formData.phoneNumber,
-      batchCode : formData.batchCode,
-      alternativeMobile : formData.alternativeMobile,
-      studentID : formData.studentID,
-      age :	 formData.age,
-      address : formData.address,
-      classType : formData.classType,
-      referralCode : formData.referralCode,
-      days : formData.days,
-      kids : formData.kids,
-      dob : formData.dob,
-      poc : formData.poc,
-      startDate : formData.startDate,
-      endDate : formData.endDate,
-      startLesson : formData.startLesson,
-      firstFeedback : formData.firstFeedback,
-      fifthFeedback : formData.fifthFeedback,
-      fifteenthFeedback : formData.fifteenthFeedback,
-      classesCompleted : formData.classesCompleted,
-      customersReferred : formData.customersReferred,
+      status: selectStatus,
+      studentName: formData.studentName,
+      teacherName: formData.teacherName,
+      mobile: formData.phoneNumber,
+      batchCode: formData.batchCode,
+      alternativeMobile: formData.alternativeMobile,
+      studentID: formData.studentID,
+      age: formData.age,
+      address: formData.address,
+      classType: formData.classType,
+      referralCode: formData.referralCode,
+      days: formData.days,
+      kids: formData.kids,
+      dob: formData.dob,
+      poc: formData.poc,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      startLesson: formData.startLesson,
+      firstFeedback: firstFeedBack,
+      fifthFeedback: fifthFeedBack,
+      fifteenthFeedback: fifteenthFeedBack,
+      bottleSend: bottleSend,
+      classesCompleted: formData.classesCompleted,
+      customersReferred: formData.customersReferred,
     };
     // async (values: API.LoginParams) => {
     try {
@@ -542,13 +561,15 @@ console.log('country', selectCountry, selectCountryCode)
         },
         body: JSON.stringify(dataForm),
       });
-      if(msg){
-        window.location.reload();
-        openNotificationWithIcon('success', 'Student')
+
+      if (msg.status === 400) {
+        openNotificationWithIcon('error', msg.data)
+
+      } else {
+        console.log(msg);
+        openNotificationWithIcon('success', ' Student');
       }
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-      }
+      window.location.reload();
       console.log(msg);
     } catch (error) {
       console.log("addRule error", error);
@@ -556,8 +577,6 @@ console.log('country', selectCountry, selectCountryCode)
         id: "pages.login.failure",
         defaultMessage: "登录失败，请重试！",
       });
-      openNotificationWithIcon('error', 'Student');
-      message.error(defaultLoginFailureMessage);
     }
     setVisible(false);
     // console.log('formData', formData);
@@ -567,35 +586,36 @@ console.log('country', selectCountry, selectCountryCode)
   const handleFormSubmitEdit = async () => {
     console.log("form submitted");
     const dataForm = {
-      firstName:formData.firstName? formData.firstName: tempDataView.firstName,
-      lastName:formData.lastName?formData.lastName:tempDataView.lastName,
-      phoneNumber:formData.phoneNumber?formData.phoneNumber:tempDataView.phoneNumber,
-      countryCode:formData.countryCode?formData.countryCode:tempDataView.countryCode,
-      email:formData.email?formData.email:tempDataView.email,
-      type:formData.type?formData.type:'student',
-      status:selectStatus?selectStatus:tempDataView.status,
-      studentName:formData.studentName?formData.studentName : tempDataView.studentName,
-      teacherName:formData.teacherName?formData.teacherName : tempDataView.teacherName,
-      mobile:formData.phoneNumber?formData.phoneNumber : tempDataView.phoneNumber,
-      batchCode:formData.batchCode?formData.batchCode : tempDataView.batchCode,
-      alternativeMobile:formData.alternativeMobile?formData.alternativeMobile : tempDataView.alternativeMobile,
-      studentID:formData.studentID?formData.studentID : tempDataView.studentID,
-      age:formData.age?formData.age:	 tempDataView.age,
-      address:formData.address?formData.address : tempDataView.address,
-      classType:formData.classType?formData.classType : tempDataView.classType,
-      referralCode:formData.referralCode?formData.referralCode : tempDataView.referralCode,
-      days:formData.days?formData.days : tempDataView.days,
-      kids:formData.kids?formData.kids : tempDataView.kids,
-      dob:formData.dob?formData.dob : tempDataView.dob,
-      poc:formData.poc?formData.poc : tempDataView.poc,
-      startDate:formData.startDate?formData.startDate : tempDataView.startDate,
-      endDate:formData.endDate?formData.endDate : tempDataView.endDate,
-      startLesson:formData.startLesson?formData.startLesson : tempDataView.startLesson,
-      firstFeedback:formData.firstFeedback?formData.firstFeedback : tempDataView.firstFeedback,
-      fifthFeedback:formData.fifthFeedback?formData.fifthFeedback : tempDataView.fifthFeedback,
-      fifteenthFeedback:formData.fifteenthFeedback?formData.fifteenthFeedback : tempDataView.fifteenthFeedback,
-      classesCompleted:formData.classesCompleted?formData.classesCompleted : tempDataView.classesCompleted,
-      customersReferred:formData.customersReferred?formData.customersReferred  : tempDataView.customersReferred,
+      firstName: formData.firstName ? formData.firstName : tempDataView.firstName,
+      lastName: formData.lastName ? formData.lastName : tempDataView.lastName,
+      phoneNumber: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
+      countryCode: formData.countryCode ? formData.countryCode : tempDataView.countryCode,
+      email: formData.email ? formData.email : tempDataView.email,
+      type: formData.type ? formData.type : 'student',
+      status: selectStatus ? selectStatus : tempDataView.status,
+      studentName: formData.studentName ? formData.studentName : tempDataView.studentName,
+      teacherName: formData.teacherName ? formData.teacherName : tempDataView.teacherName,
+      mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
+      batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
+      alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
+      studentID: formData.studentID ? formData.studentID : tempDataView.studentID,
+      age: formData.age ? formData.age : tempDataView.age,
+      address: formData.address ? formData.address : tempDataView.address,
+      classType: formData.classType ? formData.classType : tempDataView.classType,
+      referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
+      days: formData.days ? formData.days : tempDataView.days,
+      kids: formData.kids ? formData.kids : tempDataView.kids,
+      dob: formData.dob ? formData.dob : tempDataView.dob,
+      poc: formData.poc ? formData.poc : tempDataView.poc,
+      startDate: startDate,
+      endDate: endDate,
+      startLesson: startLesson,
+      firstFeedback: firstFeedBack,
+      fifthFeedback: fifthFeedBack,
+      fifteenthFeedback: fifteenthFeedBack,
+      bottleSend: bottleSend,
+      classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
+      customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
@@ -611,33 +631,27 @@ console.log('country', selectCountry, selectCountryCode)
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg.status === "ok") {
+      if (msg.status === 400) {
+        openNotificationWithIcon('error', msg);
         console.log("API call sucessfull", msg);
+      } else {
         openNotificationWithIcon('success', 'Student');
       }
-      if(msg){
-        openNotificationWithIcon('success', 'Student');
+      if (msg) {
+
       }
       console.log(msg);
       // 如果失败去设置用户错误信息
       // setUserLoginState(msg);
     } catch (error) {
-      console.log("addRule error", error);
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: "pages.login.failure",
-        defaultMessage: "登录失败，请重试！",
-      });
-      message.error(defaultLoginFailureMessage);
-      if(msg){
-        openNotificationWithIcon('error')
-      }
+      openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
     }
     console.log("formData", formData);
     console.log("dataForm", dataForm);
     onClose();
   };
 
-   
+
   //console.log('timeslots', timeSlots)
 
   //delete teacher
@@ -706,138 +720,120 @@ console.log('country', selectCountry, selectCountryCode)
             width={820}
           >
             <Form onFinish={handleFormSubmit}>
-              
+
               <Row gutter={16}>
-              <Col span={12}>
-                        <Form.Item
-                            name="firstName"
-                            rules={[{
-                                required: true,
-                                min: 2,
-                                type: 'string',
-                                pattern: /^[a-zA-Z ]*$/,
-                            }]}
-                        >
-                            <Input
-                                placeholder="First Name"
-                                name="firstName"
-                                value={formData.firstName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="lastName"
-                            rules={[{
-                                required: true,
-                                min: 2,
-                                type: 'string',
-                                pattern: /^[a-zA-Z]*$/,
-                            }]}
-                        >
-                            <Input
-                                placeholder="Last Name"
-                                name="lastName"
-                                value={formData.lastName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="teacherName"
-                            rules={[{
-                                required: true,
-                                min: 2,
-                                type: 'string',
-                                pattern: /^[a-zA-Z]*$/,
-                            }]}
-                        >
-                            <Input
-                                placeholder="Teacher Name"
-                                name="teacherName"
-                                value={formData.teacherName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="countryCode">
-                            <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
-                                {allCountries.map((country) => {
-                                    return <Option value={country.name} key={country.code}>{country.name}</Option>
-                                })}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="phoneNumber"  rules={[
-                                {
-                                    required: true,
-                                    type: 'Phone Number'
-                                }
-                            ]}>
-                            <Input
-                                placeholder="Enter Mobile Number"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
-                                onChange={handleMobileChange}
-                           //  prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                            />
-                   
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="alternativeMobile"  rules={[
-                                {
-                                    required: true,
-                                    type: 'Alternative Mobile'
-                                }
-                            ]}>
-                            <Input
-                                placeholder="Alternative Contact No"
-                                name="alternativeMobile"
-                                value={formData.alternativeMobile}
-                                onChange={handleMobileChange}
-                             prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                            />
-                            {error ? (
-                                <p style={{ color: 'red' }}>{error}</p>
-                            ) : ''}
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="email"
-                            rules={[
-                                {
-                                    required: true,
-                                    type: 'email'
-                                }
-                            ]}
-                        >
-                            <Input
-                                placeholder="Email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    
-                    <Col span={12}>
-                        <Form.Item name="status	">
-                          {console.log(tempDataView.status)}
-                        <Select
-                      defaultValue = {tempDataView.status == 'active'
+                <Col span={12}>
+                  <Form.Item
+                    name="firstName"
+                    rules={[{
+                      required: true,
+                      min: 2,
+                      type: 'string',
+                      pattern: /^[a-zA-Z ]*$/,
+                    }]}
+                  >
+                    <Input
+                      placeholder="First Name"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="lastName"
+                    rules={[{
+                      required: true,
+                      min: 2,
+                      type: 'string',
+                      pattern: /^[a-zA-Z]*$/,
+                    }]}
+                  >
+                    <Input
+                      placeholder="Last Name"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="teacherName"
+
+                  >
+                    <Input
+                      placeholder="Teacher Name"
+                      name="teacherName"
+                      value={formData.teacherName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="countryCode">
+                    <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
+                      {allCountries.map((country) => {
+                        return <Option value={country.name} key={country.code}>{country.name}</Option>
+                      })}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="phoneNumber">
+                    <Input
+                      placeholder="Enter Mobile Number"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleFormChange}
+                    //  prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                    />
+
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="alternativeMobile">
+                    <Input
+                      placeholder="Alternative Contact No"
+                      name="alternativeMobile"
+                      value={formData.alternativeMobile}
+                      onChange={handleFormChange}
+                    //      prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+                    rules={[
+                      {
+                        required: true,
+                        type: 'email'
+                      }
+                    ]}
+                  >
+                    <Input
+                      placeholder="Email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="status	">
+                    {console.log(tempDataView.status)}
+                    <Select
+                      defaultValue={tempDataView.status == 'active'
                         ? "Active"
                         : tempDataView.status == 'onhold'
                           ? "OnHold"
                           : tempDataView.status == 'leave'
                             ? "Leave"
-                            : "In Active"}
+                            : "InActive"}
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
@@ -846,238 +842,305 @@ console.log('country', selectCountry, selectCountryCode)
                       <Option value="leave">Leave</Option>
                       <Option value="onhold">On Hold</Option>
                     </Select>                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="batchCode">                    
-                            <Input
-                                placeholder="Batch Code"
-                                name="batchCode"
-                                value={formData.batchCode}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="studentID">                    
-                            <Input
-                                placeholder="Student ID"
-                                name="studentID"
-                                value={formData.studentID}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                </Col>
                 <Col span={12}>
-                  <Form.Item name="dob">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setDateBirth(dateString);
-                      }}
-                      placeholder={"Date Of Birth"}
+                  <Form.Item name="batchCode">
+                    <Input
+                      placeholder="Batch Code"
+                      name="batchCode"
+                      value={formData.batchCode}
+                      onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
-                    <Col span={12}>
-                        <Form.Item name="age">                    
-                            <Input
-                                placeholder="Age"
-                                name="age"
-                                value={formData.age}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="address">                    
-                            <Input
-                                placeholder="Address"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="classType">                    
-                            <Input
-                                placeholder="Class type"
-                                name="classType"
-                                value={formData.classType}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="poc">                    
-                            <Input
-                                placeholder="poc"
-                                name="poc"
-                                value={formData.poc}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="days">                    
-                            <Input
-                                placeholder="Days"
-                                name="days"
-                                value={formData.days}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="kids">                    
-                            <Input
-                                placeholder="Kids/Adults"
-                                name="kids"
-                                value={formData.kids}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="referralCode">                    
-                            <Input
-                                placeholder="Referral Code"
-                                name="referralCode"
-                                value={formData.referralCode}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                   
                 <Col span={12}>
-                  <Form.Item name="startDate">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setStartDate(dateString);
-                      }}
-                      placeholder={"Start Date"}
+                  <Form.Item name="studentID">
+                    <Input
+                      placeholder="Student ID"
+                      name="studentID"
+                      value={formData.studentID}
+                      onChange={handleFormChange}
                     />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dob">
+                    {
+
+                      tempDataView.dob === null ?
+                        <DatePicker
+
+
+                          format="YYYY/MM/DD"
+                          style={{ width: "210px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }}
+                          placeholder={"Date Of Birth"}
+                        />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                          format="YYYY/MM/DD"
+                          style={{ width: "210px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }}
+                          placeholder={"Date Of Birth"}
+                        />}
+
+
+
+
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="age">
+                    <Input
+                      placeholder="Age"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="address">
+                    <Input
+                      placeholder="Address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classType">
+                    <Input
+                      placeholder="Class type"
+                      name="classType"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="poc">
+                    <Input
+                      placeholder="poc"
+                      name="poc"
+                      value={formData.poc}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="days">
+                    <Input
+                      placeholder="Days"
+                      name="days"
+                      value={formData.days}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="kids">
+                    <Input
+                      placeholder="Kids/Adults"
+                      name="kids"
+                      value={formData.kids}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="referralCode">
+                    <Input
+                      placeholder="Referral Code"
+                      name="referralCode"
+                      value={formData.referralCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+
+                  <Form.Item name="startDate">
+                    {tempDataView.startDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartDate(dateString);
+                        }}
+                        placeholder={"Date Of Birth"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartDate(dateString);
+                        }} />
+                    }
+
+
+
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="endDate">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setEndDate(dateString);
-                      }}
-                      placeholder={"End Date"}
-                    />
+
+                    {tempDataView.endDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setEndDate(dateString);
+                        }}
+                        placeholder={"Date Of Birth"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.endDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setEndDate(dateString);
+                        }}
+                        placeholder={"End Date"}
+                      />
+
+                    }
+
+
+
+
                   </Form.Item>
                 </Col><Col span={12}>
                   <Form.Item name="startLesson">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setStartLesson(dateString);
-                      }}
-                      placeholder={"Start Lesson"}
+
+                    {tempDataView.startLesson === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartLesson(dateString);
+                        }}
+                        placeholder={"Date Of Birth"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.startLesson}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartLesson(dateString);
+                        }}
+                        placeholder={"Lesson Start Date"}
+                      />
+
+                    }
+
+
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classesCompleted">
+                    <Input
+                      placeholder="No of Classes Completed"
+                      name="classesCompleted"
+                      value={formData.classesCompleted}
+                      onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                        <Form.Item name="classesCompleted">                    
-                            <Input
-                                placeholder="No of Classes Completed"
-                                name="classesCompleted"
-                                value={formData.classesCompleted}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="customersReferred">                    
-                            <Input
-                                placeholder="Number of customers referred"
-                                name="customersReferred"
-                                value={formData.customersReferred}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="comments">                    
-                            <Input
-                                placeholder="comments"
-                                name="comments"
-                                value={formData.comments}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="crossedEndDate">                    
-                            <Input
-                                placeholder="crossed End Date"
-                                name="crossedEndDate"
-                                value={formData.crossedEndDate}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="watsappGroup">                    
-                            <Input
-                                placeholder="watsappGroup"
-                                name="watsappGroup"
-                                value={formData.watsappGroup}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                  <Form.Item name="customersReferred">
+                    <Input
+                      placeholder="Number of customers referred"
+                      name="customersReferred"
+                      value={formData.customersReferred}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="comments">
+                    <Input
+                      placeholder="comments"
+                      name="comments"
+                      value={formData.comments}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="crossedEndDate">
+                    <Input
+                      placeholder="crossed End Date"
+                      name="crossedEndDate"
+                      value={formData.crossedEndDate}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="watsappGroup">
+                    <Input
+                      placeholder="watsappGroup"
+                      name="watsappGroup"
+                      value={formData.watsappGroup}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  {console.log('First Feed Back ')}
+                   
+                  {console.log(formData.firstFeedback)}
+                  {console.log('firstFeedback')}
+                  <Form.Item name="firstFeedback">
+                    First FeedBack <Switch valuePropName='firstFeedback' onChange={(value) => {
+                      setFirstFeedBack(value)
+                    }} /> <br />
+                  </Form.Item>
+                </Col>
 
-                    <Col span={12}>
-                        <Form.Item name="bottleSend">                    
-                            <Input
-                                placeholder="Bottle Send"
-                                name="bottleSend"
-                                value={formData.bottleSend}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                <Col span={12}>
+                  <Form.Item name="bottleSend">
+                    Bottle Send  <Switch valuePropName='bottleSend' onChange={(value) => {
+                      setBottleSend(value)
+                    }} /> <br />
 
-                    <Col span={12}>
-                        <Form.Item name="firstFeedback">                    
-                            <Input
-                                placeholder="1st Class Feedback Completed"
-                                name="firstFeedback"
-                                value={formData.firstFeedback}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="fifthFeedback">                    
-                            <Input
-                                placeholder="5th Class Feedback Completed"
-                                name="fifthFeedback"
-                                value={formData.fifthFeedback}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="fifteenthFeedback">                    
-                            <Input
-                                placeholder="15th Class Feedback Completed"
-                                name="fifteenthFeedback"
-                                value={formData.fifteenthFeedback}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-      </Row>
+                  </Form.Item>
+                </Col>
+
+
+                <Col span={15}>
+                  <Form.Item name="fifthFeedback">
+                    Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
+                      setFifthFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                <Col span={15}>
+                  <Form.Item name="fifteenthFeedback">
+                    Fifteenth FeedBack <Switch valuePropName='fifteenthFeedback' onChange={(value) => {
+                      setFifteenthFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+              </Row>
 
               <Input
                 type="submit"
@@ -1284,21 +1347,28 @@ console.log('country', selectCountry, selectCountryCode)
                 <p>First Feedback</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.firstFeedback}</p>
+                <p>{tempDataView.firstFeedback ? "True" : "False"}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p>Fifth Feedback</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.fifthFeedback}</p>
+                <p>{tempDataView.fifthFeedback ? "True" : "False"}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p>Fifteenth Feedback</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.fifteenthFeedback}</p>
+                <p>{tempDataView.fifteenthFeedback ? "True" : "False"}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Bottle Send</p>
+              </Col>
+              <Col span={11}>
+                <p>{tempDataView.bottleSend ? "True" : "False"}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1329,110 +1399,108 @@ console.log('country', selectCountry, selectCountryCode)
         ) : (
           <>
             <Form onFinish={handleFormSubmitEdit}>
-            <Row gutter={16}>
-            <Col span={12}>
-                        <Form.Item
-                            name="firstName"                   
-                           
-                        >
-                            <Input
-                                placeholder="First Name"
-                                name="firstName"
-                                defaultValue={tempDataView.firstName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="lastName"                           
-                           
-                        >
-                            <Input
-                                placeholder="Last Name"
-                                name="lastName"
-                                defaultValue={tempDataView.lastName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="teacherName"
-                           
-                        >
-                            <Input
-                                placeholder="Teacher Name"
-                                name="teacherName"
-                                defaultValue={tempDataView.teacherName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="countryCode">
-                            <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
-                                {allCountries.map((country) => {
-                                    return <Option value={country.name} key={country.code}>{country.name}</Option>
-                                })}
-                            </Select>
-                        </Form.Item>
-                    </Col>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="firstName"
 
-                    <Col span={12}>
-                        <Form.Item name="phoneNumber">
-                            <Input
-                                placeholder="Enter Mobile Number"
-                                name="phoneNumber"
-                                defaultValue={tempDataView.phoneNumber}
-                                onChange={handleMobileChange}
-                             prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                            />
-                            {error ? (
-                                <p style={{ color: 'red' }}>{error}</p>
-                            ) : ''}
-                        </Form.Item>
-                    </Col>
+                  >
+                    <Input
+                      placeholder="First Name"
+                      name="firstName"
+                      defaultValue={tempDataView.firstName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="lastName"
 
-                    <Col span={12}>
-                        <Form.Item name="alternativeMobile">
-                            <Input
-                                placeholder="Alternative Contact No"
-                                name="alternativeMobile"
-                                defaultValue={tempDataView.alternativeMobile}
-                                onChange={handleMobileChange}
-                             prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                            />
-                            {error ? (
-                                <p style={{ color: 'red' }}>{error}</p>
-                            ) : ''}
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name="email"
-                          
-                        >
-                            <Input
-                                placeholder="Email"
-                                name="email"
-                                defaultValue={tempDataView.email}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    
-                    <Col span={12}>
-                        <Form.Item name="status	" rules={[{ required: true }]}>
-                        <Select
-                      defaultValue = {tempDataView.status == 'active'
+                  >
+                    <Input
+                      placeholder="Last Name"
+                      name="lastName"
+                      defaultValue={tempDataView.lastName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="teacherName"
+
+                  >
+                    <Input
+                      placeholder="Teacher Name"
+                      name="teacherName"
+                      defaultValue={tempDataView.teacherName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="countryCode">
+                    <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
+                      {allCountries.map((country) => {
+                        return <Option value={country.name} key={country.code}>{country.name}</Option>
+                      })}
+                    </Select>
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="phoneNumber">
+                    <Input
+                      placeholder="Enter Mobile Number"
+                      name="phoneNumber"
+                      defaultValue={tempDataView.phoneNumber}
+                      onChange={handleFormChange}
+                    //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                    />
+
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="alternativeMobile">
+                    <Input
+                      placeholder="Alternative Contact No"
+                      name="alternativeMobile"
+                      defaultValue={tempDataView.alternativeMobile}
+                      // onChange={handleFormChange}
+                      prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
+                    />
+                    {error ? (
+                      <p style={{ color: 'red' }}>{error}</p>
+                    ) : ''}
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="email"
+
+                  >
+                    <Input
+                      placeholder="Email"
+                      name="email"
+                      defaultValue={tempDataView.email}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="status	">
+                    <Select
+                      defaultValue={tempDataView.status == 'active'
                         ? "Active"
                         : tempDataView.status == 'onhold'
                           ? "OnHold"
                           : tempDataView.status == 'leave'
                             ? "Leave"
-                            : "In Active"}
+                            : "InActive"}
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
@@ -1441,266 +1509,313 @@ console.log('country', selectCountry, selectCountryCode)
                       <Option value="leave">Leave</Option>
                       <Option value="onhold">On Hold</Option>
                     </Select>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="batchCode">                    
-                            <Input
-                                placeholder="Batch Code"
-                                name="batchCode"
-                                defaultValue={tempDataView.batchCode}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="studentID">                    
-                            <Input
-                                placeholder="Student ID"
-                                name="studentID"
-                                defaultValue={tempDataView.studentID}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="studentName">                    
-                            <Input
-                                placeholder="Student Name"
-                                name="studentName"
-                                defaultValue={tempDataView.studentName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="teacherName">                    
-                            <Input
-                                placeholder="Teacher Name"
-                                name="teacherName"
-                                defaultValue={tempDataView.teacherName}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                  </Form.Item>
+                </Col>
                 <Col span={12}>
-                  <Form.Item name="dob">
-                    <DatePicker 
-                    defaultValue = {moment(`${tempDataView.dob}`, 'YYYY/MM/DD')}
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setDateBirth(dateString);
-                      }}
-                      placeholder={"Date Of Birth"}
+                  <Form.Item name="batchCode">
+                    <Input
+                      placeholder="Batch Code"
+                      name="batchCode"
+                      defaultValue={tempDataView.batchCode}
+                      onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
-                    <Col span={12}>
-                        <Form.Item name="age">                    
-                            <Input
-                                placeholder="Age"
-                                name="age"
-                                defaultValue={tempDataView.age}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="address">                    
-                            <Input
-                                placeholder="Address"
-                                name="address"
-                                defaultValue={tempDataView.address}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="classType">                    
-                            <Input
-                                placeholder="Class type"
-                                name="classType"
-                                defaultValue={tempDataView.classType}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="poc">                    
-                            <Input
-                                placeholder="poc"
-                                name="poc"
-                                defaultValue={tempDataView.poc}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="days">                    
-                            <Input
-                                placeholder="Days"
-                                name="days"
-                                defaultValue={tempDataView.days}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="kids">                    
-                            <Input
-                                placeholder="Kids/Adults"
-                                name="kids"
-                                defaultValue={tempDataView.kids}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="referralCode">                    
-                            <Input
-                                placeholder="Referral Code"
-                                name="referralCode"
-                                defaultValue={tempDataView.refferalCode}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                   
+                <Col span={12}>
+                  <Form.Item name="studentID">
+                    <Input
+                      placeholder="Student ID"
+                      name="studentID"
+                      defaultValue={tempDataView.studentID}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="studentName">
+                    <Input
+                      placeholder="Student Name"
+                      name="studentName"
+                      defaultValue={tempDataView.studentName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="teacherName">
+                    <Input
+                      placeholder="Teacher Name"
+                      name="teacherName"
+                      defaultValue={tempDataView.teacherName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dob">
+
+                  {tempDataView.dob === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setDob(dateString);
+                        }}
+                        placeholder={"Date of Birth"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setDob(dateString);
+                        }}
+                        placeholder={"Date of Birth"}
+                      />
+
+                    }
+                 
+
+                  
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="age">
+                    <Input
+                      placeholder="Age"
+                      name="age"
+                      defaultValue={tempDataView.age}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="address">
+                    <Input
+                      placeholder="Address"
+                      name="address"
+                      defaultValue={tempDataView.address}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classType">
+                    <Input
+                      placeholder="Class type"
+                      name="classType"
+                      defaultValue={tempDataView.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="poc">
+                    <Input
+                      placeholder="poc"
+                      name="poc"
+                      defaultValue={tempDataView.poc}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="days">
+                    <Input
+                      placeholder="Days"
+                      name="days"
+                      defaultValue={tempDataView.days}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="kids">
+                    <Input
+                      placeholder="Kids/Adults"
+                      name="kids"
+                      defaultValue={tempDataView.kids}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="referralCode">
+                    <Input
+                      placeholder="Referral Code"
+                      name="referralCode"
+                      defaultValue={tempDataView.refferalCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+
                 <Col span={12}>
                   <Form.Item name="startDate">
-                    {console.log(tempDataView.startDate)}
-                    <DatePicker
-                     defaultValue = {moment(`${tempDataView.startDate}`, 'YYYY/MM/DD')}
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setStartDate(dateString);
-                      }}
-                      placeholder={"Start Date"}
-                    />
+                    {console.log('startdate')}
+                    {console.log(startDate)}
+                    {tempDataView.startDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartDate(dateString);
+                        }}
+                        placeholder={"Classes Start Date"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartDate(dateString);
+                        }} />
+                    }
+
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="endDate">
-                    <DatePicker 
-                     defaultValue = {moment(`${tempDataView.endDate}`, 'YYYY/MM/DD')}
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setEndDate(dateString);
-                      }}
-                      placeholder={"End Date"}
-                    />
+                  {tempDataView.startDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setEndDate(dateString);
+                        }}
+                        placeholder={"Classes End Date"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.endDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setEndDate(dateString);
+                        }}
+                        placeholder={"End Date"}
+                      />
+
+                    }
                   </Form.Item>
                 </Col><Col span={12}>
                   <Form.Item name="startLesson">
-                    <DatePicker
-                     defaultValue = {moment(`${tempDataView.startLesson}`, 'YYYY/MM/DD')}
-                      format="YYYY/MM/DD"
-                      style={{ width: "210px" }}
-                      onChange={(date, dateString) => {
-                        setStartLesson(dateString);
-                      }}
-                      placeholder={"Start Lesson"}
+                    
+                  {tempDataView.startDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartLesson(dateString);
+                        }}
+                        placeholder={"Lesson Start Date"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.startLesson}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setStartLesson(dateString);
+                        }}
+                        placeholder={"Lesson Start Date"}
+                      />
+
+                    }
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classesCompleted">
+                    <Input
+                      placeholder="No of Classes Completed"
+                      name="classesCompleted"
+                      defaultValue={tempDataView.classesCompleted}
+                      onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                        <Form.Item name="classesCompleted">                    
-                            <Input
-                                placeholder="No of Classes Completed"
-                                name="classesCompleted"
-                                defaultValue={tempDataView.classesCompleted}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="customersReferred">                    
-                            <Input
-                                placeholder="Number of customers referred"
-                                name="customersReferred"
-                                defaultValue={tempDataView.customersReferred}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="comments">                    
-                            <Input
-                                placeholder="comments"
-                                name="comments"
-                                defaultValue={tempDataView.comments}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="crossedEndDate">                    
-                            <Input
-                                placeholder="crossed End Date"
-                                name="crossedEndDate"
-                                defaultValue={tempDataView.crossedEndDate}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="watsappGroup">                    
-                            <Input
-                                placeholder="watsappGroup"
-                                name="watsappGroup"
-                                defaultValue={tempDataView.watsappGroup}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                  <Form.Item name="customersReferred">
+                    <Input
+                      placeholder="Number of customers referred"
+                      name="customersReferred"
+                      defaultValue={tempDataView.customersReferred}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="comments">
+                    <Input
+                      placeholder="comments"
+                      name="comments"
+                      defaultValue={tempDataView.comments}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="crossedEndDate">
+                    <Input
+                      placeholder="crossed End Date"
+                      name="crossedEndDate"
+                      defaultValue={tempDataView.crossedEndDate}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="watsappGroup">
+                    <Input
+                      placeholder="watsappGroup"
+                      name="watsappGroup"
+                      defaultValue={tempDataView.watsappGroup}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
 
-                    <Col span={12}>
-                        <Form.Item name="bottleSend">                    
-                            <Input
-                                placeholder="Bottle Send"
-                                name="bottleSend"
-                                defaultValue={tempDataView.bottleSend}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
+                <Col span={12}>
+                  <Form.Item name="firstFeedback">
+                    First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
+                      setFirstFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="bottleSend">
+                    Bottle Send <Switch defaultChecked={tempDataView.bottleSend} onChange={(value) => {
+                      setBottleSend(value)
+                    }} /> <br />
+                  </Form.Item>
+                </Col>
+                <Col span={15}>
+                  <Form.Item name="fifthFeedback">
+                    Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
+                      setFifthFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                <Col span={15}>
+                  <Form.Item name="fifteenthFeedback">
+                    Fifteenth FeedBack <Switch defaultChecked={tempDataView.fifteenthFeedback} onChange={(value) => {
+                      setFifteenthFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
 
-                    <Col span={12}>
-                        <Form.Item name="firstFeedback">                    
-                            <Input
-                                placeholder="1st Class Feedback Completed"
-                                name="firstFeedback"
-                                defaultValue={tempDataView.firstFeedback}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="fifthFeedback">                    
-                            <Input
-                                placeholder="5th Class Feedback Completed"
-                                name="fifthFeedback"
-                                defaultValue={tempDataView.fifthFeedback}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="fifteenthFeedback">                    
-                            <Input
-                                placeholder="15th Class Feedback Completed"
-                                name="fifteenthFeedback"
-                                defaultValue={tempDataView.fifteenthFeedback}
-                                onChange={handleFormChange}
-                            />
-                        </Form.Item>
-                    </Col>
-      
 
-             
+
               </Row>
 
               <Row>
@@ -1711,10 +1826,10 @@ console.log('country', selectCountry, selectCountryCode)
                     style={{ color: "white", backgroundColor: "DodgerBlue" }}
                   />
                 </Col>
-                <Col span = {8}></Col>
+                <Col span={8}></Col>
                 <Col span={8}>
                   <Button
-                    onClick={()=>{openNotification(tempDataView.userId)}}
+                    onClick={() => { openNotification(tempDataView.userId) }}
                     block
                     type="primary"
                   >
@@ -1723,7 +1838,7 @@ console.log('country', selectCountry, selectCountryCode)
                 </Col>
               </Row>
             </Form>
-         
+
           </>
         )}
       </Drawer>

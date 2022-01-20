@@ -5,7 +5,7 @@ import {
   EyeOutlined,
   ClockCircleOutlined,
   UploadOutlined,
-  
+
   EditOutlined,
 } from "@ant-design/icons";
 import {
@@ -124,7 +124,7 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
 
 const openNotificationWithIcon = type => {
   notification[type]({
-    message: type == 'error'?'Failed to add teacher': 'Success! Teacher Added',
+    message: type == 'error' ? 'Failed to add teacher' : 'Success! Teacher Added',
     description:
       '',
   });
@@ -159,12 +159,12 @@ const TeacherBatchList: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    joiningDate: "",
-    type:"teacher",
+    joiningdate: null,
+    type: "teacher",
     email: "",
     address: "",
     startDate: "",
-    dateOfBirth: "",
+    dob: "",
     gender: "",
     mobile: "",
     whatsapp: "",
@@ -199,9 +199,9 @@ const TeacherBatchList: React.FC = () => {
   const [selectLead1, setSelectLead1] = useState([]);
 
   //state for adding datepicker
-  const [dateJoining, setDateJoining] = useState("");
-  const [dateStart, setDateStart] = useState("");
-  const [dateBirth, setDateOfBirth] = useState("");
+  const [dateJoining, setDateJoining] = useState();
+  const [dateStart, setDateStart] = useState();
+  const [dateBirth, setDob] = useState();
 
   //add drawer
   const showDrawer = () => {
@@ -242,7 +242,7 @@ const TeacherBatchList: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       setTempDataView(msg.data);
-      console.log('view one',msg);
+      console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -261,8 +261,8 @@ const TeacherBatchList: React.FC = () => {
       ),
       dataIndex: "date",
       valueType: "date",
-      hideInSearch:true,
-      
+      hideInSearch: true,
+
     },
     {
       title: (
@@ -404,7 +404,7 @@ const TeacherBatchList: React.FC = () => {
       },
     },
     //weekday
-{
+    {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleWeekday"
@@ -415,27 +415,27 @@ const TeacherBatchList: React.FC = () => {
       hideInTable: true,
       renderFormItem: (value) => {
         return <Select mode="tags">
-          <Option value = "1">Monday</Option>
-          <Option value = "2">Tuesday</Option>
-          <Option value = "3">Wednesday</Option>
-          <Option value = "4">Thursday</Option>
-          <Option value = "5">Friday</Option>
-          <Option value = "6">Saturday</Option>
-          <Option value = "7">Sunday</Option>
-          </Select>
+          <Option value="1">Monday</Option>
+          <Option value="2">Tuesday</Option>
+          <Option value="3">Wednesday</Option>
+          <Option value="4">Thursday</Option>
+          <Option value="5">Friday</Option>
+          <Option value="6">Saturday</Option>
+          <Option value="7">Sunday</Option>
+        </Select>
       },
       search: {
-        transform: (value)=>{
+        transform: (value) => {
           console.log('value', value)
           return { weekday: value.join(',') };
         }
       }
-},
+    },
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleView"
-          defaultMessage="view"
+          defaultMessage="View"
         />
       ),
       dataIndex: "view",
@@ -455,12 +455,12 @@ const TeacherBatchList: React.FC = () => {
         );
       },
     },
-    
+
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.titleedit"
-          defaultMessage="edit"
+          defaultMessage="Edit"
         />
       ),
       dataIndex: "edit",
@@ -469,7 +469,7 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-            
+
               setShowDetail(true);
               handleOneView(entity.leadId);
               setCurrentRow(entity);
@@ -565,7 +565,7 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if(msg){
+      if (msg) {
         window.location.reload();
         openNotificationWithIcon('success')
       }
@@ -660,7 +660,7 @@ const TeacherBatchList: React.FC = () => {
         console.log("API call sucessfull", msg);
         openNotificationWithIcon('success')
       }
-      if(msg){
+      if (msg) {
         openNotificationWithIcon('success')
       }
       console.log(msg);
@@ -673,7 +673,7 @@ const TeacherBatchList: React.FC = () => {
         defaultMessage: "登录失败，请重试！",
       });
       message.error(defaultLoginFailureMessage);
-      if(msg){
+      if (msg) {
         openNotificationWithIcon('error')
       }
     }
@@ -713,7 +713,7 @@ const TeacherBatchList: React.FC = () => {
       leadSlot = {
         start_slot: slotStart,
         end_slot: slotEnd,
-        start_date: dateStart?dateStart:tempDataView.startDate,
+        start_date: dateStart ? dateStart : tempDataView.startDate,
         weekday: props.weekday,
       };
     }
@@ -731,8 +731,8 @@ const TeacherBatchList: React.FC = () => {
 
     const format = "HH:mm";
     return (
-      <Row style = {{margin: 5}}>
-        
+      <Row style={{ margin: 5 }}>
+
         <Col span={7}>
           {dataLead ? (
             <Checkbox name="weekday" checked="true" onChange={(e) => setValue1(props.weekday)}>
@@ -877,11 +877,11 @@ const TeacherBatchList: React.FC = () => {
             width={820}
           >
             <Form onFinish={handleFormSubmit}>
-              
+
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
-                    name="first name"
+                    name="firstName"
                     rules={[
                       {
                         required: true,
@@ -900,7 +900,7 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    name="last Name"
+                    name="lastName"
                     rules={[{ required: true, message: "last Name" }]}
                   >
                     <Input
@@ -913,20 +913,36 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
-                {/* joining and start date */}
+              
 
                 <Col span={12}>
                   <Form.Item
-                    name="joiningDate"
-                    rules={[{ required: true, message: "Joining Date" }]}
+                    name="joiningdate"
+                   
                   >
-                    <DatePicker
-                      placeholder="Joining Date"
-                      style={{ width: "370px" }}
-                      onChange={(date, dateString) => {
-                        setDateJoining(dateString);
-                      }}
-                    />
+
+{formData.joiningdate === null ?
+                      <DatePicker
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setDateJoining(dateString);
+                        }}
+                        placeholder={"Joining Date"}
+                      />
+                      :
+                      <DatePicker defaultValue={moment(`${tempDataView.joiningdate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "210px" }}
+                        onChange={(date, dateString) => {
+                          setDateJoining(dateString);
+                        }}
+                        placeholder={"Joining Date"}
+                      />
+
+                    }
+                
+
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -948,18 +964,18 @@ const TeacherBatchList: React.FC = () => {
 
                 <Col span={12}>
                   <Form.Item
-                    name="dateOfBirth"
+                    name="dob"
                     rules={[
                       { required: true, message: "Enter date of birthday" },
                     ]}
                   >
                     <DatePicker
-                    defaultValue={moment("2015-01-01", datePickerFormat)}
-                    format={datePickerFormat}
+                      //defaultValue={moment("2015-01-01", datePickerFormat)}
+                      format={datePickerFormat}
                       placeholder="Date of Birth"
                       style={{ width: "370px" }}
                       onChange={(date, dateString) => {
-                        setDateOfBirth(dateString);
+                        setDob(dateString);
                       }}
                     />
                   </Form.Item>
@@ -1489,7 +1505,7 @@ const TeacherBatchList: React.FC = () => {
                     <Input
                       name="firstName"
                       onChange={handleFormChange}
-                      defaultValue= {tempDataView.firstName}
+                      defaultValue={tempDataView.firstName}
                     />
                   </Form.Item>
                 </Col>
@@ -1506,16 +1522,18 @@ const TeacherBatchList: React.FC = () => {
                 {/* joining and start date */}
 
                 <Col span={12}>
-                  <Form.Item name="joiningDate">
+                  <Form.Item name="joiningdate">
                     <DatePicker
+
                       defaultValue={moment(`${tempDataView.teacher &&
                         tempDataView.teacher.map(function (lead, i) {
-                          return lead.joiningdate;
-                        })}`, 'YYYY/MM/DD') != undefined?moment(`${tempDataView.teacher &&
-                          tempDataView.teacher.map(function (lead, i) {
+                          if (lead.joiningdate === null) {
+                            return "2099-01-01";
+                          } else {
                             return lead.joiningdate;
-                          })}`, 'YYYY/MM/DD') : moment("2099/01/01", "YYYY/MM/DD")} 
-                      format='YYYY/MM/DD' 
+                          }
+                        })}`)}
+                      format='YYYY/MM/DD'
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
                         setDateJoining(dateString);
@@ -1524,39 +1542,70 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                 
+
                   <Form.Item name="startDate">
-                    {tempDataView.startDate}
-                    <DatePicker
-            // defaultPickerValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD") != null ?moment(`${tempDataView.startDate}`, "YYYY/MM/DD"):moment("2099/01/01", "YYYY/MM/DD")} 
-                      Value={moment(`${tempDataView.dob}`, "YYYY/MM/DD")?moment(`${tempDataView.dob}`, "YYYY/MM/DD"):null} 
-                      format='YYYY/MM/DD' 
-                      style={{ width: "350px" }}
-                      onChange={(date, dateString) => {
-                        setDateStart(dateString);
-                      }}
-                    />
+              
+                    {
+
+                      tempDataView.startDate === null ?
+                        <DatePicker
+
+
+                          format='YYYY/MM/DD'
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDateStart(dateString);
+                          }} />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                          format='YYYY/MM/DD'
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDateStart(dateString);
+                          }} />}
+
+
+
+
                   </Form.Item>
                 </Col>
 
                 {/* Date of Birth and gender */}
 
                 <Col span={12}>
-                  <Form.Item name="dateOfBirth">
-                    <DatePicker
-                     defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")?moment(`${tempDataView.dob}`, "YYYY/MM/DD"):moment("2099/01/01", "YYYY/MM/DD")} 
-                      format='YYYY/MM/DD' 
-                      style={{ width: "350px" }}
-                      onChange={(date, dateString) => {
-                        setDateOfBirth(dateString);
-                      }}
-                    />
+                  <Form.Item name="dob">
+                    {console.log('dob')}
+                    {console.log(tempDataView.dob)}
+                    {
+
+                      tempDataView.dob === null ?
+                        <DatePicker
+
+
+                          format='YYYY/MM/DD'
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }} />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                          format='YYYY/MM/DD'
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }} />}
+
+
+
+
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="gender">
                     <Select
-                      defaultValue = {tempDataView.gender}
+                      defaultValue={tempDataView.gender}
                       name="gender"
                       onChange={handleSelectChange}
                     >
@@ -1668,7 +1717,7 @@ const TeacherBatchList: React.FC = () => {
                     name="teacherType"
                   >
                     <Select
-                      defaultValue = {tempDataView.type}
+                      defaultValue={tempDataView.type}
                       onChange={(value) => {
                         setSelectTeacher(value);
                       }}
@@ -1684,20 +1733,20 @@ const TeacherBatchList: React.FC = () => {
                       defaultValue={tempDataView.languages}
                       name="languagesKnown"
                       onChange={handleFormChange}
-                      placeholder ={"Languages Known"}
+                      placeholder={"Languages Known"}
                     />
                   </Form.Item>
                 </Col>
 
                 {/* upload resume and upload video profile */}
 
-                
+
                 {/* status */}
 
                 <Col span={12}>
                   <Form.Item name="status">
                     <Select
-                      defaultValue = {tempDataView.statusId == 'active'
+                      defaultValue={tempDataView.statusId == 'active'
                         ? "Active"
                         : tempDataView.statusId == 'onhold'
                           ? "OnHold"
@@ -1771,10 +1820,10 @@ const TeacherBatchList: React.FC = () => {
                     style={{ color: "white", backgroundColor: "DodgerBlue" }}
                   />
                 </Col>
-                <Col span = {8}></Col>
+                <Col span={8}></Col>
                 <Col span={8}>
                   <Button
-                    onClick={()=>{openNotification(tempDataView.userId)}}
+                    onClick={() => { openNotification(tempDataView.userId) }}
                     block
                     type="primary"
                   >

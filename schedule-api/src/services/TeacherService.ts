@@ -52,38 +52,40 @@ export class TeacherService {
      
       var status;
       var res1={} ;
-      if (!data.userId) {
+      if (!data.id) {
       res1= await axios
         .post(options.url, options.body)
         .then(async (res) => {
-          console.log("Posted to cosmos and response is ", res);
+          usersLogger.info("Posted to cosmos and response is ");
           data.id = res.data.id;
-          console.log("Id created in cosmos is ", res.data.id);
-          console.log("Creating data in sql database ", res.data.id);
+          usersLogger.info(`Id created in cosmos is ${res.data.id}`);
+       
           var user = await this.saveTeacherSql(data);
           //Promise.resolve(res);
           return user;
         })
         .catch((error) => {
+    
+          usersLogger.info(`Posted to cosmos and response is ${error}`);
           return {status:400,error:error.response.data};
           return Promise.reject(error);
         });
     } else {
         usersLogger.info("Update teacher information");
         usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
-      //  res1= await axios
-       // .put(options.url, options.body)
-        //.then(async (res) => {
-         // console.log("Posted to cosmos and response is ", res);
-          //console.log("Id created in cosmos is ", res.data.id);
-          //console.log("Creating data in sql database ", res.data.id);
+        res1= await axios
+        .put(options.url, options.body)
+        .then(async (res) => {
+          console.log("Posted to cosmos and response is ", res);
+          console.log("Id created in cosmos is ", res.data.id);
+          console.log("Creating data in sql database ", res.data.id);
           var user = await this.saveTeacherSql(data);
-          //Promise.resolve(res);
+          Promise.resolve(res);
           return user;
-        //})
-       // .catch((error) => {
-         // return Promise.reject(error);
-        //});
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
     }
 
       await queryRunner.commitTransaction();

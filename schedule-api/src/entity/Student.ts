@@ -51,15 +51,18 @@ export class Student extends BaseEntity {
   @Column({ nullable: true, type:"date" })
   startLesson: Date;
   @Column({ nullable: true })
-  firstFeedback: string;
+  firstFeedback: boolean;
   @Column({ nullable: true })
-  fifthFeedback: string;
+  fifthFeedback: boolean;
   @Column({ nullable: true })
-  fifteenthFeedback: string;
+  fifteenthFeedback: boolean;
   @Column({ nullable: true })
   classesCompleted: string;
   @Column({ nullable: true })
   customersReferred: string;
+  @Column({ nullable: true })
+  bottleSend: boolean;
+  
   @Column({ nullable: true, type: "date" })
   crossedEndDate: Date;
   @CreateDateColumn()

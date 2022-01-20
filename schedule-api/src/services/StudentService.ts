@@ -78,15 +78,21 @@ export class StudentService {
             );
             usersLogger.info(`Update oracle DB:  data.phoneNumber`);
             data.id = res.data.id;
-           usersLogger.info(`Data id from cosmos is ${data.id}`);
-            var user = await this.saveStudentSQL(data,data.id);
-            usersLogger.info(
-              `Successfully updated oracle db: ${data.phoneNumber}`
-            );
-            return user;
+            if(res.status == 400) {            
+              usersLogger.error(`Error while updating student : ${res.data}`);
+              return { status: 400, data: res.data };
+            } else {
+              usersLogger.info(`Data id from cosmos is ${data.id}`);
+              var user = await this.saveStudentSQL(data,data.id);
+              usersLogger.info(
+                `Successfully updated oracle db: ${data.phoneNumber}`
+              );
+              return user;
+            }
+         
           })
           .catch((error) => {
-            console.log("error", error);
+            usersLogger.info(`Error while updating student : ${error.response.data}`);
             return { status: 400, data: error.response.data };
           });
       } else {
@@ -176,12 +182,13 @@ export class StudentService {
     student.studentID = data.studentID;
     student.days = data.days;
     student.studentType = data.studentType;
-    student.dateOfBirth = data.dob?data.dob:new Date();;
+    student.dateOfBirth = data.dob;
     student.alternativeMobile = data.alternativeMobile;
 
-    student.startDate = data.startDate?data.startDate:new Date();
-    student.endDate = data.endDate?data.endDate:new Date();;
-    student.startLesson = data.startLesson?data.startLesson:new Date();;
+    student.startDate = data.startDate;
+    student.endDate = data.endDate;
+    student.startLesson = data.startLesson;
+    student.bottleSend = data.bottleSend;
     student.firstFeedback = data.firstFeedback;
     student.fifthFeedback = data.fifthFeedback;
     student.fifteenthFeedback = data.fifteenthFeedback;

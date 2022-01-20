@@ -64,11 +64,11 @@
         path: '/manage/teacherBatch',
         component: './TeacherBatchList',
       },
-      {
+     /* {
         name: 'User',
         path: '/manage/UserBatch',
         component: './StudentList',
-      },
+      },*/
       {
         name: 'Student',
         path: '/manage/StudentBatch',
