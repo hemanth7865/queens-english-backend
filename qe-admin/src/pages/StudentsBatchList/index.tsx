@@ -173,10 +173,10 @@ const StudentsBatchList: React.FC = () => {
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [selectCountry, setSelectCountry] = useState('')
   const [selectCountryCode, setSelectCountryCode] = useState('')
-  const [bottleSend, setBottleSend] = useState(false)
-  const [firstFeedBack, setFirstFeedBack] = useState(false)
-  const [fifthFeedBack, setFifthFeedBack] = useState(false)
-  const [fifteenthFeedBack, setFifteenthFeedBack] = useState(false)
+  const [bottleSend, setBottleSend] = useState('')
+  const [firstFeedback, setFirstFeedback] = useState('')
+  const [fifthFeedback, setFifthFeedback] = useState('')
+  const [fifteenthFeedback, setFifteenthFeedback] = useState('')
 
 
 
@@ -206,6 +206,7 @@ const StudentsBatchList: React.FC = () => {
     startLesson: null,
     firstFeedback: false,
     fifthFeedback: false,
+    bottleSend:false,
     fifteenthFeedback: false,
     classesCompleted: '',
     customersReferred: '',
@@ -544,10 +545,10 @@ const StudentsBatchList: React.FC = () => {
       startDate: formData.startDate,
       endDate: formData.endDate,
       startLesson: formData.startLesson,
-      firstFeedback: firstFeedBack,
-      fifthFeedback: fifthFeedBack,
-      fifteenthFeedback: fifteenthFeedBack,
-      bottleSend: bottleSend,
+      firstFeedback: formData.firstFeedback,
+      fifthFeedback: formData.fifthFeedback,
+      fifteenthFeedback: fifteenthFeedback,
+      bottleSend: formData.bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
     };
@@ -610,16 +611,16 @@ const StudentsBatchList: React.FC = () => {
       startDate: startDate,
       endDate: endDate,
       startLesson: startLesson,
-      firstFeedback: firstFeedBack,
-      fifthFeedback: fifthFeedBack,
-      fifteenthFeedback: fifteenthFeedBack,
+      firstFeedback:firstFeedback,
+      fifthFeedback: fifteenthFeedback,
+      fifteenthFeedback: fifteenthFeedback,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
-      dataForm.userId = tempDataView.id;
+      dataForm.id = tempDataView.id;
       dataForm.teacherId = tempDataView.teacherId;
     }
     try {
@@ -865,9 +866,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="dob">
-                    {
-
-                      tempDataView.dob === null ?
+                    {formData.dob === null ?
                         <DatePicker
 
 
@@ -880,7 +879,7 @@ const StudentsBatchList: React.FC = () => {
                         />
                         :
                         <DatePicker
-                          defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                          defaultValue={moment(`${formData.dob}`, "YYYY/MM/DD")}
                           format="YYYY/MM/DD"
                           style={{ width: "210px" }}
                           onChange={(date, dateString) => {
@@ -968,7 +967,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
 
                   <Form.Item name="startDate">
-                    {tempDataView.startDate === null ?
+                    {formData.startDate === null ?
                       <DatePicker
 
 
@@ -981,7 +980,7 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${formData.startDate}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -996,7 +995,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="endDate">
 
-                    {tempDataView.endDate === null ?
+                    {formData.endDate === null ?
                       <DatePicker
 
 
@@ -1009,7 +1008,7 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${tempDataView.endDate}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${formData.endDate}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -1027,7 +1026,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col><Col span={12}>
                   <Form.Item name="startLesson">
 
-                    {tempDataView.startLesson === null ?
+                    {formData.startLesson === null ?
                       <DatePicker
 
 
@@ -1040,7 +1039,7 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${tempDataView.startLesson}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${formData.startLesson}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -1104,14 +1103,14 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                                <Col span={12}>
                   {console.log('First Feed Back ')}
                    
                   {console.log(formData.firstFeedback)}
                   {console.log('firstFeedback')}
                   <Form.Item name="firstFeedback">
                     First FeedBack <Switch valuePropName='firstFeedback' onChange={(value) => {
-                      setFirstFeedBack(value)
+                      setFirstFeedback(value)
                     }} /> <br />
                   </Form.Item>
                 </Col>
@@ -1129,14 +1128,14 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
-                      setFifthFeedBack(value)
+                      setFifthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
                     Fifteenth FeedBack <Switch valuePropName='fifteenthFeedback' onChange={(value) => {
-                      setFifteenthFeedBack(value)
+                      setFifteenthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
@@ -1500,7 +1499,7 @@ const StudentsBatchList: React.FC = () => {
                           ? "OnHold"
                           : tempDataView.status == 'leave'
                             ? "Leave"
-                            : "InActive"}
+                            : "Active"}
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
@@ -1556,7 +1555,6 @@ const StudentsBatchList: React.FC = () => {
 
                   {tempDataView.dob === null ?
                       <DatePicker
-
 
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
@@ -1788,7 +1786,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="firstFeedback">
                     First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
-                      setFirstFeedBack(value)
+                      setFirstFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
@@ -1802,14 +1800,14 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
-                      setFifthFeedBack(value)
+                      setFifthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
                     Fifteenth FeedBack <Switch defaultChecked={tempDataView.fifteenthFeedback} onChange={(value) => {
-                      setFifteenthFeedBack(value)
+                      setFifteenthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>

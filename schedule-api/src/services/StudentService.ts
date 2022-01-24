@@ -49,6 +49,7 @@ export class StudentService {
         startingDate: data.startingDate,
         endingDate: data.endingDate,
         startingLesson: data.startingLesson,
+        bottleSend: data.bottleSend,
         firstFeedback: data.firstFeedback,
         fifthFeedback: data.fifthFeedback,
         fifteenthFeedback: data.fifteenthFeedback,
@@ -62,6 +63,7 @@ export class StudentService {
       if (data.id) {
         usersLogger.info("Update Request")
         options.body["id"] = data.id;
+        usersLogger.info(`Start - Reqeust to cosmos DB1 : ${JSON.stringify(options)}`);
       }
 
       await queryRunner.connect();
@@ -142,7 +144,17 @@ export class StudentService {
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
       user.type = data.type;
-      if (data.userId) user.id = data.userId;
+      if (data.id) {
+        user.id = data.id;
+        usersLogger.info(
+          `Userid : ${data.userId}`
+        );
+        usersLogger.info(
+          `id : ${data.id}`
+        );
+      } else {
+        user.id = id;
+      }
      // user.startDate = data.startDate;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
@@ -160,7 +172,7 @@ export class StudentService {
       let student = new Student();
 
     if (user.id) {
-      usersLogger.info(`User Id set  ${JSON.stringify(user.id)}`);
+      usersLogger.info(`Student Id is ${JSON.stringify(user.id)}`);
       student.id = user.id;
       student.updated_at = new Date();
     } else {
