@@ -138,7 +138,7 @@ const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 
 const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
   notification[type]({
-    message: type == 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
     description:
       '',
   });
@@ -590,7 +590,7 @@ const StudentsBatchList: React.FC = () => {
 
       } else {
         console.log(msg);
-        openNotificationWithIcon('success', ' Student');
+        openNotificationWithIcon('success', {"status":msg.status,"data":msg.data}, ' Student');
       }
       window.location.reload();
       console.log(msg);
@@ -658,7 +658,7 @@ const StudentsBatchList: React.FC = () => {
         openNotificationWithIcon('error', msg);
         console.log("API call sucessfull", msg);
       } else {
-        openNotificationWithIcon('success', 'Student');
+        openNotificationWithIcon('success',  { status: 200, data: '' },'Student');
       }
       if (msg) {
 
