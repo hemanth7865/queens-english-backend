@@ -173,10 +173,10 @@ const StudentsBatchList: React.FC = () => {
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [selectCountry, setSelectCountry] = useState('')
   const [selectCountryCode, setSelectCountryCode] = useState('')
-  const [bottleSend, setBottleSend] = useState('')
-  const [firstFeedback, setFirstFeedback] = useState('')
-  const [fifthFeedback, setFifthFeedback] = useState('')
-  const [fifteenthFeedback, setFifteenthFeedback] = useState('')
+  const [bottleSend, setBottleSend] = useState(false)
+  const [firstFeedback, setFirstFeedback] = useState(false)
+  const [fifthFeedback, setFifthFeedback] = useState(false)
+  const [fifteenthFeedback, setFifteenthFeedback] = useState(false)
 
 
 
@@ -197,17 +197,17 @@ const StudentsBatchList: React.FC = () => {
     address: '',
     classType: '',
     referralCode: '',
-    days: null,
+    days: '',
     kids: '',
     dob: null,
     poc: '',
-    startDate: null,
-    endDate: null,
-    startLesson: null,
-    firstFeedback: false,
-    fifthFeedback: false,
-    bottleSend:false,
-    fifteenthFeedback: false,
+    startDate: '',
+    endDate: '',
+    startLesson: '',
+    firstFeedback: '',
+    fifthFeedback: '',
+    bottleSend:'',
+    fifteenthFeedback: '',
     classesCompleted: '',
     customersReferred: '',
 
@@ -244,7 +244,9 @@ const StudentsBatchList: React.FC = () => {
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
   const [dateStart, setDateStart] = useState("");
-  const [dateBirth, setDob] = useState("");
+  const [dob, setDob] = useState("");
+
+
   const allCountries = CountryList.getData()
 
   const defaultCountry = allCountries.filter(country => country.name === 'India')
@@ -252,6 +254,11 @@ const StudentsBatchList: React.FC = () => {
   //add drawer
   const showDrawer = () => {
     setVisible(true);
+    setFormData({});
+    setDob(null);
+    setStartDate(null);
+    setEndDate(null);
+    setStartLesson(null);
   };
   const onClose = () => {
     setVisible(false);
@@ -321,9 +328,24 @@ const StudentsBatchList: React.FC = () => {
       let msg = await studentsBatchesView(id);
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
+       
       }
       setTempDataView(msg.data);
-      setTempDataView(msg.data);
+      console.log('Bottle Send');
+      setBottleSend(msg.data.bottleSend)
+      console.log('FifthFeedBack');
+      setFifteenthFeedback(msg.data.fifteenthFeedback);
+      console.log('fifteenth');
+      setFifthFeedback(msg.data.fifthFeedback);
+      console.log('fifth');
+      setFirstFeedback(msg.data.firstFeedback);
+      setDob(msg.data.dob);
+     // setDob(dob);
+      setStartDate(msg.data.startDate);
+      setEndDate(msg.data.endDate);
+      setStartLesson(msg.data.startLesson)
+     
+
       console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
@@ -540,15 +562,15 @@ const StudentsBatchList: React.FC = () => {
       referralCode: formData.referralCode,
       days: formData.days,
       kids: formData.kids,
-      dob: formData.dob,
+      dob: dob,
       poc: formData.poc,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      startLesson: formData.startLesson,
-      firstFeedback: formData.firstFeedback,
-      fifthFeedback: formData.fifthFeedback,
+      startDate: startDate,
+      endDate: endDate,
+      startLesson: startLesson,
+      firstFeedback: firstFeedback,
+      fifthFeedback: fifthFeedback,
       fifteenthFeedback: fifteenthFeedback,
-      bottleSend: formData.bottleSend,
+      bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
     };
@@ -606,13 +628,13 @@ const StudentsBatchList: React.FC = () => {
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
       days: formData.days ? formData.days : tempDataView.days,
       kids: formData.kids ? formData.kids : tempDataView.kids,
-      dob: formData.dob ? formData.dob : tempDataView.dob,
+      dob: dob,
       poc: formData.poc ? formData.poc : tempDataView.poc,
       startDate: startDate,
       endDate: endDate,
       startLesson: startLesson,
       firstFeedback:firstFeedback,
-      fifthFeedback: fifteenthFeedback,
+      fifthFeedback: fifthFeedback,
       fifteenthFeedback: fifteenthFeedback,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
@@ -866,7 +888,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="dob">
-                    {formData.dob === null ?
+                    {dob === null ?
                         <DatePicker
 
 
@@ -879,7 +901,7 @@ const StudentsBatchList: React.FC = () => {
                         />
                         :
                         <DatePicker
-                          defaultValue={moment(`${formData.dob}`, "YYYY/MM/DD")}
+                          defaultValue={moment(`${dob}`, "YYYY/MM/DD")}
                           format="YYYY/MM/DD"
                           style={{ width: "210px" }}
                           onChange={(date, dateString) => {
@@ -967,7 +989,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
 
                   <Form.Item name="startDate">
-                    {formData.startDate === null ?
+                    {startDate === null ?
                       <DatePicker
 
 
@@ -976,11 +998,11 @@ const StudentsBatchList: React.FC = () => {
                         onChange={(date, dateString) => {
                           setStartDate(dateString);
                         }}
-                        placeholder={"Date Of Birth"}
+                        placeholder={"Start Date"}
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${formData.startDate}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${startDate}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -995,7 +1017,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="endDate">
 
-                    {formData.endDate === null ?
+                    {endDate === null ?
                       <DatePicker
 
 
@@ -1004,11 +1026,11 @@ const StudentsBatchList: React.FC = () => {
                         onChange={(date, dateString) => {
                           setEndDate(dateString);
                         }}
-                        placeholder={"Date Of Birth"}
+                        placeholder={"End Date"}
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${formData.endDate}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${endDate}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -1026,20 +1048,18 @@ const StudentsBatchList: React.FC = () => {
                 </Col><Col span={12}>
                   <Form.Item name="startLesson">
 
-                    {formData.startLesson === null ?
+                    {startLesson === null ?
                       <DatePicker
-
-
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
                           setStartLesson(dateString);
                         }}
-                        placeholder={"Date Of Birth"}
+                        placeholder={"Lesson Start Date"}
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${formData.startLesson}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${startLesson}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -1109,7 +1129,7 @@ const StudentsBatchList: React.FC = () => {
                   {console.log(formData.firstFeedback)}
                   {console.log('firstFeedback')}
                   <Form.Item name="firstFeedback">
-                    First FeedBack <Switch valuePropName='firstFeedback' onChange={(value) => {
+                    First FeedBack <Switch valuePropName={firstFeedback} onChange={(value) => {
                       setFirstFeedback(value)
                     }} /> <br />
                   </Form.Item>
@@ -1552,8 +1572,9 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="dob">
-
-                  {tempDataView.dob === null ?
+{console.log('dob')}
+{console.log(dob)}
+                  {dob === null ?
                       <DatePicker
 
                         format="YYYY/MM/DD"
@@ -1565,7 +1586,7 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${dob}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -1707,7 +1728,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col><Col span={12}>
                   <Form.Item name="startLesson">
                     
-                  {tempDataView.startDate === null ?
+                  {startDate === null ?
                       <DatePicker
 
 
@@ -1782,31 +1803,33 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                {console.log('firstFeedback1')}
 
+            
                 <Col span={12}>
                   <Form.Item name="firstFeedback">
-                    First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
+                    First FeedBack <Switch  checked={firstFeedback} onChange={(value) => {
                       setFirstFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="bottleSend">
-                    Bottle Send <Switch defaultChecked={tempDataView.bottleSend} onChange={(value) => {
+                    Bottle Send <Switch checked={bottleSend} onChange={(value) => {
                       setBottleSend(value)
                     }} /> <br />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
-                    Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
+                    Fifth FeedBack <Switch checked={fifthFeedback} onChange={(value) => {
                       setFifthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
-                    Fifteenth FeedBack <Switch defaultChecked={tempDataView.fifteenthFeedback} onChange={(value) => {
+                    Fifteenth FeedBack <Switch checked={fifteenthFeedback} onChange={(value) => {
                       setFifteenthFeedback(value)
                     }} />
                   </Form.Item>
