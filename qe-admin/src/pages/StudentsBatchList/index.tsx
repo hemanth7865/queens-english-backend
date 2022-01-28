@@ -65,7 +65,13 @@ import Availability from "./availability";
 import moment from "moment";
 import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
+import { Tabs } from 'antd';
 
+const { TabPane } = Tabs;
+
+const callback =(key) => {
+  console.log(key);
+}
 /**
  * @en-US Add node
  * @zh-CN 添加节点
@@ -138,7 +144,7 @@ const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 
 const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
   notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+    message: type == 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
     description:
       '',
   });
@@ -174,9 +180,9 @@ const StudentsBatchList: React.FC = () => {
   const [selectCountry, setSelectCountry] = useState('')
   const [selectCountryCode, setSelectCountryCode] = useState('')
   const [bottleSend, setBottleSend] = useState(false)
-  const [firstFeedback, setFirstFeedback] = useState(false)
-  const [fifthFeedback, setFifthFeedback] = useState(false)
-  const [fifteenthFeedback, setFifteenthFeedback] = useState(false)
+  const [firstFeedBack, setFirstFeedBack] = useState(false)
+  const [fifthFeedBack, setFifthFeedBack] = useState(false)
+  const [fifteenthFeedBack, setFifteenthFeedBack] = useState(false)
 
 
 
@@ -194,20 +200,18 @@ const StudentsBatchList: React.FC = () => {
     studentID: '',
     age: '',
     address: '',
-    address: '',
     classType: '',
     referralCode: '',
-    days: '',
+    days: null,
     kids: '',
     dob: null,
     poc: '',
-    startDate: '',
-    endDate: '',
-    startLesson: '',
-    firstFeedback: '',
-    fifthFeedback: '',
-    bottleSend:'',
-    fifteenthFeedback: '',
+    startDate: null,
+    endDate: null,
+    startLesson: null,
+    firstFeedback: false,
+    fifthFeedback: false,
+    fifteenthFeedback: false,
     classesCompleted: '',
     customersReferred: '',
 
@@ -244,9 +248,7 @@ const StudentsBatchList: React.FC = () => {
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
   const [dateStart, setDateStart] = useState("");
-  const [dob, setDob] = useState("");
-
-
+  const [dateBirth, setDob] = useState("");
   const allCountries = CountryList.getData()
 
   const defaultCountry = allCountries.filter(country => country.name === 'India')
@@ -254,11 +256,6 @@ const StudentsBatchList: React.FC = () => {
   //add drawer
   const showDrawer = () => {
     setVisible(true);
-    setFormData({});
-    setDob(null);
-    setStartDate(null);
-    setEndDate(null);
-    setStartLesson(null);
   };
   const onClose = () => {
     setVisible(false);
@@ -328,24 +325,9 @@ const StudentsBatchList: React.FC = () => {
       let msg = await studentsBatchesView(id);
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
-       
       }
       setTempDataView(msg.data);
-      console.log('Bottle Send');
-      setBottleSend(msg.data.bottleSend)
-      console.log('FifthFeedBack');
-      setFifteenthFeedback(msg.data.fifteenthFeedback);
-      console.log('fifteenth');
-      setFifthFeedback(msg.data.fifthFeedback);
-      console.log('fifth');
-      setFirstFeedback(msg.data.firstFeedback);
-      setDob(msg.data.dob);
-     // setDob(dob);
-      setStartDate(msg.data.startDate);
-      setEndDate(msg.data.endDate);
-      setStartLesson(msg.data.startLesson)
-     
-
+      setTempDataView(msg.data);
       console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
@@ -562,14 +544,14 @@ const StudentsBatchList: React.FC = () => {
       referralCode: formData.referralCode,
       days: formData.days,
       kids: formData.kids,
-      dob: dob,
+      dob: formData.dob,
       poc: formData.poc,
-      startDate: startDate,
-      endDate: endDate,
-      startLesson: startLesson,
-      firstFeedback: firstFeedback,
-      fifthFeedback: fifthFeedback,
-      fifteenthFeedback: fifteenthFeedback,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      startLesson: formData.startLesson,
+      firstFeedback: firstFeedBack,
+      fifthFeedback: fifthFeedBack,
+      fifteenthFeedback: fifteenthFeedBack,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
@@ -590,7 +572,7 @@ const StudentsBatchList: React.FC = () => {
 
       } else {
         console.log(msg);
-        openNotificationWithIcon('success', {"status":msg.status,"data":msg.data}, ' Student');
+        openNotificationWithIcon('success', ' Student');
       }
       window.location.reload();
       console.log(msg);
@@ -628,21 +610,21 @@ const StudentsBatchList: React.FC = () => {
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
       days: formData.days ? formData.days : tempDataView.days,
       kids: formData.kids ? formData.kids : tempDataView.kids,
-      dob: dob,
+      dob: formData.dob ? formData.dob : tempDataView.dob,
       poc: formData.poc ? formData.poc : tempDataView.poc,
       startDate: startDate,
       endDate: endDate,
       startLesson: startLesson,
-      firstFeedback:firstFeedback,
-      fifthFeedback: fifthFeedback,
-      fifteenthFeedback: fifteenthFeedback,
+      firstFeedback: firstFeedBack,
+      fifthFeedback: fifthFeedBack,
+      fifteenthFeedback: fifteenthFeedBack,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
-      dataForm.id = tempDataView.id;
+      dataForm.userId = tempDataView.id;
       dataForm.teacherId = tempDataView.teacherId;
     }
     try {
@@ -658,7 +640,7 @@ const StudentsBatchList: React.FC = () => {
         openNotificationWithIcon('error', msg);
         console.log("API call sucessfull", msg);
       } else {
-        openNotificationWithIcon('success',  { status: 200, data: '' },'Student');
+        openNotificationWithIcon('success', 'Student');
       }
       if (msg) {
 
@@ -742,9 +724,23 @@ const StudentsBatchList: React.FC = () => {
             visible={visible}
             width={820}
           >
+             
+            <Tabs defaultActiveKey="1" onChange={callback}>
+            <TabPane tab="Student Info" key="1">  
+    
             <Form onFinish={handleFormSubmit}>
 
               <Row gutter={16}>
+              <Col span={12}>
+                  <Form.Item name="studentID">
+                    <Input
+                      placeholder="Student ID"
+                      name="studentID"
+                      value={formData.studentID}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
                 <Col span={12}>
                   <Form.Item
                     name="firstName"
@@ -782,18 +778,43 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item
-                    name="teacherName"
+                  <Form.Item name="dob">
+                    {
 
-                  >
+                      tempDataView.dob === null ?
+                        <DatePicker
+
+
+                          format="YYYY/MM/DD"
+                          style={{ width: "375px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }}
+                          placeholder={"Date Of Birth"}
+                        />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                          format="YYYY/MM/DD"
+                          style={{ width: "375px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }}
+                          placeholder={"Date Of Birth"}
+                        />}
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="age">
                     <Input
-                      placeholder="Teacher Name"
-                      name="teacherName"
-                      value={formData.teacherName}
+                      placeholder="Age"
+                      name="age"
+                      value={formData.age}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
+                
                 <Col span={12}>
                   <Form.Item
                     name="countryCode">
@@ -845,6 +866,26 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="address">
+                    <Input
+                      placeholder="Address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="watsappGroup">
+                    <Input
+                      placeholder="whatsappGroup"
+                      name="watsappGroup"
+                      value={formData.watsappGroup}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
 
                 <Col span={12}>
                   <Form.Item name="status	">
@@ -864,85 +905,7 @@ const StudentsBatchList: React.FC = () => {
                       <Option value="active">Active</Option>
                       <Option value="leave">Leave</Option>
                       <Option value="onhold">On Hold</Option>
-                    </Select>                        </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="batchCode">
-                    <Input
-                      placeholder="Batch Code"
-                      name="batchCode"
-                      value={formData.batchCode}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="studentID">
-                    <Input
-                      placeholder="Student ID"
-                      name="studentID"
-                      value={formData.studentID}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dob">
-                    {dob === null ?
-                        <DatePicker
-
-
-                          format="YYYY/MM/DD"
-                          style={{ width: "210px" }}
-                          onChange={(date, dateString) => {
-                            setDob(dateString);
-                          }}
-                          placeholder={"Date Of Birth"}
-                        />
-                        :
-                        <DatePicker
-                          defaultValue={moment(`${dob}`, "YYYY/MM/DD")}
-                          format="YYYY/MM/DD"
-                          style={{ width: "210px" }}
-                          onChange={(date, dateString) => {
-                            setDob(dateString);
-                          }}
-                          placeholder={"Date Of Birth"}
-                        />}
-
-
-
-
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="age">
-                    <Input
-                      placeholder="Age"
-                      name="age"
-                      value={formData.age}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="address">
-                    <Input
-                      placeholder="Address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="classType">
-                    <Input
-                      placeholder="Class type"
-                      name="classType"
-                      value={formData.classType}
-                      onChange={handleFormChange}
-                    />
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -956,6 +919,32 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
+                  <Form.Item name="kids">
+                    <Input
+                      placeholder="Kids/Adults"
+                      name="kids"
+                      value={formData.kids}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>          
+                </Col>  
+                <Input
+                type="submit"
+                value="Add Student Info "
+                style={{ color: "white", backgroundColor: "DodgerBlue" }}
+              />             
+                </Row>
+                </Form>
+                </TabPane>
+                
+                <TabPane tab="Learning journey" key="2">    
+    
+                <Form onFinish={handleFormSubmit}>
+
+              <Row gutter={16}>
+                
+                
+                <Col span={12}>
                   <Form.Item name="days">
                     <Input
                       placeholder="Days"
@@ -965,36 +954,18 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="kids">
-                    <Input
-                      placeholder="Kids/Adults"
-                      name="kids"
-                      value={formData.kids}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="referralCode">
-                    <Input
-                      placeholder="Referral Code"
-                      name="referralCode"
-                      value={formData.referralCode}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                
+               
 
                 <Col span={12}>
 
                   <Form.Item name="startDate">
-                    {startDate === null ?
+                    {tempDataView.startDate === null ?
                       <DatePicker
 
 
                         format="YYYY/MM/DD"
-                        style={{ width: "210px" }}
+                        style={{ width: "375px" }}
                         onChange={(date, dateString) => {
                           setStartDate(dateString);
                         }}
@@ -1002,27 +973,38 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${startDate}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
-                        style={{ width: "210px" }}
+                        style={{ width: "375px" }}
                         onChange={(date, dateString) => {
                           setStartDate(dateString);
                         }} />
                     }
-
-
-
                   </Form.Item>
                 </Col>
                 <Col span={12}>
+                  <Form.Item
+                    name="teacherName"
+
+                  >
+                    <Input
+                      placeholder="Teacher Name"
+                      name="teacherName"
+                      value={formData.teacherName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                <Col span={12}>
                   <Form.Item name="endDate">
 
-                    {endDate === null ?
+                    {tempDataView.endDate === null ?
                       <DatePicker
 
 
                         format="YYYY/MM/DD"
-                        style={{ width: "210px" }}
+                        style={{ width: "375px" }}
                         onChange={(date, dateString) => {
                           setEndDate(dateString);
                         }}
@@ -1030,9 +1012,9 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${endDate}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${tempDataView.endDate}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
-                        style={{ width: "210px" }}
+                        style={{ width: "375px" }}
                         onChange={(date, dateString) => {
                           setEndDate(dateString);
                         }}
@@ -1040,18 +1022,28 @@ const StudentsBatchList: React.FC = () => {
                       />
 
                     }
-
-
-
-
                   </Form.Item>
-                </Col><Col span={12}>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="batchCode">
+                    <Input
+                      placeholder="Batch Code"
+                      name="batchCode"
+                      value={formData.batchCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                <Col span={12}>
                   <Form.Item name="startLesson">
 
-                    {startLesson === null ?
+                    {tempDataView.startLesson === null ?
                       <DatePicker
+
+
                         format="YYYY/MM/DD"
-                        style={{ width: "210px" }}
+                        style={{ width: "375px" }}
                         onChange={(date, dateString) => {
                           setStartLesson(dateString);
                         }}
@@ -1059,9 +1051,9 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${startLesson}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${tempDataView.startLesson}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
-                        style={{ width: "210px" }}
+                        style={{ width: "375px" }}
                         onChange={(date, dateString) => {
                           setStartLesson(dateString);
                         }}
@@ -1083,16 +1075,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="customersReferred">
-                    <Input
-                      placeholder="Number of customers referred"
-                      name="customersReferred"
-                      value={formData.customersReferred}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                
                 <Col span={12}>
                   <Form.Item name="comments">
                     <Input
@@ -1113,24 +1096,51 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="watsappGroup">
+                <Input
+                type="submit"
+                value="Add Student Learning journey"
+                style={{ color: "white", backgroundColor: "DodgerBlue" }}
+              />
+             </Row>      
+             </Form> 
+            
+            </TabPane>
+            <TabPane tab="Referral"  key="3">
+            
+            <Form onFinish={handleFormSubmit}>
+            <Col span={12}>
+                  <Form.Item name="referralCode">
                     <Input
-                      placeholder="watsappGroup"
-                      name="watsappGroup"
-                      value={formData.watsappGroup}
+                      placeholder="Referral Code"
+                      name="referralCode"
+                      value={formData.referralCode}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
-                                <Col span={12}>
-                  {console.log('First Feed Back ')}
-                   
-                  {console.log(formData.firstFeedback)}
-                  {console.log('firstFeedback')}
+                <Col span={12}>
+                  <Form.Item name="customersReferred">
+                    <Input
+                      placeholder="Number of customers referred"
+                      name="customersReferred"
+                      value={formData.customersReferred}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Input
+                type="submit"
+                value="Add Student Referral"
+                style={{ color: "white", backgroundColor: "DodgerBlue" }}
+              />
+                </Form>  
+                </TabPane>
+                <TabPane tab="QE checklist"  key="4">
+                <Form onFinish={handleFormSubmit}>
+                <Col span={12}>
                   <Form.Item name="firstFeedback">
-                    First FeedBack <Switch valuePropName={firstFeedback} onChange={(value) => {
-                      setFirstFeedback(value)
+                    First FeedBack <Switch valuePropName='firstFeedback' onChange={(value) => {
+                      setFirstFeedBack(value)
                     }} /> <br />
                   </Form.Item>
                 </Col>
@@ -1143,31 +1153,162 @@ const StudentsBatchList: React.FC = () => {
 
                   </Form.Item>
                 </Col>
-
-
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
-                      setFifthFeedback(value)
+                      setFifthFeedBack(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
                     Fifteenth FeedBack <Switch valuePropName='fifteenthFeedback' onChange={(value) => {
-                      setFifteenthFeedback(value)
+                      setFifteenthFeedBack(value)
                     }} />
                   </Form.Item>
                 </Col>
-              </Row>
-
-              <Input
+                <Input
                 type="submit"
-                value="Add Student"
+                value="Add Student QE checklist "
                 style={{ color: "white", backgroundColor: "DodgerBlue" }}
               />
-            </Form>
-          </Drawer>,
+              </Form>
+                </TabPane>
+                <TabPane tab="Payment Details" key="5">
+                <Form onFinish={handleFormSubmit}>
+                <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="paymentid">
+                    <Input
+                      placeholder="payment ID"
+                      name="paymentid"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                <Col span={12}>
+                  <Form.Item name="plantype">
+                    <Input
+                      placeholder="Plan type"
+                      name="plantype"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                <Col span={12}>
+                  <Form.Item name="classtype">
+                    <Input
+                      placeholder="Class type"
+                      name="classtype"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classessold">
+                    <Input
+                      placeholder="No. of classes sold"
+                      name="classessold"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> <Col span={12}>
+                  <Form.Item name="saleamount">
+                    <Input
+                      placeholder="Sale amount"
+                      name="saleamount"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                 <Col span={12}>
+                  <Form.Item name="dateofsale">
+                    <Input
+                      placeholder="Date of Sale"
+                      name="dateofsale"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                <Col span={12}>
+                  <Form.Item name="downpayment">
+                    <Input
+                      placeholder="Downpayment"
+                      name="downpayment"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                <Col span={12}>
+                  <Form.Item name="duedate">
+                    <Input
+                      placeholder="Due date of plan"
+                      name="duedate"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="no_of_delayed_payments">
+                    <Input
+                      placeholder="No. of delayed payments"
+                      name="no_of_delayed_payments"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                <Col span={12}>
+                  <Form.Item name="delay_date ">
+                    <Input
+                      placeholder="Date of delayed payment"
+                      name="delay_date "
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="delay_status">
+                    <Input
+                      placeholder="Status of delayed payment"
+                      name="delay_status "
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="notes">
+                    <Input
+                      placeholder="Notes"
+                      name="notes "
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                <Input
+                type="submit"
+                value="Add Student Payment Details"
+                style={{ color: "white", backgroundColor: "DodgerBlue" }}
+              />
+              </Row>
+              </Form>
+            </TabPane>
+            </Tabs>
+          </Drawer>
         ]}
       />
 
@@ -1417,8 +1558,20 @@ const StudentsBatchList: React.FC = () => {
           </>
         ) : (
           <>
-            <Form onFinish={handleFormSubmitEdit}>
+           <Tabs defaultActiveKey="1" onChange={callback}>
+            <TabPane tab="Student Info" key="1">    Student Info
+            <Form onFinish={handleFormSubmitEdit}> 
               <Row gutter={16}>
+              <Col span={12}>
+                  <Form.Item name="studentID">
+                    <Input
+                      placeholder="Student ID"
+                      name="studentID"
+                      defaultValue={tempDataView.studentID}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
                 <Col span={12}>
                   <Form.Item
                     name="firstName"
@@ -1435,7 +1588,6 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item
                     name="lastName"
-
                   >
                     <Input
                       placeholder="Last Name"
@@ -1445,19 +1597,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="teacherName"
-
-                  >
-                    <Input
-                      placeholder="Teacher Name"
-                      name="teacherName"
-                      defaultValue={tempDataView.teacherName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                
                 <Col span={12}>
                   <Form.Item
                     name="countryCode">
@@ -1499,7 +1639,6 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item
                     name="email"
-
                   >
                     <Input
                       placeholder="Email"
@@ -1519,7 +1658,7 @@ const StudentsBatchList: React.FC = () => {
                           ? "OnHold"
                           : tempDataView.status == 'leave'
                             ? "Leave"
-                            : "Active"}
+                            : "InActive"}
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
@@ -1530,52 +1669,14 @@ const StudentsBatchList: React.FC = () => {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="batchCode">
-                    <Input
-                      placeholder="Batch Code"
-                      name="batchCode"
-                      defaultValue={tempDataView.batchCode}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="studentID">
-                    <Input
-                      placeholder="Student ID"
-                      name="studentID"
-                      defaultValue={tempDataView.studentID}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="studentName">
-                    <Input
-                      placeholder="Student Name"
-                      name="studentName"
-                      defaultValue={tempDataView.studentName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="teacherName">
-                    <Input
-                      placeholder="Teacher Name"
-                      name="teacherName"
-                      defaultValue={tempDataView.teacherName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+               
+                
                 <Col span={12}>
                   <Form.Item name="dob">
-{console.log('dob')}
-{console.log(dob)}
-                  {dob === null ?
+
+                  {tempDataView.dob === null ?
                       <DatePicker
+
 
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
@@ -1586,7 +1687,7 @@ const StudentsBatchList: React.FC = () => {
                       />
                       :
                       <DatePicker
-                        defaultValue={moment(`${dob}`, "YYYY/MM/DD")}
+                        defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                         format="YYYY/MM/DD"
                         style={{ width: "210px" }}
                         onChange={(date, dateString) => {
@@ -1596,9 +1697,7 @@ const StudentsBatchList: React.FC = () => {
                       />
 
                     }
-                 
-
-                  
+                                 
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -1621,16 +1720,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="classType">
-                    <Input
-                      placeholder="Class type"
-                      name="classType"
-                      defaultValue={tempDataView.classType}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                
                 <Col span={12}>
                   <Form.Item name="poc">
                     <Input
@@ -1641,16 +1731,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="days">
-                    <Input
-                      placeholder="Days"
-                      name="days"
-                      defaultValue={tempDataView.days}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                
                 <Col span={12}>
                   <Form.Item name="kids">
                     <Input
@@ -1660,18 +1741,78 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col>            
+                
                 <Col span={12}>
-                  <Form.Item name="referralCode">
+                  <Form.Item name="watsappGroup">
                     <Input
-                      placeholder="Referral Code"
-                      name="referralCode"
-                      defaultValue={tempDataView.refferalCode}
+                      placeholder="whatsappGroup"
+                      name="watsappGroup"
+                      defaultValue={tempDataView.watsappGroup}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
+             </Row>
+              <Row>
+                <Col span={8}>
+                  <Input
+                    type="submit"
+                    value="Save Changes"
+                    style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                  />
+                </Col>
+                <Col span={8}></Col>
+                <Col span={8}>
+                  <Button
+                    onClick={() => { openNotification(tempDataView.userId) }}
+                    block
+                    type="primary"
+                  >
+                    Delete
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+            </TabPane>
 
+            <TabPane tab="Learning journey" key="2">    Learning journey
+            <Form onFinish={handleFormSubmitEdit}> 
+            <Row  gutter={16}>
+              <Col span={12}>
+                  <Form.Item
+                    name="teacherName"
+
+                  >
+                    <Input
+                      placeholder="Teacher Name"
+                      name="teacherName"
+                      defaultValue={tempDataView.teacherName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                <Col span={12}>
+                  <Form.Item name="batchCode">
+                    <Input
+                      placeholder="Batch Code"
+                      name="batchCode"
+                      defaultValue={tempDataView.batchCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="crossedEndDate">
+                    <Input
+                      placeholder="crossed End Date"
+                      name="crossedEndDate"
+                      defaultValue={tempDataView.crossedEndDate}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
                 <Col span={12}>
                   <Form.Item name="startDate">
                     {console.log('startdate')}
@@ -1699,6 +1840,7 @@ const StudentsBatchList: React.FC = () => {
 
                   </Form.Item>
                 </Col>
+                
                 <Col span={12}>
                   <Form.Item name="endDate">
                   {tempDataView.startDate === null ?
@@ -1728,7 +1870,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col><Col span={12}>
                   <Form.Item name="startLesson">
                     
-                  {startDate === null ?
+                  {tempDataView.startDate === null ?
                       <DatePicker
 
 
@@ -1762,18 +1904,18 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="customersReferred">
+               </Col>
+               <Col span={12}>
+                  <Form.Item name="days">
                     <Input
-                      placeholder="Number of customers referred"
-                      name="customersReferred"
-                      defaultValue={tempDataView.customersReferred}
+                      placeholder="Days"
+                      name="days"
+                      defaultValue={tempDataView.days}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+               <Col span={12}>
                   <Form.Item name="comments">
                     <Input
                       placeholder="comments"
@@ -1783,63 +1925,9 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="crossedEndDate">
-                    <Input
-                      placeholder="crossed End Date"
-                      name="crossedEndDate"
-                      defaultValue={tempDataView.crossedEndDate}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="watsappGroup">
-                    <Input
-                      placeholder="watsappGroup"
-                      name="watsappGroup"
-                      defaultValue={tempDataView.watsappGroup}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                {console.log('firstFeedback1')}
 
-            
-                <Col span={12}>
-                  <Form.Item name="firstFeedback">
-                    First FeedBack <Switch  checked={firstFeedback} onChange={(value) => {
-                      setFirstFeedback(value)
-                    }} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="bottleSend">
-                    Bottle Send <Switch checked={bottleSend} onChange={(value) => {
-                      setBottleSend(value)
-                    }} /> <br />
-                  </Form.Item>
-                </Col>
-                <Col span={15}>
-                  <Form.Item name="fifthFeedback">
-                    Fifth FeedBack <Switch checked={fifthFeedback} onChange={(value) => {
-                      setFifthFeedback(value)
-                    }} />
-                  </Form.Item>
-                </Col>
-                <Col span={15}>
-                  <Form.Item name="fifteenthFeedback">
-                    Fifteenth FeedBack <Switch checked={fifteenthFeedback} onChange={(value) => {
-                      setFifteenthFeedback(value)
-                    }} />
-                  </Form.Item>
-                </Col>
-
-
-
-              </Row>
-
-              <Row>
+              </Row>  
+            <Row>
                 <Col span={8}>
                   <Input
                     type="submit"
@@ -1857,11 +1945,129 @@ const StudentsBatchList: React.FC = () => {
                     Delete
                   </Button>
                 </Col>
-              </Row>
+              
+                </Row>
             </Form>
 
-          </>
-        )}
+            </TabPane>
+            <TabPane tab="Referral" key="3">    Referral
+            <Form onFinish={handleFormSubmitEdit}> 
+            <Row gutter={16}>
+            <Col span={12}>
+                  <Form.Item name="referralCode">
+                    <Input
+                      placeholder="Referral Code"
+                      name="referralCode"
+                      defaultValue={tempDataView.refferalCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="customersReferred">
+                    <Input
+                      placeholder="Number of customers referred"
+                      name="customersReferred"
+                      defaultValue={tempDataView.customersReferred}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+               </Col>
+               </Row>
+            <Row>
+                <Col span={8}>
+                  <Input
+                    type="submit"
+                    value="Save Changes"
+                    style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                  />
+                </Col>
+                <Col span={8}></Col>
+                <Col span={8}>
+                  <Button
+                    onClick={() => { openNotification(tempDataView.userId) }}
+                    block
+                    type="primary"
+                  >
+                    Delete
+                  </Button>
+                </Col>
+              
+                </Row>
+                </Form>
+            </TabPane>
+            <TabPane tab="QE checklist" key="4">   QE checklist
+            <Form onFinish={handleFormSubmitEdit}> 
+            <Row gutter={16}>
+              <Col span={12}>
+                  <Form.Item name="firstFeedback">
+                    First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
+                      setFirstFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="bottleSend">
+                    Bottle Send <Switch defaultChecked={tempDataView.bottleSend} onChange={(value) => {
+                      setBottleSend(value)
+                    }} /> <br />
+                  </Form.Item>
+                </Col>
+                <Col span={15}>
+                  <Form.Item name="fifthFeedback">
+                    Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
+                      setFifthFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                <Col span={15}>
+                  <Form.Item name="fifteenthFeedback">
+                    Fifteenth FeedBack <Switch defaultChecked={tempDataView.fifteenthFeedback} onChange={(value) => {
+                      setFifteenthFeedBack(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                </Row>
+               <Row>
+                <Col span={8}>
+                  <Input
+                    type="submit"
+                    value="Save Changes"
+                    style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                  />
+                </Col>
+                <Col span={8}></Col>
+                <Col span={8}>
+                  <Button
+                    onClick={() => { openNotification(tempDataView.userId) }}
+                    block
+                    type="primary"
+                  >
+                    Delete
+                  </Button>
+                </Col>
+              
+                </Row>
+            </Form>
+            </TabPane>
+            <TabPane tab="Payment Details"  key="5">    Payment Details
+            <Form onFinish={handleFormSubmitEdit}> 
+            <Col span={12}>
+                  <Form.Item name="classType">
+                    <Input
+                      placeholder="Class type"
+                      name="classType"
+                      defaultValue={tempDataView.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+            </Form>
+            </TabPane>
+            </Tabs>
+
+
+          </>        )}
       </Drawer>
     </PageContainer>
   );
