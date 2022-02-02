@@ -226,6 +226,9 @@ const StudentsBatchList: React.FC = () => {
     delay_date:'',
     delay_status:'',
     notes:'',
+    watsappGroup:'',
+    comments:'',
+    crossedEndDate:'',
 
 
   });
@@ -427,7 +430,8 @@ const StudentsBatchList: React.FC = () => {
           status: "InActive",
         },
       },
-    }, {
+    }, 
+    {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleView"
@@ -568,6 +572,9 @@ const StudentsBatchList: React.FC = () => {
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
+      watsappGroup:formData.watsappGroup,
+      comments:formData.comments,
+      crossedEndDate:formData.crossedEndDate,
      /* paymentid : formdata.paymentid,
       plantype  : formdata.plantype,
       classtype: formdata.classtype,
@@ -577,9 +584,12 @@ const StudentsBatchList: React.FC = () => {
       downpayment: formdata.downpayment,
       duedate: formdata.duedate,
       no_of_delayed_payments: formdata.no_of_delayed_payments,
+
+      
       delay_date : formdata.delay_date,
       delay_status: formdata.delay_status,
       notes: formdata.notes,
+
       */
     };
     // async (values: API.LoginParams) => {
@@ -647,9 +657,12 @@ const StudentsBatchList: React.FC = () => {
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
+      watsappGroup:formData.watsappGroup ? formData.watsappGroup : tempDataView.watsappGroup,
+      comments:formData.comments? formData.comments : tempDataView.comments,
+      crossedEndDate:formData.crossedEndDate? formData.crossedEndDate: tempDataView.crossedEndDate,
     };
     // async (values: API.LoginParams) => {
-    if (tempDataView) {
+    if (tempDataView) {watsappGroup
       dataForm.userId = tempDataView.id;
       dataForm.teacherId = tempDataView.teacherId;
     }
@@ -704,7 +717,7 @@ const StudentsBatchList: React.FC = () => {
   };
 
   const deleteTeacher = async (id) => {
-    console.log("clicked delete teacher");
+    console.log("clicked delete student");
     try {
       let msg = await teacherRemove(id, {
         headers: {
@@ -807,7 +820,7 @@ const StudentsBatchList: React.FC = () => {
                   <Form.Item name="dob">
                     {
 
-                      tempDataView.dob === null ?
+                  //    tempDataView.dob === null ?
                         <DatePicker
 
 
@@ -818,7 +831,7 @@ const StudentsBatchList: React.FC = () => {
                           }}
                           placeholder={"Date Of Birth"}
                         />
-                        :
+                       /* :
                         <DatePicker
                           defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                           format="YYYY/MM/DD"
@@ -827,7 +840,8 @@ const StudentsBatchList: React.FC = () => {
                             setDob(dateString);
                           }}
                           placeholder={"Date Of Birth"}
-                        />}
+                        /> */
+                     }
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -1348,6 +1362,7 @@ const StudentsBatchList: React.FC = () => {
         closable={true}
       >
         {!editvisible ? (
+
           <>
             <Row>
               <Col
@@ -1359,217 +1374,225 @@ const StudentsBatchList: React.FC = () => {
                 span={24}
               >
                 <center>
-                  <h2 style={{ color: "blue" }}>View Student</h2>
+                    <h2 style={{ color: "blue" }}>View Student</h2>
                 </center>
               </Col>
             </Row>
-            <Row style={{ fontWeight: 500 }} gutter={(40, 60)}>
-              <Col span={7}>Photo</Col>
+
+            <Tabs defaultActiveKey="1" onChange={callback}>
+            <TabPane tab="Student Info" key="1"> 
+
+            < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
+            <Col span={7}></Col>
               <Col span={6}>
-                <p>Name</p>
+                <p> Student ID  </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.firstName + " " + tempDataView.lastName}</p>
+                <p>:  {tempDataView.studentID}</p>
+              </Col>
+            
+            <Col span={7}></Col>
+              <Col span={6}>
+                <p>Name  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.firstName + " " + tempDataView.lastName}</p>
+              </Col>
+
+            <Col span={7}></Col>
+              <Col span={6}>
+                <p>Date of Birth </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.dob}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Mobile </p>
+                <p>Age  </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.countryCode} + {tempDataView.phoneNumber}
-                </p>
+                <p>:  {tempDataView.age}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Email</p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.email}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Type </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.type}</p>
+                <p>Mobile</p>
+              </Col>           
+              <Col span={11} >
+                <p>:   {tempDataView.countryCode} + {tempDataView.phoneNumber}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Status </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.status}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>StudentName </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.studentName}</p>
+                <p>Alternative Contact No</p>
+              </Col>           
+              <Col span={11} >
+                <p>:  {tempDataView.countryCode} + {tempDataView.alternativeMobile}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>TeacherName </p>
+                <p>Email </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.teacherName}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>BatchCode </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.batchCode}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>AlternativeMobile </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.alternativeMobile}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>StudentID </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.studentID}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Age </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.age}</p>
+                <p>:  {tempDataView.email}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p>Address </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.address}
-                </p>
+                <p>:  {tempDataView.address}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>ClassType </p>
+                <p>whatsappGroup </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.classType}
-                </p>
+                <p>:  {tempDataView.watsappGroup}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>ReferralCode </p>
+                <p>Status  </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.referralCode}
-                </p>
+                <p>:  {tempDataView.status }</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Days </p>
+                <p>Point of contact</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.days}</p>
+                <p>:  {tempDataView.poc}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Kids </p>
+                <p>Kids/Adults </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {" "}
-                  {tempDataView.kids}
-                </p>
+                <p>:  {tempDataView.kids}</p>
+              </Col>
+              </Row>
+            </TabPane>
+
+            <TabPane tab="Learning Journey" key="2"> 
+            < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
+            
+            <Col span={7}></Col>
+              <Col span={6}>
+                <p> Teacher Name </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.teacherName}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p> dob </p>
+                <p> Batch Code </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.dob}
-                </p>
+                <p>:  {tempDataView.batchCode}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>POC </p>
+                <p>Classes Start Date  </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.poc}
-                </p>
+                <p>:  {tempDataView.startDate }</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>startDate</p>
+                <p>Classes End Date </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.startDate}</p>
+                <p>:  {tempDataView.endDate}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>EndtDate</p>
+                <p> Lesson Start Date </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.endtDate}</p>
+                <p>:  {tempDataView.startLesson}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>StartLesson</p>
+                <p> crossed End Date  </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.startLesson}</p>
+                <p>:  {tempDataView.crossedEndDate}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>First Feedback</p>
+                <p>No of Classes Completed  </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.firstFeedback ? "True" : "False"}</p>
+                <p>:  {tempDataView.classesCompleted}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Fifth Feedback</p>
+                <p>Days</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.fifthFeedback ? "True" : "False"}</p>
+                <p>:  {tempDataView.days}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Fifteenth Feedback</p>
+                <p> Comments</p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.fifteenthFeedback ? "True" : "False"}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Bottle Send</p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.bottleSend ? "True" : "False"}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>ClassesCompleted</p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.classesCompleted}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>CustomersReferred</p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.customersReferred}</p>
+                <p>:  {tempDataView.comments}</p>
               </Col>
             </Row>
-            <br />
+            </TabPane>
+
+            <TabPane tab="Referral" key="3"> 
+            < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
+              
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Referral Code </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.referralCode}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> No. of customers referred </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.customersReferred}</p>
+              </Col>
+            </Row>
+            </TabPane>
+
+            
+            <TabPane tab="QE checklist" key="4"> 
+           < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> First FeedBack  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.firstFeedback}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Fifth FeedBack   </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.fifthFeedback}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Fifteenth FeedBack  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.fifteenthFeedback}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Bottle Send   </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.bottleSend}</p>
+              </Col>
+            </Row>
             <Row>
               <Col span={10}></Col>
               <Col span={12}>
@@ -1579,6 +1602,100 @@ const StudentsBatchList: React.FC = () => {
                 </Button>
               </Col>
             </Row>
+            </TabPane>
+
+            <TabPane tab="Payment Details"  disabled key="5"> 
+            < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> payment ID </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.paymentid}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Plan type   </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.plantype}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Class type    </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.classtype}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> No. of classes sold  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.classessold}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Sale amount </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.saleamount}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Date of Sale </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.dateofsale}</p>
+              </Col>
+               <Col span={7}></Col>
+              <Col span={6}>
+                <p> Downpayment  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.downpayment}</p>
+              </Col>
+               <Col span={7}></Col>
+              <Col span={6}>
+                <p>Due date of plan </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.duedate}</p>
+              </Col>
+               <Col span={7}></Col>
+              <Col span={6}>
+                <p>No. of delayed payments     </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.no_of_delayed_payments}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Date of delayed payment </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.delay_date}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Status of delayed payment </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.delay_status}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Notes </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.notes}</p>
+              </Col>
+            </Row>
+            
+            </TabPane>
+
+
+            </Tabs>
           </>
         ) : (
           <>
@@ -1753,12 +1870,7 @@ const StudentsBatchList: React.FC = () => {
                       <Option value="onhold">On Hold</Option>
                     </Select>
                   </Form.Item>
-                </Col>
-               
-                
-               
-                
-                
+                </Col>    
                 <Col span={12}>
                   <Form.Item name="poc">
                     <Input
@@ -1988,7 +2100,7 @@ const StudentsBatchList: React.FC = () => {
                     <Input
                       placeholder="Referral Code"
                       name="referralCode"
-                      defaultValue={tempDataView.refferalCode}
+                      defaultValue={tempDataView.referralCode}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
