@@ -38,30 +38,14 @@ export class StudentService {
         lastName: data.lastName,
         isAdministrator: false,
         phoneNumber: data.phoneNumber,
-        teacherName: data.teacherName,
-        batchCode: data.batchCode,
-        classType: data.classType,
-        referralCode: data.referralCode,
-        days: data.days,
-        studentType: data.studentType,
-        dateOfBirth: data.dateOfBirth,
-        poc: data.poc,
-        startingDate: data.startingDate,
-        endingDate: data.endingDate,
-        startingLesson: data.startingLesson,
-        bottleSend: data.bottleSend,
-        firstFeedback: data.firstFeedback,
-        fifthFeedback: data.fifthFeedback,
-        fifteenthFeedback: data.fifteenthFeedback,
-        classesCompleted: data.classesCompleted,
-        customersReferred: data.customersReferred,
       },
     };
 
     usersLogger.info(`Start - Reqeust to cosmos DB : ${JSON.stringify(options)}`);
     try {
       if (data.id) {
-        usersLogger.info("Update Request")
+        usersLogger.info("Update Request");
+        usersLogger.info(data.id);
         options.body["id"] = data.id;
         usersLogger.info(`Start - Reqeust to cosmos DB1 : ${JSON.stringify(options)}`);
       }
@@ -147,7 +131,7 @@ export class StudentService {
       if (data.id) {
         user.id = data.id;
         usersLogger.info(
-          `Userid : ${data.userId}`
+          `Userid : ${data.id}`
         );
         usersLogger.info(
           `id : ${data.id}`
@@ -159,7 +143,11 @@ export class StudentService {
       user.address = data.address;
       user.whatsapp = data.whatsapp;
       user.nationalityId = data.nationalityId;
+      if (data.dob) {
+        console.log('dob is');
+        console.log(data.dob);
       user.dob = data.dob;
+      }
       user.status = data.status;
       user.photo = data.photo;
       user.languages = data.languages;
@@ -189,12 +177,10 @@ export class StudentService {
     student.referralCode = data.referralCode;
     student.days = data.days;
     student.studentType = data.studentType;
-    student.dateOfBirth = data.dateOfBirth;
+    student.dateOfBirth = new Date();
     student.poc = data.poc;
     student.studentID = data.studentID;
     student.days = data.days;
-    student.studentType = data.studentType;
-    student.dateOfBirth = data.dob;
     student.alternativeMobile = data.alternativeMobile;
 
     student.startDate = data.startDate;

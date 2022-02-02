@@ -144,7 +144,7 @@ const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 
 const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
   notification[type]({
-    message: type == 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
     description:
       '',
   });
@@ -180,9 +180,9 @@ const StudentsBatchList: React.FC = () => {
   const [selectCountry, setSelectCountry] = useState('')
   const [selectCountryCode, setSelectCountryCode] = useState('')
   const [bottleSend, setBottleSend] = useState(false)
-  const [firstFeedBack, setFirstFeedBack] = useState(false)
-  const [fifthFeedBack, setFifthFeedBack] = useState(false)
-  const [fifteenthFeedBack, setFifteenthFeedBack] = useState(false)
+  const [firstFeedback, setFirstFeedback] = useState(false)
+  const [fifthFeedback, setFirthFeedback] = useState(false)
+  const [fifteenthFeedback, setFifteenthFeedback] = useState(false)
 
 
 
@@ -264,7 +264,7 @@ const StudentsBatchList: React.FC = () => {
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
   const [dateStart, setDateStart] = useState("");
-  const [dateBirth, setDob] = useState("");
+  const [dob, setDob] = useState("");
   const allCountries = CountryList.getData()
 
   const defaultCountry = allCountries.filter(country => country.name === 'India')
@@ -343,7 +343,7 @@ const StudentsBatchList: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       setTempDataView(msg.data);
-      setTempDataView(msg.data);
+     // setDob(msg.data.dob);
       console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
@@ -561,14 +561,14 @@ const StudentsBatchList: React.FC = () => {
       referralCode: formData.referralCode,
       days: formData.days,
       kids: formData.kids,
-      dob: formData.dob,
+      dob: dob,
       poc: formData.poc,
       startDate: formData.startDate,
       endDate: formData.endDate,
       startLesson: formData.startLesson,
-      firstFeedback: firstFeedBack,
-      fifthFeedback: fifthFeedBack,
-      fifteenthFeedback: fifteenthFeedBack,
+      firstFeedback: firstFeedback,
+      fifthFeedback: fifthFeedback,
+      fifteenthFeedback: fifteenthFeedback,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
@@ -645,15 +645,15 @@ const StudentsBatchList: React.FC = () => {
       classType: formData.classType ? formData.classType : tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
       days: formData.days ? formData.days : tempDataView.days,
-      kids: formData.kids ? formData.kids : tempDataView.kids,
-      dob: formData.dob ? formData.dob : tempDataView.dob,
+      kids: formData.kids ? formData.kids : tempDataView.kids,  
+      dob:dob,
       poc: formData.poc ? formData.poc : tempDataView.poc,
       startDate: startDate,
       endDate: endDate,
       startLesson: startLesson,
-      firstFeedback: firstFeedBack,
-      fifthFeedback: fifthFeedBack,
-      fifteenthFeedback: fifteenthFeedBack,
+      firstFeedback: firstFeedback,
+      fifthFeedback: fifthFeedback,
+      fifteenthFeedback: fifteenthFeedback,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
@@ -662,8 +662,8 @@ const StudentsBatchList: React.FC = () => {
       crossedEndDate:formData.crossedEndDate? formData.crossedEndDate: tempDataView.crossedEndDate,
     };
     // async (values: API.LoginParams) => {
-    if (tempDataView) {watsappGroup
-      dataForm.userId = tempDataView.id;
+    if (tempDataView) {
+      dataForm.id = tempDataView.id;
       dataForm.teacherId = tempDataView.teacherId;
     }
     try {
@@ -929,6 +929,7 @@ const StudentsBatchList: React.FC = () => {
 
                 <Col span={12}>
                   <Form.Item name="status	">
+                  {console.log('tempDataView.status')}
                     {console.log(tempDataView.status)}
                     <Select
                       defaultValue={tempDataView.status == 'active'
@@ -959,11 +960,11 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="kids">
+                  <Form.Item name="classType">
                     <Input
                       placeholder="Kids/Adults"
-                      name="kids"
-                      value={formData.kids}
+                      name="classType"
+                      value={formData.classType}
                       onChange={handleFormChange}
                     />
                   </Form.Item>          
@@ -1178,7 +1179,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="firstFeedback">
                     First FeedBack <Switch valuePropName='firstFeedback' onChange={(value) => {
-                      setFirstFeedBack(value)
+                      setFirstFeedback(value)
                     }} /> <br />
                   </Form.Item>
                 </Col>
@@ -1194,7 +1195,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
-                      setFifthFeedBack(value)
+                      setFirthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
@@ -1467,7 +1468,7 @@ const StudentsBatchList: React.FC = () => {
                 <p>Kids/Adults </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.kids}</p>
+                <p>:  {tempDataView.classType}</p>
               </Col>
               </Row>
             </TabPane>
@@ -1883,11 +1884,11 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 
                 <Col span={12}>
-                  <Form.Item name="kids">
+                  <Form.Item name="classType">
                     <Input
                       placeholder="Kids/Adults"
-                      name="kids"
-                      defaultValue={tempDataView.kids}
+                      name="classType"
+                      defaultValue={tempDataView.classType}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
@@ -2144,7 +2145,7 @@ const StudentsBatchList: React.FC = () => {
               <Col span={12}>
                   <Form.Item name="firstFeedback">
                     First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
-                      setFirstFeedBack(value)
+                      setFirstFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
@@ -2158,7 +2159,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
-                      setFifthFeedBack(value)
+                      setFirthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>

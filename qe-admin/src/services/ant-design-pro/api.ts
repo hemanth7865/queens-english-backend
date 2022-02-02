@@ -121,7 +121,7 @@ export async function batches(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>(`/api/batches`, {
+  return request<API.RuleList>(`/api/assessment`, {
     method: 'GET',
     params: {
       ...params,
