@@ -181,9 +181,12 @@ const StudentsBatchList: React.FC = () => {
   const [selectCountryCode, setSelectCountryCode] = useState('')
   const [bottleSend, setBottleSend] = useState(false)
   const [firstFeedback, setFirstFeedback] = useState(false)
-  const [fifthFeedback, setFirthFeedback] = useState(false)
+  const [fifthFeedback, setFifthFeedback] = useState(false)
   const [fifteenthFeedback, setFifteenthFeedback] = useState(false)
-
+  const [selectClasstype, setSelectClasstype] = useState("");
+  const [selectPlantype, setSelectPlanType] = useState("");
+ //const [selectClassType, setSelectClassType] = useState('')
+  const [selectStatus, setSelectStatus] = useState('');
 
 
   //form states
@@ -200,10 +203,10 @@ const StudentsBatchList: React.FC = () => {
     studentID: '',
     age: '',
     address: '',
-    classType: '',
     referralCode: '',
     days: null,
-    kids: '',
+   // kids: '',
+     paymentid:'',
     dob: null,
     poc: '',
     startDate: null,
@@ -214,7 +217,6 @@ const StudentsBatchList: React.FC = () => {
     fifteenthFeedback: false,
     classesCompleted: '',
     customersReferred: '',
-    paymentid:'',
     plantype :'',
     classtype:'',
     classessold:'',
@@ -226,11 +228,10 @@ const StudentsBatchList: React.FC = () => {
     delay_date:'',
     delay_status:'',
     notes:'',
-    watsappGroup:'',
+    whatsapp:'',
     comments:'',
-    crossedEndDate:'',
-
-
+   // crossedEndDate:null,
+    
   });
 
   const actionRef = useRef<ActionType>();
@@ -239,20 +240,21 @@ const StudentsBatchList: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
 
-  const [selectUserType, setSelectUserType] = useState('')
-  const [selectStatus, setSelectStatus] = useState('')
-  const [error, setError] = useState('')
+ 
+  
+  const [error, setError] = useState('') 
 
 
 
 
   const [endDate, setEndDate] = useState();
   const [startDate, setStartDate] = useState();
+  const [crossedEndDate, setCrossedEndDate] = useState();
   const [startLesson, setStartLesson] = useState();
 
 
   //state for select option
-  const [selectValue, setSelectValue] = useState("");
+//  const [selectValue, setSelectValue] = useState("");
   const [selectTeacher, setSelectTeacher] = useState("");
 
 
@@ -366,7 +368,7 @@ const StudentsBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.titlemobile"
-          defaultMessage="PhoneNumber"
+          defaultMessage="Primary Mobile No"
         />
       ),
       dataIndex: 'phoneNumber',
@@ -395,7 +397,7 @@ const StudentsBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.titlebatchcode"
-          defaultMessage="Batch Code"
+          defaultMessage="Batch ID"
         />
       ),
       dataIndex: 'batchCode',
@@ -523,6 +525,12 @@ const StudentsBatchList: React.FC = () => {
     // console.log('input one');
   };
 
+  const handleSelectChange = (value) => {
+    console.log("status", value);
+    setSelectValue(value);
+  };
+
+
   const handleCountry = (value) => {
     console.log('selected country', value)
     if (value) {
@@ -557,10 +565,10 @@ const StudentsBatchList: React.FC = () => {
       studentID: formData.studentID,
       age: formData.age,
       address: formData.address,
-      classType: formData.classType,
+     // classType: formData.classType,
       referralCode: formData.referralCode,
       days: formData.days,
-      kids: formData.kids,
+      paymentid: formData.paymentid,
       dob: dob,
       poc: formData.poc,
       startDate: formData.startDate,
@@ -572,26 +580,25 @@ const StudentsBatchList: React.FC = () => {
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
-      watsappGroup:formData.watsappGroup,
+      whatsapp:formData.whatsapp,
       comments:formData.comments,
       crossedEndDate:formData.crossedEndDate,
-     /* paymentid : formdata.paymentid,
-      plantype  : formdata.plantype,
-      classtype: formdata.classtype,
-     	classessold : formdata.classessold,
-      saleamount : formdata.saleamount,
-      dateofsale : formdata.dateofsale,
-      downpayment: formdata.downpayment,
-      duedate: formdata.duedate,
-      no_of_delayed_payments: formdata.no_of_delayed_payments,
+      //kids: formData.kids,
+      paymentid: formData.paymentid,
 
-      
-      delay_date : formdata.delay_date,
-      delay_status: formdata.delay_status,
-      notes: formdata.notes,
-
-      */
-    };
+      plantype  : selectPlantype,
+      classtype: selectClassType,
+     	classessold : formData.classessold,
+      saleamount : formData.saleamount,
+      dateofsale : formData.dateofsale,
+      downpayment: formData.downpayment,
+      duedate: formData.duedate,
+      no_of_delayed_payments: formData.no_of_delayed_payments,     
+      delay_date : formData.delay_date,
+      delay_status: formData.delay_status,
+      notes: formData.notes,
+    }
+    
     // async (values: API.LoginParams) => {
     try {
       // 登录
@@ -642,10 +649,10 @@ const StudentsBatchList: React.FC = () => {
       studentID: formData.studentID ? formData.studentID : tempDataView.studentID,
       age: formData.age ? formData.age : tempDataView.age,
       address: formData.address ? formData.address : tempDataView.address,
-      classType: formData.classType ? formData.classType : tempDataView.classType,
+      classType: selectClassType?selectClassType:tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
       days: formData.days ? formData.days : tempDataView.days,
-      kids: formData.kids ? formData.kids : tempDataView.kids,  
+     // kids: formData.kids ? formData.kids : tempDataView.kids,  
       dob:dob,
       poc: formData.poc ? formData.poc : tempDataView.poc,
       startDate: startDate,
@@ -657,9 +664,21 @@ const StudentsBatchList: React.FC = () => {
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
-      watsappGroup:formData.watsappGroup ? formData.watsappGroup : tempDataView.watsappGroup,
+      whatsapp :formData.whatsapp  ? formData.whatsapp  : tempDataView.whatsapp ,
       comments:formData.comments? formData.comments : tempDataView.comments,
-      crossedEndDate:formData.crossedEndDate? formData.crossedEndDate: tempDataView.crossedEndDate,
+      crossedEndDate:crossedEndDate,     
+      paymentid : formData.paymentid?formData.paymentid: tempDataView.paymentid,
+      plantype  : selectPlantype?selectPlantype: tempDataView.plantype,
+      classtype: selectClasstype?selectClasstype: tempDataView.classtype,
+     	classessold : formData.classessold?formData.classessold : tempDataView.classessold ,
+      saleamount : formData.saleamount?formData.saleamount: tempDataView.saleamount,
+      dateofsale : formData.dateofsale?formData.dateofsale: tempDataView.dateofsale,
+      downpayment: formData.downpayment?formData.downpayment: tempDataView.downpayment,
+      duedate: formData.duedate?formData.duedate: tempDataView.duedate,
+      no_of_delayed_payments: formData.no_of_delayed_payments?formData.no_of_delayed_payments: tempDataView.no_of_delayed_payments,     
+      delay_date : formData.delay_date?formData.delay_date: tempDataView.delay_date,
+      delay_status: formData.delay_status?formData.delay_status: tempDataView.delay_status,
+      notes: formData.notes?formData.notes: tempDataView.notes,
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
@@ -917,11 +936,11 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="watsappGroup">
+                  <Form.Item name="whatsapp ">
                     <Input
                       placeholder="whatsappGroup"
-                      name="watsappGroup"
-                      value={formData.watsappGroup}
+                      name="whatsapp "
+                      value={formData.whatsapp }
                       onChange={handleFormChange}
                     />
                   </Form.Item>
@@ -1043,7 +1062,7 @@ const StudentsBatchList: React.FC = () => {
                         onChange={(date, dateString) => {
                           setEndDate(dateString);
                         }}
-                        placeholder={"End Date"}
+                        placeholder={"Classes End Date"}
                       />
                       :
                       <DatePicker
@@ -1064,8 +1083,6 @@ const StudentsBatchList: React.FC = () => {
 
                     {tempDataView.startLesson === null ?
                       <DatePicker
-
-
                         format="YYYY/MM/DD"
                         style={{ width: "375px" }}
                         onChange={(date, dateString) => {
@@ -1086,7 +1103,36 @@ const StudentsBatchList: React.FC = () => {
                     }                 
                   </Form.Item>
                 </Col>
-                 <Col span={12}>
+
+                <Col span={12}>
+                  <Form.Item name="crossedEndDate">
+
+                    {tempDataView.crossedEndDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setCrossedEndDate(dateString);
+                        }}
+                        placeholder={"crossed End Date"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.crossedEndDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setCrossedEndDate(dateString);
+                        }}
+                        placeholder={"crossed End Date"}
+                      />
+                    }                 
+                  </Form.Item>
+                </Col>
+
+                 {/* <Col span={12}>
                   <Form.Item name="crossedEndDate">
                     <Input
                       placeholder="crossed End Date"
@@ -1095,7 +1141,8 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col> */}
+
                 <Col span={12}>
                   <Form.Item name="classesCompleted">
                     <Input
@@ -1116,13 +1163,7 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
-               
-                
-                
-                
-                
-                
+                </Col>             
                 
                 <Col span={12}>
                   <Form.Item name="comments">
@@ -1195,14 +1236,14 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
-                      setFirthFeedback(value)
+                      setFifthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
-                    Fifteenth FeedBack <Switch valuePropName='fifteenthFeedback' onChange={(value) => {
-                      setFifteenthFeedBack(value)
+                    Fifteenth Feedback <Switch valuePropName='fifteenthFeedback' onChange={(value) => {
+                      setFifteenthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
@@ -1213,7 +1254,7 @@ const StudentsBatchList: React.FC = () => {
               />
               </Form>
                 </TabPane>
-                <TabPane tab="Payment Details" disabled key="5">
+                <TabPane tab="Payment Details"  key="5">
                 <Form onFinish={handleFormSubmit}>
                 <Row gutter={16}>
                 <Col span={12}>
@@ -1226,26 +1267,41 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col> 
+                
                 <Col span={12}>
-                  <Form.Item name="plantype">
-                    <Input
-                      placeholder="Plan type"
+                <Form.Item name="plantype">
+                    <Select
+                      placeholder= " Plan Type"
+                      defaultValue={tempDataView.plantype}
                       name="plantype"
-                      value={formData.plantype}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col> 
-                <Col span={12}>
-                  <Form.Item name="classtype">
-                    <Input
-                      placeholder="Class type"
-                      name="classtype"
-                      value={formData.classtype}
-                      onChange={handleFormChange}
-                    />
+                      onChange={(value) => {
+                        setSelectPlantype(value);
+                      }}
+                    >                
+                      <Option value ="Subscription"> Subscription </Option>
+                      <Option value ="One Time"> One Time</Option>
+                      </Select>
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                <Form.Item name="classtype">
+                <Select
+                     
+                      placeholder="Class Type"
+                      name="classtype"
+                      defaultValue={tempDataView.classtype == 'one to one'
+                        ? "one to one" : "Group" }
+                      onChange={(value) => {
+                        setSelectClasstype(value);
+                      }}
+                    >
+                    <Option value ="one to one"> One to One </Option>
+                    <Option value ="Group"> Group</Option>
+                    </Select>
+                 </Form.Item>
+                </Col>
+
+
                 <Col span={12}>
                   <Form.Item name="classessold">
                     <Input
@@ -1337,7 +1393,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                
+                 
                 <Input
                 type="submit"
                 value="Add Student Payment Details"
@@ -1447,7 +1503,7 @@ const StudentsBatchList: React.FC = () => {
                 <p>whatsappGroup </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.watsappGroup}</p>
+                <p>:  {tempDataView.whatsapp }</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1570,28 +1626,28 @@ const StudentsBatchList: React.FC = () => {
                 <p> First FeedBack  </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.firstFeedback}</p>
+                <p>:  {tempDataView.firstFeedback?"True":"False"}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p> Fifth FeedBack   </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.fifthFeedback}</p>
+                <p>:  {tempDataView.fifthFeedback?"True":"False"}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p> Fifteenth FeedBack  </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.fifteenthFeedback}</p>
+                <p>:  {tempDataView.fifteenthFeedback?"True":"False"}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p> Bottle Send   </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.bottleSend}</p>
+                <p>:  {tempDataView.bottleSend?"True":"False"}</p>
               </Col>
             </Row>
             <Row>
@@ -1605,7 +1661,7 @@ const StudentsBatchList: React.FC = () => {
             </Row>
             </TabPane>
 
-            <TabPane tab="Payment Details"  disabled key="5"> 
+            <TabPane tab="Payment Details"   key="5"> 
             < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1623,7 +1679,7 @@ const StudentsBatchList: React.FC = () => {
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p> Class type    </p>
+                <p> Class Type    </p>
               </Col>
               <Col span={11}>
                 <p>:  {tempDataView.classtype}</p>
@@ -1690,13 +1746,10 @@ const StudentsBatchList: React.FC = () => {
               </Col>
               <Col span={11}>
                 <p>:  {tempDataView.notes}</p>
-              </Col>
+              </Col> 
             </Row>
-            
             </TabPane>
-
-
-            </Tabs>
+           </Tabs>
           </>
         ) : (
           <>
@@ -1841,11 +1894,11 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="watsappGroup">
+                  <Form.Item name="whatsapp ">
                     <Input
                       placeholder="whatsappGroup"
-                      name="watsappGroup"
-                      defaultValue={tempDataView.watsappGroup}
+                      name="whatsapp "
+                      defaultValue={tempDataView.whatsapp }
                       onChange={handleFormChange}
                     />
                   </Form.Item>
@@ -2000,7 +2053,8 @@ const StudentsBatchList: React.FC = () => {
 
                     }
                   </Form.Item>
-                </Col><Col span={12}>
+                </Col>
+                <Col span={12}>
                   <Form.Item name="startLesson">
                     
                   {tempDataView.startDate === null ?
@@ -2030,6 +2084,35 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="crossedEndDate">
+                    
+                  {tempDataView.crossedEndDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setCrossedEndDate(dateString);
+                        }}
+                        placeholder={"crossed End Date"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.crossedEndDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setCrossedEndDate(dateString);
+                        }}
+                        placeholder={"crossed End Date"}
+                      />
+
+                    }
+                  </Form.Item>
+                </Col>
+{/* /*
+                <Col span={12}>
+                  <Form.Item name="crossedEndDate">
                     <Input
                       placeholder="crossed End Date"
                       name="crossedEndDate"
@@ -2037,7 +2120,8 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col> */}
+
                 <Col span={12}>
                   <Form.Item name="classesCompleted">
                     <Input
@@ -2088,10 +2172,8 @@ const StudentsBatchList: React.FC = () => {
                     Delete
                   </Button>
                 </Col>
-              
-                </Row>
+            </Row>
             </Form>
-
             </TabPane>
             <TabPane tab="Referral" key="3"> 
             <Form onFinish={handleFormSubmitEdit}> 
@@ -2142,14 +2224,8 @@ const StudentsBatchList: React.FC = () => {
             <TabPane tab="QE checklist" key="4"> 
             <Form onFinish={handleFormSubmitEdit}> 
             <Row gutter={16}>
-              <Col span={12}>
-                  <Form.Item name="firstFeedback">
-                    First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
-                      setFirstFeedback(value)
-                    }} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
+              
+                <Col span={15}>
                   <Form.Item name="bottleSend">
                     Bottle Send <Switch defaultChecked={tempDataView.bottleSend} onChange={(value) => {
                       setBottleSend(value)
@@ -2157,20 +2233,27 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={15}>
+                  <Form.Item name="firstFeedback">
+                    First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
+                      setFirstFeedback(value)
+                    }} />
+                  </Form.Item>
+                </Col>
+                <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
-                      setFirthFeedback(value)
+                      setFifthFeedback(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
-                    Fifteenth FeedBack <Switch defaultChecked={tempDataView.fifteenthFeedback} onChange={(value) => {
-                      setFifteenthFeedBack(value)
-                    }} />
+                    Fifteenth FeedBack <Switch  defaultChecked={tempDataView.fifteenthFeedback} 
+                    onChange={(value) => { setFifteenthFeedBack(value)  }} />
                   </Form.Item>
                 </Col>
-                </Row>
+
+                  </Row>
                <Row>
                 <Col span={8}>
                   <Input
@@ -2193,7 +2276,7 @@ const StudentsBatchList: React.FC = () => {
                 </Row>
             </Form>
             </TabPane>
-            <TabPane tab="Payment Details"  disabled key="5"> 
+            <TabPane tab="Payment Details"  key="5"> 
             <Form onFinish={handleFormSubmitEdit}> 
               <Row gutter={16}>
                 <Col span={12}>
@@ -2206,24 +2289,37 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col> 
+                
                 <Col span={12}>
                   <Form.Item name="plantype">
-                    <Input
+                    <Select
                       placeholder="Plan type"
-                      name="plantype"
-                     defaultValue={tempDataView.plantype}
-                      onChange={handleFormChange}
-                    />
+                      defaultValue={tempDataView.plantype == 'Subscription'
+                        ? "Subscription" : "One Time" }
+                      onChange={(value) => {
+                        setSelectPlantype(value);
+                      }}
+                    >
+                     <Option value ="Subscription"> Subscription </Option>
+                      <Option value ="One Time"> One Time</Option>
+                    </Select>
                   </Form.Item>
-                </Col> 
+                </Col>    
+
                 <Col span={12}>
                   <Form.Item name="classtype">
-                    <Input
-                      placeholder="Class type"
-                      name="classtype"
-                      defaultValue={tempDataView.classtype}
-                      onChange={handleFormChange}
-                    />
+                  <Select
+                      
+                      placeholder="Class Type"
+                      defaultValue={tempDataView.classtype == 'one to one'
+                        ? "one to one" : "Group" }
+                      onChange={(value) => {
+                        setSelectClasstype(value);
+                      }}
+                    >
+                    <Option value ="one to one"> One to One </Option>
+                    <Option value ="Group"> Group</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -2317,7 +2413,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                </Row>
+                </Row> 
                 <Row>
                 <Col span={8}>
                   <Input
