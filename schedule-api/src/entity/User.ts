@@ -4,6 +4,8 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { Teacher } from "./Teacher";
 import {TeacherAvailability} from "./TeacherAvailability";
+import { StudentAvailability } from "./StudentAvailability";
+import { Payment } from "./Payment";
 //import { Lead } from "./Lead";
 
 @Entity("user")
@@ -87,7 +89,9 @@ export class User extends BaseEntity {
     teacherData: Teacher;
 
     teacher:Teacher[];   
+    payment : Payment[];
 
     teacherAvailability: TeacherAvailability[];
+    studentAvailability: StudentAvailability[];
 
 }

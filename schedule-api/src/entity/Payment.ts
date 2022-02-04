@@ -10,8 +10,9 @@ import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColu
     export class Payment extends BaseEntity {
         
         Payment() {}
-    
-        @PrimaryColumn()
+        @PrimaryGeneratedColumn("uuid")
+        id : String;
+        @Column("text")
             paymentid: string;
         @Column("text")
             plantype: string;

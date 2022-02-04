@@ -11,6 +11,7 @@ import {
   BaseEntity,
   OneToMany,
 } from "typeorm";
+import { StudentAvailability } from "./StudentAvailability";
 
 
 @Entity("student")
@@ -69,4 +70,6 @@ export class Student extends BaseEntity {
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
+
+
 }

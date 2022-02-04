@@ -9,10 +9,14 @@ import axios from "axios";
 import { Student } from "../entity/Student";
 const { usersLogger } = require("../Logger.js");
 import { TeacherService } from "./TeacherService";
+import { StudentAvailability } from "../entity/StudentAvailability";
+import { Payment } from "../entity/Payment";
 
 export class StudentService {
   private usersRepository = getRepository(User);
   private studentRepository = getRepository(Student);
+  private paymentRepository = getRepository(Payment);
+  private studentAvailabilityRepository = getRepository(StudentAvailability);
   private teacherService  = new TeacherService();
 
 
@@ -117,6 +121,7 @@ export class StudentService {
     );
     try {
       var teacherAvailability: TeacherAvailability[] = [];
+      var studentAvailability: StudentAvailability[] = [];
       var teacherItem: Teacher[] = [];
       var teacher = new Teacher();
       var user = new User();
@@ -158,6 +163,7 @@ export class StudentService {
       user = await this.usersRepository.save(user);
       usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
       let student = new Student();
+      let payment = new Payment();
 
     if (user.id) {
       usersLogger.info(`Student Id is ${JSON.stringify(user.id)}`);
@@ -167,6 +173,27 @@ export class StudentService {
       student.created_at = new Date();
       student.updated_at = new Date();
     }
+
+    if (data.payment) {
+      for (let element of data.payment) {
+        if (element.id) {
+          payment.id = element.id;
+        }
+        payment.paymentid = element.paymentid;
+        payment.plantype = element.plantype;
+        payment.classtype = element.classtype;
+        payment.classessold = element.classessold;
+        payment.saleamount = element.saleamount;
+        payment.dateofsale = element.dateofsale;
+        payment.downpayment = element.downpayment;
+        payment.duedate = element.duedate;
+        payment.no_of_delayed_payments = element.no_of_delayed_payments;
+        payment =  await this.paymentRepository.save(payment);
+        user.payment = [payment];
+        usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+      }
+    }
+
 
     student.teacherName = data.teacherName;
     student.studentName = data.studentName;
@@ -194,10 +221,54 @@ export class StudentService {
     student.customersReferred = data.customersReferred;
 
       student = await this.studentRepository.save(student);
+
+      
+    let i = 0;
+    if (data.studentAvailability) {
+      for (let element of  data.studentAvailability) {
+      //data.leadAvailability.forEach(async (element) => {
+        var availability = new StudentAvailability();
+        availability.start_date = element.startDate;
+        availability.start_slot = element.start_slot;
+        console.log("start slot" + element.start_slot);
+        if (element.start_slot) {
+          let time = element.start_slot.split(":");
+          availability.start_slot = time[0];
+          console.log("time is ", time);
+          availability.start_min = time[1];
+          availability.startMin = time[0] * 60 + time[1];
+        }
+        if (element.end_slot) {
+          let time = element.end_slot.split(":");
+          availability.end_slot = time[0];
+          availability.end_min = time[1];
+          availability.endMin = time[0] * 60 + time[1];
+        }
+
+        availability.weekday = element.weekday;
+        if (element.id) availability.id = element.id;
+//        availability.student = student;
+        availability.created_at = new Date();
+        availability.updated_at = new Date();
+        availability = await this.studentAvailabilityRepository.save(
+          availability
+        );
+        availability.start_slot = element.start_slot;
+        availability.end_slot = element.end_slot;
+        studentAvailability[i++] = availability;
+      }
+    }
+
+    console.log("leadAvailability", teacherAvailability);
+
+  user.teacherAvailability = teacherAvailability;
+  user.studentAvailability = studentAvailability;
+    
+
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
       //user.id = student.id; 
      
-      return {...user,...student};
+      return {...user};
     } catch (error) {
       console.log(error);
      return {status:500, error:"Unable to register student"}
