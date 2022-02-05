@@ -184,7 +184,7 @@ const StudentsBatchList: React.FC = () => {
   const [fifthFeedback, setFifthFeedback] = useState(false)
   const [fifteenthFeedback, setFifteenthFeedback] = useState(false)
   const [selectClasstype, setSelectClasstype] = useState("");
-  const [selectPlantype, setSelectPlanType] = useState("");
+  const [selectPlantype, setSelectPlantype] = useState("");
  //const [selectClassType, setSelectClassType] = useState('')
   const [selectStatus, setSelectStatus] = useState('');
 
@@ -230,6 +230,8 @@ const StudentsBatchList: React.FC = () => {
     notes:'',
     whatsapp:'',
     comments:'',
+    pfirstName:'',
+    plastName:'',
    // crossedEndDate:null,
     
   });
@@ -552,6 +554,8 @@ const StudentsBatchList: React.FC = () => {
     const dataForm = {
       firstName: formData.firstName,
       lastName: formData.lastName,
+      pfirstName: formData.pfirstName,
+      plastName: formData.plastName,
       phoneNumber: formData.phoneNumber,
       countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
@@ -565,7 +569,7 @@ const StudentsBatchList: React.FC = () => {
       studentID: formData.studentID,
       age: formData.age,
       address: formData.address,
-     // classType: formData.classType,
+      classType: formData.classType,
       referralCode: formData.referralCode,
       days: formData.days,
       paymentid: formData.paymentid,
@@ -587,7 +591,7 @@ const StudentsBatchList: React.FC = () => {
       paymentid: formData.paymentid,
 
       plantype  : selectPlantype,
-      classtype: selectClassType,
+      classtype: selectClasstype,
      	classessold : formData.classessold,
       saleamount : formData.saleamount,
       dateofsale : formData.dateofsale,
@@ -636,6 +640,8 @@ const StudentsBatchList: React.FC = () => {
     const dataForm = {
       firstName: formData.firstName ? formData.firstName : tempDataView.firstName,
       lastName: formData.lastName ? formData.lastName : tempDataView.lastName,
+      pfirstName: formData.pfirstName ? formData.pfirstName : tempDataView.pfirstName,
+      plastName: formData.plastName ? formData.plastName : tempDataView.plastName,
       phoneNumber: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       countryCode: formData.countryCode ? formData.countryCode : tempDataView.countryCode,
       email: formData.email ? formData.email : tempDataView.email,
@@ -649,7 +655,7 @@ const StudentsBatchList: React.FC = () => {
       studentID: formData.studentID ? formData.studentID : tempDataView.studentID,
       age: formData.age ? formData.age : tempDataView.age,
       address: formData.address ? formData.address : tempDataView.address,
-      classType: selectClassType?selectClassType:tempDataView.classType,
+      classType: formData.ClassType?formData.ClassType:tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
       days: formData.days ? formData.days : tempDataView.days,
      // kids: formData.kids ? formData.kids : tempDataView.kids,  
@@ -810,7 +816,7 @@ const StudentsBatchList: React.FC = () => {
                     }]}
                   >
                     <Input
-                      placeholder="First Name"
+                      placeholder="Student First Name"
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleFormChange}
@@ -828,13 +834,14 @@ const StudentsBatchList: React.FC = () => {
                     }]}
                   >
                     <Input
-                      placeholder="Last Name"
+                      placeholder="StudentLast Name"
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
                 </Col>
+
                 <Col span={12}>
                   <Form.Item name="dob">
                     {
@@ -873,6 +880,16 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="classType">
+                    <Input
+                      placeholder="Kids/Adults"
+                      name="classType"
+                      value={formData.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>          
+                </Col>  
                 
                 <Col span={12}>
                   <Form.Item
@@ -887,7 +904,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="phoneNumber">
                     <Input
-                      placeholder="Enter Mobile Number"
+                      placeholder="Enter Primary Mobile Number"
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleFormChange}
@@ -907,6 +924,53 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="whatsapp ">
+                    <Input
+                      placeholder="whatsapp Number"
+                      name="whatsapp "
+                      value={formData.whatsapp }
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="pfirstName"
+                    rules={[{
+                      required: true,
+                      min: 2,
+                      type: 'string',
+                      pattern: /^[a-zA-Z ]*$/,
+                    }]}
+                  >
+                    <Input
+                      placeholder="Parent First Name"
+                      name="pfirstName"
+                      value={formData.firstName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="plastName"
+                    rules={[{
+                      required: true,
+                      min: 2,
+                      type: 'string',
+                      pattern: /^[a-zA-Z]*$/,
+                    }]}
+                  >
+                    <Input
+                      placeholder="Parent Last Name"
+                      name="plastName"
+                      value={formData.lastName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
                 <Col span={12}>
                   <Form.Item
                     name="email"
@@ -935,18 +999,9 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="whatsapp ">
-                    <Input
-                      placeholder="whatsappGroup"
-                      name="whatsapp "
-                      value={formData.whatsapp }
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                
 
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="status	">
                   {console.log('tempDataView.status')}
                     {console.log(tempDataView.status)}
@@ -967,7 +1022,7 @@ const StudentsBatchList: React.FC = () => {
                       <Option value="onhold">On Hold</Option>
                     </Select>
                   </Form.Item>
-                </Col>
+                </Col> */}
                 <Col span={12}>
                   <Form.Item name="poc">
                     <Input
@@ -979,15 +1034,17 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="classType">
+                  <Form.Item name="comments">
                     <Input
-                      placeholder="Kids/Adults"
-                      name="classType"
-                      value={formData.classType}
+                      placeholder="comments"
+                      name="comments"
+                      value={formData.comments}
                       onChange={handleFormChange}
                     />
-                  </Form.Item>          
-                </Col>  
+                  </Form.Item>
+                </Col>
+               
+               
                 <Input
                 type="submit"
                 value="Add Student Info "
@@ -1165,17 +1222,7 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>             
                 
-                <Col span={12}>
-                  <Form.Item name="comments">
-                    <Input
-                      placeholder="comments"
-                      name="comments"
-                      value={formData.comments}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-               
+                
                 <Input
                 type="submit"
                 value="Add Student Learning journey"
@@ -1272,7 +1319,8 @@ const StudentsBatchList: React.FC = () => {
                 <Form.Item name="plantype">
                     <Select
                       placeholder= " Plan Type"
-                      defaultValue={tempDataView.plantype}
+                      defaultValue={tempDataView.plantype=='Subscription'
+                        ? 'Subscription':'One Time' }
                       name="plantype"
                       onChange={(value) => {
                         setSelectPlantype(value);
@@ -1440,7 +1488,7 @@ const StudentsBatchList: React.FC = () => {
             <TabPane tab="Student Info" key="1"> 
 
             < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
-            <Col span={7}></Col>
+              <Col span={7}></Col>
               <Col span={6}>
                 <p> Student ID  </p>
               </Col>
@@ -1448,14 +1496,20 @@ const StudentsBatchList: React.FC = () => {
                 <p>:  {tempDataView.studentID}</p>
               </Col>
             
-            <Col span={7}></Col>
+             <Col span={7}></Col>
               <Col span={6}>
-                <p>Name  </p>
+                <p>Student First Name  </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.firstName + " " + tempDataView.lastName}</p>
+                <p>:  {tempDataView.firstName }</p>
               </Col>
-
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Student Last Name  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.lastName }</p>
+              </Col>  
             <Col span={7}></Col>
               <Col span={6}>
                 <p>Date of Birth </p>
@@ -1472,7 +1526,14 @@ const StudentsBatchList: React.FC = () => {
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Mobile</p>
+                <p>Kids/Adults </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.classType}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Primary Mobile Number</p>
               </Col>           
               <Col span={11} >
                 <p>:   {tempDataView.countryCode} + {tempDataView.phoneNumber}</p>
@@ -1484,6 +1545,31 @@ const StudentsBatchList: React.FC = () => {
               <Col span={11} >
                 <p>:  {tempDataView.countryCode} + {tempDataView.alternativeMobile}</p>
               </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>whatsapp No. </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.countryCode} + {tempDataView.whatsapp }</p>
+              </Col>
+              
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Parent First Name  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.pfirstName }</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Parent Last Name  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.plastName }</p>
+              </Col>  
+
+
+                
               <Col span={7}></Col>
               <Col span={6}>
                 <p>Email </p>
@@ -1498,20 +1584,14 @@ const StudentsBatchList: React.FC = () => {
               <Col span={11}>
                 <p>:  {tempDataView.address}</p>
               </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>whatsappGroup </p>
-              </Col>
-              <Col span={11}>
-                <p>:  {tempDataView.whatsapp }</p>
-              </Col>
-              <Col span={7}></Col>
+              
+              {/* <Col span={7}></Col>
               <Col span={6}>
                 <p>Status  </p>
               </Col>
               <Col span={11}>
                 <p>:  {tempDataView.status }</p>
-              </Col>
+              </Col> */}
               <Col span={7}></Col>
               <Col span={6}>
                 <p>Point of contact</p>
@@ -1521,11 +1601,12 @@ const StudentsBatchList: React.FC = () => {
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Kids/Adults </p>
+                <p> Comments</p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.classType}</p>
+                <p>:  {tempDataView.comments}</p>
               </Col>
+              
               </Row>
             </TabPane>
 
@@ -1588,13 +1669,7 @@ const StudentsBatchList: React.FC = () => {
               <Col span={11}>
                 <p>:  {tempDataView.days}</p>
               </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p> Comments</p>
-              </Col>
-              <Col span={11}>
-                <p>:  {tempDataView.comments}</p>
-              </Col>
+              
             </Row>
             </TabPane>
 
@@ -1772,7 +1847,7 @@ const StudentsBatchList: React.FC = () => {
                     name="firstName"
                   >
                     <Input
-                      placeholder="First Name"
+                      placeholder="Student First Name"
                       name="firstName"
                       defaultValue={tempDataView.firstName}
                       onChange={handleFormChange}
@@ -1784,7 +1859,7 @@ const StudentsBatchList: React.FC = () => {
                     name="lastName"
                   >
                     <Input
-                      placeholder="Last Name"
+                      placeholder="Student Last Name"
                       name="lastName"
                       defaultValue={tempDataView.lastName}
                       onChange={handleFormChange}
@@ -1830,6 +1905,16 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="classType">
+                    <Input
+                      placeholder="Kids/Adults"
+                      name="classType"
+                      defaultValue={tempDataView.classType}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
 
                 
                 <Col span={12}>
@@ -1862,12 +1947,51 @@ const StudentsBatchList: React.FC = () => {
                       placeholder="Alternative Contact No"
                       name="alternativeMobile"
                       defaultValue={tempDataView.alternativeMobile}
-                      // onChange={handleFormChange}
-                      prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
+                       onChange={handleFormChange}
+                     // prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
                     />
-                    {error ? (
+                    {/* {error ? (
                       <p style={{ color: 'red' }}>{error}</p>
-                    ) : ''}
+                    ) : ''} */}
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="whatsapp">
+                    <Input
+                      placeholder="whatsapp Number"
+                      name="whatsapp"
+                      defaultValue={tempDataView.whatsapp}
+                       onChange={handleFormChange}
+                     // prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
+                    />
+                    {/* {error ? (
+                      <p style={{ color: 'red' }}>{error}</p>
+                    ) : ''} */}
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item
+                    name="pfirstName"
+                  >
+                    <Input
+                      placeholder="Parent First Name"
+                      name="pfirstName"
+                      defaultValue={tempDataView.pfirstName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="plastName"
+                  >
+                    <Input
+                      placeholder="Parent Last Name"
+                      name="plastName"
+                      defaultValue={tempDataView.plastName}
+                      onChange={handleFormChange}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -1893,19 +2017,8 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="whatsapp ">
-                    <Input
-                      placeholder="whatsappGroup"
-                      name="whatsapp "
-                      defaultValue={tempDataView.whatsapp }
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-
-
-                <Col span={12}>
+                
+                {/* <Col span={12}>
                   <Form.Item name="status	">
                     <Select
                       defaultValue={tempDataView.status == 'active'
@@ -1924,7 +2037,8 @@ const StudentsBatchList: React.FC = () => {
                       <Option value="onhold">On Hold</Option>
                     </Select>
                   </Form.Item>
-                </Col>    
+                </Col>     */}
+
                 <Col span={12}>
                   <Form.Item name="poc">
                     <Input
@@ -1935,19 +2049,16 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                
                 <Col span={12}>
-                  <Form.Item name="classType">
+                  <Form.Item name="comments">
                     <Input
-                      placeholder="Kids/Adults"
-                      name="classType"
-                      defaultValue={tempDataView.classType}
+                      placeholder="comments"
+                      name="comments"
+                      defaultValue={tempDataView.comments}
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>            
-                
-               
+                </Col>               
              </Row>
               <Row>
                 <Col span={8}>
@@ -2142,16 +2253,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-               <Col span={12}>
-                  <Form.Item name="comments">
-                    <Input
-                      placeholder="comments"
-                      name="comments"
-                      defaultValue={tempDataView.comments}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+               
 
               </Row>  
             <Row>
