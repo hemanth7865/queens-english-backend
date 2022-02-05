@@ -187,6 +187,10 @@ const StudentsBatchList: React.FC = () => {
   const [selectPlantype, setSelectPlantype] = useState("");
  //const [selectClassType, setSelectClassType] = useState('')
   const [selectStatus, setSelectStatus] = useState('');
+  const [selectWABatch, setWABatch] = useState("");
+  const [selectLogApp, setLogApp] = useState("");
+  
+  
 
 
   //form states
@@ -212,9 +216,9 @@ const StudentsBatchList: React.FC = () => {
     startDate: null,
     endDate: null,
     startLesson: null,
-    firstFeedback: false,
-    fifthFeedback: false,
-    fifteenthFeedback: false,
+    firstFeedback:"",
+    fifthFeedback:"",
+    fifteenthFeedback: "",
     classesCompleted: '',
     customersReferred: '',
     plantype :'',
@@ -232,6 +236,7 @@ const StudentsBatchList: React.FC = () => {
     comments:'',
     pfirstName:'',
     plastName:'',
+    incentive:'',
    // crossedEndDate:null,
     
   });
@@ -578,15 +583,19 @@ const StudentsBatchList: React.FC = () => {
       startDate: formData.startDate,
       endDate: formData.endDate,
       startLesson: formData.startLesson,
-      firstFeedback: firstFeedback,
-      fifthFeedback: fifthFeedback,
-      fifteenthFeedback: fifteenthFeedback,
+      firstFeedback:formData. firstFeedback,
+      fifthFeedback:formData. fifthFeedback,
+      fifteenthFeedback: formData.fifteenthFeedback,
+      wabatch:selectWABatch,
+      logApp:	selectLogApp,	
+
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
       whatsapp:formData.whatsapp,
       comments:formData.comments,
       crossedEndDate:formData.crossedEndDate,
+      incentive:formData.incentive,
       //kids: formData.kids,
       paymentid: formData.paymentid,
 
@@ -664,9 +673,9 @@ const StudentsBatchList: React.FC = () => {
       startDate: startDate,
       endDate: endDate,
       startLesson: startLesson,
-      firstFeedback: firstFeedback,
-      fifthFeedback: fifthFeedback,
-      fifteenthFeedback: fifteenthFeedback,
+      firstFeedback: formData.firstFeedback?formData.firstFeedback: tempDataView.firstFeedback,
+      fifthFeedback: formData.fifthFeedback?formData.fifthFeedback: tempDataView.fifthFeedback,
+      fifteenthFeedback: formData.fifteenthFeedback?formData.fifteenthFeedback: tempDataView.fifteenthFeedback,
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted ? formData.classesCompleted : tempDataView.classesCompleted,
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
@@ -685,6 +694,7 @@ const StudentsBatchList: React.FC = () => {
       delay_date : formData.delay_date?formData.delay_date: tempDataView.delay_date,
       delay_status: formData.delay_status?formData.delay_status: tempDataView.delay_status,
       notes: formData.notes?formData.notes: tempDataView.notes,
+      incentive:formData.incentive?formData.incentive:tempDataView.incentive,
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
@@ -1255,6 +1265,17 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="incentive">
+                    <Input
+                      placeholder="Incentive Details"
+                      name="incentive"
+                      value={formData.incentive}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                
                 <Input
                 type="submit"
                 value="Add Student Referral"
@@ -1264,13 +1285,54 @@ const StudentsBatchList: React.FC = () => {
                 </TabPane>
                 <TabPane tab="QE checklist"  key="4">
                 <Form onFinish={handleFormSubmit}>
+
                 <Col span={12}>
                   <Form.Item name="firstFeedback">
-                    First FeedBack <Switch valuePropName='firstFeedback' onChange={(value) => {
-                      setFirstFeedback(value)
+                    <Input
+                      placeholder=" First FeedBack "
+                      name="firstFeedback"
+                      value={formData.firstFeedback}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                
+                <Col span={12}>
+                  <Form.Item name="fifthFeedback">
+                    <Input
+                      placeholder="Fifth FeedBack "
+                      name="fifthFeedback"
+                      value={formData.fifthFeedback}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                <Col span={12}>
+                  <Form.Item name="fifteenthFeedback">
+                    <Input
+                      placeholder="Fifteenth Feedback "
+                      name="fifteenthFeedback"
+                      value={formData.fifteenthFeedback}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                  
+                 <Col span={12}>
+                  <Form.Item name="wabatch">
+                    Batch on WA <Switch valuePropName='wabatch' onChange={(value) => {
+                      setWABatch(value)
                     }} /> <br />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="logApp">
+                    Log into the app <Switch valuePropName='logApp' onChange={(value) => {
+                      setLogApp(value)
+                    }} /> <br />
+                  </Form.Item>
+                </Col>
+
 
                 <Col span={12}>
                   <Form.Item name="bottleSend">
@@ -1280,6 +1342,7 @@ const StudentsBatchList: React.FC = () => {
 
                   </Form.Item>
                 </Col>
+                {/*
                 <Col span={15}>
                   <Form.Item name="fifthFeedback">
                     Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
@@ -1293,7 +1356,7 @@ const StudentsBatchList: React.FC = () => {
                       setFifteenthFeedback(value)
                     }} />
                   </Form.Item>
-                </Col>
+                </Col> */}
                 <Input
                 type="submit"
                 value="Add Student QE checklist "
@@ -1690,6 +1753,14 @@ const StudentsBatchList: React.FC = () => {
               <Col span={11}>
                 <p>:  {tempDataView.customersReferred}</p>
               </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Incentive Details</p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.incentive}</p>
+              </Col>
+
             </Row>
             </TabPane>
 
@@ -1701,21 +1772,21 @@ const StudentsBatchList: React.FC = () => {
                 <p> First FeedBack  </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.firstFeedback?"True":"False"}</p>
+                <p>:  {tempDataView.firstFeedback}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p> Fifth FeedBack   </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.fifthFeedback?"True":"False"}</p>
+                <p>:  {tempDataView.fifthFeedback}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
                 <p> Fifteenth FeedBack  </p>
               </Col>
               <Col span={11}>
-                <p>:  {tempDataView.fifteenthFeedback?"True":"False"}</p>
+                <p>:  {tempDataView.fifteenthFeedback}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1724,6 +1795,22 @@ const StudentsBatchList: React.FC = () => {
               <Col span={11}>
                 <p>:  {tempDataView.bottleSend?"True":"False"}</p>
               </Col>
+
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p>Batch on WA   </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.Wabatch?"True":"False"}</p>
+              </Col>
+              <Col span={7}></Col>
+              <Col span={6}>
+                <p> Log into the app  </p>
+              </Col>
+              <Col span={11}>
+                <p>:  {tempDataView.logApp?"True":"False"}</p>
+              </Col>
+
             </Row>
             <Row>
               <Col span={10}></Col>
@@ -2300,6 +2387,17 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                </Col>
+               <Col span={12}>
+                  <Form.Item name="incentive">
+                    <Input
+                      placeholder="Incentive Details"
+                      name="incentive"
+                     defaultValue={tempDataView.incentive}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col> 
+                
                </Row>
             <Row>
                 <Col span={8}>
@@ -2326,6 +2424,40 @@ const StudentsBatchList: React.FC = () => {
             <TabPane tab="QE checklist" key="4"> 
             <Form onFinish={handleFormSubmitEdit}> 
             <Row gutter={16}>
+
+            <Col span={12}>
+                  <Form.Item name="firstFeedback">
+                    <Input
+                      placeholder="First Feedback"
+                      name="firstFeedback"
+                      defaultValue={tempDataView.firstFeedback}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+               </Col>
+
+               
+               <Col span={12}>
+                  <Form.Item name="fifthFeedback">
+                    <Input
+                      placeholder="Fifth Feedback"
+                      name="fifthFeedback"
+                      defaultValue={tempDataView.fifthFeedback}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+               </Col>
+               <Col span={12}>
+                  <Form.Item name="fifteenthFeedback">
+                    <Input
+                      placeholder="Fifteenth Feedback"
+                      name="fifteenthFeedback"
+                      defaultValue={tempDataView.fifteenthFeedback}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+               </Col>
+              
               
                 <Col span={15}>
                   <Form.Item name="bottleSend">
@@ -2335,25 +2467,26 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={15}>
-                  <Form.Item name="firstFeedback">
-                    First FeedBack <Switch  defaultChecked={tempDataView.firstFeedback} onChange={(value) => {
-                      setFirstFeedback(value)
+                  <Form.Item name="wabatch">
+                   Batch on WA <Switch  defaultChecked={tempDataView.wabatch} onChange={(value) => {
+                      setWABatch(value)
                     }} />
                   </Form.Item>
                 </Col>
                 <Col span={15}>
-                  <Form.Item name="fifthFeedback">
-                    Fifth FeedBack <Switch defaultChecked={tempDataView.fifthFeedback} onChange={(value) => {
-                      setFifthFeedback(value)
+                  <Form.Item name="logApp">
+                     Log into the App<Switch defaultChecked={tempDataView.logApp} onChange={(value) => {
+                      setLogApp(value)
                     }} />
                   </Form.Item>
                 </Col>
-                <Col span={15}>
+
+                {/* <Col span={15}>
                   <Form.Item name="fifteenthFeedback">
                     Fifteenth FeedBack <Switch  defaultChecked={tempDataView.fifteenthFeedback} 
                     onChange={(value) => { setFifteenthFeedBack(value)  }} />
                   </Form.Item>
-                </Col>
+                </Col> */}
 
                   </Row>
                <Row>
