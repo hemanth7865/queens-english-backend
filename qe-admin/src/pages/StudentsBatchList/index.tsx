@@ -188,15 +188,13 @@ const StudentsBatchList: React.FC = () => {
   const [duedate, setDueDate] = useState("");
   const [delay_date, setDelayDate] = useState("");
   const [dateofsale, setSaleDate] = useState("");
-  
+  const [assesmentDate, setAssesmentDate] = useState("");
+   
 
  //const [selectClassType, setSelectClassType] = useState('')
   const [selectStatus, setSelectStatus] = useState('');
   const [selectWABatch, setWABatch] = useState("");
   const [selectLogApp, setLogApp] = useState("");
-  
-  
-
 
   //form states
   const [formData, setFormData] = useState({
@@ -234,6 +232,7 @@ const StudentsBatchList: React.FC = () => {
     downpayment:'',
     duedate:null,
     no_of_delayed_payments:'',
+  //  assesmentDate=null,
     delay_date:null,
     delay_status:'',
     notes:'',
@@ -242,6 +241,23 @@ const StudentsBatchList: React.FC = () => {
     pfirstName:'',
     plastName:'',
     incentive:'',
+    classesPurchase:'',
+		classesAttended:'',
+		classesMissed:'',
+		partner:'',
+		course:'',
+	  lesson:'',
+	 // batchNo:'',
+//	batchTime
+//	batchSchedule
+	startLesson:'',
+//	batchCode
+	assesmentComplete:'',
+	assesmentMissed:'',
+	averageScore:'',
+	assesmentDate:null,	
+	startLesson:'',
+	batchChange:'',
    // crossedEndDate:null,
     
   });
@@ -601,7 +617,17 @@ const StudentsBatchList: React.FC = () => {
       crossedEndDate:formData.crossedEndDate,
       incentive:formData.incentive,
       //kids: formData.kids,
-
+      classesPurchase:formData.classesPurchase,
+		  classesAttended:formDataclassesAttended,
+		  classesMissed:formData.classesMissed,
+		  partner:formData.partner,
+		  course:formData.course,
+      assesmentComplete:formData.assesmentComplete,
+	    assesmentMissed:formData.	assesmentMissed,
+	    averageScore:formData.averageScore,
+	    assesmentDate:formData.assesmentDate,
+      startLesson:formData.startLesson,
+      batchChange:formData.batchChange,
       payment: [
         {   
            paymentid: formData.paymentid,
@@ -693,6 +719,19 @@ const StudentsBatchList: React.FC = () => {
       comments:formData.comments? formData.comments : tempDataView.comments,
       crossedEndDate:crossedEndDate,     
       incentive:formData.incentive?formData.incentive:tempDataView.incentive,
+      classesPurchase:formData.classesPurchase?formData.classesPurchase:tempDataView.classesPurchase,
+			//classesCompleted:formData.incentive?formData.incentive:tempDataView.incentive
+		classesAttended:formData.classesAttended?formData.classesAttended:tempDataView.classesAttended,
+		classesMissed:formData.classesMissed?formData.classesMissed:tempDataView.classesMissed,
+		partner:formData.partner?formData.partner:tempDataView.partner,
+		course:formData.course?formData.course:tempDataView.course,
+    assesmentComplete:formData.assesmentComplete?formData.assesmentComplete:tempDataView.assesmentComplete,
+	assesmentMissed:formData.	assesmentMissed?formData.	assesmentMissed:tempDataView.	assesmentMissed,
+	averageScore:formData.averageScore?formData.averageScore:tempDataView.averageScore,
+	assesmentDate:assesmentDate,
+  startLesson:formData.startLesson?formData.startLesson:tempDataView.startLesson,
+  batchChange:formData.batchChange?formData.batchChange:tempDataView.batchChange,
+  
       payment: [
         { 
           paymentid : formData.paymentid?formData.paymentid: tempDataView.paymentid,
@@ -743,6 +782,134 @@ const StudentsBatchList: React.FC = () => {
     console.log("dataForm", dataForm);
     onClose();
   };
+
+  let leadAvailabilities = [];
+  //console.log('LA',  leadAvailabilities)
+  //lead availability
+  const WeekdayAvailability = (props) => {
+    const [value, setValue] = useState({
+      start_slot: "",
+      end_slot: "",
+    });
+    const [value1, setValue1] = useState({
+      weekday: "",
+    });
+
+    const leadWeekAvailability = {
+      start_slot: value[0],
+      end_slot: value[1],
+      weekday: props.weekday,
+      start_date: dateStart,
+    };
+
+    let dataLead = props.tempData;
+    let slotStart, slotEnd;
+    let leadSlot;
+    if (dataLead) {
+      //console.log('le', dataLead.toString().split(',')[0].slice(4))
+      dataLead = dataLead.toString();
+      slotStart = dataLead.split(",")[0].slice(4);
+      slotEnd = dataLead.split(",")[1];
+      console.log("slotss", slotStart);
+      leadSlot = {
+        start_slot: slotStart,
+        end_slot: slotEnd,
+        start_date: dateStart ? dateStart : tempDataView.startDate,
+        weekday: props.weekday,
+      };
+    }
+    if (
+      leadWeekAvailability.start_slot &&
+      leadWeekAvailability.end_slot &&
+      leadWeekAvailability.weekday
+    ) {
+      leadAvailabilities.push(leadWeekAvailability);
+    }
+    if (dataLead) {
+      leadAvailabilities.push(leadSlot);
+      //console.log('Laa', leadAvailabilities)
+    }
+
+    const format = "HH:mm";
+    return (
+      <Row style={{ margin: 5 }}>
+
+        <Col span={7}>
+          {dataLead ? (
+            <Checkbox name="weekday" checked="true" onChange={(e) => setValue1(props.weekday)}>
+              {props.week}
+            </Checkbox>
+          ) : (
+            <Checkbox name="weekday" onChange={(e) => setValue1(props.weekday)}>
+              {props.week}
+            </Checkbox>
+          )}
+        </Col>
+        <Col span={14}>
+          {dataLead ? (
+            <TimePicker.RangePicker
+              format={format}
+              defaultValue={[
+                moment(`${slotStart}`, format),
+                moment(`${slotEnd}`, format),
+              ]}
+              onChange={(time, timeString) => {
+                setValue(timeString);
+              }}
+            />
+          ) : (
+            <TimePicker.RangePicker
+              format={format}
+              onChange={(time, timeString) => {
+                setValue(timeString);
+              }}
+            />
+          )}
+        </Col>
+        <Col span={1}>
+          <a>
+            <PlusOutlined />
+          </a>
+        </Col>
+        <Col span={2}>
+          <a>
+            <DeleteOutlined />
+          </a>
+        </Col>
+      </Row>
+    );
+  };
+  let timeSlots = tempDataView ? tempDataView.slots : "";
+  let monday, tuesday, wednesday, thursday, friday, saturday, sunday;
+  if (timeSlots) {
+    timeSlots = timeSlots
+      .split("to")
+      .toString()
+      .split(" , ")
+      .toString()
+      .split(" ");
+    monday = timeSlots.filter((lead) => {
+      return lead.startsWith("Mon");
+    });
+    tuesday = timeSlots.filter((lead) => {
+      return lead.startsWith("Tue");
+    });
+    wednesday = timeSlots.filter((lead) => {
+      return lead.startsWith("Wed");
+    });
+    thursday = timeSlots.filter((lead) => {
+      return lead.startsWith("Thu");
+    });
+    friday = timeSlots.filter((lead) => {
+      return lead.startsWith("Fri");
+    });
+    saturday = timeSlots.filter((lead) => {
+      return lead.startsWith("Sat");
+    });
+    sunday = timeSlots.filter((lead) => {
+      return lead.startsWith("Sun");
+    });
+  }
 
 
   //console.log('timeslots', timeSlots)
@@ -1076,7 +1243,7 @@ const StudentsBatchList: React.FC = () => {
                 </Form>
                 </TabPane>
                 
-                <TabPane tab="Learning journey" disabled key="2">    
+                <TabPane tab="Learning journey"  key="2">    
                   <Form onFinish={handleFormSubmit}>
 
                   <Row gutter={16}>   
@@ -1171,32 +1338,33 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
-
-                  {/* <Form.Item
-                    name="teacherName"
-
-                  >
-                    <Input
-                      placeholder="Teacher Name"
-                      name="teacherName"
-                      value={formData.teacherName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>  
                 <Col span={12}>
-                  <Form.Item name="batchCode">
-                    <Input
-                      placeholder="Batch Code"
-                      name="batchCode"
-                      value={formData.batchCode}
-                      onChange={handleFormChange}
-                    />
+                  <Form.Item name="assesmentDate">
+                    {formData.assesmentDate === null ?
+                      <DatePicker
+
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setAssesmentDate(dateString);
+                        }}
+                        placeholder={"Next Assessment Date"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.assesmentDate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setAssesmentDate(dateString);
+                        }} />
+                    }
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="startDate">
-                    {tempDataView.startDate === null ?
+                    {formData.startDate === null ?
                       <DatePicker
 
 
@@ -1218,6 +1386,54 @@ const StudentsBatchList: React.FC = () => {
                     }
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item name="startLesson">
+                    <Input
+                      placeholder="Start Lesson"
+                      name="startLesson"
+                      value={formData.startLesson}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="batchCode">
+                    <Input
+                      placeholder="Starting Batch Code"
+                      name="batchCode"
+                      value={formData.batchCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col span={12}>
+                  <Form.Item name="batchChange">
+                    <Input
+                      placeholder="No. of Batch Changes"
+                      name="batchChange"
+                      value={formData.batchCode}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                
+                
+                
+
+
+                  {/* <Form.Item
+                    name="teacherName"
+
+                  >
+                    <Input
+                      placeholder="Teacher Name"
+                      name="teacherName"
+                      value={formData.teacherName}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>  
                 
                 
                 <Col span={12}>
@@ -1274,58 +1490,30 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
+                 */}
+                  <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name="crossedEndDate">
-
-                    {tempDataView.crossedEndDate === null ?
-                      <DatePicker
-
-
-                        format="YYYY/MM/DD"
-                        style={{ width: "375px" }}
-                        onChange={(date, dateString) => {
-                          setCrossedEndDate(dateString);
-                        }}
-                        placeholder={"crossed End Date"}
-                      />
-                      :
-                      <DatePicker
-                        defaultValue={moment(`${tempDataView.crossedEndDate}`, "YYYY/MM/DD")}
-                        format="YYYY/MM/DD"
-                        style={{ width: "375px" }}
-                        onChange={(date, dateString) => {
-                          setCrossedEndDate(dateString);
-                        }}
-                        placeholder={"crossed End Date"}
-                      />
-                    }                 
+                  <Form.Item name="leadAvailability">
+                    <label>Week Availability</label>
+                    <WeekdayAvailability weekday={1} week="Monday" />
+                    <WeekdayAvailability weekday={2} week="Tuesday" />
+                    <WeekdayAvailability weekday={3} week="Wednesday" />
+                    <WeekdayAvailability weekday={4} week="Thursday" />
+                    <WeekdayAvailability weekday={5} week="Friday" />
                   </Form.Item>
                 </Col>
-
-                 {/* <Col span={12}>
-                  <Form.Item name="crossedEndDate">
-                    <Input
-                      placeholder="crossed End Date"
-                      name="crossedEndDate"
-                      value={formData.crossedEndDate}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col> */}
-
-{/*                 
-
                 <Col span={12}>
-                  <Form.Item name="days">
-                    <Input
-                      placeholder="Days"
-                      name="days"
-                      value={formData.days}
-                      onChange={handleFormChange}
-                    />
+                  <Form.Item name="leadAvailability">
+                    <label>Weekend Availability</label>
+                    <WeekdayAvailability weekday={6} week="Saturday" />
+                    <WeekdayAvailability weekday={7} week="Sunday" />
                   </Form.Item>
-                </Col>               */}
-                
+                </Col>
+              </Row>
+
+              
+
+               
                 
                 <Input
                 type="submit"
@@ -2429,6 +2617,16 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
+                  <Form.Item name="classesCompleted">
+                    <Input
+                      placeholder="No of Classes Completed"
+                      name="classesCompleted"
+                      defaultValue={tempDataView.classesCompleted}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+               </Col>
+                <Col span={12}>
                   <Form.Item name="startLesson">
                     
                   {tempDataView.startDate === null ?
@@ -2456,7 +2654,7 @@ const StudentsBatchList: React.FC = () => {
                     }
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                {/* {/* <Col span={12}>
                   <Form.Item name="crossedEndDate">
                     
                   {tempDataView.crossedEndDate === null ?
@@ -2479,12 +2677,11 @@ const StudentsBatchList: React.FC = () => {
                           setCrossedEndDate(dateString);
                         }}
                         placeholder={"crossed End Date"}
-                      />
-
+                      /> 
                     }
                   </Form.Item>
                 </Col>
-{/* /*
+
                 <Col span={12}>
                   <Form.Item name="crossedEndDate">
                     <Input
@@ -2494,18 +2691,9 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col> */}
+                </Col> 
 
-                <Col span={12}>
-                  <Form.Item name="classesCompleted">
-                    <Input
-                      placeholder="No of Classes Completed"
-                      name="classesCompleted"
-                      defaultValue={tempDataView.classesCompleted}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-               </Col>
+                
                <Col span={12}>
                   <Form.Item name="days">
                     <Input
@@ -2515,7 +2703,7 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col>  */}
                
 
               </Row>  
