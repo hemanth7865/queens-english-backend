@@ -418,11 +418,11 @@ const StudentsBatchList: React.FC = () => {
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleType"
-          defaultMessage="User Type"
+          id="pages.searchTable.titlestatus"
+          defaultMessage="Status"
         />
       ),
-      dataIndex: "type",
+      dataIndex: "status",
       hideInForm: true,
       valueEnum: {
         'active': {
@@ -581,8 +581,7 @@ const StudentsBatchList: React.FC = () => {
       address: formData.address,
       classType: formData.classType,
       referralCode: formData.referralCode,
-      days: formData.days,
-      paymentid: formData.paymentid,
+     // days: formData.days,
       dob: dob,
       poc: formData.poc,
       startDate: formData.startDate,
@@ -593,7 +592,7 @@ const StudentsBatchList: React.FC = () => {
       fifteenthFeedback: formData.fifteenthFeedback,
       wabatch:selectWABatch,
       logApp:	selectLogApp,	
-
+      
       bottleSend: bottleSend,
       classesCompleted: formData.classesCompleted,
       customersReferred: formData.customersReferred,
@@ -602,19 +601,25 @@ const StudentsBatchList: React.FC = () => {
       crossedEndDate:formData.crossedEndDate,
       incentive:formData.incentive,
       //kids: formData.kids,
-      paymentid: formData.paymentid,
 
-      plantype  : selectPlantype,
-      classtype: selectClasstype,
-     	classessold : formData.classessold,
-      saleamount : formData.saleamount,
-      dateofsale : dateofsale,
-      downpayment: formData.downpayment,
-      duedate: duedate,
-      no_of_delayed_payments: formData.no_of_delayed_payments,     
-      delay_date : delay_date,
-      delay_status: formData.delay_status,
-      notes: formData.notes,
+      payment: [
+        {   
+           paymentid: formData.paymentid,
+           plantype  : selectPlantype,
+          classtype: selectClasstype,
+           classessold : formData.classessold,
+          saleamount : formData.saleamount,
+          dateofsale : dateofsale,
+          downpayment: formData.downpayment,
+          duedate: duedate,
+          no_of_delayed_payments: formData.no_of_delayed_payments,     
+          delay_date : delay_date,
+          delay_status: formData.delay_status,
+          notes: formData.notes,
+            
+        }
+    ], 
+     
     }
     
     // async (values: API.LoginParams) => {
@@ -687,19 +692,23 @@ const StudentsBatchList: React.FC = () => {
       whatsapp :formData.whatsapp  ? formData.whatsapp  : tempDataView.whatsapp ,
       comments:formData.comments? formData.comments : tempDataView.comments,
       crossedEndDate:crossedEndDate,     
-      paymentid : formData.paymentid?formData.paymentid: tempDataView.paymentid,
-      plantype  : selectPlantype?selectPlantype: tempDataView.plantype,
-      classtype: selectClasstype?selectClasstype: tempDataView.classtype,
-     	classessold : formData.classessold?formData.classessold : tempDataView.classessold ,
-      saleamount : formData.saleamount?formData.saleamount: tempDataView.saleamount,
-      dateofsale : dateofsale,
-      downpayment: formData.downpayment?formData.downpayment: tempDataView.downpayment,
-      duedate: duedate,
-      no_of_delayed_payments: formData.no_of_delayed_payments?formData.no_of_delayed_payments: tempDataView.no_of_delayed_payments,     
-      delay_date : delay_date,
-      delay_status: formData.delay_status?formData.delay_status: tempDataView.delay_status,
-      notes: formData.notes?formData.notes: tempDataView.notes,
       incentive:formData.incentive?formData.incentive:tempDataView.incentive,
+      payment: [
+        { 
+          paymentid : formData.paymentid?formData.paymentid: tempDataView.paymentid,
+          plantype  : selectPlantype?selectPlantype: tempDataView.plantype,
+          classtype: selectClasstype?selectClasstype: tempDataView.classtype,
+           classessold : formData.classessold?formData.classessold : tempDataView.classessold ,
+          saleamount : formData.saleamount?formData.saleamount: tempDataView.saleamount,
+          dateofsale : dateofsale,
+          downpayment: formData.downpayment?formData.downpayment: tempDataView.downpayment,
+          duedate: duedate,
+          no_of_delayed_payments: formData.no_of_delayed_payments?formData.no_of_delayed_payments: tempDataView.no_of_delayed_payments,     
+          delay_date : delay_date,
+          delay_status: formData.delay_status?formData.delay_status: tempDataView.delay_status,
+          notes: formData.notes?formData.notes: tempDataView.notes,
+        }
+    ],
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
@@ -861,10 +870,8 @@ const StudentsBatchList: React.FC = () => {
                   <Form.Item name="dob">
                     {
 
-                  //    tempDataView.dob === null ?
+                      formData.dob === null ?
                         <DatePicker
-
-
                           format="YYYY/MM/DD"
                           style={{ width: "365px" }}
                           onChange={(date, dateString) => {
@@ -872,7 +879,7 @@ const StudentsBatchList: React.FC = () => {
                           }}
                           placeholder={"Date Of Birth"}
                         />
-                       /* :
+                        :
                         <DatePicker
                           defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                           format="YYYY/MM/DD"
@@ -881,7 +888,7 @@ const StudentsBatchList: React.FC = () => {
                             setDob(dateString);
                           }}
                           placeholder={"Date Of Birth"}
-                        /> */
+                        /> 
                      }
                   </Form.Item>
                 </Col>
@@ -1074,7 +1081,98 @@ const StudentsBatchList: React.FC = () => {
 
                   <Row gutter={16}>   
                   <Col span={12}>
-                  <Form.Item
+                  <Form.Item name="classesPurchase">
+                    <Input
+                      placeholder="No. of Classes purchased"
+                      name="classesPurchase"
+                      value={formData.classesPurchase}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>  
+                <Col span={12}>
+                  <Form.Item name="classesCompleted">
+                    <Input
+                      placeholder="No of Classes Completed"
+                      name="classesCompleted"
+                      value={formData.classesCompleted}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classesAttended">
+                    <Input
+                      placeholder="No of Classes Attended"
+                      name="classesAttended"
+                      value={formData.classesAttended}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="classesMissed">
+                    <Input
+                      placeholder="No of Classes Missed"
+                      name="classesMissed"
+                      value={formData.classesMissed}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="partner">
+                    <Input
+                      placeholder="Partner Name"
+                      name="partner"
+                      value={formData.partner}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="course">
+                    <Input
+                      placeholder="Course"
+                      name="course"
+                      value={formData.course}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="assesmentComplete">
+                    <Input
+                      placeholder="No. of Assessments Completed"
+                      name="assesmentComplete"
+                      value={formData.assesmentComplete}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="assesmentMissed">
+                    <Input
+                      placeholder="No. of Assessments Missed"
+                      name="assesmentMissed"
+                      value={formData.assesmentMissed}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="averageScore">
+                    <Input
+                      placeholder="Average Score across assessment"
+                      name="averageScore"
+                      value={formData.averageScore}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+
+
+                  {/* <Form.Item
                     name="teacherName"
 
                   >
@@ -1215,16 +1313,7 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col> */}
 
-                <Col span={12}>
-                  <Form.Item name="classesCompleted">
-                    <Input
-                      placeholder="No of Classes Completed"
-                      name="classesCompleted"
-                      value={formData.classesCompleted}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+{/*                 
 
                 <Col span={12}>
                   <Form.Item name="days">
@@ -1235,7 +1324,7 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>             
+                </Col>               */}
                 
                 
                 <Input
@@ -1381,14 +1470,11 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col> 
-                
+               </Col>
                 <Col span={12}>
                 <Form.Item name="plantype">
                     <Select
                       placeholder= " Plan Type"
-                      defaultValue={tempDataView.plantype=='Subscription'
-                        ? 'Subscription':'One Time' }
                       name="plantype"
                       onChange={(value) => {
                         setSelectPlantype(value);
@@ -1402,12 +1488,9 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                 <Form.Item name="classtype">
                 <Select
-                     
                       placeholder="Class Type"
                       name="classtype"
-                      defaultValue={tempDataView.classtype == 'one to one'
-                        ? "one to one" : "Group" }
-                      onChange={(value) => {
+                        onChange={(value) => {
                         setSelectClasstype(value);
                       }}
                     >
@@ -1450,7 +1533,7 @@ const StudentsBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="dateofsale">
 
-                    {tempDataView.endDate === null ?
+                    {formData.endDate === null ?
                       <DatePicker
 
                         format="YYYY/MM/DD"
@@ -1501,7 +1584,7 @@ const StudentsBatchList: React.FC = () => {
                   <Col span={12}>
                   <Form.Item name="duedate">
 
-                    {tempDataView.endDate === null ?
+                    {formData.endDate === null ?
                       <DatePicker
 
                         format="YYYY/MM/DD"
@@ -1551,7 +1634,7 @@ const StudentsBatchList: React.FC = () => {
                  <Col span={12}>
                   <Form.Item name="delay_date">
 
-                    {tempDataView.endDate === null ?
+                    {formData.endDate === null ?
                       <DatePicker
 
                         format="YYYY/MM/DD"
@@ -1766,7 +1849,7 @@ const StudentsBatchList: React.FC = () => {
               </Row>
             </TabPane>
 
-            <TabPane tab="Learning Journey"  key="2"> 
+            <TabPane tab="Learning Journey" disabled  key="2"> 
             < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
             
             <Col span={7}></Col>
@@ -2617,6 +2700,8 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col> 
+
+                
                 
                 <Col span={12}>
                   <Form.Item name="plantype">
