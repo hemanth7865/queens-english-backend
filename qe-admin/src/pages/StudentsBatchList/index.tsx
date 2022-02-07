@@ -185,6 +185,11 @@ const StudentsBatchList: React.FC = () => {
   const [fifteenthFeedback, setFifteenthFeedback] = useState(false)
   const [selectClasstype, setSelectClasstype] = useState("");
   const [selectPlantype, setSelectPlantype] = useState("");
+  const [duedate, setDueDate] = useState("");
+  const [delay_date, setDelayDate] = useState("");
+  const [dateofsale, setSaleDate] = useState("");
+  
+
  //const [selectClassType, setSelectClassType] = useState('')
   const [selectStatus, setSelectStatus] = useState('');
   const [selectWABatch, setWABatch] = useState("");
@@ -225,11 +230,11 @@ const StudentsBatchList: React.FC = () => {
     classtype:'',
     classessold:'',
     saleamount:'',
-    dateofsale:'',
+    dateofsale:null,
     downpayment:'',
-    duedate:'',
+    duedate:null,
     no_of_delayed_payments:'',
-    delay_date:'',
+    delay_date:null,
     delay_status:'',
     notes:'',
     whatsapp:'',
@@ -603,11 +608,11 @@ const StudentsBatchList: React.FC = () => {
       classtype: selectClasstype,
      	classessold : formData.classessold,
       saleamount : formData.saleamount,
-      dateofsale : formData.dateofsale,
+      dateofsale : dateofsale,
       downpayment: formData.downpayment,
-      duedate: formData.duedate,
+      duedate: duedate,
       no_of_delayed_payments: formData.no_of_delayed_payments,     
-      delay_date : formData.delay_date,
+      delay_date : delay_date,
       delay_status: formData.delay_status,
       notes: formData.notes,
     }
@@ -687,11 +692,11 @@ const StudentsBatchList: React.FC = () => {
       classtype: selectClasstype?selectClasstype: tempDataView.classtype,
      	classessold : formData.classessold?formData.classessold : tempDataView.classessold ,
       saleamount : formData.saleamount?formData.saleamount: tempDataView.saleamount,
-      dateofsale : formData.dateofsale?formData.dateofsale: tempDataView.dateofsale,
+      dateofsale : dateofsale,
       downpayment: formData.downpayment?formData.downpayment: tempDataView.downpayment,
-      duedate: formData.duedate?formData.duedate: tempDataView.duedate,
+      duedate: duedate,
       no_of_delayed_payments: formData.no_of_delayed_payments?formData.no_of_delayed_payments: tempDataView.no_of_delayed_payments,     
-      delay_date : formData.delay_date?formData.delay_date: tempDataView.delay_date,
+      delay_date : delay_date,
       delay_status: formData.delay_status?formData.delay_status: tempDataView.delay_status,
       notes: formData.notes?formData.notes: tempDataView.notes,
       incentive:formData.incentive?formData.incentive:tempDataView.incentive,
@@ -861,7 +866,7 @@ const StudentsBatchList: React.FC = () => {
 
 
                           format="YYYY/MM/DD"
-                          style={{ width: "375px" }}
+                          style={{ width: "365px" }}
                           onChange={(date, dateString) => {
                             setDob(dateString);
                           }}
@@ -1064,7 +1069,7 @@ const StudentsBatchList: React.FC = () => {
                 </Form>
                 </TabPane>
                 
-                <TabPane tab="Learning journey" key="2">    
+                <TabPane tab="Learning journey" disabled key="2">    
                   <Form onFinish={handleFormSubmit}>
 
                   <Row gutter={16}>   
@@ -1432,7 +1437,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col> 
-                 <Col span={12}>
+                 {/* <Col span={12}>
                   <Form.Item name="dateofsale">
                     <Input
                       placeholder="Date of Sale"
@@ -1441,7 +1446,35 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col> 
+                </Col>  */}
+                <Col span={12}>
+                  <Form.Item name="dateofsale">
+
+                    {tempDataView.endDate === null ?
+                      <DatePicker
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setSaleDate(dateString);
+                        }}
+                        placeholder={"Date of Sale"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.dateofsale}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setSaleDate(dateString);
+                        }}
+                         placeholder={"Date of Sale"}
+                      />
+                                        }
+                  </Form.Item>
+                  </Col>
+
+
                 <Col span={12}>
                   <Form.Item name="downpayment">
                     <Input
@@ -1453,8 +1486,9 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="duedate">
+                    
                     <Input
                       placeholder="Due date of plan"
                       name="duedate"
@@ -1462,7 +1496,37 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col> */}
+
+                  <Col span={12}>
+                  <Form.Item name="duedate">
+
+                    {tempDataView.endDate === null ?
+                      <DatePicker
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setDueDate(dateString);
+                        }}
+                        placeholder={"Due date of plan"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.duedate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setDueDate(dateString);
+                        }}
+                         placeholder={"Due date of plan"}
+                      />
+                                        }
+                  </Form.Item>
+                  </Col>
+
+
+                
                 <Col span={12}>
                   <Form.Item name="no_of_delayed_payments">
                     <Input
@@ -1474,7 +1538,7 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="delay_date ">
                     <Input
                       placeholder="Date of delayed payment"
@@ -1483,7 +1547,36 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col> */}
+                 <Col span={12}>
+                  <Form.Item name="delay_date">
+
+                    {tempDataView.endDate === null ?
+                      <DatePicker
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setDelayDate(dateString);
+                        }}
+                        placeholder={"Date of delayed payment"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.delay_date}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "375px" }}
+                        onChange={(date, dateString) => {
+                          setDelayDate(dateString);
+                        }}
+                         placeholder={"Date of delayed payment"}
+                      />
+                                        }
+                  </Form.Item>
+                  </Col>
+
+
+
                 <Col span={12}>
                   <Form.Item name="delay_status">
                     <Input
@@ -1673,7 +1766,7 @@ const StudentsBatchList: React.FC = () => {
               </Row>
             </TabPane>
 
-            <TabPane tab="Learning Journey" key="2"> 
+            <TabPane tab="Learning Journey"  key="2"> 
             < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
             
             <Col span={7}></Col>
@@ -2169,7 +2262,7 @@ const StudentsBatchList: React.FC = () => {
             </Form>
             </TabPane>
 
-            <TabPane tab="Learning journey" key="2"> 
+            <TabPane tab="Learning journey" disabled key="2"> 
             <Form onFinish={handleFormSubmitEdit}> 
             <Row  gutter={16}>
               <Col span={12}>
@@ -2576,7 +2669,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col> 
-                 <Col span={12}>
+                 {/* <Col span={12}>
                   <Form.Item name="dateofsale">
                     <Input
                       placeholder="Date of Sale"
@@ -2585,7 +2678,38 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col> 
+                </Col>  */}
+
+                <Col span={12}>
+                  <Form.Item name="dateofsale">
+
+                  {tempDataView.dob === null ?
+                      <DatePicker
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setSaleDate(dateString);
+                        }}
+                        placeholder={"Date of Sale"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.dateofsale}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setSaleDate(dateString);
+                        }}
+                        placeholder={"Date of Sale"}
+                      />
+                    }
+                                 
+                  </Form.Item>
+                </Col>
+
+
+
                 <Col span={12}>
                   <Form.Item name="downpayment">
                     <Input
@@ -2599,6 +2723,34 @@ const StudentsBatchList: React.FC = () => {
                 
                 <Col span={12}>
                   <Form.Item name="duedate">
+
+                  {tempDataView.dob === null ?
+                      <DatePicker
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setDueDate(dateString);
+                        }}
+                        placeholder={"Due date of plan"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.duedate}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setDueDate(dateString);
+                        }}
+                        placeholder={"Due date of plan"}
+                      />
+                    }
+                                 
+                  </Form.Item>
+                </Col>
+
+                {/* <Col span={12}>
+                  <Form.Item name="duedate">
                     <Input
                       placeholder="Due date of plan"
                       name="duedate"
@@ -2606,7 +2758,10 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>
+                </Col> */}
+
+
+
                 <Col span={12}>
                   <Form.Item name="no_of_delayed_payments">
                     <Input
@@ -2618,7 +2773,7 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="delay_date ">
                     <Input
                       placeholder="Date of delayed payment"
@@ -2627,7 +2782,35 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
+                </Col> */}
+                 <Col span={12}>
+                  <Form.Item name="delay_date">
+
+                  {tempDataView.dob === null ?
+                      <DatePicker
+
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setDelayDate(dateString);
+                        }}
+                        placeholder={"Date of delayed payment"}
+                      />
+                      :
+                      <DatePicker
+                        defaultValue={moment(`${tempDataView.delay_date}`, "YYYY/MM/DD")}
+                        format="YYYY/MM/DD"
+                        style={{ width: "355px" }}
+                        onChange={(date, dateString) => {
+                          setDelayDate(dateString);
+                        }}
+                        placeholder={"Date of delayed payment"}
+                      />
+                    }
+                                 
+                  </Form.Item>
                 </Col>
+
                 <Col span={12}>
                   <Form.Item name="delay_status">
                     <Input
