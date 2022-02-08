@@ -52,17 +52,53 @@ export class Student extends BaseEntity {
   @Column({ nullable: true, type:"date" })
   startLesson: Date;
   @Column({ nullable: true })
-  firstFeedback: boolean;
+  firstFeedback: string;
   @Column({ nullable: true })
-  fifthFeedback: boolean;
+  fifthFeedback:string;
   @Column({ nullable: true })
-  fifteenthFeedback: boolean;
+  fifteenthFeedback:string ;
   @Column({ nullable: true })
   classesCompleted: string;
   @Column({ nullable: true })
   customersReferred: string;
   @Column({ nullable: true })
   bottleSend: boolean;
+  @Column({ nullable: true })
+  wabatch: boolean;
+  @Column({ nullable: true })
+  logApp: boolean;
+  @Column({ nullable: true })
+  pfirstName: string;
+  @Column({ nullable: true })
+  plastName: string;
+  @Column({ nullable: true })
+  comments: string;
+  @Column({ nullable: true })
+  incentive: string;
+  @Column({ nullable: true })
+  classesPurchase: string;
+  @Column({ nullable: true })
+  classesAttended: string;
+  @Column({ nullable: true })
+  classesMissed: string;
+  @Column({ nullable: true })
+  partner: string;
+  @Column({ nullable: true })
+  lesson: string;
+  @Column({ nullable: true })
+  course: string;
+  @Column({ nullable: true })
+  assesmentComplete	: string;
+  @Column({ nullable: true })
+  assesmentMissed: string;
+  @Column({ nullable: true })
+  averageScore: string;
+  @Column({ nullable: true })
+  batchChange: string;
+  @Column({ nullable: true, type:"date" })
+  assesmentDate: Date;
+
+
   
   @Column({ nullable: true, type: "date" })
   crossedEndDate: Date;
