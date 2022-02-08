@@ -219,6 +219,24 @@ export class StudentService {
     student.fifteenthFeedback = data.fifteenthFeedback;
     student.classesCompleted = data.classesCompleted;
     student.customersReferred = data.customersReferred;
+    student.wabatch= data.wabatch;
+    student.logApp  = data.logApp;
+    student.pfirstName= data.pfirstName;
+    student.plastName= data.plastName;
+    student.comments= data.comments;
+    student.incentive= data.incentive;
+    student.classesPurchase= data.classesPurchase;
+    student.classesAttended = data.classesAttended;
+    student.classesMissed = data.classesMissed;
+    student.partner = data.partner;
+    student.lesson= data.lesson;
+    student.course = data.course;
+    student.assesmentComplete  = data.assesmentComplete;
+    student.assesmentMissed = data.assesmentMissed ;
+    student.averageScore = data.averageScore;
+    student.batchChange = data.batchChange ;
+    student.assesmentDate = data.assesmentDate;
+
 
       student = await this.studentRepository.save(student);
 
@@ -307,6 +325,25 @@ export class StudentService {
     student.fifteenthFeedback = element.fifteenthFeedback;
     student.classesCompleted = element.classesCompleted;
     student.customersReferred = element.customersReferred;
+
+    student.wabatch= element.wabatch;
+    student.logApp  =element.logApp;
+    student.pfirstName= element.pfirstName;
+    student.plastName= element.plastName;
+    student.comments=element.comments;
+    student.incentive=element.incentive;
+    student.classesPurchase= element.classesPurchase;
+    student.classesAttended = element.classesAttended;
+    student.classesMissed = element.classesMissed;
+    student.partner =element.partner;
+    student.lesson=element.lesson;
+    student.course = element.course;
+    student.assesmentComplete  =element.assesmentComplete;
+    student.assesmentMissed = element.assesmentMissed ;
+    student.averageScore = element.averageScore;
+    student.batchChange = element.batchChange ;
+    student.assesmentDate =element.assesmentDate;
+
     usersLogger.info("student record updating is ", student);
     return student;
   }
