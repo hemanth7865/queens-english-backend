@@ -29,7 +29,7 @@ import {
   Space,
   Switch
 } from "antd";
-import * as CountryList from 'country-list'
+import * as CountryList from 'country-list';
 import React, { useState, useRef } from "react";
 import { useIntl, FormattedMessage } from "umi";
 import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
@@ -192,7 +192,8 @@ const StudentsBatchList: React.FC = () => {
    
 
  //const [selectClassType, setSelectClassType] = useState('')
-  const [selectStatus, setSelectStatus] = useState('');
+  const [status, setstatus] = useState("");
+  const [selectGender, setSelectGender] = useState('');
   const [selectWABatch, setWABatch] = useState("");
   const [selectLogApp, setLogApp] = useState("");
 
@@ -203,6 +204,7 @@ const StudentsBatchList: React.FC = () => {
     mobile: '',
     email: '',
     status: '',
+    gebder:'',
     studentName: '',
     teacherName: '',
     batchCode: '',
@@ -251,7 +253,7 @@ const StudentsBatchList: React.FC = () => {
 //	batchTime
 //	batchSchedule
 	  startLesson:'',
-//	batchCode
+	batchCode:'',
   assesmentComplete	:'',
 	assesmentMissed:'',
 	averageScore:'',
@@ -586,7 +588,7 @@ const StudentsBatchList: React.FC = () => {
       countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
-      status: selectStatus,
+      status: status,
       studentName: formData.studentName,
       teacherName: formData.teacherName,
       mobile: formData.phoneNumber,
@@ -691,7 +693,7 @@ const StudentsBatchList: React.FC = () => {
       countryCode: formData.countryCode ? formData.countryCode : tempDataView.countryCode,
       email: formData.email ? formData.email : tempDataView.email,
       type: formData.type ? formData.type : 'student',
-      status: selectStatus ? selectStatus : tempDataView.status,
+      status: status ? status : tempDataView.status,
       studentName: formData.studentName ? formData.studentName : tempDataView.studentName,
       teacherName: formData.teacherName ? formData.teacherName : tempDataView.teacherName,
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
@@ -992,7 +994,7 @@ const StudentsBatchList: React.FC = () => {
                       placeholder="Student ID"
                       name="studentID"
                       value={formData.studentID}
-                      onChange={handleFormChange}
+                      onChange={handleFormChange} 
                     />
                   </Form.Item>
                 </Col>
@@ -1032,6 +1034,26 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
+                
+                { <Col span={12}>
+                  <Form.Item name="gender	">
+                  {console.log('tempDataView.gender')}
+                    {console.log(tempDataView.gender)}
+                    <Select
+                      defaultValue={tempDataView.gender == 'Male'
+                        ? "Male"
+                        : tempDataView.gender == 'Female'
+                          ? "Female"
+                          : 'Gender'}
+                      onChange={(value) => {
+                        setSelectGender(value);
+                      }}
+                    >
+                      <Option value="Male">Male</Option>
+                      <Option value="Female">Female</Option>
+                    </Select>
+                  </Form.Item>
+                </Col> }
 
                 <Col span={12}>
                   <Form.Item name="dob">
@@ -1091,12 +1113,16 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="phoneNumber">
+                  <Form.Item name="phoneNumber" 
+                  rules={[{
+                    required: true,
+                  }]}
+                  >
                     <Input
                       placeholder="Enter Primary Mobile Number"
                       name="phoneNumber"
                       value={formData.phoneNumber}
-                      onChange={handleFormChange}
+                      onChange={handleMobileChange}
                      prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
 
@@ -1128,7 +1154,7 @@ const StudentsBatchList: React.FC = () => {
                   <Form.Item
                     name="pfirstName"
                     rules={[{
-                      required: true,
+                      required: false,
                       min: 2,
                       type: 'string',
                       pattern: /^[a-zA-Z ]*$/,
@@ -1190,29 +1216,28 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 
-
-                {/* <Col span={12}>
+                { <Col span={12}>
                   <Form.Item name="status	">
                   {console.log('tempDataView.status')}
                     {console.log(tempDataView.status)}
                     <Select
-                      defaultValue={tempDataView.status == 'active'
+                      defaultValue={tempDataView.status == 'InActive'
                         ? "Active"
-                        : tempDataView.status == 'onhold'
+                        : tempDataView.status == 'OnHold'
                           ? "OnHold"
-                          : tempDataView.status == 'leave'
+                          : tempDataView.status == 'Leave'
                             ? "Leave"
-                            : "InActive"}
+                            : "Active"}
                       onChange={(value) => {
-                        setSelectStatus(value);
+                        setstatus(value);
                       }}
                     >
-                      <Option value="active">Active</Option>
-                      <Option value="leave">Leave</Option>
-                      <Option value="onhold">On Hold</Option>
+                      <Option value="Active">Active</Option>
+                      <Option value="Leave">Leave</Option>
+                      <Option value="OnHold">OnHold</Option>
                     </Select>
                   </Form.Item>
-                </Col> */}
+                </Col> }
                 <Col span={12}>
                   <Form.Item name="poc">
                     <Input
@@ -2516,28 +2541,50 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 
-                {/* <Col span={12}>
-                  <Form.Item name="status	">
+                { <Col span={12}>
+                  <Form.Item name="gender	">
+                  {console.log('tempDataView.gender')}
+                    {console.log(tempDataView.gender)}
                     <Select
-                      defaultValue={tempDataView.status == 'active'
-                        ? "Active"
-                        : tempDataView.status == 'onhold'
-                          ? "OnHold"
-                          : tempDataView.status == 'leave'
-                            ? "Leave"
-                            : "InActive"}
+                      defaultValue={tempDataView.gender == 'Male'
+                        ? "Male"
+                        : tempDataView.gender == 'Female'
+                          ? "Female"
+                          : ''}
                       onChange={(value) => {
-                        setSelectStatus(value);
+                        setSelectGender(value);
                       }}
                     >
-                      <Option value="active">Active</Option>
-                      <Option value="leave">Leave</Option>
-                      <Option value="onhold">On Hold</Option>
+                      <Option value="Male">Male</Option>
+                      <Option value="Female">Female</Option>
                     </Select>
                   </Form.Item>
-                </Col>     */}
-
-                <Col span={12}>
+                </Col> }
+                
+                { <Col span={12}>
+                  <Form.Item name="status	">
+                  {console.log('tempDataView.status')}
+                    {console.log(tempDataView.status)}
+                    <Select
+                      defaultValue={tempDataView.status == 'InActive'
+                        ? "Active"
+                        : tempDataView.status == 'OnHold'
+                          ? "OnHold"
+                          : tempDataView.status == 'Leave'
+                            ? "Leave"
+                            : "Active"}
+                      onChange={(value) => {
+                        setstatus(value);
+                      }}
+                    >
+                      <Option value="Active">Active</Option>
+                      <Option value="Leave">Leave</Option>
+                      <Option value="OnHold">OnHold</Option>
+                    </Select>
+                  </Form.Item>
+                </Col> }
+                
+                               <Col span={12}>
                   <Form.Item name="poc">
                     <Input
                       placeholder="poc"

@@ -43,8 +43,6 @@ export class User extends BaseEntity {
         type: string;
     @Column({'nullable':true, type:"date"})
         dob:Date;
-    @Column({'nullable':true})
-        nationalityId: number;
     /*@ManyToOne(
         () => Status,
         (nationality) => nationality.id   

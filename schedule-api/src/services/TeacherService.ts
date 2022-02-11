@@ -67,7 +67,7 @@ export class TeacherService {
         .catch((error) => {
     
           usersLogger.info(`Posted to cosmos and response is ${error}`);
-          return {status:400,error:error.response.data};
+          return {status:400,error:error?.response?.data};
           return Promise.reject(error);
         });
     } else {
@@ -116,7 +116,7 @@ export class TeacherService {
           if (data.id) {
             teacher.id = data.id;
           }
-          teacher.joiningdate = element.joiningdate;
+          teacher.joiningdate = element.joiningdate?element.joiningdate:new Date();
           teacher.resume = "Resume";
           teacher.video = "video";
           teacher.teachertype = element.teacher_type;
@@ -142,7 +142,7 @@ export class TeacherService {
         for (let element of  data.leadAvailability) {
         //data.leadAvailability.forEach(async (element) => {
           var availability = new TeacherAvailability();
-          availability.start_date = element.startDate;
+          availability.start_date = element.startDate?element.startDate:null;
           availability.start_slot = element.start_slot;
           console.log("start slot" + element.start_slot);
           if (element.start_slot) {
@@ -183,11 +183,14 @@ export class TeacherService {
       user.email = data.email;
       user.type = data.type;
       if (data.iserId) user.id = data.userId;
-      user.startDate = data.startDate;
+      user.startDate = data.startDate?data.startDate:null;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
-      user.nationalityId = data.nationalityId;
+      if (data.dob) {
+        console.log('dob is');
+        console.log(data.dob);
       user.dob = data.dob;
+      }
       user.status = data.status;
       user.photo = data.photo;
       user.languages = data.languages;
@@ -390,6 +393,7 @@ export class TeacherService {
 
     for (const element of results) {
       let slotsResult: any[] = [];
+      let batchCodes: any[] = [];
 
       var quer =
         "select weekday , start_slot, end_slot from teacher_availability where teacherId='" +
@@ -422,9 +426,34 @@ export class TeacherService {
         yourDate = new Date(element.joiningdate).toISOString().split("T")[0];
       }
 
+      var studentOrTeacherId=[];
+      var batchCode = '';
+
+      if (type == 'student' ) {
+        
+      var quer =
+      "select studentId , batchId from batch_students where studentId='" +
+      element.id +
+      "';";
+    batchCodes = await getManager().query(quer);
+    batchCodes.forEach((element) => {
+      console.log("batchdode", element);
+      studentOrTeacherId.push(element.batchId);
+    });
+  } else {
+    var quer =
+      "select teacherId , batchNumber from classes where teacherId='" +
+      element.id +
+      "';";
+      batchCodes = await getManager().query(quer);
+    batchCodes.forEach((element) => {
+      console.log("batchdode", element);
+      studentOrTeacherId.push(element.batchId);
+    });
+  }
       var l = new LeadView(
         element.id,
-        element.teacherId,
+        element.id,
         yourDate,
         element.name,
         element.exp,
@@ -435,9 +464,10 @@ export class TeacherService {
         element.ratings,
         slot,
         element.leadtype,
-        element.type
+        element.type,
+        studentOrTeacherId.join(","),
+        element.id,
       );
-
       leadView.push(l);
     }
 

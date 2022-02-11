@@ -21,7 +21,7 @@ export class UserMaster extends BaseEntity {
     @Column("text")
         email: string;
     @Column({'nullable':true})
-        type: string;
+        type: string;   
     @Column({'nullable':true})
         ts: number;    
 }

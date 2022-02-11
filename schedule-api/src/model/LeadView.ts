@@ -11,15 +11,17 @@
             classestaken: string;
             ratings:Number;
             timeslots: string;
-            leadId: number;
+            leadId: string;
             slots:string;
             classesTaken:number;
             leadType : Number;
             cosmos_ref: string;
             type:string;
+            batchCode: string;
+            studentID: string;
 
-            public constructor(id:string, leadId:number, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
-                ratings:number,slots:string,leadType:number, type:string){
+            public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
+                ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string){
                 this.id = id;
                 this.leadId = leadId;
                 this.date = date;
@@ -34,7 +36,8 @@
                 this.type = type;
                 this.leadType = leadType;
                 this.name = name;
-
+                this.batchCode = batchCode;
+                this.studentID = studentID;
             }
     }
     

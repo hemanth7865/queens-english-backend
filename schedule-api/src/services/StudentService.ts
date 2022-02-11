@@ -147,7 +147,8 @@ export class StudentService {
      // user.startDate = data.startDate;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
-      user.nationalityId = data.nationalityId;
+
+     
       if (data.dob) {
         console.log('dob is');
         console.log(data.dob);
@@ -182,12 +183,12 @@ export class StudentService {
         payment.paymentid = element.paymentid;
         payment.plantype = element.plantype;
         payment.classtype = element.classtype;
-        payment.classessold = element.classessold;
-        payment.saleamount = element.saleamount;
+        payment.classessold = element.classessold ? element.classessold : 0;
+        payment.saleamount = element.saleamount ? element.saleamount :0;
         payment.dateofsale = element.dateofsale;
-        payment.downpayment = element.downpayment;
+        payment.downpayment = element.downpayment ? element.downpayment : 0;
         payment.duedate = element.duedate;
-        payment.no_of_delayed_payments = element.no_of_delayed_payments;
+        payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments: 0;
         payment =  await this.paymentRepository.save(payment);
         user.payment = [payment];
         usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
@@ -369,9 +370,21 @@ export class StudentService {
       .where("student.id = :id", { id: id })
       .getOne();
       console.log(student);
+        
+        var quer =
+        "select studentId , batchId from batch_students where studentId='" +
+        id +
+        "';";
+        var studentOrTeacherId=[];
+     var  batchCodes = await getManager().query(quer);
+      batchCodes.forEach((element) => {
+        console.log("batchdode", element);
+        studentOrTeacherId.push(element.batchId);
+      });
+    
  
     const response = {
-      ...users,...student
+      ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id
     }
    
     usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);    
