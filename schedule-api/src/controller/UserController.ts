@@ -27,8 +27,7 @@ export class UserController {
         var teacherService = new TeacherService();
      
         var resp;
-        var total = await getManager().query(`SELECT COUNT(*) as total FROM USER 
-            where user.phoneNumber=request.data.phoneNumber `);
+        var total = await getManager().query('SELECT COUNT(*) as total FROM USER where phoneNumber=' + request.body.phoneNumber);
        if (total==0)
        {
             
@@ -47,7 +46,7 @@ export class UserController {
         return resp;
         }    
         else {
-            return { "success": false, "data": 'already exists', "total": 0 };
+            return { status: 400, errors: ['User already existed with given phoneNumber'] };
         }
     }
 
