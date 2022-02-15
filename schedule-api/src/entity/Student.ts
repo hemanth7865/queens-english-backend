@@ -49,8 +49,8 @@ export class Student extends BaseEntity {
   startDate: Date;
   @Column({ nullable: true, type:"date" })
   endDate: Date; 
-  @Column({ nullable: true, type:"date" })
-  startLesson: Date;
+  @Column({ nullable: true })
+  startLesson: string;
   @Column({ nullable: true })
   firstFeedback: string;
   @Column({ nullable: true })
