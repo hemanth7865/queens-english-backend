@@ -7,6 +7,7 @@ import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
 const { usersLogger } = require("../Logger.js");
+import { getManager } from "typeorm";
 
 export class UserController {
 
@@ -26,18 +27,28 @@ export class UserController {
         var teacherService = new TeacherService();
      
         var resp;
-        try {
-            if(request.body.type == 'student') {
+        var total = await getManager().query(`SELECT COUNT(*) as total FROM USER 
+            where user.phoneNumber=request.data.phoneNumber `);
+       if (total==0)
+       {
+            
+            try {
+                if(request.body.type == 'student') {
                 resp = await this.studentService.saveStudentDetails(request.body);
-            } else {
+                } 
+                else {
                 resp = await teacherService.saveTeacher(request.body);
-            }
+                }
            
-        } catch (error) {
+            } catch (error) {
             console.log('Exception::UserController::SaveLead');
-        }
+            }
         console.log('End::UserController::SaveLead');
         return resp;
+        }    
+        else {
+            return { "success": false, "data": 'already exists', "total": 0 };
+        }
     }
 
 
