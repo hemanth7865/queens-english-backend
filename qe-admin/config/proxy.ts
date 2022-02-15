@@ -19,6 +19,16 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/be': '' },
     },
+    '/as/': { //assessment
+      target: 'http://localhost:7071/',
+      changeOrigin: true,
+      pathRewrite: { '^/as': '' },
+    },
+    '/am/': { //assessment management UAT
+      target: 'https://ed-uat-functions.azurewebsites.net/',
+      changeOrigin: true,
+      pathRewrite: { '^/am': '' },
+    }
   },
   test: {
     '/api/': {
