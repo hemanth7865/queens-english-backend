@@ -3,16 +3,17 @@
 // @ts-nocheck
 import { request } from 'umi';
 
-const API_URL =  `/`; //process.env.API_URL;
+const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
+const CODE = '3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==' 
 
 const apiKeyQueryString = (url: string, key: string) => {
-    if(url){
-        const queryChar = url.includes('?') ? '&' : '?';
-        return key ? `${queryChar}code=${key}` : "";    
-    }else {
-        return "";
-    }
+  if (url) {
+    const queryChar = url.includes('?') ? '&' : '?';
+    return key ? `${queryChar}code=${key}` : "";
+  } else {
+    return "";
+  }
 };
 
 const getForwardPath = (url: string) => {
@@ -42,16 +43,16 @@ const getForwardPath = (url: string) => {
 
 export async function currentUser(options?: { [key: string]: any }) {
   return request<API.CurrentUser>
-  (('/be/currentUser'), {
-    method: 'GET',
-    ...(options || {}),
-  })
-  .then((res) => {
-    if (res) {
-      return res;
-    }
-    throw new Error('Invalid user session');
-  });
+    (('/be/currentUser'), {
+      method: 'GET',
+      ...(options || {}),
+    })
+    .then((res) => {
+      if (res) {
+        return res;
+      }
+      throw new Error('Invalid user session');
+    });
 }
 
 export async function setAdminAccess(role: 'site' | 'admin', options?: { [key: string]: any }) {
@@ -141,9 +142,8 @@ export async function teacherBatches(
     pageSize?: number;
   },
   options?: { [key: string]: any },
-)
- {
-   console.log('option', params)
+) {
+  console.log('option', params)
   return request<API.RuleList>('/be/leadsview', {
     method: 'GET',
     params: {
@@ -158,7 +158,7 @@ export async function teacherBatches(
 
 //api for teacher batches for id
 export async function teacherBatchesView(
-  id:any,
+  id: any,
   params: {
     // query
     /** 当前的页码 */
@@ -166,7 +166,7 @@ export async function teacherBatchesView(
     /** 页面的容量 */
     pageSize?: number;
   },
-  options?: { [key: string]: any }, 
+  options?: { [key: string]: any },
 
 ) {
   // console.log('id', id)
@@ -190,7 +190,7 @@ export async function userBatchesView(
     /** 页面的容量 */
     pageSize?: number;
   },
-  options?: { [key: string]: any }, 
+  options?: { [key: string]: any },
 
 ) {
   // console.log('id', id)
@@ -352,7 +352,7 @@ export async function listBatch(
   },
   options?: { [key: string]: any },
 ) {
-  console.log("lbp",params)
+  console.log("lbp", params)
   return request<API.RuleList>('/be/listBatch', {
     method: 'GET',
     params: {
@@ -371,3 +371,62 @@ export async function addeditbatch(options?: { [key: string]: any }) {
 }
 //REMOVE EXISTING BATCH -PUT
 
+
+//ASSESSMENT API'S
+//GET DUE ASSESSMENT
+export async function dueAssessment(
+  teacherId: string,
+  classProfileId: string,
+  currentLessonId: string,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  console.log("assessment", options)
+  return request<API.AssessmentList>(`/am/api/studentAssessment/${teacherId}/${classProfileId}?lesson=${currentLessonId ? currentLessonId : ''}&code=${CODE}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+//GET ASSESSMENT DETAILS
+export async function detailsAssessment(
+  id: any,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+
+) {
+  // console.log('id', id)
+  return request<API.RuleList>(`/am/api/studentAssessment/details/${id}?code=${CODE}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+//PUT - ASSESSMENT DETAILS
+export async function putAssessment(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>(`/am/api/studentAssessment?code=${CODE}`, {
+    method: 'PUT',
+    ...(options || {}),
+  });
+}

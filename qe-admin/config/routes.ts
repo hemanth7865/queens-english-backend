@@ -68,6 +68,11 @@
         name: 'User',
         path: '/manage/studentBatch',
         component: './StudentList',
+      }, 
+      {
+        name: 'Assessment',
+        path: '/manage/assessment',
+        component: './Assessment'
       }
     ]
   },
