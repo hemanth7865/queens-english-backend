@@ -122,7 +122,7 @@ export async function batches(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>(`/api/batches`, {
+  return request<API.RuleList>(`/api/assessment`, {
     method: 'GET',
     params: {
       ...params,
@@ -156,6 +156,7 @@ export async function teacherBatches(
 
 
 
+
 //api for teacher batches for id
 export async function teacherBatchesView(
   id: any,
@@ -175,6 +176,30 @@ export async function teacherBatchesView(
     params: {
       ...params,
     },
+    ...(options || {}),
+  });
+}
+
+export async function studentsBatchesView(
+  id:any,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }, 
+
+) {
+  // console.log('id', id)
+  return request<API.RuleList>(`/be/leadsFullView/${id}`, {
+    method: 'GET',
+    params: {
+      ...params,
+      type:'student',
+    },
+   
     ...(options || {}),
   });
 }
@@ -226,11 +251,32 @@ export async function studentBatches(
   return request<API.RuleList>('/be/leadsview', {
     method: 'GET',
     params: {
-      ...params,
+      ...params
     },
     ...(options || {}),
   });
 }
+
+export async function studentsBatches(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/leadsview', {
+    method: 'GET',
+    params: {
+      ...params,
+      type:'student'
+    },
+    ...(options || {}),
+  });
+}
+
 
 
 /** 获取规则列表 GET /api/rule */

@@ -5,7 +5,6 @@ import {
   EyeOutlined,
   ClockCircleOutlined,
   UploadOutlined,
-  
   EditOutlined,
 } from "@ant-design/icons";
 import {
@@ -26,10 +25,19 @@ import {
   RangePicker,
   notification,
   Alert,
-  Space
+  Space,
 } from "antd";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useIntl, FormattedMessage } from "umi";
+import * as CountryList from 'country-list';
+import {
+  isPossiblePhoneNumber,
+  isValidPhoneNumber,
+  validatePhoneNumberLength,
+  parsePhoneNumber,
+  getCountryCallingCode
+} from 'libphonenumber-js';
+
 import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
@@ -99,6 +107,10 @@ const handleUpdate = async (fields: FormValueType) => {
     return false;
   }
 };
+const DEFAULT_COUNTRY_CODE_NUMBER = "91";
+const allCountries = CountryList.getData()
+
+const defaultCountry = allCountries.filter(country => country.name === 'India')
 
 /**
  *  Delete node
@@ -122,17 +134,16 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
   }
 };
 
-const openNotificationWithIcon = type => {
+const openNotificationWithIcon = (type) => {
   notification[type]({
-    message: type == 'error'?'Failed to add teacher': 'Success! Teacher Added',
-    description:
-      '',
+    message:
+      type == "error" ? "Failed to add teacher" : "Success! Teacher Added",
+    description: "",
   });
   setTimeout(() => {
-    window.location.reload()
+    window.location.reload();
   }, 1000);
 };
-
 
 const TeacherBatchList: React.FC = () => {
   /**
@@ -140,6 +151,7 @@ const TeacherBatchList: React.FC = () => {
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
+  const [error, setError] = useState('') 
 
   /**
    * @en-US The pop-up window of the distribution update window
@@ -162,12 +174,12 @@ const TeacherBatchList: React.FC = () => {
     joiningDate: "",
     email: "",
     address: "",
+    batchCode:"",
     startDate: "",
     dateOfBirth: "",
     gender: "",
-    mobile: "",
+    phoneNumber: "",
     whatsapp: "",
-    nationality: "",
     category: "",
     education: "",
     experience: "",
@@ -177,6 +189,7 @@ const TeacherBatchList: React.FC = () => {
     videoProfile: "",
     certificate: "",
     photo: "",
+    countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
     leadAvailability: null,
     status: "",
   });
@@ -186,6 +199,8 @@ const TeacherBatchList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
+  const [selectCountryCode, setSelectCountryCode] = useState('')
+  const [selectCountry, setSelectCountry] = useState('')
 
   //state for select option
   const [selectValue, setSelectValue] = useState("");
@@ -210,6 +225,39 @@ const TeacherBatchList: React.FC = () => {
     setVisible(false);
     seteditvisible(false);
   };
+
+  const handleMobileChange = (event) => {
+    const number = event.target.value
+    const message = isValidPhoneNumber(number, selectCountry ? selectCountry : 'IN')
+    console.log('msg', message, msg)
+    const msg = validatePhoneNumberLength(number, selectCountry ? selectCountry : 'IN')
+    if (msg === 'TOO_LONG') {
+      setError('Phone number is too long')
+    } else if (msg === 'TOO_SHORT') {
+      setError('Phone number is too short')
+    } else if (msg === 'NOT_A_NUMBER') {
+      setError('Not a Number')
+    } else if (msg === 'INVALID_COUNTRY') {
+      setError('Please Select country first')
+    } else if (msg === undefined) {
+      setError('')
+    } else {
+      setError('Phone number is Invalid')
+    }
+    if (message === true && msg === undefined) {
+      console.log(`valid mobile number for ${selectCountry}`)
+      setFormData((value) => ({
+        ...value,
+        [event.target.name]: event.target.value
+      }))
+    }
+    if (message === false && msg === undefined) {
+      setError('Enter a valid Mobile Number')
+    }
+    //console.log(validatePhoneNumberLength(number, 'IN'))
+
+  }
+
 
   const showDrawerEdit = () => {
     setVisibleEdit(true);
@@ -238,17 +286,17 @@ const TeacherBatchList: React.FC = () => {
     try {
       let msg = await teacherBatchesView(id);
       if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
+        console.log("API call successfull", msg);
       }
       setTempDataView(msg.data);
-      console.log('view one',msg);
+      console.log("view one", msg);
     } catch (error) {
       console.log("error", error);
     }
   };
 
   // console.log('viewone', viewOne)
-  console.log('tempdateview', tempDataView)
+  console.log("tempdateview", tempDataView);
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
     {
@@ -260,14 +308,13 @@ const TeacherBatchList: React.FC = () => {
       ),
       dataIndex: "date",
       valueType: "date",
-      hideInSearch:true,
-      
+      hideInSearch: true,
     },
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.titlemobileno"
-          defaultMessage="Mobile"
+          defaultMessage="Phone Number"
         />
       ),
       dataIndex: "phoneNumber",
@@ -281,6 +328,24 @@ const TeacherBatchList: React.FC = () => {
         />
       ),
       dataIndex: "name",
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleName"
+          defaultMessage="Teacher Id"
+        />
+      ),
+      dataIndex: "teacherId",
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleName"
+          defaultMessage="Batch Code"
+        />
+      ),
+      dataIndex: "batchCode",
     },
     //mobile number
 
@@ -403,7 +468,7 @@ const TeacherBatchList: React.FC = () => {
       },
     },
     //weekday
-{
+    {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleWeekday"
@@ -413,28 +478,30 @@ const TeacherBatchList: React.FC = () => {
       dataIndex: "weekday",
       hideInTable: true,
       renderFormItem: (value) => {
-        return <Select mode="tags">
-          <Option value = "1">Monday</Option>
-          <Option value = "2">Tuesday</Option>
-          <Option value = "3">Wednesday</Option>
-          <Option value = "4">Thursday</Option>
-          <Option value = "5">Friday</Option>
-          <Option value = "6">Saturday</Option>
-          <Option value = "7">Sunday</Option>
+        return (
+          <Select mode="tags">
+            <Option value="1">Monday</Option>
+            <Option value="2">Tuesday</Option>
+            <Option value="3">Wednesday</Option>
+            <Option value="4">Thursday</Option>
+            <Option value="5">Friday</Option>
+            <Option value="6">Saturday</Option>
+            <Option value="7">Sunday</Option>
           </Select>
+        );
       },
       search: {
-        transform: (value)=>{
-          console.log('value', value)
-          return {weekday: value}
-        }
-      }
-},
+        transform: (value) => {
+          console.log("value", value);
+          return { weekday: value };
+        },
+      },
+    },
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleView"
-          defaultMessage="view"
+          defaultMessage="View"
         />
       ),
       dataIndex: "view",
@@ -443,7 +510,7 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log('entity', entity);
+              console.log("entity", entity);
               handleOneView(entity.leadId);
               setCurrentRow(entity);
               setShowDetail(true);
@@ -454,12 +521,12 @@ const TeacherBatchList: React.FC = () => {
         );
       },
     },
-    
+
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.titleedit"
-          defaultMessage="edit"
+          defaultMessage="Edit"
         />
       ),
       dataIndex: "edit",
@@ -468,7 +535,7 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log('entity',entity);
+              console.log("entity", entity);
               setShowDetail(true);
               handleOneView(entity.leadId);
               setCurrentRow(entity);
@@ -484,19 +551,14 @@ const TeacherBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.titledelete"
-          defaultMessage="delete"
+          defaultMessage="Delete"
         />
       ),
       dataIndex: "delete",
-      tip: "The rule name is the unique key",
       hideInSearch: true,
       render: (dom, entity) => {
         return (
-          <a
-            onClick={() => {
-
-            }}
-          >
+          <a onClick={() => {}}>
             <DeleteOutlined />
           </a>
         );
@@ -522,20 +584,21 @@ const TeacherBatchList: React.FC = () => {
   const handleFormSubmit = async () => {
     console.log("form submitted");
     const dataForm = {
+      teacherId: formData.teacherId,
       firstName: formData.firstName,
       lastName: formData.lastName,
       dob: dateBirth,
-      phoneNumber: formData.mobile,
+      phoneNumber: formData.phoneNumber,
       email: formData.email,
       address: formData.address,
       whatsapp: formData.whatsapp,
       gender: selectValue,
-      nationalityId: formData.nationality,
       category: formData.category,
       languages: formData.languages,
       startDate: dateStart,
-      type: selectTeacher,
+      type: selectTeacher ? selectTeacher : "teacher",
       photo: formData.photo,
+      batchCode:formData.batchCode,
       lead: [
         {
           resume: uploadResume,
@@ -554,7 +617,6 @@ const TeacherBatchList: React.FC = () => {
     };
     // async (values: API.LoginParams) => {
     try {
-      // 登录
       console.log("data", dataForm);
       const msg = await addTeacherSchedule({
         headers: {
@@ -562,9 +624,9 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if(msg){
+      if (msg) {
+        openNotificationWithIcon("success");
         window.location.reload();
-        openNotificationWithIcon('success')
       }
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -572,41 +634,53 @@ const TeacherBatchList: React.FC = () => {
       console.log(msg);
     } catch (error) {
       console.log("addRule error", error);
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: "pages.login.failure",
-        defaultMessage: "登录失败，请重试！",
-      });
-      openNotificationWithIcon('error')
+      openNotificationWithIcon("error");
       message.error(defaultLoginFailureMessage);
     }
     setVisible(false);
     // console.log('formData', formData);
-    console.log("dataForm", dataForm);
+    console.log("dataForm", JSON.stringify(dataForm));
   };
+
+  const handleCountry = (value) => {
+    console.log('selected country', value)
+    if (value) {
+      const code = CountryList.getCode(value)
+      const codeNumber = getCountryCallingCode(code)
+      console.log('code', code, codeNumber)
+      setSelectCountry(code)
+      setSelectCountryCode(codeNumber)
+    }
+  }
+  console.log('country', selectCountry, selectCountryCode)
+
+
 
   const handleFormSubmitEdit = async () => {
     console.log("form submitted");
     const dataForm = {
+      teacherId: formData.teacherId
+      ? formData.teacherId
+      : tempDataView.teacherId,
       firstName: formData.firstName
         ? formData.firstName
         : tempDataView.firstName,
+    
+        batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,        
       lastName: formData.lastName ? formData.lastName : tempDataView.lastName,
       dob: dateBirth ? dateBirth : tempDataView.dob,
-      phoneNumber: formData.mobile ? formData.mobile : tempDataView.phoneNumber,
+      phoneNumber: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       email: formData.email ? formData.email : tempDataView.email,
       address: formData.address ? formData.address : tempDataView.address,
       whatsapp: formData.whatsapp ? formData.whatsapp : tempDataView.whatsapp,
       status: formData.status,
       gender: selectValue ? selectValue : tempDataView.gender,
-      nationality: formData.nationality
-        ? formData.nationality
-        : tempDataView.nationalityId,
       category: formData.category ? formData.category : tempDataView.category,
       languages: formData.languagesKnown
         ? formData.languagesKnown
         : tempDataView.languages,
       startDate: dateStart ? dateStart : tempDataView.startDate,
-      type: selectTeacher,
+      type: selectTeacher?selectTeacher: tempDataView.selectTeacher,
       photo: formData.photo,
       lead: [
         {
@@ -614,23 +688,23 @@ const TeacherBatchList: React.FC = () => {
           qualification: formData.education
             ? formData.education
             : tempDataView.teacher &&
-            tempDataView.teacher.map(function (lead, i) {
-              return lead.qualification;
-            }),
+              tempDataView.teacher.map(function (lead, i) {
+                return lead.qualification;
+              }),
           totalexp: formData.experience
             ? formData.experience
             : tempDataView.teacher &&
-            tempDataView.teacher.map(function (lead, i) {
-              return lead.totalexp;
-            }),
+              tempDataView.teacher.map(function (lead, i) {
+                return lead.totalexp;
+              }),
           video: formData.videoProfile,
           certificates: formData.certificate,
           joiningdate: dateJoining
             ? dateJoining
             : tempDataView.teacher &&
-            tempDataView.teacher.map(function (lead, i) {
-              return lead.joiningdate;
-            }),
+              tempDataView.teacher.map(function (lead, i) {
+                return lead.joiningdate;
+              }),
           ratings: 1,
           classestaken: 10,
           teachertype: formData.teacherType,
@@ -655,23 +729,19 @@ const TeacherBatchList: React.FC = () => {
       });
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
-        openNotificationWithIcon('success')
+        openNotificationWithIcon("success");
       }
-      if(msg){
-        openNotificationWithIcon('success')
+      if (msg) {
+        openNotificationWithIcon("success");
       }
       console.log(msg);
       // 如果失败去设置用户错误信息
       // setUserLoginState(msg);
     } catch (error) {
       console.log("addRule error", error);
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: "pages.login.failure",
-        defaultMessage: "登录失败，请重试！",
-      });
       message.error(defaultLoginFailureMessage);
-      if(msg){
-        openNotificationWithIcon('error')
+      if (msg) {
+        openNotificationWithIcon("error");
       }
     }
     console.log("formData", formData);
@@ -710,7 +780,7 @@ const TeacherBatchList: React.FC = () => {
       leadSlot = {
         start_slot: slotStart,
         end_slot: slotEnd,
-        start_date: dateStart?dateStart:tempDataView.startDate,
+        start_date: dateStart ? dateStart : tempDataView.startDate,
         weekday: props.weekday,
       };
     }
@@ -728,11 +798,14 @@ const TeacherBatchList: React.FC = () => {
 
     const format = "HH:mm";
     return (
-      <Row style = {{margin: 5}}>
-        
+      <Row style={{ margin: 5 }}>
         <Col span={7}>
           {dataLead ? (
-            <Checkbox name="weekday" checked="true" onChange={(e) => setValue1(props.weekday)}>
+            <Checkbox
+              name="weekday"
+              checked="true"
+              onChange={(e) => setValue1(props.weekday)}
+            >
               {props.week}
             </Checkbox>
           ) : (
@@ -817,9 +890,8 @@ const TeacherBatchList: React.FC = () => {
       </Button>
     );
     notification.open({
-      message: 'Notification Title',
-      description:
-        `Do you want to delete ?`,
+      message: "Notification Title",
+      description: `Do you want to delete ?`,
       btn,
       key,
       onClose: close,
@@ -837,11 +909,75 @@ const TeacherBatchList: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      console.log('delete', msg);
+      console.log("delete", msg);
     } catch (error) {
       console.log("error", error);
     }
   };
+
+  //Using default values for prepopulationg
+  const [form] = Form.useForm();
+  const defaultValues = () => {
+    form.setFieldsValue({
+      firstName: tempDataView.firstName,
+      lastName: tempDataView.lastName,
+      joiningDate: moment(
+        tempDataView.teacher &&
+          tempDataView.teacher.map(function (lead, i) {
+            return lead.joiningdate;
+          }),
+        "YYYY/MM/DD"
+      ),
+      startDate: moment(tempDataView.startDate, "YYYY/MM/DD"),
+      gender: tempDataView.gender,
+      phoneNumber: tempDataView.phoneNumber,
+      whatsApp: tempDataView.whatsApp,
+      email: tempDataView.email,
+      address: tempDataView.address,
+      category: tempDataView.category,
+      qualification:
+        tempDataView.teacher &&
+        tempDataView.teacher.map(function (lead, i) {
+          return lead.qualification;
+        }),
+      totalExperience:
+        tempDataView.teacher &&
+        tempDataView.teacher.map(function (lead, i) {
+          return lead.totalexp;
+        }),
+      teacherType: tempDataView.type,
+      languageKnown: tempDataView.languages,
+    });
+  };
+  useEffect(() => {
+    defaultValues();
+  }, [
+    tempDataView.firstName,
+    tempDataView.lastName,
+    // tempDataView.teacher &&
+    //   tempDataView.teacher.map(function (lead, i) {
+    //     return lead.joiningdate;
+    //   }),
+    // tempDataView.startDate,
+    // tempDataView.gender,
+    // tempDataView.phoneNumber,
+    // tempDataView.whatsApp,
+    // tempDataView.email,
+    // tempDataView.address,
+    // tempDataView.nationalityId,
+    // tempDataView.category,
+    // tempDataView.teacher &&
+    //   tempDataView.teacher.map(function (lead, i) {
+    //     return lead.qualification;
+    //   }),
+    // tempDataView.teacher &&
+    //   tempDataView.teacher.map(function (lead, i) {
+    //     return lead.totalexp;
+    //   }),
+    // tempDataView.type,
+    // tempDataView.languages,
+  ]);
+
   return (
     <PageContainer>
       {/* {console.log('teacherbatches', teacherBatches)} */}
@@ -874,7 +1010,6 @@ const TeacherBatchList: React.FC = () => {
             width={820}
           >
             <Form onFinish={handleFormSubmit}>
-              
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
@@ -882,7 +1017,7 @@ const TeacherBatchList: React.FC = () => {
                     rules={[
                       {
                         required: true,
-                        message: "Please enter the First Name",
+                        message: "Please enter first Name",
                       },
                     ]}
                   >
@@ -898,7 +1033,9 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item
                     name="last Name"
-                    rules={[{ required: true, message: "last Name" }]}
+                    rules={[
+                      { required: true, message: "Please enter last Name" },
+                    ]}
                   >
                     <Input
                       type="text"
@@ -913,10 +1050,7 @@ const TeacherBatchList: React.FC = () => {
                 {/* joining and start date */}
 
                 <Col span={12}>
-                  <Form.Item
-                    name="joiningDate"
-                    rules={[{ required: true, message: "Joining Date" }]}
-                  >
+                  <Form.Item name="joiningDate">
                     <DatePicker
                       placeholder="Joining Date"
                       style={{ width: "370px" }}
@@ -927,10 +1061,7 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item
-                    name="startDate"
-                    rules={[{ required: true, message: "Start Date" }]}
-                  >
+                  <Form.Item name="startDate">
                     <DatePicker
                       placeholder="Start Date"
                       style={{ width: "370px" }}
@@ -944,12 +1075,7 @@ const TeacherBatchList: React.FC = () => {
                 {/* Date of Birth and gender */}
 
                 <Col span={12}>
-                  <Form.Item
-                    name="dateOfBirth"
-                    rules={[
-                      { required: true, message: "Enter date of birthday" },
-                    ]}
-                  >
+                  <Form.Item name="dateOfBirth">
                     <DatePicker
                       placeholder="Date of Birth"
                       style={{ width: "370px" }}
@@ -960,12 +1086,7 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item
-                    name="gender"
-                    rules={[
-                      { required: true, message: "Please select an gender" },
-                    ]}
-                  >
+                  <Form.Item name="gender">
                     <Select
                       placeholder="Gender"
                       name="gender"
@@ -978,16 +1099,33 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
+                <Col span={12}>
+                  <Form.Item
+                    name="countryCode">
+                    <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
+                      {allCountries.map((country) => {
+                        return <Option value={country.name} key={country.code}>{country.name}</Option>
+                      })}
+                    </Select>
+                  </Form.Item>
+                </Col>
+
                 {/* Mobile and Whatsup */}
 
                 <Col span={12}>
-                  <Form.Item name="mobile">
+                  <Form.Item
+                    name="phoneNumber"
+                    rules={[
+                      { required: true, message: "Please enter mobile number" },
+                    ]}
+                  >
                     <Input
                       type="text"
-                      placeholder="Mobile"
-                      name="mobile"
-                      value={formData.mobile}
-                      onChange={handleFormChange}
+                      placeholder="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleMobileChange}
+                      prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
                   </Form.Item>
                 </Col>
@@ -1006,16 +1144,13 @@ const TeacherBatchList: React.FC = () => {
                 {/* Email and address */}
 
                 <Col span={12}>
-                  <Form.Item
-                    name="email"
-                    rules={[
-                      {
-                        required: true,
-                        type: "email",
-                        message: "Enter a valid email",
-                      },
-                    ]}
-                  >
+                  <Form.Item name="email" 
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter Email",
+                    },
+                  ]}>
                     <Input
                       type="text"
                       placeholder="Email"
@@ -1038,32 +1173,8 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
 
                 {/* Nationality and category */}
-
                 <Col span={12}>
-                  <Form.Item
-                    name="nationality"
-                    rules={[
-                      {
-                        required: true,
-                        pattern: /^[0-9]*$/,
-                        message: "Enter the Nationality Number",
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="text"
-                      placeholder="Nationality"
-                      name="nationality"
-                      value={formData.nationality}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="category"
-                    rules={[{ required: true, message: "Enter the category" }]}
-                  >
+                  <Form.Item name="category">
                     <Input
                       type="text"
                       placeholder="Category"
@@ -1088,16 +1199,7 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item
-                    name="totalExperience"
-                    rules={[
-                      {
-                        required: true,
-                        pattern: /^[0-9]*$/,
-                        message: "Enter the total years of experience",
-                      },
-                    ]}
-                  >
+                  <Form.Item name="totalExperience">
                     <Input
                       type="text"
                       placeholder="Total Experience"
@@ -1111,19 +1213,17 @@ const TeacherBatchList: React.FC = () => {
                 {/* Teacher Type and Language Known */}
 
                 <Col span={12}>
-                  <Form.Item
-                    name="teacherType"
-                    rules={[
-                      { required: true, message: "Enter the Teacher Type" },
-                    ]}
-                  >
+                  <Form.Item name="teacherType">
                     <Select
                       placeholder="Teacher Type"
                       onChange={(value) => {
                         setSelectTeacher(value);
                       }}
+                      defaultValue="teacher"
                     >
-                      <Option value="teacher">teacher</Option>
+                      <Option value="teacher" default>
+                        teacher
+                      </Option>
                       <Option value="student">student</Option>
                     </Select>
                   </Form.Item>
@@ -1140,74 +1240,10 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
-                {/* upload resume and upload video profile */}
-
-                {/* <Col span={12}>
-                  <Form.Item name="uploadResume">
-                  <input
-                      type="file"
-                      id="videoProfile"
-                      class="inputfile"
-                      value={formData.videoProfile}
-                      name="videoProfile"
-                      onChange={handleFormChange}
-                    />
-                    <label for="videoProfile">Upload Resume</label>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="videoProfile">
-                    <input
-                      type="file"
-                      id="videoProfile"
-                      class="inputfile"
-                      value={formData.videoProfile}
-                      name="videoProfile"
-                      onChange={handleFormChange}
-                    />
-                    <label for="videoProfile">Upload Video Profile</label>
-                  </Form.Item>
-                </Col> */}
-
-                {/* upload certificate and upload photo */}
-
-                {/* <Col span={12}>
-                  <input
-                    type="file"
-                    id="certificate"
-                    class="inputfile"
-                    value={formData.certificate}
-                    name="certificate"
-                    onChange={handleFormChange}
-                  />
-                  <label for="certificate">Upload Certificate</label>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="uploadPhoto">
-                    <input
-                      type="file"
-                      id="photo"
-                      class="inputfile"
-                      value={formData.photo}
-                      name="photo"
-                      onChange={handleFormChange}
-                    />
-                    <label for="photo">Upload Photo</label>
-                  </Form.Item>
-                </Col> */}
-
                 {/* status */}
 
                 <Col span={12}>
-                  <Form.Item
-                    name="status"
-                    rules={[
-                      {
-                        required: true,
-                        message: "please enter Status",
-                      },
-                    ]}
-                  >
+                  <Form.Item name="status">
                     <Select
                       placeholder="Status"
                       onChange={(value) => {
@@ -1322,7 +1358,7 @@ const TeacherBatchList: React.FC = () => {
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
-                <p>Mobile </p>
+                <p>Phone Number </p>
               </Col>
               <Col span={11}>
                 <p>{tempDataView.phoneNumber}</p>
@@ -1348,13 +1384,7 @@ const TeacherBatchList: React.FC = () => {
               <Col span={11}>
                 <p>{tempDataView.address}</p>
               </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Nationality </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.nationalityId}</p>
-              </Col>
+
               <Col span={7}></Col>
               <Col span={6}>
                 <p>Category </p>
@@ -1391,9 +1421,7 @@ const TeacherBatchList: React.FC = () => {
                 <p>Teacher Type </p>
               </Col>
               <Col span={11}>
-                <p>
-                  {tempDataView.type}
-                </p>
+                <p>{tempDataView.type}</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1477,24 +1505,16 @@ const TeacherBatchList: React.FC = () => {
           </>
         ) : (
           <>
-            <Form onFinish={handleFormSubmitEdit}>
+            <Form onFinish={handleFormSubmitEdit} form={form}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item>
-                    <Input
-                      name="firstName"
-                      onChange={handleFormChange}
-                      defaultValue= {tempDataView.firstName}
-                    />
+                  <Form.Item name="firstName">
+                    <Input name="firstName" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="last Name">
-                    <Input
-                      defaultValue={tempDataView.lastName}
-                      name="lastName"
-                      onChange={handleFormChange}
-                    />
+                  <Form.Item name="lastName">
+                    <Input name="lastName" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
 
@@ -1503,11 +1523,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="joiningDate">
                     <DatePicker
-                      defaultValue={moment(`${tempDataView.teacher &&
-                        tempDataView.teacher.map(function (lead, i) {
-                          return lead.joiningdate;
-                        })}`, 'YYYY/MM/DD')} 
-                      format='YYYY/MM/DD' 
+                      format="YYYY/MM/DD"
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
                         setDateJoining(dateString);
@@ -1518,8 +1534,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="startDate">
                     <DatePicker
-                      defaultValue={moment(`${tempDataView.startDate}`, 'YYYY/MM/DD')} 
-                      format='YYYY/MM/DD' 
+                      format="YYYY/MM/DD"
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
                         setDateStart(dateString);
@@ -1533,8 +1548,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="dateOfBirth">
                     <DatePicker
-                      defaultValue={moment(`${tempDataView.dob}`, 'YYYY/MM/DD')} 
-                      format='YYYY/MM/DD' 
+                      format="YYYY/MM/DD"
                       style={{ width: "350px" }}
                       onChange={(date, dateString) => {
                         setDateOfBirth(dateString);
@@ -1544,11 +1558,7 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="gender">
-                    <Select
-                      defaultValue = {tempDataView.gender}
-                      name="gender"
-                      onChange={handleSelectChange}
-                    >
+                    <Select name="gender" onChange={handleSelectChange}>
                       <Option value="Male">Male</Option>
                       <Option value="Female">Female</Option>
                       <Option value="Not Applicable">Not Applicable</Option>
@@ -1559,21 +1569,16 @@ const TeacherBatchList: React.FC = () => {
                 {/* Mobile and Whatsup */}
 
                 <Col span={12}>
-                  <Form.Item name="mobile">
-                    <Input
-                      type="text"
-                      defaultValue={tempDataView.phoneNumber}
-                      onChange={handleFormChange}
+                  <Form.Item name="phoneNumber">
+                    <Input type="text" 
+                    onChange={handleFormChange} 
+                    prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="whatsApp">
-                    <Input
-                      defaultValue={tempDataView.whatsapp}
-                      name="whatsapp"
-                      onChange={handleFormChange}
-                    />
+                    <Input name="whatsapp" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
 
@@ -1581,41 +1586,20 @@ const TeacherBatchList: React.FC = () => {
 
                 <Col span={12}>
                   <Form.Item name="email">
-                    <Input
-                      defaultValue={tempDataView.email}
-                      name="email"
-                      onChange={handleFormChange}
-                    />
+                    <Input name="email" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="address">
-                    <Input
-                      defaultValue={tempDataView.address}
-                      name="address"
-                      onChange={handleFormChange}
-                    />
+                    <Input name="address" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
 
                 {/* Nationality and category */}
 
                 <Col span={12}>
-                  <Form.Item name="nationality">
-                    <Input
-                      defaultValue={tempDataView.nationalityId}
-                      name="nationality"
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
                   <Form.Item name="category">
-                    <Input
-                      defaultValue={tempDataView.category}
-                      name="category"
-                      onChange={handleFormChange}
-                    />
+                    <Input name="category" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
 
@@ -1623,76 +1607,57 @@ const TeacherBatchList: React.FC = () => {
 
                 <Col span={12}>
                   <Form.Item name="qualification">
-                    <Input
-                      defaultValue={
-                        tempDataView.teacher &&
-                        tempDataView.teacher.map(function (lead, i) {
-                          return lead.qualification;
-                        })
-                      }
-                      name="education"
-                      onChange={handleFormChange}
-                    />
+                    <Input name="education" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="totalExperience">
-                    <Input
-                      defaultValue={
-                        tempDataView.teacher &&
-                        tempDataView.teacher.map(function (lead, i) {
-                          return lead.totalexp;
-                        })
-                      }
-                      name="experience"
-                      onChange={handleFormChange}
-                    />
+                    <Input name="experience" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
 
                 {/* Teacher Type and Language Known */}
 
                 <Col span={12}>
-                  <Form.Item
-                    name="teacherType"
-                  >
+                  <Form.Item name="teacherType">
                     <Select
-                      defaultValue = {tempDataView.type}
                       onChange={(value) => {
                         setSelectTeacher(value);
                       }}
                     >
-                      <Option value="Native">Native</Option>
-                      <Option value="Non Native">Non Native</Option>
+                      <Option value="teacher" default>
+                        teacher
+                      </Option>
+                      <Option value="student">student</Option>
                     </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="languageKnown">
                     <Input
-                      defaultValue={tempDataView.languages}
                       name="languagesKnown"
                       onChange={handleFormChange}
-                      placeholder ={"Languages Known"}
+                      placeholder={"Languages Known"}
                     />
                   </Form.Item>
                 </Col>
 
                 {/* upload resume and upload video profile */}
 
-                
                 {/* status */}
 
                 <Col span={12}>
                   <Form.Item name="status">
                     <Select
-                      defaultValue = {tempDataView.statusId == 1
-                        ? "Active"
-                        : tempDataView.statusId == 3
+                      defaultValue={
+                        tempDataView.statusId == 1
+                          ? "Active"
+                          : tempDataView.statusId == 3
                           ? "OnHold"
                           : tempDataView.statusId == 2
-                            ? "Leave"
-                            : "In Active"}
+                          ? "Leave"
+                          : "In Active"
+                      }
                       onChange={(value) => {
                         setSelectStatus(value);
                       }}
@@ -1760,10 +1725,12 @@ const TeacherBatchList: React.FC = () => {
                     style={{ color: "white", backgroundColor: "DodgerBlue" }}
                   />
                 </Col>
-                <Col span = {8}></Col>
+                <Col span={8}></Col>
                 <Col span={8}>
                   <Button
-                    onClick={()=>{openNotification(tempDataView.userId)}}
+                    onClick={() => {
+                      openNotification(tempDataView.userId);
+                    }}
                     block
                     type="primary"
                   >

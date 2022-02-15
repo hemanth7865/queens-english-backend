@@ -14,16 +14,14 @@ const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 const CronJob = require('cron').CronJob;
 
-const job = new CronJob('5 * * * * *', async function() {
+const job = new CronJob('*/1 * * * * *', async function() {
   console.log("job started");
-  var quer =  `SELECT * FROM classes;`;
+  var quer =  `SELECT * FROM users;`;
   console.log('quer', quer);
   let totalResult = await getManager().query(quer);
    //EXPIRING USER
-  db.query("SELECT * FROM classes", async (err, data) => {
+  db.query("SELECT * FROM users", async (err, data) => {
       if (data.length > 0) {
-          //FIlter Through All User
-          //Deduct While They Havent Expired
           await data.map(async classes => {
              console.log("Records");
           })
