@@ -28,11 +28,13 @@ export class UserController {
      
         var resp;
         var total = await getManager().query('SELECT COUNT(*) as total FROM USER where phoneNumber=' + request.body.phoneNumber);
-       if (total==0)
+        usersLogger.info(`Total Number of records:  ${total[0].total}`);
+       if (total[0].total==0 || request.body.id || request.body.userId)
        {
+        usersLogger.info(`Insert of update record  ${total}`);
             
             try {
-                if(request.body.type == 'student') {
+                if(request.body.type === 'student') {
                 resp = await this.studentService.saveStudentDetails(request.body);
                 } 
                 else {

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState} from 'react';
-import {Form, Input, Button, Row, Col, Select, DatePicker} from 'antd'
+import {Form, Input, Button, Row, Col, Select, DatePicker,   notification} from 'antd'
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -108,13 +108,27 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
+    const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
+        notification[type]({
+          message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+          description:
+            '',
+        });
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000);
+      };
+
+      
+
     const onFinish = async ()=>{
         console.log('form submitted')
+        var code = selectCountryCode?selectCountryCode:'91';
         if(!error){
             const dataForm = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                phoneNumber: formData.mobile,
+                phoneNumber: '+'+ code + formData.mobile,
                 email: formData.email,
                 type: selectUserType
             }
@@ -130,18 +144,24 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 if (msg.status === "ok") {
                   console.log("API call sucessfull", msg);
                 }
+                if (msg.status === 400) {
+                    openNotificationWithIcon('error', msg);
+            
+                  } else {
+                    console.log(msg);
+                    openNotificationWithIcon('success', ' User');
+                  }
+                 // window.location.reload();
                 console.log(msg);
               } catch (error) {
                 console.log("addRule error", error);
-                const defaultLoginFailureMessage = intl.formatMessage({
-                  id: "pages.login.failure",
-                  defaultMessage: "登录失败，请重试！",
-                });
-                message.error(defaultLoginFailureMessage);
+                 openNotificationWithIcon('error', 'User Registration Failed');
               }
             props.setVisible(false)
             console.log('formData', formData)
             console.log('dataForm', dataForm)
+           
+             
         }
         
         //window.location.reload()
@@ -202,12 +222,19 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 </Form.Item>
             </Col>
             <Col span = {12}>
-                <Form.Item name="Mobile">
+                <Form.Item name="Mobile"
+                rules={[
+                    {
+                      required: true,
+                     
+                    },
+                  ]}
+                  >
                     <Input
                         placeholder = "Enter Mobile Number"
                         name = "mobile"
                         onChange = {handleMobileChange}
-                        prefix = {selectCountryCode?selectCountryCode:'91'}
+                        //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />
                     {error? (
                         <p style = {{color: 'red'}}>{error}</p>

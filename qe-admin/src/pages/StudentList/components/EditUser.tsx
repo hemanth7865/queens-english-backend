@@ -138,6 +138,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
 
     const onFinish = async ()=>{
         console.log('form submitted')
+        var code = selectCountryCode?selectCountryCode:'91';
         if(!error){
             let dataForm = {
                 firstName: formData.firstName?formData.firstName:props.data.firstName,
@@ -255,7 +256,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                         <Input
                             name = "mobile"
                             onChange = {handleMobileChange}
-                            prefix = {selectCountryCode?selectCountryCode:'91'}
+                            //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />
                         
                     </Form.Item>
