@@ -178,7 +178,7 @@ const StudentsBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [selectCountry, setSelectCountry] = useState('')
-  //const [selectCountryCode, setSelectCountryCode] = useState('')
+  const [selectCountryCode, setSelectCountryCode] = useState('')
   const [bottleSend, setBottleSend] = useState(false)
   const [firstFeedback, setFirstFeedback] = useState(false)
   const [fifthFeedback, setFifthFeedback] = useState(false)
@@ -568,10 +568,10 @@ const StudentsBatchList: React.FC = () => {
       const codeNumber = getCountryCallingCode(code)
       console.log('code', code, codeNumber)
       setSelectCountry(code)
-     // setSelectCountryCode(codeNumber)
+      setSelectCountryCode(codeNumber)
     }
   }
- // console.log('country', selectCountry, selectCountryCode)
+  console.log('country', selectCountry, selectCountryCode)
 
 
 
