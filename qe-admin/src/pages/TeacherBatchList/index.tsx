@@ -189,7 +189,7 @@ const TeacherBatchList: React.FC = () => {
     videoProfile: "",
     certificate: "",
     photo: "",
-    countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
+   // countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
     leadAvailability: null,
     status: "",
   });
@@ -583,12 +583,13 @@ const TeacherBatchList: React.FC = () => {
 
   const handleFormSubmit = async () => {
     console.log("form submitted");
+    var code = selectCountryCode?selectCountryCode:'91';
     const dataForm = {
       teacherId: formData.teacherId,
       firstName: formData.firstName,
       lastName: formData.lastName,
       dob: dateBirth,
-      phoneNumber: formData.phoneNumber,
+      phoneNumber: '+' +code + formData.phoneNumber,
       email: formData.email,
       address: formData.address,
       whatsapp: formData.whatsapp,
@@ -1109,7 +1110,7 @@ const TeacherBatchList: React.FC = () => {
                     </Select>
                   </Form.Item>
                 </Col>
-
+              
                 {/* Mobile and Whatsup */}
 
                 <Col span={12}>
@@ -1125,7 +1126,7 @@ const TeacherBatchList: React.FC = () => {
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleMobileChange}
-                      prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                    //  prefix = {selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
                   </Form.Item>
                 </Col>
@@ -1572,7 +1573,7 @@ const TeacherBatchList: React.FC = () => {
                   <Form.Item name="phoneNumber">
                     <Input type="text" 
                     onChange={handleFormChange} 
-                    prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                    //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
                   </Form.Item>
                 </Col>
