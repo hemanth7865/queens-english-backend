@@ -74,7 +74,7 @@ export class TeacherService {
         usersLogger.info("Update teacher information");
         usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
         res1= await axios
-        .put(options.url, options.body)
+      .post(options.url, options.body)
         .then(async (res) => {
           console.log("Posted to cosmos and response is ", res);
           console.log("Id created in cosmos is ", res.data.id);

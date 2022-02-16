@@ -716,7 +716,7 @@ const TeacherBatchList: React.FC = () => {
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
-      dataForm.userId = tempDataView.id;
+      dataForm.id = tempDataView.id;
       dataForm.teacherId = tempDataView.teacherId;
     }
     try {
@@ -1720,7 +1720,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={8}>
                   <Button
                     onClick={() => {
-                      openNotification(tempDataView.userId);
+                      openNotification(tempDataView.id);
                     }}
                     block
                     type="primary"
