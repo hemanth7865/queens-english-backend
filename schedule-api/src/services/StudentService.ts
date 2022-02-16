@@ -75,7 +75,7 @@ export class StudentService {
               usersLogger.info(`Data id from cosmos is ${data.id}`);
               var user = await this.saveStudentSQL(data,data.id);
               usersLogger.info(
-                `Successfully updated oracle db: ${data.phoneNumber}`
+                `Successfully registered user: ${data.phoneNumber}`
               );
               return user;
             }
@@ -86,10 +86,11 @@ export class StudentService {
             return { status: 400, data: error.response.data };
           });
       } else {
+        usersLogger.info(`Update Request`);
         response = await axios
           .put(options.url, options.body)
           .then(async (res) => {
-            usersLogger.info("Successfully updated student record in cosomos DB")
+            usersLogger.info("Successfully updated user record in cosomos DB")
             // console.log("Posted to cosmos and response is ", res);
             usersLogger.info("Id created in cosmos is ", res.data.id);
             usersLogger.info("Creating data in sql database ", res.data.id);

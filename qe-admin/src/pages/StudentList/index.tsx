@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { PlusOutlined, ClockCircleOutlined, EyeOutlined, EditTwoTone  } from '@ant-design/icons';
+import { NotificationInstance as RCNotificationInstance } from 'rc-notification/lib/Notification';
 import { Button, message, Input, Drawer, Tooltip } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
@@ -63,7 +64,7 @@ const TableList: React.FC = () => {
     try {
       let msg = await userBatchesView(id);
       if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
+        console.log("API call successfull", msg);
       }
       setTempDataEdit(msg.data);
       console.log('view one',msg);
@@ -72,7 +73,18 @@ const TableList: React.FC = () => {
     }
   }
 
+  const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
+    notification[type]({
+      message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+      description:
+        '',
+    });
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000);
+  };
 
+  
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: (

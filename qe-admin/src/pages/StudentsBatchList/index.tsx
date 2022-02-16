@@ -178,7 +178,7 @@ const StudentsBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [selectCountry, setSelectCountry] = useState('')
-  const [selectCountryCode, setSelectCountryCode] = useState('')
+  //const [selectCountryCode, setSelectCountryCode] = useState('')
   const [bottleSend, setBottleSend] = useState(false)
   const [firstFeedback, setFirstFeedback] = useState(false)
   const [fifthFeedback, setFifthFeedback] = useState(false)
@@ -568,10 +568,10 @@ const StudentsBatchList: React.FC = () => {
       const codeNumber = getCountryCallingCode(code)
       console.log('code', code, codeNumber)
       setSelectCountry(code)
-      setSelectCountryCode(codeNumber)
+     // setSelectCountryCode(codeNumber)
     }
   }
-  console.log('country', selectCountry, selectCountryCode)
+ // console.log('country', selectCountry, selectCountryCode)
 
 
 
@@ -585,7 +585,7 @@ const StudentsBatchList: React.FC = () => {
       pfirstName: formData.pfirstName,
       plastName: formData.plastName,
       phoneNumber: formData.phoneNumber,
-      countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
+      //countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
       status: status,
@@ -1123,7 +1123,7 @@ const StudentsBatchList: React.FC = () => {
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleMobileChange}
-                     prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                    // prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
 
                   </Form.Item>
@@ -1135,7 +1135,7 @@ const StudentsBatchList: React.FC = () => {
                       name="alternativeMobile"
                       value={formData.alternativeMobile}
                       onChange={handleFormChange}
-                          prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                       //   prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
                   </Form.Item>
                 </Col>
@@ -1146,7 +1146,7 @@ const StudentsBatchList: React.FC = () => {
                       name="whatsapp "
                       value={formData.whatsapp }
                       onChange={handleFormChange}
-                      prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                      //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
                   </Form.Item>
                 </Col>
