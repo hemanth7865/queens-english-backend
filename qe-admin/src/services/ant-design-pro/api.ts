@@ -433,7 +433,7 @@ export async function dueAssessment(
   options?: { [key: string]: any },
 ) {
   console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id}&code=${CODE}`, {
+  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id?id:''}&code=${CODE}`, {
     method: 'GET',
     params: {
       ...params,
@@ -475,3 +475,4 @@ export async function putAssessment(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
