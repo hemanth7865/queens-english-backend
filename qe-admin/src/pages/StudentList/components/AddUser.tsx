@@ -222,7 +222,14 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 </Form.Item>
             </Col>
             <Col span = {12}>
-                <Form.Item name="Mobile">
+                <Form.Item name="Mobile"
+                rules={[
+                    {
+                      required: true,
+                     
+                    },
+                  ]}
+                  >
                     <Input
                         placeholder = "Enter Mobile Number"
                         name = "mobile"
