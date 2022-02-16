@@ -49,6 +49,9 @@ export class TeacherService {
       if (data.userId) {
         options.body["id"] = data.userId;
       }
+      if (data.id) {
+        options.body["id"] = data.id;
+      }
      
       var status;
       var res1={} ;

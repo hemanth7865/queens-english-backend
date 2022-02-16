@@ -28,8 +28,8 @@ export class UserController {
      
         var resp;
         var total = await getManager().query('SELECT COUNT(*) as total FROM USER where phoneNumber=' + request.body.phoneNumber);
-        usersLogger.info(`Total Number of records:  ${total}`);
-       if (total[0].total===0 || request.body.id)
+        usersLogger.info(`Total Number of records:  ${total[0].total}`);
+       if (total[0].total==0 || request.body.id || request.body.userId)
        {
         usersLogger.info(`Insert of update record  ${total}`);
             
