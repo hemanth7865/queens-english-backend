@@ -288,7 +288,7 @@ const TableList: React.FC = () => {
     } catch (error) {
       console.log("error", error);
     }
-    value = ''
+    //value.status = ''
   }
 
   const handleReset = async()=>{
