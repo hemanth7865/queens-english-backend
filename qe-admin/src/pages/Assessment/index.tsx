@@ -33,7 +33,7 @@ import {
   rule,
   listBatch,
   dueAssessment,
-  detailsAssessment
+  detailsAssessment,
 } from "@/services/ant-design-pro/api";
 import DebounceSelect from "@/components/DebounceSelect";
 
@@ -65,6 +65,7 @@ const TableList: React.FC = () => {
   const [assessmentDetails, setAssessmentDetails] = useState("");
   const [formVisible, setFormVisible] = useState<boolean>(false);
   const [assessmentData, setAssessmentData] = useState("");
+  const [selectStatus, setSelectStatus] = useState("")
 
   /**
    * @en-US International configuration
@@ -221,6 +222,24 @@ const TableList: React.FC = () => {
     },
   ];
 
+  useEffect(async (params: any) => {
+    console.log("first reload")
+    try {
+      let msg = await dueAssessment('', '',{
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setAssessmentDetails(msg.data);
+      console.log('view one',msg.data);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }, []);
+
   const handleShowDetails = async (id) => {
     try {
       let msg = await detailsAssessment(id);
@@ -273,9 +292,9 @@ const TableList: React.FC = () => {
   };
 
   const onFinish = async (value) => {
-    console.log('status', value.status)
+    console.log('status', value.status, selectStatus)
     try {
-      let msg = await dueAssessment(  batchCode.key, value.status, {
+      let msg = await dueAssessment(  batchCode.key ? batchCode.key: '', selectStatus, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -288,7 +307,6 @@ const TableList: React.FC = () => {
     } catch (error) {
       console.log("error", error);
     }
-    //value.status = ''
   }
 
   const handleReset = async()=>{
@@ -311,8 +329,9 @@ const TableList: React.FC = () => {
   return (
     <PageContainer>
       <div>
-        <h4>Assessment Management</h4>
-        <Form name="basic">
+        {/* <h3 style = {{textAlign: "center"}}>Assessment Management</h3> */}
+        <>
+        {/* <Form name="basic">
           <Row gutter={16}>
             <Col span={4}>
               <p>Please Select a Batch : </p>
@@ -354,8 +373,9 @@ const TableList: React.FC = () => {
             <Col span={6}>
             </Col>
           </Row>
-        </Form>
-
+        </Form> */}
+        </>
+        
         {assessmentDetails ? (
           <div>
           <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
@@ -370,6 +390,9 @@ const TableList: React.FC = () => {
                     <Form.Item name="status" >
                     <Select
                       placeholder="Choose status"
+                      onChange={(value) => {
+                        setSelectStatus(value);
+                      }}
                     >
                       <Option value="DUE">DUE</Option>
                       <Option value="COMPLETED">COMPLETED</Option>
