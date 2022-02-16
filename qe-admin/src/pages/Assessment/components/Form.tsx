@@ -5,13 +5,13 @@ import { putAssessment } from "@/services/ant-design-pro/api";
 
 export type AssessmentFormProps = {
   setVisible: () => void;
-  assessmentDetails: {};
+  assessmentData: {};
 };
 
 const { Option } = Select;
 
 const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
-  //console.log('assessment form', props.assessmentDetails)
+  //console.log('assessment form', props.assessmentData)
   const {
     studentName,
     id,
@@ -23,8 +23,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     classProfileId,
     status,
     totalScore,
-  } = props.assessmentDetails ? props.assessmentDetails : "";
-  const { scores } = props.assessmentDetails ? props.assessmentDetails : "";
+  } = props.assessmentData ? props.assessmentData : "";
+  const { scores } = props.assessmentData ? props.assessmentData : "";
 
   //console.log('scores', scores)
   const [selectAnswer, setSelectAnswer] = useState([] as any);
@@ -250,7 +250,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
           placeholder="Choose status"
         >
           <Option value="DUE">DUE</Option>
-          <Option value="COMPLETE">COMPLETE</Option>
+          <Option value="COMPLETED">COMPLETED</Option>
         </Select>
       </Form.Item>
 

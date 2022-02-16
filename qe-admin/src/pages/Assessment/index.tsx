@@ -1,19 +1,24 @@
 // @ts-nocheck
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditTwoTone, EyeOutlined, EditOutlined } from "@ant-design/icons";
 import {
   Button,
   message,
   Input,
   Drawer,
-  Table,
   Form,
+  DatePicker,
   Row,
   Col,
-  Space,
-  Spin,
+  Card,
+  Descriptions,
+  Checkbox,
+  TimePicker,
+  Select,
   Alert,
+  Table,
+  Space
 } from "antd";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useIntl, FormattedMessage } from "umi";
 import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
@@ -23,78 +28,127 @@ import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
 import ProDescriptions from "@ant-design/pro-descriptions";
 import type { FormValueType } from "./components/UpdateForm";
 import UpdateForm from "./components/UpdateForm";
+import AssessmentForm from "./components/Form";
 import {
   rule,
-  addRule,
-  updateRule,
-  removeRule,
+  listBatch,
   dueAssessment,
-  getAllAssessments,
-  detailsAssessment,
+  detailsAssessment
 } from "@/services/ant-design-pro/api";
-import { EyeOutlined, EditOutlined } from "@ant-design/icons";
-import AssessmentForm from "./FormComponent/Form";
-const { Column, ColumnGroup } = Table;
+import DebounceSelect from "@/components/DebounceSelect";
+
+/**
+ * @en-US Add node
+ * @zh-CN 添加节点
+ * @param fields
+ */
 
 const TableList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState("");
-  const [formVisible, setFormVisible] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
-    teacherId: "",
-    classProfileId: "",
-    lessonStartId: "",
-  });
-  const [assessmentDue, setAssessmentDue] = useState("");
-  const [assessmentDetails, setAssessmentDetails] = useState("");
+  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+  const [showAdd, setShowAdd] = useState<boolean>(false);
 
+  const [tempData, setTempData] = useState("");
+  const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [tempDataView, setTempDataView] = useState("");
+
+  const [storeBatchId, setStoreBatchId] = useState("");
+  const [batchData, setBatchData] = useState("");
+
+  const [batchCode, setBatchCode] = useState("");
+  const [batchDetails, setBatchDetails] = useState("");
+  const [lessonValue, setLessonValue] = useState("");
+  const [batchLesson, setBatchLesson] = useState("");
+
+  const [assessmentDetails, setAssessmentDetails] = useState("");
+  const [formVisible, setFormVisible] = useState<boolean>(false);
+  const [assessmentData, setAssessmentData] = useState("");
+
+  /**
+   * @en-US International configuration
+   * @zh-CN 国际化配置
+   * */
   const intl = useIntl();
 
- 
-  const handleShowDetails = async (id) => {
-    try {
-      let msg = await detailsAssessment(id);
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-      }
-      setAssessmentDetails(msg);
-      //console.log('view one',msg);
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
+  const format = "HH:mm";
 
-  const handleInputChange = (event: { target: { name: any; value: any } }) => {
-    setFormData((value) => ({
-      ...value,
-      [event.target.name]: event.target.value,
-    }));
-  };
+  // const columns: ProColumns<API.RuleListItem>[] = [
+  //   {
+  //     title: (
+  //       <FormattedMessage
+  //         id="pages.searchTable.titleBatchId"
+  //         defaultMessage="Batch ID"
+  //       />
+  //     ),
+  //     dataIndex: "batchId",
+  //   },
+  //   {
+  //     title: (
+  //       <FormattedMessage
+  //         id="pages.searchTable.titleStudentId"
+  //         defaultMessage="Student ID"
+  //       />
+  //     ),
+  //     dataIndex: "studentId",
+  //   },
+  //   {
+  //     title: (
+  //       <FormattedMessage
+  //         id="pages.searchTable.titleStudent"
+  //         defaultMessage="Student Name"
+  //       />
+  //     ),
+  //     dataIndex: "students",
+  //   },
+  //   {
+  //     title: (
+  //       <FormattedMessage
+  //         id="pages.searchTable.titleView"
+  //         defaultMessage="View"
+  //       />
+  //     ),
+  //     hideInSearch: true,
+  //     dataIndex: "view",
+  //     render: (dom, entity) => {
+  //       return (
+  //         <a
+  //           onClick={() => {
+  //             //console.log('entity', entity, dom)
+  //             setCurrentRow(entity);
+  //             setShowDetail(true);
+  //           }}
+  //         >
+  //           <EyeOutlined />
+  //         </a>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: (
+  //       <FormattedMessage
+  //         id="pages.searchTable.titleEdit"
+  //         defaultMessage="Edit"
+  //       />
+  //     ),
+  //     dataIndex: "edit",
+  //     hideInSearch: true,
+  //     render: (dom, entity) => {
+  //       return (
+  //         <a
+  //           onClick={() => {
+  //             setTempData(entity);
+  //             setShowEdit(true);
+  //           }}
+  //         >
+  //           <EditTwoTone />
+  //         </a>
+  //       );
+  //     },
+  //   },
+  // ];
 
-  const onFinish = async (value) => {
-    console.log("form is submitted", value);
-    try {
-      // 登录
-      // console.log("data", dataForm);
-      const msg = await dueAssessment(
-        value.teacherId,
-        value.classProfileId,
-        value.lessonStartId
-      );
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-      }
-      setAssessmentDue(msg);
-      console.log(msg);
-    } catch (error) {
-      console.log("addRule error", error);
-    }
-  };
-
-  //console.log("state assessment", assessmentDue);
-  //console.log("assessment details", assessmentDetails);
 
   const columns = [
     {
@@ -167,51 +221,195 @@ const TableList: React.FC = () => {
     },
   ];
 
+  const handleShowDetails = async (id) => {
+    try {
+      let msg = await detailsAssessment(id);
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setAssessmentData(msg);
+      console.log('view one assessment data',msg);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  
+
+  async function fetchBatchList(username) {
+    //console.log("fetching batch", username);
+    return listBatch({
+      current: 1,
+      pageSize: 5,
+      batchId: username,
+    }).then((body) => {
+      //console.log('body', body)
+      return body.data.map((user) => ({
+        label: `${user.batchId}`,
+        value: user.id,
+      }));
+    });
+  }
+
+  const handleDebounceSelect = async (newValue) => {
+    setBatchCode(newValue);
+    console.log('batchCOde', batchCode)
+    console.log("batch code handle", newValue, newValue.key);
+    if (newValue.key) {
+      try {
+        let msg = await dueAssessment(newValue.key, '',{
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (msg.status === "ok") {
+          console.log("API call sucessfull", msg);
+        }
+        setAssessmentDetails(msg.data);
+        console.log('view one',msg.data);
+      } catch (error) {
+        console.log("error", error);
+      }
+    }
+  };
+
+  const onFinish = async (value) => {
+    console.log('status', value.status)
+    try {
+      let msg = await dueAssessment(  batchCode.key, value.status, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setAssessmentDetails(msg.data);
+      console.log('view one status',msg.data);
+    } catch (error) {
+      console.log("error", error);
+    }
+    value = ''
+  }
+
+  const handleReset = async()=>{
+    try {
+      let msg = await dueAssessment(batchCode.key, '',{
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setAssessmentDetails(msg.data);
+      //console.log('view one',msg.data);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
+
   return (
     <PageContainer>
       <div>
-        <div>
-          <h4>Assessment Management</h4>
-          <Form name="basic" onFinish={onFinish}>
-            <Row gutter={16}>
-              {/* <Col span={4}>
-                <p>Please Select a Batch and Lesson : </p>
-              </Col> */}
-              <Col span={6}>
-                <Form.Item name="teacherId" label="teacherId">
-                  <Input name="teacherId" onChange={handleInputChange} />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="classProfileId" label="classProfileId">
-                  <Input name="classProfileId" onChange={handleInputChange} />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="lessonStartId" label="lessonStartId">
-                  <Input name="lessonStartId" onChange={handleInputChange} />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Button type="primary" htmlType="submit">
-                  Submit
+        <h4>Assessment Management</h4>
+        <Form name="basic">
+          <Row gutter={16}>
+            <Col span={4}>
+              <p>Please Select a Batch : </p>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="batchId">
+                <DebounceSelect
+                  showSearch
+                  value={batchCode}
+                  placeholder="Select Batch"
+                  fetchOptions={fetchBatchList}
+                  options={
+                    currentRow?.id
+                      ? [
+                          {
+                            value: currentRow.id,
+                            label: "batch",
+                            key: currentRow.id,
+                          },
+                        ]
+                      : []
+                  }
+                  defaultValue={
+                    currentRow?.id
+                      ? {
+                          value: currentRow.id,
+                          label: "batch",
+                          key: currentRow.id,
+                        }
+                      : null
+                  }
+                  onChange={handleDebounceSelect}
+                  style={{
+                    width: "100%",
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+            </Col>
+          </Row>
+        </Form>
+
+        {assessmentDetails ? (
+          <div>
+          <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
+            <Row>
+              <Col span = {14}>
+                <Form name="basic" onFinish={onFinish}>
+                <Row gutter={16}>
+                  <Col span={2}>
+                    <p style = {{paddingTop: 5}}>Search  : </p>
+                  </Col>
+                  <Col span={6}>
+                    <Form.Item name="status" >
+                    <Select
+                      placeholder="Choose status"
+                    >
+                      <Option value="DUE">DUE</Option>
+                      <Option value="COMPLETED">COMPLETED</Option>
+                    </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col span = {2}>
+                  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                      Query
+                    </Button>
+                  </Form.Item>
+                  </Col>
+                  <Col span = {2}>
+                  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                  <Button
+                    onClick={handleReset}
+                  >
+                    Reset
                 </Button>
-              </Col>
-            </Row>
-          </Form>
+                </Form.Item>
+                </Col>
+                </Row>
+              </Form>
+            </Col>
+        </Row>
         </div>
-        {assessmentDue ? (
-          <Table columns={columns} dataSource={assessmentDue} />
+          <div>
+            <Table columns={columns} dataSource={assessmentDetails} />
+          </div>
+          </div>
         ) : (
-          ""
+          ''
         )}
-      </div>
-      <Drawer
+        <Drawer
         width={600}
         visible={showDetail}
         onClose={() => {
           setShowDetail(false);
-          setAssessmentDetails(undefined);
+          setAssessmentData(undefined);
           setFormVisible(false);
         }}
         closable={false}
@@ -221,25 +419,25 @@ const TableList: React.FC = () => {
         </h2>
         {formVisible ? (
           <>
-            <AssessmentForm assessmentDetails={assessmentDetails} />
+            <AssessmentForm assessmentData={assessmentData} />
           </>
-        ) : assessmentDetails ? (
+        ) : assessmentData ? (
           <Row style={{ fontWeight: 500 }} gutter={(40, 60)}>
             <Col span={10}>
               <p>Student Name</p>
             </Col>
             <Col span={14}>
-              <p>{assessmentDetails.studentName}</p>
+              <p>{assessmentData.studentName}</p>
             </Col>
             <Col span={10}>
               <p>Total Score</p>
             </Col>
             <Col span={14}>
-              <p>{assessmentDetails.totalScore}</p>
+              <p>{assessmentData.totalScore}</p>
             </Col>
             <Col span={24}></Col>
             <Col span={24}>
-              {assessmentDetails.scores.length ? (
+              {assessmentData.scores.length ? (
                 <Row>
                   <Col
                     span={24}
@@ -250,7 +448,7 @@ const TableList: React.FC = () => {
                   <Col span={24}>
                     <Table
                       columns={columnScore}
-                      dataSource={assessmentDetails.scores}
+                      dataSource={assessmentData.scores}
                     />
                   </Col>
                 </Row>
@@ -271,6 +469,7 @@ const TableList: React.FC = () => {
           ""
         )}
       </Drawer>
+      </div>
     </PageContainer>
   );
 };

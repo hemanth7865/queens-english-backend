@@ -421,9 +421,8 @@ export async function addeditbatch(options?: { [key: string]: any }) {
 //ASSESSMENT API'S
 //GET DUE ASSESSMENT
 export async function dueAssessment(
-  teacherId: string,
-  classProfileId: string,
-  currentLessonId: string,
+  id: string,
+  status: string,
   params: {
     // query
     /** 当前的页码 */
@@ -434,7 +433,7 @@ export async function dueAssessment(
   options?: { [key: string]: any },
 ) {
   console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment/${teacherId}/${classProfileId}?lesson=${currentLessonId ? currentLessonId : ''}&code=${CODE}`, {
+  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id}&code=${CODE}`, {
     method: 'GET',
     params: {
       ...params,
