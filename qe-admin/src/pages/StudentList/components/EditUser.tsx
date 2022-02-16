@@ -29,7 +29,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        mobile: '',
+        phoneNumber: '',
         email: '',
     })
 
@@ -143,7 +143,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             let dataForm = {
                 firstName: formData.firstName?formData.firstName:props.data.firstName,
                 lastName: formData.lastName?formData.lastName:lastName,
-                phoneNumber: formData.mobile?formData.mobile:phoneNumber,
+                phoneNumber: formData.phoneNumber?formData.phoneNumber:phoneNumber,
                 email: formData.email?formData.email:email,
                 type: selectUserType?selectUserType:type,
             }
@@ -187,7 +187,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         form.setFieldsValue({
                             FirstName: props.data.firstName,
                             lastName: props.data.lastName,
-                            mobile: props.data.phoneNumber,
+                            phoneNumber: props.data.phoneNumber,
                             email: props.data.email,
                             userType: type == 'teacher'?'Teacher':'Student'
                             })
@@ -251,10 +251,10 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 
                 <Col span = {12}>
                     <Form.Item
-                        name="mobile"
+                        name="phoneNumber"
                     >
                         <Input
-                            name = "mobile"
+                            name = "phoneNumber"
                             onChange = {handleMobileChange}
                             //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />

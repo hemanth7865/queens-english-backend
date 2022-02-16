@@ -24,7 +24,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        mobile: '',
+        phoneNumber: '',
         email: '',
     })
 
@@ -72,13 +72,13 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }else{
             setError('Phone number is Invalid')
         }
-        if(message === true && msg === undefined){
+
             console.log(`valid mobile number for ${selectCountry}`)
             setFormData((value)=>({
                 ...value,
                 [event.target.name]: event.target.value
             }))
-        }
+        
         if(message === false && msg === undefined){
             setError('Enter a valid Mobile Number')
         }
@@ -128,7 +128,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
             const dataForm = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                phoneNumber: '+'+ code + formData.mobile,
+                phoneNumber: '+'+ code + formData.phoneNumber,
                 email: formData.email,
                 type: selectUserType
             }
@@ -222,17 +222,17 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 </Form.Item>
             </Col>
             <Col span = {12}>
-                <Form.Item name="Mobile"
+                <Form.Item name="phoneNumber"
                 rules={[
                     {
-                      required: true,
+                      required: false,
                      
                     },
                   ]}
                   >
                     <Input
                         placeholder = "Enter Mobile Number"
-                        name = "mobile"
+                        name = "phoneNumber"
                         onChange = {handleMobileChange}
                         //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />

@@ -199,7 +199,7 @@ const TeacherBatchList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
-  const [selectCountryCode, setSelectCountryCode] = useState('')
+ const [selectCountryCode, setSelectCountryCode] = useState('')
   const [selectCountry, setSelectCountry] = useState('')
 
   //state for select option
@@ -1100,17 +1100,7 @@ const TeacherBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
-                <Col span={12}>
-                  <Form.Item
-                    name="countryCode">
-                    <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
-                      {allCountries.map((country) => {
-                        return <Option value={country.name} key={country.code}>{country.name}</Option>
-                      })}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              
+               
                 {/* Mobile and Whatsup */}
 
                 <Col span={12}>

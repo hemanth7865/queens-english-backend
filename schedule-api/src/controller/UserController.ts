@@ -29,9 +29,9 @@ export class UserController {
         var resp;
         var total = await getManager().query('SELECT COUNT(*) as total FROM USER where phoneNumber=' + request.body.phoneNumber);
         usersLogger.info(`Total Number of records:  ${total[0].total}`);
-       if (total[0].total==0 || request.body.id || request.body.userId)
+       if (total[0].total==0 || request.body.id)
        {
-        usersLogger.info(`Insert of update record  ${total}`);
+        usersLogger.info(`Insert / update record with unique phonenumber ${total}`);
             
             try {
                 if(request.body.type === 'student') {

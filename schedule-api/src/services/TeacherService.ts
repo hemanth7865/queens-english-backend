@@ -46,13 +46,10 @@ export class TeacherService {
         },
       };
   
-      if (data.userId) {
-        options.body["id"] = data.userId;
-      }
       if (data.id) {
         options.body["id"] = data.id;
       }
-     
+
       var status;
       var res1={} ;
       if (!data.id) {
@@ -185,7 +182,7 @@ export class TeacherService {
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
       user.type = data.type;
-      if (data.iserId) user.id = data.userId;
+      if (data.id) user.id = data.id;
       user.startDate = data.startDate?data.startDate:null;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
