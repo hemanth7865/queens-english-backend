@@ -151,7 +151,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     console.log(msg);
                     openNotificationWithIcon('success', ' User');
                   }
-                 // window.location.reload();
+                  window.location.reload();
                 console.log(msg);
               } catch (error) {
                 console.log("addRule error", error);

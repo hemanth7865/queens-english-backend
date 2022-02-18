@@ -163,6 +163,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                   console.log("API call sucessfull", msg);
                 }
                 console.log(msg);
+                window.location.reload();
                 // 如果失败去设置用户错误信息
                 // setUserLoginState(msg);
               } catch (error) {
