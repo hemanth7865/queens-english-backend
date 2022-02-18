@@ -27,7 +27,7 @@ export class UserController {
         var teacherService = new TeacherService();
      
         var resp;
-        var total = await getManager().query('SELECT COUNT(*) as total FROM USER where phoneNumber=' + request.body.phoneNumber);
+        var total = await getManager().query('SELECT COUNT(*) as total FROM user where phoneNumber=' + request.body.phoneNumber);
         usersLogger.info(`Total Number of records:  ${total[0].total}`);
        if (total[0].total==0 || request.body.id)
        {
