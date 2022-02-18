@@ -108,9 +108,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during user save' }, userType = 'Teacher') => {
         notification[type]({
-          message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+          message: type === 'error' ? msg.data : 'Successfully Registered   ' + userType + ' !!!! ',
           description:
             '',
         });
@@ -142,16 +142,17 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                   body: JSON.stringify(dataForm),
                 });
                 if (msg.status === "ok") {
-                  console.log("API call sucessfull", msg);
+                openNotificationWithIcon('success', ' User');
+                  console.log("API call successfull", msg);
                 }
                 if (msg.status === 400) {
                     openNotificationWithIcon('error', msg);
             
                   } else {
                     console.log(msg);
-                    openNotificationWithIcon('success', ' User');
+                    openNotificationWithIcon('success', '', 'User');
                   }
-                  window.location.reload();
+                //  window.location.reload();
                 console.log(msg);
               } catch (error) {
                 console.log("addRule error", error);

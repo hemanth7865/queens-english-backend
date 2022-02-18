@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState, useEffect} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker } from 'antd';
+import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker,notification } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 import {
@@ -126,6 +126,18 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         }
     };
 
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during User update' }, userType = 'Teacher') => {
+        notification[type]({
+          message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
+          description:
+            '',
+        });
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000);
+      };
+
+   
 
     const handleInputChange = (event: { target: { name: any; value: any; }; })=>{
         console.log('val', event.target.value, event)
@@ -162,17 +174,20 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 if (msg.status === "ok") {
                   console.log("API call sucessfull", msg);
                 }
+                if (msg.status === 400) {
+                    openNotificationWithIcon('error', msg);
+            
+                  } else {
+                    console.log(msg);
+                    openNotificationWithIcon('success', '', 'User');
+                  }
                 console.log(msg);
-                window.location.reload();
+                //window.location.reload();
                 // 如果失败去设置用户错误信息
                 // setUserLoginState(msg);
               } catch (error) {
                 console.log("addRule error", error);
-                const defaultLoginFailureMessage = intl.formatMessage({
-                  id: "pages.login.failure",
-                  defaultMessage: "登录失败，请重试！",
-                });
-                message.error(defaultLoginFailureMessage);
+               
               }
                 props.setVisible(false)
                 
