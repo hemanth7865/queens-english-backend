@@ -432,13 +432,13 @@ export class TeacherService {
       if (type == 'student' ) {
         
       var quer =
-      "select studentId , batchId from batch_students where studentId='" +
+      "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
       element.id +
-      "';";
+      "');";
     batchCodes = await getManager().query(quer);
     batchCodes.forEach((element) => {
       console.log("batchdode", element);
-      studentOrTeacherId.push(element.batchId);
+      studentOrTeacherId.push(element.batchCode);
     });
   } else {
     var quer =
@@ -447,7 +447,7 @@ export class TeacherService {
       "';";
       batchCodes = await getManager().query(quer);
     batchCodes.forEach((element) => {
-      console.log("batchdode", element);
+      console.log("batchcodeTeacher", element);
       studentOrTeacherId.push(element.batchId);
     });
   }
