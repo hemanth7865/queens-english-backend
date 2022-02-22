@@ -12,7 +12,7 @@ import {
     OneToMany,
     PrimaryColumn,
   } from "typeorm";
-  @Entity("LQSEntry")
+  @Entity("lqsentry")
   export class LQSEntry extends BaseEntity {
     LsqLeads() {}
    // @PrimaryGeneratedColumn("uuid")
