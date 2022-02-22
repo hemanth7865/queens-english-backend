@@ -33,6 +33,7 @@ export class LQSService {
            user.email = element.email? element.email : 'DUMMY';
            user.whatsapp = element.whatsapp;
            user.status = 'enrolled';
+           user.type='student';
            this.userRepository.save(user);
        }
        usersLogger.info('updating LQS entries in user table::End');
