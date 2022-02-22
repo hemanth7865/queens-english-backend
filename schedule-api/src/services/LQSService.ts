@@ -22,7 +22,7 @@ export class LQSService {
    async createStudents() {
      //  var lqsEntries = this.lQSRepository.find();
      usersLogger.info('updating LQS entries in user table::Start');
-       var lqsEntries = await getManager().query('SELECT * from  lqsEntry');
+       var lqsEntries = await getManager().query('SELECT * from  lqsentry');
        for (let element of lqsEntries ) {
            var user = new User();
            user.id = element.id;
