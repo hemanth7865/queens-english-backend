@@ -58,8 +58,7 @@ export class TeacherService {
         .then(async (res) => {
           usersLogger.info("Posted to cosmos and response is ");
           data.id = res.data.id;
-          usersLogger.info(`Id created in cosmos is ${res.data.id}`);
-       
+          usersLogger.info(`Id created in cosmos is ${res.data.id}`);       
           var user = await this.saveTeacherSql(data);
           //Promise.resolve(res);
           return user;
@@ -258,7 +257,7 @@ export class TeacherService {
     if (type) {
       query_string = query_string + ` and u.type like '%${type}%' `;
       query_list.push(` u.type like '%${type}%'  `);
-      console.log("user typer ", type);
+      console.log("user type ", type);
     }
 
     var totalexp = parameters.totalexp;
@@ -277,9 +276,9 @@ export class TeacherService {
 
     var status = parameters.status;
     if (status) {
-      status = parseInt(status);    
-      query_string = query_string + ` and u.status=${status} `;
-      query_list.push(` u.status=${status} `);
+    //  status = parseInt(status);    
+      query_string = query_string + ` and u.status like '${status}' `;
+      query_list.push(` u.status like '${status}' `);
     }
 
     var ratings = parameters.ratings;
