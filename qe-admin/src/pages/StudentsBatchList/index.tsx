@@ -1222,12 +1222,13 @@ const StudentsBatchList: React.FC = () => {
                     {console.log(tempDataView.status)}
                     <Select
                       defaultValue={tempDataView.status == 'InActive'
-                        ? "Active"
+                        ? "InActive"
                         : tempDataView.status == 'OnHold'
                           ? "OnHold"
                           : tempDataView.status == 'Leave'
                             ? "Leave"
-                            : "Active"}
+                            : tempDataView.status == 'enrolled'
+                            ? "Enrolled":"Active"}
                       onChange={(value) => {
                         setstatus(value);
                       }}
