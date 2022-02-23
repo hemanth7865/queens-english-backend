@@ -281,6 +281,21 @@ export class TeacherService {
       query_list.push(` u.status like '${status}' `);
     }
 
+    var studentID = parameters.studentID;
+
+    if (studentID) {
+      //  status = parseInt(status);    
+        query_string = query_string + ` and u.status like '${status}' `;
+        query_list.push(` u.status like '${status}' `);
+      }
+
+      var batchID = parameters.batchID;
+      if (status) {
+        //  status = parseInt(status);    
+          query_string = query_string + ` and u.status like '${status}' `;
+          query_list.push(` u.status like '${status}' `);
+        }
+
     var ratings = parameters.ratings;
     if (ratings) {
       ratings = parseInt(ratings);

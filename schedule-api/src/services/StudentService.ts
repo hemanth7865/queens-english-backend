@@ -25,6 +25,165 @@ export class StudentService {
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
 
+  async listStudentDetails(data:any, parameters: any) {
+
+    var results: User[] = [];
+    var leadView: LeadView[] = [];
+    var map = new Map();
+    var leadTem: Teacher[] = [];
+    var filter = false;
+    var parametersList = [];
+
+    var offset = parameters.current;
+    var current = offset;
+    var limit = parameters.pageSize;
+    if (offset == 1) {
+      offset = 0;
+    }
+
+    let query_list = [];
+    let query_string = "";
+  
+    const name = parameters.name;
+    if (name) {
+     
+      query_list.push(
+        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ) `
+      );
+    }
+    const mobile = parameters.phoneNumber;
+    if (mobile) {
+      query_list.push(` u.phoneNumber  like '%${mobile}%' `);
+    }
+
+    const email = parameters.email;
+    if (email) {
+      query_list.push(` u.email  like '%${email}%' `);
+    }
+
+
+    const type = parameters.type;
+    var status = parameters.status;
+    if (status) {
+    //  status = parseInt(status);    
+    query_list.push(` u.status like '${status}' `);
+    }
+
+    if (type) {
+           query_list.push(` u.type like '%${type}%'  `);
+      console.log("user type ", type);
+    }
+    var StudentIds = [];
+    if (parameters.studentID) {
+      StudentIds.push(parameters.studentID);
+    }
+
+    if (parameters.batchCode) {
+      let bathCodeQuery = `SELECT  cl.id FROM user u join batch_students bs on bs.id = u.id
+      join classes cl on cl.id = bs.batchId
+      where classes.batchCode = '${parameters.batchCode}'`;
+      let id = await getManager().query(bathCodeQuery); 
+      if (id)   
+        StudentIds.push(id);     
+      }
+
+    const keyword = parameters.keyword;
+    let query_search: string;
+    if (!!keyword?.length) {
+      query_search = ` (u.firstName like '%${keyword}%' or u.lastName like '%${keyword}%' or u.phoneNumber like '%${keyword}%' )`;
+    }
+    let qIds = []
+      for (let element of StudentIds) {
+        qIds = ["'"+ element + "'"];
+      }
+      usersLogger.info(`Finale query ids ${JSON.stringify(StudentIds)}`);
+    
+      if (qIds.length > 0) {
+            query_list.push(` u.id in (${qIds.join(",")})`);
+      } 
+
+      query_list.forEach((value, index) => {
+        console.log(query_list.join(" and "));
+        if (index != query_list.length - 1) {
+          query_string = query_string + query_list[index] + " and ";
+        } else {
+          query_string = query_string + query_list[index];
+        }
+      });
+  
+      if(query_string) {
+        query_string = " where " + query_string;
+      }
+
+
+  
+
+  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` ;
+     
+ 
+  finalQuery = finalQuery +  offset * limit +
+  "," +
+  limit +
+  `;`;
+
+      results = await getManager().query(finalQuery);
+     var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+      console.log("results size", results.length);
+
+      for (const element of results) {
+        let slotsResult: any[] = [];
+        let batchCodes: any[] = [];
+   
+        var studentOrTeacherId=[];
+        var batchCode = '';
+  
+        if (type == 'student' ) {
+          
+        var quer =
+        "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
+        element.id +
+        "');";
+      batchCodes = await getManager().query(quer);
+      batchCodes.forEach((element) => {
+        console.log("batchCode", element);
+        studentOrTeacherId.push(element.batchNumber);
+      });
+    }
+        var l = new LeadView(
+          element.id,
+          element.id,
+          new Date().toString(),
+          element.name,
+          element.exp,
+          element.phoneNumber,
+          element.email,
+          element.status,
+            0,
+          element.ratings,
+          '',
+          element.leadtype,
+          element.type,
+          studentOrTeacherId.join(","),
+          element.id,
+        );
+        leadView.push(l);
+      }
+  
+      return {
+        success: true,
+        data: leadView,
+        total: total[0].total,
+        current: current,
+        pageSize: limit,
+      };
+  
+
+
+    }
+  
+  
+
+
 
   async saveStudentDetails(data: any) {
     let response;

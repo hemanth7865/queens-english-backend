@@ -427,7 +427,7 @@ const StudentsBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.titlebatchcode"
-          defaultMessage="Batch ID"
+          defaultMessage="Batch Code"
         />
       ),
       dataIndex: 'batchCode',
