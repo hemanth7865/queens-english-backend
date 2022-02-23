@@ -77,16 +77,18 @@ export class StudentService {
     if (parameters.studentID) {
       StudentIds.push(parameters.studentID);
     }
+    console.log('Batch code',parameters.batchCode);
 
     if (parameters.batchCode) {
-      let bathCodeQuery = `SELECT  cl.id FROM user u join batch_students bs on bs.id = u.id
+      let bathCodeQuery = `SELECT  cl.id as id FROM user u join batch_students bs on bs.id = u.id
       join classes cl on cl.id = bs.batchId
-      where classes.batchCode = '${parameters.batchCode}'`;
-      let id = await getManager().query(bathCodeQuery); 
-      if (id)   
-        StudentIds.push(id);     
+      where cl.batchNumber like '%${parameters.batchCode}%'`;
+      let ids = await getManager().query(bathCodeQuery); 
+      for (let element of ids) {  
+        StudentIds.push(element.id);
       }
-
+      console.log('Student ids',StudentIds);
+    }
     const keyword = parameters.keyword;
     let query_search: string;
     if (!!keyword?.length) {
@@ -180,6 +182,7 @@ export class StudentService {
 
 
     }
+  
   
   
 
