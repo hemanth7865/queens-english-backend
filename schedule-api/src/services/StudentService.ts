@@ -89,6 +89,7 @@ export class StudentService {
       }
       console.log('Student ids',StudentIds);
     }
+    console.log('Student ids',StudentIds);
     const keyword = parameters.keyword;
     let query_search: string;
     if (!!keyword?.length) {
@@ -128,6 +129,9 @@ export class StudentService {
   limit +
   `;`;
 
+  console.log(`query string ${query_list}`);
+
+  
       results = await getManager().query(finalQuery);
      var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
       console.log("results size", results.length);
