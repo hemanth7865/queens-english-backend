@@ -427,7 +427,7 @@ const StudentsBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.titlebatchcode"
-          defaultMessage="Batch ID"
+          defaultMessage="Batch Code"
         />
       ),
       dataIndex: 'batchCode',
@@ -443,6 +443,15 @@ const StudentsBatchList: React.FC = () => {
       dataIndex: "status",
       hideInForm: true,
       valueEnum: {
+        'enrolled': {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.enrolled"
+              defaultMessage="Enrolled"
+            />
+          ),
+          status: "Active",
+        },
         'active': {
           text: (
             <FormattedMessage
@@ -1222,12 +1231,13 @@ const StudentsBatchList: React.FC = () => {
                     {console.log(tempDataView.status)}
                     <Select
                       defaultValue={tempDataView.status == 'InActive'
-                        ? "Active"
+                        ? "InActive"
                         : tempDataView.status == 'OnHold'
                           ? "OnHold"
                           : tempDataView.status == 'Leave'
                             ? "Leave"
-                            : "Active"}
+                            : tempDataView.status == 'enrolled'
+                            ? "Enrolled":"Active"}
                       onChange={(value) => {
                         setstatus(value);
                       }}
@@ -2572,7 +2582,8 @@ const StudentsBatchList: React.FC = () => {
                           ? "OnHold"
                           : tempDataView.status == 'Leave'
                             ? "Leave"
-                            : "Active"}
+                            :  tempDataView.status == 'enrolled'
+                            ? "Enrolled":"Active"}
                       onChange={(value) => {
                         setstatus(value);
                       }}

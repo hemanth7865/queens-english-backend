@@ -24,14 +24,13 @@ export class UserController {
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
-        var teacherService = new TeacherService();
-     
+        var teacherService = new TeacherService();     
         var resp;
-        var total = await getManager().query('SELECT COUNT(*) as total FROM USER where phoneNumber=' + request.body.phoneNumber);
+        var total = await getManager().query('SELECT COUNT(*) as total FROM user where phoneNumber=' + request.body.phoneNumber);
         usersLogger.info(`Total Number of records:  ${total[0].total}`);
-       if (total[0].total==0 || request.body.id || request.body.userId)
+       if (total[0].total==0 || request.body.id)
        {
-        usersLogger.info(`Insert of update record  ${total}`);
+        usersLogger.info(`Insert / update record with unique phoneNumber ${total}`);
             
             try {
                 if(request.body.type === 'student') {
@@ -86,15 +85,24 @@ export class UserController {
             weekday: request.query['weekday'],
             status: request.query['status'],
             type: request.query['type'],
-            keyword: request.query['keyword']
+            keyword: request.query['keyword'],
+            studentID: request.query['studentID'],
+            batchCode: request.query['batchCode'],
+            email:request.query['email']
         }
 
         var teacherService = new TeacherService();
+        var studentService = new StudentService();
         var user;
         let resp;
 
         try {
+            if (request.query['type'] === 'student') {
+                resp = await studentService.listStudentDetails(request.body, parameters);
+
+            } else {
             resp = await teacherService.listLeadDetails(request.body, parameters);
+            }
         } catch (error) {
             console.log(error);
         }

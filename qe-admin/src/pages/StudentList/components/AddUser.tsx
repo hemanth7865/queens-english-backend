@@ -24,7 +24,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        mobile: '',
+        phoneNumber: '',
         email: '',
     })
 
@@ -72,13 +72,13 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }else{
             setError('Phone number is Invalid')
         }
-        if(message === true && msg === undefined){
+
             console.log(`valid mobile number for ${selectCountry}`)
             setFormData((value)=>({
                 ...value,
                 [event.target.name]: event.target.value
             }))
-        }
+        
         if(message === false && msg === undefined){
             setError('Enter a valid Mobile Number')
         }
@@ -108,9 +108,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during user save' }, userType = 'Teacher') => {
         notification[type]({
-          message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+          message: type === 'error' ? msg.data : 'Successfully Registered   ' + userType + ' !!!! ',
           description:
             '',
         });
@@ -128,7 +128,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
             const dataForm = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                phoneNumber: '+'+ code + formData.mobile,
+                phoneNumber: '+'+ code + formData.phoneNumber,
                 email: formData.email,
                 type: selectUserType
             }
@@ -142,16 +142,17 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                   body: JSON.stringify(dataForm),
                 });
                 if (msg.status === "ok") {
-                  console.log("API call sucessfull", msg);
+                openNotificationWithIcon('success', ' User');
+                  console.log("API call successfull", msg);
                 }
                 if (msg.status === 400) {
                     openNotificationWithIcon('error', msg);
             
                   } else {
                     console.log(msg);
-                    openNotificationWithIcon('success', ' User');
+                    openNotificationWithIcon('success', '', 'User');
                   }
-                 // window.location.reload();
+                //  window.location.reload();
                 console.log(msg);
               } catch (error) {
                 console.log("addRule error", error);
@@ -222,17 +223,17 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 </Form.Item>
             </Col>
             <Col span = {12}>
-                <Form.Item name="Mobile"
+                <Form.Item name="phoneNumber"
                 rules={[
                     {
-                      required: true,
+                      required: false,
                      
                     },
                   ]}
                   >
                     <Input
                         placeholder = "Enter Mobile Number"
-                        name = "mobile"
+                        name = "phoneNumber"
                         onChange = {handleMobileChange}
                         //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />

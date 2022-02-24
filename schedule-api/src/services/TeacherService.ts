@@ -46,13 +46,10 @@ export class TeacherService {
         },
       };
   
-      if (data.userId) {
-        options.body["id"] = data.userId;
-      }
       if (data.id) {
         options.body["id"] = data.id;
       }
-     
+
       var status;
       var res1={} ;
       if (!data.id) {
@@ -61,8 +58,7 @@ export class TeacherService {
         .then(async (res) => {
           usersLogger.info("Posted to cosmos and response is ");
           data.id = res.data.id;
-          usersLogger.info(`Id created in cosmos is ${res.data.id}`);
-       
+          usersLogger.info(`Id created in cosmos is ${res.data.id}`);       
           var user = await this.saveTeacherSql(data);
           //Promise.resolve(res);
           return user;
@@ -77,7 +73,7 @@ export class TeacherService {
         usersLogger.info("Update teacher information");
         usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
         res1= await axios
-        .put(options.url, options.body)
+      .post(options.url, options.body)
         .then(async (res) => {
           console.log("Posted to cosmos and response is ", res);
           console.log("Id created in cosmos is ", res.data.id);
@@ -185,7 +181,7 @@ export class TeacherService {
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
       user.type = data.type;
-      if (data.iserId) user.id = data.userId;
+      if (data.id) user.id = data.id;
       user.startDate = data.startDate?data.startDate:null;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
@@ -261,7 +257,7 @@ export class TeacherService {
     if (type) {
       query_string = query_string + ` and u.type like '%${type}%' `;
       query_list.push(` u.type like '%${type}%'  `);
-      console.log("user typer ", type);
+      console.log("user type ", type);
     }
 
     var totalexp = parameters.totalexp;
@@ -280,10 +276,25 @@ export class TeacherService {
 
     var status = parameters.status;
     if (status) {
-      status = parseInt(status);    
-      query_string = query_string + ` and u.status=${status} `;
-      query_list.push(` u.status=${status} `);
+    //  status = parseInt(status);    
+      query_string = query_string + ` and u.status like '${status}' `;
+      query_list.push(` u.status like '${status}' `);
     }
+
+    var studentID = parameters.studentID;
+
+    if (studentID) {
+      //  status = parseInt(status);    
+        query_string = query_string + ` and u.status like '${status}' `;
+        query_list.push(` u.status like '${status}' `);
+      }
+
+      var batchID = parameters.batchID;
+      if (status) {
+        //  status = parseInt(status);    
+          query_string = query_string + ` and u.status like '${status}' `;
+          query_list.push(` u.status like '${status}' `);
+        }
 
     var ratings = parameters.ratings;
     if (ratings) {
@@ -435,13 +446,13 @@ export class TeacherService {
       if (type == 'student' ) {
         
       var quer =
-      "select studentId , batchId from batch_students where studentId='" +
+      "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
       element.id +
-      "';";
+      "');";
     batchCodes = await getManager().query(quer);
     batchCodes.forEach((element) => {
       console.log("batchdode", element);
-      studentOrTeacherId.push(element.batchId);
+      studentOrTeacherId.push(element.batchCode);
     });
   } else {
     var quer =
@@ -450,7 +461,7 @@ export class TeacherService {
       "';";
       batchCodes = await getManager().query(quer);
     batchCodes.forEach((element) => {
-      console.log("batchdode", element);
+      console.log("batchcodeTeacher", element);
       studentOrTeacherId.push(element.batchId);
     });
   }
