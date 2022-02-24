@@ -10,6 +10,9 @@ export type AssessmentFormProps = {
 
 const { Option } = Select;
 
+const { TextArea } = Input;
+
+
 const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
   //console.log('assessment form', props.assessmentData)
   const {
@@ -25,7 +28,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     totalScore,
     vocabScore,
     pronunciationScore,
-    confidenceScore
+    confidenceScore,
+    comment
   } = props.assessmentData ? props.assessmentData : "";
   const { scores } = props.assessmentData ? props.assessmentData : "";
 
@@ -64,7 +68,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
 
 
   const onFinish = async (values: any) => {
-    //console.log("Success:", values);
+    console.log("Success:", values);
     const scores = [
       { question: 'Q1', score: values.Q1 },
       { question: 'Q2', score: values.Q2 },
@@ -99,7 +103,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       totalScore: total,
       vocabScore: vocalScoreStar,
       confidenceScore: confidenceScoreStar,
-      pronunciationScore: pronounciationScoreStar
+      pronunciationScore: pronounciationScoreStar,
+      comment: values.comment,
     };
 
     console.log("data form", data);
@@ -240,6 +245,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       VocalScore: vocabScore,
       PronounciationScore: pronunciationScore,
       ConfidenceScore: confidenceScore,
+      comment: comment,
     });
   };
   useEffect(() => {
@@ -494,6 +500,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
         <Rate tooltips={desc} name = "confidenceScore" value={confidenceScoreStar} onChange={(value) => {
             setConfidenceScoreStar(value)
           }}/>
+      </Form.Item>
+
+      <Form.Item name="comment" label="Comment">
+        <TextArea rows={4} name = "comment"/>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
