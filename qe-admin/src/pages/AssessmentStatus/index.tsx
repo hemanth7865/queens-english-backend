@@ -35,6 +35,7 @@ import {
   listBatch,
   dueAssessment,
   detailsAssessment,
+  listTeacherAndStudent,
 } from "@/services/ant-design-pro/api";
 import DebounceSelect from "@/components/DebounceSelect";
 
@@ -67,6 +68,7 @@ const TableList: React.FC = () => {
   const [formVisible, setFormVisible] = useState<boolean>(false);
   const [assessmentData, setAssessmentData] = useState("");
   const [selectStatus, setSelectStatus] = useState("")
+  const [teacherName, setTeacherName] = useState([]);
 
   /**
    * @en-US International configuration
@@ -75,7 +77,7 @@ const TableList: React.FC = () => {
   const intl = useIntl();
 
   const format = "HH:mm";
-
+  const [form] = Form.useForm();
 
   const columns = [
     {
@@ -192,10 +194,9 @@ const TableList: React.FC = () => {
     },
   ];
 
-  useEffect(async (params: any) => {
-    console.log("first reload")
+  const fetchAllAssessment = async ()=> {
     try {
-      let msg = await dueAssessment('', '',{
+      let msg = await dueAssessment('', '', '', {
         headers: {
           "Content-Type": "application/json",
         },
@@ -204,11 +205,16 @@ const TableList: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       setAssessmentDetails(msg.data);
-      console.log('view one',msg.data, msg.data[0].scores[0]);
+      console.log('view one',msg.data);
       
     } catch (error) {
       console.log("error", error);
     }
+  }
+
+  useEffect(async (params: any) => {
+    console.log("first reload")
+    fetchAllAssessment()
   }, []);
 
   const handleShowDetails = async (id) => {
@@ -225,14 +231,14 @@ const TableList: React.FC = () => {
   };
   
 
-  async function fetchBatchList(username) {
+  const fetchBatchList = async (username) => {
     //console.log("fetching batch", username);
     return listBatch({
       current: 1,
       pageSize: 5,
       batchId: username,
     }).then((body) => {
-      //console.log('body', body)
+      console.log('body', body)
       return body.data.map((user) => ({
         label: `${user.batchId}`,
         value: user.id,
@@ -240,32 +246,32 @@ const TableList: React.FC = () => {
     });
   }
 
+ const fetchUserList = async (username) => {
+    console.log("fetching teacher user", username);
+    return listTeacherAndStudent({
+      type: 'teacher',
+      current: 1,
+      pageSize: 5,
+      keyword: username
+    })
+      .then((body) =>
+        body.data.map((user) => ({
+          label: `${user.name}`,
+          value: user.id,
+        }))
+      );
+  }
+
   const handleDebounceSelect = async (newValue) => {
     setBatchCode(newValue);
-    console.log('batchCOde', batchCode)
-    console.log("batch code handle", newValue, newValue.key);
-    if (newValue.key) {
-      try {
-        let msg = await dueAssessment(newValue.key, '',{
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (msg.status === "ok") {
-          console.log("API call sucessfull", msg);
-        }
-        setAssessmentDetails(msg.data);
-        console.log('view one',msg.data);
-      } catch (error) {
-        console.log("error", error);
-      }
-    }
   };
 
+  console.log('batchCOde', batchCode, teacherName)
+
   const onFinish = async (value) => {
-    console.log('status', value.status, selectStatus)
+    console.log('status', value)
     try {
-      let msg = await dueAssessment(  batchCode.key ? batchCode.key: '', selectStatus, {
+      let msg = await dueAssessment(  batchCode.key ? batchCode.key: '', selectStatus, teacherName.key ? teacherName.key:'', {
         headers: {
           "Content-Type": "application/json",
         },
@@ -281,78 +287,19 @@ const TableList: React.FC = () => {
   }
 
   const handleReset = async()=>{
-    try {
-      let msg = await dueAssessment(batchCode.key, '',{
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-      }
-      setAssessmentDetails(msg.data);
-      //console.log('view one',msg.data);
-    } catch (error) {
-      console.log("error", error);
-    }
+    form.resetFields();
+    fetchAllAssessment()
   }
 
   return (
     <PageContainer>
       <div>
-        {/* <h3 style = {{textAlign: "center"}}>Assessment Management</h3> */}
-        <>
-        {/* <Form name="basic">
-          <Row gutter={16}>
-            <Col span={4}>
-              <p>Please Select a Batch : </p>
-            </Col>
-            <Col span={6}>
-              <Form.Item name="batchId">
-                <DebounceSelect
-                  showSearch
-                  value={batchCode}
-                  placeholder="Select Batch"
-                  fetchOptions={fetchBatchList}
-                  options={
-                    currentRow?.id
-                      ? [
-                          {
-                            value: currentRow.id,
-                            label: "batch",
-                            key: currentRow.id,
-                          },
-                        ]
-                      : []
-                  }
-                  defaultValue={
-                    currentRow?.id
-                      ? {
-                          value: currentRow.id,
-                          label: "batch",
-                          key: currentRow.id,
-                        }
-                      : null
-                  }
-                  onChange={handleDebounceSelect}
-                  style={{
-                    width: "100%",
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-            </Col>
-          </Row>
-        </Form> */}
-        </>
-        
         {assessmentDetails ? (
           <div>
           <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
             <Row>
               <Col span = {14}>
-                <Form name="basic" onFinish={onFinish}>
+                <Form name="basic" onFinish={onFinish} form={form}>
                 <Row gutter={16}>
                   <Col span={2}>
                     <p style = {{paddingTop: 5}}>Search  : </p>
@@ -388,20 +335,29 @@ const TableList: React.FC = () => {
                               ]
                             : []
                         }
-                        defaultValue={
-                          currentRow?.id
-                            ? {
-                                value: currentRow.id,
-                                label: "batch",
-                                key: currentRow.id,
-                              }
-                            : null
-                        }
                         onChange={handleDebounceSelect}
                         style={{
                           width: "100%",
                         }}
                       />
+                    </Form.Item>
+                  </Col>
+                  <Col span={6}>
+                    <Form.Item name="teacherId">
+                    <DebounceSelect
+                          showSearch
+                          value={teacherName}
+                          placeholder="Select teacher"
+                          fetchOptions={fetchUserList}
+                          options = { currentRow?.id ? [{value:currentRow.id,label:'teacher',key:currentRow.id}]:[]}
+                          onChange={(newValue) => {
+                            setTeacherName(newValue);
+                            console.log("teacher name", newValue);
+                          }}
+                          style={{
+                            width: "100%",
+                          }}
+                        />
                     </Form.Item>
                   </Col>
                   <Col span = {2}>

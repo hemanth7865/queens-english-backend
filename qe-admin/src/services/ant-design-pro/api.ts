@@ -423,6 +423,7 @@ export async function addeditbatch(options?: { [key: string]: any }) {
 export async function dueAssessment(
   id: string,
   status: string,
+  teacherId: string, 
   params: {
     // query
     /** 当前的页码 */
@@ -433,7 +434,7 @@ export async function dueAssessment(
   options?: { [key: string]: any },
 ) {
   console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id?id:''}&code=${CODE}`, {
+  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id?id:''}&teacher=${teacherId?teacherId:''}&code=${CODE}`, {
     method: 'GET',
     params: {
       ...params,
@@ -476,23 +477,3 @@ export async function putAssessment(options?: { [key: string]: any }) {
   });
 }
 
-//GET DUE ASSESSMENT
-export async function dueAssessment1(
-  params: {
-    // query
-    /** 当前的页码 */
-    current?: number;
-    /** 页面的容量 */
-    pageSize?: number;
-  },
-  options?: { [key: string]: any },
-) {
-  console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment?code=${CODE}`, {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
