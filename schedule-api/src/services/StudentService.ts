@@ -87,7 +87,7 @@ export class StudentService {
       for (let element of ids) {  
         StudentIds.push(element.id);
       }
-      console.log('Student ids',StudentIds);
+
     }
     console.log('Student ids',StudentIds);
     const keyword = parameters.keyword;
@@ -97,7 +97,7 @@ export class StudentService {
     }
     let qIds = []
       for (let element of StudentIds) {
-        qIds = ["'"+ element + "'"];
+        qIds.push("'"+ element + "'");
       }
       usersLogger.info(`Finale query ids ${JSON.stringify(StudentIds)}`);
     
@@ -131,7 +131,9 @@ export class StudentService {
 
   console.log(`query string ${query_list}`);
 
-  
+  console.log('Final query executing ', finalQuery);
+
+
       results = await getManager().query(finalQuery);
      var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
       console.log("results size", results.length);
