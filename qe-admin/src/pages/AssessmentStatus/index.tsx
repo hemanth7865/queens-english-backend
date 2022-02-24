@@ -80,12 +80,12 @@ const TableList: React.FC = () => {
   const [form] = Form.useForm();
 
   const columns = [
-    {
-      title: "Time Strap",
-    },
-    {
-      title: "Assessment Type",
-    },
+    // {
+    //   title: "Time Strap",
+    // },
+    // {
+    //   title: "Assessment Type",
+    // },
     {
       title: "Student Name",
       dataIndex: "studentName",
@@ -128,20 +128,21 @@ const TableList: React.FC = () => {
     },
     {
       title: "Vocal Score",
-      render: ()=>{
-        return <Rate allowHalf disabled defaultValue={2.5} style = {{color: "black", fontSize: 10}}/>
+      render: (value)=>{
+        //console.log('vv', value.vocabScore)
+        return <Rate allowHalf disabled defaultValue={value.vocabScore} style = {{color: "black", fontSize: 10}}/>
       }
     },
     {
       title: "Pronounciation Score",
-      render: ()=>{
-        return <Rate allowHalf disabled defaultValue={3.5} style = {{color: "black", fontSize: 10}}/>
+      render: (value)=>{
+        return <Rate allowHalf disabled defaultValue={value.pronunciationScore} style = {{color: "black", fontSize: 10}}/>
       }
     },
     {
       title: "Confidence Score",
-      render: ()=>{
-        return <Rate allowHalf disabled defaultValue={2} style = {{color: "black", fontSize: 10}}/>
+      render: (value)=>{
+        return <Rate allowHalf disabled defaultValue={value.confidenceScore} style = {{color: "black", fontSize: 10}}/>
       }
     },
     // {

@@ -23,11 +23,13 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     classProfileId,
     status,
     totalScore,
-    vocalScore,
+    vocabScore,
+    pronunciationScore,
+    confidenceScore
   } = props.assessmentData ? props.assessmentData : "";
   const { scores } = props.assessmentData ? props.assessmentData : "";
 
-  //console.log('scores', scores)
+  console.log('scores', vocabScore, pronunciationScore, confidenceScore)
   const [selectAnswer, setSelectAnswer] = useState([] as any);
   const [vocalScoreStar, setVocalScoreStar] = useState("")
   const [confidenceScoreStar, setConfidenceScoreStar] = useState("");
@@ -95,28 +97,27 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       currentLessonNumber,
       classProfileId,
       totalScore: total,
-      vocalScore: vocalScoreStar,
+      vocabScore: vocalScoreStar,
       confidenceScore: confidenceScoreStar,
-      pronounciationScore: pronounciationScoreStar
-
+      pronunciationScore: pronounciationScoreStar
     };
 
     console.log("data form", data);
-    // try {
-    //   const msg = await putAssessment({
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    //   });
-    //   if (msg.status === "ok") {
-    //     console.log("API call sucessfull", msg);
-    //   }
-    //   console.log(msg);
-    //   openNotificationWithIcon('success')
-    // } catch (error) {
-    //   console.log("addRule error", error);
-    // }
+    try {
+      const msg = await putAssessment({
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      console.log(msg);
+      openNotificationWithIcon('success')
+    } catch (error) {
+      console.log("addRule error", error);
+    }
   };
 
   function handleChange(score: any, question: any) {
@@ -236,6 +237,9 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
             : "NA"
           : "NA"
         : "NA",
+      VocalScore: vocabScore,
+      PronounciationScore: pronunciationScore,
+      ConfidenceScore: confidenceScore,
     });
   };
   useEffect(() => {
@@ -473,25 +477,23 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
         </Select>
       </Form.Item>
 
-      <Form.Item name="vocalScore" label="Vocal Score">
-        <Rate tooltips={desc} name = "vocalScore" value={vocalScoreStar} onChange={(value) => {
+      <Form.Item name="VocalScore" label="Vocal Score">
+      <Rate tooltips={desc}  onChange={(value) => {
             setVocalScoreStar(value)
-          }}/>
-        {vocalScoreStar ? <span className="ant-rate-text">{desc[vocalScoreStar - 1]}</span> : ''}
+          }}
+          />
       </Form.Item>
 
-      <Form.Item name="pronounciationScore" label="Pronounciation Score">
+      <Form.Item name="PronounciationScore" label="Pronounciation Score">
         <Rate tooltips={desc} name = "pronounciationScore" value={pronounciationScoreStar} onChange={(value) => {
             setPronounciationScoreStar(value)
           }}/>
-        {pronounciationScoreStar ? <span className="ant-rate-text">{desc[pronounciationScoreStar - 1]}</span> : ''}
       </Form.Item>
 
-      <Form.Item name="confidenceScore" label="Confidence Score">
+      <Form.Item name="ConfidenceScore" label="Confidence Score">
         <Rate tooltips={desc} name = "confidenceScore" value={confidenceScoreStar} onChange={(value) => {
             setConfidenceScoreStar(value)
           }}/>
-        {confidenceScoreStar ? <span className="ant-rate-text">{desc[confidenceScoreStar - 1]}</span> : ''}
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
