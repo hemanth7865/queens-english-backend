@@ -80,9 +80,10 @@ export class StudentService {
     console.log('Batch code',parameters.batchCode);
 
     if (parameters.batchCode) {
-      let bathCodeQuery = `SELECT  cl.id as id FROM user u join batch_students bs on bs.id = u.id
+      let bathCodeQuery = `SELECT u.id FROM user u join batch_students bs on bs.id = u.id
       join classes cl on cl.id = bs.batchId
       where cl.batchNumber like '%${parameters.batchCode}%'`;
+      
       let ids = await getManager().query(bathCodeQuery); 
       for (let element of ids) {  
         StudentIds.push(element.id);
@@ -95,14 +96,15 @@ export class StudentService {
     if (!!keyword?.length) {
       query_search = ` (u.firstName like '%${keyword}%' or u.lastName like '%${keyword}%' or u.phoneNumber like '%${keyword}%' )`;
     }
-    let qIds = []
+    let qIds = new Set();  
+ 
       for (let element of StudentIds) {
-        qIds.push("'"+ element + "'");
+        qIds.add("'"+ element + "'");
       }
       usersLogger.info(`Finale query ids ${JSON.stringify(StudentIds)}`);
     
-      if (qIds.length > 0) {
-            query_list.push(` u.id in (${qIds.join(",")})`);
+      if (qIds.size > 0) {
+            query_list.push(` u.id in (${[...qIds].join(",")})`);
       } 
 
       query_list.forEach((value, index) => {
