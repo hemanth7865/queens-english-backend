@@ -10,7 +10,8 @@ import { BatchStudent } from "../entity/BatchStudent";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
-import axios from "axios";
+import axios from "./../helpers/axios";
+import { v4 as uuidv4 } from "uuid";
 
 export class BatchService {
   private classesRepository = getRepository(Classes);
@@ -21,7 +22,11 @@ export class BatchService {
 
   BatchService() {}
 
-  
+  constructor() {
+    axios.defaults;
+    console.log("Batch Service");
+  }
+
   async createBatch(data: any) {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
@@ -38,68 +43,68 @@ export class BatchService {
           console.log("Batch student");
           var batchStud = new BatchStudent();
           batchStud.type = element.type;
-          if (element.id)
-            batchStud.id = element.id;
+          if (element.id) batchStud.id = element.id;
           batchStud.created_at = new Date();
           batchStud.updated_at = new Date();
           batchStudent[i++] = batchStud;
         }
       }
 
-      var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
+      var cosomos_url = "/api/classProfile";
 
       const options = {
         url: cosomos_url,
         //url: "https://ed-uat-functions.azurewebsites.net/api/classProfile/bac2bcce-9ce7-4f2c-b76a-9560cad7f5be/?code=3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
         json: true,
         body: {
-          "type": data.type,
-          "batchNumber": data.batchNumber,
-          "teacherId": data.teacherId,
-          "classStartDate": data.classStartDate,
-          "classEndDate":data.classEndDate,
-          "lessonStartTime": data.lessonStartTime,
-          "lessonEndTime": data.lessonEndTime,
-          "ageGroup": data.ageGroup,
-          "startingLessonId": data.startingLessonId,
-          "endingLessonId": data.endingLessonId,
-          "version":data.version,
-          "partitionKey": data.partitionKey,
-          "classCode": data.classCode,
-          "students":JSON.stringify(batchStudent),
+          id: data.id,
+          type: data.type,
+          batchNumber: data.batchNumber,
+          teacherId: data.teacherId,
+          classStartDate: data.classStartDate,
+          classEndDate: data.classEndDate,
+          lessonStartTime: data.lessonStartTime,
+          lessonEndTime: data.lessonEndTime,
+          ageGroup: data.ageGroup,
+          startingLessonId: data.startingLessonId,
+          endingLessonId: data.endingLessonId,
+          version: data.version,
+          partitionKey: data.partitionKey,
+          classCode: data.classCode,
+          students: JSON.stringify(batchStudent),
         },
       };
       if (data.id) {
         options.body["id"] = data.id;
       }
-     
+
       var status;
-      var res1={} ;
+      var res1 = {};
       if (!data.id) {
-      res1= await axios
-        .post(options.url, options.body)
-        .then(async (res) => {
-          console.log("Posted to cosmos and response is ", res);
-          data.id = res.data.id;
-          var batch = await this.createBatchSql(data);
-          return batch;
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        });
-    } else {
+        res1 = await axios
+          .post(options.url, options.body)
+          .then(async (res) => {
+            console.log("Posted to cosmos and response is ", res);
+            data.id = res.data.id;
+            var batch = await this.createBatchSql(data);
+            return batch;
+          })
+          .catch((error) => {
+            return Promise.reject(error);
+          });
+      } else {
         console.log("Update batch");
-        res1= await axios
-        .put(options.url, options.body)
-        .then(async (res) => {
-         data.id = res.data.id;
-          var batch = await this.createBatchSql(data);
-          return batch;
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        });
-    }
+        res1 = await axios
+          .put(options.url, options.body)
+          .then(async (res) => {
+            data.id = res.data.id;
+            var batch = await this.createBatchSql(data);
+            return batch;
+          })
+          .catch((error) => {
+            return Promise.reject(error);
+          });
+      }
 
       await queryRunner.commitTransaction();
       return res1;
@@ -111,9 +116,8 @@ export class BatchService {
       await queryRunner.release();
     }
   }
-  
+
   async createBatchSql(data: any) {
-    
     var cosmos = new Classes();
 
     try {
@@ -400,7 +404,7 @@ export class BatchService {
     classes = await getManager()
       .createQueryBuilder(Classes, "classes")
       .leftJoin("classes.teacher", "teacher")
-      .addSelect(['teacher.firstName','teacher.lastName'])
+      .addSelect(["teacher.firstName", "teacher.lastName"])
       .where("classes.id = :id", { id: batchId })
       .getOne();
     console.log("classes", classes);
@@ -411,7 +415,7 @@ export class BatchService {
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
       .leftJoin("batchStudent.student", "student")
-      .addSelect(['student.firstName','student.lastName'])
+      .addSelect(["student.firstName", "student.lastName"])
       .where("batchStudent.batchId = :id", { id: batchId })
       .getMany();
     teacherView.classes = classes;
@@ -425,5 +429,4 @@ export class BatchService {
       pageSize: 1,
     };
   }
-
 }
