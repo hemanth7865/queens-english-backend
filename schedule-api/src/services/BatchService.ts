@@ -50,11 +50,10 @@ export class BatchService {
         }
       }
 
-      var cosomos_url = "/api/classProfile";
+      var cosomos_url = "/api/classProfile/" + data.id;
 
       const options = {
         url: cosomos_url,
-        //url: "https://ed-uat-functions.azurewebsites.net/api/classProfile/bac2bcce-9ce7-4f2c-b76a-9560cad7f5be/?code=3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
         json: true,
         body: {
           id: data.id,
@@ -71,7 +70,7 @@ export class BatchService {
           version: data.version,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
-          students: JSON.stringify(batchStudent),
+          students: batchStudent,
         },
       };
       if (data.id) {
