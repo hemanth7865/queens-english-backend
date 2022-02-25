@@ -47,18 +47,7 @@
       {
         name: 'Assessment',
         path: '/manage/assessment',
-        routes: [
-          {
-            name: 'Assessment',
-            path: '/manage/assessment/main',
-            component: './Assessment',
-          },
-          {
-            name: 'Assessment Status',
-            path: '/manage/assessment/status',
-            component: './AssessmentStatus',
-          },
-        ]
+        component: './NewAssessment'
 
       }
     ]

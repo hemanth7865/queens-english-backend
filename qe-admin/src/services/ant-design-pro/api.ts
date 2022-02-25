@@ -477,3 +477,26 @@ export async function putAssessment(options?: { [key: string]: any }) {
   });
 }
 
+
+export async function allAssessment(
+  // id: string,
+  // status: string,
+  // teacherId: string, 
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  console.log("assessment", options)
+  return request<API.AssessmentList>(`/am/api/studentAssessment?code=${CODE}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
