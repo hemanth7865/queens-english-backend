@@ -95,6 +95,15 @@ const TableList: React.FC = () => {
       dataIndex: "batchNumber",
     },
     {
+        title: (
+          <FormattedMessage
+            id="pages.searchTable.titlelessonNumber"
+            defaultMessage="Current Lesson"
+          />
+        ),
+        dataIndex: "currentLessonNumber",
+      },
+    {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleAssessmentStatus"
