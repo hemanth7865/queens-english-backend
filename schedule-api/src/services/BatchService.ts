@@ -17,8 +17,6 @@ export class BatchService {
   private classesRepository = getRepository(Classes);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
-  private URL = process.env.URL;
-  private CODE = process.env.CODE;
 
   BatchService() {}
 
@@ -36,7 +34,6 @@ export class BatchService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      //var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
