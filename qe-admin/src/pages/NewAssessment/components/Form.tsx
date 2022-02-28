@@ -31,7 +31,8 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     confidenceScore,
     comment,
     teacherName,
-    batchNumber
+    batchNumber,
+    createdTime
   } = props.assessmentData ? props.assessmentData : "";
   const { scores } = props.assessmentData ? props.assessmentData : "";
 
@@ -95,6 +96,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       studentName: values.StudentName,
       status: values.Status,
       id,
+      createdTime,
       scores,
       assessmentId,
       studentId,

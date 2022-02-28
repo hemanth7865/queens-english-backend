@@ -27,7 +27,6 @@ import {
   addRule,
   updateRule,
   removeRule,
-  dueAssessment,
   getAllAssessments,
   detailsAssessment,
   allAssessment
@@ -70,11 +69,12 @@ const TableList: React.FC = () => {
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.updateForm.ruleName.nameStudent"
-          defaultMessage="Student Name"
+          id="pages.searchTable.titlebatchNumber"
+          defaultMessage="Batch Number"
         />
       ),
-      dataIndex: "studentName",
+      dataIndex: "batchNumber",
+      sorter: (a, b) => a.batchNumber?a.batchNumber.localeCompare(b.batchNumber):''
     },
     {
       title: (
@@ -84,15 +84,18 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: "teacherName",
+      sorter: (a, b) => a.teacherName?a.teacherName.localeCompare(b.teacherName):''
+
     },
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titlebatchNumber"
-          defaultMessage="Batch Number"
+          id="pages.searchTable.updateForm.ruleName.nameStudent"
+          defaultMessage="Student Name"
         />
       ),
-      dataIndex: "batchNumber",
+      dataIndex: "studentName",
+      sorter: (a, b) => a.studentName?a.studentName.localeCompare(b.studentName):''
     },
     {
         title: (
@@ -102,6 +105,7 @@ const TableList: React.FC = () => {
           />
         ),
         dataIndex: "currentLessonNumber",
+        hideInSearch: true,
       },
     {
       title: (
@@ -178,10 +182,11 @@ const TableList: React.FC = () => {
         />
     ),
     hideInSearch: true,
-    render: (value)=>{
-        //console.log('vv', value.vocabScore)
-        return <Rate allowHalf disabled defaultValue={value.vocabScore} style = {{color: "black", fontSize: 10}}/>
-      }
+    dataIndex: "vocabScore"
+    // render: (value)=>{
+    //     //console.log('vv', value.vocabScore)
+    //     return <Rate allowHalf disabled defaultValue={value.vocabScore} style = {{color: "black", fontSize: 10}}/>
+    //   }
     },
     {
     title: (
@@ -191,9 +196,10 @@ const TableList: React.FC = () => {
         />
     ),
     hideInSearch: true,
-    render: (value)=>{
-        return <Rate allowHalf disabled defaultValue={value.pronunciationScore} style = {{color: "black", fontSize: 10}}/>
-      }
+    dataIndex: "pronunciationScore"
+    // render: (value)=>{
+    //     return <Rate allowHalf disabled defaultValue={value.pronunciationScore} style = {{color: "black", fontSize: 10}}/>
+    //   }
     },
     {
     title: (
@@ -203,9 +209,10 @@ const TableList: React.FC = () => {
         />
     ),
     hideInSearch: true,
-    render: (value)=>{
-        return <Rate allowHalf disabled defaultValue={value.confidenceScore} style = {{color: "black", fontSize: 10}}/>
-      }
+    dataIndex: "confidenceScore"
+    // render: (value)=>{
+    //     return <Rate allowHalf disabled defaultValue={value.confidenceScore} style = {{color: "black", fontSize: 10}}/>
+    //   }
     },
     {
         title: (
