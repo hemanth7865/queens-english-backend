@@ -36,35 +36,55 @@ export class BatchService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      if(!data.id){
+        data.id = uuidv4();
+        create = true;
+      }
+
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
           console.log("Batch student");
           var batchStud = new BatchStudent();
           batchStud.type = element.type;
-          if (element.value) batchStud.id = element.value;
+          if (element.value) batchStud.studentId = element.value;
           batchStud.created_at = new Date();
           batchStud.updated_at = new Date();
-          batchStudent[i++] = batchStud;
+          batchStud.type = "studentProfile";
           if(element.value){
-            studnets.push({id: element.value, type: "studentProfile"});
+            batchStudent[i++] = batchStud;
+            studnets.push({id: batchStud.studentId, type: batchStud.type});
           }
         }
       }
 
-      if(!data.id){
-        data.id = uuidv4();
-        create = true;
-      }
+      data.students = batchStudent;
 
       var cosomos_url = "/api/classProfile/" + data.id;
+
+      data.type = data.type || "classProfile";
+      data.followupVersion = data.followupVersion || "v2";
+      data.version = data.version || "v2";
+      data.maxAttemptsAllowed = data.maxAttemptsAllowed || -1;
+
+      const alreadyExists = await this.batchExists(data);
+
+      if(alreadyExists){
+        return { status: false, message: "Batch Number Already Exists" };
+      }
+
+      var batch = await this.createBatchSql(data);
+
+      console.log(batch);
+
+      return batch;
 
       const options = {
         url: cosomos_url,
         json: true,
         body: {
           id: data.id,
-          type: data.type || "classProfile",
+          type: data.type,
           batchNumber: data.batchNumber,
           teacherId: data.teacherId,
           classStartDate: data.classStartDate,
@@ -74,9 +94,9 @@ export class BatchService {
           ageGroup: data.ageGroup,
           startingLessonId: data.startingLessonId,
           endingLessonId: data.endingLessonId,
-          version: data.version || "v2",
-          followupVersion: data.followupVersion || "v2",
-          maxAttemptsAllowed: data.maxAttemptsAllowed || -1,
+          version: data.version,
+          followupVersion: data.followupVersion,
+          maxAttemptsAllowed: data.maxAttemptsAllowed,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           students: studnets,
@@ -122,14 +142,24 @@ export class BatchService {
     }
   }
 
-  async createBatchSql(data: any) {
-    var cosmos = new Classes();
+  async batchExists(data: any): Promise<boolean>{
+    let result: boolean = false;
 
+    const batch = await this.classesRepository.createQueryBuilder("classes").where("classes.batchNumber = :batchNumber", {batchNumber: data.batchNumber}).getOne();
+
+    console.log(batch);
+
+    if(batch){
+      result = true;
+    }
+
+    return result;
+  }
+
+  async createBatchSql(data: any) {
     try {
-      var batchAvailability: BatchAvailability[] = [];
       var batchStudent: BatchStudent[] = [];
       var classes = new Classes();
-      let i = 0;
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
       classes.teacherId = data.teacherId;
@@ -143,6 +173,8 @@ export class BatchService {
       classes.lessonEndTime = data.lessonEndTime;
 
       classes.version = data.version;
+      classes.followupVersion = data.followupVersion;
+      classes.maxAttemptsAllowed = data.maxAttemptsAllowed;
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
@@ -154,8 +186,6 @@ export class BatchService {
         classes.created_at = new Date();
         classes.updated_at = new Date();
       }
-
-      console.log("classes", classes);
 
       classes = await this.classesRepository.save(classes);
       if (data.teacherId) {

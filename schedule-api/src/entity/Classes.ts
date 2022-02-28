@@ -14,7 +14,7 @@ export class Classes extends BaseEntity {
     @Column({ 'nullable': true, type: "text" })
     classCode: string;
 
-    @Column({ 'nullable': true })
+    @Column({ 'nullable': true, unique: true })
     batchNumber: string;
     @Column({ 'nullable': true })
     teacherId: string;
@@ -64,6 +64,12 @@ export class Classes extends BaseEntity {
 
     @Column({ 'nullable': true, type: "text" })
     version: string
+
+    @Column({ 'nullable': true, type: "text" })
+    followupVersion: string
+
+    @Column({ 'nullable': true })
+    maxAttemptsAllowed: number
 
     @Column({ 'nullable': true, type: "text" })
     ageGroup: string
