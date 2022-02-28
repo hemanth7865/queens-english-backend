@@ -47,7 +47,8 @@
       {
         name: 'Assessment',
         path: '/manage/assessment',
-        component: './Assessment'
+        component: './NewAssessment'
+
       }
     ]
   },

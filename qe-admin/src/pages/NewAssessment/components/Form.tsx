@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, notification } from "antd";
+import { Form, Input, Button, Select, notification, Rate } from "antd";
 import { putAssessment } from "@/services/ant-design-pro/api";
 
 export type AssessmentFormProps = {
@@ -10,8 +10,11 @@ export type AssessmentFormProps = {
 
 const { Option } = Select;
 
+const { TextArea } = Input;
+
+
 const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
-  //console.log('assessment form', props.assessmentData)
+  console.log('assessment form', props.assessmentData)
   const {
     studentName,
     id,
@@ -23,11 +26,22 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     classProfileId,
     status,
     totalScore,
+    vocabScore,
+    pronunciationScore,
+    confidenceScore,
+    comment,
+    teacherName,
+    batchNumber
   } = props.assessmentData ? props.assessmentData : "";
   const { scores } = props.assessmentData ? props.assessmentData : "";
 
-  //console.log('scores', scores)
+  console.log('scores', vocabScore, pronunciationScore, confidenceScore)
   const [selectAnswer, setSelectAnswer] = useState([] as any);
+  const [vocalScoreStar, setVocalScoreStar] = useState("")
+  const [confidenceScoreStar, setConfidenceScoreStar] = useState("");
+  const [pronounciationScoreStar, setPronounciationScoreStar] = useState("");
+
+  const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 
   const openNotificationWithIcon = type => {
     notification[type]({
@@ -54,8 +68,9 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     
   }
 
+
   const onFinish = async (values: any) => {
-    //console.log("Success:", values);
+    console.log("Success:", values);
     const scores = [
       { question: 'Q1', score: values.Q1 },
       { question: 'Q2', score: values.Q2 },
@@ -87,7 +102,13 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       currentLessonId,
       currentLessonNumber,
       classProfileId,
+      teacherName,
+      batchNumber,
       totalScore: total,
+      vocabScore: values.VocalScore,
+      confidenceScore: values.ConfidenceScore,
+      pronunciationScore: values.PronounciationScore,
+      comment: values.comment,
     };
 
     console.log("data form", data);
@@ -225,6 +246,10 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
             : "NA"
           : "NA"
         : "NA",
+      VocalScore: vocabScore,
+      PronounciationScore: pronunciationScore,
+      ConfidenceScore: confidenceScore,
+      comment: comment,
     });
   };
   useEffect(() => {
@@ -235,7 +260,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     <Form
       form={form}
       name="basic"
-      labelCol={{ span: 5 }}
+      labelCol={{ span: 7 }}
       wrapperCol={{ span: 18 }}
       initialValues={{ remember: true }}
       onFinish={onFinish}
@@ -460,6 +485,29 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
           <Option value="0">0</Option>
           <Option value="NA">NA</Option>
         </Select>
+      </Form.Item>
+
+      <Form.Item name="VocalScore" label="Vocal Score">
+      <Rate tooltips={desc}  onChange={(value) => {
+            setVocalScoreStar(value)
+          }}
+          />
+      </Form.Item>
+
+      <Form.Item name="PronounciationScore" label="Pronounciation Score">
+        <Rate tooltips={desc} name = "pronounciationScore" value={pronounciationScoreStar} onChange={(value) => {
+            setPronounciationScoreStar(value)
+          }}/>
+      </Form.Item>
+
+      <Form.Item name="ConfidenceScore" label="Confidence Score">
+        <Rate tooltips={desc} name = "confidenceScore" value={confidenceScoreStar} onChange={(value) => {
+            setConfidenceScoreStar(value)
+          }}/>
+      </Form.Item>
+
+      <Form.Item name="comment" label="Comment">
+        <TextArea rows={4} name = "comment"/>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
