@@ -106,7 +106,8 @@ const BatchList: React.FC = () => {
   const [renderEdit,setRenderEdit] = useState(false)
 
   const [startLesson,setStartLesson] = useState("");
-  const [endLesson,setEndLesson] = useState("")
+  const [endLesson,setEndLesson] = useState("");
+  const [followupVersion, setFollowupVersion] = useState("");
 
   const options = [];
   const studentMap = {};
@@ -216,6 +217,7 @@ const BatchList: React.FC = () => {
     lessonStartTime: "",
     lessonEndTime: "",
     ageGroup: "",
+    followupVersion: "v2",
     id: "",
     batchAvailability: [{}],
     students: [],
@@ -235,10 +237,6 @@ const BatchList: React.FC = () => {
   const handleClassDateRange = (value,e) => {
     console.log('classDateRange',value)
     setClassDateRange([...value]);
-  };
-  const handleSelectedAgeGroup = (value) => {
-    console.log("ageGroup", value);
-    setSelectedAgeGroup(value);
   };
   const handleClassDate = (value) => {};
   const handleOk = () => {
@@ -373,6 +371,7 @@ const BatchList: React.FC = () => {
       lessonStartTime: finalStartTime,
       lessonEndTime: finalEndTime,
       ageGroup: selectedAgeGroup,
+      followupVersion: followupVersion,
       id: createBatch ? null: currentRow?.id,
       batchAvailability: [{}],
       students: [...studentList],
@@ -440,7 +439,7 @@ const BatchList: React.FC = () => {
     });
   }
   
-  const handleCurrentDateAndTime = (rowval: any) => {
+  const prepareEditFormData = (rowval: any) => {
     console.log("rowval",rowval.id)
     getIndividualBatch(rowval.id)
       .then((data) => {
@@ -455,14 +454,14 @@ const BatchList: React.FC = () => {
           endttime: tempTime[1],
         };
         setPrePop(tempObj);
-try {
-        setClassDateRange(tempObj?.batchData?.batchAvailability?.length > 0 && tempObj.batchData.batchAvailability[0] !== null ? [
-          moment(tempObj.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
-          moment(tempObj.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
-        ]:undefined)
-} catch (e) {
-console.log('start date error', e)
-}
+        try {
+          setClassDateRange(tempObj?.batchData?.batchAvailability?.length > 0 && tempObj.batchData.batchAvailability[0] !== null ? [
+            moment(tempObj.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
+            moment(tempObj.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
+          ]:undefined)
+        } catch (e) {
+          console.log('start date error', e)
+        }
         setTimeRange(  tempObj?.starttime?
           [ moment(tempObj.starttime, "HH:mm"),
           moment(tempObj.endttime, "HH:mm")]:undefined)
@@ -480,14 +479,13 @@ console.log('start date error', e)
         console.log("reformatData",...reformatData)
         setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
         console.log("rowval", batchDetails);
-
       })
       .catch((error) => {
         console.log(error);
       })
       .finally(() => {
         setRenderEdit(true)
-        });
+      });
 
     //
     // console.log("batchDetails", batchDetails);
@@ -662,7 +660,7 @@ console.log('start date error', e)
               setCurrentRow(entity);
               console.log("setCurrentRow edit",entity)
 
-              handleCurrentDateAndTime(entity);
+              prepareEditFormData(entity);
               setAddTeacher(true);
               setShowDetail(true);
               setCreateBatch(false);
@@ -999,6 +997,7 @@ console.log('start date error', e)
                           },
                         ]}
                       >
+                        {console.log("currentRow", currentRow)}
                         <DebounceSelect
                           showSearch
                           value={teacherName}
@@ -1038,12 +1037,30 @@ console.log('start date error', e)
                         {console.log('ageGroup',prePop)}
                         <Select
                           placeholder="Age Group"
-                          onChange={handleSelectedAgeGroup}
+                          onChange={(v) => setSelectedAgeGroup(v)}
                           value={selectedAgeGroup}
                           defaultValue={!createBatch?prePop?.batchData.classes.ageGroup:''}
                         >
                           <Option value="Pre-Teen">Pre-Teen</Option>
                           <Option value="Teen">Teen</Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="Followup"
+                        rules={[
+                          { required: true, message: "Select Followups Version" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Followups Version"
+                          onChange={(v) => setFollowupVersion(v)}
+                          value={followupVersion}
+                          defaultValue={!createBatch?prePop?.batchData.classes.followupVersion:''}
+                        >
+                          <Option value="v1">V1</Option>
+                          <Option value="v2">V2</Option>
                         </Select>
                       </Form.Item>
                     </Col>

@@ -73,12 +73,6 @@ export class BatchService {
         return { status: false, message: "Batch Number Already Exists" };
       }
 
-      var batch = await this.createBatchSql(data);
-
-      console.log(batch);
-
-      return batch;
-
       const options = {
         url: cosomos_url,
         json: true,
