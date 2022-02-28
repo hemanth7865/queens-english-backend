@@ -5,7 +5,7 @@ import { request } from 'umi';
 
 const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
-const CODE = '3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==' 
+const CODE = process.env.COSMOS_CODE 
 
 const apiKeyQueryString = (url: string, key: string) => {
   if (url) {
