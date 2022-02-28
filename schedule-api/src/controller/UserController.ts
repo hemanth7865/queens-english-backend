@@ -1,12 +1,13 @@
-import { getRepository } from "typeorm";
+import { getRepository, MssqlParameter } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
-import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
-import { getManager } from "typeorm";
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
+import { StudentService } from "../services/StudentService";
+const { usersLogger } = require("../Logger.js");
+import { getManager } from "typeorm";
 
 export class UserController {
 
@@ -14,22 +15,40 @@ export class UserController {
     private teacherAvailabilityRepository = getRepository(TeacherAvailability);
     private teacherRepository = getRepository(Teacher);
     private lessonRepository = getRepository(Lesson);
+    private studentService = new StudentService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
     }
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
-        console.log('Start::UserController::SaveLead');
-        var teacherService = new TeacherService();
+        usersLogger.info('Start::UserController::SaveLead');
+        usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
+        var teacherService = new TeacherService();     
         var resp;
-        try {
-            resp = await teacherService.saveTeacher(request.body);
-        } catch (error) {
+        var total = await getManager().query('SELECT COUNT(*) as total FROM user where phoneNumber=' + request.body.phoneNumber);
+        usersLogger.info(`Total Number of records:  ${total[0].total}`);
+       if (total[0].total==0 || request.body.id)
+       {
+        usersLogger.info(`Insert / update record with unique phoneNumber ${total}`);
+            
+            try {
+                if(request.body.type === 'student') {
+                resp = await this.studentService.saveStudentDetails(request.body);
+                } 
+                else {
+                resp = await teacherService.saveTeacher(request.body);
+                }
+           
+            } catch (error) {
             console.log('Exception::UserController::SaveLead');
-        }
+            }
         console.log('End::UserController::SaveLead');
         return resp;
+        }    
+        else {
+            return { status: 400, errors: ['User already existed with given phoneNumber'] };
+        }
     }
 
 
@@ -50,7 +69,7 @@ export class UserController {
 
 
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
-        console.log("list lead details");
+        usersLogger.info("Fetch details from database::listLeadDetails");
 
         var parameters = {
             current: parseInt(request.query['current']),
@@ -66,15 +85,24 @@ export class UserController {
             weekday: request.query['weekday'],
             status: request.query['status'],
             type: request.query['type'],
-            keyword: request.query['keyword']
+            keyword: request.query['keyword'],
+            studentID: request.query['studentID'],
+            batchCode: request.query['batchCode'],
+            email:request.query['email']
         }
 
         var teacherService = new TeacherService();
+        var studentService = new StudentService();
         var user;
         let resp;
 
         try {
+            if (request.query['type'] === 'student') {
+                resp = await studentService.listStudentDetails(request.body, parameters);
+
+            } else {
             resp = await teacherService.listLeadDetails(request.body, parameters);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -92,8 +120,18 @@ export class UserController {
         let resp;
         let teacherService = new TeacherService();
         const teacherId = request.params.id;
+        var type = request.query['type']
         try {
-            resp = await teacherService.leadFullDetails(request.body, teacherId);
+            if (type == 'student') {
+                usersLogger.info("Fetching student full details");
+                    resp = this.studentService.fetchStudentFilterData(teacherId);
+            } else {
+                usersLogger.info("Fetching lead full details");
+                resp = await teacherService.leadFullDetails(request.body, teacherId);
+            } 
+            
+              
+            
             console.log(resp);
         } catch (error) {
             console.log(error);
@@ -125,7 +163,7 @@ export class UserController {
         console.log("Delete user");
         console.log('request.params.id' + request.params.id);
         let userToRemove = await this.usersRepository.findOne(request.params.id);
-        userToRemove.status = 4;
+        userToRemove.status = "inactive";
         return this.usersRepository.save(userToRemove);
     }
 

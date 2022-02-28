@@ -7,74 +7,37 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import { v4 as uuid } from "uuid";
 import axios from "axios";
+import { stringify } from "querystring";
+import { join } from "path";
+import { Student } from "../entity/Student";
+const { usersLogger } = require("../Logger.js");
 
 export class TeacherService {
   private usersRepository = getRepository(User);
   private teacherAvailabilityRepository = getRepository(TeacherAvailability);
   private teacherRepository = getRepository(Teacher);
+  private COSMOS_URL = process.env.COSMOS_URL;
+  private COSMOS_CODE = process.env.COSMOS_CODE;
+
 
   TeacherService() {}
-
-  async saveTeacherOnCosmosDB(data: any) {
-    const options = {
-      url: "https://ed-uat-functions.azurewebsites1.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
-      json: true,
-      body: {
-        type: "teacher",
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        isAdministrator: false,
-        phoneNumber: data.phoneNumber,
-      },
-    };
-    if (data.id) {
-      options.body["id"] = data.id;
-      console.log('id is ', data.id);
-    }
-    var status;
-    if(!data.id) {
-    axios
-      .post(options.url, options.body)
-      .then((res) => {
-        //console.log(`statusCode: ${res.status}`);
-        status = res.status;
-        //   console.log(res);
-      })
-      .catch((error) => {
-        status = 500;
-      });
-    return status;
-  
-} else {
-    console.log('put method');
-    axios
-    .put(options.url, options.body)
-    .then((res) => {
-      console.log(`statusCode: ${res.status}`);
-      status = res.status;
-      //   console.log(res);
-    })
-    .catch((error) => {
-      status = 500;
-    });
-  return status;
-}
-}
 
   async saveTeacher(data: any) {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
+
     try {
-      console.log("Transaction Started");
+      usersLogger.info('Save/Update User details in cosmos DB');
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      //var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
+
       const options = {
-        url: "https://ed-uat-functions.azurewebsites.net/api/user/?code=9NcznDaaRKMda6apZSiQtcJ3r3yZtkxQoYIg8K7XUlGyxkax7N2yBg==",
+        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
         json: true,
         body: {
-          type: "teacher",
+          type: data.type,
           email: data.email,
           firstName: data.firstName,
           lastName: data.lastName,
@@ -82,37 +45,41 @@ export class TeacherService {
           phoneNumber: data.phoneNumber,
         },
       };
+  
       if (data.id) {
         options.body["id"] = data.id;
       }
-     
+
       var status;
       var res1={} ;
       if (!data.id) {
       res1= await axios
         .post(options.url, options.body)
         .then(async (res) => {
-          console.log("Posted to cosmos and response is ", res);
+          usersLogger.info("Posted to cosmos and response is ");
           data.id = res.data.id;
-          console.log("Id created in cosmos is ", res.data.id);
-          console.log("Creating data in sql database ", res.data.id);
+          usersLogger.info(`Id created in cosmos is ${res.data.id}`);       
           var user = await this.saveTeacherSql(data);
           //Promise.resolve(res);
           return user;
         })
         .catch((error) => {
+    
+          usersLogger.info(`Posted to cosmos and response is ${error}`);
+          return {status:400,error:error?.response?.data};
           return Promise.reject(error);
         });
     } else {
-        console.log("put method");
+        usersLogger.info("Update teacher information");
+        usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
         res1= await axios
-        .put(options.url, options.body)
+      .post(options.url, options.body)
         .then(async (res) => {
-         // console.log("Posted to cosmos and response is ", res);
+          console.log("Posted to cosmos and response is ", res);
           console.log("Id created in cosmos is ", res.data.id);
           console.log("Creating data in sql database ", res.data.id);
           var user = await this.saveTeacherSql(data);
-          //Promise.resolve(res);
+          Promise.resolve(res);
           return user;
         })
         .catch((error) => {
@@ -125,7 +92,7 @@ export class TeacherService {
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
-      return { status: false, message: "Service Error" };
+      return { status: 501, error: error.response.data };
     } finally {
       await queryRunner.release();
     }
@@ -140,12 +107,15 @@ export class TeacherService {
       var user = new User();
       if (data.lead) {
         for (let element of data.lead) {
+          if (data.userId) {
+            teacher.id = data.userId; 
+          }
           teacher.created_at = new Date();
           teacher.updated_at = new Date();
           if (data.id) {
             teacher.id = data.id;
           }
-          teacher.joiningdate = element.joiningdate;
+          teacher.joiningdate = element.joiningdate?element.joiningdate:new Date();
           teacher.resume = "Resume";
           teacher.video = "video";
           teacher.teachertype = element.teacher_type;
@@ -161,15 +131,17 @@ export class TeacherService {
           teacher = await this.teacherRepository.save(teacher);
           user.id = teacher.id;
           user.teacher = [teacher];
+          usersLogger.info(`Updated data is ${JSON.stringify(user)}}`);
         }
       }
+    
 
       let i = 0;
       if (data.leadAvailability) {
         for (let element of  data.leadAvailability) {
         //data.leadAvailability.forEach(async (element) => {
           var availability = new TeacherAvailability();
-          availability.start_date = element.startDate;
+          availability.start_date = element.startDate?element.startDate:null;
           availability.start_slot = element.start_slot;
           console.log("start slot" + element.start_slot);
           if (element.start_slot) {
@@ -210,11 +182,14 @@ export class TeacherService {
       user.email = data.email;
       user.type = data.type;
       if (data.id) user.id = data.id;
-      user.startDate = data.startDate;
+      user.startDate = data.startDate?data.startDate:null;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
-      user.nationalityId = data.nationalityId;
+      if (data.dob) {
+        console.log('dob is');
+        console.log(data.dob);
       user.dob = data.dob;
+      }
       user.status = data.status;
       user.photo = data.photo;
       user.languages = data.languages;
@@ -226,6 +201,7 @@ export class TeacherService {
     } catch (error) {
       console.log(error);
       throw new Error("Excetion while stroing teacher");
+      return {status:500,error:'Unable to update/register user'};
     }
   }
 
@@ -281,7 +257,7 @@ export class TeacherService {
     if (type) {
       query_string = query_string + ` and u.type like '%${type}%' `;
       query_list.push(` u.type like '%${type}%'  `);
-      console.log("user typer ", type);
+      console.log("user type ", type);
     }
 
     var totalexp = parameters.totalexp;
@@ -300,10 +276,25 @@ export class TeacherService {
 
     var status = parameters.status;
     if (status) {
-      status = parseInt(status);    
-      query_string = query_string + ` and u.status=${status} `;
-      query_list.push(` u.status=${status} `);
+    //  status = parseInt(status);    
+      query_string = query_string + ` and u.status like '${status}' `;
+      query_list.push(` u.status like '${status}' `);
     }
+
+    var studentID = parameters.studentID;
+
+    if (studentID) {
+      //  status = parseInt(status);    
+        query_string = query_string + ` and u.status like '${status}' `;
+        query_list.push(` u.status like '${status}' `);
+      }
+
+      var batchID = parameters.batchID;
+      if (status) {
+        //  status = parseInt(status);    
+          query_string = query_string + ` and u.status like '${status}' `;
+          query_list.push(` u.status like '${status}' `);
+        }
 
     var ratings = parameters.ratings;
     if (ratings) {
@@ -349,27 +340,31 @@ export class TeacherService {
 
     if (start_slot && end_slot) {
       filter = true;
-      var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${week_day}  ) and ${startMin} >= startMin and ${endMin}<=endMin;`;
-      console.log("quer", quer);
-      let totalResult = await getManager().query(quer);
-      console.log("totalResult", totalResult);
-      let slotsResultIds: any = [-1];
-
-      for (var element of totalResult) {
-        slotsResultIds.push("'" + element.id + "'");
+      let slotsResultIds;
+      slotsResultIds = await this.getMatchedTeacherIds(
+        week_day,
+        startMin,
+        endMin
+      );
+      console.log("elements", slotsResultIds);
+      let idsList=[];
+      for (let element of slotsResultIds) {
+        idsList = [...idsList,"'"+ element + "'"];
       }
-
-      unique = Array.from(new Set(slotsResultIds));
-      console.log("Query string is ", query_string);
-      if (unique) {
-        query_string = query_string + ` and u.id in ('${unique}') `;
-        query_list.push(` u.id in (${unique}) `);
+      usersLogger.info(`Finale query ids ${JSON.stringify(idsList)}`);
+    
+      if (slotsResultIds.length > 0) {
+        var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(",")})`;
+        console.log("quer", quer);
+        let totalResult = await getManager().query(quer);
+        console.log("totalResult", totalResult);
+        query_list.push(` u.id in (${idsList.join(",")})`);
       } else {
-        query_string = query_string + ` and u.id in (-1) `;
         query_list.push(`  u.id in (-1) `);
       }
     }
-
+  
+   
     var finalQuery;
     var total;
 
@@ -397,9 +392,10 @@ export class TeacherService {
 
     console.log("value sis ", query_string);
 
-    finalQuery =
-      `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id  ${query_string} limit ` +
-      offset * limit +
+    finalQuery = !parameters.type ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` :
+          `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id  ${query_string} limit ` 
+     
+      finalQuery = finalQuery +  offset * limit +
       "," +
       limit +
       `;`;
@@ -411,6 +407,7 @@ export class TeacherService {
 
     for (const element of results) {
       let slotsResult: any[] = [];
+      let batchCodes: any[] = [];
 
       var quer =
         "select weekday , start_slot, end_slot from teacher_availability where teacherId='" +
@@ -443,9 +440,34 @@ export class TeacherService {
         yourDate = new Date(element.joiningdate).toISOString().split("T")[0];
       }
 
+      var studentOrTeacherId=[];
+      var batchCode = '';
+
+      if (type == 'student' ) {
+        
+      var quer =
+      "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
+      element.id +
+      "');";
+    batchCodes = await getManager().query(quer);
+    batchCodes.forEach((element) => {
+      console.log("batchdode", element);
+      studentOrTeacherId.push(element.batchCode);
+    });
+  } else {
+    var quer =
+      "select teacherId , batchNumber from classes where teacherId='" +
+      element.id +
+      "';";
+      batchCodes = await getManager().query(quer);
+    batchCodes.forEach((element) => {
+      console.log("batchcodeTeacher", element);
+      studentOrTeacherId.push(element.batchId);
+    });
+  }
       var l = new LeadView(
         element.id,
-        element.teacherId,
+        element.id,
         yourDate,
         element.name,
         element.exp,
@@ -456,9 +478,10 @@ export class TeacherService {
         element.ratings,
         slot,
         element.leadtype,
-        element.type
+        element.type,
+        studentOrTeacherId.join(","),
+        element.id,
       );
-
       leadView.push(l);
     }
 
@@ -470,6 +493,33 @@ export class TeacherService {
       pageSize: limit,
     };
   }
+
+
+  async getMatchedTeacherIds(week_day: string, startMin, endMin) {
+    let slotsResultIds = [];
+    let searchIds;
+    let tempList = [];
+    let week = week_day.split(",");
+
+    for (let element of week) {
+      var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where weekday in (  ${element}  ) and (${startMin} >= startMin and ${endMin}<=endMin) and (${startMin} <= endMin and  ${endMin}>=startMin);`;
+      console.log("quer", quer);
+      let totalResult = await getManager().query(quer);
+
+      if (totalResult.length == 0) {
+        slotsResultIds = [];
+        return [];
+      } else {
+        for (var el of totalResult) {
+          slotsResultIds = [...slotsResultIds,el.id];
+        }
+      }
+  
+    }
+    usersLogger.info(`Filterd ids  ${JSON.stringify(slotsResultIds)}`);
+    return slotsResultIds;
+  }
+
 
   async leadFullDetails(data: any, teacherId: number) {
     var map = new Map();
@@ -486,14 +536,20 @@ export class TeacherService {
     let slotsResult: any[] = [];
     let users = new User();
     const leadId = teacherId;
-    console.log("leadid", leadId);
-    console.log(users);
+
     users = await getManager()
       .createQueryBuilder(User, "user")
       .where("user.id = :id", { id: leadId })
       .getOne();
 
     console.log("users", users);
+
+   let student = await getManager()
+      .createQueryBuilder(Student, "student")
+      .where("student.id = :id", { id: leadId })
+      .getOne();
+
+    console.log("student", student);
 
     console.log("teacher id ", teacherId);
     const lead = await getManager()
@@ -546,3 +602,5 @@ export class TeacherService {
 function options(options: any, arg1: (res: any) => void) {
   throw new Error("Function not implemented.");
 }
+
+

@@ -19,36 +19,6 @@
     ],
   },
   {
-    path: '/welcome',
-    name: 'welcome',
-    icon: 'smile',
-    component: './Welcome',
-  },
-  {
-    path: '/admin',
-    name: 'admin',
-    icon: 'crown',
-    access: 'canAdmin',
-    // component: './Admin',
-    routes: [
-      {
-        path: '/admin/fact-license',
-        name: 'FACT Licenses',
-        icon: 'smile',
-        component: './FactLicenses',
-      },
-      {
-        path: '/admin/cosmic-license',
-        name: 'Cosmic One Licenses',
-        icon: 'smile',
-        component: './TableList',
-      },
-      {
-        component: './404',
-      },
-    ],
-  },
-  {
     path: '/manage',
     name: 'manage',
     icon: 'table',
@@ -66,14 +36,25 @@
       },
       {
         name: 'User',
-        path: '/manage/studentBatch',
+        path: '/manage/UserBatch',
         component: './StudentList',
+      },
+      {
+        name: 'Student',
+        path: '/manage/StudentBatch',
+        component: './StudentsBatchList',
+      },
+      {
+        name: 'Assessment',
+        path: '/manage/assessment',
+        component: './NewAssessment'
+
       }
     ]
   },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/manage/StudentBatch',
   },
   {
     component: './404',

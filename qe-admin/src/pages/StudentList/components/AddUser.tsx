@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState} from 'react';
-import {Form, Input, Button, Row, Col, Select, DatePicker} from 'antd'
+import {Form, Input, Button, Row, Col, Select, DatePicker,   notification} from 'antd'
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -24,7 +24,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        mobile: '',
+        phoneNumber: '',
         email: '',
     })
 
@@ -72,13 +72,13 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }else{
             setError('Phone number is Invalid')
         }
-        if(message === true && msg === undefined){
+
             console.log(`valid mobile number for ${selectCountry}`)
             setFormData((value)=>({
                 ...value,
                 [event.target.name]: event.target.value
             }))
-        }
+        
         if(message === false && msg === undefined){
             setError('Enter a valid Mobile Number')
         }
@@ -108,13 +108,27 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during user save' }, userType = 'Teacher') => {
+        notification[type]({
+          message: type === 'error' ? msg.data : 'Successfully Registered   ' + userType + ' !!!! ',
+          description:
+            '',
+        });
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000);
+      };
+
+      
+
     const onFinish = async ()=>{
         console.log('form submitted')
+        var code = selectCountryCode?selectCountryCode:'91';
         if(!error){
             const dataForm = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                phoneNumber: formData.mobile,
+                phoneNumber: '+'+ code + formData.phoneNumber,
                 email: formData.email,
                 type: selectUserType
             }
@@ -128,20 +142,27 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                   body: JSON.stringify(dataForm),
                 });
                 if (msg.status === "ok") {
-                  console.log("API call sucessfull", msg);
+                openNotificationWithIcon('success', ' User');
+                  console.log("API call successfull", msg);
                 }
+                if (msg.status === 400) {
+                    openNotificationWithIcon('error', msg);
+            
+                  } else {
+                    console.log(msg);
+                    openNotificationWithIcon('success', '', 'User');
+                  }
+                //  window.location.reload();
                 console.log(msg);
               } catch (error) {
                 console.log("addRule error", error);
-                const defaultLoginFailureMessage = intl.formatMessage({
-                  id: "pages.login.failure",
-                  defaultMessage: "登录失败，请重试！",
-                });
-                message.error(defaultLoginFailureMessage);
+                 openNotificationWithIcon('error', 'User Registration Failed');
               }
             props.setVisible(false)
             console.log('formData', formData)
             console.log('dataForm', dataForm)
+           
+             
         }
         
         //window.location.reload()
@@ -202,12 +223,19 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 </Form.Item>
             </Col>
             <Col span = {12}>
-                <Form.Item name="Mobile">
+                <Form.Item name="phoneNumber"
+                rules={[
+                    {
+                      required: false,
+                     
+                    },
+                  ]}
+                  >
                     <Input
                         placeholder = "Enter Mobile Number"
-                        name = "mobile"
+                        name = "phoneNumber"
                         onChange = {handleMobileChange}
-                        prefix = {selectCountryCode?selectCountryCode:'91'}
+                        //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />
                     {error? (
                         <p style = {{color: 'red'}}>{error}</p>

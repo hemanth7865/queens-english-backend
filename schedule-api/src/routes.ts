@@ -4,6 +4,7 @@ import { BatchController } from "./controller/BatchController";
 import { SessionController } from "./controller/SessionController";
 import { AssessmentController } from "./controller/AssessmentController";
 import { Assessment } from "./entity/Assessment";
+import { LQSController } from "./controller/LQSController";
 
 export const Routes = [
   {
@@ -55,6 +56,12 @@ export const Routes = [
     route: "/leads",
     controller: UserController,
     action: "saveLeads",
+  },
+  {
+    method: "get",
+    route: "/fetchLQSData",
+    controller: LQSController,
+    action: "updateLQSData",
   },
   {
     method: "get",
