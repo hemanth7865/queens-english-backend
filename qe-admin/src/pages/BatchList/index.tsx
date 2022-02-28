@@ -104,6 +104,7 @@ const BatchList: React.FC = () => {
   const [teacherName, setTeacherName] = useState([]);
   const [batchDetails, setBatchDetails] = useState({});
   const [renderEdit,setRenderEdit] = useState(false)
+  const [edit, setEdit] = useState(false)
 
   const [startLesson,setStartLesson] = useState("");
   const [endLesson,setEndLesson] = useState("");
@@ -240,8 +241,8 @@ const BatchList: React.FC = () => {
     setClassDateRange([...value]);
   };
   useEffect(() => {
-    console.log("start date", classDateRange);
-  }, [classDateRange]);
+    console.log("start date", timeRange);
+  }, [timeRange]);
   const handleClassDate = (value) => {};
   const handleOk = () => {
     try {
@@ -379,7 +380,7 @@ const BatchList: React.FC = () => {
       id: createBatch ? null: currentRow?.id,
       batchAvailability: [{}],
       students: [...studentList],
-      edit: renderEdit
+      edit
     };
     console.log("formData", dataForm);
 
@@ -467,9 +468,9 @@ const BatchList: React.FC = () => {
         }
 
         try{
-          setTimeRange(tempObj?.batchData?.classes?.classEndDate?.length > 0 && tempObj?.batchData?.classes?.classStartDate?.length ?
-            [ moment(tempObj?.batchData?.classes?.classStartDate.split("T")[1], "HH:mm"),
-            moment(tempObj?.batchData?.classes?.classEndDate.split("T")[1], "HH:mm")]:undefined)
+          setTimeRange(tempObj?.batchData?.classes?.lessonEndTime?.length > 0 && tempObj?.batchData?.classes?.lessonStartTime?.length ?
+            [ moment(tempObj?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
+            moment(tempObj?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")]:undefined)
         }catch(e){
           console.log("Time Range Error", e);
         }
@@ -488,13 +489,21 @@ const BatchList: React.FC = () => {
         setStudentList([...reformatData])
         console.log("reformatData",...reformatData)
         setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
+
+        if(tempObj?.batchData?.classes?.teacher) { 
+          setTeacherName({value: tempObj?.batchData?.classes?.teacherId, 
+            label: `${tempObj?.batchData?.classes?.teacher.firstName} ${tempObj?.batchData?.classes?.teacher.lastName}`, 
+            key:tempObj?.batchData?.classes?.teacherId})
+        }
+
         console.log("rowval", batchDetails);
       })
       .catch((error) => {
         console.log(error);
       })
       .finally(() => {
-        setRenderEdit(true)
+        setRenderEdit(true);
+        setEdit(true)
       });
 
     //
@@ -745,7 +754,8 @@ const BatchList: React.FC = () => {
               setAddTeacher(true);
               setCreateBatch(true);
               setAddTeacherComponent(false);
-              setRenderEdit(true)
+              setRenderEdit(true);
+              setEdit(false);
             }}
           >
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
@@ -934,7 +944,7 @@ const BatchList: React.FC = () => {
                           defaultValue={
                                               startLesson}
                           value={formData.startingLessonId}
-                          disabled={renderEdit}
+                          disabled={edit}
                         >
                           {
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
@@ -948,7 +958,6 @@ const BatchList: React.FC = () => {
                         rules={[
                           { required: true, message: "Ending Lesson Id" },
                         ]}
-                        disabled={renderEdit}
                       >
                         <Select
                           placeholder="Ending Lesson"
@@ -957,6 +966,7 @@ const BatchList: React.FC = () => {
                           }}
                           value={endLesson}
                           defaultValue={endLesson}
+                          disabled={edit}
                         >
                           {
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
@@ -989,12 +999,11 @@ const BatchList: React.FC = () => {
                         <TimePicker.RangePicker
                           format={"HH:mm"}
                           defaultValue={
-                              prePop?.starttime?
-                              [ moment(prePop.starttime, "HH:mm"),
-                              moment(prePop.endttime, "HH:mm")]
-                              :
-                              {}
-                              
+                            prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
+                            [
+                              moment(prePop?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
+                              moment(prePop?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")
+                            ] : {}
                           }
                           onChange={(value,e)=>handleTimeRange(value,e)}
                           style={{ width: "551px" }}
@@ -1017,8 +1026,7 @@ const BatchList: React.FC = () => {
                           value={teacherName}
                           placeholder="Select teacher"
                           fetchOptions={fetchUserList}
-                          options = { currentRow?.id ? [{value:currentRow.id,label:'teacher',key:currentRow.id}]:[]}
-                          defaultValue={currentRow?.id?{value:currentRow.id,label:'teacher',key:currentRow.id}:null}
+                          options = {[]}
                           onChange={(newValue) => {
                             setTeacherName(newValue);
                             console.log("teacherDeb", newValue);
