@@ -419,30 +419,6 @@ export async function addeditbatch(options?: { [key: string]: any }) {
 
 
 //ASSESSMENT API'S
-//GET DUE ASSESSMENT
-export async function dueAssessment(
-  id: string,
-  status: string,
-  teacherId: string, 
-  params: {
-    // query
-    /** 当前的页码 */
-    current?: number;
-    /** 页面的容量 */
-    pageSize?: number;
-  },
-  options?: { [key: string]: any },
-) {
-  console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id?id:''}&teacher=${teacherId?teacherId:''}&code=${CODE}`, {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
 
 //GET ASSESSMENT DETAILS
 export async function detailsAssessment(
