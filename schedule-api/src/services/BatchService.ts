@@ -29,6 +29,8 @@ export class BatchService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
+    var studnets = [];
+    let create: boolean = false;
     try {
       console.log("Transaction Started");
       await queryRunner.connect();
@@ -40,11 +42,19 @@ export class BatchService {
           console.log("Batch student");
           var batchStud = new BatchStudent();
           batchStud.type = element.type;
-          if (element.id) batchStud.id = element.id;
+          if (element.value) batchStud.id = element.value;
           batchStud.created_at = new Date();
           batchStud.updated_at = new Date();
           batchStudent[i++] = batchStud;
+          if(element.value){
+            studnets.push({id: element.value, type: "studentProfile"});
+          }
         }
+      }
+
+      if(!data.id){
+        data.id = uuidv4();
+        create = true;
       }
 
       var cosomos_url = "/api/classProfile/" + data.id;
@@ -54,7 +64,7 @@ export class BatchService {
         json: true,
         body: {
           id: data.id,
-          type: data.type,
+          type: data.type || "classProfile",
           batchNumber: data.batchNumber,
           teacherId: data.teacherId,
           classStartDate: data.classStartDate,
@@ -64,19 +74,18 @@ export class BatchService {
           ageGroup: data.ageGroup,
           startingLessonId: data.startingLessonId,
           endingLessonId: data.endingLessonId,
-          version: data.version,
+          version: data.version || "v2",
+          followupVersion: data.followupVersion || "v2",
+          maxAttemptsAllowed: data.maxAttemptsAllowed || -1,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
-          students: batchStudent,
+          students: studnets,
         },
       };
-      if (data.id) {
-        options.body["id"] = data.id;
-      }
 
       var status;
       var res1 = {};
-      if (!data.id) {
+      if (!data.id || create) {
         res1 = await axios
           .post(options.url, options.body)
           .then(async (res) => {

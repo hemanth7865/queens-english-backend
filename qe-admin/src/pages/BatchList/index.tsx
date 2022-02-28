@@ -373,7 +373,7 @@ const BatchList: React.FC = () => {
       lessonStartTime: finalStartTime,
       lessonEndTime: finalEndTime,
       ageGroup: selectedAgeGroup,
-      id: createBatch ? uuidv4(): currentRow?.id,
+      id: createBatch ? null: currentRow?.id,
       batchAvailability: [{}],
       students: [...studentList],
     };
