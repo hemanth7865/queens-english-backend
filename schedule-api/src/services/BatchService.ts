@@ -22,7 +22,6 @@ export class BatchService {
 
   constructor() {
     axios.defaults;
-    console.log("Batch Service");
   }
 
   async createBatch(data: any) {
@@ -32,7 +31,6 @@ export class BatchService {
     var studnets = [];
     let create: boolean = false;
     try {
-      console.log("Transaction Started");
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
@@ -44,7 +42,6 @@ export class BatchService {
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
-          console.log("Batch student");
           var batchStud = new BatchStudent();
           batchStud.type = element.type;
           if (element.value) batchStud.studentId = element.value;
@@ -103,7 +100,6 @@ export class BatchService {
         res1 = await axios
           .post(options.url, options.body)
           .then(async (res) => {
-            console.log("Posted to cosmos and response is ", res);
             data.id = res.data.id;
             var batch = await this.createBatchSql(data);
             return batch;
@@ -112,7 +108,6 @@ export class BatchService {
             return Promise.reject(error);
           });
       } else {
-        console.log("Update batch");
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
@@ -140,8 +135,6 @@ export class BatchService {
     let result: boolean = false;
 
     const batch = await this.classesRepository.createQueryBuilder("classes").where("classes.batchNumber = :batchNumber", {batchNumber: data.batchNumber}).getOne();
-
-    console.log(batch);
 
     if(batch){
       result = true;
@@ -190,7 +183,6 @@ export class BatchService {
       }
 
       if (data.batchAvailability) {
-        console.log("batchAvailability classes");
         let i = 0;
         for (const element of data.batchAvailability) {
           var batchAvail = new BatchAvailability();
@@ -227,7 +219,6 @@ export class BatchService {
         if (data.students) {
           let i = 0;
           for (const element of data.students) {
-            console.log("Batch student");
             var batchStud = new BatchStudent();
             batchStud.type = element.type;
             batchStud.studentId = element.studentId;
@@ -237,7 +228,6 @@ export class BatchService {
             batchStud = await this.batchStudentRepository.save(batchStud);
             if (element.studentId) {
               var quer = `select id, firstName, lastName from user where (id like '%${element.studentId}%')`;
-              console.log("Student id ", quer);
               var details = await getManager().query(quer);
               if (
                 details.length > 0 &&
@@ -246,7 +236,6 @@ export class BatchService {
               )
                 batchStud.name =
                   details[0].firstName + " " + details[0].lastName;
-              console.log("classes name", classes.name);
             }
             batchStudent[i++] = batchStud;
           }
@@ -262,8 +251,6 @@ export class BatchService {
   }
 
   async listBatch(request: Request, parameters) {
-    console.log(request);
-
     var current = parseInt(parameters.current);
     var pageSize = parseInt(parameters.pageSize);
     var batchView: BatchView[] = [];
@@ -279,7 +266,6 @@ export class BatchService {
     let query_list = [];
     let query_string = "";
 
-    console.log(parameters);
     const batchId = parameters.batchId;
     if (batchId) {
       query_string = query_string + ` batchNumber like  '%${batchId}%' `;
@@ -302,7 +288,6 @@ export class BatchService {
     if (start_slot) {
       let time = start_slot.split(":");
       start_slot = time[0];
-      console.log("time is ", time);
       start_min = time[1];
       startMin = time[0] * 60 + time[1];
     }
@@ -310,13 +295,9 @@ export class BatchService {
     if (end_slot) {
       let time = end_slot.split(":");
       end_slot = time[0];
-      console.log("time is ", time);
       end_min = time[1];
       endMin = time[0] * 60 + time[1];
     }
-
-    var unique = [0];
-    console.log(`query string ${query_list}`);
 
     if (start_slot && end_slot) {
       query_string =
@@ -334,7 +315,6 @@ export class BatchService {
         ids = ids + `${i.id}`;
       }
       let studentCount = [];
-      console.log("Teacher details", teacherDetails);
     }
 
     if (query_list.length > 0) {
@@ -342,20 +322,15 @@ export class BatchService {
     }
 
     query_list.forEach((value, index) => {
-      console.log(query_list.join(" and "));
       if (index != query_list.length - 1) {
         query_string = query_string + query_list[index] + " and ";
       } else {
         query_string = query_string + query_list[index];
       }
     });
-    console.log("value is ", query_string);
-
     var quer = `select id, teacherId,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${offset}, ${pageSize};`;
-    console.log("value sis ", query_string);
     current--;
-    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${current}, ${pageSize};`;
-    console.log("Query ", quer);
+    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, teacherId from classes ${query_string} limit ${current}, ${pageSize};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let name = "";
@@ -378,23 +353,13 @@ export class BatchService {
       }
       let startTime;
       let endTime;
-      let startMin;
-      let endMin;
       let status;
       if (classes.lessonStartTime) {
-        startTime = new Date(classes.lessonStartTime).getHours();
-        startMin = new Date(classes.lessonStartTime).getMinutes();
-        if (startMin == 0) {
-          startMin = "00";
-        }
+        startTime = classes.lessonStartTime.split("T")[1].substring(0, "00:00".length);
       }
 
       if (classes.lessonEndTime) {
-        endTime = new Date(classes.lessonEndTime).getHours();
-        endMin = new Date(classes.lessonStartTime).getMinutes();
-        if (endMin == 0) {
-          endMin = "00";
-        }
+        endTime = classes.lessonEndTime.split("T")[1].substring(0, "00:00".length);
       }
       if (classes.status == 4) {
         status = "In Active";
@@ -409,7 +374,7 @@ export class BatchService {
         "Admin",
         name,
         studentCount.length,
-        `${startTime}:${startMin}-${endTime}:${endMin}`,
+        `${startTime}-${endTime}`,
         status
       );
       batchView.push(view);
@@ -436,7 +401,6 @@ export class BatchService {
       .addSelect(["teacher.firstName", "teacher.lastName"])
       .where("classes.id = :id", { id: batchId })
       .getOne();
-    console.log("classes", classes);
     const batchavail = await getManager()
       .createQueryBuilder(BatchAvailability, "batchAvailability")
       .where("batchAvailability.id = :id", { id: batchId })
