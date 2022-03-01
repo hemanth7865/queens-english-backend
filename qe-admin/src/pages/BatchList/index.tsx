@@ -452,6 +452,11 @@ const BatchList: React.FC = () => {
         console.log("batch DData", data);
         setBatchDetails(data.data);
         const batchData = data.data;
+        if(batchData.classes){
+          setFormData({...formData, classCode: batchData.classes.classCode,
+          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion});
+          setFollowupVersion(batchData.classes.followupVersion);
+        }
         var tempObj = {
           batchData: data.data,
           starttime:batchData?.classes?.classStartDate,
@@ -907,9 +912,7 @@ const BatchList: React.FC = () => {
                           placeholder="Class Code"
                           name="classCode"
                           value={formData.classCode}
-                          defaultValue={
-                            !createBatch?prePop?.batchData?.classes?.classCode:''
-                          }
+                          defaultValue={formData.classCode}
                           onChange={handleFormChange}
                         />
                       </Form.Item>
@@ -924,7 +927,7 @@ const BatchList: React.FC = () => {
                           placeholder="Batch Number"
                           name="batchNumber"
                           value={formData.batchNumber}
-                          defaultValue={currentRow?.batchId}
+                          defaultValue={formData.batchNumber}
                           onChange={handleFormChange}
                         />
                       </Form.Item>

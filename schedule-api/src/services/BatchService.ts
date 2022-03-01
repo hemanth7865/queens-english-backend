@@ -120,15 +120,13 @@ export class BatchService {
          * Add Students To Batch
          */
         await this.addStudents(studentsChange.add, data.id);
-        
+
         /**
          * Remove Students From Batch
          */
         await this.removeStudents(studentsChange.remove, data.id);
 
-        console.log(studentsChange);
-
-        return { status: false, message: "Batch Number Already Exists" };
+        console.log(data);
 
         res1 = await axios
           .put(options.url, options.body)
@@ -301,7 +299,6 @@ export class BatchService {
 
   async updateBatchSql(data: any) {
     try {
-      var batchStudent: BatchStudent[] = [];
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
@@ -330,76 +327,7 @@ export class BatchService {
         classes.updated_at = new Date();
       }
 
-      classes = await this.classesRepository.save(classes);
-      if (data.teacherId) {
-        var quer = `select id, firstName, lastName from user where (id like '%${data.teacherId}%')`;
-        var details = await getManager().query(quer);
-        if (details.length > 0 && details[0].firstName && details[0].lastName)
-          classes.name = details[0].firstName + " " + details[0].lastName;
-      }
-
-      if (data.batchAvailability) {
-        let i = 0;
-        for (const element of data.batchAvailability) {
-          var batchAvail = new BatchAvailability();
-          batchAvail.start_date = new Date();
-          batchAvail.end_date = new Date();
-          if (element.start_slot) {
-            let time = element.start_slot.split(":");
-            batchAvail.start_slot = time[0];
-            console.log("time is ", time);
-            batchAvail.start_min = time[1];
-            batchAvail.startMin = time[0] * 60 + time[1];
-          }
-          if (element.end_slot) {
-            let time = element.end_slot.split(":");
-            batchAvail.end_slot = time[0];
-            console.log("time is ", time);
-            batchAvail.end_min = time[1];
-            batchAvail.endMin = time[0] * 60 + time[1];
-          }
-
-          batchAvail.weekday = element.weekday;
-          batchAvail.created_at = new Date();
-          batchAvail.updated_at = new Date();
-          if (element.id) {
-            batchAvail.id = element.id;
-          } else if (classes.id) {
-            batchAvail.id = classes.id;
-          }
-
-          batchAvail = await this.batchAvailabilityRepository.save(batchAvail);
-          classes.batchAvailability = batchAvail;
-        }
-
-        if (data.students) {
-          let i = 0;
-          for (const element of data.students) {
-            var batchStud = new BatchStudent();
-            batchStud.type = element.type;
-            batchStud.studentId = element.studentId;
-            batchStud.batchId = classes.id;
-            batchStud.created_at = new Date();
-            batchStud.updated_at = new Date();
-            batchStud = await this.batchStudentRepository.save(batchStud);
-            if (element.studentId) {
-              var quer = `select id, firstName, lastName from user where (id like '%${element.studentId}%')`;
-              var details = await getManager().query(quer);
-              if (
-                details.length > 0 &&
-                details[0].firstName &&
-                details[0].lastName
-              )
-                batchStud.name =
-                  details[0].firstName + " " + details[0].lastName;
-            }
-            batchStudent[i++] = batchStud;
-          }
-        }
-        classes.students = batchStudent;
-      }
-
-      return classes;
+      return await this.classesRepository.update( {id: classes.id}, classes);
     } catch (error) {
       console.log(error);
       throw new Error("Excetion while stroing teacher");
