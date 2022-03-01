@@ -64,10 +64,18 @@ export class BatchService {
       data.version = data.version || "v2";
       data.maxAttemptsAllowed = data.maxAttemptsAllowed || -1;
 
-      const alreadyExists = await this.batchExists(data);
+      let alreadyExists;
 
-      if(alreadyExists){
-        return { status: false, message: "Batch Number Already Exists" };
+      if(create){
+        alreadyExists = await this.batchExists(data);
+        if(alreadyExists?.id){
+          return { status: false, message: "Batch Number Already Exists" };
+        }
+      }else if(!create) {
+        alreadyExists = await this.batchExists(data, 'id');
+        if(!alreadyExists?.id){
+          return { status: false, message: "Batch Not Found" };
+        }
       }
 
       const options = {
@@ -94,7 +102,6 @@ export class BatchService {
         },
       };
 
-      var status;
       var res1 = {};
       if (!data.id || create) {
         res1 = await axios
@@ -108,11 +115,18 @@ export class BatchService {
             return Promise.reject(error);
           });
       } else {
+
+        const studentsChange = await this.getBatchStudentsChange(data, alreadyExists);
+
+        console.log(studentsChange);
+
+        return { status: false, message: "Batch Number Already Exists" };
+
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
             data.id = res.data.id;
-            var batch = await this.createBatchSql(data);
+            var batch = await this.updateBatchSql(data);
             return batch;
           })
           .catch((error) => {
@@ -131,19 +145,145 @@ export class BatchService {
     }
   }
 
-  async batchExists(data: any): Promise<boolean>{
-    let result: boolean = false;
+  async batchExists(data: Classes, column = "batchNumber"): Promise<boolean|Classes>{
+    let result: boolean|Classes = false;
 
-    const batch = await this.classesRepository.createQueryBuilder("classes").where("classes.batchNumber = :batchNumber", {batchNumber: data.batchNumber}).getOne();
+    const batch = await this.classesRepository.createQueryBuilder("classes").where("classes."+column+" = :val", {val: data[column]}).getOne();
 
     if(batch){
-      result = true;
+      result = batch;
     }
 
     return result;
   }
 
+  async getBatchStudentsChange(batch: Classes, oldBatch: Classes): Promise<{add: [], remove: []}> {
+    let result: {add: [], remove: []} = {add: [], remove: []};
+
+    const students = await getRepository(BatchStudent)
+      .createQueryBuilder("batchStudent")
+      .leftJoin("batchStudent.student", "student")
+      .addSelect(["student.firstName", "student.lastName"])
+      .where("batchStudent.batchId = :id", { id: batch.id })
+      .getMany();
+
+    const newStudents = batch.students;
+    
+    oldBatch.students = students;
+
+    console.log("batch", batch, oldBatch, students, newStudents);
+
+    return result;
+  }
+
   async createBatchSql(data: any) {
+    try {
+      var batchStudent: BatchStudent[] = [];
+      var classes = new Classes();
+      classes.classCode = data.classCode;
+      classes.batchNumber = data.batchNumber;
+      classes.teacherId = data.teacherId;
+
+      classes.startingLessonId = data.startingLessonId;
+      classes.endingLessonId = data.endingLessonId;
+      classes.classStartDate = data.classStartDate;
+
+      classes.classEndDate = data.classEndDate;
+      classes.lessonStartTime = data.lessonStartTime;
+      classes.lessonEndTime = data.lessonEndTime;
+
+      classes.version = data.version;
+      classes.followupVersion = data.followupVersion;
+      classes.maxAttemptsAllowed = data.maxAttemptsAllowed;
+      classes.ageGroup = data.ageGroup;
+      classes.type = data.type;
+      classes.createdBy = data.createdBy;
+
+      if (data.id) {
+        classes.id = data.id;
+        classes.updated_at = new Date();
+      } else {
+        classes.created_at = new Date();
+        classes.updated_at = new Date();
+      }
+
+      classes = await this.classesRepository.save(classes);
+      if (data.teacherId) {
+        var quer = `select id, firstName, lastName from user where (id like '%${data.teacherId}%')`;
+        var details = await getManager().query(quer);
+        if (details.length > 0 && details[0].firstName && details[0].lastName)
+          classes.name = details[0].firstName + " " + details[0].lastName;
+      }
+
+      if (data.batchAvailability) {
+        let i = 0;
+        for (const element of data.batchAvailability) {
+          var batchAvail = new BatchAvailability();
+          batchAvail.start_date = new Date();
+          batchAvail.end_date = new Date();
+          if (element.start_slot) {
+            let time = element.start_slot.split(":");
+            batchAvail.start_slot = time[0];
+            console.log("time is ", time);
+            batchAvail.start_min = time[1];
+            batchAvail.startMin = time[0] * 60 + time[1];
+          }
+          if (element.end_slot) {
+            let time = element.end_slot.split(":");
+            batchAvail.end_slot = time[0];
+            console.log("time is ", time);
+            batchAvail.end_min = time[1];
+            batchAvail.endMin = time[0] * 60 + time[1];
+          }
+
+          batchAvail.weekday = element.weekday;
+          batchAvail.created_at = new Date();
+          batchAvail.updated_at = new Date();
+          if (element.id) {
+            batchAvail.id = element.id;
+          } else if (classes.id) {
+            batchAvail.id = classes.id;
+          }
+
+          batchAvail = await this.batchAvailabilityRepository.save(batchAvail);
+          classes.batchAvailability = batchAvail;
+        }
+
+        if (data.students) {
+          let i = 0;
+          for (const element of data.students) {
+            var batchStud = new BatchStudent();
+            batchStud.type = element.type;
+            batchStud.studentId = element.studentId;
+            batchStud.batchId = classes.id;
+            batchStud.created_at = new Date();
+            batchStud.updated_at = new Date();
+            batchStud = await this.batchStudentRepository.save(batchStud);
+            if (element.studentId) {
+              var quer = `select id, firstName, lastName from user where (id like '%${element.studentId}%')`;
+              var details = await getManager().query(quer);
+              if (
+                details.length > 0 &&
+                details[0].firstName &&
+                details[0].lastName
+              )
+                batchStud.name =
+                  details[0].firstName + " " + details[0].lastName;
+            }
+            batchStudent[i++] = batchStud;
+          }
+        }
+        classes.students = batchStudent;
+      }
+
+      return classes;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Excetion while stroing teacher");
+    }
+  }
+
+  async updateBatchSql(data: any) {
     try {
       var batchStudent: BatchStudent[] = [];
       var classes = new Classes();
