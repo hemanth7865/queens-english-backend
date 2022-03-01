@@ -107,7 +107,6 @@ export class BatchService {
         res1 = await axios
           .post(options.url, options.body)
           .then(async (res) => {
-            data.id = res.data.id;
             var batch = await this.createBatchSql(data);
             return batch;
           })
@@ -115,8 +114,17 @@ export class BatchService {
             return Promise.reject(error);
           });
       } else {
-
         const studentsChange = await this.getBatchStudentsChange(data, alreadyExists);
+
+        /**
+         * Add Students To Batch
+         */
+        await this.addStudents(studentsChange.add, data.id);
+        
+        /**
+         * Remove Students From Batch
+         */
+        await this.removeStudents(studentsChange.remove, data.id);
 
         console.log(studentsChange);
 
@@ -125,7 +133,6 @@ export class BatchService {
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
-            data.id = res.data.id;
             var batch = await this.updateBatchSql(data);
             return batch;
           })
@@ -167,16 +174,12 @@ export class BatchService {
       .where("batchStudent.batchId = :id", { id: batch.id })
       .getMany();
 
-    const newStudents = batch.students;
-    
-    oldBatch.students = students;
-
     /**
      * Get IDs Of Current Students
      */
     result.remove = students.map(student => student.studentId);
 
-    newStudents.map(student => {
+    batch.students.map(student => {
       /**
        * Add New Added Students
        */
@@ -201,6 +204,7 @@ export class BatchService {
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
       classes.teacherId = data.teacherId;
+      classes.id = data.id;
 
       classes.startingLessonId = data.startingLessonId;
       classes.endingLessonId = data.endingLessonId;
@@ -216,14 +220,8 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
-
-      if (data.id) {
-        classes.id = data.id;
-        classes.updated_at = new Date();
-      } else {
-        classes.created_at = new Date();
-        classes.updated_at = new Date();
-      }
+      classes.created_at = new Date();
+      classes.updated_at = new Date();
 
       classes = await this.classesRepository.save(classes);
       if (data.teacherId) {
@@ -405,6 +403,44 @@ export class BatchService {
     } catch (error) {
       console.log(error);
       throw new Error("Excetion while stroing teacher");
+    }
+  }
+
+  async addStudents(students: string[], batchId: string){
+    for(let student of students){
+      let res1 = await axios
+      .post("/api/classProfile/" + batchId + "/students", {
+        type: "studentProfile",
+        id: student
+      })
+      .then(async (res) => {
+        let batchStud = new BatchStudent();
+        batchStud.type = "studentProfile";
+        batchStud.studentId = student;
+        batchStud.batchId = batchId;
+        batchStud.created_at = new Date();
+        batchStud.updated_at = new Date();
+        batchStud = await this.batchStudentRepository.save(batchStud);
+        return batchStud;
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+
+      console.log(res1);
+    }
+  }
+
+  async removeStudents(students: string[], batchId: string){
+    for(let student of students){
+      let res1 = await axios
+      .delete("/api/classProfile/" + batchId + "/students/" + student)
+      .then(async (res) => {
+        return await this.batchStudentRepository.delete({studentId: student, batchId});
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
     }
   }
 

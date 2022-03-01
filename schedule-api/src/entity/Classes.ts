@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany, PrimaryColumn } from "typeorm";
 import { BatchAvailability } from "./BatchAvailability";
 import { BatchStudent } from "./BatchStudent";
 import { User } from "./User";
@@ -8,7 +8,7 @@ export class Classes extends BaseEntity {
     name: string;
     Classes() { }
 
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryColumn()
     id: string;
 
     @Column({ 'nullable': true, type: "text" })
