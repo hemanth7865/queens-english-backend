@@ -157,8 +157,8 @@ export class BatchService {
     return result;
   }
 
-  async getBatchStudentsChange(batch: Classes, oldBatch: Classes): Promise<{add: [], remove: []}> {
-    let result: {add: [], remove: []} = {add: [], remove: []};
+  async getBatchStudentsChange(batch: Classes, oldBatch: Classes): Promise<{add: string[], remove: string[]}> {
+    let result: {add: string[], remove: string[]} = {add: [], remove: []};
 
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
@@ -171,7 +171,25 @@ export class BatchService {
     
     oldBatch.students = students;
 
-    console.log("batch", batch, oldBatch, students, newStudents);
+    /**
+     * Get IDs Of Current Students
+     */
+    result.remove = students.map(student => student.studentId);
+
+    newStudents.map(student => {
+      /**
+       * Add New Added Students
+       */
+      if(!result.remove.includes(student.studentId)){
+        result.add.push(student.studentId);
+      }
+      /**
+       * Keep Students That Are Already In The Batch
+       */
+      else{
+        result.remove = result.remove.filter(id => id !== student.studentId);
+      }
+    });
 
     return result;
   }
