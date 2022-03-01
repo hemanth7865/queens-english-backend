@@ -108,6 +108,9 @@ export class BatchService {
           .post(options.url, options.body)
           .then(async (res) => {
             var batch = await this.createBatchSql(data);
+            await axios.put(options.url, options.body).catch((error) => {
+            return Promise.reject(error);
+          });
             return batch;
           })
           .catch((error) => {
@@ -125,8 +128,6 @@ export class BatchService {
          * Remove Students From Batch
          */
         await this.removeStudents(studentsChange.remove, data.id);
-
-        console.log(data);
 
         res1 = await axios
           .put(options.url, options.body)
@@ -148,6 +149,31 @@ export class BatchService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async deleteBatch(data: any){
+    const alreadyExists: any = await this.batchExists(data, 'id');
+    console.log(data);
+    if(!alreadyExists?.id){
+      return { status: false, message: "Batch Not Found" };
+    }
+    let res1 = await axios
+    .delete("/api/classProfile/" + data.id)
+    .then(async (res) => {
+      var batch = await this.deleteBatchSql(data.id);
+      return batch;
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+
+    return res1;
+  }
+
+  async deleteBatchSql(id: string){
+    await this.classesRepository.delete({id});
+    await this.batchStudentRepository.delete({batchId: id});
+    return { message: "Batch Deleted Successfully" };
   }
 
   async batchExists(data: Classes, column = "batchNumber"): Promise<boolean|Classes>{

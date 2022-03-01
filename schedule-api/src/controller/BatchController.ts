@@ -27,6 +27,16 @@ export class BatchController {
         return { "success": true, "data": [batch], "total": 1 };
     }
 
+    async deleteBatch(request: Request, response: Response, next: NextFunction) {
+        console.log("saving batch");
+        var batch;
+        try {
+            batch = await this.batchService.deleteBatch(request.params);
+        } catch (error) {
+            console.log()
+        }
+        return { "success": true, "data": batch };
+    }
 
     async listBatch(request: Request, response: Response, next: NextFunction) {
         console.log("Batch List");

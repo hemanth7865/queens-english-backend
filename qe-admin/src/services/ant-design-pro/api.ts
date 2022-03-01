@@ -415,8 +415,13 @@ export async function addeditbatch(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
-//REMOVE EXISTING BATCH -PUT
 
+//REMOVE EXISTING BATCH -DELETE
+export async function deleteBatch(id: string) {
+  return request<any>('/be/deleteBatch/'+id, {
+    method: 'DELETE',
+  });
+}
 
 //ASSESSMENT API'S
 //GET DUE ASSESSMENT

@@ -47,7 +47,8 @@ import {
   listTeacherAndStudent,
   listBatch,
   addeditbatch,
-  getIndividualBatch
+  getIndividualBatch,
+  deleteBatch
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
@@ -71,6 +72,23 @@ const handleDelete = (entity) => {
       message.error("Delete failed, please try again");
     }
   }
+};
+
+const DEFAULT_FORM_DATA = {
+  classCode: "",
+  batchNumber: "",
+  teacherId: "",
+  startingLessonId: "",
+  endingLessonId: "",
+  classStartDate: "",
+  classEndDate: "",
+  lessonStartTime: "",
+  lessonEndTime: "",
+  ageGroup: "",
+  followupVersion: "v2",
+  id: "",
+  batchAvailability: [{}],
+  students: [],
 };
 
 const BatchList: React.FC = () => {
@@ -207,22 +225,7 @@ const BatchList: React.FC = () => {
 
   const [dateStart, setDateStart] = useState("");
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
-  const [formData, setFormData] = useState({
-    classCode: "",
-    batchNumber: "",
-    teacherId: "",
-    startingLessonId: "",
-    endingLessonId: "",
-    classStartDate: "",
-    classEndDate: "",
-    lessonStartTime: "",
-    lessonEndTime: "",
-    ageGroup: "",
-    followupVersion: "v2",
-    id: "",
-    batchAvailability: [{}],
-    students: [],
-  });
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [prePop, setPrePop] = useState({});
 
   // const [deleteData, setDeleteData] = useState();
@@ -246,8 +249,10 @@ const BatchList: React.FC = () => {
   const handleClassDate = (value) => {};
   const handleOk = () => {
     try {
-      removeRule(entity);
+      console.log(currentRow);
+      handleFormDelete(currentRow.id);
     } catch (error) {
+      console.log(error);
       message.error("Delete failed, please try again");
     }
     setDeleteConfirmModal(false);
@@ -261,150 +266,176 @@ const BatchList: React.FC = () => {
     setTeacherName(value);
   };
   const handleFormSubmitEdit = async () => {
-    //REFORMATTED DATE RANGE
-    console.log("createBatch")
-    let formattedStartDate = classDateRange[0]._d.toString().split(" ");
-    let formattedEndDate = classDateRange[1]._d.toString().split(" ");
-    let startmonthNumber =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formattedStartDate[1]) + 1;
-    let endMonthNumber =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formattedEndDate[1]) + 1;
-    let finalStartDate =
-      formattedStartDate[3] +
-      "-" +
-      startmonthNumber.toString() +
-      "-" +
-      formattedStartDate[2] +
-      "T" +
-      formattedStartDate[4] +
-      ".000Z";
-    let finalEndDate =
-      formattedEndDate[3] +
-      "-" +
-      endMonthNumber.toString() +
-      "-" +
-      formattedEndDate[2] +
-      "T" +
-      formattedEndDate[4] +
-      ".000Z";
-    //REFORMATTED TIME RANGE
-    let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
-    let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
-    let lessonStartMonth =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formatLessonStartTime[1]) + 1;
-    let lessonEndMonth =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formatLessonEndTime[1]) + 1;
-    let finalStartTime =
-      formatLessonStartTime[3] +
-      "-" +
-      lessonStartMonth.toString() +
-      "-" +
-      formatLessonStartTime[2] +
-      "T" +
-      formatLessonStartTime[4] +
-      ".000Z";
-    let finalEndTime =
-      formatLessonStartTime[3] +
-      "-" +
-      lessonEndMonth.toString() +
-      "-" +
-      formatLessonEndTime[2] +
-      "T" +
-      formatLessonEndTime[4] +
-      ".000Z";
+      //REFORMATTED DATE RANGE
+      console.log("createBatch")
+      let formattedStartDate = classDateRange[0]._d.toString().split(" ");
+      let formattedEndDate = classDateRange[1]._d.toString().split(" ");
+      let startmonthNumber =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formattedStartDate[1]) + 1;
+      let endMonthNumber =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formattedEndDate[1]) + 1;
+      let finalStartDate =
+        formattedStartDate[3] +
+        "-" +
+        startmonthNumber.toString() +
+        "-" +
+        formattedStartDate[2] +
+        "T" +
+        formattedStartDate[4] +
+        ".000Z";
+      let finalEndDate =
+        formattedEndDate[3] +
+        "-" +
+        endMonthNumber.toString() +
+        "-" +
+        formattedEndDate[2] +
+        "T" +
+        formattedEndDate[4] +
+        ".000Z";
+      //REFORMATTED TIME RANGE
+      let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
+      let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
+      let lessonStartMonth =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formatLessonStartTime[1]) + 1;
+      let lessonEndMonth =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formatLessonEndTime[1]) + 1;
+      let finalStartTime =
+        formatLessonStartTime[3] +
+        "-" +
+        lessonStartMonth.toString() +
+        "-" +
+        formatLessonStartTime[2] +
+        "T" +
+        formatLessonStartTime[4] +
+        ".000Z";
+      let finalEndTime =
+        formatLessonStartTime[3] +
+        "-" +
+        lessonEndMonth.toString() +
+        "-" +
+        formatLessonEndTime[2] +
+        "T" +
+        formatLessonEndTime[4] +
+        ".000Z";
 
-    const dataForm = {
-      classCode: formData.classCode,
-      batchNumber: formData.batchNumber,
-      teacherId: teacherName.value,
-      startingLessonId: startLesson,
-      endingLessonId: endLesson,
-      classStartDate: finalStartDate,
-      classEndDate: finalEndDate,
-      lessonStartTime: finalStartTime,
-      lessonEndTime: finalEndTime,
-      ageGroup: selectedAgeGroup,
-      followupVersion: followupVersion,
-      id: createBatch ? null: currentRow?.id,
-      batchAvailability: [{}],
-      students: [...studentList],
-      edit
-    };
-    console.log("formData", dataForm);
+      const dataForm = {
+        classCode: formData.classCode,
+        batchNumber: formData.batchNumber,
+        teacherId: teacherName.value,
+        startingLessonId: startLesson,
+        endingLessonId: endLesson,
+        classStartDate: finalStartDate,
+        classEndDate: finalEndDate,
+        lessonStartTime: finalStartTime,
+        lessonEndTime: finalEndTime,
+        ageGroup: selectedAgeGroup,
+        followupVersion: followupVersion,
+        id: createBatch ? null: currentRow?.id,
+        batchAvailability: [{}],
+        students: [...studentList],
+        edit
+      };
+      console.log("formData", dataForm);
 
+      try {
+        // 登录
+        console.log("data", dataForm);
+        const msg = await addeditbatch({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataForm),
+        });
+        console.log("msg", msg, msg.status);
+        if (msg.success) {
+          console.log("API call sucessfull", msg);
+          setShowDetail(false)
+          setCurrentRow(undefined)
+          actionRef.current?.reloadAndRest?.();
+          if(msg.data[0]?.message){
+            message.error(msg.data[0].message);
+          }
+          console.log('details',showDetail)
+        }
+        console.log(msg);
+      } catch (error) {
+        console.log("Failed");
+      };
+  }
+
+  const handleFormDelete = async (id: string) => {
     try {
       // 登录
-      console.log("data", dataForm);
-      const msg = await addeditbatch({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataForm),
-      });
-      if (msg.status === "ok") {
+      const msg = await deleteBatch(id);
+      console.log("msg", msg, msg.status);
+      if (msg.success) {
         console.log("API call sucessfull", msg);
         setShowDetail(false)
         setCurrentRow(undefined)
+        actionRef.current?.reloadAndRest?.();
+        if(msg.data[0]?.message){
+          message.error(msg.data[0].message);
+        }
         console.log('details',showDetail)
       }
       console.log(msg);
     } catch (error) {
       console.log("Failed");
-    
-  };
-}
+    };
+  }
+
   const handleFormChange = (e, value) => {
     console.log("ff",value,e.target.name,e.target.value)
     setFormData((value) => ({
@@ -754,6 +785,9 @@ const BatchList: React.FC = () => {
             type="primary"
             key="primary"
             onClick={() => {
+              /**
+               * Clean up and show edit form
+               */
               handleModalVisible(false);
               setShowDetail(true);
               setAddTeacher(true);
@@ -761,6 +795,15 @@ const BatchList: React.FC = () => {
               setAddTeacherComponent(false);
               setRenderEdit(true);
               setEdit(false);
+              setFormData(DEFAULT_FORM_DATA);
+              setTeacherName([]);
+              setClassDateRange(undefined);
+              setStudentList([]);
+              setLeadList({});
+              setBatchDetails({});
+              setStartLesson("");
+              setEndLesson("");
+              setFollowupVersion("");
             }}
           >
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
