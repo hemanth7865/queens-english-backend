@@ -31,7 +31,7 @@ const genList = (current: number, pageSize: number) => {
   return tableListDataSource;
 };
 
-const genBatches = (current: number, pageSize: number) => {
+const genAssessment = (current: number, pageSize: number) => {
   const tableListDataSource: API.RuleListItem[] = [];
 
   for (let i = 0; i < pageSize; i += 1) {
@@ -39,15 +39,12 @@ const genBatches = (current: number, pageSize: number) => {
     tableListDataSource.push({
       key: index,
       batchId: 'Batch ' + index,
-      dates: moment().format('YYYY-MM-DD'),
-      createdBy: 'user ' + index,
+      date: moment().format('YYYY-MM-DD'),
       teacher: 'Teacher ' + index,
-      students: index,
-      timeSlot: '08:30 - 09:30',
-      status: Math.floor(Math.random() * 10) % 4,
-      view: 'view',
-      edit: 'edit',
-      delete: 'delete',
+      students: 'Student' + index,
+      attendence: Math.floor(Math.random() * 10) % 2,
+      scoredMarks: Math.floor(Math.random() * 10) % 15,
+      totalMarks: 14,
     });
   }
   tableListDataSource.reverse();
@@ -108,7 +105,7 @@ const genStudentBatches = (current: number, pageSize: number) => {
 
 
 let tableListDataSource = genList(1, 100);
-let batchListDataSource = genBatches(1, 100);
+let batchListDataSource = genAssessment(1, 100);
 let teacherBatchListDataSource = genTeacherBatches(1, 100);
 let studentBatchListDataSource = genStudentBatches(1, 100);
 
@@ -255,7 +252,7 @@ function getTeacherBatches(req: Request, res: Response, u: string) {
   return res.json(result);
 }
 
-function getBatches(req: Request, res: Response, u: string) {
+function getAssessment(req: Request, res: Response, u: string) {
   let realUrl = u;
   if (!realUrl || Object.prototype.toString.call(realUrl) !== '[object String]') {
     realUrl = req.url;
@@ -465,7 +462,7 @@ function postRule(req: Request, res: Response, u: string, b: Request) {
 export default {
   'GET /api/rule': getRule,
   'POST /api/rule': postRule,
-  'GET /api/batches': getBatches,
+  'GET /api/assessment': getAssessment,
   'GET /api/teacherBatches': getTeacherBatches,
   'GET /api/studentBatches': getStudentBatches,
 };

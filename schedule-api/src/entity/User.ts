@@ -4,6 +4,8 @@ import { Status } from "./Status";
 import {Nationality} from "./Nationality";
 import { Teacher } from "./Teacher";
 import {TeacherAvailability} from "./TeacherAvailability";
+import { StudentAvailability } from "./StudentAvailability";
+import { Payment } from "./Payment";
 //import { Lead } from "./Lead";
 
 @Entity("user")
@@ -25,7 +27,7 @@ export class User extends BaseEntity {
         lastName: string;
     @Column({'nullable':true})
         gender:string;
-    @Column("text")
+    @Column({'nullable':true})
         phoneNumber: string;
     @Column("text")
         email: string;
@@ -41,8 +43,6 @@ export class User extends BaseEntity {
         type: string;
     @Column({'nullable':true, type:"date"})
         dob:Date;
-    @Column({'nullable':true})
-        nationalityId: number;
     /*@ManyToOne(
         () => Status,
         (nationality) => nationality.id   
@@ -50,7 +50,7 @@ export class User extends BaseEntity {
         nationality: Nationality;*/
     
     @Column({'nullable':true})
-        status: number;
+        status: string;
     /*@ManyToOne(
         () => Status,
         (status) => status.id   
@@ -87,7 +87,9 @@ export class User extends BaseEntity {
     teacherData: Teacher;
 
     teacher:Teacher[];   
+    payment : Payment[];
 
     teacherAvailability: TeacherAvailability[];
+    studentAvailability: StudentAvailability[];
 
 }

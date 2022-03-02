@@ -1,88 +1,203 @@
 import { LoginController } from "./controller/LoginController";
-import {UserController} from "./controller/UserController";
-import { BatchController} from "./controller/BatchController";
+import { UserController } from "./controller/UserController";
+import { BatchController } from "./controller/BatchController";
+import { SessionController } from "./controller/SessionController";
+import { AssessmentController } from "./controller/AssessmentController";
+import { Assessment } from "./entity/Assessment";
+import { LQSController } from "./controller/LQSController";
 
 export const Routes = [
-    {
-        method: "post",
-        route: "/login",
-        controller: LoginController,
-        action: "login"
-    },
-    {
-        method: "get",
-        route: "/logout",
-        controller: LoginController,
-        action: "logout"
-    },
-    {
-        method: "get",
-        route: "/currentUser",
-        controller: LoginController,
-        action: "currentUser"
-    },
-    {
+  {
+    method: "post",
+    route: "/login",
+    controller: LoginController,
+    action: "login",
+  },
+  {
+    method: "get",
+    route: "/logout",
+    controller: LoginController,
+    action: "logout",
+  },
+  {
+    method: "get",
+    route: "/lessons",
+    controller: UserController,
+    action: "lessons",
+    // authenticate:true
+  },
+  {
+    method: "get",
+    route: "/currentUser",
+    controller: LoginController,
+    action: "currentUser",
+  },
+  {
     method: "get",
     route: "/leads",
     controller: UserController,
-    action: "allLeads"
-},
+    action: "allLeads",
+  },
 
-{
+  {
     method: "get",
     route: "/leadsView",
     controller: UserController,
-    action: "listLeadDetails"
-}, {
+    action: "listLeadDetails",
+  },
+  {
     method: "get",
     route: "/leadsFullView/:id",
     controller: UserController,
-    action: "leadFullDetails"
-},
-{
+    action: "leadFullDetails",
+  },
+  {
     method: "post",
     route: "/leads",
     controller: UserController,
-    action: "saveLeads"
-}, {
+    action: "saveLeads",
+  },
+  {
+    method: "post",
+    route: "/fetchLQSData",
+    controller: LQSController,
+    action: "updateLQSData",
+  },
+  {
     method: "get",
     route: "/filterLead",
     controller: UserController,
-    action: "filterLeadDetails"
-}, {
+    action: "filterLeadDetails",
+  },
+  {
     method: "delete",
     route: "/users/:id",
     controller: UserController,
-    action: "remove"
-},
-{
+    action: "remove",
+  },
+  {
+    method: "delete",
+    route: "/batch/:id",
+    controller: BatchController,
+    action: "remove",
+  },
+  {
     method: "post",
     route: "/createBatch",
     controller: BatchController,
-    action: "createBatch"
-},
-{
+    action: "createBatch",
+  },
+  {
     method: "get",
     route: "/listBatch",
     controller: BatchController,
-    action: "listBatch"
-},
-{
+    action: "listBatch",
+  },
+  {
     method: "get",
     route: "/listclass",
     controller: BatchController,
-    action: "getClasses"
-},
-{
+    action: "getClasses",
+  },
+  {
     method: "get",
     route: "/runBatchJob",
     controller: BatchController,
-    action: "runBatchJob"
-},
-{
+    action: "runBatchJob",
+  },
+  {
     method: "get",
     route: "/listBatch/:id",
     controller: BatchController,
-    action: "getBatchDetails"
-}
+    action: "getBatchDetails",
+  },
+  {
+    method: "delete",
+    route: "/batch/:id",
+    controller: BatchController,
+    action: "remove",
+  },
+  {
+    method: "post",
+    route: "/createBatch",
+    controller: BatchController,
+    action: "createBatch",
+  },
+  {
+    method: "get",
+    route: "/listBatch",
+    controller: BatchController,
+    action: "listBatch",
+  },
+  {
+    method: "get",
+    route: "/session/:id",
+    controller: SessionController,
+    action: "getSessionDetail",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/session/batch/:id",
+    controller: SessionController,
+    action: "getBatchSessions",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/session/batch/:id/:lessonId",
+    controller: SessionController,
+    action: "getBatchLessonSession",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/session",
+    controller: SessionController,
+    action: "getSessions",
+    authenticate:true
+  },
+  {
+    method: "post",
+    route: "/session",
+    controller: SessionController,
+    action: "createSession",
+    authenticate:true
+  },
+  {
+    method: "put",
+    route: "/session/:id",
+    controller: SessionController,
+    action: "updateSession",
+    authenticate:true
+  },
+
+  {
+    method: "get",
+    route: "/assessment/batch/:id",
+    controller: AssessmentController,
+    action: "getBatchAssessments",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/assessment",
+    controller: AssessmentController,
+    action: "getAssessments",
+    authenticate:true
+  },
+  {
+    method: "put",
+    route: "/assessment/:id",
+    controller: AssessmentController,
+    action: "updateAssessment",
+    authenticate:true
+  },
+  {
+    method: "get",
+    route: "/assessment/:id",
+    controller: AssessmentController,
+    action: "getAssessmentDetail",
+    authenticate:true
+  },
 ];

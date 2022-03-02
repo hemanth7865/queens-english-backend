@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState, useEffect} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker } from 'antd';
+import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker,notification } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 import {
@@ -29,7 +29,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        mobile: '',
+        phoneNumber: '',
         email: '',
     })
 
@@ -126,6 +126,18 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         }
     };
 
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during User update' }, userType = 'Teacher') => {
+        notification[type]({
+          message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
+          description:
+            '',
+        });
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000);
+      };
+
+   
 
     const handleInputChange = (event: { target: { name: any; value: any; }; })=>{
         console.log('val', event.target.value, event)
@@ -138,11 +150,12 @@ const EditUser: React.FC<EditUserProps> = (props) => {
 
     const onFinish = async ()=>{
         console.log('form submitted')
+        var code = selectCountryCode?selectCountryCode:'91';
         if(!error){
             let dataForm = {
                 firstName: formData.firstName?formData.firstName:props.data.firstName,
                 lastName: formData.lastName?formData.lastName:lastName,
-                phoneNumber: formData.mobile?formData.mobile:phoneNumber,
+                phoneNumber: formData.phoneNumber?formData.phoneNumber:phoneNumber,
                 email: formData.email?formData.email:email,
                 type: selectUserType?selectUserType:type,
             }
@@ -161,16 +174,20 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 if (msg.status === "ok") {
                   console.log("API call sucessfull", msg);
                 }
+                if (msg.status === 400) {
+                    openNotificationWithIcon('error', msg);
+            
+                  } else {
+                    console.log(msg);
+                    openNotificationWithIcon('success', '', 'User');
+                  }
                 console.log(msg);
+                //window.location.reload();
                 // 如果失败去设置用户错误信息
                 // setUserLoginState(msg);
               } catch (error) {
                 console.log("addRule error", error);
-                const defaultLoginFailureMessage = intl.formatMessage({
-                  id: "pages.login.failure",
-                  defaultMessage: "登录失败，请重试！",
-                });
-                message.error(defaultLoginFailureMessage);
+               
               }
                 props.setVisible(false)
                 
@@ -186,7 +203,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         form.setFieldsValue({
                             FirstName: props.data.firstName,
                             lastName: props.data.lastName,
-                            mobile: props.data.phoneNumber,
+                            phoneNumber: props.data.phoneNumber,
                             email: props.data.email,
                             userType: type == 'teacher'?'Teacher':'Student'
                             })
@@ -250,12 +267,12 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 
                 <Col span = {12}>
                     <Form.Item
-                        name="mobile"
+                        name="phoneNumber"
                     >
                         <Input
-                            name = "mobile"
+                            name = "phoneNumber"
                             onChange = {handleMobileChange}
-                            prefix = {selectCountryCode?selectCountryCode:'91'}
+                            //prefix = {selectCountryCode?selectCountryCode:'91'}
                         />
                         
                     </Form.Item>
