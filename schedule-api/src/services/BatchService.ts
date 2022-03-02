@@ -485,6 +485,7 @@ export class BatchService {
     let name = "";
 
     for (const element of results) {
+      students = [];
       studentCount = await getManager()
         .createQueryBuilder(BatchStudent, "batchStudent")
         .where("batchStudent.batchId = :id", { id: element.id })
