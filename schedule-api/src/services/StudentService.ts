@@ -150,7 +150,7 @@ export class StudentService {
         if (type == 'student' ) {
           
         var quer =
-        "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
+        "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
         element.id +
         "');";
       batchCodes = await getManager().query(quer);

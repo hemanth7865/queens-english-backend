@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany, PrimaryColumn } from "typeorm";
 import { BatchAvailability } from "./BatchAvailability";
 import { BatchStudent } from "./BatchStudent";
 import { User } from "./User";
@@ -8,13 +8,13 @@ export class Classes extends BaseEntity {
     name: string;
     Classes() { }
 
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryColumn()
     id: string;
 
     @Column({ 'nullable': true, type: "text" })
     classCode: string;
 
-    @Column({ 'nullable': true })
+    @Column({ 'nullable': true, unique: true })
     batchNumber: string;
     @Column({ 'nullable': true })
     teacherId: string;
@@ -64,6 +64,12 @@ export class Classes extends BaseEntity {
 
     @Column({ 'nullable': true, type: "text" })
     version: string
+
+    @Column({ 'nullable': true, type: "text" })
+    followupVersion: string
+
+    @Column({ 'nullable': true })
+    maxAttemptsAllowed: number
 
     @Column({ 'nullable': true, type: "text" })
     ageGroup: string

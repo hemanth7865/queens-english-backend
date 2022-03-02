@@ -23,6 +23,7 @@ import {
   Select,
   Tag,
   Typography,
+  Table
 } from "antd";
 import { v4 as uuidv4 } from 'uuid';
 const { Title } = Typography;
@@ -47,7 +48,8 @@ import {
   listTeacherAndStudent,
   listBatch,
   addeditbatch,
-  getIndividualBatch
+  getIndividualBatch,
+  deleteBatch
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
@@ -71,6 +73,23 @@ const handleDelete = (entity) => {
       message.error("Delete failed, please try again");
     }
   }
+};
+
+const DEFAULT_FORM_DATA = {
+  classCode: "",
+  batchNumber: "",
+  teacherId: "",
+  startingLessonId: "",
+  endingLessonId: "",
+  classStartDate: "",
+  classEndDate: "",
+  lessonStartTime: "",
+  lessonEndTime: "",
+  ageGroup: "",
+  followupVersion: "v2",
+  id: "",
+  batchAvailability: [{}],
+  students: [],
 };
 
 const BatchList: React.FC = () => {
@@ -104,9 +123,11 @@ const BatchList: React.FC = () => {
   const [teacherName, setTeacherName] = useState([]);
   const [batchDetails, setBatchDetails] = useState({});
   const [renderEdit,setRenderEdit] = useState(false)
+  const [edit, setEdit] = useState(false)
 
   const [startLesson,setStartLesson] = useState("");
-  const [endLesson,setEndLesson] = useState("")
+  const [endLesson,setEndLesson] = useState("");
+  const [followupVersion, setFollowupVersion] = useState("");
 
   const options = [];
   const studentMap = {};
@@ -205,21 +226,7 @@ const BatchList: React.FC = () => {
 
   const [dateStart, setDateStart] = useState("");
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
-  const [formData, setFormData] = useState({
-    classCode: "",
-    batchNumber: "",
-    teacherId: "",
-    startingLessonId: "",
-    endingLessonId: "",
-    classStartDate: "",
-    classEndDate: "",
-    lessonStartTime: "",
-    lessonEndTime: "",
-    ageGroup: "",
-    id: "",
-    batchAvailability: [{}],
-    students: [],
-  });
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [prePop, setPrePop] = useState({});
 
   // const [deleteData, setDeleteData] = useState();
@@ -234,17 +241,19 @@ const BatchList: React.FC = () => {
   };
   const handleClassDateRange = (value,e) => {
     console.log('classDateRange',value)
+    console.log(value);
     setClassDateRange([...value]);
   };
-  const handleSelectedAgeGroup = (value) => {
-    console.log("ageGroup", value);
-    setSelectedAgeGroup(value);
-  };
+  useEffect(() => {
+    console.log("start date", timeRange);
+  }, [timeRange]);
   const handleClassDate = (value) => {};
   const handleOk = () => {
     try {
-      removeRule(entity);
+      console.log(currentRow);
+      handleFormDelete(currentRow.id);
     } catch (error) {
+      console.log(error);
       message.error("Delete failed, please try again");
     }
     setDeleteConfirmModal(false);
@@ -258,148 +267,176 @@ const BatchList: React.FC = () => {
     setTeacherName(value);
   };
   const handleFormSubmitEdit = async () => {
-    //REFORMATTED DATE RANGE
-    console.log("createBatch")
-    let formattedStartDate = classDateRange[0]._d.toString().split(" ");
-    let formattedEndDate = classDateRange[1]._d.toString().split(" ");
-    let startmonthNumber =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formattedStartDate[1]) + 1;
-    let endMonthNumber =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formattedEndDate[1]) + 1;
-    let finalStartDate =
-      formattedStartDate[3] +
-      "-" +
-      startmonthNumber.toString() +
-      "-" +
-      formattedStartDate[2] +
-      "T" +
-      formattedStartDate[4] +
-      ".000Z";
-    let finalEndDate =
-      formattedEndDate[3] +
-      "-" +
-      endMonthNumber.toString() +
-      "-" +
-      formattedEndDate[2] +
-      "T" +
-      formattedEndDate[4] +
-      ".000Z";
-    //REFORMATTED TIME RANGE
-    let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
-    let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
-    let lessonStartMonth =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formatLessonStartTime[1]) + 1;
-    let lessonEndMonth =
-      [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ].indexOf(formatLessonEndTime[1]) + 1;
-    let finalStartTime =
-      formatLessonStartTime[3] +
-      "-" +
-      lessonStartMonth.toString() +
-      "-" +
-      formatLessonStartTime[2] +
-      "T" +
-      formatLessonStartTime[4] +
-      ".000Z";
-    let finalEndTime =
-      formatLessonStartTime[3] +
-      "-" +
-      lessonEndMonth.toString() +
-      "-" +
-      formatLessonEndTime[2] +
-      "T" +
-      formatLessonEndTime[4] +
-      ".000Z";
+      //REFORMATTED DATE RANGE
+      console.log("createBatch")
+      let formattedStartDate = classDateRange[0]._d.toString().split(" ");
+      let formattedEndDate = classDateRange[1]._d.toString().split(" ");
+      let startmonthNumber =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formattedStartDate[1]) + 1;
+      let endMonthNumber =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formattedEndDate[1]) + 1;
+      let finalStartDate =
+        formattedStartDate[3] +
+        "-" +
+        startmonthNumber.toString() +
+        "-" +
+        formattedStartDate[2] +
+        "T" +
+        formattedStartDate[4] +
+        ".000Z";
+      let finalEndDate =
+        formattedEndDate[3] +
+        "-" +
+        endMonthNumber.toString() +
+        "-" +
+        formattedEndDate[2] +
+        "T" +
+        formattedEndDate[4] +
+        ".000Z";
+      //REFORMATTED TIME RANGE
+      let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
+      let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
+      let lessonStartMonth =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formatLessonStartTime[1]) + 1;
+      let lessonEndMonth =
+        [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].indexOf(formatLessonEndTime[1]) + 1;
+      let finalStartTime =
+        formatLessonStartTime[3] +
+        "-" +
+        lessonStartMonth.toString() +
+        "-" +
+        formatLessonStartTime[2] +
+        "T" +
+        formatLessonStartTime[4] +
+        ".000Z";
+      let finalEndTime =
+        formatLessonStartTime[3] +
+        "-" +
+        lessonEndMonth.toString() +
+        "-" +
+        formatLessonEndTime[2] +
+        "T" +
+        formatLessonEndTime[4] +
+        ".000Z";
 
-    const dataForm = {
-      classCode: formData.classCode,
-      batchNumber: formData.batchNumber,
-      teacherId: teacherName.value,
-      startingLessonId: startLesson,
-      endingLessonId: endLesson,
-      classStartDate: finalStartDate,
-      classEndDate: finalEndDate,
-      lessonStartTime: finalStartTime,
-      lessonEndTime: finalEndTime,
-      ageGroup: selectedAgeGroup,
-      id: createBatch ? uuidv4(): currentRow?.id,
-      batchAvailability: [{}],
-      students: [...studentList],
-    };
-    console.log("formData", dataForm);
+      const dataForm = {
+        classCode: formData.classCode,
+        batchNumber: formData.batchNumber,
+        teacherId: teacherName.value,
+        startingLessonId: startLesson,
+        endingLessonId: endLesson,
+        classStartDate: finalStartDate,
+        classEndDate: finalEndDate,
+        lessonStartTime: finalStartTime,
+        lessonEndTime: finalEndTime,
+        ageGroup: selectedAgeGroup,
+        followupVersion: followupVersion,
+        id: createBatch ? null: currentRow?.id,
+        batchAvailability: [{}],
+        students: [...studentList],
+        edit
+      };
+      console.log("formData", dataForm);
 
+      try {
+        // 登录
+        console.log("data", dataForm);
+        const msg = await addeditbatch({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataForm),
+        });
+        console.log("msg", msg, msg.status);
+        if (msg.success) {
+          console.log("API call sucessfull", msg);
+          setShowDetail(false)
+          setCurrentRow(undefined)
+          actionRef.current?.reloadAndRest?.();
+          if(msg.data[0]?.message){
+            message.error(msg.data[0].message);
+          }
+          console.log('details',showDetail)
+        }
+        console.log(msg);
+      } catch (error) {
+        console.log("Failed");
+      };
+  }
+
+  const handleFormDelete = async (id: string) => {
     try {
       // 登录
-      console.log("data", dataForm);
-      const msg = await addeditbatch({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataForm),
-      });
-      if (msg.status === "ok") {
+      const msg = await deleteBatch(id);
+      console.log("msg", msg, msg.status);
+      if (msg.success) {
         console.log("API call sucessfull", msg);
         setShowDetail(false)
         setCurrentRow(undefined)
+        actionRef.current?.reloadAndRest?.();
+        if(msg.data[0]?.message){
+          message.error(msg.data[0].message);
+        }
         console.log('details',showDetail)
       }
       console.log(msg);
     } catch (error) {
       console.log("Failed");
-    
-  };
-}
+    };
+  }
+
   const handleFormChange = (e, value) => {
     console.log("ff",value,e.target.name,e.target.value)
     setFormData((value) => ({
@@ -440,38 +477,48 @@ const BatchList: React.FC = () => {
     });
   }
   
-  const handleCurrentDateAndTime = (rowval: any) => {
+  const prepareEditFormData = (rowval: any) => {
     console.log("rowval",rowval.id)
     getIndividualBatch(rowval.id)
       .then((data) => {
+        console.log("batch DData", data);
         setBatchDetails(data.data);
-        let tempDate = rowval.date.split("T");
-        let tempTime = rowval.timeSlot.split("-");
-        let tempStart = data.data;
-        let tempEnd = data.data;
+        const batchData = data.data;
+        if(batchData.classes){
+          setFormData({...formData, classCode: batchData.classes.classCode,
+          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion});
+          setFollowupVersion(batchData.classes.followupVersion);
+        }
         var tempObj = {
           batchData: data.data,
-          starttime: tempTime[0],
-          endttime: tempTime[1],
+          starttime:batchData?.classes?.classStartDate,
+          endttime: batchData?.classes?.classEndDate,
         };
         setPrePop(tempObj);
-try {
-        setClassDateRange(tempObj?.batchData?.batchAvailability?.length > 0 && tempObj.batchData.batchAvailability[0] !== null ? [
-          moment(tempObj.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
-          moment(tempObj.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
-        ]:undefined)
-} catch (e) {
-console.log('start date error', e)
-}
-        setTimeRange(  tempObj?.starttime?
-          [ moment(tempObj.starttime, "HH:mm"),
-          moment(tempObj.endttime, "HH:mm")]:undefined)
-        setStartLesson(tempObj?.batchData?.classes?.startingLessonId)
-        setEndLesson(tempObj?.batchData?.classes?.endingLessonId)
+        try {
+          setClassDateRange(tempObj?.batchData?.classes?.classEndDate?.length > 0 && tempObj?.batchData?.classes?.classStartDate?.length ? [
+            moment(tempObj.batchData.classes.classStartDate.split("T")[0], dateFormat),
+            moment(tempObj.batchData.classes.classEndDate.split("T")[0], dateFormat),
+          ]:undefined)
+        } catch (e) {
+          console.log('start date error', e)
+        }
+
+        try{
+          setTimeRange(tempObj?.batchData?.classes?.lessonEndTime?.length > 0 && tempObj?.batchData?.classes?.lessonStartTime?.length ?
+            [ moment(tempObj?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
+            moment(tempObj?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")]:undefined)
+        }catch(e){
+          console.log("Time Range Error", e);
+        }
+
+        setStartLesson(tempObj?.batchData?.classes?.startingLessonId);
+        setEndLesson(tempObj?.batchData?.classes?.endingLessonId);
+
         let reformatData = tempObj?tempObj?.batchData?.students.map((elem,index,arr)=>{
           console.log('elem',elem)
-          elem.value = elem.id
-          elem.label =  "Student"+index.toString()
+          elem.value = elem.studentId
+          elem.label =  `${elem?.student?.firstName} ${elem?.student?.lastName}`;
           elem.key  =  elem.id
           console.log('changed', elem.value, elem.label,elem.key)
           return elem
@@ -479,15 +526,22 @@ console.log('start date error', e)
         setStudentList([...reformatData])
         console.log("reformatData",...reformatData)
         setSelectedAgeGroup(tempObj?tempObj.batchData.classes.ageGroup:'')
-        console.log("rowval", batchDetails);
 
+        if(tempObj?.batchData?.classes?.teacher) { 
+          setTeacherName({value: tempObj?.batchData?.classes?.teacherId, 
+            label: `${tempObj?.batchData?.classes?.teacher.firstName} ${tempObj?.batchData?.classes?.teacher.lastName}`, 
+            key:tempObj?.batchData?.classes?.teacherId})
+        }
+
+        console.log("rowval", batchDetails);
       })
       .catch((error) => {
         console.log(error);
       })
       .finally(() => {
-        setRenderEdit(true)
-        });
+        setRenderEdit(true);
+        setEdit(true)
+      });
 
     //
     // console.log("batchDetails", batchDetails);
@@ -556,6 +610,7 @@ console.log('start date error', e)
       dataIndex: "timeSlot",
       // valueType: "textarea",
       renderFormItem: (value) => {
+        console.log(value);
         return <TimePicker.RangePicker format="HH:mm" />;
       },
     },
@@ -662,7 +717,7 @@ console.log('start date error', e)
               setCurrentRow(entity);
               console.log("setCurrentRow edit",entity)
 
-              handleCurrentDateAndTime(entity);
+              prepareEditFormData(entity);
               setAddTeacher(true);
               setShowDetail(true);
               setCreateBatch(false);
@@ -731,12 +786,25 @@ console.log('start date error', e)
             type="primary"
             key="primary"
             onClick={() => {
+              /**
+               * Clean up and show edit form
+               */
               handleModalVisible(false);
               setShowDetail(true);
               setAddTeacher(true);
               setCreateBatch(true);
               setAddTeacherComponent(false);
-              setRenderEdit(true)
+              setRenderEdit(true);
+              setEdit(false);
+              setFormData(DEFAULT_FORM_DATA);
+              setTeacherName([]);
+              setClassDateRange(undefined);
+              setStudentList([]);
+              setLeadList({});
+              setBatchDetails({});
+              setStartLesson("");
+              setEndLesson("");
+              setFollowupVersion("");
             }}
           >
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
@@ -888,9 +956,7 @@ console.log('start date error', e)
                           placeholder="Class Code"
                           name="classCode"
                           value={formData.classCode}
-                          defaultValue={
-                            !createBatch?prePop?.batchData.classes.classCode:''
-                          }
+                          defaultValue={formData.classCode}
                           onChange={handleFormChange}
                         />
                       </Form.Item>
@@ -905,7 +971,7 @@ console.log('start date error', e)
                           placeholder="Batch Number"
                           name="batchNumber"
                           value={formData.batchNumber}
-                          defaultValue={currentRow?.batchId}
+                          defaultValue={formData.batchNumber}
                           onChange={handleFormChange}
                         />
                       </Form.Item>
@@ -925,6 +991,7 @@ console.log('start date error', e)
                           defaultValue={
                                               startLesson}
                           value={formData.startingLessonId}
+                          disabled={edit}
                         >
                           {
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
@@ -946,6 +1013,7 @@ console.log('start date error', e)
                           }}
                           value={endLesson}
                           defaultValue={endLesson}
+                          disabled={edit}
                         >
                           {
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
@@ -962,10 +1030,11 @@ console.log('start date error', e)
                         <RangePicker
                           style={{ width: "551px" }}
                           onChange={(value,e)=>{handleClassDateRange(value,e)}}
-                        defaultValue={ prePop?.batchData?.batchAvailability?.length > 0 && prePop.batchData.batchAvailability[0] !== null ? [
-                            moment(prePop.batchData.batchAvailability[0].start_date.split('T').slice(0,1), dateFormat),
-                            moment(prePop.batchData.batchAvailability[0].end_date.split('T').slice(0,1), dateFormat),
-                          ]:{}} 
+                          defaultValue={ 
+                            prePop?.batchData?.classes?.classEndDate?.length > 0 && prePop?.batchData?.classes?.classStartDate?.length ? [
+                              moment(prePop.batchData.classes.classStartDate.split("T")[0], dateFormat),
+                              moment(prePop.batchData.classes.classEndDate.split("T")[0], dateFormat),
+                            ]: {}} 
                         />
                       </Form.Item>
                     </Col>
@@ -977,12 +1046,11 @@ console.log('start date error', e)
                         <TimePicker.RangePicker
                           format={"HH:mm"}
                           defaultValue={
-                              prePop?.starttime?
-                              [ moment(prePop.starttime, "HH:mm"),
-                              moment(prePop.endttime, "HH:mm")]
-                              :
-                              {}
-                              
+                            prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
+                            [
+                              moment(prePop?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
+                              moment(prePop?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")
+                            ] : {}
                           }
                           onChange={(value,e)=>handleTimeRange(value,e)}
                           style={{ width: "551px" }}
@@ -999,13 +1067,13 @@ console.log('start date error', e)
                           },
                         ]}
                       >
+                        {console.log("currentRow", currentRow)}
                         <DebounceSelect
                           showSearch
                           value={teacherName}
                           placeholder="Select teacher"
                           fetchOptions={fetchUserList}
-                          options = { currentRow?.id ? [{value:currentRow.id,label:'teacher',key:currentRow.id}]:[]}
-                          defaultValue={currentRow?.id?{value:currentRow.id,label:'teacher',key:currentRow.id}:null}
+                          options = {[]}
                           onChange={(newValue) => {
                             setTeacherName(newValue);
                             console.log("teacherDeb", newValue);
@@ -1038,12 +1106,30 @@ console.log('start date error', e)
                         {console.log('ageGroup',prePop)}
                         <Select
                           placeholder="Age Group"
-                          onChange={handleSelectedAgeGroup}
+                          onChange={(v) => setSelectedAgeGroup(v)}
                           value={selectedAgeGroup}
-                          defaultValue={!createBatch?prePop?.batchData.classes.ageGroup:''}
+                          defaultValue={!createBatch?prePop?.batchData?.classes.ageGroup:''}
                         >
                           <Option value="Pre-Teen">Pre-Teen</Option>
                           <Option value="Teen">Teen</Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        name="Followup"
+                        rules={[
+                          { required: true, message: "Select Followups Version" },
+                        ]}
+                      >
+                        <Select
+                          placeholder="Followups Version"
+                          onChange={(v) => setFollowupVersion(v)}
+                          value={followupVersion}
+                          defaultValue={!createBatch?prePop?.batchData?.classes.followupVersion:''}
+                        >
+                          <Option value="v1">V1</Option>
+                          <Option value="v2">V2</Option>
                         </Select>
                       </Form.Item>
                     </Col>
@@ -1111,15 +1197,6 @@ console.log('start date error', e)
                     <div className="label">Student</div>
                     <div className="label">TimeSlot</div>
                     <div className="label">Status</div>
-                    <div className="label">
-                      <Button
-                        size="large"
-                        style={{ marginTop: "29px" }}
-                        type="primary"
-                      >
-                        Edit Batch
-                      </Button>
-                    </div>
                   </Col>
                   <Col span={2}>
                     <Divider style={{ height: "300px" }} type="vertical" />
@@ -1141,16 +1218,26 @@ console.log('start date error', e)
                       {tempData?.timeSlot ? tempData?.timeSlot : "NA"}
                     </div>
                     <div className="label"> {tempData?.status}</div>
-                    <div className="label">
-                      <Button
-                        danger
-                        size="large"
-                        style={{ marginTop: "19px" }}
-                        type="primary"
-                      >
-                        Delete Batch
-                      </Button>
-                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div className="title">Students</div>
+                    <Table style={{width: "100%"}} dataSource={tempData?.studentsList} columns={[
+                      {
+                        title: "First Name",
+                        dataIndex: "firstName",
+                        key: "firstName"
+                      },
+                      {
+                        title: "Last Name",
+                        dataIndex: "lastName",
+                        key: "lastName"
+                      },
+                      {
+                        title: "Phone Number",
+                        dataIndex: "phoneNumber",
+                        key: "phoneNumber"
+                      }
+                    ]} />
                   </Col>
                 </Row>
               </>

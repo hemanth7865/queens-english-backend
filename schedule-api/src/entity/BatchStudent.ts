@@ -28,7 +28,7 @@ export class BatchStudent extends BaseEntity {
     updated_at: Date
 
     @OneToOne(() => User)
-    @JoinColumn({name : "id"})
+    @JoinColumn({name : "studentId"})
     student: User;
 
     classes: Classes;
