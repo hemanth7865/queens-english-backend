@@ -481,6 +481,7 @@ export class BatchService {
     var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, teacherId from classes ${query_string} limit ${current}, ${pageSize};`;
     var results = await getManager().query(quer);
     let studentCount = [];
+    let students = [];
     let name = "";
 
     for (const element of results) {
@@ -496,6 +497,14 @@ export class BatchService {
         .createQueryBuilder(User, "user")
         .where("user.id = :id", { id: element.teacherId })
         .getOne();
+
+      for(let student of studentCount){
+        students.push(await getManager()
+        .createQueryBuilder(User, "user")
+        .where("user.id = :id", { id: student.studentId })
+        .getOne());
+      }
+
       if (user && user.firstName && user.lastName) {
         name = user.firstName + " " + user.lastName;
       }
@@ -523,7 +532,8 @@ export class BatchService {
         name,
         studentCount.length,
         `${startTime}-${endTime}`,
-        status
+        status,
+        students
       );
       batchView.push(view);
     }

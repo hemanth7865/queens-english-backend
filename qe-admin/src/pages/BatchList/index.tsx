@@ -1196,15 +1196,6 @@ const BatchList: React.FC = () => {
                     <div className="label">Student</div>
                     <div className="label">TimeSlot</div>
                     <div className="label">Status</div>
-                    <div className="label">
-                      <Button
-                        size="large"
-                        style={{ marginTop: "29px" }}
-                        type="primary"
-                      >
-                        Edit Batch
-                      </Button>
-                    </div>
                   </Col>
                   <Col span={2}>
                     <Divider style={{ height: "300px" }} type="vertical" />
@@ -1226,16 +1217,6 @@ const BatchList: React.FC = () => {
                       {tempData?.timeSlot ? tempData?.timeSlot : "NA"}
                     </div>
                     <div className="label"> {tempData?.status}</div>
-                    <div className="label">
-                      <Button
-                        danger
-                        size="large"
-                        style={{ marginTop: "19px" }}
-                        type="primary"
-                      >
-                        Delete Batch
-                      </Button>
-                    </div>
                   </Col>
                 </Row>
               </>
