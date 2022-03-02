@@ -82,16 +82,26 @@ export class LQSService {
       });
   }
 
-    async fetchLQSData() {
+    async fetchLQSData(data: any) {
       const options = {
         url: `${this.LSQ_URL}/Leads.Get?accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
         json: true,
         body: {
-            "Parameter": {
+          "Parameter": {
+           /* "FromDate": data.FromDate,
+            "ToDate": data.ToDate,
+            "LookupName": "ProspectStage",
+            "LookupValue": "Enrolled",
+            "SqlOperator": "="*/
+            "LookupName": "CreatedOn",
+        "LookupValue": data.LookupValue,
+        "SqlOperator": ">"
+        },
+           /* "Parameter": {
                 "LookupName": "ProspectStage",
                 "LookupValue": "Enrolled",
                 "SqlOperator": "="
-            },
+            },*/
             "Columns": {
                 "Include_CSV": "ProspectID, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone"
             },
@@ -100,8 +110,8 @@ export class LQSService {
                 "Direction": "1"
             },
             "Paging": {
-                "PageIndex": 1,
-                "PageSize": 100
+                "PageIndex":data.PageIndex,
+                "PageSize": data.PageSize
             }
         },
       };

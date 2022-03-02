@@ -15,7 +15,9 @@ export class LQSController {
 
     async updateLQSData(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("LQS data fetch :: Start");
-        var res = await this.lQSService.fetchLQSData();
+        usersLogger.info('Start::UserController::SaveLead');
+        usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
+        var res = await this.lQSService.fetchLQSData(request.body);
         //Fetch lqs data
         usersLogger.info("Controller results", res);
        
