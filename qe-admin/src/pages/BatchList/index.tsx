@@ -23,6 +23,7 @@ import {
   Select,
   Tag,
   Typography,
+  Table
 } from "antd";
 import { v4 as uuidv4 } from 'uuid';
 const { Title } = Typography;
@@ -1217,6 +1218,26 @@ const BatchList: React.FC = () => {
                       {tempData?.timeSlot ? tempData?.timeSlot : "NA"}
                     </div>
                     <div className="label"> {tempData?.status}</div>
+                  </Col>
+                  <Col span={24}>
+                    <div className="title">Students</div>
+                    <Table style={{width: "100%"}} dataSource={tempData?.studentsList} columns={[
+                      {
+                        title: "First Name",
+                        dataIndex: "firstName",
+                        key: "firstName"
+                      },
+                      {
+                        title: "Last Name",
+                        dataIndex: "lastName",
+                        key: "lastName"
+                      },
+                      {
+                        title: "Phone Number",
+                        dataIndex: "phoneNumber",
+                        key: "phoneNumber"
+                      }
+                    ]} />
                   </Col>
                 </Row>
               </>
