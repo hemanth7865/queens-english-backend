@@ -5,7 +5,7 @@ import { request } from 'umi';
 
 const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
-const CODE = '3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==' 
+const CODE = AZURE_CODE
 
 const apiKeyQueryString = (url: string, key: string) => {
   if (url) {
@@ -424,29 +424,6 @@ export async function deleteBatch(id: string) {
 }
 
 //ASSESSMENT API'S
-//GET DUE ASSESSMENT
-export async function dueAssessment(
-  id: string,
-  status: string,
-  params: {
-    // query
-    /** 当前的页码 */
-    current?: number;
-    /** 页面的容量 */
-    pageSize?: number;
-  },
-  options?: { [key: string]: any },
-) {
-  console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment?status=${status?status:''}&batch=${id?id:''}&code=${CODE}`, {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
 
 //GET ASSESSMENT DETAILS
 export async function detailsAssessment(
@@ -481,3 +458,26 @@ export async function putAssessment(options?: { [key: string]: any }) {
   });
 }
 
+
+export async function allAssessment(
+  // id: string,
+  // status: string,
+  // teacherId: string, 
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  console.log("assessment", options)
+  return request<API.AssessmentList>(`/am/api/studentAssessment?code=${CODE}`, {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

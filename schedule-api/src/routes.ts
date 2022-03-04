@@ -58,7 +58,7 @@ export const Routes = [
     action: "saveLeads",
   },
   {
-    method: "get",
+    method: "post",
     route: "/fetchLQSData",
     controller: LQSController,
     action: "updateLQSData",

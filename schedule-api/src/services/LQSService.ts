@@ -14,6 +14,11 @@ import { LQSEntry } from "../entity/LQSEntry";
 const { usersLogger } = require("../Logger.js");
 
 export class LQSService {
+  private COSMOS_URL = process.env.COSMOS_URL;
+  private COSMOS_CODE = process.env.COSMOS_CODE;
+  private LSQ_ACCESS_KEY = process.env.LSQ_ACCESS_KEY;
+  private LSQ_SECRETKEY = process.env.LSQ_SECRETKEY;
+  private LSQ_URL = process.env.LSQ_URL;
    
 
     private lQSRepository = getRepository(LQSEntry);
@@ -34,22 +39,69 @@ export class LQSService {
            user.whatsapp = element.whatsapp;
            user.status = 'enrolled';
            user.type='student';
-           this.userRepository.save(user);
+           try {
+            await this.updateCosmos(user);
+            this.userRepository.save(user);             
+           } catch (error) {
+             usersLogger.info("Failed during LSQ update");
+           }
+           
        }
        usersLogger.info('updating LQS entries in user table::End');
     }
 
 
-    async fetchLQSData() {
+  async updateCosmos(user: User) {
+    const options = {
+      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
+      json: true,
+      body: {
+        type: user.type,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isAdministrator: false,
+        phoneNumber: user.phoneNumber,
+        status:user.status
+      },
+    };
+
+    if (user.id) {
+      options.body["id"] = user.id;
+    }
+    await axios
+      .post(options.url, options.body)
+      .then(async (res) => {
+        usersLogger.info(`Successfully updated cosmos db for id ${user.id} `);
+        return user;
+      })
+      .catch((error) => {  
+        usersLogger.info(`Failed during LSQ update ${error}`);
+        return {status:400,error:error?.response?.data};
+        return Promise.reject(error);
+      });
+  }
+
+    async fetchLQSData(data: any) {
       const options = {
-        url: `https://api-in21.leadsquared.com/v2/LeadManagement.svc/Leads.Get?accessKey=u$rfe9967b7a21449a66478af36236fc9e2&secretKey=ccfcd6e8d0e58b350262f00142fbccddd1ac3770`,
+        url: `${this.LSQ_URL}/Leads.Get?accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
         json: true,
         body: {
-            "Parameter": {
+          "Parameter": {
+           /* "FromDate": data.FromDate,
+            "ToDate": data.ToDate,
+            "LookupName": "ProspectStage",
+            "LookupValue": "Enrolled",
+            "SqlOperator": "="*/
+            "LookupName": "CreatedOn",
+        "LookupValue": data.LookupValue,
+        "SqlOperator": ">"
+        },
+           /* "Parameter": {
                 "LookupName": "ProspectStage",
                 "LookupValue": "Enrolled",
                 "SqlOperator": "="
-            },
+            },*/
             "Columns": {
                 "Include_CSV": "ProspectID, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone"
             },
@@ -58,8 +110,8 @@ export class LQSService {
                 "Direction": "1"
             },
             "Paging": {
-                "PageIndex": 1,
-                "PageSize": 100
+                "PageIndex":data.PageIndex,
+                "PageSize": data.PageSize
             }
         },
       };
