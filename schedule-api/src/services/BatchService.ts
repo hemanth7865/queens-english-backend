@@ -13,6 +13,15 @@ import { TeacherView } from "../model/TeacherView";
 import axios from "./../helpers/axios";
 import { v4 as uuidv4 } from "uuid";
 
+const generateRandomCode = (): string => {
+  var length = 5;
+  var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+  var retVal = "";
+  for (var i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+}
 export class BatchService {
   private classesRepository = getRepository(Classes);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
@@ -67,6 +76,7 @@ export class BatchService {
       let alreadyExists;
 
       if(create){
+        data.classCode = generateRandomCode();
         alreadyExists = await this.batchExists(data);
         if(alreadyExists?.id){
           return { status: false, message: "Batch Number Already Exists" };
@@ -101,8 +111,6 @@ export class BatchService {
           students: studnets,
         },
       };
-
-      console.log(cosomos_url, axios)
 
       var res1 = {};
       if (!data.id || create) {
@@ -569,7 +577,7 @@ export class BatchService {
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
       .leftJoin("batchStudent.student", "student")
-      .addSelect(["student.firstName", "student.lastName"])
+      .addSelect(["student.firstName", "student.lastName", "student.phoneNumber"])
       .where("batchStudent.batchId = :id", { id: batchId })
       .getMany();
     teacherView.classes = classes;

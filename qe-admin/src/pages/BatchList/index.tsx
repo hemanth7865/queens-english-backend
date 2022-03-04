@@ -948,21 +948,6 @@ const BatchList: React.FC = () => {
                   <Row>
                     <Col span={24}>
                       <Form.Item
-                        name="classCode"
-                        rules={[{ required: true, message: "Class Code" }]}
-                      >
-                        <Input
-                          type="text"
-                          placeholder="Class Code"
-                          name="classCode"
-                          value={formData.classCode}
-                          defaultValue={formData.classCode}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                      <Form.Item
                         name="batchNumber"
                         rules={[{ required: true, message: "Batch Number" }]}
                       >
