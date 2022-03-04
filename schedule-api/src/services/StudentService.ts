@@ -44,7 +44,7 @@ export class StudentService {
     let query_list = [];
     let query_string = "";
   
-    const name = parameters.name;
+    const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
      
       query_list.push(
