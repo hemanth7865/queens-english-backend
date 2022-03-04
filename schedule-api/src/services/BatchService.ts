@@ -102,6 +102,8 @@ export class BatchService {
         },
       };
 
+      console.log(cosomos_url, axios)
+
       var res1 = {};
       if (!data.id || create) {
         res1 = await axios

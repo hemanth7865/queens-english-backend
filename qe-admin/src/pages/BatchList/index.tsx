@@ -127,7 +127,7 @@ const BatchList: React.FC = () => {
 
   const [startLesson,setStartLesson] = useState("");
   const [endLesson,setEndLesson] = useState("");
-  const [followupVersion, setFollowupVersion] = useState("");
+  const [followupVersion, setFollowupVersion] = useState("v2");
 
   const options = [];
   const studentMap = {};
@@ -218,7 +218,7 @@ const BatchList: React.FC = () => {
     )
       .then((body) =>
         body.data.map((user) => ({
-          label: `${user.name}`,
+          label: `${user.name} - ${user.phoneNumber}`,
           value: user.id,
         }))
       );
@@ -518,7 +518,7 @@ const BatchList: React.FC = () => {
         let reformatData = tempObj?tempObj?.batchData?.students.map((elem,index,arr)=>{
           console.log('elem',elem)
           elem.value = elem.studentId
-          elem.label =  `${elem?.student?.firstName} ${elem?.student?.lastName}`;
+          elem.label =  `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
           elem.key  =  elem.id
           console.log('changed', elem.value, elem.label,elem.key)
           return elem
@@ -1115,24 +1115,7 @@ const BatchList: React.FC = () => {
                         </Select>
                       </Form.Item>
                     </Col>
-                    <Col span={24}>
-                      <Form.Item
-                        name="Followup"
-                        rules={[
-                          { required: true, message: "Select Followups Version" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Followups Version"
-                          onChange={(v) => setFollowupVersion(v)}
-                          value={followupVersion}
-                          defaultValue={!createBatch?prePop?.batchData?.classes.followupVersion:''}
-                        >
-                          <Option value="v1">V1</Option>
-                          <Option value="v2">V2</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
+      
                     <Col span={24}>
                       <Form.Item
                         name="studentList"
