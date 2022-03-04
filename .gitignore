@@ -6,4 +6,5 @@ schedule-api/.env
 qe-admin/.env
 qe-admin/config/proxy.ts
 qe-admin/config/config.prd.ts
+qe-admin/config/config.ts
 qe-admin/config/config.dev.ts
