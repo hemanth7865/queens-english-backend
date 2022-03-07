@@ -267,6 +267,10 @@ const BatchList: React.FC = () => {
     setTeacherName(value);
   };
   const handleFormSubmitEdit = async () => {
+      if(!classDateRange || !timeRange || !classDateRange[0] || !classDateRange[1] || timeRange[0] || timeRange[1]){
+        message.error("Please select class date range");
+        return
+      }
       //REFORMATTED DATE RANGE
       console.log("createBatch")
       let formattedStartDate = classDateRange[0]._d.toString().split(" ");
