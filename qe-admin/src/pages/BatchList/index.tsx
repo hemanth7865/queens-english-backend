@@ -1030,6 +1030,7 @@ const BatchList: React.FC = () => {
                       > {currentRow?console.log(prePop):''}
                         <TimePicker.RangePicker
                           format={"HH:mm"}
+                          disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i: 1)}
                           defaultValue={
                             prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
                             [
