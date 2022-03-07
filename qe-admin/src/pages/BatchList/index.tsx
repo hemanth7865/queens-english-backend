@@ -1160,7 +1160,8 @@ const BatchList: React.FC = () => {
                 <div className="title">{tempData?.batchId}</div>
                 <Row>
                   <Col span={8}>
-                    <div className="label">Date</div>
+                    <div className="label">Creation Date</div>
+                    <div className="label">Class Date</div>
                     <div className="label">Created By</div>
                     <div className="label">Assigned Teacher</div>
                     <div className="label">Student</div>
@@ -1170,9 +1171,12 @@ const BatchList: React.FC = () => {
                   <Col span={2}>
                     <Divider style={{ height: "300px" }} type="vertical" />
                   </Col>
-                  <Col span={8}>
+                  <Col span={12}>
                     <div className="label">
                       {tempData?.date ? tempData.date.split("T")[0] : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.dateSlot}
                     </div>
                     <div className="label">
                       {tempData?.createdBy ? tempData.createdBy : "NA"}

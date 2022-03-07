@@ -486,7 +486,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current}, ${pageSize};`;
+    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current}, ${pageSize};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -536,12 +536,13 @@ export class BatchService {
 
       let view = new BatchView(
         element.id,
-        new Date(),
+        classes.created_at,
         classes.batchNumber,
         "Admin",
         name,
         studentCount.length,
         `${startTime}-${endTime}`,
+        classes?.classStartDate && classes?.classEndDate ? classes.classStartDate.split("T")[0] + " To " + classes.classEndDate.split("T")[0] : "NA",
         status,
         students
       );
