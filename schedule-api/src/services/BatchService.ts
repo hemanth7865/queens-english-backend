@@ -551,7 +551,7 @@ export class BatchService {
     return {
       success: true,
       data: batchView,
-      total: count.total,
+      total: parseInt(count[0]?.total),
       current: current,
       pageSize: pageSize,
     };
