@@ -153,9 +153,8 @@ export class BatchService {
       await queryRunner.commitTransaction();
       return res1;
     } catch (error) {
-      console.error(error);
       await queryRunner.rollbackTransaction();
-      return { status: false, message: "Service Error" };
+      return { status: false, message: error?.response?.data || "Service Error" };
     } finally {
       await queryRunner.release();
     }
