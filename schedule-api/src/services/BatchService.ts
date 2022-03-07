@@ -492,6 +492,7 @@ export class BatchService {
     let studentCount = [];
     let students = [];
     let name = "";
+    const count = await getManager().query(`select count(id) as total from classes ${query_string};`);
 
     for (const element of results) {
       students = [];
@@ -550,7 +551,7 @@ export class BatchService {
     return {
       success: true,
       data: batchView,
-      total: batchView.length,
+      total: count.total,
       current: current,
       pageSize: pageSize,
     };
