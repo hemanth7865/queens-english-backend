@@ -485,9 +485,8 @@ export class BatchService {
         query_string = query_string + query_list[index];
       }
     });
-    var quer = `select id, teacherId,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${offset}, ${pageSize};`;
     current--;
-    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, teacherId from classes ${query_string} limit ${current}, ${pageSize};`;
+    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current}, ${pageSize};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
