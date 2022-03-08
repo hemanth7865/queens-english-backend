@@ -13,6 +13,15 @@ import { TeacherView } from "../model/TeacherView";
 import axios from "./../helpers/axios";
 import { v4 as uuidv4 } from "uuid";
 
+const generateRandomCode = (): string => {
+  var length = 5;
+  var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+  var retVal = "";
+  for (var i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+}
 export class BatchService {
   private classesRepository = getRepository(Classes);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
@@ -67,6 +76,7 @@ export class BatchService {
       let alreadyExists;
 
       if(create){
+        data.classCode = generateRandomCode();
         alreadyExists = await this.batchExists(data);
         if(alreadyExists?.id){
           return { status: false, message: "Batch Number Already Exists" };
@@ -143,9 +153,8 @@ export class BatchService {
       await queryRunner.commitTransaction();
       return res1;
     } catch (error) {
-      console.error(error);
       await queryRunner.rollbackTransaction();
-      return { status: false, message: "Service Error" };
+      return { status: false, message: error?.response?.data || "Service Error" };
     } finally {
       await queryRunner.release();
     }
@@ -476,13 +485,13 @@ export class BatchService {
         query_string = query_string + query_list[index];
       }
     });
-    var quer = `select id, teacherId,  batchNumber, lessonStartTime, lessonEndTime from classes ${query_string} limit ${offset}, ${pageSize};`;
     current--;
-    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, teacherId from classes ${query_string} limit ${current}, ${pageSize};`;
+    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current}, ${pageSize};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
     let name = "";
+    const count = await getManager().query(`select count(id) as total from classes ${query_string};`);
 
     for (const element of results) {
       students = [];
@@ -527,12 +536,13 @@ export class BatchService {
 
       let view = new BatchView(
         element.id,
-        new Date(),
+        classes.created_at,
         classes.batchNumber,
         "Admin",
         name,
         studentCount.length,
         `${startTime}-${endTime}`,
+        classes?.classStartDate && classes?.classEndDate ? classes.classStartDate.split("T")[0] + " To " + classes.classEndDate.split("T")[0] : "NA",
         status,
         students
       );
@@ -541,7 +551,7 @@ export class BatchService {
     return {
       success: true,
       data: batchView,
-      total: batchView.length,
+      total: parseInt(count[0]?.total),
       current: current,
       pageSize: pageSize,
     };
@@ -567,7 +577,7 @@ export class BatchService {
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
       .leftJoin("batchStudent.student", "student")
-      .addSelect(["student.firstName", "student.lastName"])
+      .addSelect(["student.firstName", "student.lastName", "student.phoneNumber"])
       .where("batchStudent.batchId = :id", { id: batchId })
       .getMany();
     teacherView.classes = classes;

@@ -6,3 +6,7 @@
     font-weight: 400;
     margin-left: 10px;
 }
+
+.ant-picker-time-panel-cell-disabled{
+    display: none;
+}

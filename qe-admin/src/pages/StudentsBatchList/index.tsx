@@ -2362,7 +2362,7 @@ const StudentsBatchList: React.FC = () => {
           </>
         ) : (
           <>
-           <Tabs defaultActiveKey="1" onChange={callback}>
+           <Tabs defaultActiveKey="1" onChange={callback} key={tempDataView?.id}>
             <TabPane tab="Student Info" key="1"> 
             <Form onFinish={handleFormSubmitEdit}> 
               <Row gutter={16}>

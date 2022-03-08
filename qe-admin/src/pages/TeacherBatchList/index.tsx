@@ -183,7 +183,7 @@ const TeacherBatchList: React.FC = () => {
     category: "",
     education: "",
     experience: "",
-    teacherType: "",
+    teacherType: "teacher",
     languages: "",
     resume: "",
     videoProfile: "",
@@ -597,7 +597,7 @@ const TeacherBatchList: React.FC = () => {
       category: formData.category,
       languages: formData.languages,
       startDate: dateStart,
-      type: selectTeacher ? selectTeacher : "teacher",
+      type: "teacher",
       photo: formData.photo,
       batchCode:formData.batchCode,
       lead: [
@@ -627,7 +627,6 @@ const TeacherBatchList: React.FC = () => {
       });
       if (msg) {
         openNotificationWithIcon("success");
-        window.location.reload();
       }
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -636,7 +635,7 @@ const TeacherBatchList: React.FC = () => {
     } catch (error) {
       console.log("addRule error", error);
       openNotificationWithIcon("error");
-      message.error(defaultLoginFailureMessage);
+      message.error("Add Teacher Error");
     }
     setVisible(false);
     // console.log('formData', formData);
@@ -681,7 +680,7 @@ const TeacherBatchList: React.FC = () => {
         ? formData.languagesKnown
         : tempDataView.languages,
       startDate: dateStart ? dateStart : tempDataView.startDate,
-      type: selectTeacher?selectTeacher: tempDataView.selectTeacher,
+      type: "teacher",
       photo: formData.photo,
       lead: [
         {
@@ -708,7 +707,7 @@ const TeacherBatchList: React.FC = () => {
               }),
           ratings: 1,
           classestaken: 10,
-          teachertype: formData.teacherType,
+          teachertype: "teacher",
         },
       ],
       status: selectStatus ? selectStatus : tempDataView.status,
@@ -740,7 +739,7 @@ const TeacherBatchList: React.FC = () => {
       // setUserLoginState(msg);
     } catch (error) {
       console.log("addRule error", error);
-      message.error(defaultLoginFailureMessage);
+      message.error("Add Teacher Error");
       if (msg) {
         openNotificationWithIcon("error");
       }
@@ -946,7 +945,7 @@ const TeacherBatchList: React.FC = () => {
         tempDataView.teacher.map(function (lead, i) {
           return lead.totalexp;
         }),
-      teacherType: tempDataView.type,
+      teacherType: "teacher",
       languageKnown: tempDataView.languages,
     });
   };
@@ -1202,23 +1201,6 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
 
                 {/* Teacher Type and Language Known */}
-
-                <Col span={12}>
-                  <Form.Item name="teacherType">
-                    <Select
-                      placeholder="Teacher Type"
-                      onChange={(value) => {
-                        setSelectTeacher(value);
-                      }}
-                      defaultValue="teacher"
-                    >
-                      <Option value="teacher" default>
-                        teacher
-                      </Option>
-                      <Option value="student">student</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item name="languageKnown">
                     <Input
@@ -1233,7 +1215,7 @@ const TeacherBatchList: React.FC = () => {
 
                 {/* status */}
 
-                <Col span={12}>
+                <Col span={24}>
                   <Form.Item name="status">
                     <Select
                       placeholder="Status"
@@ -1412,7 +1394,7 @@ const TeacherBatchList: React.FC = () => {
                 <p>Teacher Type </p>
               </Col>
               <Col span={11}>
-                <p>{tempDataView.type}</p>
+                <p>Teacher</p>
               </Col>
               <Col span={7}></Col>
               <Col span={6}>
@@ -1601,28 +1583,13 @@ const TeacherBatchList: React.FC = () => {
                     <Input name="education" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <Form.Item name="totalExperience">
                     <Input name="experience" onChange={handleFormChange} />
                   </Form.Item>
                 </Col>
 
                 {/* Teacher Type and Language Known */}
-
-                <Col span={12}>
-                  <Form.Item name="teacherType">
-                    <Select
-                      onChange={(value) => {
-                        setSelectTeacher(value);
-                      }}
-                    >
-                      <Option value="teacher" default>
-                        teacher
-                      </Option>
-                      <Option value="student">student</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item name="languageKnown">
                     <Input

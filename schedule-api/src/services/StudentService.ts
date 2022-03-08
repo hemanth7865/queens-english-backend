@@ -48,7 +48,7 @@ export class StudentService {
     if (name) {
      
       query_list.push(
-        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ) `
+        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${parameters.keyword ? 'or u.phoneNumber LIKE "%'+ name+'%"' : ''}) `
       );
     }
     const mobile = parameters.phoneNumber;

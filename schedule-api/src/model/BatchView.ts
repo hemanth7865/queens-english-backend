@@ -8,10 +8,11 @@ import { User } from "../entity/User";
             teacher:string;
             students:number;
             timeSlot:string;
+            dateSlot:string;
             status:string;    
             studentsList: User[];
 
-            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,stauts:string, studentsList: User[]) {
+            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[]) {
                 this.id = id;
                 this.date=date;
                 this.batchId=batchId;
@@ -19,6 +20,7 @@ import { User } from "../entity/User";
                 this.teacher=teacher;
                 this.students=students;
                 this.timeSlot = timeSlot;
+                this.dateSlot = dateSlot;
                 this.status=stauts;
                 this.studentsList = studentsList;
             }          

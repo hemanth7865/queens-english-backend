@@ -127,7 +127,7 @@ const BatchList: React.FC = () => {
 
   const [startLesson,setStartLesson] = useState("");
   const [endLesson,setEndLesson] = useState("");
-  const [followupVersion, setFollowupVersion] = useState("");
+  const [followupVersion, setFollowupVersion] = useState("v2");
 
   const options = [];
   const studentMap = {};
@@ -218,7 +218,7 @@ const BatchList: React.FC = () => {
     )
       .then((body) =>
         body.data.map((user) => ({
-          label: `${user.name}`,
+          label: `${user.name} - ${user.phoneNumber}`,
           value: user.id,
         }))
       );
@@ -267,6 +267,10 @@ const BatchList: React.FC = () => {
     setTeacherName(value);
   };
   const handleFormSubmitEdit = async () => {
+      if(!classDateRange || !timeRange || !classDateRange[0] || !classDateRange[1] || timeRange[0] || timeRange[1]){
+        message.error("Please select class date range");
+        return
+      }
       //REFORMATTED DATE RANGE
       console.log("createBatch")
       let formattedStartDate = classDateRange[0]._d.toString().split(" ");
@@ -518,7 +522,7 @@ const BatchList: React.FC = () => {
         let reformatData = tempObj?tempObj?.batchData?.students.map((elem,index,arr)=>{
           console.log('elem',elem)
           elem.value = elem.studentId
-          elem.label =  `${elem?.student?.firstName} ${elem?.student?.lastName}`;
+          elem.label =  `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
           elem.key  =  elem.id
           console.log('changed', elem.value, elem.label,elem.key)
           return elem
@@ -948,21 +952,6 @@ const BatchList: React.FC = () => {
                   <Row>
                     <Col span={24}>
                       <Form.Item
-                        name="classCode"
-                        rules={[{ required: true, message: "Class Code" }]}
-                      >
-                        <Input
-                          type="text"
-                          placeholder="Class Code"
-                          name="classCode"
-                          value={formData.classCode}
-                          defaultValue={formData.classCode}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={24}>
-                      <Form.Item
                         name="batchNumber"
                         rules={[{ required: true, message: "Batch Number" }]}
                       >
@@ -1045,6 +1034,7 @@ const BatchList: React.FC = () => {
                       > {currentRow?console.log(prePop):''}
                         <TimePicker.RangePicker
                           format={"HH:mm"}
+                          disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i: 1)}
                           defaultValue={
                             prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
                             [
@@ -1115,24 +1105,7 @@ const BatchList: React.FC = () => {
                         </Select>
                       </Form.Item>
                     </Col>
-                    <Col span={24}>
-                      <Form.Item
-                        name="Followup"
-                        rules={[
-                          { required: true, message: "Select Followups Version" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Followups Version"
-                          onChange={(v) => setFollowupVersion(v)}
-                          value={followupVersion}
-                          defaultValue={!createBatch?prePop?.batchData?.classes.followupVersion:''}
-                        >
-                          <Option value="v1">V1</Option>
-                          <Option value="v2">V2</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
+      
                     <Col span={24}>
                       <Form.Item
                         name="studentList"
@@ -1191,7 +1164,8 @@ const BatchList: React.FC = () => {
                 <div className="title">{tempData?.batchId}</div>
                 <Row>
                   <Col span={8}>
-                    <div className="label">Date</div>
+                    <div className="label">Creation Date</div>
+                    <div className="label">Class Date</div>
                     <div className="label">Created By</div>
                     <div className="label">Assigned Teacher</div>
                     <div className="label">Student</div>
@@ -1201,9 +1175,12 @@ const BatchList: React.FC = () => {
                   <Col span={2}>
                     <Divider style={{ height: "300px" }} type="vertical" />
                   </Col>
-                  <Col span={8}>
+                  <Col span={12}>
                     <div className="label">
                       {tempData?.date ? tempData.date.split("T")[0] : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.dateSlot}
                     </div>
                     <div className="label">
                       {tempData?.createdBy ? tempData.createdBy : "NA"}
