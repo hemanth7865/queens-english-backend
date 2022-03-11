@@ -20,7 +20,7 @@ export class StudentService {
   private teacherService  = new TeacherService();
 
 
-  private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
+  private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
 
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
@@ -33,6 +33,7 @@ export class StudentService {
     var leadTem: Teacher[] = [];
     var filter = false;
     var parametersList = [];
+    var student: Student[] = [];
 
     var offset = parameters.current;
     var current = offset;
@@ -61,6 +62,20 @@ export class StudentService {
       query_list.push(` u.email  like '%${email}%' `);
     }
 
+    const dob = parameters.dob;
+    if(dob) {
+      query_list.push(` u.dob  like '%${dob}%' `);
+    }
+
+    const whatsapp = parameters.whatsapp;
+    if(whatsapp) {
+      query_list.push(` u.whatsapp  like '%${whatsapp}%' `);
+    }
+
+    const address = parameters.address;
+    if(address) {
+      query_list.push(` u.address  like '%${address}%' `);
+    }
 
     const type = parameters.type;
     var status = parameters.status;
@@ -77,7 +92,6 @@ export class StudentService {
     if (parameters.studentID) {
       StudentIds.push(parameters.studentID);
     }
-    console.log('Batch code',parameters.batchCode);
 
     if (parameters.batchCode) {
       let bathCodeQuery = `SELECT u.id FROM user u join batch_students bs on bs.id = u.id
@@ -123,8 +137,10 @@ export class StudentService {
 
   
 
-  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` ;
+  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address,  u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` ;
      
+
+  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType from user as u INNER JOIN student as s ON s.id = u.id ${query_string} limit ` ;
  
   finalQuery = finalQuery +  offset * limit +
   "," +
@@ -141,8 +157,10 @@ export class StudentService {
       console.log("results size", results.length);
 
       for (const element of results) {
+        
         let slotsResult: any[] = [];
         let batchCodes: any[] = [];
+        let payment: any[] = [];
    
         var studentOrTeacherId=[];
         var batchCode = '';
@@ -153,6 +171,7 @@ export class StudentService {
         "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
         element.id +
         "');";
+        
       batchCodes = await getManager().query(quer);
       batchCodes.forEach((element) => {
         console.log("batchCode", element);
@@ -175,9 +194,14 @@ export class StudentService {
           element.type,
           studentOrTeacherId.join(","),
           element.id,
+          element.dob,
+          element.whatsapp,
+          element.address,
         );
         leadView.push(l);
       }
+
+      console.log('leadsview', leadView)
   
       return {
         success: true,

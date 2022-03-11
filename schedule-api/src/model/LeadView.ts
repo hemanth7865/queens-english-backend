@@ -19,9 +19,12 @@
             type:string;
             batchCode: string;
             studentID: string;
+            dob: Date;
+            whatsapp: string;
+            address: string;
 
             public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
-                ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string){
+                ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob:Date, whatsapp: string, address: string){
                 this.id = id;
                 this.leadId = leadId;
                 this.date = date;
@@ -38,6 +41,9 @@
                 this.name = name;
                 this.batchCode = batchCode;
                 this.studentID = studentID;
+                this.dob = dob;
+                this.whatsapp = whatsapp;
+                this.address = address;
             }
     }
     

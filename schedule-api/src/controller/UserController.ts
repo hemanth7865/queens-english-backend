@@ -35,6 +35,7 @@ export class UserController {
             try {
                 if(request.body.type === 'student') {
                 resp = await this.studentService.saveStudentDetails(request.body);
+                //console.log('response usercontroller', resp)
                 } 
                 else {
                 resp = await teacherService.saveTeacher(request.body);
@@ -88,8 +89,13 @@ export class UserController {
             keyword: request.query['keyword'],
             studentID: request.query['studentID'],
             batchCode: request.query['batchCode'],
-            email:request.query['email']
+            email:request.query['email'],
+            dob:request.query['dob'],
+            whatsapp: request.query['whatsapp'],
+            address: request.query['address'],
         }
+
+        console.log('requestr', request.query['email'])
 
         var teacherService = new TeacherService();
         var studentService = new StudentService();
@@ -106,7 +112,7 @@ export class UserController {
         } catch (error) {
             console.log(error);
         }
-
+        // console.log('res[][', resp)
         return resp;
     }
 
