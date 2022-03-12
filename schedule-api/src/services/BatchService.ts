@@ -124,6 +124,7 @@ export class BatchService {
             return batch;
           })
           .catch((error) => {
+            console.log(error);
             return Promise.reject(error);
           });
       } else {
@@ -521,13 +522,18 @@ export class BatchService {
       let startTime;
       let endTime;
       let status;
-      if (classes.lessonStartTime) {
-        startTime = classes.lessonStartTime.split("T")[1].substring(0, "00:00".length);
+      if (classes.lessonStartTime && classes.lessonStartTime.split("T")[1]) {
+        startTime = classes.lessonStartTime.split("T")[1]?.substring(0, "00:00".length);
+      }else{
+        startTime = "";
       }
 
-      if (classes.lessonEndTime) {
-        endTime = classes.lessonEndTime.split("T")[1].substring(0, "00:00".length);
+      if (classes.lessonEndTime && classes.lessonEndTime.split("T")[1]) {
+        endTime = classes.lessonEndTime.split("T")[1]?.substring(0, "00:00".length);
+      }else{
+        endTime = "";
       }
+
       if (classes.status == 4) {
         status = "In Active";
       } else {
@@ -548,6 +554,7 @@ export class BatchService {
       );
       batchView.push(view);
     }
+
     return {
       success: true,
       data: batchView,
