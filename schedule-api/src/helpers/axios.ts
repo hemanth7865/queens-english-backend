@@ -7,6 +7,6 @@ const instance = axios.create({
   },
 });
 
-// instance.defaults.headers.common["idtoken"] = process.env.USER_ID_TOKEN;
+instance.defaults.headers.common["idtoken"] = process.env.USER_ID_TOKEN;
 
 export default instance;
