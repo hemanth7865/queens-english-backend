@@ -52,6 +52,7 @@ export class TeacherService {
 
       var status;
       var res1={} ;
+      console.log("options", options)
       if (!data.id) {
       res1= await axios
         .post(options.url, options.body)
