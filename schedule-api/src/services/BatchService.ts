@@ -522,11 +522,11 @@ export class BatchService {
       let endTime;
       let status;
       if (classes.lessonStartTime) {
-        startTime = classes.lessonStartTime.split("T")[1].substring(0, "00:00".length);
+        startTime = classes.lessonStartTime.split("T")[1]?.substring(0, "00:00".length);
       }
 
       if (classes.lessonEndTime) {
-        endTime = classes.lessonEndTime.split("T")[1].substring(0, "00:00".length);
+        endTime = classes.lessonEndTime.split("T")[1]?.substring(0, "00:00".length);
       }
       if (classes.status == 4) {
         status = "In Active";
@@ -548,6 +548,7 @@ export class BatchService {
       );
       batchView.push(view);
     }
+
     return {
       success: true,
       data: batchView,
