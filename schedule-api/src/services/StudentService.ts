@@ -27,7 +27,8 @@ export class StudentService {
 
   async listStudentDetails(data:any, parameters: any) {
 
-    var results: User[] = [];
+    
+    var results: any[] = [];
     var leadView: LeadView[] = [];
     var map = new Map();
     var leadTem: Teacher[] = [];
@@ -62,26 +63,12 @@ export class StudentService {
       query_list.push(` u.email  like '%${email}%' `);
     }
 
-    const dob = parameters.dob;
-    if(dob) {
-      query_list.push(` u.dob  like '%${dob}%' `);
-    }
-
-    const whatsapp = parameters.whatsapp;
-    if(whatsapp) {
-      query_list.push(` u.whatsapp  like '%${whatsapp}%' `);
-    }
-
-    const address = parameters.address;
-    if(address) {
-      query_list.push(` u.address  like '%${address}%' `);
-    }
 
     const type = parameters.type;
     var status = parameters.status;
     if (status) {
-    //  status = parseInt(status);    
-    query_list.push(` u.status like '${status}' `);
+      //  status = parseInt(status);    
+      query_list.push(` u.status like '${status}' `);
     }
 
     if (type) {
@@ -137,11 +124,9 @@ export class StudentService {
 
   
 
-  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address,  u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` ;
-     
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, u.dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, s.startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} limit ` ;
+    
 
-  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType from user as u INNER JOIN student as s ON s.id = u.id ${query_string} limit ` ;
- 
   finalQuery = finalQuery +  offset * limit +
   "," +
   limit +
@@ -160,24 +145,29 @@ export class StudentService {
         
         let slotsResult: any[] = [];
         let batchCodes: any[] = [];
-        let payment: any[] = [];
+        let payment: string;
    
         var studentOrTeacherId=[];
         var batchCode = '';
   
         if (type == 'student' ) {
+            
+          var quer =
+          "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
+          element.id +
+          "');";
           
-        var quer =
-        "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
-        element.id +
-        "');";
-        
-      batchCodes = await getManager().query(quer);
-      batchCodes.forEach((element) => {
-        console.log("batchCode", element);
-        studentOrTeacherId.push(element.batchNumber);
-      });
-    }
+          batchCodes = await getManager().query(quer);
+          batchCodes.forEach((element) => {
+            console.log("batchCode", element);
+            studentOrTeacherId.push(element.batchNumber);
+          });
+
+          var paymentQuer =
+          "select * from payment where studentId = '"+element.id+"';";
+          
+          payment = await getManager().query(paymentQuer);
+        }
         var l = new LeadView(
           element.id,
           element.id,
@@ -197,6 +187,19 @@ export class StudentService {
           element.dob,
           element.whatsapp,
           element.address,
+          element.classType,
+          payment,
+          element.age,
+          element.startDate,
+          element.startLesson,
+          element.pfirstName,
+          element.plastName,
+          element.course,
+          element.comments,
+          element.alternativeMobile,
+          element.paymentid,
+          element.firstName,
+          element.lastName,
         );
         leadView.push(l);
       }
@@ -376,6 +379,7 @@ export class StudentService {
           payment.id = element.id;
         }
         payment.paymentid = element.paymentid;
+        payment.studentId = element.studentId;
         payment.plantype = element.plantype;
         payment.classtype = element.classtype;
         payment.classessold = element.classessold ? element.classessold : 0;

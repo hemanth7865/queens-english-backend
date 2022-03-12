@@ -68,11 +68,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
 
 const StudentOnboard: React.FC = () => {
-  /**
-   * @en-US Pop-up window of new window
-   * @zh-CN 新建窗口的弹窗
-   *
-   *  */
   const intl = useIntl();
 
   const [showDrawer, setShowDrawer] = useState(false);
@@ -105,20 +100,44 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
   }, 1000);
 };
 
+
+//edit submit 
 const formSubmit = async (value)=>{
   console.log('value', value)
+  
   const dataForm = {
-    studentName: value.name,
+    leadId: value.studentID,
+    firstName: value.firstName,
+    lastName: value.lastName,
     phoneNumber: value.phoneNumber,
     studentID: value.studentID,
     address: value.address,
-    dob: value.dob,
+    //dob: dateOfBirth,
     whatsapp:value.whatsapp,
     comments:value.comments,
     email:value.email,
     id: value.studentID,
     type: 'student',
+    status: value.status,
+    alternativeMobile: value.alternativeMobile,
+    classType: value.classType,
+    course: value.course,
+    startLesson: value.startLesson,
+    //startDate: value.startDate,
+    pfirstName: value.pfirstName,
+    plastName: value.plastName,
+    payments: [{
+      paymentid: value.paymentid,
+      classessold: value.classessold,
+      saleamount: value.saleamount,
+      downpayment: value.downpayment,
+      plantype: value.plantype,
+      studentId: value.studentID,
+      classtype:'',
+    }]
+
   }
+  console.log("dataForm", dataForm);
   try {
     // 登录
     console.log("data", dataForm);
@@ -141,7 +160,7 @@ const formSubmit = async (value)=>{
   } catch (error) {
     //openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
   }
-  console.log("dataForm", dataForm);
+  
 }
 
 const studentGetApi = async ()=>{
@@ -163,7 +182,7 @@ const studentGetApi = async ()=>{
 
 
   useEffect(async (params: any) => {
-  console.log("first reload")
+  //console.log("first reload")
   studentGetApi()
   }, []);
 
@@ -181,13 +200,13 @@ const studentGetApi = async ()=>{
       });
       setData(newData);
       setEditingKey('');
-      console.log('data save', newData, index, newData[index])
+      //console.log('data save', newData, index, newData[index])
       formSubmit(newData[index])
     } else {
       newData.push(row);
       setData(newData);
       setEditingKey('');
-      console.log('data save else part', newData, index)
+      //console.log('data save else part', newData, index)
     }
   } catch (errInfo) {
     console.log('Validate Failed:', errInfo);
@@ -197,11 +216,17 @@ const studentGetApi = async ()=>{
 
   const columns = [
     {
-      title: 'Student Name',
-      dataIndex: 'name',
+      title: 'Student First Name',
+      dataIndex: 'firstName',
       width: 150,
       editable: true,
       fixed: 'left',
+    },
+    {
+      title: 'Student Last Name',
+      dataIndex: 'lastName',
+      width: 150,
+      editable: true,
     },
     {
       title: 'Email',
@@ -217,23 +242,28 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
+    // {
+    //   title: 'Date of Birth of Student',
+    //   dataIndex: 'dob',
+    //   width: 150,
+    //   editable: true,
+    //   render: (value)=>{
+    //     if(value){
+    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+    //     }
+    //   }
+    // },
     {
-      title: 'Date of Birth of Student',
-      dataIndex: 'dob',
+      title: 'Parent First Name',
+      dataIndex: 'pfirstName',
       width: 150,
       editable: true,
-      render: (value)=>{
-        if(value){
-          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-        }
-      }
     },
     {
-      title: 'Customer Name',
-      dataIndex: 'customerName',
+      title: 'Parent Last Name',
+      dataIndex: 'plastName',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Mobile No',
@@ -251,15 +281,8 @@ const studentGetApi = async ()=>{
     },
     {
       title: 'Alternate Number',
-      dataIndex: 'phoneNumber',
+      dataIndex: 'alternativeMobile',
       width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Customer EmailId',
-      dataIndex: 'email',
-      width: 200,
       editable: true,
       
     },
@@ -271,31 +294,10 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Customer State',
-      dataIndex: 'customerState',
+      title: 'Class Type',
+      dataIndex: 'classType',
       width: 150,
       editable: true,
-      
-    },
-    {
-      title: 'Type of Sale',
-      dataIndex: 'tos',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Subscription',
-      dataIndex: 'subscription',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Subscription Number',
-      dataIndex: 'subNo',
-      width: 150,
-      editable: true,
-      
     },
     {
       title: 'Course',
@@ -305,81 +307,54 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Course Frequency',
-      dataIndex: 'courseFrq',
+      title: 'Starting lesson',
+      dataIndex: 'startLesson',
       width: 150,
       editable: true,
       
     },
-    {
-      title: 'Preferred Timings',
-      dataIndex: 'ptimings',
-      width: 150,
-      editable: true,
+    // {
+    //   title: 'Start Date',
+    //   dataIndex: 'startDate',
+    //   width: 150,
+    //   editable: true,
+    //   render: (value)=>{
+    //     if(value){
+    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+    //     }
+    //   }
       
-    },
-    {
-      title: 'Starting level of student',
-      dataIndex: 'level',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Tentative Start Date',
-      dataIndex: 'startDate',
-      width: 150,
-      editable: true,
-      
-    },
+    // },
     {
       title: 'No of classess sold',
-      dataIndex: 'classSold',
+      dataIndex: 'classessold',
       width: 150,
       editable: true,
       
     },
     {
       title: 'Total Sale amount',
-      dataIndex: 'saleAmt',
+      dataIndex: 'saleamount',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Down payment',
-      dataIndex: 'payment',
+      dataIndex: 'downpayment',
       width: 150,
       editable: true,
-      
     },
     {
-      title: 'EMI amount',
-      dataIndex: 'emi',
+      title: 'Plan Type',
+      dataIndex: 'plantype',
       width: 150,
       editable: true,
-      
     },
     {
-      title: 'No of months of EMI',
-      dataIndex: 'nemi',
+      title: 'Payment Id',
+      dataIndex: 'paymentid',
       width: 150,
       editable: true,
-      
-    },
-    {
-      title: 'Payment Mode',
-      dataIndex: 'paymentMode',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Transaction Id',
-      dataIndex: 'transactionId',
-      width: 150,
-      editable: true,
-      
     },
     {
       title: 'BDA Comments',
@@ -436,6 +411,8 @@ const studentGetApi = async ()=>{
     };
   });
 
+
+  //Search Inputs
   const handleInputChange = (e) => {
     setFormData((value) => ({
       ...value,
@@ -489,14 +466,14 @@ const studentGetApi = async ()=>{
                     </Form.Item>
                   </Col>
                   
-                  <Col span = {2}>
+                  <Col span = {1}>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
                       Query
                     </Button>
                   </Form.Item>
                   </Col>
-                  <Col span = {1}>
+                  <Col span = {1} style = {{marginLeft: 10}}>
                   <Form.Item >
                   <Button
                     onClick={handleReset}

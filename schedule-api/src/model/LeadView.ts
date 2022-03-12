@@ -1,49 +1,91 @@
-    //import { Lead } from "./Lead";
-
-    export class LeadView {
-            id: string;
-            date: string;        
-            name: string;         
-            totalexp:string;         
-            phoneNumber: string;         
-            email: string;         
-            status: string;
-            classestaken: string;
-            ratings:Number;
-            timeslots: string;
-            leadId: string;
-            slots:string;
-            classesTaken:number;
-            leadType : Number;
-            cosmos_ref: string;
-            type:string;
-            batchCode: string;
-            studentID: string;
-            dob: Date;
-            whatsapp: string;
-            address: string;
-
-            public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
-                ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob:Date, whatsapp: string, address: string){
-                this.id = id;
-                this.leadId = leadId;
-                this.date = date;
-                this.totalexp=experience;
-                this.phoneNumber=mobile;
-                this.email=email;                
-                this.status=status;
-                this.classesTaken=classestaken;
-                this.ratings=ratings;
-                this.slots=slots;
-                this.slots=slots;
-                this.type = type;
-                this.leadType = leadType;
-                this.name = name;
-                this.batchCode = batchCode;
-                this.studentID = studentID;
-                this.dob = dob;
-                this.whatsapp = whatsapp;
-                this.address = address;
-            }
-    }
-    
+//import { Lead } from "./Lead";
+export class LeadView {
+  id: string;
+  date: string;
+  name: string;
+  totalexp:string;
+  phoneNumber: string;
+  email: string;
+  status: string;
+  classestaken: string;
+  ratings:Number;
+  timeslots: string;
+  leadId: string;
+  slots:string;
+  classesTaken:number;
+  leadType : Number;
+  cosmos_ref: string;
+  type:string;
+  batchCode: string;
+  studentID: string;
+  dob: Date;
+  whatsapp: string;
+  address: string;
+  classType: string;
+  payments: string;
+  age: string;
+  startDate: Date;
+  startLesson: string;
+  pfirstName: string;
+  plastName: string;
+  course: string;
+  comments: string;
+  alternativeMobile: string;
+  paymentid: string;
+  downpayment: string;
+  classessold: string;
+  saleamount: string;
+  plantype: string;
+  firstName: string;
+  lastName: string;
+  public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
+      ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob?:Date, whatsapp?: string, address?: string, classType?: string, payments?: string, age?: string, startDate?: Date, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string) {
+      this.id = id;
+      this.leadId = leadId;
+      this.date = date;
+      this.totalexp=experience;
+      this.phoneNumber=mobile;
+      this.email=email;
+      this.status=status;
+      this.classesTaken=classestaken;
+      this.ratings=ratings;
+      this.slots=slots;
+      this.slots=slots;
+      this.type = type;
+      this.leadType = leadType;
+      this.name = name;
+      this.batchCode = batchCode;
+      this.studentID = studentID;
+      this.dob = dob;
+      this.whatsapp = whatsapp;
+      this.address = address;
+      this.classType = classType;
+      this.payments = payments;
+      if(Array.isArray(payments)){
+          this.paymentid = payments.map(p => p.paymentid).join(',');
+      }
+      if(Array.isArray(payments)){
+        this.downpayment = payments.map(p => p.downpayment).join(',');
+      }
+      if(Array.isArray(payments)){
+        this.classessold = payments.map(p => p.classessold).join(',');
+      }
+      if(Array.isArray(payments)){
+        this.saleamount = payments.map(p => p.saleamount).join(',');
+      }
+      if(Array.isArray(payments)){
+        this.plantype = payments.map(p => p.plantype).join(',');
+      }
+      this.age = age;
+      this.startDate = startDate;
+      this.startLesson = startLesson;
+      this.pfirstName = pfirstName;
+      this.plastName = plastName;
+      this.course = course;
+      this.comments = comments;
+      this.alternativeMobile = alternativeMobile;
+      // this.paymentid = paymentid;
+      this.firstName = firstName;
+      this.lastName = lastName;
+  }
+}
