@@ -1,6 +1,6 @@
-import { Button, DatePicker, Drawer, Input, Table, InputNumber, Popconfirm, Form, Typography, Switch, Row, Col, Select, notification} from "antd";
-import React, { useState, useRef, useEffect } from "react";
-import { EditTwoTone } from "@ant-design/icons";
+// @ts-nocheck
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification} from "antd";
+import React, { useState, useEffect } from "react";
 import { FormattedMessage, useIntl } from "umi";
 import {addTeacherSchedule, studentsOnboarding, studentsOnboardingFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
@@ -103,7 +103,7 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
 
 //edit submit 
 const formSubmit = async (value)=>{
-  console.log('value', value)
+  //console.log('value', value)
   
   const dataForm = {
     leadId: value.studentID,
@@ -126,7 +126,7 @@ const formSubmit = async (value)=>{
     //startDate: value.startDate,
     pfirstName: value.pfirstName,
     plastName: value.plastName,
-    payments: [{
+    payment: [{
       paymentid: value.paymentid,
       classessold: value.classessold,
       saleamount: value.saleamount,
@@ -134,13 +134,14 @@ const formSubmit = async (value)=>{
       plantype: value.plantype,
       studentId: value.studentID,
       classtype:'',
+      leadId: value.studentID,
     }]
 
   }
   console.log("dataForm", dataForm);
   try {
     // 登录
-    console.log("data", dataForm);
+    //console.log("data", dataForm);
     const msg = await addTeacherSchedule({
       headers: {
         "Content-Type": "application/json",
@@ -148,17 +149,17 @@ const formSubmit = async (value)=>{
       body: JSON.stringify(dataForm),
     });
     if (msg.status === 400) {
-      //openNotificationWithIcon('error', msg);
+      openNotificationWithIcon('error', msg);
       console.log("API call sucessfull", msg);
     } else {
-      //openNotificationWithIcon('success', 'Student');
+      openNotificationWithIcon('success', 'Student');
     }
     if (msg) {
-      console.log("API call sucessfull", msg);
+      //console.log("API call sucessfull", msg);
     }
-    console.log(msg);
+    //console.log(msg);
   } catch (error) {
-    //openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
+    openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
   }
   
 }
@@ -173,9 +174,9 @@ const studentGetApi = async ()=>{
       console.log("API call sucessfull", msg);
     }
     setData(msg.data);
-    console.log('view one',msg);
+    //console.log('view one',msg);
   } catch (error) {
-    console.log("error", error);
+    //console.log("error", error);
   }
 }
 
@@ -211,7 +212,7 @@ const studentGetApi = async ()=>{
   } catch (errInfo) {
     console.log('Validate Failed:', errInfo);
   }
-  console.log('data at save', data)
+  //console.log('data at save', data)
   };
 
   const columns = [
@@ -421,7 +422,7 @@ const studentGetApi = async ()=>{
   }
   
   const handleFormSubmit = async (value) => {
-    console.log('status', formData, value)
+    //console.log('status', formData, value)
     try {
       let msg = await studentsOnboardingFilter(formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
@@ -443,7 +444,7 @@ const studentGetApi = async ()=>{
 
   return (
     <>
-      {/* <h2 style = {{textAlign: "center"}}>Onboarding Student view</h2> */}
+      <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
       <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
