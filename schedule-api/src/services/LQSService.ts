@@ -23,6 +23,7 @@ export class LQSService {
 
     private lQSRepository = getRepository(LQSEntry);
     private userRepository = getRepository(User);
+    private studentRepository = getRepository(Student);
 
    async createStudents() {
      //  var lqsEntries = this.lQSRepository.find();
@@ -30,18 +31,28 @@ export class LQSService {
        var lqsEntries = await getManager().query('SELECT * from  lsqentry');
        for (let element of lqsEntries ) {
            var user = new User();
+           var student = new Student();
            user.id = element.id;
-           user.firstName = element.firstName;
-           user.lastName = element.lastName ? element.lastName: 'DUMMY';
-           user.phoneNumber = element.phoneNumber;
+           student.id = element.id;
+           user.firstName = element.firstName? element.firstName: 'NA';
+           user.lastName = element.lastName ? element.lastName: 'NA';
+           if (element.phoneNumber) {
+            element.phoneNumber = element.phoneNumber.replace('-', '');
+            user.phoneNumber = element.phoneNumber;
+           }
+           if (element.pfirstName) {
+            student.pfirstName = element.pfirstName;
+           }
+           student.course = element.course;          
            user.dob = element.dob;
-           user.email = element.email? element.email : 'DUMMY';
+           user.email = element.email? element.email : ' ';
            user.whatsapp = element.whatsapp;
            user.status = 'enrolled';
            user.type='student';
            try {
             await this.updateCosmos(user);
-            this.userRepository.save(user);             
+            this.userRepository.save(user); 
+            this.studentRepository.save(student);            
            } catch (error) {
              usersLogger.info("Failed during LSQ update");
            }
@@ -93,7 +104,7 @@ export class LQSService {
             "LookupName": "ProspectStage",
             "LookupValue": "Enrolled",
             "SqlOperator": "="*/
-            "LookupName": "CreatedOn",
+            "LookupName": "ModifiedOn",
         "LookupValue": data.LookupValue,
         "SqlOperator": ">"
         },
@@ -103,7 +114,7 @@ export class LQSService {
                 "SqlOperator": "="
             },*/
             "Columns": {
-                "Include_CSV": "ProspectID, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone"
+                "Include_CSV": "ProspectID, CreatedOn,ModifiedOn,Source,ProspectStage,mx_Parent_Name,LastModifiedOn, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone"
             },
             "Sorting": {
                 "ColumnName": "ModifiedOn",
@@ -134,6 +145,7 @@ export class LQSService {
                 usersLogger.info(element.ProspectID); 
                 lqsEntry.firstName = element.FirstName;
                 lqsEntry.lastName = element.LastName;
+                lqsEntry.pfirstName = element.mx_Parent_Name;
                 lqsEntry.email = element.EmailAddress;
                 lqsEntry.phoneNumber = element.Phone;
                 lqsEntry.whatsapp = element.mx_WhatsApp_Phone_Number;
@@ -149,7 +161,7 @@ export class LQSService {
           return {status:400,error:error?.response?.data};
           return Promise.reject(error);
         });
-        usersLogger.info("Data fetch completed from LQS", res1[0].ProspectID);
+ //       usersLogger.info("Data fetch completed from LQS", res1[0].ProspectID);
         return res1;
     }
     
