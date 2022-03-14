@@ -63,18 +63,10 @@ export class LeadView {
       this.payments = payments;
       if(Array.isArray(payments)){
           this.paymentid = payments.map(p => p.paymentid).join(',');
-      }
-      if(Array.isArray(payments)){
-        this.downpayment = payments.map(p => p.downpayment).join(',');
-      }
-      if(Array.isArray(payments)){
-        this.classessold = payments.map(p => p.classessold).join(',');
-      }
-      if(Array.isArray(payments)){
-        this.saleamount = payments.map(p => p.saleamount).join(',');
-      }
-      if(Array.isArray(payments)){
-        this.plantype = payments.map(p => p.plantype).join(',');
+          this.downpayment = payments.map(p => p.downpayment).join(',');
+          this.classessold = payments.map(p => p.classessold).join(',');
+          this.saleamount = payments.map(p => p.saleamount).join(',');
+          this.plantype = payments.map(p => p.plantype).join(',');
       }
       this.age = age;
       this.startDate = startDate;
