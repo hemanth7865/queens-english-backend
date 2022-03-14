@@ -482,6 +482,7 @@ export class TeacherService {
         element.type,
         studentOrTeacherId.join(","),
         element.id,
+        element.dob
       );
       leadView.push(l);
     }
@@ -595,7 +596,7 @@ export class TeacherService {
         " ";
     });
     if (slot) users.slots = slot;
-
+    console.log('user sdfsf', users)
     return { success: true, data: users, total: 1, current: 1, pageSize: 1 };
   }
 }

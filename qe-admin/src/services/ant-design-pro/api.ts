@@ -481,3 +481,54 @@ export async function allAssessment(
     ...(options || {}),
   });
 }
+
+
+//Onboarding students get all 
+export async function studentsOnboarding(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/leadsview', {
+    method: 'GET',
+    params: {
+      ...params,
+      type:'student',
+      status:'onboarding'
+    },
+    ...(options || {}),
+  });
+}
+
+//Onboarding search fields
+export async function studentsOnboardingFilter(
+  name: string,
+  phoneNumber: string,
+  email: string,
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>('/be/leadsview', {
+    method: 'GET',
+    params: {
+      ...params,
+      type: 'student',
+      status: 'onboarding',
+      name: name?name:'',
+      phoneNumber: phoneNumber?phoneNumber:'',
+      email: email?email:'',
+    },
+    ...(options || {}),
+  });
+}

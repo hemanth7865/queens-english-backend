@@ -48,8 +48,12 @@
         name: 'Assessment',
         path: '/manage/assessment',
         component: './NewAssessment'
-
-      }
+      },
+      {
+        name: 'Onboarding',
+        path: '/manage/onboarding',
+        component: './OnboardStudent'
+      },
     ]
   },
   {
