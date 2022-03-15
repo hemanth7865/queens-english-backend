@@ -1168,6 +1168,8 @@ const BatchList: React.FC = () => {
                     <div className="label">Class Date</div>
                     <div className="label">Created By</div>
                     <div className="label">Assigned Teacher</div>
+                    <div className="label">Start Lesson</div>
+                    <div className="label">End Lesson</div>
                     <div className="label">Student</div>
                     <div className="label">TimeSlot</div>
                     <div className="label">Status</div>
@@ -1187,6 +1189,12 @@ const BatchList: React.FC = () => {
                     </div>
                     <div className="label">
                       {tempData?.teacher ? tempData?.teacher : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.startingLessonId ? "Lesson " + LESSONS.filter(i => tempData?.startingLessonId === i.id)[0]?.number : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.endingLessonId ? "Lesson " + LESSONS.filter(i => tempData?.endingLessonId === i.id)[0]?.number : "NA"}
                     </div>
                     <div className="label">
                       {tempData?.students ? tempData?.students : "NA"}
