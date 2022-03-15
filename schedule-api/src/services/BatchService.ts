@@ -487,7 +487,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current}, ${pageSize};`;
+    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current >= 0 ? current : 0}, ${pageSize >= 0 ? pageSize : 20};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -550,7 +550,9 @@ export class BatchService {
         `${startTime}-${endTime}`,
         classes?.classStartDate && classes?.classEndDate ? classes.classStartDate.split("T")[0] + " To " + classes.classEndDate.split("T")[0] : "NA",
         status,
-        students
+        students,
+        classes.startingLessonId,
+        classes.endingLessonId
       );
       batchView.push(view);
     }
