@@ -131,6 +131,7 @@ export class StudentService {
   "," +
   limit +
   `;`;
+  let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
   console.log(`query string ${query_list}`);
 
@@ -138,7 +139,7 @@ export class StudentService {
 
 
       results = await getManager().query(finalQuery);
-     var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+      var total = await getManager().query(totalQuery);
       console.log("results size", results.length);
 
       for (const element of results) {
@@ -209,7 +210,7 @@ export class StudentService {
       return {
         success: true,
         data: leadView,
-        total: total[0].total,
+        total: parseInt(total[0].total),
         current: current,
         pageSize: limit,
       };
