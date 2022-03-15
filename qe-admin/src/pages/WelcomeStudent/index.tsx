@@ -1,28 +1,32 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker} from "antd";
 import React, { useState, useEffect } from "react";
 import { FormattedMessage, useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 
 const { Option } = Select;
-
 interface Item {
   id: string;
   name: string;
-  mobile: string;
+  phoneNumber: string;
   email: string;
-  dob: number;
-  comments: number;
+  dob: date;
+  status: number;
+  course: select;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' ;
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson';
   record: Item;
   index: number;
   children: React.ReactNode;
+}
+
+function onChange(date, dateString) {
+  console.log(date, dateString);
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -35,11 +39,51 @@ const EditableCell: React.FC<EditableCellProps> = ({
   children,
   ...restProps
 }) => {
-  const inputNode = inputType === 'number' ? <Select style={{ width: 170 }} >
-                                              <Option value="Sent Message">Sent Message</Option>
-                                              <Option value="First Class Feedback">First Class Feedback</Option>
-                                            </Select> : 
-                                            <Input />;
+  const inputNode = () => {
+    if(inputType === 'number'){
+        return (<Select style={{ width: 120 }} >
+                  <Option value="onboarding">Onboarding</Option>
+                  <Option value="batching">Batching</Option>
+                </Select>)
+    }else if(inputType === 'select'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="DISE - Group Class">DISE - Group Class</Option>
+              <Option value="DISE - 1:1">DISE - 1:1</Option>
+              <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+              <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+              <Option value="DEMO249">DEMO249</Option>
+            </Select>
+      )
+    }else if(inputType === 'date'){
+      return <DatePicker onChange={(date, dateString)=>{setDob(dateString)}}/>
+    }else if(inputType === 'selectLesson'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Lesson 1">Lesson 1</Option>
+              <Option value="Lesson 31">Lesson 31</Option>
+              <Option value="Lesson 61">Lesson 61</Option>
+              <Option value="Lesson 121">Lesson 121</Option>
+              <Option value="Lesson 201">Lesson 201</Option>
+              <Option value="Lesson 221">Lesson 221</Option>
+              <Option value="Lesson 240">Lesson 240</Option>
+              <Option value="Lesson 301">Lesson 301</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectPlan'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Razorpay">Razorpay</Option>
+              <Option value="Bank Transfer">Bank Transfer</Option>
+              <Option value="Cashfree">Cashfree</Option>
+              <Option value="Other">Other</Option>
+            </Select>
+      )
+    }
+    else{
+      return <Input />
+    }
+  }
   //console.log('inputnode', inputType)
   return (
     <td {...restProps}>
@@ -47,14 +91,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: `Please Input ${title}!`,
+          //   },
+          // ]}
         >
-          {inputNode}
+          {inputNode()}
         </Form.Item>
       ) : (
         children
@@ -71,11 +115,11 @@ const StudentOnboard: React.FC = () => {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
-  const [statusCheck, setStatusCheck] = useState('');
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [statusCheck, setStatusCheck] = useState('');
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -105,12 +149,13 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
 function handleCheckbox(e) {
   console.log(`checked = ${e.target.checked}`);
   if(e.target.checked == true){
-    setStatusCheck('active')
+    setStatusCheck('batching')
   }else{
-    setStatusCheck('onboarding')
+    setStatusCheck('enrolled')
   }
 }
 
+console.log('check status', statusCheck)
 
 //edit submit 
 const formSubmit = async (value)=>{
@@ -123,13 +168,13 @@ const formSubmit = async (value)=>{
     phoneNumber: value.phoneNumber,
     studentID: value.studentID,
     address: value.address,
-    //dob: dateOfBirth,
+    dob: dobValue,
     whatsapp:value.whatsapp,
     comments:value.comments,
     email:value.email,
     id: value.studentID,
     type: 'student',
-    status: statusCheck?statusCheck:'onboarding',
+    status: statusCheck?statusCheck:'enrolled',
     alternativeMobile: value.alternativeMobile,
     classType: value.classType,
     course: value.course,
@@ -166,7 +211,7 @@ const formSubmit = async (value)=>{
       //openNotificationWithIcon('success', 'Student');
     }
     if (msg) {
-      //console.log("API call sucessfull", msg);
+      console.log("API call sucessfull", msg);
     }
     //console.log(msg);
   } catch (error) {
@@ -177,7 +222,7 @@ const formSubmit = async (value)=>{
 
 const studentGetApi = async ()=>{
   try {
-    let msg = await studentsDashboard('onboarding', {
+    let msg = await studentsDashboard('enrolled', {
         current: 1,
         pageSize: 20}
     );
@@ -259,11 +304,11 @@ const studentGetApi = async ()=>{
     //   dataIndex: 'dob',
     //   width: 150,
     //   editable: true,
-    //   render: (value)=>{
-    //     if(value){
-    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-    //     }
-    //   }
+    //   // render: (value)=>{
+    //   //   if(value){
+    //   //     return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+    //   //   }
+    //   // }
     // },
     {
       title: 'Parent First Name',
@@ -299,7 +344,7 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Customer Address',
+      title: 'Address',
       dataIndex: 'address',
       width: 150,
       editable: true,
@@ -369,15 +414,15 @@ const studentGetApi = async ()=>{
       editable: true,
     },
     {
-      title: 'Status Comments',
+      title: 'BDA Comments',
       dataIndex: 'comments',
-      width: 200,
+      width: 150,
       editable: true,
       
     },
     {
-      title: 'Active',
-      width: 150,
+      title: 'Ready to Batch',
+      width: 130,
       editable: false,
       render: ()=>{
         return <Checkbox onChange={handleCheckbox} ></Checkbox>
@@ -416,7 +461,7 @@ const studentGetApi = async ()=>{
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'comments' ? 'number' : 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -436,7 +481,7 @@ const studentGetApi = async ()=>{
   const handleFormSubmit = async (value) => {
     //console.log('status', formData, value)
     try {
-      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
           pageSize: 20}
       );
@@ -456,7 +501,7 @@ const studentGetApi = async ()=>{
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
+      <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
       <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>

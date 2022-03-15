@@ -12,7 +12,7 @@ interface Item {
   mobile: string;
   email: string;
   dob: number;
-  comments: number;
+  status: number;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -35,9 +35,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
   children,
   ...restProps
 }) => {
-  const inputNode = inputType === 'number' ? <Select style={{ width: 170 }} >
-                                              <Option value="Sent Message">Sent Message</Option>
-                                              <Option value="First Class Feedback">First Class Feedback</Option>
+  const inputNode = inputType === 'number' ? <Select style={{ width: 120 }} >
+                                              <Option value="onboarding">Onboarding</Option>
+                                              <Option value="batching">Batching</Option>
                                             </Select> : 
                                             <Input />;
   //console.log('inputnode', inputType)
@@ -71,11 +71,11 @@ const StudentOnboard: React.FC = () => {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
-  const [statusCheck, setStatusCheck] = useState('');
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [statusCheck, setStatusCheck] = useState('');
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -129,7 +129,7 @@ const formSubmit = async (value)=>{
     email:value.email,
     id: value.studentID,
     type: 'student',
-    status: statusCheck?statusCheck:'onboarding',
+    status: statusCheck,
     alternativeMobile: value.alternativeMobile,
     classType: value.classType,
     course: value.course,
@@ -177,7 +177,7 @@ const formSubmit = async (value)=>{
 
 const studentGetApi = async ()=>{
   try {
-    let msg = await studentsDashboard('onboarding', {
+    let msg = await studentsDashboard('batching', {
         current: 1,
         pageSize: 20}
     );
@@ -369,19 +369,20 @@ const studentGetApi = async ()=>{
       editable: true,
     },
     {
-      title: 'Status Comments',
+      title: 'BDA Comments',
       dataIndex: 'comments',
-      width: 200,
+      width: 150,
       editable: true,
       
     },
     {
-      title: 'Active',
-      width: 150,
+      title: 'Status',
+      width: 130,
       editable: false,
       render: ()=>{
         return <Checkbox onChange={handleCheckbox} ></Checkbox>
       }
+      
     },
     {
       title: 'operation',
@@ -416,7 +417,7 @@ const studentGetApi = async ()=>{
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'comments' ? 'number' : 'text',
+        inputType: col.dataIndex === 'status' ? 'number' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -436,7 +437,7 @@ const studentGetApi = async ()=>{
   const handleFormSubmit = async (value) => {
     //console.log('status', formData, value)
     try {
-      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
+      let msg = await studentsDashboardFilter('batching', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
           pageSize: 20}
       );
@@ -456,7 +457,7 @@ const studentGetApi = async ()=>{
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
+      <h3 style = {{textAlign: "center"}}>Batching Students</h3>
       <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>

@@ -67,6 +67,7 @@ export class LeadView {
           this.classessold = payments.map(p => p.classessold).join(',');
           this.saleamount = payments.map(p => p.saleamount).join(',');
           this.plantype = payments.map(p => p.plantype).join(',');
+          //this.id = payments.map(p=>p.id).join(',');
       }
       this.age = age;
       this.startDate = startDate;

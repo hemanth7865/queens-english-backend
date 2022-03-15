@@ -483,8 +483,9 @@ export async function allAssessment(
 }
 
 
-//Onboarding students get all 
-export async function studentsOnboarding(
+//Onboarding, batching and enrolled students get all 
+export async function studentsDashboard(
+  status: string,
   params: {
     // query
     /** 当前的页码 */
@@ -499,14 +500,15 @@ export async function studentsOnboarding(
     params: {
       ...params,
       type:'student',
-      status:'onboarding'
+      status: status
     },
     ...(options || {}),
   });
 }
 
 //Onboarding search fields
-export async function studentsOnboardingFilter(
+export async function studentsDashboardFilter(
+  status: string,
   name: string,
   phoneNumber: string,
   email: string,
@@ -524,7 +526,7 @@ export async function studentsOnboardingFilter(
     params: {
       ...params,
       type: 'student',
-      status: 'onboarding',
+      status: status,
       name: name?name:'',
       phoneNumber: phoneNumber?phoneNumber:'',
       email: email?email:'',
