@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState, useEffect, useRef} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Tabs, TimePicker, message } from 'antd';
+import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Tabs, TimePicker, message, Spin } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 import {
@@ -40,6 +40,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
     const [teacherName, setTeacherName] = useState([]);
     const [batch, setBatch] = useState([]);
     const [selectedBatch, setSelectedBatch] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [defaultTeacherOptions, setDefaultTeacherOptions] = useState([]);
     const [defaultBatchesOptions, setDefaultBatchesOptions] = useState([]);
 
@@ -93,11 +94,11 @@ const Batch: React.FC<EditUserProps> = (props) => {
         });
     } , [id]);
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during adding batch' }, userType = 'Student') => {
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during adding batch' }) => {
         notification[type]({
-          message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
+          message: `Status ${type}` ,
           description:
-            '',
+          msg.data,
         });
         setTimeout(() => {
           window.location.reload()
@@ -115,38 +116,46 @@ const Batch: React.FC<EditUserProps> = (props) => {
         }))
     }
 
-    const onFinish = async ()=>{
+    const onFinish = async (e) => {
         let dataForm = {}
+        let success = true;
+        setIsLoading(true);
         if (id) {
-            // try {
-            // 登录
-            const batchDetails = await (await getIndividualBatch(selectedBatch)).data;
+            try {
+                const batchDetails = await (await getIndividualBatch(selectedBatch)).data;
 
-            dataForm = {...batchDetails.classes, edit: true, students: [{value: id}], batchAvailability: [{}]};
+                dataForm = {...batchDetails.classes, edit: true, students: [{value: id}], batchAvailability: [{}]};
 
-            if(dataForm.teacher){
-                delete dataForm.teacher;
-            }
-
-            for(let student of batchDetails.students){
-                if(!dataForm.students.filter(s => s.value === student.id).length > 0){
-                    dataForm.students.push({value: student.id})
+                if(dataForm.teacher){
+                    delete dataForm.teacher;
                 }
-            }
 
-            const msg = await addeditbatch({
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataForm),
-            });
-            
-            if (msg.success) {
-                if(msg.data[0]?.message){
-                    message.error(msg.data[0].message);
+                for(let student of batchDetails.students){
+                    if(!dataForm.students.filter(s => s.value === student.id).length > 0){
+                        dataForm.students.push({value: student.id})
+                    }
                 }
-            }
 
+                const msg = await addeditbatch({
+                    headers: {
+                    "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataForm),
+                });
+
+                if (msg.success) {
+                    if(msg.data[0]?.message){
+                        success = false;
+                        message.error(msg.data[0].message);
+                    }else{
+                        openNotificationWithIcon('success', {data: "Completed Adding Student To Batch, Marking Student As Onboard..."});
+                    }
+                }
+            } catch (error) {
+                success = false;
+                message.error("Something went wrong while adding student to batch.");
+                console.log("addRule error", error);
+            }
             // const msg = await addUserSchedule({
             //     headers: {
             //     "Content-Type": "application/json",
@@ -168,10 +177,13 @@ const Batch: React.FC<EditUserProps> = (props) => {
             
             // }
         }
-        // props.setVisible(false)
-        // setTimeout(() => {
-        //     window.location.reload()
-        // }, 1000);
+        setIsLoading(false);
+        if(success){
+            // props.setVisible(false)
+            // setTimeout(() => {
+            //     window.location.reload()
+            // }, 1000);
+        }
     }
 
     const actionRef = useRef<ActionType>();
@@ -240,7 +252,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
     
 
     return(
-        <div>
+        <Spin spinning={isLoading}>
         <Form onFinish={onFinish}>
             <Tabs defaultActiveKey="1">
                 <TabPane tab="Batch" key="1"> 
@@ -257,7 +269,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
                                     toolBarRender={() => []}
                                     request={fetchBatchList}
                                     columns={columns}
-                                    perpage={5}
+                                    pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
                                 />
                             </Form.Item>
                         </Col>
@@ -328,7 +340,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
                 </Col>
             </Row>
         </Form>
-        </div>
+        </Spin>
     )
 }
     
