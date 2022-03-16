@@ -18,10 +18,10 @@ export class LQSController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var res = await this.lQSService.fetchLQSData(request.body);
+        await this.lQSService.createStudents();
         //Fetch lqs data
-        usersLogger.info("Controller results", res);
-       
-        this.lQSService.createStudents();
+        usersLogger.info("Controller results", res);       
+        
          usersLogger.info("LQS data fetch :: End");
 
         return res;
