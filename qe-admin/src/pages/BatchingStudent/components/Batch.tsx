@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState, useEffect, useRef} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Tabs, TimePicker } from 'antd';
+import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Tabs, TimePicker, message } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 import {
@@ -16,6 +16,7 @@ import {
     listTeacherAndStudent,
     listBatch,
     addeditbatch,
+    getIndividualBatch
 } from "@/services/ant-design-pro/api";
 import DebounceSelect from "@/components/DebounceSelect";
 import ProTable from "@ant-design/pro-table";
@@ -116,34 +117,61 @@ const Batch: React.FC<EditUserProps> = (props) => {
 
     const onFinish = async ()=>{
         let dataForm = {}
-        if (props.data) {
-            dataForm.id = props.data.id;
-            }
-            try {
+        if (id) {
+            // try {
             // 登录
-            console.log("data", dataForm);
-            const msg = await addUserSchedule({
+            const batchDetails = await (await getIndividualBatch(selectedBatch)).data;
+
+            dataForm = {...batchDetails.classes, edit: true, students: [{value: id}], batchAvailability: [{}]};
+
+            if(dataForm.teacher){
+                delete dataForm.teacher;
+            }
+
+            for(let student of batchDetails.students){
+                if(!dataForm.students.filter(s => s.value === student.id).length > 0){
+                    dataForm.students.push({value: student.id})
+                }
+            }
+
+            const msg = await addeditbatch({
                 headers: {
-                "Content-Type": "application/json",
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify(dataForm),
             });
-            if (msg.status === "ok") {
-                console.log("API call sucessfull", msg);
-            }
-            if (msg.status === 400) {
-                openNotificationWithIcon('error', msg);
-        
-                } else {
-                console.log(msg);
-                openNotificationWithIcon('success', '', 'User');
-                }
-            } catch (error) {
-            console.log("addRule error", error);
             
+            if (msg.success) {
+                if(msg.data[0]?.message){
+                    message.error(msg.data[0].message);
+                }
             }
-        props.setVisible(false)
-        window.location.reload()
+
+            // const msg = await addUserSchedule({
+            //     headers: {
+            //     "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify(dataForm),
+            // });
+            // if (msg.status === "ok") {
+            //     console.log("API call sucessfull", msg);
+            // }
+            // if (msg.status === 400) {
+            //     openNotificationWithIcon('error', msg);
+        
+            //     } else {
+            //     console.log(msg);
+            //     openNotificationWithIcon('success', '', 'User');
+            //     }
+            // } catch (error) {
+            // console.log("addRule error", error);
+            
+            // }
+        }
+        // props.setVisible(false)
+        // setTimeout(() => {
+        //     window.location.reload()
+        // }, 1000);
     }
 
     const actionRef = useRef<ActionType>();
