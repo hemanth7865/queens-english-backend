@@ -29,8 +29,14 @@ export class User extends BaseEntity {
         gender:string;
     @Column({'nullable':true})
         phoneNumber: string;
+    @Column({'nullable':true})
+        alternativeMobile: string;
+        @Column({'nullable':true})
+        state: string;
     @Column("text")
         email: string;
+    @Column("text")
+    customerEmail: string;
     @Column({'nullable':true})
         code: number;
     @Column({'nullable':true})

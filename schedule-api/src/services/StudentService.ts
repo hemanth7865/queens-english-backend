@@ -20,19 +20,21 @@ export class StudentService {
   private teacherService  = new TeacherService();
 
 
-  private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
+  private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
 
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
 
   async listStudentDetails(data:any, parameters: any) {
 
-    var results: User[] = [];
+    
+    var results: any[] = [];
     var leadView: LeadView[] = [];
     var map = new Map();
     var leadTem: Teacher[] = [];
     var filter = false;
     var parametersList = [];
+    var student: Student[] = [];
 
     var offset = parameters.current;
     var current = offset;
@@ -65,8 +67,8 @@ export class StudentService {
     const type = parameters.type;
     var status = parameters.status;
     if (status) {
-    //  status = parseInt(status);    
-    query_list.push(` u.status like '${status}' `);
+      //  status = parseInt(status);    
+      query_list.push(` u.status like '${status}' `);
     }
 
     if (type) {
@@ -77,7 +79,6 @@ export class StudentService {
     if (parameters.studentID) {
       StudentIds.push(parameters.studentID);
     }
-    console.log('Batch code',parameters.batchCode);
 
     if (parameters.batchCode) {
       let bathCodeQuery = `SELECT u.id FROM user u join batch_students bs on bs.id = u.id
@@ -123,13 +124,14 @@ export class StudentService {
 
   
 
-  var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` ;
-     
- 
-  finalQuery = finalQuery +  offset * limit +
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, u.dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, s.startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} limit ` ;
+    
+
+  finalQuery = finalQuery +  (offset >= 0 ? offset * limit : 0) +
   "," +
-  limit +
+  (limit >= 0 ? limit : 20) +
   `;`;
+  let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
   console.log(`query string ${query_list}`);
 
@@ -137,28 +139,36 @@ export class StudentService {
 
 
       results = await getManager().query(finalQuery);
-     var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+      var total = await getManager().query(totalQuery);
       console.log("results size", results.length);
 
       for (const element of results) {
+        
         let slotsResult: any[] = [];
         let batchCodes: any[] = [];
+        let payment: string;
    
         var studentOrTeacherId=[];
         var batchCode = '';
   
         if (type == 'student' ) {
+            
+          var quer =
+          "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
+          element.id +
+          "');";
           
-        var quer =
-        "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
-        element.id +
-        "');";
-      batchCodes = await getManager().query(quer);
-      batchCodes.forEach((element) => {
-        console.log("batchCode", element);
-        studentOrTeacherId.push(element.batchNumber);
-      });
-    }
+          batchCodes = await getManager().query(quer);
+          batchCodes.forEach((element) => {
+            console.log("batchCode", element);
+            studentOrTeacherId.push(element.batchNumber);
+          });
+
+          var paymentQuer =
+          "select * from payment where studentId = '"+element.id+"';";
+          
+          payment = await getManager().query(paymentQuer);
+        }
         var l = new LeadView(
           element.id,
           element.id,
@@ -175,14 +185,32 @@ export class StudentService {
           element.type,
           studentOrTeacherId.join(","),
           element.id,
+          element.dob,
+          element.whatsapp,
+          element.address,
+          element.classType,
+          payment,
+          element.age,
+          element.startDate,
+          element.startLesson,
+          element.pfirstName,
+          element.plastName,
+          element.course,
+          element.comments,
+          element.alternativeMobile,
+          element.paymentid,
+          element.firstName,
+          element.lastName,
         );
         leadView.push(l);
       }
+
+      console.log('leadsview', leadView)
   
       return {
         success: true,
         data: leadView,
-        total: total[0].total,
+        total: parseInt(total[0].total),
         current: current,
         pageSize: limit,
       };
@@ -352,6 +380,7 @@ export class StudentService {
           payment.id = element.id;
         }
         payment.paymentid = element.paymentid;
+        student.id = element.studentId;
         payment.plantype = element.plantype;
         payment.classtype = element.classtype;
         payment.classessold = element.classessold ? element.classessold : 0;

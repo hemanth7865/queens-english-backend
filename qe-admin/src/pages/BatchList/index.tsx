@@ -23,7 +23,8 @@ import {
   Select,
   Tag,
   Typography,
-  Table
+  Table,
+  Spin
 } from "antd";
 import { v4 as uuidv4 } from 'uuid';
 const { Title } = Typography;
@@ -128,6 +129,7 @@ const BatchList: React.FC = () => {
   const [startLesson,setStartLesson] = useState("");
   const [endLesson,setEndLesson] = useState("");
   const [followupVersion, setFollowupVersion] = useState("v2");
+  const [isLoading, setIsLoading] = useState(false);
 
   const options = [];
   const studentMap = {};
@@ -395,6 +397,7 @@ const BatchList: React.FC = () => {
       console.log("formData", dataForm);
 
       try {
+        setIsLoading(true);
         // 登录
         console.log("data", dataForm);
         const msg = await addeditbatch({
@@ -408,14 +411,21 @@ const BatchList: React.FC = () => {
           console.log("API call sucessfull", msg);
           setShowDetail(false)
           setCurrentRow(undefined)
-          actionRef.current?.reloadAndRest?.();
+          // actionRef.current?.reloadAndRest?.();
           if(msg.data[0]?.message){
             message.error(msg.data[0].message);
+            setTimeout(() => {
+              window.location.reload();
+            }, 3000);
+          }else{
+            window.location.reload();
           }
           console.log('details',showDetail)
+          setIsLoading(false);
         }
         console.log(msg);
       } catch (error) {
+        setIsLoading(false);
         console.log("Failed");
       };
   }
@@ -948,6 +958,7 @@ const BatchList: React.FC = () => {
                   </div>
                 )}
                 {renderEdit?
+                <Spin spinning={isLoading}>
                 <Form onFinish={handleFormSubmitEdit}>
                   <Row>
                     <Col span={24}>
@@ -1141,7 +1152,7 @@ const BatchList: React.FC = () => {
                       </Button>
                     </Col>
                   </Row>
-                </Form>:''
+                </Form></Spin>:''
                 }
               </>
             ) : (
@@ -1168,6 +1179,8 @@ const BatchList: React.FC = () => {
                     <div className="label">Class Date</div>
                     <div className="label">Created By</div>
                     <div className="label">Assigned Teacher</div>
+                    <div className="label">Start Lesson</div>
+                    <div className="label">End Lesson</div>
                     <div className="label">Student</div>
                     <div className="label">TimeSlot</div>
                     <div className="label">Status</div>
@@ -1187,6 +1200,12 @@ const BatchList: React.FC = () => {
                     </div>
                     <div className="label">
                       {tempData?.teacher ? tempData?.teacher : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.startingLessonId ? "Lesson " + LESSONS.filter(i => tempData?.startingLessonId === i.id)[0]?.number : "NA"}
+                    </div>
+                    <div className="label">
+                      {tempData?.endingLessonId ? "Lesson " + LESSONS.filter(i => tempData?.endingLessonId === i.id)[0]?.number : "NA"}
                     </div>
                     <div className="label">
                       {tempData?.students ? tempData?.students : "NA"}

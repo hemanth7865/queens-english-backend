@@ -52,6 +52,7 @@ export class TeacherService {
 
       var status;
       var res1={} ;
+      console.log("options", options)
       if (!data.id) {
       res1= await axios
         .post(options.url, options.body)
@@ -395,14 +396,15 @@ export class TeacherService {
     finalQuery = !parameters.type ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` :
           `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id  ${query_string} limit ` 
      
-      finalQuery = finalQuery +  offset * limit +
-      "," +
-      limit +
-      `;`;
+    finalQuery = finalQuery +  (offset >= 0 ? offset * limit : 0) +
+    "," +
+    (limit >= 0 ? limit : 20) +
+    `;`;
+    let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
     console.log("finalQuery", finalQuery);
     results = await getManager().query(finalQuery);
-    total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+    total = await getManager().query(totalQuery);
     console.log("results size", results.length);
 
     for (const element of results) {
@@ -481,6 +483,7 @@ export class TeacherService {
         element.type,
         studentOrTeacherId.join(","),
         element.id,
+        element.dob
       );
       leadView.push(l);
     }
@@ -488,7 +491,7 @@ export class TeacherService {
     return {
       success: true,
       data: leadView,
-      total: total[0].total,
+      total: parseInt(total[0].total),
       current: current,
       pageSize: limit,
     };
@@ -594,7 +597,7 @@ export class TeacherService {
         " ";
     });
     if (slot) users.slots = slot;
-
+    console.log('user sdfsf', users)
     return { success: true, data: users, total: 1, current: 1, pageSize: 1 };
   }
 }
