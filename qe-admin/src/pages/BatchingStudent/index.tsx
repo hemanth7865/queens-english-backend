@@ -73,7 +73,7 @@ const StudentOnboard: React.FC = () => {
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
 
   const [form] = Form.useForm();
-  const [data, setData] = useState();
+  const [data, setData] = useState<any>();
   const [editingKey, setEditingKey] = useState('');
   const [statusCheck, setStatusCheck] = useState('');
 
@@ -113,9 +113,8 @@ function handleCheckbox(e) {
 
 
 //edit submit 
-const formSubmit = async (value)=>{
+const formSubmit = async (value: any)=>{
   //console.log('value', value)
-  
   const dataForm = {
     leadId: value.studentID,
     firstName: value.firstName,
@@ -193,9 +192,8 @@ const studentGetApi = async ()=>{
 
 
 
-  useEffect(async (params: any) => {
-  //console.log("first reload")
-  studentGetApi()
+  useEffect(() => {
+    studentGetApi()
   }, []);
 
   const save = async (id: React.Key) => {
@@ -248,24 +246,6 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Student Id',
-      dataIndex: 'studentID',
-      width: 200,
-      editable: true,
-      
-    },
-    // {
-    //   title: 'Date of Birth of Student',
-    //   dataIndex: 'dob',
-    //   width: 150,
-    //   editable: true,
-    //   render: (value)=>{
-    //     if(value){
-    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-    //     }
-    //   }
-    // },
-    {
       title: 'Parent First Name',
       dataIndex: 'pfirstName',
       width: 150,
@@ -285,38 +265,10 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Whatsapp Number',
-      dataIndex: 'whatsapp',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Alternate Number',
-      dataIndex: 'alternativeMobile',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Customer Address',
-      dataIndex: 'address',
-      width: 150,
-      editable: true,
-      
-    },
-    {
       title: 'Class Type',
       dataIndex: 'classType',
       width: 150,
       editable: true,
-    },
-    {
-      title: 'Course',
-      dataIndex: 'course',
-      width: 150,
-      editable: true,
-      
     },
     {
       title: 'Starting lesson',
@@ -325,62 +277,16 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
-    // {
-    //   title: 'Start Date',
-    //   dataIndex: 'startDate',
-    //   width: 150,
-    //   editable: true,
-    //   render: (value)=>{
-    //     if(value){
-    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-    //     }
-    //   }
-      
-    // },
     {
-      title: 'No of classess sold',
-      dataIndex: 'classessold',
+      title: 'Start Date',
+      dataIndex: 'startDate',
       width: 150,
       editable: true,
-      
-    },
-    {
-      title: 'Total Sale amount',
-      dataIndex: 'saleamount',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Down payment',
-      dataIndex: 'downpayment',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Plan Type',
-      dataIndex: 'plantype',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Payment Id',
-      dataIndex: 'paymentid',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'BDA Comments',
-      dataIndex: 'comments',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Status',
-      width: 130,
-      editable: false,
-      render: ()=>{
-        return <Checkbox onChange={handleCheckbox} ></Checkbox>
+      render: (value: string) => {
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+        return "NA";
       }
       
     },
@@ -427,7 +333,7 @@ const studentGetApi = async ()=>{
 
 
   //Search Inputs
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
