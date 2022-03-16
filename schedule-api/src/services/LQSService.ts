@@ -256,7 +256,8 @@ export class LQSService {
         })
       //console.log(details);
       usersLogger.info("Updating Extra fields :: start");
-      details[0].Fields.map(item => {
+      if (details[0] && details[0].Fields) {
+       details[0].Fields.map(item => {
         switch (item.SchemaName) {
           case 'Status':
             lsq.status = item.value;
@@ -365,9 +366,10 @@ export class LQSService {
             usersLogger.info(`Not valid schema name ${item.SchemaName}`);
 
         }
+      })
         
 
-      })
+      }
 
       await this.lQSRepository.save(lsq);
       await new Promise(resolve => setTimeout(resolve, 1000));
