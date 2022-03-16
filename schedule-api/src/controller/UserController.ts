@@ -52,6 +52,20 @@ export class UserController {
         }
     }
 
+    async updateLeadsStatus(request: Request, response: Response, next: NextFunction){
+        usersLogger.info('Start::UserController::updateLeadsStatus');
+        usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
+        var resp;
+        try {
+            if(request.body.type === 'student') {
+                resp = await this.studentService.updateStudentStatus(request.body);
+            } 
+        } catch (error) {
+            console.log('Exception::UserController::updateLeadsStatus');
+        }
+        console.log('End::UserController::updateLeadsStatus');
+        return resp;
+    }
 
     async batchCreate(request: Request, response: Response, next: NextFunction) {
         console.log('contorller');

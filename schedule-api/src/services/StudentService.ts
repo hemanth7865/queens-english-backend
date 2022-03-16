@@ -318,6 +318,18 @@ export class StudentService {
   }
 
   
+  async updateStudentStatus(data: any){
+    usersLogger.info(
+      `Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
+    );
+    let user;
+    if(data.status && data.id){
+      user = await this.usersRepository.update({id: data.id}, {status: data.status});
+      return {status: 200, data: user};
+    }
+    return {status: 400, data: "Failed To Update User Status"};
+  }
+
   async saveStudentSQL(data: any, id) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`

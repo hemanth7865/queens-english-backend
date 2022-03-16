@@ -326,6 +326,14 @@ export async function addTeacherSchedule(options?: { [key: string]: any }) {
   });
 }
 
+export async function updateUserStatus(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/leads/update/status', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 /** POST /be/leads */
 export async function addUserSchedule(options?: { [key: string]: any }) {
   console.log('option', options)

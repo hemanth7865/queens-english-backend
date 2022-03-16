@@ -16,7 +16,8 @@ import {
     listTeacherAndStudent,
     listBatch,
     addeditbatch,
-    getIndividualBatch
+    getIndividualBatch,
+    updateUserStatus
 } from "@/services/ant-design-pro/api";
 import DebounceSelect from "@/components/DebounceSelect";
 import ProTable from "@ant-design/pro-table";
@@ -100,12 +101,25 @@ const Batch: React.FC<EditUserProps> = (props) => {
           description:
           msg.data,
         });
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000);
       };
 
    
+    const submitUpdateStudent = async (value: any)=>{
+        const msg = await updateUserStatus({
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(value),
+        });
+        if (msg.status === 400) {
+            openNotificationWithIcon('error', { status: 400, data: 'Failed To Mark Student Status As Onboarding' })
+        } else {
+            openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Onboarding' });
+        }
+
+        return msg;
+    }
+
 
     const handleInputChange = (event: { target: { name: any; value: any; }; })=>{
         console.log('val', event.target.value, event)
@@ -116,10 +130,11 @@ const Batch: React.FC<EditUserProps> = (props) => {
         }))
     }
 
-    const onFinish = async (e) => {
+    const onFinish = async () => {
         let dataForm = {}
         let success = true;
         setIsLoading(true);
+
         if (id) {
             try {
                 const batchDetails = await (await getIndividualBatch(selectedBatch)).data;
@@ -132,7 +147,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
 
                 for(let student of batchDetails.students){
                     if(!dataForm.students.filter(s => s.value === student.id).length > 0){
-                        dataForm.students.push({value: student.id})
+                        dataForm.students.push({value: student.studentId})
                     }
                 }
 
@@ -146,43 +161,33 @@ const Batch: React.FC<EditUserProps> = (props) => {
                 if (msg.success) {
                     if(msg.data[0]?.message){
                         success = false;
+                        setIsLoading(false);
                         message.error(msg.data[0].message);
                     }else{
                         openNotificationWithIcon('success', {data: "Completed Adding Student To Batch, Marking Student As Onboard..."});
+
+                        const result = await submitUpdateStudent({...props.data, status: "onboarding"});
+
+                        if(result.status !== 200){
+                            success = false;
+                        }
                     }
+                }else{
+                    openNotificationWithIcon('error', {data: "Failed To Complete Adding Student To Batch"});
+                    success = false;
                 }
             } catch (error) {
                 success = false;
                 message.error("Something went wrong while adding student to batch.");
-                console.log("addRule error", error);
+                console.log("add student to batch error", error);
             }
-            // const msg = await addUserSchedule({
-            //     headers: {
-            //     "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify(dataForm),
-            // });
-            // if (msg.status === "ok") {
-            //     console.log("API call sucessfull", msg);
-            // }
-            // if (msg.status === 400) {
-            //     openNotificationWithIcon('error', msg);
-        
-            //     } else {
-            //     console.log(msg);
-            //     openNotificationWithIcon('success', '', 'User');
-            //     }
-            // } catch (error) {
-            // console.log("addRule error", error);
-            
-            // }
         }
         setIsLoading(false);
         if(success){
-            // props.setVisible(false)
-            // setTimeout(() => {
-            //     window.location.reload()
-            // }, 1000);
+            props.setVisible(false)
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000);
         }
     }
 
