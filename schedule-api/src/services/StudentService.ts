@@ -124,7 +124,7 @@ export class StudentService {
 
   
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, u.dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, s.startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} limit ` ;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} limit ` ;
     
 
   finalQuery = finalQuery +  offset * limit +
@@ -200,6 +200,10 @@ export class StudentService {
           element.paymentid,
           element.firstName,
           element.lastName,
+          element.teacherName,
+          element.days,
+          element.studentType,
+          element.firstFeedback
         );
         leadView.push(l);
       }
@@ -342,7 +346,7 @@ export class StudentService {
       } else {
         user.id = id;
       }
-     // user.startDate = data.startDate;
+     user.startDate = data.startDate;
       user.address = data.address;
       user.whatsapp = data.whatsapp;
 

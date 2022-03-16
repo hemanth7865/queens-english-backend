@@ -10,23 +10,17 @@ interface Item {
   name: string;
   phoneNumber: string;
   email: string;
-  dob: date;
   status: number;
-  course: select;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus';
   record: Item;
   index: number;
   children: React.ReactNode;
-}
-
-function onChange(date, dateString) {
-  console.log(date, dateString);
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -56,7 +50,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <DatePicker onChange={(date, dateString)=>{setDob(dateString)}}/>
+      return <DatePicker/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -77,6 +71,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Bank Transfer">Bank Transfer</Option>
               <Option value="Cashfree">Cashfree</Option>
               <Option value="Other">Other</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectStatus'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="enrolled">Enrolled</Option>
+              <Option value="batching">Ready to batch</Option>
             </Select>
       )
     }
@@ -135,7 +136,7 @@ const StudentOnboard: React.FC = () => {
 
 const openNotificationWithIcon = (type, userType = 'Student') => {
   notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+    message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' ! ',
     description:
       '',
   });
@@ -145,17 +146,9 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
 };
 
 
-//update the status
-function handleCheckbox(e) {
-  console.log(`checked = ${e.target.checked}`);
-  if(e.target.checked == true){
-    setStatusCheck('batching')
-  }else{
-    setStatusCheck('enrolled')
-  }
-}
 
-console.log('check status', statusCheck)
+
+
 
 //edit submit 
 const formSubmit = async (value)=>{
@@ -168,13 +161,13 @@ const formSubmit = async (value)=>{
     phoneNumber: value.phoneNumber,
     studentID: value.studentID,
     address: value.address,
-    dob: dobValue,
+    dob: moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
     whatsapp:value.whatsapp,
     comments:value.comments,
     email:value.email,
     id: value.studentID,
     type: 'student',
-    status: statusCheck?statusCheck:'enrolled',
+    status: value.status,
     alternativeMobile: value.alternativeMobile,
     classType: value.classType,
     course: value.course,
@@ -191,6 +184,7 @@ const formSubmit = async (value)=>{
       studentId: value.studentID,
       classtype:'',
       leadId: value.studentID,
+      id: value.studentID
     }]
 
   }
@@ -299,17 +293,17 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
-    // {
-    //   title: 'Date of Birth of Student',
-    //   dataIndex: 'dob',
-    //   width: 150,
-    //   editable: true,
-    //   // render: (value)=>{
-    //   //   if(value){
-    //   //     return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-    //   //   }
-    //   // }
-    // },
+    {
+      title: 'Date of Birth of Student',
+      dataIndex: 'dob',
+      width: 150,
+      editable: true,
+      render: (value)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+        }
+      }
+    },
     {
       title: 'Parent First Name',
       dataIndex: 'pfirstName',
@@ -380,14 +374,15 @@ const studentGetApi = async ()=>{
     //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
     //     }
     //   }
-      
     // },
     {
       title: 'No of classess sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true,
-      
+      render: (value)=>{
+        return value[0]
+      }
     },
     {
       title: 'Total Sale amount',
@@ -421,12 +416,11 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Ready to Batch',
-      width: 130,
-      editable: false,
-      render: ()=>{
-        return <Checkbox onChange={handleCheckbox} ></Checkbox>
-      }
+      title: 'Status',
+      dataIndex: 'status',
+      width: 150,
+      editable: true,
+
     },
     {
       title: 'operation',
@@ -461,7 +455,7 @@ const studentGetApi = async ()=>{
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob1' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

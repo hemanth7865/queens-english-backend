@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker} from "antd";
 import React, { useState, useEffect } from "react";
 import { FormattedMessage, useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
@@ -19,7 +19,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' ;
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -35,11 +35,60 @@ const EditableCell: React.FC<EditableCellProps> = ({
   children,
   ...restProps
 }) => {
-  const inputNode = inputType === 'number' ? <Select style={{ width: 170 }} >
-                                              <Option value="Sent Message">Sent Message</Option>
-                                              <Option value="First Class Feedback">First Class Feedback</Option>
-                                            </Select> : 
-                                            <Input />;
+  const inputNode = () => {
+    if(inputType === 'number'){
+        return (<Select style={{ width: 120 }} >
+                  <Option value="onboarding">Onboarding</Option>
+                  <Option value="batching">Batching</Option>
+                </Select>)
+    }else if(inputType === 'select'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="DISE - Group Class">DISE - Group Class</Option>
+              <Option value="DISE - 1:1">DISE - 1:1</Option>
+              <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+              <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+              <Option value="DEMO249">DEMO249</Option>
+            </Select>
+      )
+    }else if(inputType === 'date'){
+      return <DatePicker/>
+    }else if(inputType === 'selectLesson'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Lesson 1">Lesson 1</Option>
+              <Option value="Lesson 31">Lesson 31</Option>
+              <Option value="Lesson 61">Lesson 61</Option>
+              <Option value="Lesson 121">Lesson 121</Option>
+              <Option value="Lesson 201">Lesson 201</Option>
+              <Option value="Lesson 221">Lesson 221</Option>
+              <Option value="Lesson 240">Lesson 240</Option>
+              <Option value="Lesson 301">Lesson 301</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectPlan'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Razorpay">Razorpay</Option>
+              <Option value="Bank Transfer">Bank Transfer</Option>
+              <Option value="Cashfree">Cashfree</Option>
+              <Option value="Other">Other</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectStatus'){
+      return(
+            <Select style={{ width: 150 }} >
+              {/* <Option value="sent message">Sent Message</Option>
+              <Option value="first class feedback">First Class Feedback</Option> */}
+              <Option value="onboarding">Start Class Later</Option>
+              <Option value="active">Active</Option>
+            </Select>
+      )
+    }
+    else{
+      return <Input />
+    }
+  }
   //console.log('inputnode', inputType)
   return (
     <td {...restProps}>
@@ -47,14 +96,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: `Please Input ${title}!`,
+          //   },
+          // ]}
         >
-          {inputNode}
+          {inputNode()}
         </Form.Item>
       ) : (
         children
@@ -71,7 +120,6 @@ const StudentOnboard: React.FC = () => {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
-  const [statusCheck, setStatusCheck] = useState('');
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -91,7 +139,7 @@ const StudentOnboard: React.FC = () => {
 
 const openNotificationWithIcon = (type, userType = 'Student') => {
   notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
+    message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
     description:
       '',
   });
@@ -101,20 +149,18 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
 };
 
 
-//update the status
-function handleCheckbox(e) {
-  console.log(`checked = ${e.target.checked}`);
-  if(e.target.checked == true){
-    setStatusCheck('active')
-  }else{
-    setStatusCheck('onboarding')
-  }
+function toDate(isoDateString) {
+  // isoDateString is a string like "yyyy-MM-dd"
+  return new Date(`${isoDateString}T12:00:00`);
 }
 
 
 //edit submit 
 const formSubmit = async (value)=>{
   //console.log('value', value)
+  let dateOfBirth = moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD")
+  let dateOfBirth1 = toDate(dateOfBirth)
+  console.log('date of birth', dateOfBirth1)
   
   const dataForm = {
     leadId: value.studentID,
@@ -123,20 +169,25 @@ const formSubmit = async (value)=>{
     phoneNumber: value.phoneNumber,
     studentID: value.studentID,
     address: value.address,
-    //dob: dateOfBirth,
+    dob: moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
     whatsapp:value.whatsapp,
     comments:value.comments,
     email:value.email,
     id: value.studentID,
     type: 'student',
-    status: statusCheck?statusCheck:'onboarding',
+    status: value.status,
     alternativeMobile: value.alternativeMobile,
     classType: value.classType,
     course: value.course,
     startLesson: value.startLesson,
-    //startDate: value.startDate,
+    startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
     pfirstName: value.pfirstName,
     plastName: value.plastName,
+    age: value.age,
+    teacherName: value.teacherName,
+    batchCode: value.batchCode,
+    //studentType: value.studentType,
+    //days: value.days,
     payment: [{
       paymentid: value.paymentid,
       classessold: value.classessold,
@@ -146,6 +197,7 @@ const formSubmit = async (value)=>{
       studentId: value.studentID,
       classtype:'',
       leadId: value.studentID,
+      id: value.studentID
     }]
 
   }
@@ -159,7 +211,7 @@ const formSubmit = async (value)=>{
       },
       body: JSON.stringify(dataForm),
     });
-    if (msg.status === 400) {
+    if (msg.status === 400 || msg.status === 500) {
       //openNotificationWithIcon('error', msg);
       console.log("API call sucessfull", msg);
     } else {
@@ -254,17 +306,18 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
-    // {
-    //   title: 'Date of Birth of Student',
-    //   dataIndex: 'dob',
-    //   width: 150,
-    //   editable: true,
-    //   render: (value)=>{
-    //     if(value){
-    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-    //     }
-    //   }
-    // },
+    {
+      title: 'Date of Birth of Student',
+      dataIndex: 'dob',
+      width: 150,
+      editable: true,
+      render: (value)=>{
+        if(value){
+          console.log('date', moment.utc(value).format("YYYY-MM-DD"))
+          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD")
+        }
+      }
+    },
     {
       title: 'Parent First Name',
       dataIndex: 'pfirstName',
@@ -305,6 +358,37 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
+    
+    {
+      title: 'Batch Code',
+      dataIndex: 'batchCode',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Teacher Name',
+      dataIndex: 'teacherName',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Age',
+      dataIndex: 'age',
+      width: 150,
+      editable: true,
+    },
+    // {
+    //   title: 'Student Type',
+    //   dataIndex: 'studentType',
+    //   width: 150,
+    //   editable: true,
+    // },
+    // {
+    //   title: 'Days',
+    //   dataIndex: 'days',
+    //   width: 150,
+    //   editable: true,
+    // },
     {
       title: 'Class Type',
       dataIndex: 'classType',
@@ -325,18 +409,18 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
-    // {
-    //   title: 'Start Date',
-    //   dataIndex: 'startDate',
-    //   width: 150,
-    //   editable: true,
-    //   render: (value)=>{
-    //     if(value){
-    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
-    //     }
-    //   }
+    {
+      title: 'Start Date',
+      dataIndex: 'startDate',
+      width: 150,
+      editable: true,
+      render: (value)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+        }
+      }
       
-    // },
+    },
     {
       title: 'No of classess sold',
       dataIndex: 'classessold',
@@ -369,18 +453,19 @@ const studentGetApi = async ()=>{
       editable: true,
     },
     {
-      title: 'Status Comments',
+      title: 'Comments',
       dataIndex: 'comments',
       width: 200,
       editable: true,
       
     },
     {
-      title: 'Active',
-      width: 150,
-      editable: false,
+      title: 'Status',
+      dataIndex: 'status',
+      width: 200,
+      editable: true,
       render: ()=>{
-        return <Checkbox onChange={handleCheckbox} ></Checkbox>
+        return 'Start Class Later'
       }
     },
     {
@@ -416,7 +501,7 @@ const studentGetApi = async ()=>{
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'comments' ? 'number' : 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob1' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
