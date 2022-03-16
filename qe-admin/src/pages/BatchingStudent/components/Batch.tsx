@@ -259,7 +259,9 @@ const Batch: React.FC<EditUserProps> = (props) => {
                         <Col offset={1} span={7}>
                             <Button
                                 size="default"
-                                onClick={() => {}}
+                                onClick={() => {
+                                    window.open(window.location.origin + `/manage/batch?teacherId=${teacherName.value}&teacherName=${teacherName.label}&add=1`, '_blank').focus();
+                                }}
                                 disabled={!teacherName || teacherName.length < 1}
                                 type="primary"
                             >
