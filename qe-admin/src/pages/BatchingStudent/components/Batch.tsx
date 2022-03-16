@@ -13,6 +13,12 @@ import {
   } from 'libphonenumber-js'
 import * as CountryList from 'country-list';
 import { Tabs } from 'antd';
+import {
+    listTeacherAndStudent,
+    listBatch,
+    addeditbatch,
+  } from "@/services/ant-design-pro/api";
+import DebounceSelect from "@/components/DebounceSelect";
 
 const { TabPane } = Tabs;
 
@@ -26,94 +32,35 @@ export type BatchProps = {
 const {Option} = Select
 
 const Batch: React.FC<EditUserProps> = (props) => {
-    console.log(props);
     //console.log('data', props.data, props.visible, props.setVisible)
-    const {firstName, lastName, email, phoneNumber, type, key} = props.data?props.data:''
+    const {firstName, lastName, email, phoneNumber, type, key, id} = props.data?props.data:''
     // console.log('first', firstName, lastName, email, type, key)
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        email: '',
-    })
+    const [formData, setFormData] = useState({});
+    const [teacherName, setTeacherName] = useState([]);
+    const [defaultTeacherOptions, setDefaultTeacherOptions] = useState([]);
 
-    const [selectUserType, setSelectUserType] = useState('')
-    const [error, setError] = useState('')
-    const [selectCountry, setSelectCountry] = useState('')
-    const [selectCountryCode, setSelectCountryCode] = useState('')
-
-    const allCountries = CountryList.getData()
-    const allCountryCodes = getCountries()
-    const countryCodes = allCountryCodes.map((code)=>{
-        return getCountryCallingCode(code)
-    })
-   
-    // let previousCodes, previousCodes2, codeCountryDetails
-    // if(phoneNumber != undefined){
-    //     const firstTry = phoneNumber.slice(0, 2).toString()
-    //     const secondTry = phoneNumber.slice(0, 3).toString()
-    //     // console.log('num', firstTry, secondTry)
-    //     // console.log('cdc', allCountryCodes, countryCodes)
-    //     previousCodes = countryCodes.filter(code => code === firstTry).toString()
-    //     previousCodes2 = countryCodes.filter(code => code === secondTry)
-    //     //console.log('code 00', previousCodes, previousCodes2)
-    //     const codeCountry = countryCodes.indexOf(previousCodes)
-    //     const codeCountryName = allCountryCodes[codeCountry]
-    //     codeCountryDetails = CountryList.getName(codeCountryName)
-    //     console.log('code', codeCountryDetails)
-    // }
-
-    //default country India
-    const defaultCountry = allCountries.filter(country=>country.name === 'India')
-    //console.log('default country', defaultCountry, defaultCountry.map(name => name.name))
-
-    //Displaying all countries in select option
-    const handleCountry = (value)=>{
-        console.log('selected country', value)
-        if(value){
-        const code = CountryList.getCode(value)
-        const codeNumber = getCountryCallingCode(code)
-        //console.log('code', code, codeNumber)
-        setSelectCountry(code)
-        setSelectCountryCode(codeNumber)
-        }
-    }
-    //console.log('country', selectCountry, selectCountryCode)
-
-   
-    //validation for phone number
-    const handleMobileChange = (event)=>{
-        const number = event.target.value
-        const message = isValidPhoneNumber(number, selectCountry?selectCountry:'IN')
-        //console.log('msg', message, msg)
-        const msg = validatePhoneNumberLength(number, selectCountry?selectCountry:'IN')
-        if(msg === 'TOO_LONG'){
-            setError('Phone number is too long')
-        }else if(msg === 'TOO_SHORT'){
-            setError('Phone number is too short')
-        }else if(msg === 'NOT_A_NUMBER'){
-            setError('Not a Number')
-        }else if(msg === 'INVALID_COUNTRY'){
-            setError('Please Select country first')
-        }else if(msg === undefined){
-            setError('')
-        }else{
-            setError('Phone number is Invalid')
-        }
-        if(message === true && msg === undefined){
-            //console.log(`valid mobile number for ${selectCountry}`)
-            setFormData((value)=>({
-                ...value,
-                [event.target.name]: event.target.value
+    async function fetchTeachersList(username: string) {
+        return listTeacherAndStudent({
+          type: 'teacher',
+          current: 1,
+          pageSize: 5,
+          keyword: username
+          // pass the rest of filter params here
+        })
+          .then((body) =>
+            body.data.map((user) => ({
+              label: `${user.name}`,
+              value: user.id,
             }))
-        }
-        if(message === false && msg === undefined){
-            setError('Enter a valid Mobile Number')
-        }
-       
-        
-    }
+          );
+      }
 
+
+    useEffect(() => {
+        fetchTeachersList().then(data => {
+            setDefaultTeacherOptions(data);
+        })
+    } , [id]);
 
     //validation messages for name, email and type fields
     const validateMessages = {
@@ -130,7 +77,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
         }
     };
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during User update' }, userType = 'Teacher') => {
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during adding batch' }, userType = 'Student') => {
         notification[type]({
           message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
           description:
@@ -153,16 +100,8 @@ const Batch: React.FC<EditUserProps> = (props) => {
     }
 
     const onFinish = async ()=>{
-        console.log('form submitted')
-        var code = selectCountryCode?selectCountryCode:'91';
         if(!error){
-            let dataForm = {
-                firstName: formData.firstName?formData.firstName:props.data.firstName,
-                lastName: formData.lastName?formData.lastName:lastName,
-                phoneNumber: formData.phoneNumber?formData.phoneNumber:phoneNumber,
-                email: formData.email?formData.email:email,
-                type: selectUserType?selectUserType:type,
-            }
+            let dataForm = {}
             if (props.data) {
                 dataForm.id = props.data.id;
               }
@@ -185,32 +124,19 @@ const Batch: React.FC<EditUserProps> = (props) => {
                     console.log(msg);
                     openNotificationWithIcon('success', '', 'User');
                   }
-                console.log(msg);
-                //window.location.reload();
-                // 如果失败去设置用户错误信息
-                // setUserLoginState(msg);
               } catch (error) {
                 console.log("addRule error", error);
                
               }
-                props.setVisible(false)
-                
-            console.log('formData', formData)
-            console.log('dataForm', dataForm)
+            props.setVisible(false)
         }
         
-        //window.location.reload()
+        window.location.reload()
     }
 
     const [form] = Form.useForm()
     const defaultValues = ()=>{
-        form.setFieldsValue({
-                            FirstName: props.data.firstName,
-                            lastName: props.data.lastName,
-                            phoneNumber: props.data.phoneNumber,
-                            email: props.data.email,
-                            userType: type == 'teacher'?'Teacher':'Student'
-                            })
+        form.setFieldsValue({})
     }
     useEffect(() => {
         defaultValues();
@@ -226,92 +152,34 @@ const Batch: React.FC<EditUserProps> = (props) => {
             <Tabs defaultActiveKey="1">
                 <TabPane tab="Batch" key="1"> 
                     <Row gutter={16}>
-                        <Col span = {12}>
-                            <Form.Item
-                                name="FirstName"
-                                rules = {[{
-                                    required: true,
-                                    min: 2,
-                                    type: 'string',
-                                    pattern:  /^[a-zA-Z]*$/,
-                                }]}
-                            >
-                                <Input
-                                    defaultValue = {firstName}
-                                    name = "firstName"
-                                    onChange = {handleInputChange}
-                                />
-                            </Form.Item>
+                        <Col span={16}>
+                        <Form.Item name="teacherId">
+                            <DebounceSelect
+                                key={defaultTeacherOptions.length}
+                                showSearch
+                                value={teacherName}
+                                placeholder="Select teacher"
+                                fetchOptions={fetchTeachersList}
+                                options = {defaultTeacherOptions}
+                                onChange={(newValue) => {
+                                    setTeacherName(newValue);
+                                    console.log("teacherDeb", newValue);
+                                }}
+                                style={{
+                                    width: "100%",
+                                }}
+                            />
+                        </Form.Item>
                         </Col>
-                        <Col span = {12}>
-                            <Form.Item
-                                name="lastName"
-                                rules = {[{
-                                    required: true,
-                                    min: 2,
-                                    type: 'string',
-                                    pattern:  /^[a-zA-Z]*$/,
-                                }]}
-                            >
-                                <Input
-                                    name = "lastName"
-                                    onChange = {handleInputChange}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span = {12}>
-                            <Form.Item
-                                name="countryCode">
-                                <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
-                                    {allCountries.map((country)=>{
-                                        return <Option value = {country.name} key = {country.code}>{country.name}</Option>
-                                    })}
-                                </Select>
-                                
-                            </Form.Item>
-                        </Col>
-                        
-                        <Col span = {12}>
-                            <Form.Item
-                                name="phoneNumber"
-                            >
-                                <Input
-                                    name = "phoneNumber"
-                                    onChange = {handleMobileChange}
-                                    //prefix = {selectCountryCode?selectCountryCode:'91'}
-                                />
-                                
-                            </Form.Item>
-                            {error? (
-                                <p style = {{color: 'red'}}>{error}</p>
-                            ): ''}
-                        </Col>
-                        <Col span = {12}>
-                            <Form.Item
-                                name="email"
-                                rules = {[
-                                    {
-                                        required: true,
-                                        type: 'email'
-                                    }
-                                ]}
-                            >
-                                <Input
-                                    name = "email"
-                                    onChange = {handleInputChange}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span = {12}>
-                            <Form.Item name="userType">
-                                <Select
-                                    onChange = {(value)=>{setSelectUserType(value)}}
-                                    disabled
-                                    >
-                                    <Option value="teacher">Teacher</Option>
-                                    <Option value="student">Student</Option>
-                                </Select>
-                            </Form.Item>
+                        <Col offset={1} span={7}>
+                        <Button
+                            size="default"
+                            onClick={() => {}}
+                            disabled={!teacherName || teacherName.length < 1}
+                            type="primary"
+                        >
+                            Add New Batch
+                        </Button>
                         </Col>
                     </Row>
                 </TabPane>
