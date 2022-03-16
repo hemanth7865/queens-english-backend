@@ -124,6 +124,7 @@ export class BatchService {
             return batch;
           })
           .catch((error) => {
+            console.log(error);
             return Promise.reject(error);
           });
       } else {
@@ -486,7 +487,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id,  batchNumber, lessonStartTime, lessonEndTime, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current}, ${pageSize};`;
+    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current >= 0 ? current : 0}, ${pageSize >= 0 ? pageSize : 20};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -521,13 +522,18 @@ export class BatchService {
       let startTime;
       let endTime;
       let status;
-      if (classes.lessonStartTime) {
-        startTime = classes.lessonStartTime.split("T")[1].substring(0, "00:00".length);
+      if (classes.lessonStartTime && classes.lessonStartTime.split("T")[1]) {
+        startTime = classes.lessonStartTime.split("T")[1]?.substring(0, "00:00".length);
+      }else{
+        startTime = "";
       }
 
-      if (classes.lessonEndTime) {
-        endTime = classes.lessonEndTime.split("T")[1].substring(0, "00:00".length);
+      if (classes.lessonEndTime && classes.lessonEndTime.split("T")[1]) {
+        endTime = classes.lessonEndTime.split("T")[1]?.substring(0, "00:00".length);
+      }else{
+        endTime = "";
       }
+
       if (classes.status == 4) {
         status = "In Active";
       } else {
@@ -544,10 +550,13 @@ export class BatchService {
         `${startTime}-${endTime}`,
         classes?.classStartDate && classes?.classEndDate ? classes.classStartDate.split("T")[0] + " To " + classes.classEndDate.split("T")[0] : "NA",
         status,
-        students
+        students,
+        classes.startingLessonId,
+        classes.endingLessonId
       );
       batchView.push(view);
     }
+
     return {
       success: true,
       data: batchView,

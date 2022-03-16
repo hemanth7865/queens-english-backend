@@ -127,10 +127,11 @@ export class StudentService {
     var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} limit ` ;
     
 
-  finalQuery = finalQuery +  offset * limit +
+  finalQuery = finalQuery +  (offset >= 0 ? offset * limit : 0) +
   "," +
-  limit +
+  (limit >= 0 ? limit : 20) +
   `;`;
+  let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
   console.log(`query string ${query_list}`);
 
@@ -138,7 +139,7 @@ export class StudentService {
 
 
       results = await getManager().query(finalQuery);
-     var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+      var total = await getManager().query(totalQuery);
       console.log("results size", results.length);
 
       for (const element of results) {
@@ -213,7 +214,7 @@ export class StudentService {
       return {
         success: true,
         data: leadView,
-        total: total[0].total,
+        total: parseInt(total[0].total),
         current: current,
         pageSize: limit,
       };
@@ -383,7 +384,7 @@ export class StudentService {
           payment.id = element.id;
         }
         payment.paymentid = element.paymentid;
-        payment.studentId = element.studentId;
+        student.id = element.studentId;
         payment.plantype = element.plantype;
         payment.classtype = element.classtype;
         payment.classessold = element.classessold ? element.classessold : 0;

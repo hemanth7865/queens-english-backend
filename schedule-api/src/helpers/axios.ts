@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: process.env.URL,
+  baseURL: process.env.COSMOS_URL,
   params: {
-    code: process.env.CODE,
+    code: process.env.COSMOS_CODE,
   },
 });
 

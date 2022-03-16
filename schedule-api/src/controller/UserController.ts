@@ -134,8 +134,7 @@ export class UserController {
             } else {
                 usersLogger.info("Fetching lead full details");
                 resp = await teacherService.leadFullDetails(request.body, teacherId);
-            } 
-            
+            }        
               
             
             console.log(resp);
