@@ -1,10 +1,8 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox} from "antd";
+import { Button, Input, Table, Drawer, Form, Typography, Row, Col, notification} from "antd";
 import React, { useState, useEffect } from "react";
-import { FormattedMessage, useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
-
-const { Option } = Select;
+import Batch from './components/Batch';
 
 interface Item {
   id: string;
@@ -15,140 +13,41 @@ interface Item {
   status: number;
 }
 
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-  editing: boolean;
-  dataIndex: string;
-  title: any;
-  inputType: 'number' | 'text' ;
-  record: Item;
-  index: number;
-  children: React.ReactNode;
-}
-
-const EditableCell: React.FC<EditableCellProps> = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
-  const inputNode = inputType === 'number' ? <Select style={{ width: 120 }} >
-                                              <Option value="onboarding">Onboarding</Option>
-                                              <Option value="batching">Batching</Option>
-                                            </Select> : 
-                                            <Input />;
-  //console.log('inputnode', inputType)
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex}
-          style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${title}!`,
-            },
-          ]}
-        >
-          {inputNode}
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
-
-
-
-
 const StudentOnboard: React.FC = () => {
-  const intl = useIntl();
-
-  const [showDrawer, setShowDrawer] = useState(false);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState<any>();
-  const [editingKey, setEditingKey] = useState('');
-  const [statusCheck, setStatusCheck] = useState('');
-
-  const isEditing = (record: Item) => record.id === editingKey;
+  const [tmpDate, setTmpData] = useState<any>();
+  const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
 
   const edit = (record: Partial<Item> & { id: React.Key }) => {
-    form.setFieldsValue({ name: '', age: '', address: '', ...record });
-    setEditingKey(record.id);
+    form.setFieldsValue(record);
+    setTmpData(record);
+    setVisibleEdit(true);
   };
 
   const cancel = () => {
-    setEditingKey('');
+    setVisibleEdit(false);
   };
 
-
-const openNotificationWithIcon = (type, userType = 'Student') => {
-  notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
-    description:
-      '',
-  });
-  setTimeout(() => {
-    window.location.reload()
-  }, 1000);
-};
-
-
-//update the status
-function handleCheckbox(e) {
-  console.log(`checked = ${e.target.checked}`);
-  if(e.target.checked == true){
-    setStatusCheck('active')
-  }else{
-    setStatusCheck('onboarding')
-  }
-}
-
+  const openNotificationWithIcon = (type: string, message: string) => {
+    notification[type]({
+      message,
+      description:
+        '',
+    });
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000);
+  };
 
 //edit submit 
 const formSubmit = async (value: any)=>{
   //console.log('value', value)
   const dataForm = {
-    leadId: value.studentID,
-    firstName: value.firstName,
-    lastName: value.lastName,
-    phoneNumber: value.phoneNumber,
-    studentID: value.studentID,
-    address: value.address,
-    //dob: dateOfBirth,
-    whatsapp:value.whatsapp,
-    comments:value.comments,
-    email:value.email,
-    id: value.studentID,
-    type: 'student',
-    status: statusCheck,
-    alternativeMobile: value.alternativeMobile,
-    classType: value.classType,
-    course: value.course,
-    startLesson: value.startLesson,
-    //startDate: value.startDate,
-    pfirstName: value.pfirstName,
-    plastName: value.plastName,
-    payment: [{
-      paymentid: value.paymentid,
-      classessold: value.classessold,
-      saleamount: value.saleamount,
-      downpayment: value.downpayment,
-      plantype: value.plantype,
-      studentId: value.studentID,
-      classtype:'',
-      leadId: value.studentID,
-    }]
-
   }
-  console.log("dataForm", dataForm);
+
   try {
     // 登录
     //console.log("data", dataForm);
@@ -171,57 +70,54 @@ const formSubmit = async (value: any)=>{
   } catch (error) {
     //openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
   }
-  
+
 }
 
-const studentGetApi = async ()=>{
-  try {
-    let msg = await studentsDashboard('batching', {
-        current: 1,
-        pageSize: 20}
-    );
-    if (msg.status === "ok") {
-      console.log("API call sucessfull", msg);
+  const studentGetApi = async ()=>{
+    try {
+      let msg = await studentsDashboard('batching', {
+          current: 1,
+          pageSize: 20}
+      );
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setData(msg.data);
+      //console.log('view one',msg);
+    } catch (error) {
+      //console.log("error", error);
     }
-    setData(msg.data);
-    //console.log('view one',msg);
-  } catch (error) {
-    //console.log("error", error);
   }
-}
-
-
 
   useEffect(() => {
     studentGetApi()
   }, []);
 
   const save = async (id: React.Key) => {
-  try {
-    const row = (await form.validateFields()) as Item;
+    try {
+      const row = (await form.validateFields()) as Item;
 
-    const newData = [...data];
-    const index = newData.findIndex(item => id === item.id);
-    if (index > -1) {
-      const item = newData[index];
-      newData.splice(index, 1, {
-        ...item,
-        ...row,
-      });
-      setData(newData);
-      setEditingKey('');
-      //console.log('data save', newData, index, newData[index])
-      formSubmit(newData[index])
-    } else {
-      newData.push(row);
-      setData(newData);
-      setEditingKey('');
-      //console.log('data save else part', newData, index)
+      const newData = [...data];
+      const index = newData.findIndex(item => id === item.id);
+      if (index > -1) {
+        const item = newData[index];
+        newData.splice(index, 1, {
+          ...item,
+          ...row,
+        });
+        setData(newData);
+        setVisibleEdit(false);
+        //console.log('data save', newData, index, newData[index])
+        formSubmit(newData[index])
+      } else {
+        newData.push(row);
+        setData(newData);
+        setVisibleEdit(false);
+        //console.log('data save else part', newData, index)
+      }
+    } catch (errInfo) {
+      console.log('Validate Failed:', errInfo);
     }
-  } catch (errInfo) {
-    console.log('Validate Failed:', errInfo);
-  }
-  //console.log('data at save', data)
   };
 
   const columns = [
@@ -295,41 +191,14 @@ const studentGetApi = async ()=>{
       dataIndex: 'operation',
       fixed: 'right',
       width: 150,
-      render: (_: any, record: Item) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <span>
-            <Typography.Link onClick={() => save(record.id)} style={{ marginRight: 8 }}>
-              Save
-            </Typography.Link>
-            <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-              <a>Cancel</a>
-            </Popconfirm>
-          </span>
-        ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            Edit
-          </Typography.Link>
-        );
-      },
+      render: (_: any, record: Item) => (
+        <Typography.Link onClick={() => edit(record)}>
+          Process Batching
+        </Typography.Link>
+      )
+      ,
     },
   ];
-
-  const mergedColumns = columns.map(col => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: Item) => ({
-        record,
-        inputType: col.dataIndex === 'status' ? 'number' : 'text',
-        dataIndex: col.dataIndex,
-        title: col.title,
-        editing: isEditing(record),
-      }),
-    };
-  });
 
 
   //Search Inputs
@@ -340,7 +209,7 @@ const studentGetApi = async ()=>{
     }));
   }
   
-  const handleFormSubmit = async (value) => {
+  const handleFormSubmit = async () => {
     //console.log('status', formData, value)
     try {
       let msg = await studentsDashboardFilter('batching', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
@@ -364,65 +233,72 @@ const studentGetApi = async ()=>{
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Batching Students</h3>
+
       <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
-                {/* Form for search */}
-                <Form name="basic" form = {form}>
-                <Row gutter={24}>
-                  <Col span={6}>
-                    <Form.Item name="studentName" label = "Student Name" >
-                      <Input name = "studentName" onChange={handleInputChange}/>
-                    </Form.Item>
-                  </Col>
+        {/* Form for search */}
+        <Form name="basic" form = {form}>
+          <Row gutter={24}>
+            <Col span={6}>
+              <Form.Item name="studentName" label = "Student Name" >
+                <Input name = "studentName" onChange={handleInputChange}/>
+              </Form.Item>
+            </Col>
 
-                  <Col span={6}>
-                    <Form.Item name="studentEmail" label = "Email" >
-                      <Input name = "studentEmail" onChange={handleInputChange}/>
-                    </Form.Item>
-                  </Col>
+            <Col span={6}>
+              <Form.Item name="studentEmail" label = "Email" >
+                <Input name = "studentEmail" onChange={handleInputChange}/>
+              </Form.Item>
+            </Col>
 
-                  <Col span={6}>
-                    <Form.Item name="studentPhoneNumber" label = "Mobile No" >
-                      <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
-                    </Form.Item>
-                  </Col>
-                  
-                  <Col span = {1}>
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
-                      Query
-                    </Button>
-                  </Form.Item>
-                  </Col>
-                  <Col span = {1} style = {{marginLeft: 10}}>
-                  <Form.Item >
-                  <Button
-                    onClick={handleReset}
-                  >
-                    Reset
-                </Button>
-                </Form.Item>
-                </Col>
-                </Row>
-              </Form>
-        </div>
+            <Col span={6}>
+              <Form.Item name="studentPhoneNumber" label = "Mobile No" >
+                <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+              </Form.Item>
+            </Col>
+            
+            <Col span = {1}>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
+                Query
+              </Button>
+            </Form.Item>
+            </Col>
+            <Col span = {1} style = {{marginLeft: 10}}>
+            <Form.Item >
+            <Button
+              onClick={handleReset}
+            >
+              Reset
+          </Button>
+          </Form.Item>
+          </Col>
+          </Row>
+        </Form>
+      </div>
+
       <Form form={form} component={false}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
-        pagination={{
-          onChange: cancel,
-        }}
-        scroll={{ x: 1500 }}
-    />
+        <Table
+          bordered
+          dataSource={data}
+          columns={columns}
+          rowClassName="editable-row"
+          pagination={{
+            onChange: cancel,
+          }}
+          scroll={{ x: 1500 }}
+        />
+      </Form>
 
-    </Form>
+      <Drawer 
+        title="Proccess Batching"
+        placement="right"
+        onClose={()=>{
+          setVisibleEdit(false)
+        }}
+        visible={visibleEdit}
+        width={500}>
+          <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
+      </Drawer>
     </>
   );
 };
