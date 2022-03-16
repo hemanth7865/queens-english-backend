@@ -220,6 +220,8 @@ export class LQSService {
       );
 
       payment: Payment;
+     // if (element.id != '7f5d5214-b817-4cdc-99a3-fb92c8d4b850')
+     //  continue
       var url = `${this.LSQ_SALES_LEAD_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`
       let user = await this.userRepository.findOne(
         {
@@ -254,117 +256,107 @@ export class LQSService {
         .catch(error => {
           console.log(error)
         })
-      //console.log(details);
+      console.log(details);
       usersLogger.info("Updating Extra fields :: start");
-      if (details[0] && details[0].Fields) {
+      if (details && details.length > 0 ) {
        details[0].Fields.map(item => {
+        console.log( item.Value);
         switch (item.SchemaName) {
+      
           case 'Status':
-            lsq.status = item.value;
+            lsq.status =  item.Value;
+         
             break;
           case "mx_Custom_3":
-            lsq.dateofsale = item.value;
+            lsq.dateofsale =  item.Value;
             break;
           case "mx_Custom_10":
-            lsq.studentID = item.value;
+            lsq.studentID =  item.Value;
 
             break;
           case "mx_Custom_11":
-            lsq.dob = item.value;
+            lsq.dob =  item.Value;
             break;
           case "mx_Customer_name":
-            lsq.pfirstName = item.value;
+            lsq.pfirstName =  item.Value;
             break;
           case "mx_WhatsApp_Phone_Number":
-            lsq.whatsapp = item.value;
-
-            break;
-          case "mx_Cmx_Custom_12ustom_3":
-            lsq.alternativeMobile = item.value;
-
-            break;
-
-          case "mx_Cmx_Custom_12ustom_3":
-            lsq.alternativeMobile = item.value;
-
-            break;
-          case "mx_Cmx_Custom_12ustom_3":
-            lsq.alternativeMobile = item.value;
+            lsq.whatsapp =  item.Value;
 
             break;
 
           case "mx_Custom_12":
-            lsq.alternativeMobile = item.value;
+            lsq.alternativeMobile =  item.Value;
 
             break;
           case "mx_Custom_13":
-            lsq.customerEmail = item.value;
+            lsq.customerEmail =  item.Value;
 
             break;
           case "mx_Custom_14":
-            lsq.address = item.value;
+            lsq.address =  item.Value;
             break;
           case "mx_Custom_15":
-            lsq.customerAddressState = item.value;
+            lsq.customerAddressState =  item.Value;
 
             break;
           case "mx_Custom_16":
-            lsq.saleType = item.value;
+            lsq.saleType =  item.Value;
             break;
           case "mx_Custom_17":
-            lsq.subscription = item.value;
+            lsq.subscription =  item.Value;
             break;
           case "mx_Custom_18":
-            lsq.subscriptionNo = item.value;
+            lsq.subscriptionNo =  item.Value;
             break;
           case "mx_Custom_1":
-            lsq.course = item.value;
+            lsq.course =  item.Value;
             break;
           case "mx_Custom_19":
-            lsq.courseFrequency = item.value;
+            lsq.courseFrequency =  item.Value;
             break;
           case "mx_Custom_21":
-            lsq.timings = item.value;
+            lsq.timings =  item.Value;
             break;
           case "mx_Custom_22":
-            lsq.startingLevel = item.value;
+            lsq.startingLevel =  item.Value;
             break;
 
           case "mx_Custom_23":
-            lsq.startDate = item.value;
+            lsq.startDate =  item.Value;
             break;
           case "mx_Custom_24":
-            lsq.classessold = item.value;
+            lsq.classessold =  item.Value;
             break;
           case "mx_Custom_2":
-            lsq.saleamount = item.value;
+            lsq.saleamount =  item.Value;
+            console.log( item.Value);
             break;
           case "mx_Custom_6":
-            lsq.downpayment = item.value;
+            lsq.downpayment =  item.Value;
             break;
 
 
           case "mx_Custom_25":
-            lsq.emi = item.value;
+            lsq.emi =  item.Value;
             break;
           case "mx_Custom_26":
-            lsq.emiMonths = item.value;
+            lsq.emiMonths =  item.Value;
             break;
 
           case "mx_Custom_27":
-            lsq.paymentMode = item.value;
+            lsq.paymentMode =  item.Value;
             break;
 
           case "mx_Custom_8":
-            lsq.transactionID = item.value;
+            lsq.transactionID =  item.Value;
             break;
           case "mx_Custom_8":
-            lsq.bdaComments = item.value;
+            lsq.bdaComments =  item.Value;
             break;
 
           default:
             usersLogger.info(`Not valid schema name ${item.SchemaName}`);
-
         }
       })
         
