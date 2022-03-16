@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React, {useState, useEffect} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker,notification } from 'antd';
+import React, {useState, useEffect, useRef} from 'react';
+import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Tabs, TimePicker } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 import {
@@ -12,13 +12,15 @@ import {
     getCountryCallingCode
 } from 'libphonenumber-js'
 import * as CountryList from 'country-list';
-import { Tabs } from 'antd';
 import {
     listTeacherAndStudent,
     listBatch,
     addeditbatch,
 } from "@/services/ant-design-pro/api";
 import DebounceSelect from "@/components/DebounceSelect";
+import ProTable from "@ant-design/pro-table";
+import type { ProColumns, ActionType } from "@ant-design/pro-table";
+import { FormattedMessage } from "umi";
 
 const { TabPane } = Tabs;
 
@@ -32,9 +34,7 @@ export type BatchProps = {
 const {Option} = Select
 
 const Batch: React.FC<EditUserProps> = (props) => {
-    //console.log('data', props.data, props.visible, props.setVisible)
-    const {firstName, lastName, email, phoneNumber, type, key, id} = props.data?props.data:''
-    // console.log('first', firstName, lastName, email, type, key)
+    const {id} = props.data?props.data:''
     const [formData, setFormData] = useState({});
     const [teacherName, setTeacherName] = useState([]);
     const [batch, setBatch] = useState([]);
@@ -47,7 +47,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
           type: 'teacher',
           current: 1,
           pageSize: 5,
-          keyword: username
+          keyword: username,
           // pass the rest of filter params here
         }).then((body) =>
             body.data.map((user) => ({
@@ -57,11 +57,18 @@ const Batch: React.FC<EditUserProps> = (props) => {
         );
     }
 
-    async function fetchBatchList(b: string) {
+    async function fetchBatchList(params: {}) {
+        return listBatch({
+            ...params,
+            // pass the rest of filter params here
+        });
+    }
+
+    async function fetchAllBatchList(b: string) {
         return listBatch({
             current: 1,
             pageSize: 5,
-            keyword: b,
+            batchId: b,
             // pass the rest of filter params here
         }).then((body) =>
             body.data.map((b) => ({
@@ -138,7 +145,72 @@ const Batch: React.FC<EditUserProps> = (props) => {
         props.setVisible(false)
         window.location.reload()
     }
+
+    const actionRef = useRef<ActionType>();
     
+    const columns: ProColumns<API.RuleListItem>[] = [
+        {
+          title: (
+            <FormattedMessage
+              id="pages.searchTable.batchId"
+              defaultMessage="Batch ID"
+            />
+          ),
+          dataIndex: "batchId",
+        },
+        {
+          title: (
+            <FormattedMessage
+              id="pages.searchTable.titleTeacher"
+              defaultMessage="Teacher"
+            />
+          ),
+          dataIndex: "teacher",
+          valueType: "textarea",
+        },
+        {
+          title: (
+            <FormattedMessage
+              id="pages.searchTable.titleStudents"
+              defaultMessage="Student"
+            />
+          ),
+          dataIndex: "students",
+          valueType: "textarea",
+        },
+        {
+          title: (
+            <FormattedMessage
+              id="pages.searchTable.titleTimeSlot"
+              defaultMessage="Time Slot"
+            />
+          ),
+          dataIndex: "timeSlot",
+          // valueType: "textarea",
+          renderFormItem: (value) => {
+            return <TimePicker.RangePicker format="HH:mm" />;
+          },
+        },
+        {
+          title: "Select",
+          tip: "Select Batch",
+          hideInSearch: true,
+          render: (dom, entity) => {
+            return (
+              <a
+                onClick={() => {
+                    setSelectedBatch(dom.id);
+                    console.log(dom, dom.id);
+                }}
+              >
+                {selectedBatch === dom.id ? "Selected" : "Select"} 
+              </a>
+            );
+          },
+        },
+      ];
+    
+
     return(
         <div>
         <Form onFinish={onFinish}>
@@ -147,19 +219,17 @@ const Batch: React.FC<EditUserProps> = (props) => {
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item name="batchId">
-                                <DebounceSelect
-                                    key={defaultBatchesOptions.length}
-                                    showSearch
-                                    value={batch}
-                                    placeholder="Select Batch"
-                                    fetchOptions={fetchBatchList}
-                                    options = {defaultBatchesOptions}
-                                    onChange={(newValue) => {
-                                        setBatch(newValue);
+                                <ProTable<API.RuleListItem, API.PageParams>
+                                    headerTitle={"Batches"}
+                                    actionRef={actionRef}
+                                    rowKey="key"
+                                    search={{
+                                        labelWidth: 120,
                                     }}
-                                    style={{
-                                        width: "100%",
-                                    }}
+                                    toolBarRender={() => []}
+                                    request={fetchBatchList}
+                                    columns={columns}
+                                    perpage={5}
                                 />
                             </Form.Item>
                         </Col>
@@ -204,8 +274,8 @@ const Batch: React.FC<EditUserProps> = (props) => {
                                     showSearch
                                     value={batch}
                                     placeholder="Select Batch"
-                                    fetchOptions={fetchBatchList}
-                                    options = {defaultBatchesOptions}
+                                    fetchOptions={fetchAllBatchList}
+                                    options = {[]}
                                     onChange={(newValue) => {
                                         setSelectedBatch(newValue.value)
                                         setBatch(newValue);

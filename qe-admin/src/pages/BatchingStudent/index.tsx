@@ -298,7 +298,7 @@ const formSubmit = async (value: any)=>{
           setVisibleEdit(false)
         }}
         visible={visibleEdit}
-        width={600}>
+        width={800}>
           <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
       </Drawer>
     </>
