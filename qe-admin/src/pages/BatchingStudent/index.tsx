@@ -13,8 +13,10 @@ interface Item {
   status: number;
 }
 
+const DEFAULT_FORM_DATA = {studentName: '',  studentPhoneNumber: '', studentEmail: ''};
+
 const StudentOnboard: React.FC = () => {
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
+  const [formData, setFormData] = useState(DEFAULT_FORM_DATA)
 
   const [form] = Form.useForm();
   const [data, setData] = useState<any>();
@@ -226,13 +228,13 @@ const formSubmit = async (value: any)=>{
 
  const handleReset = ()=>{
   form.resetFields()
-  setFormData('')
+  setFormData(DEFAULT_FORM_DATA)
   studentGetApi()
  }
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Batching Students</h3>
+      <h2 style = {{textAlign: "center"}}>Pending Batching</h2>
 
       <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
         {/* Form for search */}
@@ -296,7 +298,7 @@ const formSubmit = async (value: any)=>{
           setVisibleEdit(false)
         }}
         visible={visibleEdit}
-        width={500}>
+        width={600}>
           <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
       </Drawer>
     </>

@@ -11,7 +11,10 @@ import {
     getCountries,
     getCountryCallingCode
   } from 'libphonenumber-js'
-  import * as CountryList from 'country-list'
+import * as CountryList from 'country-list';
+import { Tabs } from 'antd';
+
+const { TabPane } = Tabs;
 
 export type BatchProps = {
     data: {};
@@ -220,98 +223,108 @@ const Batch: React.FC<EditUserProps> = (props) => {
         onFinish={onFinish}
         validateMessages={validateMessages}
         >
-            <Row gutter = {16}>
-                <Col span = {12}>
-                    <Form.Item
-                        name="FirstName"
-                        rules = {[{
-                            required: true,
-                            min: 2,
-                            type: 'string',
-                            pattern:  /^[a-zA-Z]*$/,
-                        }]}
-                    >
-                        <Input
-                            defaultValue = {firstName}
-                            name = "firstName"
-                            onChange = {handleInputChange}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span = {12}>
-                    <Form.Item
-                        name="lastName"
-                        rules = {[{
-                            required: true,
-                            min: 2,
-                            type: 'string',
-                            pattern:  /^[a-zA-Z]*$/,
-                        }]}
-                    >
-                        <Input
-                            name = "lastName"
-                            onChange = {handleInputChange}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span = {12}>
-                    <Form.Item
-                        name="countryCode">
-                        <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
-                            {allCountries.map((country)=>{
-                                return <Option value = {country.name} key = {country.code}>{country.name}</Option>
-                            })}
-                        </Select>
-                        
-                    </Form.Item>
-                </Col>
-                
-                <Col span = {12}>
-                    <Form.Item
-                        name="phoneNumber"
-                    >
-                        <Input
-                            name = "phoneNumber"
-                            onChange = {handleMobileChange}
-                            //prefix = {selectCountryCode?selectCountryCode:'91'}
-                        />
-                        
-                    </Form.Item>
-                    {error? (
-                        <p style = {{color: 'red'}}>{error}</p>
-                    ): ''}
-                </Col>
-                <Col span = {12}>
-                    <Form.Item
-                        name="email"
-                        rules = {[
-                            {
-                                required: true,
-                                type: 'email'
-                            }
-                        ]}
-                    >
-                        <Input
-                            name = "email"
-                            onChange = {handleInputChange}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span = {12}>
-                    <Form.Item name="userType">
-                        <Select
-                            onChange = {(value)=>{setSelectUserType(value)}}
-                            disabled
+            <Tabs defaultActiveKey="1">
+                <TabPane tab="Batch" key="1"> 
+                    <Row gutter={16}>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="FirstName"
+                                rules = {[{
+                                    required: true,
+                                    min: 2,
+                                    type: 'string',
+                                    pattern:  /^[a-zA-Z]*$/,
+                                }]}
                             >
-                            <Option value="teacher">Teacher</Option>
-                            <Option value="student">Student</Option>
-                        </Select>
-                    </Form.Item>
-                </Col>
-                <Col span = {24}>
-                <Button type="primary" htmlType="submit">
-                    Save Changes
-                </Button>
+                                <Input
+                                    defaultValue = {firstName}
+                                    name = "firstName"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="lastName"
+                                rules = {[{
+                                    required: true,
+                                    min: 2,
+                                    type: 'string',
+                                    pattern:  /^[a-zA-Z]*$/,
+                                }]}
+                            >
+                                <Input
+                                    name = "lastName"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="countryCode">
+                                <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
+                                    {allCountries.map((country)=>{
+                                        return <Option value = {country.name} key = {country.code}>{country.name}</Option>
+                                    })}
+                                </Select>
+                                
+                            </Form.Item>
+                        </Col>
+                        
+                        <Col span = {12}>
+                            <Form.Item
+                                name="phoneNumber"
+                            >
+                                <Input
+                                    name = "phoneNumber"
+                                    onChange = {handleMobileChange}
+                                    //prefix = {selectCountryCode?selectCountryCode:'91'}
+                                />
+                                
+                            </Form.Item>
+                            {error? (
+                                <p style = {{color: 'red'}}>{error}</p>
+                            ): ''}
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="email"
+                                rules = {[
+                                    {
+                                        required: true,
+                                        type: 'email'
+                                    }
+                                ]}
+                            >
+                                <Input
+                                    name = "email"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item name="userType">
+                                <Select
+                                    onChange = {(value)=>{setSelectUserType(value)}}
+                                    disabled
+                                    >
+                                    <Option value="teacher">Teacher</Option>
+                                    <Option value="student">Student</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </TabPane>
+                <TabPane tab="Teacher" key="2"> 
+                    Teacher
+                </TabPane>
+            </Tabs>
+            
+            <Row gutter={16}>
+                <Col span={24}>
+                    <Button type="primary" htmlType="submit">
+                        Save Changes
+                    </Button>
                 </Col>
             </Row>
         </Form>
