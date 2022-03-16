@@ -40,7 +40,13 @@ export class Student extends BaseEntity {
   @Column({ nullable: true})
   days:number;
   @Column({ nullable: true})
+  status:string;
+  @Column({ nullable: true})
   studentType:string;
+  @Column({ nullable: true})
+  courseFrequency:string;
+  @Column({ nullable: true})
+  timings:string;
   @Column({ nullable: true, type:"date" })
   dateOfBirth: Date;
   @Column({ nullable: true })
