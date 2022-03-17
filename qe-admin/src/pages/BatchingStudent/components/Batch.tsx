@@ -23,6 +23,7 @@ import DebounceSelect from "@/components/DebounceSelect";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
+import Teachers from "./Teachers";
 
 const { TabPane } = Tabs;
 
@@ -281,59 +282,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
                     </Row>
                 </TabPane>
                 <TabPane tab="Teacher" key="2"> 
-                    <Row gutter={16}>
-                        <Col span={16}>
-                            <Form.Item name="teacherId">
-                                <DebounceSelect
-                                    key={defaultTeacherOptions.length}
-                                    showSearch
-                                    value={teacherName}
-                                    placeholder="Select teacher"
-                                    fetchOptions={fetchTeachersList}
-                                    options = {defaultTeacherOptions}
-                                    onChange={(newValue) => {
-                                        setTeacherName(newValue);
-                                        console.log("teacherDeb", newValue);
-                                    }}
-                                    style={{
-                                        width: "100%",
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col offset={1} span={7}>
-                            <Button
-                                size="default"
-                                onClick={() => {
-                                    window.open(window.location.origin + `/manage/batch?teacherId=${teacherName.value}&teacherName=${teacherName.label}&add=1`, '_blank').focus();
-                                }}
-                                disabled={!teacherName || teacherName.length < 1}
-                                type="primary"
-                            >
-                                Add New Batch
-                            </Button>
-                        </Col>
-                        <Col span={24} key={teacherName.length}>
-                            <p>Please Select Student Batch From Here After Completing Batch Creation.</p>
-                            <Form.Item name="batchId">
-                                <DebounceSelect
-                                    key={defaultBatchesOptions.length}
-                                    showSearch
-                                    value={batch}
-                                    placeholder="Select Batch"
-                                    fetchOptions={fetchAllBatchList}
-                                    options = {[]}
-                                    onChange={(newValue) => {
-                                        setSelectedBatch(newValue.value)
-                                        setBatch(newValue);
-                                    }}
-                                    style={{
-                                        width: "100%",
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                    <Teachers data={props.data} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch} />
                 </TabPane>
             </Tabs>
             

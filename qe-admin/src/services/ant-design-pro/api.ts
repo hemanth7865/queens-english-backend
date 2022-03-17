@@ -369,6 +369,7 @@ export async function listTeacherAndStudent(
     current?: 0;
     /** 页面的容量 */
     pageSize?: 20;
+    type?: string
   },
   options?: { [key: string]: any },
 ) {
