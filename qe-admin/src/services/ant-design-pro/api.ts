@@ -384,7 +384,7 @@ export async function listTeacherAndStudent(
 // get individual batch - GET
 export async function getIndividualBatch(
   rowid: string,
-  params: {
+  params?: {
     current?: number;
     pageSize?: number;
   },
