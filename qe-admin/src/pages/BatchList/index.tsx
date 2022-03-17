@@ -94,6 +94,8 @@ const DEFAULT_FORM_DATA = {
 };
 
 const BatchList: React.FC = () => {
+  const url = new URL(window.location.href);
+
   /**
    * @en-US Pop-up window of new window
    * @zh-CN 新建窗口的弹窗
@@ -106,24 +108,24 @@ const BatchList: React.FC = () => {
   const [updateModalVisible, handleUpdateModalVisible] =
     useState<boolean>(false);
 
-  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [showDetail, setShowDetail] = useState<boolean>(url.searchParams.get("add") ? true : false);
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
-  const [addTeacher, setAddTeacher] = useState(false);
+  const [addTeacher, setAddTeacher] = useState(url.searchParams.get("add") ? true : false);
   const [timeRange, setTimeRange] = useState([]);
   const [batchDate, setbatchDate] = useState("");
   const [availabilityType, setAvailabiltyType] = useState("");
-  const [createBatch, setCreateBatch] = useState(false);
+  const [createBatch, setCreateBatch] = useState(url.searchParams.get("add") ? true : false);
   const [addTeacherComponent, setAddTeacherComponent] = useState(false);
   const [error, seterror] = useState("");
   const [classDateRange, setClassDateRange] = useState();
   const [studentList, setStudentList] = useState([]);
   const [leadList, setLeadList] = useState({});
-  const [teacherName, setTeacherName] = useState([]);
+  const [teacherName, setTeacherName] = useState(url.searchParams.get("teacherId") ? {value: url.searchParams.get("teacherId"), label: url.searchParams.get("teacherName")} : []);
   const [batchDetails, setBatchDetails] = useState({});
-  const [renderEdit,setRenderEdit] = useState(false)
+  const [renderEdit,setRenderEdit] = useState(url.searchParams.get("add") ? true : false)
   const [edit, setEdit] = useState(false)
 
   const [startLesson,setStartLesson] = useState("");

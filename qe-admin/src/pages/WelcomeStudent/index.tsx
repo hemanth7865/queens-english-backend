@@ -5,14 +5,12 @@ import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/
 import moment from "moment";
 
 const { Option } = Select;
-
 interface Item {
   id: string;
   name: string;
-  mobile: string;
+  phoneNumber: string;
   email: string;
-  dob: number;
-  comments: number;
+  status: number;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -77,11 +75,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectStatus'){
       return(
-            <Select style={{ width: 150 }} >
-              {/* <Option value="sent message">Sent Message</Option>
-              <Option value="first class feedback">First Class Feedback</Option> */}
-              <Option value="onboarding">Start Class Later</Option>
-              <Option value="active">Active</Option>
+            <Select style={{ width: 120 }} >
+              <Option value="enrolled">Enrolled</Option>
+              <Option value="batching">Ready to batch</Option>
             </Select>
       )
     }
@@ -124,6 +120,7 @@ const StudentOnboard: React.FC = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [statusCheck, setStatusCheck] = useState('');
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -139,7 +136,7 @@ const StudentOnboard: React.FC = () => {
 
 const openNotificationWithIcon = (type, userType = 'Student') => {
   notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
+    message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' ! ',
     description:
       '',
   });
@@ -149,18 +146,13 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
 };
 
 
-function toDate(isoDateString) {
-  // isoDateString is a string like "yyyy-MM-dd"
-  return new Date(`${isoDateString}T12:00:00`);
-}
+
+
 
 
 //edit submit 
 const formSubmit = async (value)=>{
   //console.log('value', value)
-  let dateOfBirth = moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD")
-  let dateOfBirth1 = toDate(dateOfBirth)
-  console.log('date of birth', dateOfBirth1)
   
   const dataForm = {
     leadId: value.studentID,
@@ -180,14 +172,9 @@ const formSubmit = async (value)=>{
     classType: value.classType,
     course: value.course,
     startLesson: value.startLesson,
-    startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+    //startDate: value.startDate,
     pfirstName: value.pfirstName,
     plastName: value.plastName,
-    age: value.age,
-    teacherName: value.teacherName,
-    batchCode: value.batchCode,
-    //studentType: value.studentType,
-    //days: value.days,
     payment: [{
       paymentid: value.paymentid,
       classessold: value.classessold,
@@ -211,14 +198,14 @@ const formSubmit = async (value)=>{
       },
       body: JSON.stringify(dataForm),
     });
-    if (msg.status === 400 || msg.status === 500) {
+    if (msg.status === 400) {
       //openNotificationWithIcon('error', msg);
       console.log("API call sucessfull", msg);
     } else {
       //openNotificationWithIcon('success', 'Student');
     }
     if (msg) {
-      //console.log("API call sucessfull", msg);
+      console.log("API call sucessfull", msg);
     }
     //console.log(msg);
   } catch (error) {
@@ -229,7 +216,7 @@ const formSubmit = async (value)=>{
 
 const studentGetApi = async ()=>{
   try {
-    let msg = await studentsDashboard('onboarding', {
+    let msg = await studentsDashboard('enrolled', {
         current: 1,
         pageSize: 20}
     );
@@ -313,8 +300,7 @@ const studentGetApi = async ()=>{
       editable: true,
       render: (value)=>{
         if(value){
-          console.log('date', moment.utc(value).format("YYYY-MM-DD"))
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD")
+          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
         }
       }
     },
@@ -352,43 +338,12 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Customer Address',
+      title: 'Address',
       dataIndex: 'address',
       width: 150,
       editable: true,
       
     },
-    
-    {
-      title: 'Batch Code',
-      dataIndex: 'batchCode',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Teacher Name',
-      dataIndex: 'teacherName',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      width: 150,
-      editable: true,
-    },
-    // {
-    //   title: 'Student Type',
-    //   dataIndex: 'studentType',
-    //   width: 150,
-    //   editable: true,
-    // },
-    // {
-    //   title: 'Days',
-    //   dataIndex: 'days',
-    //   width: 150,
-    //   editable: true,
-    // },
     {
       title: 'Class Type',
       dataIndex: 'classType',
@@ -409,24 +364,25 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
-    {
-      title: 'Start Date',
-      dataIndex: 'startDate',
-      width: 150,
-      editable: true,
-      render: (value)=>{
-        if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
-        }
-      }
-      
-    },
+    // {
+    //   title: 'Start Date',
+    //   dataIndex: 'startDate',
+    //   width: 150,
+    //   editable: true,
+    //   render: (value)=>{
+    //     if(value){
+    //       return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+    //     }
+    //   }
+    // },
     {
       title: 'No of classess sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true,
-      
+      render: (value)=>{
+        return value[0]
+      }
     },
     {
       title: 'Total Sale amount',
@@ -453,20 +409,18 @@ const studentGetApi = async ()=>{
       editable: true,
     },
     {
-      title: 'Comments',
+      title: 'BDA Comments',
       dataIndex: 'comments',
-      width: 200,
+      width: 150,
       editable: true,
       
     },
     {
       title: 'Status',
       dataIndex: 'status',
-      width: 200,
+      width: 150,
       editable: true,
-      render: ()=>{
-        return 'Start Class Later'
-      }
+
     },
     {
       title: 'operation',
@@ -521,7 +475,7 @@ const studentGetApi = async ()=>{
   const handleFormSubmit = async (value) => {
     //console.log('status', formData, value)
     try {
-      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
           pageSize: 20}
       );
@@ -541,7 +495,7 @@ const studentGetApi = async ()=>{
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
+      <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
       <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>

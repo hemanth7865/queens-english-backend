@@ -59,6 +59,12 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/leads/update/status",
+    controller: UserController,
+    action: "updateLeadsStatus",
+  },
+  {
+    method: "post",
     route: "/fetchLQSData",
     controller: LQSController,
     action: "updateLQSData",

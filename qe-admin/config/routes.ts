@@ -50,9 +50,25 @@
         component: './NewAssessment'
       },
       {
-        name: 'Onboarding',
-        path: '/manage/onboarding',
-        component: './OnboardStudent'
+        name: 'Dashboard',
+        path: '/manage/dashboard',
+        routes: [
+          {
+            name: 'Welcome',
+            path: '/manage/dashboard/welcome',
+            component: './WelcomeStudent',
+          },
+          {
+            name: 'Batching',
+            path: '/manage/dashboard/batching',
+            component: './BatchingStudent',
+          },
+          {
+            name: 'Onboarding',
+            path: '/manage/dashboard/onboarding',
+            component: './OnboardStudent',
+          },
+        ]
       },
     ]
   },
