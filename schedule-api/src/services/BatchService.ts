@@ -552,7 +552,6 @@ export class BatchService {
       let endTime;
       let status;
       if (classes.lessonStartTime && classes.lessonStartTime.split("T")[1]) {
-        classes.lessonStartTime
         startTime = classes.lessonStartTime.split("T")[1]?.substring(0, "00:00".length);
       }else{
         startTime = "";
