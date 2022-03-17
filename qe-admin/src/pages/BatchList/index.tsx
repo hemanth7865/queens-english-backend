@@ -243,17 +243,13 @@ const BatchList: React.FC = () => {
   const intl = useIntl();
   const handleTimeRange = (value,e) => {
     setTimeRange([...value]);
-    console.log("timeRange", timeRange);
+    console.log("timeRange", timeRange, timeRange[0].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z");
   };
   const handleClassDateRange = (value,e) => {
     console.log('classDateRange',value)
-    console.log(value);
     setClassDateRange([...value]);
   };
-  useEffect(() => {
-    console.log("start date", timeRange);
-  }, [timeRange]);
-  const handleClassDate = (value) => {};
+
   const handleOk = () => {
     try {
       console.log(currentRow);
@@ -277,120 +273,17 @@ const BatchList: React.FC = () => {
         message.error("Please select class date range");
         return
       }
-      //REFORMATTED DATE RANGE
       console.log("createBatch")
-      let formattedStartDate = classDateRange[0]._d.toString().split(" ");
-      let formattedEndDate = classDateRange[1]._d.toString().split(" ");
-      let startmonthNumber =
-        [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ].indexOf(formattedStartDate[1]) + 1;
-      let endMonthNumber =
-        [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ].indexOf(formattedEndDate[1]) + 1;
-      let finalStartDate =
-        formattedStartDate[3] +
-        "-" +
-        startmonthNumber.toString() +
-        "-" +
-        formattedStartDate[2] +
-        "T" +
-        formattedStartDate[4] +
-        ".000Z";
-      let finalEndDate =
-        formattedEndDate[3] +
-        "-" +
-        endMonthNumber.toString() +
-        "-" +
-        formattedEndDate[2] +
-        "T" +
-        formattedEndDate[4] +
-        ".000Z";
-      //REFORMATTED TIME RANGE
-      let formatLessonStartTime = timeRange[0]._d.toString().split(" ");
-      let formatLessonEndTime = timeRange[1]._d.toString().split(" ");
-      let lessonStartMonth =
-        [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ].indexOf(formatLessonStartTime[1]) + 1;
-      let lessonEndMonth =
-        [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ].indexOf(formatLessonEndTime[1]) + 1;
-      let finalStartTime =
-        formatLessonStartTime[3] +
-        "-" +
-        lessonStartMonth.toString() +
-        "-" +
-        formatLessonStartTime[2] +
-        "T" +
-        formatLessonStartTime[4] +
-        ".000Z";
-      let finalEndTime =
-        formatLessonStartTime[3] +
-        "-" +
-        lessonEndMonth.toString() +
-        "-" +
-        formatLessonEndTime[2] +
-        "T" +
-        formatLessonEndTime[4] +
-        ".000Z";
-
       const dataForm = {
         classCode: formData.classCode,
         batchNumber: formData.batchNumber,
         teacherId: teacherName.value,
         startingLessonId: startLesson,
         endingLessonId: endLesson,
-        classStartDate: finalStartDate,
-        classEndDate: finalEndDate,
-        lessonStartTime: finalStartTime,
-        lessonEndTime: finalEndTime,
+        classStartDate: classDateRange[0].format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+        classEndDate: classDateRange[1].format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+        lessonStartTime: timeRange[0].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+        lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
         ageGroup: selectedAgeGroup,
         followupVersion: followupVersion,
         id: createBatch ? null: currentRow?.id,
@@ -494,7 +387,9 @@ const BatchList: React.FC = () => {
       return lead.startsWith("Sun");
     });
   }
-  
+
+  const dateToLocal = (date: string) => format(parseISO(date!), "yyyy-MM-dd") + "T" + format(parseISO(date!), "HH:mm") + ".000Z";
+
   const prepareEditFormData = (rowval: any) => {
     console.log("rowval",rowval.id)
     getIndividualBatch(rowval.id)
@@ -502,7 +397,16 @@ const BatchList: React.FC = () => {
         console.log("batch DData", data);
         setBatchDetails(data.data);
         const batchData = data.data;
+
         if(batchData.classes){
+          try{
+            data.data.classes.lessonStartTime = dateToLocal(batchData.classes.lessonStartTime);
+            data.data.classes.lessonEndTime = dateToLocal(batchData.classes.lessonEndTime);
+          }catch(e){
+            console.log("BT_S_E", data.data.classes, e);
+          }
+          // return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
+
           setFormData({...formData, classCode: batchData.classes.classCode,
           batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion});
           setFollowupVersion(batchData.classes.followupVersion);
