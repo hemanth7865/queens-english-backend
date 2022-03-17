@@ -533,8 +533,12 @@ const BatchList: React.FC = () => {
       render(dom, entity){
         if(entity.lessonStartTime){
           try{
-            return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
-          }catch(e){}
+            // return format(parseISO(entity.lessonStartTime!), "hh:mm a") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm a");
+            return format(parseISO(entity.lessonStartTime!), "hh:mm a");
+          }catch(e){
+            console.log("format time error", e);
+            return "... - ..."
+          }
         }
         return "-";
       }
@@ -694,6 +698,16 @@ const BatchList: React.FC = () => {
   };
 
   const dateFormat = "YYYY-MM-DD";
+
+  const timeSlotHandler = (entity): string => {
+    try{
+      return format(parseISO(entity.lessonStartTime!), "hh:mm a") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm a")
+    }catch(e){
+
+    }
+    return " - ";
+  }
+
   return (
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
@@ -1122,7 +1136,9 @@ const BatchList: React.FC = () => {
                       {tempData?.students ? tempData?.students : "NA"}
                     </div>
                     <div className="label">
-                      {tempData?.timeSlot ? tempData?.timeSlot : "NA"}
+                      {
+                        timeSlotHandler(tempData)
+                      }
                     </div>
                     <div className="label"> {tempData?.status}</div>
                   </Col>
