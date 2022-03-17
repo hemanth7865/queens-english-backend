@@ -581,7 +581,9 @@ export class BatchService {
         status,
         students,
         classes.startingLessonId,
-        classes.endingLessonId
+        classes.endingLessonId,
+        classes.lessonStartTime,
+        classes.lessonEndTime,
       );
       batchView.push(view);
     }
