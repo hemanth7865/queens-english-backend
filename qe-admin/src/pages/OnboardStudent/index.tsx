@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker} from "antd";
 import React, { useState, useEffect } from "react";
 import { FormattedMessage, useIntl } from "umi";
@@ -212,17 +213,17 @@ const formSubmit = async (value)=>{
       body: JSON.stringify(dataForm),
     });
     if (msg.status === 400 || msg.status === 500) {
-      //openNotificationWithIcon('error', msg);
+      openNotificationWithIcon('error', msg);
       console.log("API call sucessfull", msg);
     } else {
-      //openNotificationWithIcon('success', 'Student');
+      openNotificationWithIcon('success', 'Student');
     }
     if (msg) {
       //console.log("API call sucessfull", msg);
     }
     //console.log(msg);
   } catch (error) {
-    //openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
+    openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
   }
   
 }

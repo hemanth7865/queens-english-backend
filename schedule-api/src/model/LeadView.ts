@@ -36,6 +36,7 @@ export class LeadView {
   classessold: string;
   saleamount: string;
   plantype: string;
+  studentId: string;
   Id: string;
   firstName: string;
   lastName: string;
@@ -72,6 +73,7 @@ export class LeadView {
           this.classessold = payments.map(p => p.classessold).join(',');
           this.saleamount = payments.map(p => p.saleamount).join(',');
           this.plantype = payments.map(p => p.plantype).join(',');
+          this.studentId = payments.map(p => p.studentId).join(',');
       }
       this.age = age;
       this.startDate = startDate;
