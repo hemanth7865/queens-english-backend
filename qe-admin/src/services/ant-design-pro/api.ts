@@ -369,6 +369,7 @@ export async function listTeacherAndStudent(
     current?: 0;
     /** 页面的容量 */
     pageSize?: 20;
+    type?: string
   },
   options?: { [key: string]: any },
 ) {
@@ -383,7 +384,7 @@ export async function listTeacherAndStudent(
 // get individual batch - GET
 export async function getIndividualBatch(
   rowid: string,
-  params: {
+  params?: {
     current?: number;
     pageSize?: number;
   },
