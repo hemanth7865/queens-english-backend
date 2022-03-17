@@ -57,6 +57,8 @@ import "antd-button-color/dist/css/style.css";
 import "./batchList.css";
 import DebounceSelect from "@/components/DebounceSelect";
 import {LESSONS} from "../../../config/lessons";
+import { parseISO, format } from "date-fns";
+
 /**
  * @en-US Add node
  * @zh-CN 添加节点
@@ -624,11 +626,14 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "timeSlot",
-      // valueType: "textarea",
-      renderFormItem: (value) => {
-        console.log(value);
-        return <TimePicker.RangePicker format="HH:mm" />;
-      },
+      render(dom, entity){
+        if(entity.lessonStartTime){
+          try{
+            return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
+          }catch(e){}
+        }
+        return "-";
+      }
     },
     //button
     {
