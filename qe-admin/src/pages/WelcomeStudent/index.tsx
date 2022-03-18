@@ -18,7 +18,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' ;
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -51,7 +51,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <DatePicker/>
+      return <Input placeholder="YYYY-MM-DD"/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -162,7 +162,7 @@ const formSubmit = async (value)=>{
     phoneNumber: value.phoneNumber,
     studentID: value.studentID,
     address: value.address,
-    dob: moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
+    dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
     whatsapp:value.whatsapp,
     comments:value.comments,
     email:value.email,
@@ -456,7 +456,7 @@ const studentGetApi = async ()=>{
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob1' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
