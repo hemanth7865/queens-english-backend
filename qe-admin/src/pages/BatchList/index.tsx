@@ -830,7 +830,7 @@ const BatchList: React.FC = () => {
                       <Form.Item
                         name="studentList"
                         rules={[{ required: true, message: "Select students" }]}
-                      >  {console.log("lol",studentList)}
+                      > 
                          {studentList?
                         <DebounceSelect
                           mode="tags"
