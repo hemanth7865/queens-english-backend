@@ -516,7 +516,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current >= 0 ? current : 0}, ${pageSize >= 0 ? pageSize : 20};`;
+    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
