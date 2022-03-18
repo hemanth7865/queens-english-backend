@@ -273,27 +273,25 @@ const BatchList: React.FC = () => {
         message.error("Please select class date range");
         return
       }
-      console.log("createBatch")
-      const dataForm = {
-        classCode: formData.classCode,
-        batchNumber: formData.batchNumber,
-        teacherId: teacherName.value,
-        startingLessonId: startLesson,
-        endingLessonId: endLesson,
-        classStartDate: classDateRange[0].format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
-        classEndDate: classDateRange[1].format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
-        lessonStartTime: timeRange[0].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
-        lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
-        ageGroup: selectedAgeGroup,
-        followupVersion: followupVersion,
-        id: createBatch ? null: currentRow?.id,
-        batchAvailability: [{}],
-        students: [...studentList],
-        edit
-      };
-      console.log("formData", dataForm);
-
       try {
+        const dataForm = {
+          classCode: formData.classCode,
+          batchNumber: formData.batchNumber,
+          teacherId: teacherName.value,
+          startingLessonId: startLesson,
+          endingLessonId: endLesson,
+          classStartDate: classDateRange[0].format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+          classEndDate: classDateRange[1].format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+          lessonStartTime: timeRange[0].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+          lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
+          ageGroup: selectedAgeGroup,
+          followupVersion: followupVersion,
+          id: createBatch ? null: currentRow?.id,
+          batchAvailability: [{}],
+          students: [...studentList],
+          edit
+        };
+
         setIsLoading(true);
         // 登录
         console.log("data", dataForm);
@@ -323,6 +321,7 @@ const BatchList: React.FC = () => {
         console.log(msg);
       } catch (error) {
         setIsLoading(false);
+        message.error("Please try again: "+error.message);
         console.log("Failed");
       };
   }
