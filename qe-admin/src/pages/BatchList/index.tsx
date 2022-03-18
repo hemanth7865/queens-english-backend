@@ -227,18 +227,13 @@ const BatchList: React.FC = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [prePop, setPrePop] = useState({});
 
-  // const [deleteData, setDeleteData] = useState();
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
   const intl = useIntl();
   const handleTimeRange = (value) => {
     setTimeRange(value);
   };
 
   const handleClassDateRange = (value) => {
-    setClassDateRange([...value]);
+    setClassDateRange(value);
   };
 
   const handleOk = () => {
