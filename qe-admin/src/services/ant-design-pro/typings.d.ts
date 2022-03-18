@@ -117,4 +117,19 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+
+  type batchItem = {
+    id: string;
+    lessonStartTime: string | DateTime;
+    name?: string;
+    date: string | DateTime;
+    dateSlot?: string;
+    createdBy?: string;
+    teacher?: string;
+    startingLessonId?: string;
+    endingLessonId?: string;
+    students?: string;
+    status?: string;
+    studentsList?: [];
+  }
 }
