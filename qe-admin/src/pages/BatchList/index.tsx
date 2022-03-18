@@ -19,8 +19,6 @@ import {
   Table,
   Spin
 } from "antd";
-// @ts-ignore-next-line
-import { v4 as uuidv4 } from 'uuid';
 import moment from "moment";
 const { RangePicker } = DatePicker;
 import React, { useState, useRef, useEffect } from "react";
