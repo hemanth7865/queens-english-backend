@@ -64,10 +64,10 @@ const BatchList: React.FC = () => {
 
   const [showDetail, setShowDetail] = useState<boolean>(url.searchParams.get("add") ? true : false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<API.batchItem>();
+  const [selectedRowsState, setSelectedRows] = useState<API.batchItem[]>([]);
   const [addTeacher, setAddTeacher] = useState(url.searchParams.get("add") ? true : false);
-  const [timeRange, setTimeRange] = useState<any>([]);
+  const [timeRange, setTimeRange] = useState<[any, any] | []>([]);
   const [createBatch, setCreateBatch] = useState(url.searchParams.get("add") ? true : false);
   const [addTeacherComponent, setAddTeacherComponent] = useState(false);
   const [classDateRange, setClassDateRange] = useState<any>();
@@ -82,7 +82,7 @@ const BatchList: React.FC = () => {
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
-  const [tempData, setTempData] = useState<any>({});
+  const [tempData, setTempData] = useState<API.batchItem>({});
 
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
@@ -176,8 +176,11 @@ const BatchList: React.FC = () => {
 
   const handleOk = () => {
     try {
-      //@ts-ignore-next-line
-      handleFormDelete(currentRow.id);
+      if(currentRow){
+        handleFormDelete(currentRow.id);
+      }else{
+        message.error("Batch ID Not Found, Please Select A Batch");
+      }
     } catch (error) {
       console.log(error);
       message.error("Delete failed, please try again");
@@ -207,7 +210,7 @@ const BatchList: React.FC = () => {
           lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
           ageGroup: selectedAgeGroup,
           followupVersion: followupVersion,
-          //@ts-ignore-next-line
+          
           id: createBatch ? null: currentRow?.id,
           batchAvailability: [{}],
           students: [...studentList],
@@ -336,7 +339,7 @@ const BatchList: React.FC = () => {
         setEdit(true)
       });
   };
-  const columns: ProColumns<API.RuleListItem>[] = [
+  const columns: ProColumns<API.batchItem>[] = [
     {
       title: (
         <FormattedMessage
@@ -397,10 +400,10 @@ const BatchList: React.FC = () => {
       ),
       dataIndex: "timeSlot",
       render(dom, entity){
-        //@ts-ignore-next-line
+        
         if(entity.lessonStartTime){
           try{
-            //@ts-ignore-next-line
+            
             return format(parseISO(entity.lessonStartTime!), "hh:mm a");
           }catch(e){
             console.log("format time error", e);
@@ -423,52 +426,43 @@ const BatchList: React.FC = () => {
       valueEnum: {
         0: {
           text: (
-            //@ts-ignore-next-line
-            <Button type="success">
+            
+            <Button type="default">
               <FormattedMessage
                 id="pages.searchTable.nameStatus.upcoming"
                 defaultMessage="Upcoming"
-                //@ts-ignore-next-line
-                status="Success"
               />
             </Button>
           ),
         },
         1: {
           text: (
-            //@ts-ignore-next-line
-            <Button type="warning">
+            
+            <Button type="default">
               <FormattedMessage
                 id="pages.searchTable.nameStatus.ongoing"
                 defaultMessage="Ongoing"
-                //@ts-ignore-next-line
-                status="Processing"
               />
             </Button>
           ),
         },
         2: {
           text: (
-            //@ts-ignore-next-line
-            <Button type="lightdark">
+            <Button type="default">
               <FormattedMessage
                 id="pages.searchTable.nameStatus.completed"
                 defaultMessage="Completed"
-                //@ts-ignore-next-line
-                status="Default"
               />
             </Button>
           ),
         },
         3: {
           text: (
-            //@ts-ignore-next-line
-            <Button type="danger">
+            
+            <Button type="default">
               <FormattedMessage
                 id="pages.searchTable.nameStatus.cancelled"
                 defaultMessage="Cancelled"
-                //@ts-ignore-next-line
-                status="Error"
               />
             </Button>
           ),
@@ -567,7 +561,7 @@ const BatchList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
+      <ProTable<API.batchItem, API.PageParams>
         headerTitle={intl.formatMessage({
           id: "pages.searchTable.title",
           defaultMessage: "BatchList",
@@ -683,13 +677,11 @@ const BatchList: React.FC = () => {
                           onChange={(value) => {
                             setStartLesson(value)
                           }}
-                          defaultValue={
-                          startLesson}
+                          defaultValue={startLesson}
                           value={formData.startingLessonId}
                           disabled={edit}
                         >
                           {
-                            // @ts-ignore-next-line
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
                           }
                         </Select>
@@ -712,7 +704,7 @@ const BatchList: React.FC = () => {
                           disabled={edit}
                         >
                           {
-                            // @ts-ignore-next-line
+                            
                             LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
                           }
                         </Select>
@@ -727,13 +719,9 @@ const BatchList: React.FC = () => {
                         <RangePicker
                           style={{ width: "551px" }}
                           onChange={(value,e)=>{handleClassDateRange(value)}}
-                          // @ts-ignore-next-line
                           defaultValue={ 
-                            // @ts-ignore-next-line
                             prePop?.batchData?.classes?.classEndDate?.length > 0 && prePop?.batchData?.classes?.classStartDate?.length ? [
-                              // @ts-ignore-next-line
                               moment(prePop.batchData.classes.classStartDate.split("T")[0], dateFormat),
-                              // @ts-ignore-next-line
                               moment(prePop.batchData.classes.classEndDate.split("T")[0], dateFormat),
                             ]: []} 
                         />
@@ -747,14 +735,11 @@ const BatchList: React.FC = () => {
                         <TimePicker.RangePicker
                           format={"HH:mm"}
                           disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i: 1)}
-                          // @ts-ignore-next-line
+                          
                           defaultValue={
-                            // @ts-ignore-next-line
                             prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
                             [
-                              // @ts-ignore-next-line
                               moment(prePop?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
-                              // @ts-ignore-next-line
                               moment(prePop?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")
                             ] : []
                           }
@@ -792,12 +777,9 @@ const BatchList: React.FC = () => {
                     </Col>
                     <Col offset={1} span={7}>
                       <Button
-                        // @ts-ignore-next-line
-                        size="default"
                         onClick={() => {
                           setAddTeacherComponent(true);
                         }}
-                        on
                         type="primary"
                       >
                         Add New Teacher
@@ -815,8 +797,7 @@ const BatchList: React.FC = () => {
                           placeholder="Age Group"
                           onChange={(v) => setSelectedAgeGroup(v)}
                           value={selectedAgeGroup}
-                          // @ts-ignore-next-line
-                          defaultValue={!createBatch?prePop?.batchData?.classes.ageGroup:''}
+                          defaultValue={!createBatch?prePop?.batchData?.classes?.ageGroup:''}
                         >
                           <Option value="Pre-Teen">Pre-Teen</Option>
                           <Option value="Teen">Teen</Option>
@@ -835,13 +816,11 @@ const BatchList: React.FC = () => {
                           value={studentList}
                           placeholder="Select students"
                           fetchOptions={fetchStudentList}
-                          // @ts-ignore-next-line
                           options = {currentRow?.id?studentList:[]}
-                          // @ts-ignore-next-line
-                          defaultValue={currentRow?.id?studentList:null}
-                          onChange={(newValue: any) => {
+                          defaultValue={currentRow?.id?studentList:[]}
+                          onChange={(newValue: any[]) => {
                             console.log("student",studentList)
-                            setStudentList([...newValue]);
+                            setStudentList(newValue);
                           }}
                           style={{
                             width: "100%",
@@ -882,7 +861,6 @@ const BatchList: React.FC = () => {
                   />
                 )}
                 <div className="title">{
-                  // @ts-ignore-next-line
                   tempData?.batchId
                 }</div>
                 <Row>
