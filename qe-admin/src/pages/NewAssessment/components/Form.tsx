@@ -59,13 +59,17 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     const sumall = str.map((item) => Object.values(item)).toString();
     let strArr = sumall.split(",");
     console.log('strArr', strArr)
-    let sum = strArr
-      .filter((word) => word == 1||0)
-      .reduce(function (total, num) {
-        return parseFloat(total) + parseFloat(num);
-      });
-      console.log('sum', sum)
-    return sum;
+    let sum = strArr.filter((word) => word == 1||0)
+
+    if(sum.length != 0){
+      sum = sum.reduce(function (total, num) {
+          return parseFloat(total) + parseFloat(num);
+        });
+      
+      return sum
+    }else{
+      return sum;
+    }
     
   }
 
