@@ -1398,5 +1398,105 @@ export const LESSONS = [
             "id": "v2-64f35ccc-d6ff-410e-b7dc-9388604a2233",
             "number": "100",
             "type": "lesson"
+        },
+        {
+            "id": "79ed3c39-3e9f-456b-9f81-0f54d96ddca9",
+            "number": "281",
+            "type": "lesson"
+        },
+        {
+            "id": "fb672fff-4628-424d-83f6-68d599b6760d",
+            "number": "282",
+            "type": "lesson"
+        },
+        {
+            "id": "a5bc93d7-a271-40fe-8b21-6899fce29567",
+            "number": "283",
+            "type": "lesson"
+        },
+        {
+            "id": "29aea56c-bb21-4da8-b476-7f7033250ec1",
+            "number": "284",
+            "type": "lesson"
+        },
+        {
+            "id": "8b04aba8-0493-4130-b5da-6b49ef5784f8",
+            "number": "285",
+            "type": "lesson"
+        },
+        {
+            "id": "639c76e2-69f3-43e7-92a1-e7f080cadd35",
+            "number": "286",
+            "type": "lesson"
+        },
+        {
+            "id": "2b19129e-e9ee-42d7-bf50-493af7c10f65",
+            "number": "287",
+            "type": "lesson"
+        },
+        {
+            "id": "1c58be2e-48b6-4ffe-97ff-fefe9cd5a443",
+            "number": "288",
+            "type": "lesson"
+        },
+        {
+            "id": "0394c326-247e-4e39-ac7a-8a2978bdaf89",
+            "number": "289",
+            "type": "lesson"
+        },
+        {
+            "id": "f2047f20-00ef-4122-ac43-25863ded92e3",
+            "number": "290",
+            "type": "lesson"
+        },
+        {
+            "id": "14bce9c7-a638-47b0-8a2f-4faa9f06fbe7",
+            "number": "291",
+            "type": "lesson"
+        },
+        {
+            "id": "768b907c-ab50-4026-bfa4-7ba909d62e27",
+            "number": "292",
+            "type": "lesson"
+        },
+        {
+            "id": "3ae658c6-08ff-4ce0-9939-ed0e18ca141e",
+            "number": "293",
+            "type": "lesson"
+        },
+        {
+            "id": "23d3dbb9-03fd-49d3-828c-4c88c629914d",
+            "number": "294",
+            "type": "lesson"
+        },
+        {
+            "id": "2c41bead-1402-458f-b107-35541762846c",
+            "number": "295",
+            "type": "lesson"
+        },
+        {
+            "id": "9966027b-4265-4544-9ff2-a659c4e260e2",
+            "number": "296",
+            "type": "lesson"
+        },
+        {
+            "id": "bfd57a09-8487-4e70-a006-6febe2df317a",
+            "number": "297",
+            "type": "lesson"
+        },
+        {
+            "id": "74e8e1f6-f2b3-4e49-aa2f-b7a31fa99c52",
+            "number": "298",
+            "type": "lesson"
+        },
+        {
+            "id": "0b54f306-baf4-4452-abe8-0c8af4ed8af5",
+            "number": "299",
+            "type": "lesson"
+        },
+        {
+            "id": "6e2a23e4-f8a5-4db8-aeca-d6b74785a28c",
+            "number": "300",
+            "type": "lesson"
         }
     ].sort((a, b) => parseInt(a.number) - parseInt(b.number));

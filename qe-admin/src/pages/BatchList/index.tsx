@@ -680,9 +680,13 @@ const BatchList: React.FC = () => {
                           defaultValue={startLesson}
                           value={formData.startingLessonId}
                           disabled={edit}
+                          showSearch
+                          filterOption={(input, option) =>
+                            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
                         >
                           {
-                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
+                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>{_l.number}</Option>))
                           }
                         </Select>
                       </Form.Item>
@@ -702,10 +706,14 @@ const BatchList: React.FC = () => {
                           value={endLesson}
                           defaultValue={endLesson}
                           disabled={edit}
+                          showSearch
+                          filterOption={(input, option) =>
+                            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
                         >
                           {
                             
-                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>Lesson {_l.number}</Option>))
+                            LESSONS.map((_l) => (<Option key={_l.id} value={_l.id} label={_l.number}>{_l.number}</Option>))
                           }
                         </Select>
                       </Form.Item>

@@ -126,15 +126,17 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         }
     };
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during User update' }, userType = 'Teacher') => {
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during User update' }, userType = 'Teacher', reload = true) => {
         notification[type]({
           message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
           description:
             '',
         });
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000);
+        if(reload){
+            setTimeout(() => {
+                window.location.reload()
+              }, 2000);
+        }
       };
 
    
@@ -175,7 +177,13 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                   console.log("API call sucessfull", msg);
                 }
                 if (msg.status === 400) {
-                    openNotificationWithIcon('error', msg);
+                    if(Array.isArray(msg.errors)){
+                        for(let m of msg.errors){
+                            openNotificationWithIcon('error', {status: 400, data: m}, selectUserType, false);
+                        }
+                    }else{
+                        openNotificationWithIcon('error', msg, selectUserType, false);
+                    }
             
                   } else {
                     console.log(msg);

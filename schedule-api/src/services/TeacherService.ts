@@ -1,14 +1,10 @@
 import { Any, getConnection, getRepository } from "typeorm";
-import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
-import { v4 as uuid } from "uuid";
 import axios from "axios";
-import { stringify } from "querystring";
-import { join } from "path";
 import { Student } from "../entity/Student";
 const { usersLogger } = require("../Logger.js");
 
@@ -325,8 +321,6 @@ export class TeacherService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      //var cosomos_url = this.URL+"/api/user/?code="+this.CODE;
-
       const options = {
         url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
         json: true,
@@ -364,23 +358,23 @@ export class TeacherService {
           return {status:400,error:error?.response?.data};
           return Promise.reject(error);
         });
-    } else {
-        usersLogger.info("Update teacher information");
-        usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
-        res1= await axios
-      .post(options.url, options.body)
-        .then(async (res) => {
-          console.log("Posted to cosmos and response is ", res);
-          console.log("Id created in cosmos is ", res.data.id);
-          console.log("Creating data in sql database ", res.data.id);
-          var user = await this.saveTeacherSql(data);
-          Promise.resolve(res);
-          return user;
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        });
-    }
+      } else {
+          usersLogger.info("Update teacher information");
+          usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
+          res1= await axios
+        .post(options.url, options.body)
+          .then(async (res) => {
+            console.log("Posted to cosmos and response is ", res);
+            console.log("Id created in cosmos is ", res.data.id);
+            console.log("Creating data in sql database ", res.data.id);
+            var user = await this.saveTeacherSql(data);
+            Promise.resolve(res);
+            return user;
+          })
+          .catch((error) => {
+            return Promise.reject(error);
+          });
+      }
 
       await queryRunner.commitTransaction();
       return res1;
