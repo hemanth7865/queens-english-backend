@@ -1,19 +1,13 @@
-import { Any, getConnection, getRepository } from "typeorm";
-import { NextFunction, Request, Response } from "express";
+import { getRepository, LessThan, MoreThan } from "typeorm";
 import { User } from "../entity/User";
-import { Teacher as Teacher } from "../entity/Teacher";
-import { LeadView } from "../model/LeadView";
-import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
-import { v4 as uuid } from "uuid";
 import axios from "axios";
-import { stringify } from "querystring";
-import { join } from "path";
 import { Student } from "../entity/Student";
 import { LQSEntry } from "../entity/LQSEntry";
-import jsonstringify from 'json-stringify-safe';
 import { Payment } from "../entity/Payment";
+import { format } from "date-and-time";
 const { usersLogger } = require("../Logger.js");
+const date = require('date-and-time')
 
 export class LQSService {
   private COSMOS_URL = process.env.COSMOS_URL;
@@ -36,7 +30,11 @@ export class LQSService {
 
   async createStudents() {
     usersLogger.info('updating LQS entries in user table::Start');
-    var lqsEntries = await this.lQSRepository.find()//await getManager().query('SELECT * from  lsqentry'); 
+    const now  =  new Date();
+    now.setDate(now.getDate() - 1);
+var lqsEntries = await this.lQSRepository.find({
+      where: { updated_at:  MoreThanDate(now) },
+    })
     usersLogger.info('Loading LSQ details from DB');
     usersLogger.info(lqsEntries);
     lqsEntries.forEach(async (element) => {
@@ -107,7 +105,7 @@ export class LQSService {
       payment.notes = element.bdaComments;
 
 
-      await this.updateCosmos(user);
+      await this.updateCosmos(user,student,payment);
       this.userRepository.save(user);
       this.studentRepository.save(student);
       this.paymentRepository.save(payment);
@@ -117,7 +115,7 @@ export class LQSService {
 
   }
 
-  async updateCosmos(user: User) {
+  async updateCosmos(user: User, student:Student, payment:Payment) {
     const options = {
       url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
       json: true,
@@ -128,8 +126,34 @@ export class LQSService {
         lastName: user.lastName,
         isAdministrator: false,
         phoneNumber: user.phoneNumber,
-        status: user.status
-      },
+        status: user.status,
+        course: student.course,
+        dob:user.dob,
+        whatsapp:user.whatsapp,
+        studentStatus:student.status,
+        dateofsale:payment.dateofsale,
+        studentID : student.studentID,
+        pfirstName:student.pfirstName,
+        alternativeMobile:user.alternativeMobile,
+        customerEmail:user.customerEmail,
+        address:user.address,
+        state:user.state,
+        plantype:payment.plantype,
+        subscription:payment.subscription,
+        subscriptionNo:payment.subscriptionNo,
+        courseFrequency:student.courseFrequency,
+        timings:student.timings ,
+        startLesson:student.startLesson,
+        startDate:student.startDate,
+        classessold:payment.classessold,
+        saleamount:payment.saleamount,
+        downpayment:payment.downpayment,
+        emi:payment.emi,
+        emiMonths:payment.emiMonths,
+        paymentMode:payment.paymentMode,
+        paymentid:payment.paymentid,
+        notes:payment.notes
+      }
     };
 
     if (user.id) {
@@ -379,3 +403,8 @@ export class LQSService {
   }
 
 }
+
+export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:MM:SS'))
+export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:MM:SS'))
+
+
