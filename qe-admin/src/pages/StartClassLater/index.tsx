@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker, Alert} from "antd";
 import React, { useState, useEffect } from "react";
-import { FormattedMessage, useIntl } from "umi";
+import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 
@@ -86,19 +85,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return <Input />
     }
   }
-  //console.log('inputnode', inputType)
   return (
     <td {...restProps}>
       {editing ? (
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          // rules={[
-          //   {
-          //     required: true,
-          //     message: `Please Input ${title}!`,
-          //   },
-          // ]}
         >
           {inputNode()}
         </Form.Item>
@@ -115,13 +107,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
-  const [showDrawer, setShowDrawer] = useState(false);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
-  const [statusCheck, setStatusCheck] = useState('');
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -135,7 +125,7 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-const openNotificationWithIcon = (type, userType = 'Student', messageError) => {
+const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
   console.log('TYPE', type, messageError)
   notification[type]({
     message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
@@ -148,97 +138,93 @@ const openNotificationWithIcon = (type, userType = 'Student', messageError) => {
 
 
 
-const notificationForStartDate = type => {
+const notificationForStartDate = (type: any) => {
   notification[type]({
     message: 'Add a start Date',
   });
 };
 
 
-//edit submit 
-const formSubmit = async (value)=>{
-  //console.log('value', value)
-  if(value.startDate){
-    const dataForm = {
-      leadId: value.studentID,
-      firstName: value.firstName,
-      lastName: value.lastName,
-      phoneNumber: value.phoneNumber,
-      studentID: value.studentID,
-      address: value.address,
-      dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
-      whatsapp:value.whatsapp,
-      comments:value.comments,
-      email:value.email,
-      id: value.studentID,
-      type: 'student',
-      status: value.status,
-      alternativeMobile: value.alternativeMobile,
-      classType: value.classType,
-      course: value.course,
-      startLesson: value.startLesson,
-      startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      pfirstName: value.pfirstName,
-      plastName: value.plastName,
-      payment: [{
-        paymentid: value.paymentid,
-        studentId: value.studentID,
-        classessold: value.classessold,
-        saleamount: value.saleamount,
-        downpayment: value.downpayment,
-        plantype: value.plantype,
-        classtype:'',
+  //edit submit 
+  const formSubmit = async (value: any)=>{
+    if(value.startDate){
+      const dataForm = {
         leadId: value.studentID,
-        id: value.studentID
-      }]
-  
-    }
-    console.log("dataForm", dataForm);
-    try {
-      // 登录
-      //console.log("data", dataForm);
-      const msg = await addTeacherSchedule({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataForm),
-      });
-      if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
-      } else {
-        openNotificationWithIcon('success', 'Student');
+        firstName: value.firstName,
+        lastName: value.lastName,
+        phoneNumber: value.phoneNumber,
+        studentID: value.studentID,
+        address: value.address,
+        dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
+        whatsapp:value.whatsapp,
+        comments:value.comments,
+        email:value.email,
+        id: value.studentID,
+        type: 'student',
+        status: value.status,
+        alternativeMobile: value.alternativeMobile,
+        classType: value.classType,
+        course: value.course,
+        startLesson: value.startLesson,
+        startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+        pfirstName: value.pfirstName,
+        plastName: value.plastName,
+        payment: [{
+          paymentid: value.paymentid,
+          studentId: value.studentID,
+          classessold: value.classessold,
+          saleamount: value.saleamount,
+          downpayment: value.downpayment,
+          plantype: value.plantype,
+          classtype:'',
+          leadId: value.studentID,
+          id: value.studentID
+        }]
+    
       }
-      
-    } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      console.log("dataForm", dataForm);
+      try {
+        const msg = await addTeacherSchedule({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataForm),
+        });
+        if (msg.status === 500) {
+          openNotificationWithIcon('error', 'Student', msg.error);
+        } else {
+          openNotificationWithIcon('success', 'Student', '');
+        }
+        
+      } catch (error) {
+        openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      }
+    }else{
+      notificationForStartDate('error');
     }
-  }else{
-    notificationForStartDate('error');
+    
+    
   }
-  
-  
-}
 
-const studentGetApi = async ()=>{
-  try {
-    let msg = await studentsDashboard('startclasslater', {
-        current: 1,
-        pageSize: 20}
-    );
-    if (msg.status === "ok") {
-      console.log("API call sucessfull", msg);
+  const studentGetApi = async ()=>{
+    try {
+      let msg = await studentsDashboard('startclasslater', {
+          current: 1,
+          pageSize: 20}
+      );
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setData(msg.data);
+      //console.log('view one',msg);
+    } catch (error) {
+      //console.log("error", error);
     }
-    setData(msg.data);
-    //console.log('view one',msg);
-  } catch (error) {
-    //console.log("error", error);
   }
-}
 
 
 
   useEffect(async (params: any) => {
-  //console.log("first reload")
   studentGetApi()
   }, []);
 
@@ -303,7 +289,7 @@ const studentGetApi = async ()=>{
       dataIndex: 'dob',
       width: 150,
       editable: true,
-      render: (value)=>{
+      render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
         }
@@ -374,7 +360,7 @@ const studentGetApi = async ()=>{
       dataIndex: 'startDate',
       width: 150,
       editable: true,
-      render: (value)=>{
+      render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
@@ -384,10 +370,7 @@ const studentGetApi = async ()=>{
       title: 'No of classess sold',
       dataIndex: 'classessold',
       width: 150,
-      editable: true,
-      render: (value)=>{
-        return value[0]
-      }
+      editable: true
     },
     {
       title: 'Total Sale amount',
@@ -425,7 +408,7 @@ const studentGetApi = async ()=>{
       dataIndex: 'status',
       width: 150,
       editable: true,
-      render: (value)=>{
+      render: (value: string)=>{
         console.log('value', value)
         if(value == "startclasslater"){
           return "Start Class Later"
@@ -485,8 +468,7 @@ const studentGetApi = async ()=>{
     }));
   }
   
-  const handleFormSubmit = async (value) => {
-    //console.log('status', formData, value)
+  const handleFormSubmit = async () => {
     try {
       let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,

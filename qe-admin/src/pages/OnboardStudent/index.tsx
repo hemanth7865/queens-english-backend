@@ -1,7 +1,6 @@
-// @ts-nocheck
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, DatePicker} from "antd";
 import React, { useState, useEffect } from "react";
-import { FormattedMessage, useIntl } from "umi";
+import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 
@@ -79,8 +78,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
     }else if(inputType === 'selectStatus'){
       return(
             <Select style={{ width: 150 }} >
-              {/* <Option value="sent message">Sent Message</Option>
-              <Option value="first class feedback">First Class Feedback</Option> */}
               <Option value="onboarding">Onboarding</Option>
               <Option value="active">Active</Option>
             </Select>
@@ -97,12 +94,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          // rules={[
-          //   {
-          //     required: true,
-          //     message: `Please Input ${title}!`,
-          //   },
-          // ]}
         >
           {inputNode()}
         </Form.Item>
@@ -119,7 +110,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
-  const [showDrawer, setShowDrawer] = useState(false);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
 
   const [form] = Form.useForm();
@@ -138,103 +128,96 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-const openNotificationWithIcon = (type, userType = 'Student', messageError) => {
-  console.log('TYPE', type, messageError)
-  notification[type]({
-    message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
-    description: '',
-  });
-  setTimeout(() => {
-    window.location.reload()
-  }, 1000);
-};
-
-
-
-//edit submit 
-const formSubmit = async (value)=>{
-  //console.log('value', value)
-  const dataForm = {
-    leadId: value.studentID,
-    firstName: value.firstName,
-    lastName: value.lastName,
-    phoneNumber: value.phoneNumber,
-    studentID: value.studentID,
-    address: value.address,
-    dob: moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
-    whatsapp:value.whatsapp,
-    comments:value.comments,
-    email:value.email,
-    id: value.studentID,
-    type: 'student',
-    status: value.status,
-    alternativeMobile: value.alternativeMobile,
-    classType: value.classType,
-    course: value.course,
-    startLesson: value.startLesson,
-    startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-    pfirstName: value.pfirstName,
-    plastName: value.plastName,
-    age: value.age,
-    teacherName: value.teacherName,
-    //batchCode: value.batchCode,
-    //studentType: value.studentType,
-    //days: value.days,
-    payment: [{
-      paymentid: value.paymentid,
-      classessold: value.classessold,
-      saleamount: value.saleamount,
-      downpayment: value.downpayment,
-      plantype: value.plantype,
-      studentId: value.studentID,
-      classtype:'',
-      leadId: value.studentID,
-      id: value.studentID
-    }]
-
-  }
-  console.log("dataForm", dataForm);
-  try {
-    // 登录
-    //console.log("data", dataForm);
-    const msg = await addTeacherSchedule({
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataForm),
+  const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
+    console.log('TYPE', type, messageError)
+    notification[type]({
+      message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
+      description: '',
     });
-    console.log('message', msg)
-    if (msg.status === 500) {
-      openNotificationWithIcon('error', 'Student', msg.error);
-    } else {
-      openNotificationWithIcon('success', 'Student');
-    }
-  } catch (error) {
-    openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
-  }
-  
-}
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000);
+  };
 
-const studentGetApi = async ()=>{
-  try {
-    let msg = await studentsDashboard('onboarding', {
-        current: 1,
-        pageSize: 20}
-    );
-    if (msg.status === "ok") {
-      console.log("API call sucessfull", msg);
+
+
+  //edit submit 
+  const formSubmit = async (value: any)=>{
+    const dataForm = {
+      leadId: value.studentID,
+      firstName: value.firstName,
+      lastName: value.lastName,
+      phoneNumber: value.phoneNumber,
+      studentID: value.studentID,
+      address: value.address,
+      dob: moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      whatsapp:value.whatsapp,
+      comments:value.comments,
+      email:value.email,
+      id: value.studentID,
+      type: 'student',
+      status: value.status,
+      alternativeMobile: value.alternativeMobile,
+      classType: value.classType,
+      course: value.course,
+      startLesson: value.startLesson,
+      startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      pfirstName: value.pfirstName,
+      plastName: value.plastName,
+      age: value.age,
+      teacherName: value.teacherName,
+      payment: [{
+        paymentid: value.paymentid,
+        classessold: value.classessold,
+        saleamount: value.saleamount,
+        downpayment: value.downpayment,
+        plantype: value.plantype,
+        studentId: value.studentID,
+        classtype:'',
+        leadId: value.studentID,
+        id: value.studentID
+      }]
+
     }
-    setData(msg.data);
-    //console.log('view one',msg);
-  } catch (error) {
-    //console.log("error", error);
+    console.log("dataForm", dataForm);
+    try {
+      const msg = await addTeacherSchedule({
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataForm),
+      });
+      console.log('message', msg)
+      if (msg.status === 500) {
+        openNotificationWithIcon('error', 'Student', msg.error);
+      } else {
+        openNotificationWithIcon('success', 'Student', '');
+      }
+    } catch (error) {
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+    }
+    
   }
-}
+
+  const studentGetApi = async ()=>{
+    try {
+      let msg = await studentsDashboard('onboarding', {
+          current: 1,
+          pageSize: 20}
+      );
+      if (msg.status === "ok") {
+        console.log("API call sucessfull", msg);
+      }
+      setData(msg.data);
+      //console.log('view one',msg);
+    } catch (error) {
+      //console.log("error", error);
+    }
+  }
 
 
 
   useEffect(async (params: any) => {
-  //console.log("first reload")
   studentGetApi()
   }, []);
 
@@ -252,18 +235,15 @@ const studentGetApi = async ()=>{
       });
       setData(newData);
       setEditingKey('');
-      //console.log('data save', newData, index, newData[index])
       formSubmit(newData[index])
     } else {
       newData.push(row);
       setData(newData);
       setEditingKey('');
-      //console.log('data save else part', newData, index)
     }
   } catch (errInfo) {
     console.log('Validate Failed:', errInfo);
   }
-  //console.log('data at save', data)
   };
 
   const columns = [
@@ -299,9 +279,8 @@ const studentGetApi = async ()=>{
       dataIndex: 'dob',
       width: 150,
       editable: true,
-      render: (value)=>{
+      render: (value: any)=>{
         if(value){
-          console.log('date', moment.utc(value).format("YYYY-MM-DD"))
           return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD")
         }
       }
@@ -346,13 +325,6 @@ const studentGetApi = async ()=>{
       editable: true,
       
     },
-    
-    // {
-    //   title: 'Batch Code',
-    //   dataIndex: 'batchCode',
-    //   width: 150,
-    //   editable: true,
-    // },
     {
       title: 'Teacher Name',
       dataIndex: 'teacherName',
@@ -365,18 +337,6 @@ const studentGetApi = async ()=>{
       width: 150,
       editable: true,
     },
-    // {
-    //   title: 'Student Type',
-    //   dataIndex: 'studentType',
-    //   width: 150,
-    //   editable: true,
-    // },
-    // {
-    //   title: 'Days',
-    //   dataIndex: 'days',
-    //   width: 150,
-    //   editable: true,
-    // },
     {
       title: 'Class Type',
       dataIndex: 'classType',
@@ -402,7 +362,7 @@ const studentGetApi = async ()=>{
       dataIndex: 'startDate',
       width: 150,
       editable: true,
-      render: (value)=>{
+      render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
         }
@@ -496,14 +456,14 @@ const studentGetApi = async ()=>{
 
 
   //Search Inputs
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
     }));
   }
   
-  const handleFormSubmit = async (value) => {
+  const handleFormSubmit = async () => {
     //console.log('status', formData, value)
     try {
       let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
