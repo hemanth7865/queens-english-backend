@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker, Alert} from "antd";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
@@ -76,9 +76,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
     }else if(inputType === 'selectStatus'){
       return(
             <Select style={{ width: 120 }} >
-              <Option value="enrolled">Enrolled</Option>
               <Option value="startclasslater">Start Class Later</Option>
-              <Option value="batching">Ready to batch</Option>
+              <Option value="enrolled">Welcome Call</Option>
             </Select>
       )
     }
@@ -126,79 +125,90 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
-    console.log('TYPE', type, messageError)
-    notification[type]({
-      message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
-      description: '',
-    });
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
-  };
+const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
+  console.log('TYPE', type, messageError)
+  notification[type]({
+    message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
+    description: '',
+  });
+  setTimeout(() => {
+    window.location.reload()
+  }, 1000);
+};
 
 
 
+const notificationForStartDate = (type: any) => {
+  notification[type]({
+    message: 'Add a start Date',
+  });
+};
 
 
   //edit submit 
   const formSubmit = async (value: any)=>{
-    const dataForm = {
-      leadId: value.studentID,
-      firstName: value.firstName,
-      lastName: value.lastName,
-      phoneNumber: value.phoneNumber,
-      studentID: value.studentID,
-      address: value.address,
-      dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
-      whatsapp:value.whatsapp,
-      comments:value.comments,
-      email:value.email,
-      id: value.studentID,
-      type: 'student',
-      status: value.status,
-      alternativeMobile: value.alternativeMobile,
-      classType: value.classType,
-      course: value.course,
-      startLesson: value.startLesson,
-      pfirstName: value.pfirstName,
-      plastName: value.plastName,
-      payment: [{
-        paymentid: value.paymentid,
-        studentId: value.studentID,
-        classessold: value.classessold,
-        saleamount: value.saleamount,
-        downpayment: value.downpayment,
-        plantype: value.plantype,
-        classtype:'',
+    if(value.startDate){
+      const dataForm = {
         leadId: value.studentID,
-        id: value.studentID
-      }]
-
-    }
-    console.log("dataForm", dataForm);
-    try {
-      const msg = await addTeacherSchedule({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataForm),
-      });
-      console.log('message', msg)
-      if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
-      } else {
-        openNotificationWithIcon('success', 'Student', '');
+        firstName: value.firstName,
+        lastName: value.lastName,
+        phoneNumber: value.phoneNumber,
+        studentID: value.studentID,
+        address: value.address,
+        dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
+        whatsapp:value.whatsapp,
+        comments:value.comments,
+        email:value.email,
+        id: value.studentID,
+        type: 'student',
+        status: value.status,
+        alternativeMobile: value.alternativeMobile,
+        classType: value.classType,
+        course: value.course,
+        startLesson: value.startLesson,
+        startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+        pfirstName: value.pfirstName,
+        plastName: value.plastName,
+        payment: [{
+          paymentid: value.paymentid,
+          studentId: value.studentID,
+          classessold: value.classessold,
+          saleamount: value.saleamount,
+          downpayment: value.downpayment,
+          plantype: value.plantype,
+          classtype:'',
+          leadId: value.studentID,
+          id: value.studentID
+        }]
+    
       }
-    } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      console.log("dataForm", dataForm);
+      try {
+        const msg = await addTeacherSchedule({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataForm),
+        });
+        if (msg.status === 500) {
+          openNotificationWithIcon('error', 'Student', msg.error);
+        } else {
+          openNotificationWithIcon('success', 'Student', '');
+        }
+        
+      } catch (error) {
+        openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      }
+    }else{
+      notificationForStartDate('error');
     }
+    
     
   }
 
   const studentGetApi = async ()=>{
     try {
-      let msg = await studentsDashboard('enrolled', {
+      let msg = await studentsDashboard('startclasslater', {
           current: 1,
           pageSize: 20}
       );
@@ -232,15 +242,18 @@ const StudentOnboard: React.FC = () => {
       });
       setData(newData);
       setEditingKey('');
+      //console.log('data save', newData, index, newData[index])
       formSubmit(newData[index])
     } else {
       newData.push(row);
       setData(newData);
       setEditingKey('');
+      //console.log('data save else part', newData, index)
     }
   } catch (errInfo) {
     console.log('Validate Failed:', errInfo);
   }
+  //console.log('data at save', data)
   };
 
   const columns = [
@@ -252,7 +265,7 @@ const StudentOnboard: React.FC = () => {
       fixed: 'left',
     },
     {
-      title: 'Student First Name',
+      title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
       editable: true,
@@ -272,7 +285,7 @@ const StudentOnboard: React.FC = () => {
       
     },
     {
-      title: 'Date of Birth',
+      title: 'Date of Birth of Student',
       dataIndex: 'dob',
       width: 150,
       editable: true,
@@ -302,14 +315,14 @@ const StudentOnboard: React.FC = () => {
       
     },
     {
-      title: 'Whatsapp No',
+      title: 'Whatsapp Number',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
       
     },
     {
-      title: 'Alternate No',
+      title: 'Alternate Number',
       dataIndex: 'alternativeMobile',
       width: 150,
       editable: true,
@@ -343,10 +356,21 @@ const StudentOnboard: React.FC = () => {
       
     },
     {
-      title: 'classess sold',
-      dataIndex: 'classessold',
+      title: 'Start Date',
+      dataIndex: 'startDate',
       width: 150,
       editable: true,
+      render: (value: any)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+      }
+    },
+    {
+      title: 'No of classess sold',
+      dataIndex: 'classessold',
+      width: 150,
+      editable: true
     },
     {
       title: 'Total Sale amount',
@@ -384,6 +408,14 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'status',
       width: 150,
       editable: true,
+      render: (value: string)=>{
+        console.log('value', value)
+        if(value == "startclasslater"){
+          return "Start Class Later"
+        }else{
+           return "Welcome Call"
+        }
+      }
 
     },
     {
@@ -419,7 +451,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -429,7 +461,7 @@ const StudentOnboard: React.FC = () => {
 
 
   //Search Inputs
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e) => {
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
@@ -437,7 +469,6 @@ const StudentOnboard: React.FC = () => {
   }
   
   const handleFormSubmit = async () => {
-    //console.log('status', formData, value)
     try {
       let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
@@ -459,7 +490,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
+      <h3 style = {{textAlign: "center"}}>Batching Waitlist</h3>
       <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
@@ -489,7 +520,7 @@ const StudentOnboard: React.FC = () => {
                     </Button>
                   </Form.Item>
                   </Col>
-                  <Col span = {1} style = {{marginLeft: 10}}>
+                  <Col span = {1}>
                   <Form.Item >
                   <Button
                     onClick={handleReset}
@@ -515,7 +546,7 @@ const StudentOnboard: React.FC = () => {
         pagination={{
           onChange: cancel,
         }}
-        scroll={{ x: 1500 }}
+        scroll={{ x: 100 }}
     />
 
     </Form>

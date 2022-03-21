@@ -59,6 +59,11 @@
             component: './WelcomeStudent',
           },
           {
+            name: 'Batching Waitlist',
+            path: '/manage/dashboard/startclasslater',
+            component: './StartClassLater',
+          },
+          {
             name: 'Batching',
             path: '/manage/dashboard/batching',
             component: './BatchingStudent',
