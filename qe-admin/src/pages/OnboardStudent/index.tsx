@@ -81,7 +81,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             <Select style={{ width: 150 }} >
               {/* <Option value="sent message">Sent Message</Option>
               <Option value="first class feedback">First Class Feedback</Option> */}
-              <Option value="onboarding">Start Class Later</Option>
+              <Option value="onboarding">Onboarding</Option>
               <Option value="active">Active</Option>
             </Select>
       )
@@ -138,11 +138,11 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-const openNotificationWithIcon = (type, userType = 'Student') => {
+const openNotificationWithIcon = (type, userType = 'Student', messageError) => {
+  console.log('TYPE', type, messageError)
   notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
-    description:
-      '',
+    message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
+    description: '',
   });
   setTimeout(() => {
     window.location.reload()
@@ -150,19 +150,10 @@ const openNotificationWithIcon = (type, userType = 'Student') => {
 };
 
 
-function toDate(isoDateString) {
-  // isoDateString is a string like "yyyy-MM-dd"
-  return new Date(`${isoDateString}T12:00:00`);
-}
-
 
 //edit submit 
 const formSubmit = async (value)=>{
   //console.log('value', value)
-  let dateOfBirth = moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD")
-  let dateOfBirth1 = toDate(dateOfBirth)
-  console.log('date of birth', dateOfBirth1)
-  
   const dataForm = {
     leadId: value.studentID,
     firstName: value.firstName,
@@ -212,18 +203,14 @@ const formSubmit = async (value)=>{
       },
       body: JSON.stringify(dataForm),
     });
-    if (msg.status === 400 || msg.status === 500) {
-      openNotificationWithIcon('error', msg);
-      console.log("API call sucessfull", msg);
+    console.log('message', msg)
+    if (msg.status === 500) {
+      openNotificationWithIcon('error', 'Student', msg.error);
     } else {
       openNotificationWithIcon('success', 'Student');
     }
-    if (msg) {
-      //console.log("API call sucessfull", msg);
-    }
-    //console.log(msg);
   } catch (error) {
-    openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
+    openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
   }
   
 }
@@ -465,9 +452,6 @@ const studentGetApi = async ()=>{
       dataIndex: 'status',
       width: 200,
       editable: true,
-      render: ()=>{
-        return 'Start Class Later'
-      }
     },
     {
       title: 'operation',

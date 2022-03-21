@@ -135,11 +135,11 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-const openNotificationWithIcon = (type, userType = 'Student') => {
+const openNotificationWithIcon = (type, userType = 'Student', messageError) => {
+  console.log('TYPE', type, messageError)
   notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' ! ',
-    description:
-      '',
+    message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
+    description: '',
   });
   setTimeout(() => {
     window.location.reload()
@@ -203,18 +203,14 @@ const formSubmit = async (value)=>{
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg.status === 400) {
-        openNotificationWithIcon('error', msg);
-        console.log("API call sucessfull", msg);
+      if (msg.status === 500) {
+        openNotificationWithIcon('error', 'Student', msg.error);
       } else {
         openNotificationWithIcon('success', 'Student');
       }
-      if (msg) {
-        console.log("API call sucessfull", msg);
-      }
-      //console.log(msg);
+      
     } catch (error) {
-      openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
   }else{
     notificationForStartDate('error');
@@ -434,7 +430,7 @@ const studentGetApi = async ()=>{
         if(value == "startclasslater"){
           return "Start Class Later"
         }else{
-           return "Ready to Batch"
+           return "Welcome Call"
         }
       }
 
