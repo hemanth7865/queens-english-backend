@@ -271,14 +271,14 @@ const studentGetApi = async ()=>{
     {
       title: 'Student First Name',
       dataIndex: 'firstName',
-      width: 150,
+      width: 160,
       editable: true,
       fixed: 'left',
     },
     {
-      title: 'Student Last Name',
+      title: 'Student First Name',
       dataIndex: 'lastName',
-      width: 150,
+      width: 160,
       editable: true,
     },
     {
@@ -291,12 +291,12 @@ const studentGetApi = async ()=>{
     {
       title: 'Student Id',
       dataIndex: 'studentID',
-      width: 200,
+      width: 300,
       editable: true,
       
     },
     {
-      title: 'Date of Birth of Student',
+      title: 'Date of Birth',
       dataIndex: 'dob',
       width: 150,
       editable: true,
@@ -326,14 +326,14 @@ const studentGetApi = async ()=>{
       
     },
     {
-      title: 'Whatsapp Number',
+      title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
       
     },
     {
-      title: 'Alternate Number',
+      title: 'Alternate No',
       dataIndex: 'alternativeMobile',
       width: 150,
       editable: true,
@@ -378,7 +378,7 @@ const studentGetApi = async ()=>{
     //   }
     // },
     {
-      title: 'No of classess sold',
+      title: 'classess sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true,
@@ -498,7 +498,7 @@ const studentGetApi = async ()=>{
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
-      <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
+      <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
@@ -520,7 +520,7 @@ const studentGetApi = async ()=>{
                     </Form.Item>
                   </Col>
                   
-                  <Col span = {1}>
+                  <Col span = {2}>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
                       Query

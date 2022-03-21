@@ -78,7 +78,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
             <Select style={{ width: 120 }} >
               <Option value="startclasslater">Start Class Later</Option>
-              <Option value="batching">Ready to batch</Option>
+              <Option value="enrolled">Welcome Call</Option>
             </Select>
       )
     }
@@ -278,14 +278,14 @@ const studentGetApi = async ()=>{
     {
       title: 'Student First Name',
       dataIndex: 'firstName',
-      width: 150,
+      width: 160,
       editable: true,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
-      width: 150,
+      width: 160,
       editable: true,
     },
     {
@@ -298,7 +298,7 @@ const studentGetApi = async ()=>{
     {
       title: 'Student Id',
       dataIndex: 'studentID',
-      width: 200,
+      width: 300,
       editable: true,
       
     },
@@ -512,8 +512,8 @@ const studentGetApi = async ()=>{
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
-      <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
+      <h3 style = {{textAlign: "center"}}>Batching Waitlist</h3>
+      <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
@@ -568,7 +568,7 @@ const studentGetApi = async ()=>{
         pagination={{
           onChange: cancel,
         }}
-        scroll={{ x: 1500 }}
+        scroll={{ x: 100 }}
     />
 
     </Form>
