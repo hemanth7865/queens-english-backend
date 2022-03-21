@@ -30,8 +30,8 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
     const [selectUserType, setSelectUserType] = useState('')
     const [error, setError] = useState('')
-    const [selectCountry, setSelectCountry] = useState('')
-    const [selectCountryCode, setSelectCountryCode] = useState('')
+    const [selectCountry, setSelectCountry] = useState('IN')
+    const [selectCountryCode, setSelectCountryCode] = useState(91)
 
     const allCountries = CountryList.getData()
     // console.log('cdc', allCountries)
@@ -44,14 +44,13 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const handleCountry = (value)=>{
         console.log('selected country', value)
         if(value){
-        const code = CountryList.getCode(value)
-        const codeNumber = getCountryCallingCode(code)
-        console.log('code', code, codeNumber)
-        setSelectCountry(code)
-        setSelectCountryCode(codeNumber)
+            const code = CountryList.getCode(value)
+            const codeNumber = getCountryCallingCode(code)
+            console.log('code', code, codeNumber)
+            setSelectCountry(code)
+            setSelectCountryCode(codeNumber)
         }
     }
-    console.log('country', selectCountry, selectCountryCode)
 
     //validation for phone number
     const handleMobileChange = (event)=>{
@@ -242,7 +241,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                         placeholder = "Enter Mobile Number"
                         name = "phoneNumber"
                         onChange = {handleMobileChange}
-                        //prefix = {selectCountryCode?selectCountryCode:'91'}
+                        addonBefore={"+"+selectCountryCode}
                         />
                     {error? (
                         <p style = {{color: 'red'}}>{error}</p>
