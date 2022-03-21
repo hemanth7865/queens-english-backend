@@ -134,15 +134,17 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
   }
 };
 
-const openNotificationWithIcon = (type) => {
+const openNotificationWithIcon = (type, msg = false, reload = true) => {
   notification[type]({
     message:
-      type == "error" ? "Failed to add teacher" : "Success! Teacher Added",
+      msg || type == "error" ? "Failed to add teacher" : "Success! Teacher Added",
     description: "",
   });
-  setTimeout(() => {
-    window.location.reload();
-  }, 1000);
+  if(reload){
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  }
 };
 
 const TeacherBatchList: React.FC = () => {
@@ -229,6 +231,7 @@ const TeacherBatchList: React.FC = () => {
   const handleMobileChange = (event) => {
     const number = event.target.value
     const message = isValidPhoneNumber(number, selectCountry ? selectCountry : 'IN')
+    alert("changed " + number + " " + message);
     console.log('msg', message, msg)
     const msg = validatePhoneNumberLength(number, selectCountry ? selectCountry : 'IN')
     if (msg === 'TOO_LONG') {
@@ -244,11 +247,14 @@ const TeacherBatchList: React.FC = () => {
     } else {
       setError('Phone number is Invalid')
     }
+
+    console.log("phoneNumber", number, message, event.target.name);
+
     if (message === true && msg === undefined) {
       console.log(`valid mobile number for ${selectCountry}`)
       setFormData((value) => ({
         ...value,
-        [event.target.name]: event.target.value
+        [event.target.name]: number
       }))
     }
     if (message === false && msg === undefined) {
@@ -625,8 +631,19 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg) {
-        openNotificationWithIcon("success");
+
+      if(msg.status === 400){
+        if(Array.isArray(msg.errors)){
+          for(let m of msg.errors){
+              openNotificationWithIcon('error', m, false);
+          }
+        }else{
+          openNotificationWithIcon("error", false, false);
+        }
+      }else{
+        if (msg) {
+          openNotificationWithIcon("success", false, false);
+        }
       }
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -634,7 +651,7 @@ const TeacherBatchList: React.FC = () => {
       console.log(msg);
     } catch (error) {
       console.log("addRule error", error);
-      openNotificationWithIcon("error");
+      openNotificationWithIcon("error", false, false);
       message.error("Add Teacher Error");
     }
     setVisible(false);
@@ -713,6 +730,7 @@ const TeacherBatchList: React.FC = () => {
       status: selectStatus ? selectStatus : tempDataView.status,
       leadAvailability: leadAvailabilities,
     };
+    console.log("form submitted", dataForm, tempDataView);
     // async (values: API.LoginParams) => {
     if (tempDataView) {
       dataForm.id = tempDataView.id;
@@ -727,13 +745,21 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-        openNotificationWithIcon("success");
+
+      if(msg.status === 400){
+        if(Array.isArray(msg.errors)){
+          for(let m of msg.errors){
+              openNotificationWithIcon('error', m, false);
+          }
+        }else{
+          openNotificationWithIcon("error", false, false);
+        }
+      }else{
+        if (msg) {
+          openNotificationWithIcon("success", false, false);
+        }
       }
-      if (msg) {
-        openNotificationWithIcon("success");
-      }
+
       console.log(msg);
       // 如果失败去设置用户错误信息
       // setUserLoginState(msg);
@@ -741,7 +767,7 @@ const TeacherBatchList: React.FC = () => {
       console.log("addRule error", error);
       message.error("Add Teacher Error");
       if (msg) {
-        openNotificationWithIcon("error");
+        openNotificationWithIcon("error", false, false);
       }
     }
     console.log("formData", formData);
@@ -1544,6 +1570,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="phoneNumber">
                     <Input type="text" 
+                    name="phoneNumber"
                     onChange={handleFormChange} 
                     //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
