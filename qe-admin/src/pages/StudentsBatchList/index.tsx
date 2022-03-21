@@ -179,8 +179,8 @@ const StudentsBatchList: React.FC = () => {
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
-  const [selectCountry, setSelectCountry] = useState('')
-  const [selectCountryCode, setSelectCountryCode] = useState('')
+  const [selectCountry, setSelectCountry] = useState('IN')
+  const [selectCountryCode, setSelectCountryCode] = useState(91)
   const [bottleSend, setBottleSend] = useState(false)
   const [firstFeedback, setFirstFeedback] = useState(false)
   const [fifthFeedback, setFifthFeedback] = useState(false)
@@ -595,7 +595,7 @@ const StudentsBatchList: React.FC = () => {
       lastName: formData.lastName,
       pfirstName: formData.pfirstName,
       plastName: formData.plastName,
-      phoneNumber: formData.phoneNumber,
+      phoneNumber: '+' + selectCountryCode + formData.phoneNumber,
       //countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
@@ -1137,6 +1137,7 @@ const StudentsBatchList: React.FC = () => {
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleMobileChange}
+                      addonBefore={'+'+selectCountryCode}
                     // prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
 
