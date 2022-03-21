@@ -137,7 +137,7 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
 const openNotificationWithIcon = (type, msg = false, reload = true) => {
   notification[type]({
     message:
-      msg || type == "error" ? "Failed to add teacher" : "Success! Teacher Added",
+      msg ? msg : type == "error" ? "Failed to add teacher" : "Success! Teacher Added",
     description: "",
   });
   if(reload){
@@ -638,11 +638,11 @@ const TeacherBatchList: React.FC = () => {
               openNotificationWithIcon('error', m, false);
           }
         }else{
-          openNotificationWithIcon("error", false, false);
+          openNotificationWithIcon("error", false, true);
         }
       }else{
         if (msg) {
-          openNotificationWithIcon("success", false, false);
+          openNotificationWithIcon("success", false, true);
         }
       }
       if (msg.status === "ok") {
@@ -651,7 +651,7 @@ const TeacherBatchList: React.FC = () => {
       console.log(msg);
     } catch (error) {
       console.log("addRule error", error);
-      openNotificationWithIcon("error", false, false);
+      openNotificationWithIcon("error", false, true);
       message.error("Add Teacher Error");
     }
     setVisible(false);
@@ -730,7 +730,6 @@ const TeacherBatchList: React.FC = () => {
       status: selectStatus ? selectStatus : tempDataView.status,
       leadAvailability: leadAvailabilities,
     };
-    console.log("form submitted", dataForm, tempDataView);
     // async (values: API.LoginParams) => {
     if (tempDataView) {
       dataForm.id = tempDataView.id;
@@ -752,11 +751,11 @@ const TeacherBatchList: React.FC = () => {
               openNotificationWithIcon('error', m, false);
           }
         }else{
-          openNotificationWithIcon("error", false, false);
+          openNotificationWithIcon("error", false, true);
         }
       }else{
         if (msg) {
-          openNotificationWithIcon("success", false, false);
+          openNotificationWithIcon("success", false, true);
         }
       }
 
@@ -764,10 +763,10 @@ const TeacherBatchList: React.FC = () => {
       // 如果失败去设置用户错误信息
       // setUserLoginState(msg);
     } catch (error) {
-      console.log("addRule error", error);
+      console.log(" ", error);
       message.error("Add Teacher Error");
       if (msg) {
-        openNotificationWithIcon("error", false, false);
+        openNotificationWithIcon("error", false, true);
       }
     }
     console.log("formData", formData);
