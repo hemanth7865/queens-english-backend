@@ -142,15 +142,17 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
 
 const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 
-const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
+const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Student', reload = true) => {
   notification[type]({
     message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
     description:
       '',
   });
-  setTimeout(() => {
-    window.location.reload()
-  }, 1000);
+  if(reload){
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000);
+  }
 };
 
 
@@ -671,14 +673,16 @@ const StudentsBatchList: React.FC = () => {
       });
 
       if (msg.status === 400) {
-        openNotificationWithIcon('error', msg.data)
-
+        if(Array.isArray(msg.errors)){
+          for(let m of msg.errors){
+            openNotificationWithIcon('error', {status: 400, data: m}, "Student", false);
+          }
+        }else{
+          openNotificationWithIcon('error', {status: 400, data: "Failed To Add/Update Student"}, "Student", true);
+        }
       } else {
-        console.log(msg);
         openNotificationWithIcon('success', ' Student');
       }
-      window.location.reload();
-      console.log(msg);
     } catch (error) {
       console.log("addRule error", error);
       const defaultLoginFailureMessage = intl.formatMessage({
@@ -775,15 +779,16 @@ const StudentsBatchList: React.FC = () => {
         body: JSON.stringify(dataForm),
       });
       if (msg.status === 400) {
-        openNotificationWithIcon('error', msg);
-        console.log("API call sucessfull", msg);
+        if(Array.isArray(msg.errors)){
+          for(let m of msg.errors){
+            openNotificationWithIcon('error', {status: 400, data: m}, "Student", false);
+          }
+        }else{
+          openNotificationWithIcon('error', {status: 400, data: "Failed To Add/Update Student"}, "Student", true);
+        }
       } else {
-        openNotificationWithIcon('success', 'Student');
+        openNotificationWithIcon('success', ' Student');
       }
-      if (msg) {
-
-      }
-      console.log(msg);
       // 如果失败去设置用户错误信息
       // setUserLoginState(msg);
     } catch (error) {
