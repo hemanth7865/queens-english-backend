@@ -16,6 +16,7 @@ export class UserController {
     private teacherRepository = getRepository(Teacher);
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
+    private teacherService = new TeacherService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -24,7 +25,7 @@ export class UserController {
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
-        var teacherService = new TeacherService();     
+   
         var resp;
         var total = await getManager().query('SELECT COUNT(*) as total FROM user where phoneNumber=' + request.body.phoneNumber);
         usersLogger.info(`Total Number of records:  ${total[0].total}`);
@@ -38,7 +39,7 @@ export class UserController {
                 //console.log('response usercontroller', resp)
                 } 
                 else {
-                resp = await teacherService.saveTeacher(request.body);
+                resp = await this.teacherService.saveTeacher(request.body);
                 }
            
             } catch (error) {
@@ -55,11 +56,10 @@ export class UserController {
 
     async batchCreate(request: Request, response: Response, next: NextFunction) {
         console.log('contorller');
-        var teacherService = new TeacherService();
         var user;
 
         try {
-            user = await teacherService.saveTeacher(request.body);
+            user = await this.teacherService.saveTeacher(request.body);
         } catch (error) {
             console.log()
         }
@@ -97,7 +97,7 @@ export class UserController {
 
         console.log('requestr', request.query['email'])
 
-        var teacherService = new TeacherService();
+       
         var studentService = new StudentService();
         var user;
         let resp;
@@ -107,7 +107,7 @@ export class UserController {
                 resp = await studentService.listStudentDetails(request.body, parameters);
 
             } else {
-            resp = await teacherService.listLeadDetails(request.body, parameters);
+            resp = await this.teacherService.listLeadDetails(request.body, parameters);
             }
         } catch (error) {
             console.log(error);
@@ -124,7 +124,6 @@ export class UserController {
     async leadFullDetails(request: Request, response: Response, next: NextFunction) {
 
         let resp;
-        let teacherService = new TeacherService();
         const teacherId = request.params.id;
         var type = request.query['type']
         try {
@@ -133,7 +132,7 @@ export class UserController {
                     resp = this.studentService.fetchStudentFilterData(teacherId);
             } else {
                 usersLogger.info("Fetching lead full details");
-                resp = await teacherService.leadFullDetails(request.body, teacherId);
+                resp = await this.teacherService.leadFullDetails(request.body, teacherId);
             }        
               
             
@@ -170,6 +169,33 @@ export class UserController {
         let userToRemove = await this.usersRepository.findOne(request.params.id);
         userToRemove.status = "inactive";
         return this.usersRepository.save(userToRemove);
+    }
+
+    async availableTeachers(request: Request, response: Response, next: NextFunction) {
+        var parameters = {
+            current: parseInt(request.query['current']),
+            pageSize: parseInt(request.query['pageSize']),
+            date: request.query['date'],
+            name: request.query['name'],
+            phoneNumber: request.query['phoneNumber'],
+            totalexp: request.query['totalexp'],
+            classesTaken: request.query['classesTaken'],
+            ratings: request.query['ratings'],
+            start_slot: request.query['start_slot'],
+            end_slot: request.query['end_slot'],
+            weekday: request.query['weekday'],
+            status: request.query['status'],
+            type: request.query['type'],
+            keyword: request.query['keyword'],
+            studentID: request.query['studentID'],
+            batchCode: request.query['batchCode'],
+            email:request.query['email'],
+            dob:request.query['dob'],
+            whatsapp: request.query['whatsapp'],
+            address: request.query['address'],
+        }
+        return this.teacherService.availableTeachers(request.body, parameters);
+
     }
 
 
