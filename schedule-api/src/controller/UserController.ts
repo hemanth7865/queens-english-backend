@@ -6,6 +6,7 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
+import { UserService } from "../services/UserService";
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 
@@ -25,32 +26,28 @@ export class UserController {
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
-   
+
+        const userExists = await (new UserService()).isUserExists("phoneNumber", request.body.phoneNumber, request.body.id);
         var resp;
-        var total = await getManager().query('SELECT COUNT(*) as total FROM user where phoneNumber=' + request.body.phoneNumber);
-        usersLogger.info(`Total Number of records:  ${total[0].total}`);
-       if (total[0].total==0 || request.body.id)
-       {
-        usersLogger.info(`Insert / update record with unique phoneNumber ${total}`);
-            
-            try {
-                if(request.body.type === 'student') {
-                resp = await this.studentService.saveStudentDetails(request.body);
-                //console.log('response usercontroller', resp)
-                } 
-                else {
-                resp = await this.teacherService.saveTeacher(request.body);
-                }
-           
-            } catch (error) {
-            console.log('Exception::UserController::SaveLead');
+        if(userExists){
+            usersLogger.info(`User With That Number Was Found ${userExists.id}`);
+            return { status: 400, errors: ['User already exists with given phoneNumber'] };
+        }
+        
+        try {
+            if(request.body.type === 'student') {
+            resp = await this.studentService.saveStudentDetails(request.body);
+            //console.log('response usercontroller', resp)
+            } 
+            else {
+            resp = await this.teacherService.saveTeacher(request.body);
             }
+        
+        } catch (error) {
+        console.log('Exception::UserController::SaveLead');
+        }
         console.log('End::UserController::SaveLead');
         return resp;
-        }    
-        else {
-            return { status: 400, errors: ['User already existed with given phoneNumber'] };
-        }
     }
 
     async updateLeadsStatus(request: Request, response: Response, next: NextFunction){
