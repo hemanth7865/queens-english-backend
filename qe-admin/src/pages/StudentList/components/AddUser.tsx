@@ -108,15 +108,17 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during user save' }, userType = 'Teacher') => {
+    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during user save' }, userType = 'Teacher', reload = true) => {
         notification[type]({
           message: type === 'error' ? msg.data : 'Successfully Registered   ' + userType + ' !!!! ',
           description:
             '',
         });
-        setTimeout(() => {
-          window.location.reload()
-        }, 1000);
+        if(reload){
+            setTimeout(() => {
+                window.location.reload()
+              }, 1000);
+        }
       };
 
       
@@ -146,8 +148,13 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                   console.log("API call successfull", msg);
                 }
                 if (msg.status === 400) {
-                    openNotificationWithIcon('error', msg);
-            
+                    if(Array.isArray(msg.errors)){
+                        for(let m of msg.errors){
+                            openNotificationWithIcon('error', {status: 400, data: m}, selectUserType, false);
+                        }
+                    }else{
+                        openNotificationWithIcon('error', msg, selectUserType, false);
+                    }
                   } else {
                     console.log(msg);
                     openNotificationWithIcon('success', '', 'User');
