@@ -383,6 +383,7 @@ export class StudentService {
         payment.paymentid = element.paymentid;
         student.id = element.studentId;
         payment.plantype = element.plantype;
+        payment.studentId = element.studentId;
         payment.classtype = element.classtype;
         payment.classessold = element.classessold ? element.classessold : 0;
         payment.saleamount = element.saleamount ? element.saleamount :0;
