@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
+import {APIResponseHandler} from "@/services/ant-design-pro/helpers";
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -44,25 +45,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const countryCodes = allCountryCodes.map((code)=>{
         return getCountryCallingCode(code)
     })
-   
-    // let previousCodes, previousCodes2, codeCountryDetails
-    // if(phoneNumber != undefined){
-    //     const firstTry = phoneNumber.slice(0, 2).toString()
-    //     const secondTry = phoneNumber.slice(0, 3).toString()
-    //     // console.log('num', firstTry, secondTry)
-    //     // console.log('cdc', allCountryCodes, countryCodes)
-    //     previousCodes = countryCodes.filter(code => code === firstTry).toString()
-    //     previousCodes2 = countryCodes.filter(code => code === secondTry)
-    //     //console.log('code 00', previousCodes, previousCodes2)
-    //     const codeCountry = countryCodes.indexOf(previousCodes)
-    //     const codeCountryName = allCountryCodes[codeCountry]
-    //     codeCountryDetails = CountryList.getName(codeCountryName)
-    //     console.log('code', codeCountryDetails)
-    // }
 
     //default country India
     const defaultCountry = allCountries.filter(country=>country.name === 'India')
-    //console.log('default country', defaultCountry, defaultCountry.map(name => name.name))
 
     //Displaying all countries in select option
     const handleCountry = (value)=>{
@@ -75,7 +60,6 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         setSelectCountryCode(codeNumber)
         }
     }
-    //console.log('country', selectCountry, selectCountryCode)
 
    
     //validation for phone number
@@ -98,7 +82,6 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             setError('Phone number is Invalid')
         }
         if(message === true && msg === undefined){
-            //console.log(`valid mobile number for ${selectCountry}`)
             setFormData((value)=>({
                 ...value,
                 [event.target.name]: event.target.value
@@ -126,20 +109,6 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             mismatch: '${label} should be a String'
         }
     };
-
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during User update' }, userType = 'Teacher', reload = true) => {
-        notification[type]({
-          message: type === 'error' ? msg.data : 'Successfully Updated  ' + userType + ' !!!! ',
-          description:
-            '',
-        });
-        if(reload){
-            setTimeout(() => {
-                window.location.reload()
-              }, 2000);
-        }
-      };
-
    
 
     const handleInputChange = (event: { target: { name: any; value: any; }; })=>{
@@ -175,29 +144,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                   },
                   body: JSON.stringify(dataForm),
                 });
-                if (msg.status === "ok") {
-                  console.log("API call sucessfull", msg);
-                }
-                if (msg.status === 400) {
-                    if(Array.isArray(msg.errors)){
-                        for(let m of msg.errors){
-                            openNotificationWithIcon('error', {status: 400, data: m}, selectUserType, false);
-                        }
-                    }else{
-                        openNotificationWithIcon('error', msg, selectUserType, false);
-                    }
-            
-                  } else {
-                    console.log(msg);
-                    openNotificationWithIcon('success', '', 'User');
-                  }
-                console.log(msg);
-                //window.location.reload();
-                // 如果失败去设置用户错误信息
-                // setUserLoginState(msg);
+                APIResponseHandler(msg, "User Updated Successfully", "Failed To Update User");
               } catch (error) {
-                console.log("addRule error", error);
-               
+                APIResponseHandler({status: 400}, "User Updated Successfully", "Failed To Update User");
               }
                 props.setVisible(false)
                 

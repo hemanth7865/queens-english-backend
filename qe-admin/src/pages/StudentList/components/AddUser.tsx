@@ -10,6 +10,7 @@ import {
   } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
 import {addUserSchedule} from "@/services/ant-design-pro/api";
+import {APIResponseHandler} from "@/services/ant-design-pro/helpers";
 
 //console.log('ccc', CountryList)
 
@@ -106,25 +107,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
             ...value,
             [event.target.name]: event.target.value
         }))
-    }
-
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during user save' }, userType = 'Teacher', reload = true) => {
-        notification[type]({
-          message: type === 'error' ? msg.data : 'Successfully Registered   ' + userType + ' !!!! ',
-          description:
-            '',
-        });
-        if(reload){
-            setTimeout(() => {
-                window.location.reload()
-              }, 1000);
-        }
-      };
-
-      
+    } 
 
     const onFinish = async ()=>{
-        console.log('form submitted')
         var code = selectCountryCode?selectCountryCode:'91';
         setIsLoading(true)
         if(!error){
@@ -136,47 +121,20 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                 type: selectUserType
             }
             try {
-                // 登录
-                console.log("data", dataForm);
                 const msg = await addUserSchedule({
                   headers: {
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify(dataForm),
                 });
-                if (msg.status === "ok") {
-                openNotificationWithIcon('success', ' User');
-                  console.log("API call successfull", msg);
-                }
-                if (msg.status === 400) {
-                    if(Array.isArray(msg.errors)){
-                        for(let m of msg.errors){
-                            openNotificationWithIcon('error', {status: 400, data: m}, selectUserType, false);
-                        }
-                    }else{
-                        openNotificationWithIcon('error', msg, selectUserType, false);
-                    }
-                  } else {
-                    console.log(msg);
-                    openNotificationWithIcon('success', '', 'User');
-                  }
-                //  window.location.reload();
-                console.log(msg);
+                APIResponseHandler(msg, "User Added Successfully", "Failed To Add User");
               } catch (error) {
-                console.log("addRule error", error);
-                 openNotificationWithIcon('error', 'User Registration Failed');
+                APIResponseHandler({status: 400}, "User Added Successfully", "Failed To Add User");
               }
             props.setVisible(false)
-            console.log('formData', formData)
-            console.log('dataForm', dataForm)
-           
-             
         }
         setIsLoading(false);
-        //window.location.reload()
     }
-
-    //console.log('mesge', error)
 
     return(
         <div>
