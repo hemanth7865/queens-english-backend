@@ -24,6 +24,6 @@ export const APIResponseHandler = (msg: any, success: string, failed: string) =>
             openNotificationWithIcon('error', failed, false);
         }
     } else {
-        openNotificationWithIcon('success', success, false);
+        openNotificationWithIcon('success', success);
     }
 }

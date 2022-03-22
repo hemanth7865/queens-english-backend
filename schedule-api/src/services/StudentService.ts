@@ -326,6 +326,7 @@ export class StudentService {
 
   mapStudentData(data: any, id: string) {
     let payments: any[] = [];
+    let studentAvailability: any[] = [];
 
     let user = new User();
     user.firstName = data.firstName;
@@ -373,6 +374,9 @@ export class StudentService {
 
     if (data.payment) {
       for (let element of data.payment) {
+        if(element.dateofsale?.length < 5){
+          continue;
+        }
         if (element.id) {
           payment.id = element.id;
         }
@@ -430,9 +434,40 @@ export class StudentService {
     student.assesmentMissed = data.assesmentMissed ;
     student.averageScore = data.averageScore;
     student.batchChange = data.batchChange ;
-    student.assesmentDate = data.assesmentDate;
+    student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
 
-    return {student, payments, user};
+    let i = 0;
+    if (data.studentAvailability) {
+      for (let element of  data.studentAvailability) {
+        var availability = new StudentAvailability();
+        availability.start_date = element.startDate;
+        availability.start_slot = element.start_slot;
+        console.log("start slot" + element.start_slot);
+        if (element.start_slot) {
+          let time = element.start_slot.split(":");
+          availability.start_slot = time[0];
+          console.log("time is ", time);
+          availability.start_min = time[1];
+          availability.startMin = time[0] * 60 + time[1];
+        }
+        if (element.end_slot) {
+          let time = element.end_slot.split(":");
+          availability.end_slot = time[0];
+          availability.end_min = time[1];
+          availability.endMin = time[0] * 60 + time[1];
+        }
+
+        availability.weekday = element.weekday;
+        if (element.id) availability.id = element.id;
+          availability.created_at = new Date();
+          availability.updated_at = new Date();
+          availability.start_slot = element.start_slot;
+          availability.end_slot = element.end_slot;
+          studentAvailability.push(availability);
+        }
+    }
+
+    return {student, payments, user, studentAvailability};
   }
 
   async saveStudentSQL(data: any, id) {
@@ -440,21 +475,48 @@ export class StudentService {
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
     try {
+      var studentAvailabilityList: StudentAvailability[] = [];
+      var teacherAvailability: TeacherAvailability[] = [];
+
       const UserData = this.mapStudentData(data, id);
 
-      // let {user} = UserData;
+      let {user, payments, studentAvailability, student} = UserData;
 
-      // usersLogger.info(`user data is ${JSON.stringify(user)}`);
-      // user = await this.usersRepository.save(user);
-      // usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
+      usersLogger.info(`user data is ${JSON.stringify(user)}`);
+      user = await this.usersRepository.save(user);
+      usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
 
-      return UserData;
+      for (let element of payments) {
+          const payment =  await this.paymentRepository.save(element);
+          user.payment = [payment];
+          usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+      }
+
+      student = await this.studentRepository.save(student);
+
+      if (studentAvailabilityList) {
+        for (let element of  studentAvailability) {
+          let availability = await this.studentAvailabilityRepository.save(
+            element
+          );
+          studentAvailabilityList.push(availability);
+        }
+      }
+  
+      console.log("leadAvailability", teacherAvailability);
+  
+      user.teacherAvailability = teacherAvailability;
+      user.studentAvailability = studentAvailability;
+
+      usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
+     
+      return {...user};
 
       var teacherAvailability: TeacherAvailability[] = [];
-      var studentAvailability: StudentAvailability[] = [];
+      // var studentAvailability: StudentAvailability[] = [];
       var teacherItem: Teacher[] = [];
       var teacher = new Teacher();
-      var user = new User();
+      // var user = new User();
       console.log('type', data.type);
       console.log('Data is ', data);
       user.firstName = data.firstName;
@@ -491,9 +553,9 @@ export class StudentService {
       user.updated_at = new Date();
      // console.log("user", user);
      usersLogger.info(`user data is ${JSON.stringify(user)}`);
-      user = await this.usersRepository.save(user);
-      usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
-      let student = new Student();
+    user = await this.usersRepository.save(user);
+    usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
+      // let student = new Student();
       let payment = new Payment();
 
     if (user.id) {
