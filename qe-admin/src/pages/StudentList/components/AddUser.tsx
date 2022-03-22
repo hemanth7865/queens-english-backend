@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState} from 'react';
-import {Form, Input, Button, Row, Col, Select, DatePicker,   notification} from 'antd'
+import {Form, Input, Button, Row, Col, Select, DatePicker, notification, Spin} from 'antd'
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -29,6 +29,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     })
 
     const [selectUserType, setSelectUserType] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('IN')
     const [selectCountryCode, setSelectCountryCode] = useState(91)
@@ -125,6 +126,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const onFinish = async ()=>{
         console.log('form submitted')
         var code = selectCountryCode?selectCountryCode:'91';
+        setIsLoading(true)
         if(!error){
             const dataForm = {
                 firstName: formData.firstName,
@@ -170,7 +172,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
            
              
         }
-        
+        setIsLoading(false);
         //window.location.reload()
     }
 
@@ -178,112 +180,114 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
     return(
         <div>
-        <Form
-        name="basic"
-        onFinish={onFinish}
-        validateMessages={validateMessages}
-        >
-        <Row gutter = {16}>
-            <Col span = {12}>
-                <Form.Item
-                    name="First Name"
-                    rules = {[{
-                        required: true,
-                        min: 2,
-                        type: 'string',
-                        pattern:  /^[a-zA-Z]*$/,
-                    }]}
+            <Spin spinning={isLoading}>
+                <Form
+                name="basic"
+                onFinish={onFinish}
+                validateMessages={validateMessages}
                 >
-                    <Input
-                        placeholder = "First Name"
-                        name = "firstName"
-                        onChange = {handleInputChange}
-                    />
-                </Form.Item>
-            </Col>
-            <Col span = {12}>
-                <Form.Item
-                    name="Last Name"
-                    rules = {[{
-                        required: true,
-                        min: 2,
-                        type: 'string',
-                        pattern:  /^[a-zA-Z]*$/,
-                    }]}
-                >
-                    <Input
-                        placeholder = "Last Name"
-                        name = "lastName"
-                        onChange = {handleInputChange}
-                    />
-                </Form.Item>
-            </Col>
-            <Col span = {12}>
-                <Form.Item
-                    name="countryCode">
-                    <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
-                        {allCountries.map((country)=>{
-                            return <Option value = {country.name} key = {country.code}>{country.name}</Option>
-                        })}
-                    </Select>
-                </Form.Item>
-            </Col>
-            <Col span = {12}>
-                <Form.Item name="phoneNumber"
-                rules={[
-                    {
-                      required: false,
-                     
-                    },
-                  ]}
-                  >
-                    <Input
-                        placeholder = "Enter Mobile Number"
-                        name = "phoneNumber"
-                        onChange = {handleMobileChange}
-                        addonBefore={"+"+selectCountryCode}
-                        />
-                    {error? (
-                        <p style = {{color: 'red'}}>{error}</p>
-                    ): ''}
-                </Form.Item>
-            </Col>
-            <Col span = {12}>
-                <Form.Item
-                    name="Email"
-                    rules = {[
-                        {
-                            required: true,
-                            type: 'email'
-                        }
-                    ]}
-                >
-                    <Input
-                        placeholder = "Email"
-                        name = "email"
-                        onChange = {handleInputChange}
-                    />
-                </Form.Item>
-            </Col>
-            <Col span = {12}>
-                <Form.Item name="User Type" rules = {[{required: true}]}>
-                    <Select
-                        placeholder="User Type"
-                        onChange = {(value)=>{setSelectUserType(value)}}
-                        >
-                        <Option value="teacher">Teacher</Option>
-                        <Option value="student">Student</Option>
-                    </Select>
-                </Form.Item>
-            </Col>
+                    <Row gutter = {16}>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="First Name"
+                                rules = {[{
+                                    required: true,
+                                    min: 2,
+                                    type: 'string',
+                                    pattern:  /^[a-zA-Z]*$/,
+                                }]}
+                            >
+                                <Input
+                                    placeholder = "First Name"
+                                    name = "firstName"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="Last Name"
+                                rules = {[{
+                                    required: true,
+                                    min: 2,
+                                    type: 'string',
+                                    pattern:  /^[a-zA-Z]*$/,
+                                }]}
+                            >
+                                <Input
+                                    placeholder = "Last Name"
+                                    name = "lastName"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="countryCode">
+                                <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
+                                    {allCountries.map((country)=>{
+                                        return <Option value = {country.name} key = {country.code}>{country.name}</Option>
+                                    })}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item name="phoneNumber"
+                            rules={[
+                                {
+                                required: false,
+                                
+                                },
+                            ]}
+                            >
+                                <Input
+                                    placeholder = "Enter Mobile Number"
+                                    name = "phoneNumber"
+                                    onChange = {handleMobileChange}
+                                    addonBefore={"+"+selectCountryCode}
+                                    />
+                                {error? (
+                                    <p style = {{color: 'red'}}>{error}</p>
+                                ): ''}
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="Email"
+                                rules = {[
+                                    {
+                                        required: true,
+                                        type: 'email'
+                                    }
+                                ]}
+                            >
+                                <Input
+                                    placeholder = "Email"
+                                    name = "email"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item name="User Type" rules = {[{required: true}]}>
+                                <Select
+                                    placeholder="User Type"
+                                    onChange = {(value)=>{setSelectUserType(value)}}
+                                    >
+                                    <Option value="teacher">Teacher</Option>
+                                    <Option value="student">Student</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
 
-            <Col span = {24}>
-            <Button type="primary" htmlType="submit" block>
-                Add User
-            </Button>
-            </Col>
-        </Row>
-        </Form>
+                        <Col span = {24}>
+                        <Button type="primary" htmlType="submit" block>
+                            Add User
+                        </Button>
+                        </Col>
+                    </Row>
+                </Form>
+            </Spin>
         </div>
     )
 }
