@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, {useState, useEffect} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker,notification } from 'antd';
+import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
 import {
@@ -37,6 +37,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('')
     const [selectCountryCode, setSelectCountryCode] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const allCountries = CountryList.getData()
     const allCountryCodes = getCountries()
@@ -151,6 +152,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     }
 
     const onFinish = async ()=>{
+        setIsLoading(true);
         console.log('form submitted')
         var code = selectCountryCode?selectCountryCode:'91';
         if(!error){
@@ -202,7 +204,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             console.log('formData', formData)
             console.log('dataForm', dataForm)
         }
-        
+        setIsLoading(false);
         //window.location.reload()
     }
 
@@ -222,106 +224,108 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     
     return(
         <div>
-        <Form
-        form = {form}
-        onFinish={onFinish}
-        validateMessages={validateMessages}
-        >
-            <Row gutter = {16}>
-                <Col span = {12}>
-                    <Form.Item
-                        name="FirstName"
-                        rules = {[{
-                            required: true,
-                            min: 2,
-                            type: 'string',
-                            pattern:  /^[a-zA-Z]*$/,
-                        }]}
-                    >
-                        <Input
-                            defaultValue = {firstName}
-                            name = "firstName"
-                            onChange = {handleInputChange}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span = {12}>
-                    <Form.Item
-                        name="lastName"
-                        rules = {[{
-                            required: true,
-                            min: 2,
-                            type: 'string',
-                            pattern:  /^[a-zA-Z]*$/,
-                        }]}
-                    >
-                        <Input
-                            name = "lastName"
-                            onChange = {handleInputChange}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span = {12}>
-                    <Form.Item
-                        name="countryCode">
-                        <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
-                            {allCountries.map((country)=>{
-                                return <Option value = {country.name} key = {country.code}>{country.name}</Option>
-                            })}
-                        </Select>
-                        
-                    </Form.Item>
-                </Col>
-                
-                <Col span = {12}>
-                    <Form.Item
-                        name="phoneNumber"
-                    >
-                        <Input
-                            name = "phoneNumber"
-                            onChange = {handleMobileChange}
-                            //prefix = {selectCountryCode?selectCountryCode:'91'}
-                        />
-                        
-                    </Form.Item>
-                    {error? (
-                        <p style = {{color: 'red'}}>{error}</p>
-                    ): ''}
-                </Col>
-                <Col span = {12}>
-                    <Form.Item
-                        name="email"
-                        rules = {[
-                            {
-                                required: true,
-                                type: 'email'
-                            }
-                        ]}
-                    >
-                        <Input
-                            name = "email"
-                            onChange = {handleInputChange}
-                        />
-                    </Form.Item>
-                </Col>
-                <Col span = {12}>
-                    <Form.Item name="userType">
-                        <Select
-                            onChange = {(value)=>{setSelectUserType(value)}}
-                            disabled
+            <Spin spinning={isLoading}>
+                <Form
+                form = {form}
+                onFinish={onFinish}
+                validateMessages={validateMessages}
+                >
+                    <Row gutter = {16}>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="FirstName"
+                                rules = {[{
+                                    required: true,
+                                    min: 2,
+                                    type: 'string',
+                                    pattern:  /^[a-zA-Z]*$/,
+                                }]}
                             >
-                            <Option value="teacher">Teacher</Option>
-                            <Option value="student">Student</Option>
-                        </Select>
-                    </Form.Item>
-                </Col>
-                <Col span = {24}>
-                <Button type="primary" htmlType="submit">
-                    Save Changes
-                </Button>
-                </Col>
-            </Row>
-        </Form>
+                                <Input
+                                    defaultValue = {firstName}
+                                    name = "firstName"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="lastName"
+                                rules = {[{
+                                    required: true,
+                                    min: 2,
+                                    type: 'string',
+                                    pattern:  /^[a-zA-Z]*$/,
+                                }]}
+                            >
+                                <Input
+                                    name = "lastName"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="countryCode">
+                                <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
+                                    {allCountries.map((country)=>{
+                                        return <Option value = {country.name} key = {country.code}>{country.name}</Option>
+                                    })}
+                                </Select>
+                                
+                            </Form.Item>
+                        </Col>
+                        
+                        <Col span = {12}>
+                            <Form.Item
+                                name="phoneNumber"
+                            >
+                                <Input
+                                    name = "phoneNumber"
+                                    onChange = {handleMobileChange}
+                                    //prefix = {selectCountryCode?selectCountryCode:'91'}
+                                />
+                                
+                            </Form.Item>
+                            {error? (
+                                <p style = {{color: 'red'}}>{error}</p>
+                            ): ''}
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item
+                                name="email"
+                                rules = {[
+                                    {
+                                        required: true,
+                                        type: 'email'
+                                    }
+                                ]}
+                            >
+                                <Input
+                                    name = "email"
+                                    onChange = {handleInputChange}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span = {12}>
+                            <Form.Item name="userType">
+                                <Select
+                                    onChange = {(value)=>{setSelectUserType(value)}}
+                                    disabled
+                                    >
+                                    <Option value="teacher">Teacher</Option>
+                                    <Option value="student">Student</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span = {24}>
+                        <Button type="primary" htmlType="submit">
+                            Save Changes
+                        </Button>
+                        </Col>
+                    </Row>
+                </Form>
+            </Spin>
         </div>
     )
 }
