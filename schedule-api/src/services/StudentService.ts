@@ -324,11 +324,132 @@ export class StudentService {
     return {status: 400, data: "Failed To Update User Status"};
   }
 
+  mapStudentData(data: any, id: string) {
+    let payments: any[] = [];
+
+    let user = new User();
+    user.firstName = data.firstName;
+    user.lastName = data.lastName;
+    user.gender = data.gender;
+    user.phoneNumber = data.phoneNumber;
+    user.email = data.email;
+    user.type = data.type;
+
+    if (data.id) {
+      user.id = data.id;
+      usersLogger.info(
+        `Userid : ${data.id}`
+      );
+      usersLogger.info(
+        `id : ${data.id}`
+      );
+    } else {
+      user.id = id;
+    }
+
+    user.startDate = data.startDate;
+    user.address = data.address;
+    user.whatsapp = data.whatsapp;
+
+    if (data.dob) {
+      user.dob = data.dob;
+    }
+    user.status = data.status;
+    user.photo = data.photo;
+    user.languages = data.languages;
+    user.created_at = new Date();
+    user.updated_at = new Date();
+
+    let student = new Student();
+    let payment = new Payment();
+
+    if (user.id) {
+      student.id = user.id;
+      student.updated_at = new Date();
+    } else {
+      student.created_at = new Date();
+      student.updated_at = new Date();
+    }
+
+    if (data.payment) {
+      for (let element of data.payment) {
+        if (element.id) {
+          payment.id = element.id;
+        }
+        payment.paymentid = element.paymentid;
+        student.id = element.studentId;
+        payment.plantype = element.plantype;
+        payment.classtype = element.classtype;
+        payment.classessold = element.classessold ? element.classessold : 0;
+        payment.saleamount = element.saleamount ? element.saleamount :0;
+        payment.dateofsale = element.dateofsale;
+        payment.downpayment = element.downpayment ? element.downpayment : 0;
+        payment.duedate = element.duedate;
+        payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments: 0;
+        payments.push(payment);
+      }
+    }
+
+    student.teacherName = data.teacherName;
+    student.studentName = data.studentName;
+    student.address = data.address;
+    student.age = data.age;
+    student.batchCode = data.batchCode;
+    student.classType = data.classType;
+    student.referralCode = data.referralCode;
+    student.days = data.days;
+    student.studentType = data.studentType;
+    student.dateOfBirth = new Date();
+    student.poc = data.poc;
+    student.studentID = data.studentID;
+    student.days = data.days;
+    student.alternativeMobile = data.alternativeMobile;
+
+    student.startDate = data.startDate;
+    student.endDate = data.endDate;
+    student.startLesson = data.startLesson;
+    student.bottleSend = data.bottleSend;
+    student.firstFeedback = data.firstFeedback;
+    student.fifthFeedback = data.fifthFeedback;
+    student.fifteenthFeedback = data.fifteenthFeedback;
+    student.classesCompleted = data.classesCompleted;
+    student.customersReferred = data.customersReferred;
+    student.wabatch= data.wabatch;
+    student.logApp  = data.logApp;
+    student.pfirstName= data.pfirstName;
+    student.plastName= data.plastName;
+    student.comments= data.comments;
+    student.incentive= data.incentive;
+    student.classesPurchase= data.classesPurchase;
+    student.classesAttended = data.classesAttended;
+    student.classesMissed = data.classesMissed;
+    student.partner = data.partner;
+    student.lesson= data.lesson;
+    student.course = data.course;
+    student.assesmentComplete  = data.assesmentComplete;
+    student.assesmentMissed = data.assesmentMissed ;
+    student.averageScore = data.averageScore;
+    student.batchChange = data.batchChange ;
+    student.assesmentDate = data.assesmentDate;
+
+    return {student, payments, user};
+  }
+
   async saveStudentSQL(data: any, id) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
     try {
+      const UserData = this.mapStudentData(data, id);
+
+      // let {user} = UserData;
+
+      // usersLogger.info(`user data is ${JSON.stringify(user)}`);
+      // user = await this.usersRepository.save(user);
+      // usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
+
+      return UserData;
+
       var teacherAvailability: TeacherAvailability[] = [];
       var studentAvailability: StudentAvailability[] = [];
       var teacherItem: Teacher[] = [];
