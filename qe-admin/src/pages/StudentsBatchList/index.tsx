@@ -27,7 +27,8 @@ import {
   notification,
   Alert,
   Space,
-  Switch
+  Switch,
+  Spin
 } from "antd";
 import * as CountryList from 'country-list';
 import React, { useState, useRef } from "react";
@@ -58,6 +59,10 @@ import {
   studentsBatchesView,
   teacherRemove,
 } from "@/services/ant-design-pro/api";
+
+import {
+  APIResponseHandler
+} from "@/services/ant-design-pro/helpers";
 
 import Icon from "@ant-design/icons";
 import "./index.css";
@@ -142,22 +147,6 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
 
 const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 
-const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Student', reload = true) => {
-  notification[type]({
-    message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
-    description:
-      '',
-  });
-  if(reload){
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
-  }
-};
-
-
-
-
 const StudentsBatchList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -179,6 +168,7 @@ const StudentsBatchList: React.FC = () => {
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectCountry, setSelectCountry] = useState('IN')
   const [selectCountryCode, setSelectCountryCode] = useState(91)
   const [bottleSend, setBottleSend] = useState(false)
@@ -590,6 +580,7 @@ const StudentsBatchList: React.FC = () => {
 
   const handleFormSubmit = async () => {
     console.log("form submitted");
+    setIsLoading(true);
     const dataForm = {
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -672,31 +663,17 @@ const StudentsBatchList: React.FC = () => {
         body: JSON.stringify(dataForm),
       });
 
-      if (msg.status === 400) {
-        if(Array.isArray(msg.errors)){
-          for(let m of msg.errors){
-            openNotificationWithIcon('error', {status: 400, data: m}, "Student", false);
-          }
-        }else{
-          openNotificationWithIcon('error', {status: 400, data: "Failed To Add/Update Student"}, "Student", true);
-        }
-      } else {
-        openNotificationWithIcon('success', ' Student');
-      }
+      APIResponseHandler(msg, "Student Added Successfully", "Failed To Add Student");
     } catch (error) {
-      console.log("addRule error", error);
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: "pages.login.failure",
-        defaultMessage: "登录失败，请重试！",
-      });
+      APIResponseHandler({status: 400}, "Student Added Successfully", "Failed To Add Student");
     }
     setVisible(false);
-    // console.log('formData', formData);
-    console.log("dataForm", dataForm);
+    setIsLoading(false);
   };
 
   const handleFormSubmitEdit = async () => {
     console.log("form submitted");
+    setIsLoading(true);
     const dataForm = {
       firstName: formData.firstName ? formData.firstName : tempDataView.firstName,
       lastName: formData.lastName ? formData.lastName : tempDataView.lastName,
@@ -778,157 +755,13 @@ const StudentsBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg.status === 400) {
-        if(Array.isArray(msg.errors)){
-          for(let m of msg.errors){
-            openNotificationWithIcon('error', {status: 400, data: m}, "Student", false);
-          }
-        }else{
-          openNotificationWithIcon('error', {status: 400, data: "Failed To Add/Update Student"}, "Student", true);
-        }
-      } else {
-        openNotificationWithIcon('success', ' Student');
-      }
-      // 如果失败去设置用户错误信息
-      // setUserLoginState(msg);
+      APIResponseHandler(msg, "Student Updated Successfully", "Failed To Update Student");
     } catch (error) {
-      openNotificationWithIcon('error', { status: 400, data: 'Unable to process request !!!' })
+      APIResponseHandler({status: 400}, "Student Updated Successfully", "Failed To Update Student");
     }
-    console.log("formData", formData);
-    console.log("dataForm", dataForm);
     onClose();
+    setIsLoading(false);
   };
-
-  // let leadAvailabilities = [];
-  // //console.log('LA',  leadAvailabilities)
-  // //lead availability
-  // const WeekdayAvailability = (props) => {
-  //   const [value, setValue] = useState({
-  //     start_slot: "",
-  //     end_slot: "",
-  //   });
-  //   const [value1, setValue1] = useState({
-  //     weekday: "",
-  //   });
-
-  //   const leadWeekAvailability = {
-  //     start_slot: value[0],
-  //     end_slot: value[1],
-  //     weekday: props.weekday,
-  //     start_date: dateStart,
-  //   };
-
-  //   let dataLead = props.tempData;
-  //   let slotStart, slotEnd;
-  //   let leadSlot;
-  //   if (dataLead) {
-  //     //console.log('le', dataLead.toString().split(',')[0].slice(4))
-  //     dataLead = dataLead.toString();
-  //     slotStart = dataLead.split(",")[0].slice(4);
-  //     slotEnd = dataLead.split(",")[1];
-  //     console.log("slotss", slotStart);
-  //     leadSlot = {
-  //       start_slot: slotStart,
-  //       end_slot: slotEnd,
-  //       start_date: dateStart ? dateStart : tempDataView.startDate,
-  //       weekday: props.weekday,
-  //     };
-  //   }
-  //   if (
-  //     leadWeekAvailability.start_slot &&
-  //     leadWeekAvailability.end_slot &&
-  //     leadWeekAvailability.weekday
-  //   ) {
-  //     leadAvailabilities.push(leadWeekAvailability);
-  //   }
-  //   if (dataLead) {
-  //     leadAvailabilities.push(leadSlot);
-  //     //console.log('Laa', leadAvailabilities)
-  //   }
-
-  //   const format = "HH:mm";
-  //   return (
-  //     <Row style={{ margin: 5 }}>
-
-  //       <Col span={7}>
-  //         {dataLead ? (
-  //           <Checkbox name="weekday" checked="true" onChange={(e) => setValue1(props.weekday)}>
-  //             {props.week}
-  //           </Checkbox>
-  //         ) : (
-  //           <Checkbox name="weekday" onChange={(e) => setValue1(props.weekday)}>
-  //             {props.week}
-  //           </Checkbox>
-  //         )}
-  //       </Col>
-  //       <Col span={14}>
-  //         {dataLead ? (
-  //           <TimePicker.RangePicker
-  //             format={format}
-  //             defaultValue={[
-  //               moment(`${slotStart}`, format),
-  //               moment(`${slotEnd}`, format),
-  //             ]}
-  //             onChange={(time, timeString) => {
-  //               setValue(timeString);
-  //             }}
-  //           />
-  //         ) : (
-  //           <TimePicker.RangePicker
-  //             format={format}
-  //             onChange={(time, timeString) => {
-  //               setValue(timeString);
-  //             }}
-  //           />
-  //         )}
-  //       </Col>
-  //       <Col span={1}>
-  //         <a>
-  //           <PlusOutlined />
-  //         </a>
-  //       </Col>
-  //       <Col span={2}>
-  //         <a>
-  //           <DeleteOutlined />
-  //         </a>
-  //       </Col>
-  //     </Row>
-  //   );
-  // };
-  // let timeSlots = tempDataView ? tempDataView.slots : "";
-  // let monday, tuesday, wednesday, thursday, friday, saturday, sunday;
-  // if (timeSlots) {
-  //   timeSlots = timeSlots
-  //     .split("to")
-  //     .toString()
-  //     .split(" , ")
-  //     .toString()
-  //     .split(" ");
-  //   monday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Mon");
-  //   });
-  //   tuesday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Tue");
-  //   });
-  //   wednesday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Wed");
-  //   });
-  //   thursday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Thu");
-  //   });
-  //   friday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Fri");
-  //   });
-  //   saturday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Sat");
-  //   });
-  //   sunday = timeSlots.filter((lead) => {
-  //     return lead.startsWith("Sun");
-  //   });
-  // }
-
-
-  //console.log('timeslots', timeSlots)
 
   //delete teacher
   const openNotification = (id) => {
@@ -995,10 +828,9 @@ const StudentsBatchList: React.FC = () => {
             visible={visible}
             width={820}
           >
-             
+            <Spin spinning={isLoading}>
             <Tabs defaultActiveKey="1" onChange={callback}>
-            <TabPane tab="Student Info" key="1">  
-    
+            <TabPane tab="Student Info" key="1">      
             <Form onFinish={handleFormSubmit}>
 
               <Row gutter={16}>
@@ -1459,104 +1291,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                
-                
-                
 
-
-                  {/* <Form.Item
-                    name="teacherName"
-
-                  >
-                    <Input
-                      placeholder="Teacher Name"
-                      name="teacherName"
-                      value={formData.teacherName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>  
-                
-                
-                <Col span={12}>
-                  <Form.Item name="endDate">
-
-                    {tempDataView.endDate === null ?
-                      <DatePicker
-
-
-                        format="YYYY/MM/DD"
-                        style={{ width: "375px" }}
-                        onChange={(date, dateString) => {
-                          setEndDate(dateString);
-                        }}
-                        placeholder={"Classes End Date"}
-                      />
-                      :
-                      <DatePicker
-                        defaultValue={moment(`${tempDataView.endDate}`, "YYYY/MM/DD")}
-                        format="YYYY/MM/DD"
-                        style={{ width: "375px" }}
-                        onChange={(date, dateString) => {
-                          setEndDate(dateString);
-                        }}
-                         placeholder={"End Date"}
-                      />
-                                        }
-                  </Form.Item>
-                  </Col>
-
-                  <Col span={12}>
-                  <Form.Item name="startLesson">
-
-                    {tempDataView.startLesson === null ?
-                      <DatePicker
-                        format="YYYY/MM/DD"
-                        style={{ width: "375px" }}
-                        onChange={(date, dateString) => {
-                          setStartLesson(dateString);
-                        }}
-                        placeholder={"Lesson Start Date"}
-                      />
-                      :
-                      <DatePicker
-                        defaultValue={moment(`${tempDataView.startLesson}`, "YYYY/MM/DD")}
-                        format="YYYY/MM/DD"
-                        style={{ width: "375px" }}
-                        onChange={(date, dateString) => {
-                          setStartLesson(dateString);
-                        }}
-                        placeholder={"Lesson Start Date"}
-                      />
-                    }                 
-                  </Form.Item>
-                </Col>
-
-                 */}
-                  {/* <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Week Availability</label>
-                    <WeekdayAvailability weekday={1} week="Monday" />
-                    <WeekdayAvailability weekday={2} week="Tuesday" />
-                    <WeekdayAvailability weekday={3} week="Wednesday" />
-                    <WeekdayAvailability weekday={4} week="Thursday" />
-                    <WeekdayAvailability weekday={5} week="Friday" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Weekend Availability</label>
-                    <WeekdayAvailability weekday={6} week="Saturday" />
-                    <WeekdayAvailability weekday={7} week="Sunday" />
-                  </Form.Item>
-                </Col>
-              </Row> */}
-
-              
-
-               
-                
                 <Input
                 type="submit"
                 value="Add Student Learning journey"
@@ -1666,21 +1401,7 @@ const StudentsBatchList: React.FC = () => {
 
                   </Form.Item>
                 </Col>
-                {/*
-                <Col span={15}>
-                  <Form.Item name="fifthFeedback">
-                    Fifth FeedBack <Switch valuePropName='fifthFeedback' onChange={(value) => {
-                      setFifthFeedback(value)
-                    }} />
-                  </Form.Item>
-                </Col>
-                <Col span={15}>
-                  <Form.Item name="fifteenthFeedback">
-                    Fifteenth Feedback <Switch valuePropName='fifteenthFeedback' onChange={(value) => {
-                      setFifteenthFeedback(value)
-                    }} />
-                  </Form.Item>
-                </Col> */}
+
                 <Input
                 type="submit"
                 value="Add Student QE checklist "
@@ -1750,16 +1471,6 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col> 
-                 {/* <Col span={12}>
-                  <Form.Item name="dateofsale">
-                    <Input
-                      placeholder="Date of Sale"
-                      name="dateofsale"
-                      value={formData.dateofsale}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>  */}
                 <Col span={12}>
                   <Form.Item name="dateofsale">
 
@@ -1798,19 +1509,6 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                
-                {/* <Col span={12}>
-                  <Form.Item name="duedate">
-                    
-                    <Input
-                      placeholder="Due date of plan"
-                      name="duedate"
-                      value={formData.duedate}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col> */}
-
                   <Col span={12}>
                   <Form.Item name="duedate">
 
@@ -1850,17 +1548,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                
-                {/* <Col span={12}>
-                  <Form.Item name="delay_date ">
-                    <Input
-                      placeholder="Date of delayed payment"
-                      name="delay_date "
-                      value={formData.delay_date}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col> */}
+ 
                  <Col span={12}>
                   <Form.Item name="delay_date">
 
@@ -1920,6 +1608,7 @@ const StudentsBatchList: React.FC = () => {
               </Form>
             </TabPane>
             </Tabs>
+            </Spin>
           </Drawer>
         ]}
       />
@@ -2368,6 +2057,7 @@ const StudentsBatchList: React.FC = () => {
           </>
         ) : (
           <>
+          <Spin spinning={isLoading}>
            <Tabs defaultActiveKey="1" onChange={callback} key={tempDataView?.id}>
             <TabPane tab="Student Info" key="1"> 
             <Form onFinish={handleFormSubmitEdit}> 
@@ -3257,8 +2947,7 @@ const StudentsBatchList: React.FC = () => {
             </Form>
             </TabPane>
             </Tabs>
-
-
+            </Spin>
           </>        )}
       </Drawer>
     </PageContainer>
