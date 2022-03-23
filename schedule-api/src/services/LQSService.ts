@@ -17,6 +17,10 @@ export class LQSService {
   private LSQ_URL = process.env.LSQ_URL;
   private LSQ_SALES_LEAD_URL = process.env.LSQ_SALES_LEAD_URL;
   private LSQ_RETRY = process.env.LSQ_RETRY;
+  public static LSQ_STATUS_ENROLLED = "Enrolled";
+  public static LSQ_STATUS_CREATED = "Created";
+  public static LSQ_STATUS_FAILED = "Failed";
+  public static LSQ_STATUS_SUCCESS = "Success";
 
 
   private lQSRepository = getRepository(LQSEntry);
@@ -33,11 +37,9 @@ export class LQSService {
     usersLogger.info('Registering students::Start');
     const now = new Date();
     now.setDate(now.getDate() - 1);
-    console.log(now);
     var lqsEntries = await this.lQSRepository.find({
-      where: { updated_at: MoreThanDate(now),lsqstatus: In(["Success","Failed"])},
+      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_ENROLLED,LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_FAILED])},
     })
-    console.log(now);
     usersLogger.info('Loading... data from database');
     usersLogger.info(lqsEntries);
     lqsEntries.forEach(async (element) => {
@@ -47,7 +49,7 @@ export class LQSService {
       element.lsqstatus = "created";
       await this.lQSRepository.save(element);
     })
-    usersLogger.info('updating LQS entries in user table::End');
+    usersLogger.info('Created students in Admin portal::End');
   }
 
   /**
@@ -59,7 +61,7 @@ export class LQSService {
       var user = new User();
       var payment = new Payment();
       var student = new Student();
-      usersLogger.info('Fetch Sales Details');
+      usersLogger.info(`Fetch and update LSQ information:${element.id}`);
       user.id = element.id;
       student.id = element.id;
       payment.id = element.id;
@@ -79,7 +81,7 @@ export class LQSService {
         element.whatsapp = element.whatsapp.replace('-', '');
         user.whatsapp = element.whatsapp;
       }
-      user.status = 'enrolled';
+      user.status = LQSService.LSQ_STATUS_ENROLLED;
       user.type = 'student';    
       user.dob = element.dob;
       student.pfirstName = element.pfirstName;
@@ -114,11 +116,8 @@ export class LQSService {
       
       await this.updateCosmos(user, student, payment);
       this.userRepository.save(user);
-      console.log("User saved");
       this.studentRepository.save(student);
-      console.log("student saved");
       this.paymentRepository.save(payment);
-      console.log("payment saved");
     } catch (error) {
       usersLogger.info(`Failed during Registering students ${element.id}`);
     }
@@ -223,7 +222,7 @@ export class LQSService {
                   { id: element.ProspectID }
               }
             );
-            if (element.ProspectStage.toUpperCase() === "enrolled".toUpperCase() &&
+            if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
               !lqsEntry) {
               if (!lqsEntry) {
                 lqsEntry = new LQSEntry();
@@ -241,7 +240,7 @@ export class LQSService {
               lqsEntry.dob = element.mx_Date_of_Birth;
               lqsEntry.retry = parseInt(this.LSQ_RETRY);
               lqsEntry.updated_at = new Date();
-              lqsEntry.lsqstatus = "enrolled";
+              lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
               lqsEntry.created_at = new Date();
               await this.lQSRepository.save(lqsEntry);
             } else {
@@ -261,7 +260,7 @@ export class LQSService {
     var lqsRecords = await this.lQSRepository.find(
       {
         where:
-          { lsqstatus: In(["Success","enrolled"])}
+          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_ENROLLED])}
       }
     );
     usersLogger.info('Updating... Sales fields in LSQ Records ');
@@ -288,20 +287,20 @@ export class LQSService {
         .then(async (response) => {
           element.retry = element.retry - 1
           if (response.data) {
-            element.lsqstatus = "Success";
+            element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
             element.updated_at = new Date();
             this.lQSRepository.save(element);
           }
           return response.data;
         })
         .catch(error => {
-          element.lsqstatus = "Failed";
+          element.lsqstatus = LQSService.LSQ_STATUS_FAILED
           element.updated_at = new Date();
           this.lQSRepository.save(element);
         })
 
 
-      usersLogger.info("Updating Extra fields :: start");
+      usersLogger.info("Updating student Sale related fields :: start");
       if (details && details.length > 0) {
         details[0].Fields.map(item => {
           if (item.Value) {
