@@ -1,4 +1,4 @@
-import { getRepository, LessThan, MoreThan, Not } from "typeorm";
+import { getRepository, LessThan, MoreThan, Not, In } from "typeorm";
 import { User } from "../entity/User";
 import { getManager } from "typeorm";
 import axios from "axios";
@@ -35,7 +35,7 @@ export class LQSService {
     now.setDate(now.getDate() - 1);
     console.log(now);
     var lqsEntries = await this.lQSRepository.find({
-      where: { updated_at: MoreThanDate(now)},
+      where: { updated_at: MoreThanDate(now),lsqstatus: In(["Success","Failed"])},
     })
     console.log(now);
     usersLogger.info('Loading... data from database');
@@ -44,6 +44,8 @@ export class LQSService {
       var customerRecord = element;
       usersLogger.info(element.id);
       var userDetails = await this.fillLeadDetails(element);
+      element.lsqstatus = "created";
+      await this.lQSRepository.save(element);
     })
     usersLogger.info('updating LQS entries in user table::End');
   }
@@ -85,6 +87,8 @@ export class LQSService {
       user.alternativeMobile = element.alternativeMobile;
       user.customerEmail = element.customerEmail;
       user.address = element.address;
+      user.created_at = new Date();
+      user.updated_at = new Date();
       user.state = element.customerAddressState;
      
       student.studentID = element.studentID;
@@ -237,6 +241,7 @@ export class LQSService {
               lqsEntry.dob = element.mx_Date_of_Birth;
               lqsEntry.retry = parseInt(this.LSQ_RETRY);
               lqsEntry.updated_at = new Date();
+              lqsEntry.lsqstatus = "enrolled";
               lqsEntry.created_at = new Date();
               await this.lQSRepository.save(lqsEntry);
             } else {
@@ -244,7 +249,7 @@ export class LQSService {
             }
           }
         }
-        return res.data.filter(element => element.ProspectStage.toUpperCase() === 'ENROLLED');
+        return await res.data.filter(element => element.ProspectStage.toUpperCase() === 'ENROLLED');
       })
       .catch((error) => {
         usersLogger.info(`Error while fetching Data from LQS ${error}`);
@@ -256,7 +261,7 @@ export class LQSService {
     var lqsRecords = await this.lQSRepository.find(
       {
         where:
-          { lsqstatus: Not("Success") }
+          { lsqstatus: In(["Success","enrolled"])}
       }
     );
     usersLogger.info('Updating... Sales fields in LSQ Records ');

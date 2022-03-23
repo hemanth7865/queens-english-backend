@@ -20,8 +20,7 @@ export class LQSController {
         var res = await this.lQSService.fetchLQSData(request.body);
         await this.lQSService.createStudents();
         //Fetch lqs data
-        usersLogger.info("Controller results", res);       
-        
+        usersLogger.info("Controller results", res);        
          usersLogger.info("LQS data fetch :: End");
 
         return res;
