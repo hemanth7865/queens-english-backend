@@ -16,7 +16,7 @@ export class LQSService {
   private LSQ_SECRETKEY = process.env.LSQ_SECRETKEY;
   private LSQ_URL = process.env.LSQ_URL;
   private LSQ_SALES_LEAD_URL = process.env.LSQ_SALES_LEAD_URL;
-  private LSQ_RETRY = process.env.LSQ_RETRY;
+  private LSQ_RETRY = process.env.LSQ_RETRY ? process.env.LSQ_RETRY : "3";
   public static LSQ_STATUS_ENROLLED = "Enrolled";
   public static LSQ_STATUS_CREATED = "Created";
   public static LSQ_STATUS_FAILED = "Failed";
