@@ -54,6 +54,11 @@
         path: '/manage/dashboard',
         routes: [
           {
+            name: 'Sales Alert View',
+            path: '/manage/dashboard/salesAlertView',
+            component: './SalesAlert',
+          },
+          {
             name: 'Welcome',
             path: '/manage/dashboard/welcome',
             component: './WelcomeStudent',

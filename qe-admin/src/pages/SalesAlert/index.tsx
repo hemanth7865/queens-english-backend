@@ -92,6 +92,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
+          rules={[
+            {
+              required: true,
+              message: `Please Input ${title}!`,
+            },
+          ]}
         >
           {inputNode()}
         </Form.Item>
@@ -112,6 +118,7 @@ const StudentOnboard: React.FC = () => {
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
+  const [salesData, setSalesData] = useState();
   const [editingKey, setEditingKey] = useState('');
 
   const isEditing = (record: Item) => record.id === editingKey;
@@ -196,24 +203,39 @@ const StudentOnboard: React.FC = () => {
     
   }
 
+  function checkProperties(obj) {
+    for (const key in obj) {
+        if (obj[key] == "" || obj[key] == null ){
+            return obj;
+        }else{
+            continue;
+        }
+    }
+}
+
   const studentGetApi = async ()=>{
     try {
       let msg = await studentsDashboard('enrolled', {
           current: 1,
-          pageSize: 200}
+          pageSize: 20}
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      setData(msg.data);
-      console.log('view one',msg.data);
+      //setData(msg.data);
+
+      //Logic to get only objects containing null values
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId,  ...items}) => items)
+      let nullObj = newArray.map(item=> {
+        return checkProperties(item)
+      }).filter(item => item != undefined)
+      setData(nullObj)
     } catch (error) {
       //console.log("error", error);
     }
   }
 
-
-  //console.log('data', data)
+console.log('null obj', salesData)
 
   useEffect(async (params: any) => {
   studentGetApi()
@@ -256,6 +278,18 @@ const StudentOnboard: React.FC = () => {
       title: 'Student First Name',
       dataIndex: 'lastName',
       width: 160,
+      editable: true,
+    },
+    {
+      title: 'BDA Name',
+      dataIndex: 'bda',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDM Name',
+      dataIndex: 'bdm',
+      width: 150,
       editable: true,
     },
     {
@@ -372,13 +406,6 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'paymentid',
       width: 150,
       editable: true,
-    },
-    {
-      title: 'Call Back Later',
-      dataIndex: 'comments',
-      width: 150,
-      editable: true,
-      
     },
     {
       title: 'BDA Comments',
@@ -511,19 +538,15 @@ const StudentOnboard: React.FC = () => {
         </div>
       <Form form={form} component={false}>
       <Table
+        bordered
         components={{
           body: {
             cell: EditableCell,
           },
         }}
-        bordered
         dataSource={data}
         columns={mergedColumns}
         rowClassName="editable-row"
-        // pagination={{
-        //   onChange: cancel,
-        // }}
-        //pagination={{ pageSize: 25 }}
         scroll={{ x: 1500 }}
     />
 
