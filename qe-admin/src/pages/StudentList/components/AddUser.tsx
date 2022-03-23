@@ -10,7 +10,7 @@ import {
   } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
 import {addUserSchedule} from "@/services/ant-design-pro/api";
-import {APIResponseHandler} from "@/services/ant-design-pro/helpers";
+import {handleAPIResponse} from "@/services/ant-design-pro/helpers";
 
 //console.log('ccc', CountryList)
 
@@ -127,9 +127,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                   },
                   body: JSON.stringify(dataForm),
                 });
-                APIResponseHandler(msg, "User Added Successfully", "Failed To Add User");
+                handleAPIResponse(msg, "User Added Successfully", "Failed To Add User");
               } catch (error) {
-                APIResponseHandler({status: 400}, "User Added Successfully", "Failed To Add User");
+                handleAPIResponse({status: 400}, "User Added Successfully", "Failed To Add User");
               }
             props.setVisible(false)
         }

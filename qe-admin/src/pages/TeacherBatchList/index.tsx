@@ -55,7 +55,7 @@ import {
 } from "@/services/ant-design-pro/api";
 
 import {
-  APIResponseHandler
+  handleAPIResponse
 } from "@/services/ant-design-pro/helpers";
 
 import Icon from "@ant-design/icons";
@@ -548,9 +548,9 @@ const TeacherBatchList: React.FC = () => {
         body: JSON.stringify(dataForm),
       });
 
-      APIResponseHandler(msg, "Teacher Added Successfully", "Failed To Add Teacher");
+      handleAPIResponse(msg, "Teacher Added Successfully", "Failed To Add Teacher");
     } catch (error) {
-      APIResponseHandler({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
+      handleAPIResponse({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
       message.error("Add Teacher Error");
     }
     setVisible(false);
@@ -644,10 +644,10 @@ const TeacherBatchList: React.FC = () => {
         body: JSON.stringify(dataForm),
       });
 
-      APIResponseHandler(msg, "Teacher Updated Successfully", "Failed To Update Teacher");
+      handleAPIResponse(msg, "Teacher Updated Successfully", "Failed To Update Teacher");
     } catch (error) {
       message.error("Add Teacher Error");
-      APIResponseHandler({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
+      handleAPIResponse({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
     }
     onClose();
     setIsLoading(false);

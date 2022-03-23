@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin } from 'antd';
 import moment from "moment";
 import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
-import {APIResponseHandler} from "@/services/ant-design-pro/helpers";
+import {handleAPIResponse} from "@/services/ant-design-pro/helpers";
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -144,9 +144,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                   },
                   body: JSON.stringify(dataForm),
                 });
-                APIResponseHandler(msg, "User Updated Successfully", "Failed To Update User");
+                handleAPIResponse(msg, "User Updated Successfully", "Failed To Update User");
               } catch (error) {
-                APIResponseHandler({status: 400}, "User Updated Successfully", "Failed To Update User");
+                handleAPIResponse({status: 400}, "User Updated Successfully", "Failed To Update User");
               }
                 props.setVisible(false)
                 
