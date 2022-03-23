@@ -374,13 +374,6 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Call Back Later',
-      dataIndex: 'comments',
-      width: 150,
-      editable: true,
-      
-    },
-    {
       title: 'BDA Comments',
       dataIndex: 'comments',
       width: 150,

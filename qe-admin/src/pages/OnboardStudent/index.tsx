@@ -11,7 +11,6 @@ interface Item {
   name: string;
   mobile: string;
   email: string;
-  dob: number;
   comments: number;
 }
 
@@ -52,7 +51,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <DatePicker/>
+      return <Input placeholder="YYYY-MM-DD"/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -132,7 +131,7 @@ const StudentOnboard: React.FC = () => {
     console.log('TYPE', type, messageError)
     notification[type]({
       message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
-      description: '',
+      description: type === 'error' ? 'Add a valid start Date or Class start Date': '',
     });
     setTimeout(() => {
       window.location.reload()
@@ -162,10 +161,11 @@ const StudentOnboard: React.FC = () => {
       course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      classesStartDate: moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       age: value.age,
-      teacherName: value.teacherName,
+      batchCode: value.batchCode,
       payment: [{
         paymentid: value.paymentid,
         classessold: value.classessold,
@@ -272,10 +272,15 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'studentID',
       width: 300,
       editable: true,
-      
     },
     {
-      title: 'Date of Birth of Student',
+      title: 'Batch Code',
+      dataIndex: 'batchCode',
+      width: 200,
+      editable: true,
+    },
+    {
+      title: 'Date of Birth',
       dataIndex: 'dob',
       width: 150,
       editable: true,
@@ -305,14 +310,14 @@ const StudentOnboard: React.FC = () => {
       
     },
     {
-      title: 'Whatsapp Number',
+      title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
       
     },
     {
-      title: 'Alternate Number',
+      title: 'Alternate No',
       dataIndex: 'alternativeMobile',
       width: 150,
       editable: true,
@@ -321,13 +326,6 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Customer Address',
       dataIndex: 'address',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Teacher Name',
-      dataIndex: 'teacherName',
       width: 150,
       editable: true,
     },
@@ -348,7 +346,6 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'course',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Starting lesson',
@@ -367,10 +364,20 @@ const StudentOnboard: React.FC = () => {
           return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
         }
       }
-      
     },
     {
-      title: 'No of classess sold',
+      title: 'Class Start Date',
+      dataIndex: 'classesStartDate',
+      width: 150,
+      editable: true,
+      render: (value: any)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+        }
+      }
+    },
+    {
+      title: 'classess sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true,
@@ -446,7 +453,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob1' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

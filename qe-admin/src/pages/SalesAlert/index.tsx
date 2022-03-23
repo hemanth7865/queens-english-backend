@@ -95,8 +95,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
           rules={[
             {
               required: true,
-              message: `Please Input ${title}!`,
-            },
+              message: `Add ${title}!`,
+            }
           ]}
         >
           {inputNode()}
@@ -217,15 +217,14 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboard('enrolled', {
           current: 1,
-          pageSize: 20}
+          pageSize: 200}
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      //setData(msg.data);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId,classesStartDate, startDate, age,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -235,7 +234,7 @@ const StudentOnboard: React.FC = () => {
     }
   }
 
-console.log('null obj', salesData)
+console.log('null obj', data)
 
   useEffect(async (params: any) => {
   studentGetApi()
@@ -278,18 +277,6 @@ console.log('null obj', salesData)
       title: 'Student First Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: true,
-    },
-    {
-      title: 'BDA Name',
-      dataIndex: 'bda',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'BDM Name',
-      dataIndex: 'bdm',
-      width: 150,
       editable: true,
     },
     {
@@ -494,7 +481,7 @@ console.log('null obj', salesData)
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
+      <h3 style = {{textAlign: "center"}}>Sales Alert/ Missing data</h3>
       <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
