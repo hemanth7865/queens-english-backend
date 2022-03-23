@@ -1,4 +1,4 @@
-import { getRepository, LessThan, MoreThan } from "typeorm";
+import { getRepository, LessThan, MoreThan, Not, In } from "typeorm";
 import { User } from "../entity/User";
 import { getManager } from "typeorm";
 import axios from "axios";
@@ -16,6 +16,11 @@ export class LQSService {
   private LSQ_SECRETKEY = process.env.LSQ_SECRETKEY;
   private LSQ_URL = process.env.LSQ_URL;
   private LSQ_SALES_LEAD_URL = process.env.LSQ_SALES_LEAD_URL;
+  private LSQ_RETRY = process.env.LSQ_RETRY ? process.env.LSQ_RETRY : "3";
+  public static LSQ_STATUS_ENROLLED = "Enrolled";
+  public static LSQ_STATUS_CREATED = "Created";
+  public static LSQ_STATUS_FAILED = "Failed";
+  public static LSQ_STATUS_SUCCESS = "Success";
 
 
   private lQSRepository = getRepository(LQSEntry);
@@ -29,21 +34,22 @@ export class LQSService {
    */
 
   async createStudents() {
-    usersLogger.info('updating LQS entries in user table::Start');
-    const now  =  new Date();
+    usersLogger.info('Registering students::Start');
+    const now = new Date();
     now.setDate(now.getDate() - 1);
-var lqsEntries = await this.lQSRepository.find({
-      where: { updated_at:  MoreThanDate(now) },
+    var lqsEntries = await this.lQSRepository.find({
+      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_ENROLLED,LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_FAILED])},
     })
-    usersLogger.info('Loading LSQ details from DB');
+    usersLogger.info('Loading... data from database');
     usersLogger.info(lqsEntries);
     lqsEntries.forEach(async (element) => {
       var customerRecord = element;
-      usersLogger.info('element');
-      usersLogger.info(element);
+      usersLogger.info(element.id);
       var userDetails = await this.fillLeadDetails(element);
+      element.lsqstatus = "created";
+      await this.lQSRepository.save(element);
     })
-    usersLogger.info('updating LQS entries in user table::End');
+    usersLogger.info('Created students in Admin portal::End');
   }
 
   /**
@@ -55,7 +61,7 @@ var lqsEntries = await this.lQSRepository.find({
       var user = new User();
       var payment = new Payment();
       var student = new Student();
-      usersLogger.info('Fetch Sales Details');
+      usersLogger.info(`Fetch and update LSQ information:${element.id}`);
       user.id = element.id;
       student.id = element.id;
       payment.id = element.id;
@@ -75,47 +81,50 @@ var lqsEntries = await this.lQSRepository.find({
         element.whatsapp = element.whatsapp.replace('-', '');
         user.whatsapp = element.whatsapp;
       }
-      user.status = 'enrolled';
-      user.type = 'student';
-      student.status = element.status;
-      payment.dateofsale = element.dateofsale;
-      student.studentID = element.studentID;
+      user.status = LQSService.LSQ_STATUS_ENROLLED;
+      user.type = 'student';    
       user.dob = element.dob;
       student.pfirstName = element.pfirstName;
       user.whatsapp = element.whatsapp;
       user.alternativeMobile = element.alternativeMobile;
       user.customerEmail = element.customerEmail;
       user.address = element.address;
+      user.created_at = new Date();
+      user.updated_at = new Date();
       user.state = element.customerAddressState;
-      payment.plantype = element.saleType;
-      payment.subscription = element.subscription;
-      payment.subscriptionNo = element.subscriptionNo;
+     
+      student.studentID = element.studentID;
       student.course = element.value;
       student.courseFrequency = element.courseFrequency;
+      student.status = element.status;    
       student.timings = element.timings;
       student.startLesson = element.startingLevel;
       student.startDate = element.startDate;
+
       payment.classessold = element.classessold;
       payment.saleamount = element.saleamount;
       payment.downpayment = element.downpayment;
       payment.emi = element.emi;
+      payment.dateofsale = element.dateofsale;
+      payment.plantype = element.saleType;
+      payment.subscription = element.subscription;
+      payment.subscriptionNo = element.subscriptionNo;
       payment.emiMonths = element.value;
       payment.paymentMode = element.paymentMode;
       payment.paymentid = element.transactionID;
       payment.notes = element.bdaComments;
-
-
-      await this.updateCosmos(user,student,payment);
+      
+      await this.updateCosmos(user, student, payment);
       this.userRepository.save(user);
       this.studentRepository.save(student);
       this.paymentRepository.save(payment);
     } catch (error) {
-      usersLogger.info("Failed during LSQ update");
+      usersLogger.info(`Failed during Registering students ${element.id}`);
     }
 
   }
 
-  async updateCosmos(user: User, student:Student, payment:Payment) {
+  async updateCosmos(user: User, student: Student, payment: Payment) {
     const options = {
       url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
       json: true,
@@ -128,31 +137,31 @@ var lqsEntries = await this.lQSRepository.find({
         phoneNumber: user.phoneNumber,
         status: user.status,
         course: student.course,
-        dob:user.dob,
-        whatsapp:user.whatsapp,
-        studentStatus:student.status,
-        dateofsale:payment.dateofsale,
-        studentID : student.studentID,
-        pfirstName:student.pfirstName,
-        alternativeMobile:user.alternativeMobile,
-        customerEmail:user.customerEmail,
-        address:user.address,
-        state:user.state,
-        plantype:payment.plantype,
-        subscription:payment.subscription,
-        subscriptionNo:payment.subscriptionNo,
-        courseFrequency:student.courseFrequency,
-        timings:student.timings ,
-        startLesson:student.startLesson,
-        startDate:student.startDate,
-        classessold:payment.classessold,
-        saleamount:payment.saleamount,
-        downpayment:payment.downpayment,
-        emi:payment.emi,
-        emiMonths:payment.emiMonths,
-        paymentMode:payment.paymentMode,
-        paymentid:payment.paymentid,
-        notes:payment.notes
+        dob: user.dob,
+        whatsapp: user.whatsapp,
+        studentStatus: student.status,
+        dateofsale: payment.dateofsale,
+        studentID: student.studentID,
+        pfirstName: student.pfirstName,
+        alternativeMobile: user.alternativeMobile,
+        customerEmail: user.customerEmail,
+        address: user.address,
+        state: user.state,
+        plantype: payment.plantype,
+        subscription: payment.subscription,
+        subscriptionNo: payment.subscriptionNo,
+        courseFrequency: student.courseFrequency,
+        timings: student.timings,
+        startLesson: student.startLesson,
+        startDate: student.startDate,
+        classessold: payment.classessold,
+        saleamount: payment.saleamount,
+        downpayment: payment.downpayment,
+        emi: payment.emi,
+        emiMonths: payment.emiMonths,
+        paymentMode: payment.paymentMode,
+        paymentid: payment.paymentid,
+        notes: payment.notes
       }
     };
 
@@ -200,30 +209,46 @@ var lqsEntries = await this.lQSRepository.find({
     var status;
     var res1 = {};
 
+
     res1 = await axios
       .post(options.url, options.body)
       .then(async (res) => {
         usersLogger.info("Fetching Mandatory Fields from Lead API ");
-        usersLogger.info("API Response ");
-        usersLogger.info(res.data);
         if (res.data) {
           for (let element of res.data) {
-            usersLogger.info("Iterating element ");
-            usersLogger.info(element);
-            var lqsEntry = new LQSEntry();
-            lqsEntry.id = element.ProspectID;
-            usersLogger.info(element.ProspectID);
-            lqsEntry.firstName = element.FirstName;
-            lqsEntry.lastName = element.LastName;
-            lqsEntry.pfirstName = element.mx_Parent_Name;
-            lqsEntry.email = element.EmailAddress;
-            lqsEntry.phoneNumber = element.Phone;
-            lqsEntry.whatsapp = element.mx_WhatsApp_Phone_Number;
-            lqsEntry.dob = element.mx_Date_of_Birth;
-            await this.lQSRepository.save(lqsEntry);
+            var lqsEntry = await this.lQSRepository.findOne(
+              {
+                where:
+                  { id: element.ProspectID }
+              }
+            );
+            if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
+              !lqsEntry) {
+              if (!lqsEntry) {
+                lqsEntry = new LQSEntry();
+              }
+              usersLogger.info("Iterating element ");
+              usersLogger.info(element);
+              lqsEntry.id = element.ProspectID;
+              usersLogger.info(element.ProspectID);
+              lqsEntry.firstName = element.FirstName;
+              lqsEntry.lastName = element.LastName;
+              lqsEntry.pfirstName = element.mx_Parent_Name;
+              lqsEntry.email = element.EmailAddress;
+              lqsEntry.phoneNumber = element.Phone;
+              lqsEntry.whatsapp = element.mx_WhatsApp_Phone_Number;
+              lqsEntry.dob = element.mx_Date_of_Birth;
+              lqsEntry.retry = parseInt(this.LSQ_RETRY);
+              lqsEntry.updated_at = new Date();
+              lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
+              lqsEntry.created_at = new Date();
+              await this.lQSRepository.save(lqsEntry);
+            } else {
+              usersLogger.info(`Record processed or with different status id:${element.id} && LSQ record status ${element.ProspectStage}`)
+            }
           }
         }
-        return res.data;
+        return await res.data.filter(element => element.ProspectStage.toUpperCase() === 'ENROLLED');
       })
       .catch((error) => {
         usersLogger.info(`Error while fetching Data from LQS ${error}`);
@@ -232,19 +257,16 @@ var lqsEntries = await this.lQSRepository.find({
       });
 
     usersLogger.info("Updated Mandatory Fields from Lead API ");
-    var lqsEntries = await getManager().query('SELECT * from  lsqentry');
-    usersLogger.info('Updating Extra Fields');
-    for (let element of lqsEntries) {
-      var lqsEntry = new LQSEntry();
-      lqsEntry = await this.lQSRepository.findOne(
-        {
-          where:
-            { id: element.id }
-        }
-      );
-
+    var lqsRecords = await this.lQSRepository.find(
+      {
+        where:
+          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_ENROLLED])}
+      }
+    );
+    usersLogger.info('Updating... Sales fields in LSQ Records ');
+    for (let element of lqsRecords) {
+      usersLogger.info(`Total no of records ... ${lqsRecords.length}`);
       payment: Payment;
-
       var url = `${this.LSQ_SALES_LEAD_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`
       let user = await this.userRepository.findOne(
         {
@@ -260,123 +282,116 @@ var lqsEntries = await this.lQSRepository.find({
         }
       );
       payment == null ? new Payment() : payment;
-      let lsq = await this.lQSRepository.findOne(
-        {
-          where:
-            { id: element.id }
-        }
-      );
 
       const details = await axios(url)
-        .then(response => {
-          if (response.data.message) {
-            console.log(
-              `Got ${Object.entries(response.data.message).length} breeds`
-            )
+        .then(async (response) => {
+          element.retry = element.retry - 1
+          if (response.data) {
+            element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+            element.updated_at = new Date();
+            this.lQSRepository.save(element);
           }
           return response.data;
         })
         .catch(error => {
-          console.log(error)
+          element.lsqstatus = LQSService.LSQ_STATUS_FAILED
+          element.updated_at = new Date();
+          this.lQSRepository.save(element);
         })
 
-      usersLogger.info("Updating Extra fields :: start");
+
+      usersLogger.info("Updating student Sale related fields :: start");
       if (details && details.length > 0) {
         details[0].Fields.map(item => {
           if (item.Value) {
             switch (item.SchemaName) {
-
-
               case 'Status':
-                lsq.status = item.Value;
-
+                element.status = item.Value;
                 break;
               case "mx_Custom_3":
-                lsq.dateofsale = item.Value;
+                element.dateofsale = item.Value;
                 break;
               case "mx_Custom_10":
-                lsq.studentID = item.Value;
-
+                element.studentID = item.Value;
                 break;
               case "mx_Custom_11":
-                lsq.dob = item.Value ? item.value : null;
+                element.dob = item.Value ? item.value : null;
                 break;
               case "mx_Customer_name":
-                lsq.pfirstName = item.Value;
+                element.pfirstName = item.Value;
                 break;
               case "mx_WhatsApp_Phone_Number":
-                lsq.whatsapp = item.Value;
+                element.whatsapp = item.Value;
 
                 break;
 
               case "mx_Custom_12":
-                lsq.alternativeMobile = item.Value;
+                element.alternativeMobile = item.Value;
 
                 break;
               case "mx_Custom_13":
-                lsq.customerEmail = item.Value;
+                element.customerEmail = item.Value;
 
                 break;
               case "mx_Custom_14":
-                lsq.address = item.Value;
+                element.address = item.Value;
                 break;
               case "mx_Custom_15":
-                lsq.customerAddressState = item.Value;
+                element.customerAddressState = item.Value;
 
                 break;
               case "mx_Custom_16":
-                lsq.saleType = item.Value;
+                element.saleType = item.Value;
                 break;
               case "mx_Custom_17":
-                lsq.subscription = item.Value;
+                element.subscription = item.Value;
                 break;
               case "mx_Custom_18":
-                lsq.subscriptionNo = item.Value;
+                element.subscriptionNo = item.Value;
                 break;
               case "mx_Custom_1":
-                lsq.course = item.Value;
+                element.course = item.Value;
                 break;
               case "mx_Custom_19":
-                lsq.courseFrequency = item.Value;
+                element.courseFrequency = item.Value;
                 break;
               case "mx_Custom_21":
-                lsq.timings = item.Value;
+                element.timings = item.Value;
                 break;
               case "mx_Custom_22":
-                lsq.startingLevel = item.Value;
+                element.startingLevel = item.Value;
                 break;
 
               case "mx_Custom_23":
-                lsq.startDate = item.Value;
+                element.startDate = item.Value;
                 break;
               case "mx_Custom_24":
-                lsq.classessold = item.Value;
+                element.classessold = item.Value;
                 break;
               case "mx_Custom_2":
-                lsq.saleamount = item.Value;
-                console.log(item.Value);
+                element.saleamount = item.Value;
                 break;
               case "mx_Custom_6":
-                lsq.downpayment = item.Value;
+                element.downpayment = item.Value;
                 break;
 
 
               case "mx_Custom_25":
-                lsq.emi = item.Value;
+                element.emi = item.Value;
                 break;
               case "mx_Custom_26":
-                lsq.emiMonths = item.Value;
+                element.emiMonths = item.Value;
                 break;
 
               case "mx_Custom_27":
-                lsq.paymentMode = item.Value;
+                element.paymentMode = item.Value;
                 break;
 
               case "mx_Custom_8":
-                lsq.transactionID = item.Value;
+                element.transactionID = item.Value;
                 break;
               case "mx_Custom_8":
-                lsq.bdaComments = item.Value;
+                element.bdaComments = item.Value;
                 break;
 
               default:
@@ -389,11 +404,10 @@ var lqsEntries = await this.lQSRepository.find({
 
       }
 
-      await this.lQSRepository.save(lsq);
+      await this.lQSRepository.save(element);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-    console.log('Response is ', res1);
-    usersLogger.info("fetchLQSData :: END")
+    usersLogger.info("fetchLQSData :: END");
 
     return res1;
   }
@@ -404,7 +418,7 @@ var lqsEntries = await this.lQSRepository.find({
 
 }
 
-export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:MM:SS'))
-export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:MM:SS'))
+export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:mm:ss.SSS'))
+export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss.SSS'))
 
 
