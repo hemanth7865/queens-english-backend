@@ -1064,7 +1064,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 
                 { <Col span={12}>
-                  <Form.Item name="status	">
+                  <Form.Item name="status">
                   {console.log('tempDataView.status')}
                     {console.log(tempDataView.status)}
                     <Select

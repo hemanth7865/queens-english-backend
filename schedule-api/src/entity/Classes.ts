@@ -81,11 +81,14 @@ export class Classes extends BaseEntity {
     status: number;
 
     @Column({ 'nullable': true })
+    frequency: string;
+
+    @Column({ 'nullable': true })
     created_at: Date
 
     @Column({ 'nullable': true })
     updated_at: Date
-
+    
     batchAvailability: BatchAvailability;
 
     @OneToOne(() => Classes)
