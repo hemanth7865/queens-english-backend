@@ -10,14 +10,13 @@ interface Item {
   name: string;
   phoneNumber: string;
   email: string;
-  status: number;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' ;
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' ;
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -36,8 +35,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const inputNode = () => {
     if(inputType === 'number'){
         return (<Select style={{ width: 120 }} >
-                  <Option value="onboarding">Onboarding</Option>
-                  <Option value="batching">Batching</Option>
+                  <Option value="Kids">Kids</Option>
+                  <Option value="adult">Adult</Option>
                 </Select>)
     }else if(inputType === 'select'){
       return(
@@ -79,6 +78,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="enrolled">Enrolled</Option>
               <Option value="startclasslater">Start Class Later</Option>
               <Option value="batching">Ready to batch</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectCallStatus'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Answered">Answered</Option>
+              <Option value="DNP">DNP</Option>
+              <Option value="Call Back Later">Call Back Later</Option>
+              <Option value="Placement test pending">Placement test pending</Option>
             </Select>
       )
     }
@@ -168,8 +176,17 @@ const StudentOnboard: React.FC = () => {
       classType: value.classType,
       course: value.course,
       startLesson: value.startLesson,
+      startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
+      callStatus: value.callStatus,
+      callBackon: value.callBackon,
+      bdaName: value.bdaName,
+      bdmName: value.bdmName,
+      poc: value.poc,
+      age: value.age,
+      courseFrequency: value.courseFrequency,
+      timings: value.timings,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -224,7 +241,7 @@ const StudentOnboard: React.FC = () => {
       }
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId,classesStartDate, startDate, age,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -274,7 +291,7 @@ console.log('null obj', data)
       fixed: 'left',
     },
     {
-      title: 'Student First Name',
+      title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
       editable: true,
@@ -317,25 +334,34 @@ console.log('null obj', data)
       editable: true,
     },
     {
+      title: 'Age',
+      dataIndex: 'age',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Mobile No',
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Alternate No',
       dataIndex: 'alternativeMobile',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'POC',
+      dataIndex: 'poc',
+      width: 150,
+      editable: true,
     },
     {
       title: 'Address',
@@ -355,14 +381,35 @@ console.log('null obj', data)
       dataIndex: 'course',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Starting lesson',
       dataIndex: 'startLesson',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'Course Frequency',
+      dataIndex: 'courseFrequency',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Timings',
+      dataIndex: 'timings',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Start Date',
+      dataIndex: 'startDate',
+      width: 150,
+      editable: true,
+      render: (value: any)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+      }
     },
     {
       title: 'classess sold',
@@ -395,11 +442,34 @@ console.log('null obj', data)
       editable: true,
     },
     {
+      title: 'Call Status',
+      dataIndex: 'callStatus',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'PRM Comments',
+      dataIndex: 'callBackon',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDA Name',
+      dataIndex: 'bdaName',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDM Name',
+      dataIndex: 'bdmName',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'BDA Comments',
       dataIndex: 'comments',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Status',
@@ -441,7 +511,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

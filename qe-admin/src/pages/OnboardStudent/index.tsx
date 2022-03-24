@@ -19,7 +19,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -80,6 +80,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
             <Select style={{ width: 150 }} >
               <Option value="onboarding">Onboarding</Option>
               <Option value="active">Active</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectCallStatus'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Answered">Answered</Option>
+              <Option value="DNP">DNP</Option>
+              <Option value="Call Back Later">Call Back Later</Option>
+              <Option value="Placement test pending">Placement test pending</Option>
             </Select>
       )
     }
@@ -191,29 +200,16 @@ const StudentOnboard: React.FC = () => {
       id: value.studentID,
       type: 'student',
       status: value.status,
-      alternativeMobile: value.alternativeMobile,
-      classType: value.classType,
-      course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       classesStartDate: moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
-      age: value.age,
       batchCode: value.batchCode,
-      zoomLink: value.zoomLink,
-      payment: [{
-        paymentid: value.paymentid,
-        classessold: value.classessold,
-        saleamount: value.saleamount,
-        downpayment: value.downpayment,
-        plantype: value.plantype,
-        studentId: value.studentID,
-        classtype:'',
-        leadId: value.studentID,
-        id: value.studentID
-      }]
-
+      callStatus: value.callStatus,
+      callBackon: value.callBackon,
+      courseFrequency: value.courseFrequency,
+      timings: value.timings,
     }
     console.log("dataForm", dataForm);
     try {
@@ -239,7 +235,7 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboard('onboarding', {
           current: 1,
-          pageSize: 20}
+          pageSize: 200}
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -316,6 +312,18 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Course Frequency',
+      dataIndex: 'courseFrequency',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Timings',
+      dataIndex: 'timings',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Date of Birth',
       dataIndex: 'dob',
       width: 150,
@@ -343,43 +351,10 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Whatsapp No',
       dataIndex: 'whatsapp',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Alternate No',
-      dataIndex: 'alternativeMobile',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Customer Address',
-      dataIndex: 'address',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Class Type',
-      dataIndex: 'classType',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Course',
-      dataIndex: 'course',
       width: 150,
       editable: true,
     },
@@ -388,7 +363,6 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'startLesson',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Start Date',
@@ -413,39 +387,14 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'classess sold',
-      dataIndex: 'classessold',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Total Sale amount',
-      dataIndex: 'saleamount',
+      title: 'Call Status',
+      dataIndex: 'callStatus',
       width: 150,
       editable: true,
     },
     {
-      title: 'Down payment',
-      dataIndex: 'downpayment',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Plan Type',
-      dataIndex: 'plantype',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Payment Id',
-      dataIndex: 'paymentid',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Zoom Link',
-      dataIndex: 'zoomLink',
+      title: 'PRM Comments',
+      dataIndex: 'callBackon',
       width: 150,
       editable: true,
     },
@@ -454,7 +403,6 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'comments',
       width: 200,
       editable: true,
-      
     },
     {
       title: 'Message',
@@ -509,7 +457,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus':'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -531,7 +479,7 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
-          pageSize: 20}
+          pageSize: 200}
       );
       setData(msg.data);
       console.log('search details',msg);

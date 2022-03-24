@@ -448,6 +448,8 @@ export class StudentService {
     student.callBackon = data.callBackon;
     student.bdaName = data.bdaName;
     student.bdmName = data.bdmName;
+    student.courseFrequency = data.courseFrequency;
+    student.timings = data.timings;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
     
 
@@ -585,7 +587,9 @@ export class StudentService {
     student.callBackon = element.callBackon;
     student.bdaName = element.bdaName;
     student.bdmName = element.bdmName;
-    student.assesmentDate =element.assesmentDate;
+    student.assesmentDate = element.assesmentDate;
+    student.courseFrequency = element.courseFrequency;
+    student.timings = element.timings;
 
     usersLogger.info("student record updating is ", student);
     return student;

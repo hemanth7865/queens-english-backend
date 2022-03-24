@@ -203,6 +203,9 @@ const StudentOnboard: React.FC = () => {
       bdaName: value.bdaName,
       bdmName: value.bdmName,
       poc: value.poc,
+      age: value.age,
+      courseFrequency: value.courseFrequency,
+      timings: value.timings,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -229,12 +232,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        //openNotificationWithIcon('error', 'Student', msg.error);
+        openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        //openNotificationWithIcon('success', 'Student', '');
+        openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -339,6 +342,12 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Age',
+      dataIndex: 'age',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Mobile No',
       dataIndex: 'phoneNumber',
       width: 150,
@@ -382,14 +391,24 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'course',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Starting lesson',
       dataIndex: 'startLesson',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'Course Frequency',
+      dataIndex: 'courseFrequency',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Timings',
+      dataIndex: 'timings',
+      width: 150,
+      editable: true,
     },
     {
       title: 'Start Date',
