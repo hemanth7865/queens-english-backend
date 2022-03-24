@@ -461,6 +461,26 @@ export class BatchService {
       query_list.push(` batchNumber like  '%${batchId}%' `);
     }
 
+    if(parameters.frequency){
+      query_list.push(` frequency = '${parameters.frequency}' `);
+    }
+
+    if(parameters.startingLessonId){
+      query_list.push(` startingLessonId = '${parameters.startingLessonId}' `);
+    }
+
+    if(parameters.lessonStartTime){
+      query_list.push(` lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
+    }
+
+    if(parameters.lessonEndTime){
+      query_list.push(` lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
+    }
+
+    if(parameters.classStartDate){
+      query_list.push(` classStartDate LIKE '%${parameters.classStartDate}%' `);
+    }
+
     const createdBy = parameters.createdBy;
     if (createdBy) {
       query_string = query_string + ` createdBy =${createdBy} `;
