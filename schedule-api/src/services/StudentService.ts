@@ -124,7 +124,7 @@ export class StudentService {
 
   
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.callStatus, s.callBackon, s.bdaName, s.bdmName,  s.poc,  p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
   let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
   console.log(`query string ${query_list}`);
@@ -199,7 +199,12 @@ export class StudentService {
           element.days,
           element.studentType,
           element.firstFeedback,
-          element.classesStartDate
+          element.classesStartDate,
+          element.callStatus,
+          element.callBackon,
+          element.bdaName,
+          element.bdmName,
+          element.poc,
         );
         leadView.push(l);
       }
@@ -437,7 +442,12 @@ export class StudentService {
     student.assesmentMissed = data.assesmentMissed ;
     student.averageScore = data.averageScore;
     student.batchChange = data.batchChange ;
+    student.callStatus = data.callStatus;
+    student.callBackon = data.callBackon;
+    student.bdaName = data.bdaName;
+    student.bdmName = data.bdmName;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
+    
 
     if (data.studentAvailability) {
       for (let element of  data.studentAvailability) {
@@ -569,6 +579,10 @@ export class StudentService {
     student.assesmentMissed = element.assesmentMissed ;
     student.averageScore = element.averageScore;
     student.batchChange = element.batchChange ;
+    student.callStatus = element.callStatus;
+    student.callBackon = element.callBackon;
+    student.bdaName = element.bdaName;
+    student.bdmName = element.bdmName;
     student.assesmentDate =element.assesmentDate;
 
     usersLogger.info("student record updating is ", student);

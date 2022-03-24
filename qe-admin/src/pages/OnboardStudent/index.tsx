@@ -1,5 +1,6 @@
 import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, DatePicker} from "antd";
 import React, { useState, useEffect } from "react";
+import {EyeOutlined} from "@ant-design/icons";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
@@ -139,6 +140,40 @@ const StudentOnboard: React.FC = () => {
   };
 
 
+  const openNotification = (type: string,  message: string) => {
+    const waMessage = (
+      <div>
+        <p>Hello <br/>
+        I am your Academic Counsellor _______ from The Queen’s English and I am thrilled to inform you that your live classes will be starting on XX/XX/XXXX, you can use the below details to join your classes:<br/>
+        Zoom Link: <br/>
+        Topic: QEXXX<br/>
+        Time: 06:00 PM India<br/>
+        Join Zoom Meeting<br/>
+        <a>https://zoom.us/j/92927339189</a><br/>
+        Meeting ID: 929 2733 9189<br/>
+        Passcode: QE<br/>
+        Days: Monday,Wednesday,Friday<br/>
+        (The details above are recurring and hence you can use the same details to join the class everyday)<br/>
+        Please send “OK” or a “:+1:” to activate the link above.<br/>
+        For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br/>
+        Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।
+        We are really excited to see you soon in class! Happy Learning!_<br/></p>
+      </div>
+    )
+  
+    notification[type]({
+      message: 'Whatsapp message',
+      description: waMessage,
+      style: {
+        width: 720,
+      },
+      duration: 0,
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
+
 
   //edit submit 
   const formSubmit = async (value: any)=>{
@@ -166,6 +201,7 @@ const StudentOnboard: React.FC = () => {
       plastName: value.plastName,
       age: value.age,
       batchCode: value.batchCode,
+      zoomLink: value.zoomLink,
       payment: [{
         paymentid: value.paymentid,
         classessold: value.classessold,
@@ -408,11 +444,31 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Zoom Link',
+      dataIndex: 'zoomLink',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Comments',
       dataIndex: 'comments',
       width: 200,
       editable: true,
       
+    },
+    {
+      title: 'Message',
+      width: 100,
+      render: (value)=>{
+        return(        
+        <a
+          onClick={() => {
+            openNotification('info', value.phoneNumber)
+          }}
+        >
+          <EyeOutlined/>
+        </a>)
+      }
     },
     {
       title: 'Status',

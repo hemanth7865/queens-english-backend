@@ -10,14 +10,13 @@ interface Item {
   name: string;
   phoneNumber: string;
   email: string;
-  status: number;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' ;
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' ;
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -36,8 +35,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const inputNode = () => {
     if(inputType === 'number'){
         return (<Select style={{ width: 120 }} >
-                  <Option value="onboarding">Onboarding</Option>
-                  <Option value="batching">Batching</Option>
+                  <Option value="Kids">Kids</Option>
+                  <Option value="adult">Adult</Option>
                 </Select>)
     }else if(inputType === 'select'){
       return(
@@ -79,6 +78,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="enrolled">Enrolled</Option>
               <Option value="startclasslater">Start Class Later</Option>
               <Option value="batching">Ready to batch</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectCallStatus'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Answered">Answered</Option>
+              <Option value="DNP">DNP</Option>
+              <Option value="Call Back Later">Call Back Later</Option>
+              <Option value="Placement test pending">Placement test pending</Option>
             </Select>
       )
     }
@@ -138,8 +146,34 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-
-
+  const openNotification = (type: string,  message: string) => {
+    const waMessage = (
+      <div>
+        <p>Hello <br/>
+        We're delighted to welcome you aboard The Queen's English.<br/>
+        I'll be your academic counsellor, and my name is ____.<br/>
+        We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br/>
+        Step 1: Go to the Google Play Store and download the app using the following link:     
+        <a>https://queensenglish.co/app</a><br/>
+        User information:<br/>
+        Phone: {message}<br/>
+        Please use your registered phone number to log in (once your classes have started).<br/>
+        We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br/>
+        Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
+      </div>
+    )
+  
+    notification[type]({
+      message: 'Whatsapp message',
+      description: waMessage,
+      style: {
+        width: 720,
+      },
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
 
   //edit submit 
   const formSubmit = async (value: any)=>{
@@ -161,8 +195,14 @@ const StudentOnboard: React.FC = () => {
       classType: value.classType,
       course: value.course,
       startLesson: value.startLesson,
+      startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
+      callStatus: value.callStatus,
+      callBackon: value.callBackon,
+      bdaName: value.bdaName,
+      bdmName: value.bdmName,
+      poc: value.poc,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -177,6 +217,9 @@ const StudentOnboard: React.FC = () => {
 
     }
     console.log("dataForm", dataForm);
+    if(value.status == "startclasslater" || value.status == "batching"){
+      openNotification('info', value.phoneNumber);
+    }
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -186,12 +229,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
+        //openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        openNotificationWithIcon('success', 'Student', '');
+        //openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -249,14 +292,14 @@ const StudentOnboard: React.FC = () => {
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: true,
+      editable: false,
       fixed: 'left',
     },
     {
-      title: 'Student First Name',
+      title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: true,
+      editable: false,
     },
     {
       title: 'Email',
@@ -269,7 +312,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Student Id',
       dataIndex: 'studentID',
       width: 300,
-      editable: true,
+      editable: false,
       
     },
     {
@@ -321,7 +364,12 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'address',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'POC',
+      dataIndex: 'poc',
+      width: 150,
+      editable: true,
     },
     {
       title: 'Class Type',
@@ -342,6 +390,17 @@ const StudentOnboard: React.FC = () => {
       width: 150,
       editable: true,
       
+    },
+    {
+      title: 'Start Date',
+      dataIndex: 'startDate',
+      width: 150,
+      editable: true,
+      render: (value: any)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+      }
     },
     {
       title: 'classess sold',
@@ -374,11 +433,34 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Call Status',
+      dataIndex: 'callStatus',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'PRM Comments',
+      dataIndex: 'callBackon',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDA Name',
+      dataIndex: 'bdaName',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDM Name',
+      dataIndex: 'bdmName',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'BDA Comments',
       dataIndex: 'comments',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Status',
@@ -420,7 +502,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
