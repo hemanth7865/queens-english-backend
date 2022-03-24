@@ -101,6 +101,8 @@ export class Student extends BaseEntity {
   averageScore: string;
   @Column({ nullable: true })
   batchChange: string;
+  @Column({ nullable: true })
+  prm_id: number;
   @Column({ nullable: true, type:"date" })
   assesmentDate: Date;
 
