@@ -55,10 +55,8 @@ const Batch: React.FC<BatchProps> = (props) => {
           fixedFilter.classStartDate = startDate.split("T")[0];
         }
 
-        if(timings && timings.length > 0 && timings.split("-").length > 1){
-          const [lessonStartTime, lessonEndTime] = timings.split("-");
-          fixedFilter.lessonStartTime = lessonStartTime;
-          fixedFilter.lessonEndTime = lessonEndTime;
+        if(timings && timings.length > 0){
+          fixedFilter.lessonStartTime = timings;
         }
 
         return listBatch({

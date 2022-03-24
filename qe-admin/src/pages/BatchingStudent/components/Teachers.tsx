@@ -12,11 +12,14 @@ import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
+import moment from "moment";
 
 export type BatchProps = {
     setSelectedBatch: (v: string) => void;
     selectedBatch: boolean | string;
-    data: {}
+    data: {
+      timings: string
+    }
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
@@ -26,10 +29,23 @@ const Batch: React.FC<BatchProps> = (props) => {
     const [teacherId, setTeacherId] = useState();
 
     async function fetchTeachersList(params: {}) {
+        const defaultFilter: {
+          start_slot?: string;
+          end_slot?: string
+        } = {};
+        if(data?.timings && data?.timings.length > 0){
+          defaultFilter.start_slot = data?.timings.slice(0, 5);
+          let end_slot_info = defaultFilter.start_slot.split(":");
+          if(end_slot_info.length > 1){
+            defaultFilter.end_slot = `${parseInt(end_slot_info[0]) + 1}:${end_slot_info[1]}`;
+          }
+        }
+
         return listTeacherAndStudent({
             type: "teacher",
             ...params,
           // pass the rest of filter params here
+          ...defaultFilter,
         });
     }
 
