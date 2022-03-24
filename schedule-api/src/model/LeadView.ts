@@ -44,8 +44,13 @@ export class LeadView {
   days: string;
   studentType: string;
   firstFeedback: string;
+  courseFrequency: string;
+  timings: string;
   public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
-      ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob?:string|Date, whatsapp?: string, address?: string, classType?: string, payments?: string, age?: string, startDate?: Date, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, studentType?: string, firstFeedback?: string) {
+      ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob?:string|Date, whatsapp?: string, address?: string, classType?: string, 
+      payments?: string, age?: string, startDate?: Date, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, 
+      alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, studentType?: string, 
+      firstFeedback?: string, courseFrequency?: string, timings?: string) {
       this.id = id;
       this.leadId = leadId;
       this.date = date;
@@ -90,5 +95,7 @@ export class LeadView {
       this.days = days;
       this.studentType = studentType;
       this.firstFeedback = firstFeedback;
+      this.courseFrequency = courseFrequency;
+      this.timings = timings;
   }
 }

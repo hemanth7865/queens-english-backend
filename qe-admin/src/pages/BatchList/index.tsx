@@ -57,7 +57,17 @@ const DEFAULT_FORM_DATA = {
   id: "",
   batchAvailability: [{}],
   students: [],
+  frequency: "",
+  zoomInfo: "",
+  zoomLink: "",
 };
+
+const PREMADE_FREQUENCY: {label: string, value: string}[] = [
+  {label: "MWF", value: "MWF"}, 
+  {label: "TTS", value: "TTS"}, 
+  {label: "MTWTF", value: "MTWTF"},
+  {label: "SS", value: "SS"}  
+];
 
 const BatchList: React.FC = () => {
   const url = new URL(window.location.href);
@@ -79,6 +89,7 @@ const BatchList: React.FC = () => {
 
   const [startLesson,setStartLesson] = useState("");
   const [endLesson,setEndLesson] = useState("");
+  const [selectedFrequency,setSelectedFrequency] = useState("");
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -201,6 +212,8 @@ const BatchList: React.FC = () => {
         const dataForm = {
           classCode: formData.classCode,
           batchNumber: formData.batchNumber,
+          zoomLink: formData.zoomLink,
+          zoomInfo: formData.zoomInfo,
           teacherId: teacherName.value,
           startingLessonId: startLesson,
           endingLessonId: endLesson,
@@ -209,6 +222,7 @@ const BatchList: React.FC = () => {
           lessonStartTime: timeRange[0].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
           lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
           ageGroup: selectedAgeGroup,
+          frequency: selectedFrequency,
           followupVersion: followupVersion,
           
           id: createBatch ? null: currentRow?.id,
@@ -286,7 +300,7 @@ const BatchList: React.FC = () => {
           // return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
 
           setFormData({...formData, classCode: batchData.classes.classCode,
-          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion});
+          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo});
           setFollowupVersion(batchData.classes.followupVersion);
         }
         var tempObj = {
@@ -314,6 +328,7 @@ const BatchList: React.FC = () => {
 
         setStartLesson(tempObj?.batchData?.classes?.startingLessonId);
         setEndLesson(tempObj?.batchData?.classes?.endingLessonId);
+        setSelectedFrequency(tempObj?.batchData?.classes?.frequency);
 
         let reformatData: any[] = tempObj?tempObj?.batchData?.students.map((elem: any)=>{
           elem.value = elem.studentId
@@ -834,6 +849,57 @@ const BatchList: React.FC = () => {
                             width: "100%",
                           }}
                         />:<></>}
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                      <Form.Item
+                        name="frequency"
+                        rules={[
+                          { required: true, message: "Select Frequency" },
+                        ]}
+                      >
+                        <Select
+                          mode="tags"
+                          placeholder="Batch Frequency"
+                          maxTagCount={1}
+                          onChange={(v) => setSelectedFrequency(v)}
+                          value={selectedFrequency}
+                          options={PREMADE_FREQUENCY}
+                          defaultValue={!createBatch?prePop?.batchData?.classes?.frequency:''}
+                        />
+                      </Form.Item>
+                    </Col>
+      
+                    <Col span={24}>
+                      <Form.Item
+                        name="zoomLink"
+                        rules={[{ required: true, message: "Zoom Link" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Zoom Link"
+                          name="zoomLink"
+                          value={formData.zoomLink}
+                          defaultValue={formData.zoomLink}
+                          onChange={handleFormChange}
+                        />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                      <Form.Item
+                        name="zoomInfo"
+                        rules={[{ required: true, message: "Zoom Information" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Zoom Information"
+                          name="zoomInfo"
+                          value={formData.zoomInfo}
+                          defaultValue={formData.zoomInfo}
+                          onChange={handleFormChange}
+                        />
                       </Form.Item>
                     </Col>
 

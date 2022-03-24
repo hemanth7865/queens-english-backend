@@ -283,6 +283,9 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
+      classes.frequency = data.frequency;
+      classes.zoomLink = data.zoomLink;
+      classes.zoomInfo = data.zoomInfo;
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -382,8 +385,11 @@ export class BatchService {
       classes.maxAttemptsAllowed = data.maxAttemptsAllowed;
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
+      classes.frequency = data.frequency;
+      classes.zoomLink = data.zoomLink;
+      classes.zoomInfo = data.zoomInfo;
       classes.createdBy = data.createdBy;
-
+      
       if (data.id) {
         classes.id = data.id;
         classes.updated_at = new Date();
@@ -457,6 +463,26 @@ export class BatchService {
     if (batchId) {
       query_string = query_string + ` batchNumber like  '%${batchId}%' `;
       query_list.push(` batchNumber like  '%${batchId}%' `);
+    }
+
+    if(parameters.frequency){
+      query_list.push(` frequency = '${parameters.frequency}' `);
+    }
+
+    if(parameters.startingLessonId){
+      query_list.push(` startingLessonId = '${parameters.startingLessonId}' `);
+    }
+
+    if(parameters.lessonStartTime){
+      query_list.push(` lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
+    }
+
+    if(parameters.lessonEndTime){
+      query_list.push(` lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
+    }
+
+    if(parameters.classStartDate){
+      query_list.push(` classStartDate LIKE '%${parameters.classStartDate}%' `);
     }
 
     const createdBy = parameters.createdBy;
@@ -584,6 +610,8 @@ export class BatchService {
         classes.endingLessonId,
         classes.lessonStartTime,
         classes.lessonEndTime,
+        classes.zoomLink,
+        classes.zoomInfo,
       );
       batchView.push(view);
     }

@@ -10,6 +10,7 @@ import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
+import {LESSONS} from "../../../../config/lessons";
 
 const { TabPane } = Tabs;
 
@@ -21,14 +22,47 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {id} = props.data?props.data:''
+    const {id, timings, startLesson, age, courseFrequency, startDate} = props.data?props.data:''
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
+
+    console.log("lesson", lesson);
+
     async function fetchBatchList(params: {}) {
+        let fixedFilter: {
+          startingLessonId?: string,
+          age?: string,
+          frequency?: string,
+          lessonStartTime?: string, 
+          lessonEndTime?: string,
+          classStartDate?: string
+      } = {}
+        if(lesson?.id){
+          fixedFilter.startingLessonId = lesson.id;
+        }
+
+        if(age && age.length > 0){
+            fixedFilter.age = age;
+        }
+
+        if(courseFrequency && courseFrequency.length > 0){
+          fixedFilter.frequency = courseFrequency;
+        }
+
+        if(startDate && startDate.length > 0){
+          fixedFilter.classStartDate = startDate.split("T")[0];
+        }
+
+        if(timings && timings.length > 0){
+          fixedFilter.lessonStartTime = timings;
+        }
+
         return listBatch({
             ...params,
-            // pass the rest of filter params here
+            // pass th rest of filter params here
+            ...fixedFilter
         });
     }
 

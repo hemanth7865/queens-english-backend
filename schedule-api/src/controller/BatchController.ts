@@ -51,6 +51,12 @@ export class BatchController {
             students: request.query['students'],
             date: request.query['date'],
             week_day: request.query['weekday'],
+            startingLessonId: request.query['startingLessonId'],
+            age: request.query['age'],
+            frequency: request.query['frequency'],
+            lessonStartTime: request.query['lessonStartTime'],
+            lessonEndTime: request.query['lessonEndTime'],
+            classStartDate: request.query['classStartDate'],
         }
         let res;
         try {
