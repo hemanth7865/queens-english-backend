@@ -13,8 +13,10 @@ import { User } from "../entity/User";
             studentsList: User[];
             startingLessonId:string;    
             endingLessonId:string;    
+            lessonStartTime:string;    
+            lessonEndTime:string;    
 
-            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string) {
+            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string) {
                 this.id = id;
                 this.date=date;
                 this.batchId=batchId;
@@ -27,6 +29,8 @@ import { User } from "../entity/User";
                 this.studentsList = studentsList;
                 this.startingLessonId = startingLessonId;
                 this.endingLessonId = endingLessonId;
+                this.lessonStartTime = lessonStartTime;
+                this.lessonEndTime = lessonEndTime;
             }          
             
     }

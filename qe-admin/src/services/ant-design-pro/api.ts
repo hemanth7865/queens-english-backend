@@ -363,12 +363,14 @@ export async function removeRule(options?: { [key: string]: any }) {
 //BATCH MANAGEMENT
 //LIST OF USERS
 export async function listTeacherAndStudent(
-  params: {
+  params?: {
     // query
     /** 当前的页码 */
-    current?: 0;
+    current?: 0 | number;
     /** 页面的容量 */
-    pageSize?: 20;
+    pageSize?: 20 | number;
+    type?: string,
+    keyword?: string
   },
   options?: { [key: string]: any },
 ) {
@@ -383,7 +385,7 @@ export async function listTeacherAndStudent(
 // get individual batch - GET
 export async function getIndividualBatch(
   rowid: string,
-  params: {
+  params?: {
     current?: number;
     pageSize?: number;
   },

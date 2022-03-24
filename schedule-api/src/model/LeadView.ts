@@ -18,7 +18,7 @@ export class LeadView {
   type:string;
   batchCode: string;
   studentID: string;
-  dob: string;
+  dob: string | Date;
   whatsapp: string;
   address: string;
   classType: string;
@@ -46,7 +46,7 @@ export class LeadView {
   firstFeedback: string;
   classesStartDate: string;
   public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
-      ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob?:string, whatsapp?: string, address?: string, classType?: string, payments?: string, age?: string, startDate?: string, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, studentType?: string, firstFeedback?: string, classesStartDate?: string) {
+      ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob?:string|Date, whatsapp?: string, address?: string, classType?: string, payments?: string, age?: string, startDate?: string, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, studentType?: string, firstFeedback?: string, classesStartDate?: string) {
       this.id = id;
       this.leadId = leadId;
       this.date = date;

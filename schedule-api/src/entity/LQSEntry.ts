@@ -78,6 +78,10 @@ export class LQSEntry extends BaseEntity {
     subscription: string;
     @Column({ type: "text" })
     subscriptionNo: string;
+    @Column("text")
+    lsqstatus: string;
+    @Column()
+    retry : number;
     @Column({ type: "text" })
     bdaComments: string;
     @CreateDateColumn()

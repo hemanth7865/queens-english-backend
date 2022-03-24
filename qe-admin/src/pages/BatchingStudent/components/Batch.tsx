@@ -1,64 +1,29 @@
-// @ts-nocheck
 import React, {useState, useEffect, useRef} from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Tabs, TimePicker, message, Spin } from 'antd';
-import moment from "moment";
-import {studentBatches, addUserSchedule} from "@/services/ant-design-pro/api";
+import { Col, Row, Form, Button, notification, Tabs, TimePicker, message, Spin } from 'antd';
 import {
-    isPossiblePhoneNumber,
-    isValidPhoneNumber,
-    validatePhoneNumberLength,
-    parsePhoneNumber,
-    getCountries,
-    getCountryCallingCode
-} from 'libphonenumber-js'
-import * as CountryList from 'country-list';
-import {
-    listTeacherAndStudent,
     listBatch,
     addeditbatch,
     getIndividualBatch,
     updateUserStatus
 } from "@/services/ant-design-pro/api";
-import DebounceSelect from "@/components/DebounceSelect";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
+import Teachers from "./Teachers";
 
 const { TabPane } = Tabs;
 
 export type BatchProps = {
-    data: {};
+    data: any;
     visible: boolean;
     setVisible: () =>void;
     onUpdate: () => void;
 };
 
-const {Option} = Select
-
-const Batch: React.FC<EditUserProps> = (props) => {
+const Batch: React.FC<BatchProps> = (props) => {
     const {id} = props.data?props.data:''
-    const [formData, setFormData] = useState({});
-    const [teacherName, setTeacherName] = useState([]);
-    const [batch, setBatch] = useState([]);
-    const [selectedBatch, setSelectedBatch] = useState(false);
+    const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [defaultTeacherOptions, setDefaultTeacherOptions] = useState([]);
-    const [defaultBatchesOptions, setDefaultBatchesOptions] = useState([]);
-
-    async function fetchTeachersList(username: string) {
-        return listTeacherAndStudent({
-          type: 'teacher',
-          current: 1,
-          pageSize: 5,
-          keyword: username,
-          // pass the rest of filter params here
-        }).then((body) =>
-            body.data.map((user) => ({
-              label: `${user.name}`,
-              value: user.id,
-            }))
-        );
-    }
 
     async function fetchBatchList(params: {}) {
         return listBatch({
@@ -67,35 +32,11 @@ const Batch: React.FC<EditUserProps> = (props) => {
         });
     }
 
-    async function fetchAllBatchList(b: string) {
-        return listBatch({
-            current: 1,
-            pageSize: 5,
-            batchId: b,
-            // pass the rest of filter params here
-        }).then((body) =>
-            body.data.map((b) => ({
-                label: b.batchId,
-                value: b.id,
-            })
-        ));
-    }
-
     useEffect(() => {
-        setTeacherName([]);
-        setBatch([]);
         setSelectedBatch(false);
-
-        fetchTeachersList().then(data => {
-            setDefaultTeacherOptions(data);
-        });
-
-        fetchBatchList().then(data => {
-            setDefaultBatchesOptions(data);
-        });
     } , [id]);
 
-    const openNotificationWithIcon = (type, msg = { status: 200, data: 'Error received during adding batch' }) => {
+    const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
         notification[type]({
           message: `Status ${type}` ,
           description:
@@ -120,33 +61,28 @@ const Batch: React.FC<EditUserProps> = (props) => {
         return msg;
     }
 
-
-    const handleInputChange = (event: { target: { name: any; value: any; }; })=>{
-        console.log('val', event.target.value, event)
-        // event.defaultPrevented
-        setFormData((value)=>({
-            ...value,
-            [event.target.name]: event.target.value
-        }))
-    }
-
     const onFinish = async () => {
         let dataForm = {}
         let success = true;
         setIsLoading(true);
 
-        if (id) {
+        if (id && typeof selectedBatch === 'string') {
             try {
                 const batchDetails = await (await getIndividualBatch(selectedBatch)).data;
 
+                // @ts-ignore-next-line
                 dataForm = {...batchDetails.classes, edit: true, students: [{value: id}], batchAvailability: [{}]};
-
+                // @ts-ignore-next-line
                 if(dataForm.teacher){
+                    // @ts-ignore-next-line
                     delete dataForm.teacher;
                 }
 
+                    // @ts-ignore-next-line
                 for(let student of batchDetails.students){
+                    // @ts-ignore-next-line
                     if(!dataForm.students.filter(s => s.value === student.id).length > 0){
+                        // @ts-ignore-next-line
                         dataForm.students.push({value: student.studentId})
                     }
                 }
@@ -164,7 +100,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
                         setIsLoading(false);
                         message.error(msg.data[0].message);
                     }else{
-                        openNotificationWithIcon('success', {data: "Completed Adding Student To Batch, Marking Student As Onboard..."});
+                        openNotificationWithIcon('success', {data: "Completed Adding Student To Batch, Marking Student As Onboard...", status: 200});
 
                         const result = await submitUpdateStudent({...props.data, status: "onboarding"});
 
@@ -173,7 +109,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
                         }
                     }
                 }else{
-                    openNotificationWithIcon('error', {data: "Failed To Complete Adding Student To Batch"});
+                    openNotificationWithIcon('error', {data: "Failed To Complete Adding Student To Batch", status: 400});
                     success = false;
                 }
             } catch (error) {
@@ -184,6 +120,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
         }
         setIsLoading(false);
         if(success){
+            // @ts-ignore-next-line
             props.setVisible(false)
             setTimeout(() => {
                 window.location.reload()
@@ -244,11 +181,14 @@ const Batch: React.FC<EditUserProps> = (props) => {
             return (
               <a
                 onClick={() => {
+                    // @ts-ignore-next-line
                     setSelectedBatch(dom.id);
-                    console.log(dom, dom.id);
                 }}
               >
-                {selectedBatch === dom.id ? "Selected" : "Select"} 
+                {
+                    // @ts-ignore-next-line
+                    selectedBatch === dom?.id ? "Selected" : "Select"
+                } 
               </a>
             );
           },
@@ -281,59 +221,7 @@ const Batch: React.FC<EditUserProps> = (props) => {
                     </Row>
                 </TabPane>
                 <TabPane tab="Teacher" key="2"> 
-                    <Row gutter={16}>
-                        <Col span={16}>
-                            <Form.Item name="teacherId">
-                                <DebounceSelect
-                                    key={defaultTeacherOptions.length}
-                                    showSearch
-                                    value={teacherName}
-                                    placeholder="Select teacher"
-                                    fetchOptions={fetchTeachersList}
-                                    options = {defaultTeacherOptions}
-                                    onChange={(newValue) => {
-                                        setTeacherName(newValue);
-                                        console.log("teacherDeb", newValue);
-                                    }}
-                                    style={{
-                                        width: "100%",
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col offset={1} span={7}>
-                            <Button
-                                size="default"
-                                onClick={() => {
-                                    window.open(window.location.origin + `/manage/batch?teacherId=${teacherName.value}&teacherName=${teacherName.label}&add=1`, '_blank').focus();
-                                }}
-                                disabled={!teacherName || teacherName.length < 1}
-                                type="primary"
-                            >
-                                Add New Batch
-                            </Button>
-                        </Col>
-                        <Col span={24} key={teacherName.length}>
-                            <p>Please Select Student Batch From Here After Completing Batch Creation.</p>
-                            <Form.Item name="batchId">
-                                <DebounceSelect
-                                    key={defaultBatchesOptions.length}
-                                    showSearch
-                                    value={batch}
-                                    placeholder="Select Batch"
-                                    fetchOptions={fetchAllBatchList}
-                                    options = {[]}
-                                    onChange={(newValue) => {
-                                        setSelectedBatch(newValue.value)
-                                        setBatch(newValue);
-                                    }}
-                                    style={{
-                                        width: "100%",
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                    <Teachers data={props.data} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch} />
                 </TabPane>
             </Tabs>
             

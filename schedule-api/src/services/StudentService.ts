@@ -124,13 +124,7 @@ export class StudentService {
 
   
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} limit ` ;
-    
-
-  finalQuery = finalQuery +  (offset >= 0 ? offset * limit : 0) +
-  "," +
-  (limit >= 0 ? limit : 20) +
-  `;`;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, p.paymentid from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
   let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
   console.log(`query string ${query_list}`);
@@ -331,59 +325,47 @@ export class StudentService {
     return {status: 400, data: "Failed To Update User Status"};
   }
 
-  async saveStudentSQL(data: any, id) {
-    usersLogger.info(
-      `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
-    );
-    try {
-      var teacherAvailability: TeacherAvailability[] = [];
-      var studentAvailability: StudentAvailability[] = [];
-      var teacherItem: Teacher[] = [];
-      var teacher = new Teacher();
-      var user = new User();
-      console.log('type', data.type);
-      console.log('Data is ', data);
-      user.firstName = data.firstName;
-      user.lastName = data.lastName;
-      user.gender = data.gender;
-      user.phoneNumber = data.phoneNumber;
-      user.email = data.email;
-      user.type = data.type;
-      if (data.id) {
-        user.id = data.id;
-        usersLogger.info(
-          `Userid : ${data.id}`
-        );
-        usersLogger.info(
-          `id : ${data.id}`
-        );
-      } else {
-        user.id = id;
-      }
-     user.startDate = data.startDate;
-      user.address = data.address;
-      user.whatsapp = data.whatsapp;
+  mapStudentData(data: any, id: string) {
+    let payments: any[] = [];
+    let studentAvailability: any[] = [];
 
-     
-      if (data.dob) {
-        console.log('dob is');
-        console.log(data.dob);
+    let user = new User();
+    user.firstName = data.firstName;
+    user.lastName = data.lastName;
+    user.gender = data.gender;
+    user.phoneNumber = data.phoneNumber;
+    user.email = data.email;
+    user.type = data.type;
+
+    if (data.id) {
+      user.id = data.id;
+      usersLogger.info(
+        `Userid : ${data.id}`
+      );
+      usersLogger.info(
+        `id : ${data.id}`
+      );
+    } else {
+      user.id = id;
+    }
+
+    user.startDate = data.startDate;
+    user.address = data.address;
+    user.whatsapp = data.whatsapp;
+
+    if (data.dob) {
       user.dob = data.dob;
-      }
-      user.status = data.status;
-      user.photo = data.photo;
-      user.languages = data.languages;
-      user.created_at = new Date();
-      user.updated_at = new Date();
-     // console.log("user", user);
-     usersLogger.info(`user data is ${JSON.stringify(user)}`);
-      user = await this.usersRepository.save(user);
-      usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
-      let student = new Student();
-      let payment = new Payment();
+    }
+    user.status = data.status;
+    user.photo = data.photo;
+    user.languages = data.languages;
+    user.created_at = new Date();
+    user.updated_at = new Date();
+
+    let student = new Student();
+    let payment = new Payment();
 
     if (user.id) {
-      usersLogger.info(`Student Id is ${JSON.stringify(user.id)}`);
       student.id = user.id;
       student.updated_at = new Date();
     } else {
@@ -393,6 +375,9 @@ export class StudentService {
 
     if (data.payment) {
       for (let element of data.payment) {
+        if(element.dateofsale?.length < 5){
+          continue;
+        }
         if (element.id) {
           payment.id = element.id;
         }
@@ -407,12 +392,9 @@ export class StudentService {
         payment.downpayment = element.downpayment ? element.downpayment : 0;
         payment.duedate = element.duedate;
         payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments: 0;
-        payment =  await this.paymentRepository.save(payment);
-        user.payment = [payment];
-        usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+        payments.push(payment);
       }
     }
-
 
     student.teacherName = data.teacherName;
     student.studentName = data.studentName;
@@ -455,16 +437,10 @@ export class StudentService {
     student.assesmentMissed = data.assesmentMissed ;
     student.averageScore = data.averageScore;
     student.batchChange = data.batchChange ;
-    student.assesmentDate = data.assesmentDate;
+    student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
 
-
-      student = await this.studentRepository.save(student);
-
-      
-    let i = 0;
     if (data.studentAvailability) {
       for (let element of  data.studentAvailability) {
-      //data.leadAvailability.forEach(async (element) => {
         var availability = new StudentAvailability();
         availability.start_date = element.startDate;
         availability.start_slot = element.start_slot;
@@ -485,26 +461,56 @@ export class StudentService {
 
         availability.weekday = element.weekday;
         if (element.id) availability.id = element.id;
-//        availability.student = student;
-        availability.created_at = new Date();
-        availability.updated_at = new Date();
-        availability = await this.studentAvailabilityRepository.save(
-          availability
-        );
-        availability.start_slot = element.start_slot;
-        availability.end_slot = element.end_slot;
-        studentAvailability[i++] = availability;
-      }
+          availability.created_at = new Date();
+          availability.updated_at = new Date();
+          availability.start_slot = element.start_slot;
+          availability.end_slot = element.end_slot;
+          studentAvailability.push(availability);
+        }
     }
 
-    console.log("leadAvailability", teacherAvailability);
+    return {student, payments, user, studentAvailability};
+  }
 
-  user.teacherAvailability = teacherAvailability;
-  user.studentAvailability = studentAvailability;
-    
+  async saveStudentSQL(data: any, id) {
+    usersLogger.info(
+      `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
+    );
+    try {
+      var studentAvailabilityList: StudentAvailability[] = [];
+      var teacherAvailability: TeacherAvailability[] = [];
+
+      const UserData = this.mapStudentData(data, id);
+
+      let {user, payments, studentAvailability, student} = UserData;
+
+      usersLogger.info(`user data is ${JSON.stringify(user)}`);
+      user = await this.usersRepository.save(user);
+      usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
+
+      for (let element of payments) {
+          const payment =  await this.paymentRepository.save(element);
+          user.payment = [payment];
+          usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+      }
+
+      student = await this.studentRepository.save(student);
+
+      if (studentAvailabilityList) {
+        for (let element of  studentAvailability) {
+          let availability = await this.studentAvailabilityRepository.save(
+            element
+          );
+          studentAvailabilityList.push(availability);
+        }
+      }
+  
+      console.log("leadAvailability", teacherAvailability);
+  
+      user.teacherAvailability = teacherAvailability;
+      user.studentAvailability = studentAvailability;
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
-      //user.id = student.id; 
      
       return {...user};
     } catch (error) {

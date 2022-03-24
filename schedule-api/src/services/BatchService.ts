@@ -33,7 +33,20 @@ export class BatchService {
     axios.defaults;
   }
 
+  fixDate(date: string): string {
+    let dates = date.split("-");
+    if(dates[1]){
+      if(dates[1].length < 2){
+        dates[1] = "0"+dates[1];
+      }
+
+      date = dates.join("-");
+    }
+    return date;
+  }
+
   async createBatch(data: any) {
+    const moment = require("moment");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
@@ -72,6 +85,22 @@ export class BatchService {
       data.followupVersion = data.followupVersion || "v2";
       data.version = data.version || "v2";
       data.maxAttemptsAllowed = data.maxAttemptsAllowed || -1;
+
+      data.classStartDate =  this.fixDate(data.classStartDate);
+      data.classEndDate =  this.fixDate(data.classEndDate);
+      data.lessonStartTime =  this.fixDate(data.lessonStartTime);
+      data.lessonEndTime =  this.fixDate(data.lessonEndTime);
+
+      const dateValidate = [
+        moment(data.classStartDate).format("YYYY-MM-DD"),
+        moment(data.classEndDate).format("YYYY-MM-DD"),
+        moment(data.lessonStartTime).format("YYYY-MM-DD"),
+        moment(data.lessonEndTime).format("YYYY-MM-DD"),
+      ];
+
+      if(dateValidate.includes("Invalid date")){
+        return { status: false, message: "Invalid Date", data: dateValidate };
+      }
 
       let alreadyExists;
 
@@ -487,7 +516,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC limit ${current >= 0 ? current : 0}, ${pageSize >= 0 ? pageSize : 20};`;
+    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -552,7 +581,9 @@ export class BatchService {
         status,
         students,
         classes.startingLessonId,
-        classes.endingLessonId
+        classes.endingLessonId,
+        classes.lessonStartTime,
+        classes.lessonEndTime,
       );
       batchView.push(view);
     }

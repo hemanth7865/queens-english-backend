@@ -212,4 +212,12 @@ export const Routes = [
     action: "getAssessmentDetail",
     authenticate:true
   },
+  {
+    method: "post",
+    route: "/availableTeachers",
+    controller: UserController,
+    action: "availableTeachers",
+    authenticate:true
+  },
+
 ];

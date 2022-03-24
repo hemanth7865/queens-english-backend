@@ -26,6 +26,7 @@ import {
   notification,
   Alert,
   Space,
+  Spin
 } from "antd";
 import React, { useState, useRef, useEffect } from "react";
 import { useIntl, FormattedMessage } from "umi";
@@ -47,15 +48,15 @@ import ProDescriptions from "@ant-design/pro-descriptions";
 import type { FormValueType } from "./components/UpdateForm";
 import UpdateForm from "./components/UpdateForm";
 import {
-  // rule,
-  addRule,
-  updateRule,
-  removeRule,
   teacherBatches,
   addTeacherSchedule,
   teacherBatchesView,
   teacherRemove,
 } from "@/services/ant-design-pro/api";
+
+import {
+  handleAPIResponse
+} from "@/services/ant-design-pro/helpers";
 
 import Icon from "@ant-design/icons";
 import "./index.css";
@@ -64,86 +65,11 @@ import moment from "moment";
 import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
 
-/**
- * @en-US Add node
- * @zh-CN 添加节点
- * @param fields
- */
-const handleAdd = async (fields: API.RuleListItem) => {
-  const hide = message.loading("正在添加");
-  try {
-    await addRule({ ...fields });
-    hide();
-    message.success("Added successfully");
-    return true;
-  } catch (error) {
-    hide();
-    message.error("Adding failed, please try again!");
-    return false;
-  }
-};
 
-/**
- * @en-US Update node
- * @zh-CN 更新节点
- *
- * @param fields
- */
-const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading("Configuring");
-  try {
-    await updateRule({
-      name: fields.name,
-      desc: fields.desc,
-      key: fields.key,
-    });
-    hide();
-
-    message.success("Configuration is successful");
-    return true;
-  } catch (error) {
-    hide();
-    message.error("Configuration failed, please try again!");
-    return false;
-  }
-};
 const DEFAULT_COUNTRY_CODE_NUMBER = "91";
 const allCountries = CountryList.getData()
 
 const defaultCountry = allCountries.filter(country => country.name === 'India')
-
-/**
- *  Delete node
- * @zh-CN 删除节点
- *
- * @param selectedRows
- */
-const handleRemove = async (selectedRows: API.RuleListItem[]) => {
-  const hide = message.loading("正在删除");
-  if (!selectedRows) return true;
-  try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
-    });
-    hide();
-    message.success("Deleted successfully and will refresh soon");
-    return true;
-  } catch (error) {
-    message.error("Delete failed, please try again");
-    return false;
-  }
-};
-
-const openNotificationWithIcon = (type) => {
-  notification[type]({
-    message:
-      type == "error" ? "Failed to add teacher" : "Success! Teacher Added",
-    description: "",
-  });
-  setTimeout(() => {
-    window.location.reload();
-  }, 1000);
-};
 
 const TeacherBatchList: React.FC = () => {
   /**
@@ -152,6 +78,7 @@ const TeacherBatchList: React.FC = () => {
    *  */
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [error, setError] = useState('') 
+  const [isLoading, setIsLoading] = useState(false) 
 
   /**
    * @en-US The pop-up window of the distribution update window
@@ -199,7 +126,7 @@ const TeacherBatchList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
- const [selectCountryCode, setSelectCountryCode] = useState('')
+  const [selectCountryCode, setSelectCountryCode] = useState('')
   const [selectCountry, setSelectCountry] = useState('')
 
   //state for select option
@@ -244,11 +171,14 @@ const TeacherBatchList: React.FC = () => {
     } else {
       setError('Phone number is Invalid')
     }
+
+    console.log("phoneNumber", number, message, event.target.name);
+
     if (message === true && msg === undefined) {
       console.log(`valid mobile number for ${selectCountry}`)
       setFormData((value) => ({
         ...value,
-        [event.target.name]: event.target.value
+        [event.target.name]: number
       }))
     }
     if (message === false && msg === undefined) {
@@ -267,15 +197,6 @@ const TeacherBatchList: React.FC = () => {
     setVisibleEdit(false);
   };
 
-  //edit drawer
-
-  // const showChildrenDrawer = () => {
-  //   setchildrenDrawer(true);
-  // };
-
-  // const onChildrenDrawerClose = () => {
-  //   setchildrenDrawer(false);
-  // };
   /**
    * @en-US International configuration
    * @zh-CN 国际化配置
@@ -583,13 +504,14 @@ const TeacherBatchList: React.FC = () => {
 
   const handleFormSubmit = async () => {
     console.log("form submitted");
+    setIsLoading(true);
     var code = selectCountryCode?selectCountryCode:'91';
     const dataForm = {
       teacherId: formData.teacherId,
       firstName: formData.firstName,
       lastName: formData.lastName,
       dob: dateBirth,
-      phoneNumber: '+' +code + formData.phoneNumber,
+      phoneNumber: formData.phoneNumber,
       email: formData.email,
       address: formData.address,
       whatsapp: formData.whatsapp,
@@ -625,21 +547,14 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg) {
-        openNotificationWithIcon("success");
-      }
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-      }
-      console.log(msg);
+
+      handleAPIResponse(msg, "Teacher Added Successfully", "Failed To Add Teacher");
     } catch (error) {
-      console.log("addRule error", error);
-      openNotificationWithIcon("error");
+      handleAPIResponse({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
       message.error("Add Teacher Error");
     }
     setVisible(false);
-    // console.log('formData', formData);
-    console.log("dataForm", JSON.stringify(dataForm));
+    setIsLoading(false);
   };
 
   const handleCountry = (value) => {
@@ -657,6 +572,7 @@ const TeacherBatchList: React.FC = () => {
 
 
   const handleFormSubmitEdit = async () => {
+    setIsLoading(true);
     console.log("form submitted");
     const dataForm = {
       teacherId: formData.teacherId
@@ -727,26 +643,14 @@ const TeacherBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
-        openNotificationWithIcon("success");
-      }
-      if (msg) {
-        openNotificationWithIcon("success");
-      }
-      console.log(msg);
-      // 如果失败去设置用户错误信息
-      // setUserLoginState(msg);
+
+      handleAPIResponse(msg, "Teacher Updated Successfully", "Failed To Update Teacher");
     } catch (error) {
-      console.log("addRule error", error);
       message.error("Add Teacher Error");
-      if (msg) {
-        openNotificationWithIcon("error");
-      }
+      handleAPIResponse({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
     }
-    console.log("formData", formData);
-    console.log("dataForm", dataForm);
     onClose();
+    setIsLoading(false);
   };
 
   let leadAvailabilities = [];
@@ -951,32 +855,7 @@ const TeacherBatchList: React.FC = () => {
   };
   useEffect(() => {
     defaultValues();
-  }, [
-    tempDataView.firstName,
-    tempDataView.lastName,
-    // tempDataView.teacher &&
-    //   tempDataView.teacher.map(function (lead, i) {
-    //     return lead.joiningdate;
-    //   }),
-    // tempDataView.startDate,
-    // tempDataView.gender,
-    // tempDataView.phoneNumber,
-    // tempDataView.whatsApp,
-    // tempDataView.email,
-    // tempDataView.address,
-    // tempDataView.nationalityId,
-    // tempDataView.category,
-    // tempDataView.teacher &&
-    //   tempDataView.teacher.map(function (lead, i) {
-    //     return lead.qualification;
-    //   }),
-    // tempDataView.teacher &&
-    //   tempDataView.teacher.map(function (lead, i) {
-    //     return lead.totalexp;
-    //   }),
-    // tempDataView.type,
-    // tempDataView.languages,
-  ]);
+  }, [ tempDataView.firstName, tempDataView.lastName]);
 
   return (
     <PageContainer>
@@ -993,11 +872,6 @@ const TeacherBatchList: React.FC = () => {
         }}
         request={teacherBatches}
         columns={columns}
-        // rowSelection={{
-        //   onChange: (_, selectedRows) => {
-        //     setSelectedRows(selectedRows);
-        //   },
-        // }}
         toolBarRender={() => [
           <Button type="primary" key="primary" onClick={showDrawer}>
             Add Teacher
@@ -1009,254 +883,256 @@ const TeacherBatchList: React.FC = () => {
             visible={visible}
             width={820}
           >
-            <Form onFinish={handleFormSubmit}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="first name"
+            <Spin spinning={isLoading}>
+              <Form onFinish={handleFormSubmit}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="first name"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter first Name",
+                        },
+                      ]}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="First Name"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="last Name"
+                      rules={[
+                        { required: true, message: "Please enter last Name" },
+                      ]}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="Last Name"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  {/* joining and start date */}
+
+                  <Col span={12}>
+                    <Form.Item name="joiningDate">
+                      <DatePicker
+                        placeholder="Joining Date"
+                        style={{ width: "370px" }}
+                        onChange={(date, dateString) => {
+                          setDateJoining(dateString);
+                        }}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="startDate">
+                      <DatePicker
+                        placeholder="Start Date"
+                        style={{ width: "370px" }}
+                        onChange={(date, dateString) => {
+                          setDateStart(dateString);
+                        }}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  {/* Date of Birth and gender */}
+
+                  <Col span={12}>
+                    <Form.Item name="dateOfBirth">
+                      <DatePicker
+                        placeholder="Date of Birth"
+                        style={{ width: "370px" }}
+                        onChange={(date, dateString) => {
+                          setDateOfBirth(dateString);
+                        }}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="gender">
+                      <Select
+                        placeholder="Gender"
+                        name="gender"
+                        onChange={handleSelectChange}
+                      >
+                        <Option value="Male">Male</Option>
+                        <Option value="Female">Female</Option>
+                        <Option value="Not Applicable">Not Applicable</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+
+                  
+                  {/* Mobile and Whatsup */}
+
+                  <Col span={12}>
+                    <Form.Item
+                      name="phoneNumber"
+                      rules={[
+                        { required: true, message: "Please enter mobile number" },
+                      ]}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="phoneNumber"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleMobileChange}
+                      //  prefix = {selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="whatsApp">
+                      <Input
+                        type="text"
+                        placeholder="WhatsApp"
+                        name="whatsapp"
+                        value={formData.whatsapp}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  {/* Email and address */}
+
+                  <Col span={12}>
+                    <Form.Item name="email" 
                     rules={[
                       {
                         required: true,
-                        message: "Please enter first Name",
+                        message: "Please enter Email",
                       },
-                    ]}
-                  >
-                    <Input
-                      type="text"
-                      placeholder="First Name"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="last Name"
-                    rules={[
-                      { required: true, message: "Please enter last Name" },
-                    ]}
-                  >
-                    <Input
-                      type="text"
-                      placeholder="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                    ]}>
+                      <Input
+                        type="text"
+                        placeholder="Email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="address">
+                      <Input
+                        type="text"
+                        placeholder="Address"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-                {/* joining and start date */}
+                  {/* Nationality and category */}
+                  <Col span={12}>
+                    <Form.Item name="category">
+                      <Input
+                        type="text"
+                        placeholder="Category"
+                        name="category"
+                        value={formData.category}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-                <Col span={12}>
-                  <Form.Item name="joiningDate">
-                    <DatePicker
-                      placeholder="Joining Date"
-                      style={{ width: "370px" }}
-                      onChange={(date, dateString) => {
-                        setDateJoining(dateString);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="startDate">
-                    <DatePicker
-                      placeholder="Start Date"
-                      style={{ width: "370px" }}
-                      onChange={(date, dateString) => {
-                        setDateStart(dateString);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
+                  {/* Education/Qualification and total experience */}
 
-                {/* Date of Birth and gender */}
+                  <Col span={12}>
+                    <Form.Item name="qualification">
+                      <Input
+                        type="text"
+                        placeholder="Education/Qualification"
+                        name="education"
+                        value={formData.education}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="totalExperience">
+                      <Input
+                        type="text"
+                        placeholder="Total Experience"
+                        name="experience"
+                        value={formData.experience}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-                <Col span={12}>
-                  <Form.Item name="dateOfBirth">
-                    <DatePicker
-                      placeholder="Date of Birth"
-                      style={{ width: "370px" }}
-                      onChange={(date, dateString) => {
-                        setDateOfBirth(dateString);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="gender">
-                    <Select
-                      placeholder="Gender"
-                      name="gender"
-                      onChange={handleSelectChange}
-                    >
-                      <Option value="Male">Male</Option>
-                      <Option value="Female">Female</Option>
-                      <Option value="Not Applicable">Not Applicable</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
+                  {/* Teacher Type and Language Known */}
+                  <Col span={12}>
+                    <Form.Item name="languageKnown">
+                      <Input
+                        type="text"
+                        placeholder="Languages Known"
+                        name="languagesKnown"
+                        value={formData.languages}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-               
-                {/* Mobile and Whatsup */}
+                  {/* status */}
 
-                <Col span={12}>
-                  <Form.Item
-                    name="phoneNumber"
-                    rules={[
-                      { required: true, message: "Please enter mobile number" },
-                    ]}
-                  >
-                    <Input
-                      type="text"
-                      placeholder="phoneNumber"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleMobileChange}
-                    //  prefix = {selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="whatsApp">
-                    <Input
-                      type="text"
-                      placeholder="WhatsApp"
-                      name="whatsapp"
-                      value={formData.whatsapp}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
+                  <Col span={24}>
+                    <Form.Item name="status">
+                      <Select
+                        placeholder="Status"
+                        onChange={(value) => {
+                          setSelectStatus(value);
+                        }}
+                      >
+                        <Option value="1">Active</Option>
+                        <Option value="2">Leave</Option>
+                        <Option value="3">On Hold</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+                {/* Availability */}
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item name="leadAvailability">
+                      <label>Week Availability</label>
+                      <WeekdayAvailability weekday={1} week="Monday" />
+                      <WeekdayAvailability weekday={2} week="Tuesday" />
+                      <WeekdayAvailability weekday={3} week="Wednesday" />
+                      <WeekdayAvailability weekday={4} week="Thursday" />
+                      <WeekdayAvailability weekday={5} week="Friday" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="leadAvailability">
+                      <label>Weekend Availability</label>
+                      <WeekdayAvailability weekday={6} week="Saturday" />
+                      <WeekdayAvailability weekday={7} week="Sunday" />
+                    </Form.Item>
+                  </Col>
+                </Row>
 
-                {/* Email and address */}
-
-                <Col span={12}>
-                  <Form.Item name="email" 
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter Email",
-                    },
-                  ]}>
-                    <Input
-                      type="text"
-                      placeholder="Email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="address">
-                    <Input
-                      type="text"
-                      placeholder="Address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Nationality and category */}
-                <Col span={12}>
-                  <Form.Item name="category">
-                    <Input
-                      type="text"
-                      placeholder="Category"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Education/Qualification and total experience */}
-
-                <Col span={12}>
-                  <Form.Item name="qualification">
-                    <Input
-                      type="text"
-                      placeholder="Education/Qualification"
-                      name="education"
-                      value={formData.education}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="totalExperience">
-                    <Input
-                      type="text"
-                      placeholder="Total Experience"
-                      name="experience"
-                      value={formData.experience}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Teacher Type and Language Known */}
-                <Col span={12}>
-                  <Form.Item name="languageKnown">
-                    <Input
-                      type="text"
-                      placeholder="Languages Known"
-                      name="languagesKnown"
-                      value={formData.languages}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* status */}
-
-                <Col span={24}>
-                  <Form.Item name="status">
-                    <Select
-                      placeholder="Status"
-                      onChange={(value) => {
-                        setSelectStatus(value);
-                      }}
-                    >
-                      <Option value="1">Active</Option>
-                      <Option value="2">Leave</Option>
-                      <Option value="3">On Hold</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              {/* Availability */}
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Week Availability</label>
-                    <WeekdayAvailability weekday={1} week="Monday" />
-                    <WeekdayAvailability weekday={2} week="Tuesday" />
-                    <WeekdayAvailability weekday={3} week="Wednesday" />
-                    <WeekdayAvailability weekday={4} week="Thursday" />
-                    <WeekdayAvailability weekday={5} week="Friday" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Weekend Availability</label>
-                    <WeekdayAvailability weekday={6} week="Saturday" />
-                    <WeekdayAvailability weekday={7} week="Sunday" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Input
-                type="submit"
-                value="Add Teacher"
-                style={{ color: "white", backgroundColor: "DodgerBlue" }}
-              />
-            </Form>
+                <Input
+                  type="submit"
+                  value="Add Teacher"
+                  style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                />
+              </Form>
+            </Spin>
           </Drawer>,
         ]}
       />
@@ -1477,7 +1353,7 @@ const TeacherBatchList: React.FC = () => {
             </Row>
           </>
         ) : (
-          <>
+          <Spin spinning={isLoading}>
             <Form onFinish={handleFormSubmitEdit} form={form}>
               <Row gutter={16}>
                 <Col span={12}>
@@ -1544,6 +1420,7 @@ const TeacherBatchList: React.FC = () => {
                 <Col span={12}>
                   <Form.Item name="phoneNumber">
                     <Input type="text" 
+                    name="phoneNumber"
                     onChange={handleFormChange} 
                     //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                     />
@@ -1697,7 +1574,7 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
               </Row>
             </Form>
-          </>
+          </Spin>
         )}
       </Drawer>
     </PageContainer>
