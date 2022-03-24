@@ -100,6 +100,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
+          rules={[
+            {
+              required: true,
+              message: `Add ${title}!`,
+            }
+          ]}
         >
           {inputNode()}
         </Form.Item>
@@ -120,6 +126,7 @@ const StudentOnboard: React.FC = () => {
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
+  const [salesData, setSalesData] = useState();
   const [editingKey, setEditingKey] = useState('');
 
   const isEditing = (record: Item) => record.id === editingKey;
@@ -146,34 +153,8 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string,  message: string) => {
-    const waMessage = (
-      <div>
-        <p>Hello <br/>
-        We're delighted to welcome you aboard The Queen's English.<br/>
-        I'll be your academic counsellor, and my name is ____.<br/>
-        We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br/>
-        Step 1: Go to the Google Play Store and download the app using the following link:     
-        <a>https://queensenglish.co/app</a><br/>
-        User information:<br/>
-        Phone: {message}<br/>
-        Please use your registered phone number to log in (once your classes have started).<br/>
-        We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br/>
-        Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
-      </div>
-    )
-  
-    notification[type]({
-      message: 'Whatsapp message',
-      description: waMessage,
-      style: {
-        width: 720,
-      },
-      onClick: () => {
-        console.log('Notification Clicked!');
-      },
-    });
-  };
+
+
 
   //edit submit 
   const formSubmit = async (value: any)=>{
@@ -220,9 +201,6 @@ const StudentOnboard: React.FC = () => {
 
     }
     console.log("dataForm", dataForm);
-    if(value.status == "startclasslater" || value.status == "batching"){
-      openNotification('info', value.phoneNumber);
-    }
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -242,6 +220,16 @@ const StudentOnboard: React.FC = () => {
     
   }
 
+  function checkProperties(obj) {
+    for (const key in obj) {
+        if (obj[key] == "" || obj[key] == null ){
+            return obj;
+        }else{
+            continue;
+        }
+    }
+}
+
   const studentGetApi = async ()=>{
     try {
       let msg = await studentsDashboard('enrolled', {
@@ -251,15 +239,19 @@ const StudentOnboard: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      setData(msg.data);
-      console.log('view one',msg.data);
+
+      //Logic to get only objects containing null values
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,  ...items}) => items)
+      let nullObj = newArray.map(item=> {
+        return checkProperties(item)
+      }).filter(item => item != undefined)
+      setData(nullObj)
     } catch (error) {
       //console.log("error", error);
     }
   }
 
-
-  //console.log('data', data)
+console.log('null obj', data)
 
   useEffect(async (params: any) => {
   studentGetApi()
@@ -295,14 +287,14 @@ const StudentOnboard: React.FC = () => {
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: false,
+      editable: true,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: false,
+      editable: true,
     },
     {
       title: 'Email',
@@ -315,7 +307,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Student Id',
       dataIndex: 'studentID',
       width: 300,
-      editable: false,
+      editable: true,
       
     },
     {
@@ -352,25 +344,16 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Alternate No',
       dataIndex: 'alternativeMobile',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
       width: 150,
       editable: true,
     },
@@ -379,6 +362,13 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'poc',
       width: 150,
       editable: true,
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      width: 150,
+      editable: true,
+      
     },
     {
       title: 'Class Type',
@@ -561,7 +551,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
+      <h3 style = {{textAlign: "center"}}>Sales Alert/ Missing data</h3>
       <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
@@ -605,19 +595,15 @@ const StudentOnboard: React.FC = () => {
         </div>
       <Form form={form} component={false}>
       <Table
+        bordered
         components={{
           body: {
             cell: EditableCell,
           },
         }}
-        bordered
         dataSource={data}
         columns={mergedColumns}
         rowClassName="editable-row"
-        // pagination={{
-        //   onChange: cancel,
-        // }}
-        //pagination={{ pageSize: 25 }}
         scroll={{ x: 1500 }}
     />
 

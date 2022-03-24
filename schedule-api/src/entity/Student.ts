@@ -81,6 +81,8 @@ export class Student extends BaseEntity {
   comments: string;
   @Column({ nullable: true })
   incentive: string;
+  @Column({ nullable: true, type:"date" })
+  classesStartDate: Date;
   @Column({ nullable: true })
   classesPurchase: string;
   @Column({ nullable: true })
@@ -101,6 +103,14 @@ export class Student extends BaseEntity {
   averageScore: string;
   @Column({ nullable: true })
   batchChange: string;
+  @Column({ nullable: true })
+  callStatus: string;
+  @Column({ nullable: true })
+  callBackon: string;
+  @Column({ nullable: true })
+  bdaName: string;
+  @Column({ nullable: true })
+  bdmName: string;
   @Column({ nullable: true })
   prm_id: number;
   @Column({ nullable: true, type:"date" })

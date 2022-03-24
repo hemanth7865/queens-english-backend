@@ -1,4 +1,5 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Checkbox, DatePicker, Alert} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification} from "antd";
+import {EyeOutlined} from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
@@ -17,7 +18,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' ;
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -35,11 +36,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const inputNode = () => {
     if(inputType === 'number'){
-        return (<Select style={{ width: 120 }} >
-                  <Option value="onboarding">Onboarding</Option>
-                  <Option value="batching">Batching</Option>
-                </Select>)
-    }else if(inputType === 'select'){
+      return (<Select style={{ width: 120 }} >
+                <Option value="Kids">Kids</Option>
+                <Option value="adult">Adult</Option>
+              </Select>)
+  }else if(inputType === 'select'){
       return(
             <Select style={{ width: 120 }} >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
@@ -77,7 +78,16 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
             <Select style={{ width: 120 }} >
               <Option value="startclasslater">Start Class Later</Option>
-              <Option value="enrolled">Welcome Call</Option>
+              <Option value="batching">Batching</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectCallStatus'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Answered">Answered</Option>
+              <Option value="DNP">DNP</Option>
+              <Option value="Call Back Later">Call Back Later</Option>
+              <Option value="Placement test pending">Placement test pending</Option>
             </Select>
       )
     }
@@ -138,16 +148,38 @@ const openNotificationWithIcon = (type: any, userType = 'Student', messageError:
 
 
 
-const notificationForStartDate = (type: any) => {
+const openNotification = (type: string,  message: string) => {
+  const waMessage = (
+    <div>
+      <p>Hello <br/>
+      We're delighted to welcome you aboard The Queen's English.<br/>
+      I'll be your academic counsellor, and my name is ____.<br/>
+      We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br/>
+      Step 1: Go to the Google Play Store and download the app using the following link:     
+      <a>https://queensenglish.co/app</a><br/>
+      User information:<br/>
+      Phone: {message}<br/>
+      Please use your registered phone number to log in (once your classes have started).<br/>
+      We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br/>
+      Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
+    </div>
+  )
+
   notification[type]({
-    message: 'Add a start Date',
+    message: 'Whatsapp message',
+    description: waMessage,
+    style: {
+      width: 720,
+    },
+    duration: 0,
+    onClick: () => {
+      console.log('Notification Clicked!');
+    },
   });
 };
 
-
   //edit submit 
   const formSubmit = async (value: any)=>{
-    if(value.startDate){
       const dataForm = {
         leadId: value.studentID,
         firstName: value.firstName,
@@ -169,6 +201,14 @@ const notificationForStartDate = (type: any) => {
         startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
         pfirstName: value.pfirstName,
         plastName: value.plastName,
+        callStatus: value.callStatus,
+        callBackon: value.callBackon,
+        bdaName: value.bdaName,
+        bdmName: value.bdmName,
+        poc: value.poc,
+        age: value.age,
+        courseFrequency: value.courseFrequency,
+        timings: value.timings,
         payment: [{
           paymentid: value.paymentid,
           studentId: value.studentID,
@@ -199,9 +239,6 @@ const notificationForStartDate = (type: any) => {
       } catch (error) {
         openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
       }
-    }else{
-      notificationForStartDate('error');
-    }
     
     
   }
@@ -308,6 +345,12 @@ const notificationForStartDate = (type: any) => {
       editable: true,
     },
     {
+      title: 'Age',
+      dataIndex: 'age',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Mobile No',
       dataIndex: 'phoneNumber',
       width: 150,
@@ -346,14 +389,24 @@ const notificationForStartDate = (type: any) => {
       dataIndex: 'course',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Starting lesson',
       dataIndex: 'startLesson',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'Course Frequency',
+      dataIndex: 'courseFrequency',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Timings',
+      dataIndex: 'timings',
+      width: 150,
+      editable: true,
     },
     {
       title: 'Start Date',
@@ -367,7 +420,7 @@ const notificationForStartDate = (type: any) => {
       }
     },
     {
-      title: 'No of classess sold',
+      title: 'classess sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true
@@ -397,11 +450,48 @@ const notificationForStartDate = (type: any) => {
       editable: true,
     },
     {
+      title: 'Call Status',
+      dataIndex: 'callStatus',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'PRM Comments',
+      dataIndex: 'callBackon',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDA Name',
+      dataIndex: 'bdaName',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'BDM Name',
+      dataIndex: 'bdmName',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'BDA Comments',
       dataIndex: 'comments',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'Message',
+      width: 100,
+      render: (value)=>{
+        return(        
+        <a
+          onClick={() => {
+            openNotification('info', value.phoneNumber)
+          }}
+        >
+          <EyeOutlined/>
+        </a>)
+      }
     },
     {
       title: 'Status',
@@ -409,11 +499,10 @@ const notificationForStartDate = (type: any) => {
       width: 150,
       editable: true,
       render: (value: string)=>{
-        console.log('value', value)
         if(value == "startclasslater"){
           return "Start Class Later"
         }else{
-           return "Welcome Call"
+           return "Batching"
         }
       }
 
@@ -451,7 +540,7 @@ const notificationForStartDate = (type: any) => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date' : 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
