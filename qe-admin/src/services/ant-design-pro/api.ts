@@ -405,6 +405,12 @@ export async function listBatch(
     current?: number;
     /** 页面的容量 */
     pageSize?: number;
+    startingLessonId?: string,
+    age?: string,
+    frequency?: string,
+    lessonStartTime?: string, 
+    lessonEndTime?: string,
+    classStartDate?: string
   },
   options?: { [key: string]: any },
 ) {

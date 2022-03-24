@@ -1064,7 +1064,7 @@ const StudentsBatchList: React.FC = () => {
                 </Col>
                 
                 { <Col span={12}>
-                  <Form.Item name="status	">
+                  <Form.Item name="status">
                   {console.log('tempDataView.status')}
                     {console.log(tempDataView.status)}
                     <Select
@@ -1081,6 +1081,7 @@ const StudentsBatchList: React.FC = () => {
                       }}
                     >
                       <Option value="Active">Active</Option>
+                      <Option value="enrolled">Entrolled</Option>
                       <Option value="Leave">Leave</Option>
                       <Option value="OnHold">OnHold</Option>
                     </Select>
@@ -2285,6 +2286,7 @@ const StudentsBatchList: React.FC = () => {
                       }}
                     >
                       <Option value="Active">Active</Option>
+                      <Option value="enrolled">Entrolled</Option>
                       <Option value="Leave">Leave</Option>
                       <Option value="OnHold">OnHold</Option>
                     </Select>
