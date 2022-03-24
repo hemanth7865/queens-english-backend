@@ -57,7 +57,9 @@ const DEFAULT_FORM_DATA = {
   id: "",
   batchAvailability: [{}],
   students: [],
-  frequency: ""
+  frequency: "",
+  zoomInfo: "",
+  zoomLink: "",
 };
 
 const PREMADE_FREQUENCY: {label: string, value: string}[] = [
@@ -210,6 +212,8 @@ const BatchList: React.FC = () => {
         const dataForm = {
           classCode: formData.classCode,
           batchNumber: formData.batchNumber,
+          zoomLink: formData.zoomLink,
+          zoomInfo: formData.zoomInfo,
           teacherId: teacherName.value,
           startingLessonId: startLesson,
           endingLessonId: endLesson,
@@ -296,7 +300,7 @@ const BatchList: React.FC = () => {
           // return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
 
           setFormData({...formData, classCode: batchData.classes.classCode,
-          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion});
+          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo});
           setFollowupVersion(batchData.classes.followupVersion);
         }
         var tempObj = {
@@ -867,7 +871,37 @@ const BatchList: React.FC = () => {
                       </Form.Item>
                     </Col>
       
-                    
+                    <Col span={24}>
+                      <Form.Item
+                        name="zoomLink"
+                        rules={[{ required: true, message: "Zoom Link" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Zoom Link"
+                          name="zoomLink"
+                          value={formData.zoomLink}
+                          defaultValue={formData.zoomLink}
+                          onChange={handleFormChange}
+                        />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                      <Form.Item
+                        name="zoomInfo"
+                        rules={[{ required: true, message: "Zoom Information" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Zoom Information"
+                          name="zoomInfo"
+                          value={formData.zoomInfo}
+                          defaultValue={formData.zoomInfo}
+                          onChange={handleFormChange}
+                        />
+                      </Form.Item>
+                    </Col>
 
                     <Col span={24}>
                       <Button
