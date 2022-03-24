@@ -284,6 +284,8 @@ export class BatchService {
       classes.type = data.type;
       classes.createdBy = data.createdBy;
       classes.frequency = data.frequency;
+      classes.zoomLink = data.zoomLink;
+      classes.zoomInfo = data.zoomInfo;
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -384,6 +386,8 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.frequency = data.frequency;
+      classes.zoomLink = data.zoomLink;
+      classes.zoomInfo = data.zoomInfo;
       classes.createdBy = data.createdBy;
       
       if (data.id) {
@@ -606,6 +610,8 @@ export class BatchService {
         classes.endingLessonId,
         classes.lessonStartTime,
         classes.lessonEndTime,
+        classes.zoomLink,
+        classes.zoomInfo,
       );
       batchView.push(view);
     }

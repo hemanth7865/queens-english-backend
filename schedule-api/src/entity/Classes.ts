@@ -84,6 +84,12 @@ export class Classes extends BaseEntity {
     frequency: string;
 
     @Column({ 'nullable': true })
+    zoomLink: string;
+
+    @Column({ 'nullable': true })
+    zoomInfo: string;
+
+    @Column({ 'nullable': true })
     created_at: Date
 
     @Column({ 'nullable': true })
