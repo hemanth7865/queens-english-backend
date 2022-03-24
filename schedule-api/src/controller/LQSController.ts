@@ -19,9 +19,9 @@ export class LQSController {
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var res = await this.lQSService.fetchLQSData(request.body);
         await this.lQSService.createStudents();
-        //Fetch lqs data
-        usersLogger.info("Controller results", res);        
-         usersLogger.info("LQS data fetch :: End");
+      //  await this.lQSService.assignPrm();
+        usersLogger.info("Assign PRM records");        
+        usersLogger.info("LQS data fetch :: End");
 
         return res;
     }
