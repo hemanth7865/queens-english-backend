@@ -12,7 +12,6 @@ import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
-import moment from "moment";
 
 export type BatchProps = {
     setSelectedBatch: (v: string) => void;
