@@ -57,7 +57,15 @@ const DEFAULT_FORM_DATA = {
   id: "",
   batchAvailability: [{}],
   students: [],
+  frequency: ""
 };
+
+const PREMADE_FREQUENCY: {label: string, value: string}[] = [
+  {label: "MWF", value: "MWF"}, 
+  {label: "TTS", value: "TTS"}, 
+  {label: "MTWTF", value: "MTWTF"},
+  {label: "SS", value: "SS"}  
+];
 
 const BatchList: React.FC = () => {
   const url = new URL(window.location.href);
@@ -79,6 +87,7 @@ const BatchList: React.FC = () => {
 
   const [startLesson,setStartLesson] = useState("");
   const [endLesson,setEndLesson] = useState("");
+  const [selectedFrequency,setSelectedFrequency] = useState("");
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -209,6 +218,7 @@ const BatchList: React.FC = () => {
           lessonStartTime: timeRange[0].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
           lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
           ageGroup: selectedAgeGroup,
+          frequency: selectedFrequency,
           followupVersion: followupVersion,
           
           id: createBatch ? null: currentRow?.id,
@@ -314,6 +324,7 @@ const BatchList: React.FC = () => {
 
         setStartLesson(tempObj?.batchData?.classes?.startingLessonId);
         setEndLesson(tempObj?.batchData?.classes?.endingLessonId);
+        setSelectedFrequency(tempObj?.batchData?.classes?.frequency);
 
         let reformatData: any[] = tempObj?tempObj?.batchData?.students.map((elem: any)=>{
           elem.value = elem.studentId
@@ -836,6 +847,27 @@ const BatchList: React.FC = () => {
                         />:<></>}
                       </Form.Item>
                     </Col>
+
+                    <Col span={24}>
+                      <Form.Item
+                        name="frequency"
+                        rules={[
+                          { required: true, message: "Select Frequency" },
+                        ]}
+                      >
+                        <Select
+                          mode="tags"
+                          placeholder="Batch Frequency"
+                          maxTagCount={1}
+                          onChange={(v) => setSelectedFrequency(v)}
+                          value={selectedFrequency}
+                          options={PREMADE_FREQUENCY}
+                          defaultValue={!createBatch?prePop?.batchData?.classes?.frequency:''}
+                        />
+                      </Form.Item>
+                    </Col>
+      
+                    
 
                     <Col span={24}>
                       <Button

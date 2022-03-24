@@ -283,6 +283,7 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
+      classes.frequency = data.frequency;
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -382,8 +383,9 @@ export class BatchService {
       classes.maxAttemptsAllowed = data.maxAttemptsAllowed;
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
+      classes.frequency = data.frequency;
       classes.createdBy = data.createdBy;
-
+      
       if (data.id) {
         classes.id = data.id;
         classes.updated_at = new Date();
