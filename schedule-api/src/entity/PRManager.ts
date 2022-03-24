@@ -1,6 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
 ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn} from "typeorm";
-import { NextVal, EntityWithSequence } from 'typeorm-sequence'
 //import { Lead } from "./Lead";
 
 @Entity("prm")
