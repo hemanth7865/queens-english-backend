@@ -18,7 +18,8 @@ export type BatchProps = {
     setSelectedBatch: (v: string) => void;
     selectedBatch: boolean | string;
     data: {
-      timings: string
+      timings?: string;
+      courseFrequency?: string;
     }
 };
 
@@ -31,7 +32,8 @@ const Batch: React.FC<BatchProps> = (props) => {
     async function fetchTeachersList(params: {}) {
         const defaultFilter: {
           start_slot?: string;
-          end_slot?: string
+          end_slot?: string;
+          weekday?: string
         } = {};
         if(data?.timings && data?.timings.length > 0){
           defaultFilter.start_slot = data?.timings.slice(0, 5);
@@ -39,6 +41,18 @@ const Batch: React.FC<BatchProps> = (props) => {
           if(end_slot_info.length > 1){
             defaultFilter.end_slot = `${parseInt(end_slot_info[0]) + 1}:${end_slot_info[1]}`;
           }
+        }
+
+        if(data?.courseFrequency){
+          let frequencies = {
+            MWF: "1,3,5",
+            SS: "6,0",
+            TTS: "2,4,6",
+            MTWTF: "1,2,3,4,5"
+          };
+
+
+          defaultFilter.weekday = frequencies[data?.courseFrequency] || "";
         }
 
         return listTeacherAndStudent({

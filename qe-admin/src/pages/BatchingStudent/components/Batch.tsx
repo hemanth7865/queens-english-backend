@@ -26,7 +26,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const lesson = LESSONS.filter(l => startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
+    const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
 
     console.log("lesson", lesson);
 

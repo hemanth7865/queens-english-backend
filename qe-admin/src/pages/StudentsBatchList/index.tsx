@@ -1081,6 +1081,7 @@ const StudentsBatchList: React.FC = () => {
                       }}
                     >
                       <Option value="Active">Active</Option>
+                      <Option value="enrolled">Entrolled</Option>
                       <Option value="Leave">Leave</Option>
                       <Option value="OnHold">OnHold</Option>
                     </Select>
@@ -2285,6 +2286,7 @@ const StudentsBatchList: React.FC = () => {
                       }}
                     >
                       <Option value="Active">Active</Option>
+                      <Option value="enrolled">Entrolled</Option>
                       <Option value="Leave">Leave</Option>
                       <Option value="OnHold">OnHold</Option>
                     </Select>
