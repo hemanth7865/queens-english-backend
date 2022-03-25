@@ -22,7 +22,7 @@ export class Payment extends BaseEntity {
     plantype: string;
     @Column("text")
     classtype: string;
-    @Column("text")
+    @Column({ 'nullable': true })
     emi: string;
     @Column({ 'nullable': true })
     classessold: number;

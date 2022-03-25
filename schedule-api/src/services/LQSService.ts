@@ -6,10 +6,12 @@ import { Student } from "../entity/Student";
 import { LQSEntry } from "../entity/LQSEntry";
 import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
+import { randomFill } from "crypto";
 const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time')
 
 export class LQSService {
+  
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
   private LSQ_ACCESS_KEY = process.env.LSQ_ACCESS_KEY;
@@ -35,28 +37,64 @@ export class LQSService {
 
   async createStudents() {
     usersLogger.info('Registering students::Start');
-    const now = new Date();
-    now.setDate(now.getDate() - 1);
-    var lqsEntries = await this.lQSRepository.find({
-      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_ENROLLED,LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_FAILED])},
-    })
+    var lqsEntries = await this.fetchLastDayLSQRecords();
+    var prmsData = await getManager().query('SELECT COUNT(*) as total FROM prm'); 
+    var prmsNo = prmsData.length>0 ? prmsData[0].total:0;    
     usersLogger.info('Loading... data from database');
-    usersLogger.info(lqsEntries);
     lqsEntries.forEach(async (element) => {
-      var customerRecord = element;
       usersLogger.info(element.id);
-      var userDetails = await this.fillLeadDetails(element);
-      element.lsqstatus = "created";
+      var userDetails = await this.fillLeadDetails(element, prmsNo);
+      element.lsqstatus = "created";  
       await this.lQSRepository.save(element);
     })
     usersLogger.info('Created students in Admin portal::End');
+  }
+
+ getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  async assignPrm() {
+    usersLogger.info('Assigning PRM relation::start');
+    var lqsEntries = await this.fetchLastDayPRMRecords();
+    console.log(lqsEntries);
+    var prm = await this.fetchPrmRecords();
+    console.log(prm);
+    usersLogger.info('Created students in Admin portal::End');
+}
+
+
+  async fetchPrmRecords() {
+    usersLogger.info('PRMs count');
+   var prmsCount = await getManager().query('SELECT COUNT(*) as total FROM prm'); 
+   //    console.log(prmsCount);
+  //    var prmsAllotment = await getManager().query('SELECT prm_id, COUNT(*) as total FROM student group by prm_id order by count(*) desc'); 
+  var lqsEntries = await this.fetchLastDayPRMRecords();
+  }
+
+  async fetchLastDayPRMRecords() {
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+    var lqsEntries = await this.lQSRepository.find({
+      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_CREATED,LQSService.LSQ_STATUS_SUCCESS])},
+    })
+    return lqsEntries;
+  }
+
+  async fetchLastDayLSQRecords() {
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+    var lqsEntries = await this.lQSRepository.find({
+      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_ENROLLED,LQSService.LSQ_STATUS_FAILED,LQSService.LSQ_STATUS_SUCCESS])},
+    })
+    return lqsEntries;
   }
 
   /**
    * Fetch data from LSQ
    * @param element 
    */
-  async fillLeadDetails(element: any) {
+  async fillLeadDetails(element: any, count:number) {
     try {
       var user = new User();
       var payment = new Payment();
@@ -100,6 +138,8 @@ export class LQSService {
       student.timings = element.timings;
       student.startLesson = element.startingLevel;
       student.startDate = element.startDate;
+      student.prm_id = this.getRandomArbitrary(1,count);
+    
 
       payment.classessold = element.classessold;
       payment.saleamount = element.saleamount;

@@ -1,5 +1,6 @@
 import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, DatePicker} from "antd";
 import React, { useState, useEffect } from "react";
+import {EyeOutlined} from "@ant-design/icons";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
@@ -11,7 +12,6 @@ interface Item {
   name: string;
   mobile: string;
   email: string;
-  dob: number;
   comments: number;
 }
 
@@ -19,7 +19,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -52,7 +52,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <DatePicker/>
+      return <Input placeholder="YYYY-MM-DD"/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -80,6 +80,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
             <Select style={{ width: 150 }} >
               <Option value="onboarding">Onboarding</Option>
               <Option value="active">Active</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectCallStatus'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Answered">Answered</Option>
+              <Option value="DNP">DNP</Option>
+              <Option value="Call Back Later">Call Back Later</Option>
+              <Option value="Placement test pending">Placement test pending</Option>
             </Select>
       )
     }
@@ -132,13 +141,47 @@ const StudentOnboard: React.FC = () => {
     console.log('TYPE', type, messageError)
     notification[type]({
       message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
-      description: '',
+      description: type === 'error' ? 'Add a valid start Date or Class start Date': '',
     });
     setTimeout(() => {
       window.location.reload()
     }, 1000);
   };
 
+
+  const openNotification = (type: string,  message: string) => {
+    const waMessage = (
+      <div>
+        <p>Hello <br/>
+        I am your Academic Counsellor _______ from The Queen’s English and I am thrilled to inform you that your live classes will be starting on XX/XX/XXXX, you can use the below details to join your classes:<br/>
+        Zoom Link: <br/>
+        Topic: QEXXX<br/>
+        Time: 06:00 PM India<br/>
+        Join Zoom Meeting<br/>
+        <a>https://zoom.us/j/92927339189</a><br/>
+        Meeting ID: 929 2733 9189<br/>
+        Passcode: QE<br/>
+        Days: Monday,Wednesday,Friday<br/>
+        (The details above are recurring and hence you can use the same details to join the class everyday)<br/>
+        Please send “OK” or a “:+1:” to activate the link above.<br/>
+        For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br/>
+        Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।
+        We are really excited to see you soon in class! Happy Learning!_<br/></p>
+      </div>
+    )
+  
+    notification[type]({
+      message: 'Whatsapp message',
+      description: waMessage,
+      style: {
+        width: 720,
+      },
+      duration: 0,
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
 
 
   //edit submit 
@@ -157,27 +200,16 @@ const StudentOnboard: React.FC = () => {
       id: value.studentID,
       type: 'student',
       status: value.status,
-      alternativeMobile: value.alternativeMobile,
-      classType: value.classType,
-      course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      classesStartDate: moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
-      age: value.age,
-      teacherName: value.teacherName,
-      payment: [{
-        paymentid: value.paymentid,
-        classessold: value.classessold,
-        saleamount: value.saleamount,
-        downpayment: value.downpayment,
-        plantype: value.plantype,
-        studentId: value.studentID,
-        classtype:'',
-        leadId: value.studentID,
-        id: value.studentID
-      }]
-
+      batchCode: value.batchCode,
+      callStatus: value.callStatus,
+      callBackon: value.callBackon,
+      courseFrequency: value.courseFrequency,
+      timings: value.timings,
     }
     console.log("dataForm", dataForm);
     try {
@@ -203,7 +235,7 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboard('onboarding', {
           current: 1,
-          pageSize: 20}
+          pageSize: 200}
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -272,10 +304,27 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'studentID',
       width: 300,
       editable: true,
-      
     },
     {
-      title: 'Date of Birth of Student',
+      title: 'Batch Code',
+      dataIndex: 'batchCode',
+      width: 200,
+      editable: true,
+    },
+    {
+      title: 'Course Frequency',
+      dataIndex: 'courseFrequency',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Timings',
+      dataIndex: 'timings',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Date of Birth',
       dataIndex: 'dob',
       width: 150,
       editable: true,
@@ -302,60 +351,18 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
-      
     },
     {
-      title: 'Whatsapp Number',
+      title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
-      
-    },
-    {
-      title: 'Alternate Number',
-      dataIndex: 'alternativeMobile',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Customer Address',
-      dataIndex: 'address',
-      width: 150,
-      editable: true,
-      
-    },
-    {
-      title: 'Teacher Name',
-      dataIndex: 'teacherName',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Class Type',
-      dataIndex: 'classType',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Course',
-      dataIndex: 'course',
-      width: 150,
-      editable: true,
-      
     },
     {
       title: 'Starting lesson',
       dataIndex: 'startLesson',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Start Date',
@@ -367,36 +374,27 @@ const StudentOnboard: React.FC = () => {
           return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
         }
       }
-      
     },
     {
-      title: 'No of classess sold',
-      dataIndex: 'classessold',
+      title: 'Class Start Date',
+      dataIndex: 'classesStartDate',
       width: 150,
       editable: true,
-      
+      render: (value: any)=>{
+        if(value){
+          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+        }
+      }
     },
     {
-      title: 'Total Sale amount',
-      dataIndex: 'saleamount',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Down payment',
-      dataIndex: 'downpayment',
+      title: 'Call Status',
+      dataIndex: 'callStatus',
       width: 150,
       editable: true,
     },
     {
-      title: 'Plan Type',
-      dataIndex: 'plantype',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Payment Id',
-      dataIndex: 'paymentid',
+      title: 'PRM Comments',
+      dataIndex: 'callBackon',
       width: 150,
       editable: true,
     },
@@ -405,7 +403,20 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'comments',
       width: 200,
       editable: true,
-      
+    },
+    {
+      title: 'Message',
+      width: 100,
+      render: (value)=>{
+        return(        
+        <a
+          onClick={() => {
+            openNotification('info', value.phoneNumber)
+          }}
+        >
+          <EyeOutlined/>
+        </a>)
+      }
     },
     {
       title: 'Status',
@@ -446,7 +457,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob1' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus':'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -468,7 +479,7 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
           current: 1,
-          pageSize: 20}
+          pageSize: 200}
       );
       setData(msg.data);
       console.log('search details',msg);
