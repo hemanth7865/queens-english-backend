@@ -28,8 +28,6 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
 
-    console.log("lesson", lesson);
-
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
           startingLessonId?: string,
@@ -66,8 +64,11 @@ const Batch: React.FC<BatchProps> = (props) => {
         });
     }
 
+    const actionRef = useRef<ActionType>();
+
     useEffect(() => {
         setSelectedBatch(false);
+        actionRef?.current?.reload();
     } , [id]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
@@ -161,8 +162,6 @@ const Batch: React.FC<BatchProps> = (props) => {
             }, 1000);
         }
     }
-
-    const actionRef = useRef<ActionType>();
     
     const columns: ProColumns<API.RuleListItem>[] = [
         {
