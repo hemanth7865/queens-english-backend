@@ -515,14 +515,14 @@ const openNotification = (type: string,  message: string) => {
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: true,
+      editable: false,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: true,
+      editable: false,
     },
     {
       title: 'Email',
@@ -535,7 +535,7 @@ const openNotification = (type: string,  message: string) => {
       title: 'Student Id',
       dataIndex: 'studentID',
       width: 300,
-      editable: true,
+      editable: false,
       
     },
     {

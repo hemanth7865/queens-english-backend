@@ -1,9 +1,12 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, DatePicker} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space} from "antd";
 import React, { useState, useEffect } from "react";
 import {EyeOutlined} from "@ant-design/icons";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
+import { PlusOutlined } from '@ant-design/icons';
+import { values } from "lodash";
+
 
 const { Option } = Select;
 
@@ -19,7 +22,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectCourseFrequency' | 'selectTimings';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -48,7 +51,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="DISE - 1:1">DISE - 1:1</Option>
               <Option value="IELTS - Group Class">IELTS - Group Class</Option>
               <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-              <Option value="DEMO249">DEMO249</Option>
             </Select>
       )
     }else if(inputType === 'date'){
@@ -88,8 +90,79 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Answered">Answered</Option>
               <Option value="DNP">DNP</Option>
               <Option value="Call Back Later">Call Back Later</Option>
-              <Option value="Placement test pending">Placement test pending</Option>
             </Select>
+      )
+    }else if(inputType === 'selectCourseFrequency'){
+      const [items, setItems] = useState(['MWF (Course duration - 8 Months)', 'TTS (Course duration - 8 Months)', 'SS (Course duration - 14 Months)', 'MTWTF (Course duration - 5 Months)']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 240 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectTimings'){
+      const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 120 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
       )
     }
     else{
@@ -149,19 +222,19 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string,  message: string) => {
+  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string) => {
     const waMessage = (
       <div>
         <p>Hello <br/>
         I am your Academic Counsellor _______ from The Queen’s English and I am thrilled to inform you that your live classes will be starting on XX/XX/XXXX, you can use the below details to join your classes:<br/>
         Zoom Link: <br/>
         Topic: QEXXX<br/>
-        Time: 06:00 PM India<br/>
+        Time: {timings} India<br/>
         Join Zoom Meeting<br/>
-        <a>https://zoom.us/j/92927339189</a><br/>
+        <a>{zoomLink}</a><br/>
         Meeting ID: 929 2733 9189<br/>
         Passcode: QE<br/>
-        Days: Monday,Wednesday,Friday<br/>
+        Days: {days}<br/>
         (The details above are recurring and hence you can use the same details to join the class everyday)<br/>
         Please send “OK” or a “:+1:” to activate the link above.<br/>
         For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br/>
@@ -206,9 +279,10 @@ const StudentOnboard: React.FC = () => {
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       batchCode: value.batchCode,
+      zoomLink: value.zoomLink,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
-      courseFrequency: value.courseFrequency,
+      courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
     }
     console.log("dataForm", dataForm);
@@ -283,14 +357,14 @@ const StudentOnboard: React.FC = () => {
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: true,
+      editable: false,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: true,
+      editable: false,
     },
     {
       title: 'Email',
@@ -303,18 +377,24 @@ const StudentOnboard: React.FC = () => {
       title: 'Student Id',
       dataIndex: 'studentID',
       width: 300,
-      editable: true,
+      editable: false,
     },
     {
       title: 'Batch Code',
       dataIndex: 'batchCode',
-      width: 200,
+      width: 300,
+      editable: true,
+    },
+    {
+      title: 'Zoom Link',
+      dataIndex: 'zoomLink',
+      width: 300,
       editable: true,
     },
     {
       title: 'Course Frequency',
       dataIndex: 'courseFrequency',
-      width: 150,
+      width: 300,
       editable: true,
     },
     {
@@ -347,7 +427,7 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Mobile No',
+      title: 'RMN',
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
@@ -411,7 +491,7 @@ const StudentOnboard: React.FC = () => {
         return(        
         <a
           onClick={() => {
-            openNotification('info', value.phoneNumber)
+            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink)
           }}
         >
           <EyeOutlined/>
@@ -457,7 +537,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus':'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings' :'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

@@ -148,14 +148,14 @@ export class StudentService {
         if (type == 'student' ) {
             
           var quer =
-          "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
           
           batchCodes = await getManager().query(quer);
           batchCodes.forEach((element) => {
             console.log("batchCode", element);
-            studentOrTeacherId.push(element.batchNumber);
+            studentOrTeacherId.push(element.batchNumber, element.zoomLink);
           });
 
           var paymentQuer =
