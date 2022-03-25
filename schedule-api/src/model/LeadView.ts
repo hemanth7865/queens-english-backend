@@ -33,6 +33,12 @@ export class LeadView {
   alternativeMobile: string;
   paymentid: string;
   downpayment: string;
+  subscription: string;
+  subscriptionNo: string;
+  emi: string;
+  emiMonths: string;
+  paymentMode: string;
+  dateofsale: string;
   classessold: string;
   saleamount: string;
   plantype: string;
@@ -52,8 +58,12 @@ export class LeadView {
   poc: string;
   courseFrequency: string;
   timings: string;
+  customerEmail: string;
+  state: string;
+  zoomLink: string;
+  zoomInfo: string;
   public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
-      ratings:number,slots:string,leadType:number, type:string, batchCode:string, studentID:string, dob?:string|Date, whatsapp?: string, address?: string, classType?: string, payments?: string, age?: string, startDate?: string, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, studentType?: string, firstFeedback?: string, classesStartDate?: string, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: string, poc?: string, courseFrequency?: string, timings?: string) {
+      ratings:number,slots:string,leadType:number, type:string, batchCode:string,   studentID:string, dob?:string|Date, whatsapp?: string, address?: string, classType?: string, payments?: string, age?: string, startDate?: string, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, studentType?: string, firstFeedback?: string, classesStartDate?: string, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: string, poc?: string, courseFrequency?: string, timings?: string, customerEmail?: string, state?: string, zoomLink?: string, zoomInfo?: string) {
       this.id = id;
       this.leadId = leadId;
       this.date = date;
@@ -82,6 +92,12 @@ export class LeadView {
           this.saleamount = payments.map(p => p.saleamount).join(',');
           this.plantype = payments.map(p => p.plantype).join(',');
           this.studentId = payments.map(p => p.studentId).join(',');
+          this.subscription = payments.map(p => p.subscription).join(',');
+          this.subscriptionNo = payments.map(p => p.subscriptionNo).join(',');
+          this.emi = payments.map(p => p.emi).join(',');
+          this.emiMonths = payments.map(p => p.emiMonths).join(',');
+          this.paymentMode = payments.map(p => p.paymentMode).join(',');
+          this.dateofsale = payments.map(p => p.dateofsale).join(',');
       }
       this.age = age;
       this.startDate = startDate;
@@ -105,5 +121,9 @@ export class LeadView {
       this.poc = poc;
       this.courseFrequency = courseFrequency;
       this.timings = timings;
+      this.customerEmail = customerEmail;
+      this.state = state;
+      this.zoomLink = zoomLink;
+      this.zoomInfo = zoomInfo;
   }
 }
