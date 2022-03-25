@@ -35,8 +35,11 @@ const Batch: React.FC<BatchProps> = (props) => {
           frequency?: string,
           lessonStartTime?: string, 
           lessonEndTime?: string,
-          classStartDate?: string
-      } = {}
+          classStartDate?: string,
+          maxStudentsCount?: number,
+      } = {
+        maxStudentsCount: 6
+      }
         if(lesson?.id){
           fixedFilter.startingLessonId = lesson.id;
         }
