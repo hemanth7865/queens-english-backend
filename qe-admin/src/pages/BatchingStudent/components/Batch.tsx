@@ -22,7 +22,7 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {id, timings, startLesson, age, courseFrequency, startDate} = props.data?props.data:''
+    const {id, timings, startLesson, dob, courseFrequency, startDate} = props.data?props.data:''
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -31,7 +31,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
           startingLessonId?: string,
-          age?: string,
+          dob?: Date,
           frequency?: string,
           lessonStartTime?: string, 
           lessonEndTime?: string,
@@ -41,8 +41,8 @@ const Batch: React.FC<BatchProps> = (props) => {
           fixedFilter.startingLessonId = lesson.id;
         }
 
-        if(age && age.length > 0){
-            fixedFilter.age = age;
+        if(dob && dob.length > 0){
+            fixedFilter.dob = dob;
         }
 
         if(courseFrequency && courseFrequency.length > 0){
