@@ -542,7 +542,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
+    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId, frequency from classes ${query_string} ORDER BY created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -612,6 +612,7 @@ export class BatchService {
         classes.lessonEndTime,
         classes.zoomLink,
         classes.zoomInfo,
+        classes.frequency
       );
       batchView.push(view);
     }

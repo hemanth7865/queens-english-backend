@@ -17,8 +17,9 @@ import { User } from "../entity/User";
             lessonEndTime:string;  
             zoomLink:string;  
             zoomInfo:string;  
+            frequency:string;  
 
-            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string) {
+            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string) {
                 this.id = id;
                 this.date=date;
                 this.batchId=batchId;
@@ -35,6 +36,7 @@ import { User } from "../entity/User";
                 this.lessonEndTime = lessonEndTime;
                 this.zoomLink = zoomLink;
                 this.zoomInfo = zoomInfo;
+                this.frequency = frequency;
             }          
             
     }

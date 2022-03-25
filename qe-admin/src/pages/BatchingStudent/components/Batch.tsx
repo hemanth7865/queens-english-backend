@@ -187,10 +187,29 @@ const Batch: React.FC<BatchProps> = (props) => {
           title: (
             <FormattedMessage
               id="pages.searchTable.titleStudents"
-              defaultMessage="Student"
+              defaultMessage="Students"
             />
           ),
           dataIndex: "students",
+          valueType: "textarea",
+        },
+        {
+          title: "Lessons",
+          dataIndex: "lessons",
+          render(dom, entity: any) {
+            const startLesson = LESSONS.filter(l => entity.startingLessonId ? l.id === entity.startingLessonId: false)[0]?.number;
+            const endLesson = LESSONS.filter(l => entity.endingLessonId ? l.id === entity.endingLessonId: false)[0]?.number;
+            return `${startLesson || "NA"} To ${endLesson || "NA"}`;
+          }
+        },
+        {
+          title: (
+            <FormattedMessage
+              id="pages.searchTable.titleFrequency"
+              defaultMessage="Frequency"
+            />
+          ),
+          dataIndex: "frequency",
           valueType: "textarea",
         },
         {
