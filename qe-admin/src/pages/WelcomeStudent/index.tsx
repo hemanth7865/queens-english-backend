@@ -1,8 +1,10 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification,Divider, Space, TimePicker} from "antd";
+import {EyeOutlined} from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
+import { PlusOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 interface Item {
@@ -16,11 +18,13 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' ;
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings';
   record: Item;
   index: number;
   children: React.ReactNode;
 }
+
+
 
 const EditableCell: React.FC<EditableCellProps> = ({
   editing,
@@ -45,7 +49,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="DISE - 1:1">DISE - 1:1</Option>
               <Option value="IELTS - Group Class">IELTS - Group Class</Option>
               <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-              <Option value="DEMO249">DEMO249</Option>
             </Select>
       )
     }else if(inputType === 'date'){
@@ -64,13 +67,220 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'selectPlan'){
+      const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
       return(
-            <Select style={{ width: 120 }} >
-              <Option value="Razorpay">Razorpay</Option>
-              <Option value="Bank Transfer">Bank Transfer</Option>
-              <Option value="Cashfree">Cashfree</Option>
-              <Option value="Other">Other</Option>
-            </Select>
+        <Select
+        style={{ width: 180 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectDownPayment'){
+      const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999', '7500']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 130 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectSubscriptionAmount'){
+      const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 130 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectSubscriptionMonth'){
+      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23', '31']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 130 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectCourseFrequency'){
+      const [items, setItems] = useState(['MWF (Course duration - 8 Months)', 'TTS (Course duration - 8 Months)', 'SS (Course duration - 14 Months)', 'MTWTF (Course duration - 5 Months)']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 240 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectTimings'){
+      const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 120 }}
+        placeholder="custom dropdown render"
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
       )
     }else if(inputType === 'selectStatus'){
       return(
@@ -204,7 +414,7 @@ const StudentOnboard: React.FC = () => {
       bdmName: value.bdmName,
       poc: value.poc,
       age: value.age,
-      courseFrequency: value.courseFrequency,
+      courseFrequency: value.courseFrequency.split(" ")[0],
       timings: value.timings,
       payment: [{
         paymentid: value.paymentid,
@@ -221,7 +431,7 @@ const StudentOnboard: React.FC = () => {
     }
     console.log("dataForm", dataForm);
     if(value.status == "startclasslater" || value.status == "batching"){
-      openNotification('info', value.phoneNumber);
+      //openNotification('info', value.phoneNumber);
     }
     try {
       const msg = await addTeacherSchedule({
@@ -232,12 +442,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
+        //openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        openNotificationWithIcon('success', 'Student', '');
+        //openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -348,7 +558,7 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Mobile No',
+      title: 'RMN',
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
@@ -401,7 +611,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Course Frequency',
       dataIndex: 'courseFrequency',
-      width: 150,
+      width: 300,
       editable: true,
     },
     {
@@ -442,7 +652,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Plan Type',
       dataIndex: 'plantype',
-      width: 150,
+      width: 200,
       editable: true,
     },
     {
@@ -480,6 +690,20 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'comments',
       width: 150,
       editable: true,
+    },
+    {
+      title: 'Message',
+      width: 100,
+      render: (value)=>{
+        return(        
+        <a
+          onClick={() => {
+            openNotification('info', value.phoneNumber)
+          }}
+        >
+          <EyeOutlined/>
+        </a>)
+      }
     },
     {
       title: 'Status',
@@ -521,7 +745,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'subscriptionAmount' ?'selectSubscriptionAmount' : col.dataIndex === 'subscriptionMonth' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
