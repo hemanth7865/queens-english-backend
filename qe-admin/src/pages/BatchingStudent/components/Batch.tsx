@@ -22,29 +22,30 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {id, timings, startLesson, age, courseFrequency, startDate} = props.data?props.data:''
+    const {id, timings, startLesson, dob, courseFrequency, startDate} = props.data?props.data:''
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
 
-    console.log("lesson", lesson);
-
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
           startingLessonId?: string,
-          age?: string,
+          dob?: Date,
           frequency?: string,
           lessonStartTime?: string, 
           lessonEndTime?: string,
-          classStartDate?: string
-      } = {}
+          classStartDate?: string,
+          maxStudentsCount?: number,
+      } = {
+        maxStudentsCount: 6
+      }
         if(lesson?.id){
           fixedFilter.startingLessonId = lesson.id;
         }
 
-        if(age && age.length > 0){
-            fixedFilter.age = age;
+        if(dob && dob.length > 0){
+            fixedFilter.dob = dob;
         }
 
         if(courseFrequency && courseFrequency.length > 0){
@@ -66,8 +67,11 @@ const Batch: React.FC<BatchProps> = (props) => {
         });
     }
 
+    const actionRef = useRef<ActionType>();
+
     useEffect(() => {
         setSelectedBatch(false);
+        actionRef?.current?.reload();
     } , [id]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
@@ -161,8 +165,6 @@ const Batch: React.FC<BatchProps> = (props) => {
             }, 1000);
         }
     }
-
-    const actionRef = useRef<ActionType>();
     
     const columns: ProColumns<API.RuleListItem>[] = [
         {
@@ -188,10 +190,29 @@ const Batch: React.FC<BatchProps> = (props) => {
           title: (
             <FormattedMessage
               id="pages.searchTable.titleStudents"
-              defaultMessage="Student"
+              defaultMessage="Students"
             />
           ),
           dataIndex: "students",
+          valueType: "textarea",
+        },
+        {
+          title: "Lessons",
+          dataIndex: "lessons",
+          render(dom, entity: any) {
+            const startLesson = LESSONS.filter(l => entity.startingLessonId ? l.id === entity.startingLessonId: false)[0]?.number;
+            const endLesson = LESSONS.filter(l => entity.endingLessonId ? l.id === entity.endingLessonId: false)[0]?.number;
+            return `${startLesson || "NA"} To ${endLesson || "NA"}`;
+          }
+        },
+        {
+          title: (
+            <FormattedMessage
+              id="pages.searchTable.titleFrequency"
+              defaultMessage="Frequency"
+            />
+          ),
+          dataIndex: "frequency",
           valueType: "textarea",
         },
         {

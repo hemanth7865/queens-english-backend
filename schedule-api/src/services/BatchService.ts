@@ -457,37 +457,40 @@ export class BatchService {
     }
 
     let query_list = [];
+    let havingQuery = "";
     let query_string = "";
 
     const batchId = parameters.batchId;
     if (batchId) {
-      query_string = query_string + ` batchNumber like  '%${batchId}%' `;
-      query_list.push(` batchNumber like  '%${batchId}%' `);
+      query_list.push(`classes.batchNumber like  '%${batchId}%' `);
     }
 
     if(parameters.frequency){
-      query_list.push(` frequency = '${parameters.frequency}' `);
+      query_list.push(` classes.frequency = '${parameters.frequency}' `);
     }
 
     if(parameters.startingLessonId){
-      query_list.push(` startingLessonId = '${parameters.startingLessonId}' `);
+      query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
     if(parameters.lessonStartTime){
-      query_list.push(` lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
+      query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
     }
 
     if(parameters.lessonEndTime){
-      query_list.push(` lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
+      query_list.push(` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
     }
 
     if(parameters.classStartDate){
-      query_list.push(` classStartDate LIKE '%${parameters.classStartDate}%' `);
+      query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
+    }
+
+    if(parameters.maxStudentsCount){
+      havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
     }
 
     const createdBy = parameters.createdBy;
     if (createdBy) {
-      query_string = query_string + ` createdBy =${createdBy} `;
       query_list.push(` createdBy like '%${createdBy}%' `);
     }
 
@@ -513,9 +516,7 @@ export class BatchService {
     }
 
     if (start_slot && end_slot) {
-      query_string =
-        query_string + `  ${startMin} >= startMin and ${endMin}<=endMin;`;
-      query_list.push(`  ${startMin} >= startMin and ${endMin}<=endMin;`);
+      query_list.push(`  ${startMin} >= classes.startMin and ${endMin}<= classes.endMin;`);
     }
 
     let teacher = parameters.teacher;
@@ -542,12 +543,15 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select id, batchNumber, lessonStartTime, lessonEndTime, startingLessonId, endingLessonId, classStartDate, classEndDate, created_at, teacherId from classes ${query_string} ORDER BY created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
+    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.lessonEndTime, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
+    classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
+    classes ${query_string} ${havingQuery} ORDER BY classes.created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
     let name = "";
-    const count = await getManager().query(`select count(id) as total from classes ${query_string};`);
+    const count = await getManager().query(`select count(classes.id) as total, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from classes 
+    ${query_string} ${havingQuery};`);
 
     for (const element of results) {
       students = [];
@@ -612,8 +616,10 @@ export class BatchService {
         classes.lessonEndTime,
         classes.zoomLink,
         classes.zoomInfo,
+        classes.frequency
       );
-      batchView.push(view);
+      //@ts-ignore-next-line
+      batchView.push({...view, studentsCount: element});
     }
 
     return {
