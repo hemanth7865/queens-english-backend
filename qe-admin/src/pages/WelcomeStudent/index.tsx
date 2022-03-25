@@ -418,7 +418,6 @@ const StudentOnboard: React.FC = () => {
       callStatus: value.callStatus,
       callBackon: value.callBackon,
       bdaName: value.bdaName,
-      bdmName: value.bdmName,
       poc: value.poc,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
@@ -704,12 +703,6 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'BDA Name',
       dataIndex: 'bdaName',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'BDM Name',
-      dataIndex: 'bdmName',
       width: 150,
       editable: true,
     },

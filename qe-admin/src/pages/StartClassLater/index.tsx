@@ -464,7 +464,7 @@ const openNotification = (type: string,  message: string) => {
     try {
       let msg = await studentsDashboard('startclasslater', {
           current: 1,
-          pageSize: 20}
+          pageSize: 200}
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
