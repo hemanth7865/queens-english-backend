@@ -143,19 +143,23 @@ export class StudentService {
         let payment: string;
    
         var studentOrTeacherId=[];
+        var zoomLinkBatch = [];
+        var zoomInfoBatch = [];
         var batchCode = '';
   
         if (type == 'student' ) {
             
           var quer =
-          "select id,batchNumber,zoomLink from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink, zoomInfo from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
           
           batchCodes = await getManager().query(quer);
           batchCodes.forEach((element) => {
             console.log("batchCode", element);
-            studentOrTeacherId.push(element.batchNumber, element.zoomLink);
+            studentOrTeacherId.push(element.batchNumber);
+            zoomLinkBatch.push(element.zoomLink)
+            zoomInfoBatch.push(element.zoomInfo)
           });
 
           var paymentQuer =
@@ -208,6 +212,9 @@ export class StudentService {
           element.courseFrequency,
           element.timings,
           element.customerEmail,
+          element.state,
+          zoomLinkBatch.join(","),
+          zoomInfoBatch.join(","),
         );
         leadView.push(l);
       }

@@ -232,7 +232,6 @@ const StudentOnboard: React.FC = () => {
         Time: {timings} India<br/>
         Join Zoom Meeting<br/>
         <a>{zoomLink}</a><br/>
-        Meeting ID: 929 2733 9189<br/>
         Passcode: QE<br/>
         Days: {days}<br/>
         (The details above are recurring and hence you can use the same details to join the class everyday)<br/>
@@ -280,6 +279,7 @@ const StudentOnboard: React.FC = () => {
       plastName: value.plastName,
       batchCode: value.batchCode,
       zoomLink: value.zoomLink,
+      zoomInfo: value.zoomInfo,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
@@ -388,7 +388,13 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Zoom Link',
       dataIndex: 'zoomLink',
-      width: 300,
+      width: 250,
+      editable: true,
+    },
+    {
+      title: 'Zoom Link',
+      dataIndex: 'zoomInfo',
+      width: 250,
       editable: true,
     },
     {
