@@ -207,6 +207,7 @@ export class StudentService {
           element.poc,
           element.courseFrequency,
           element.timings,
+          element.customerEmail,
         );
         leadView.push(l);
       }
@@ -343,6 +344,8 @@ export class StudentService {
     user.phoneNumber = data.phoneNumber;
     user.email = data.email;
     user.type = data.type;
+    user.customerEmail = data.customerEmail;
+    user.alternativeMobile = data.alternativeMobile;
 
     if (data.id) {
       user.id = data.id;

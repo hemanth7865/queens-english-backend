@@ -18,7 +18,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -299,6 +299,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Placement test pending">Placement test pending</Option>
             </Select>
       )
+    }else if(inputType === 'selectSubscriptionType'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Manual">Manual</Option>
+              <Option value="Auto-Debit">Auto-Debit</Option>
+            </Select>
+      )
     }
     else{
       return <Input />
@@ -397,7 +404,7 @@ const StudentOnboard: React.FC = () => {
       dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
       whatsapp:value.whatsapp,
       comments:value.comments,
-      email:value.email,
+      customerEmail: value.customerEmail,
       id: value.studentID,
       type: 'student',
       status: value.status,
@@ -413,8 +420,7 @@ const StudentOnboard: React.FC = () => {
       bdaName: value.bdaName,
       bdmName: value.bdmName,
       poc: value.poc,
-      age: value.age,
-      courseFrequency: value.courseFrequency.split(" ")[0],
+      courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
       payment: [{
         paymentid: value.paymentid,
@@ -422,10 +428,14 @@ const StudentOnboard: React.FC = () => {
         classessold: value.classessold,
         saleamount: value.saleamount,
         downpayment: value.downpayment,
-        plantype: value.plantype,
         classtype:'',
         leadId: value.studentID,
-        id: value.studentID
+        id: value.studentID,
+        subscription: value.subscription,
+        subscriptionNo: value.subscriptionNo,
+        emi: value.emi,
+        emiMonths: value.emiMonths,
+        paymentMode: value.paymentMode,
       }]
 
     }
@@ -442,12 +452,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        //openNotificationWithIcon('error', 'Student', msg.error);
+        openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        //openNotificationWithIcon('success', 'Student', '');
+        openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -515,8 +525,8 @@ const StudentOnboard: React.FC = () => {
       editable: false,
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
+      title: 'Customer Email',
+      dataIndex: 'customerEmail',
       width: 200,
       editable: true,
       
@@ -548,12 +558,6 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Parent Last Name',
       dataIndex: 'plastName',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
       width: 150,
       editable: true,
     },
@@ -650,13 +654,37 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Plan Type',
-      dataIndex: 'plantype',
+      title: 'Plan Mode',
+      dataIndex: 'paymentMode',
       width: 200,
       editable: true,
     },
     {
-      title: 'Payment Id',
+      title: 'Subscription Type',
+      dataIndex: 'subscription',
+      width: 200,
+      editable: true,
+    },
+    {
+      title: 'Subscription No',
+      dataIndex: 'subscriptionNo',
+      width: 200,
+      editable: true,
+    },
+    {
+      title: 'Subscription Amount',
+      dataIndex: 'emi',
+      width: 200,
+      editable: true,
+    },
+    {
+      title: 'months of subscription',
+      dataIndex: 'emiMonths',
+      width: 200,
+      editable: true,
+    },
+    {
+      title: 'Transaction Id',
       dataIndex: 'paymentid',
       width: 150,
       editable: true,
@@ -745,7 +773,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'subscriptionAmount' ?'selectSubscriptionAmount' : col.dataIndex === 'subscriptionMonth' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
