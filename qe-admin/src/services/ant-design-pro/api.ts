@@ -406,7 +406,7 @@ export async function listBatch(
     /** 页面的容量 */
     pageSize?: number;
     startingLessonId?: string,
-    age?: string,
+    age?: number,
     frequency?: string,
     lessonStartTime?: string, 
     lessonEndTime?: string,

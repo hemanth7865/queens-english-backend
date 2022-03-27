@@ -485,6 +485,17 @@ export class BatchService {
       query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
     }
 
+    if(parameters.age){
+      // +18 students in a separate class
+      if(parameters.age >= 18){
+        query_list.push(` classes.maxAge >= 18 `);
+      }
+      // below 6 years students be in separate class
+      if(parameters.age < 6){
+        query_list.push(` classes.maxAge < 6 `);
+      }
+    }
+
     if(parameters.maxStudentsCount){
       havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
     }
@@ -618,8 +629,7 @@ export class BatchService {
         classes.zoomInfo,
         classes.frequency
       );
-      //@ts-ignore-next-line
-      batchView.push({...view, studentsCount: element});
+      batchView.push(view);
     }
 
     return {
