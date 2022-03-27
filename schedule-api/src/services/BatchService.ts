@@ -260,6 +260,25 @@ export class BatchService {
     return result;
   }
 
+  async updateBatchAgeGroup(batch: Classes){
+    const students = await getRepository(BatchStudent)
+    .createQueryBuilder("batchStudent")
+    .leftJoin("batchStudent.student", "student")
+    .addSelect(["student.firstName", "student.lastName", "student.dob"])
+    .where("batchStudent.batchId = :id", { id: batch.id })
+    .getMany();
+
+    const moment = require("moment");
+
+    let ages = [];
+
+    ages = students.map((i: any) => {
+      return moment(new Date()).diff(moment(i.dob,"YYYY-MM-DD"),'years',true)
+    });
+
+    console.log(ages);
+  }
+
   async createBatchSql(data: any) {
     try {
       var batchStudent: BatchStudent[] = [];
@@ -398,7 +417,9 @@ export class BatchService {
         classes.updated_at = new Date();
       }
 
-      return await this.classesRepository.update( {id: classes.id}, classes);
+      const batch = await this.classesRepository.update( {id: classes.id}, classes);
+      await this.updateBatchAgeGroup(classes);
+      return batch;
     } catch (error) {
       console.log(error);
       throw new Error("Excetion while stroing teacher");
