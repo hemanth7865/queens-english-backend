@@ -138,7 +138,7 @@ const formSubmit = async (value: any)=>{
     },
     {
       title: 'Email',
-      dataIndex: 'email',
+      dataIndex: 'customerEmail',
       width: 200,
       editable: true,
       
