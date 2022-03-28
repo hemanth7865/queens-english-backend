@@ -11,6 +11,7 @@ import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
+import moment from "moment";
 
 const { TabPane } = Tabs;
 
@@ -32,6 +33,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         let fixedFilter: {
           startingLessonId?: string,
           dob?: Date,
+          age?: number,
           frequency?: string,
           lessonStartTime?: string, 
           lessonEndTime?: string,
@@ -45,11 +47,12 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
 
         if(dob && dob.length > 0){
-            fixedFilter.dob = dob;
+          fixedFilter.dob = dob;
+          fixedFilter.age = moment(new Date()).diff(moment(dob,"YYYY-MM-DD"),'years',true);
         }
 
         if(courseFrequency && courseFrequency.length > 0){
-          fixedFilter.frequency = courseFrequency;
+          fixedFilter.frequency = courseFrequency.split(" ")[0]; // make sure to get the frequency only in case there's a space
         }
 
         if(startDate && startDate.length > 0){

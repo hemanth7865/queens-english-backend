@@ -33,17 +33,6 @@ const StudentOnboard: React.FC = () => {
     setVisibleEdit(false);
   };
 
-  const openNotificationWithIcon = (type: string, message: string) => {
-    notification[type]({
-      message,
-      description:
-        '',
-    });
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
-  };
-
 //edit submit 
 const formSubmit = async (value: any)=>{
   //console.log('value', value)
@@ -124,21 +113,18 @@ const formSubmit = async (value: any)=>{
 
   const columns = [
     {
-      title: 'Student First Name',
+      title: 'Student Name',
       dataIndex: 'firstName',
       width: 150,
       editable: true,
       fixed: 'left',
-    },
-    {
-      title: 'Student Last Name',
-      dataIndex: 'lastName',
-      width: 150,
-      editable: true,
+      render: (_: any, record: any) => (
+        `${record.firstName} ${record.lastName}`
+      )
     },
     {
       title: 'Email',
-      dataIndex: 'email',
+      dataIndex: 'customerEmail',
       width: 200,
       editable: true,
       
@@ -176,6 +162,20 @@ const formSubmit = async (value: any)=>{
       
     },
     {
+      title: 'Time',
+      dataIndex: 'timings',
+      width: 150,
+      editable: true,
+      
+    },
+    {
+      title: 'Frequency',
+      dataIndex: 'courseFrequency',
+      width: 150,
+      editable: true,
+      
+    },
+    {
       title: 'Start Date',
       dataIndex: 'startDate',
       width: 150,
@@ -186,7 +186,6 @@ const formSubmit = async (value: any)=>{
         }
         return "NA";
       }
-      
     },
     {
       title: 'operation',

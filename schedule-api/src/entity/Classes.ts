@@ -45,8 +45,14 @@ export class Classes extends BaseEntity {
 
     @Column({ 'nullable': true })
     weekday: Number;
+    @Column({ 'nullable': true })
+    minAge: number;
+    @Column({ 'nullable': true })
+    maxAge: number;
 
-
+    @Column({ 'nullable': true })
+    ages: string;
+    
     @Column({ 'nullable': true, type: "text" })
     classStartDate: string;
 

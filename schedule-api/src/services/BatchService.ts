@@ -260,6 +260,92 @@ export class BatchService {
     return result;
   }
 
+  async updateBatchAgeGroup(batch: Classes){
+    console.log(batch);
+    try{
+      let students: any[];
+        students = await getRepository(BatchStudent)
+        .createQueryBuilder("batchStudent")
+        .leftJoin("batchStudent.student", "student")
+        .addSelect(["student.dob"])
+        .where("batchStudent.batchId = :id", { id: batch.id })
+        .getMany();
+  
+      console.log(students);
+  
+      const moment = require("moment");
+  
+      let ages = [];
+  
+      ages = students.map((i: any) => {
+        return moment(new Date()).diff(moment(i.student?.dob,"YYYY-MM-DD"),'years',true)
+      });
+  
+      let minAge: number = 0;
+      let maxAge: number = 0;
+  
+      for(let age of ages){
+        if(!parseInt(String(age))){
+          continue;
+        }
+        if(age > maxAge){
+          maxAge = age;
+        }
+        if(age < minAge || minAge <= 0){
+          minAge = age;
+        }
+      }
+  
+      if(parseInt(String(minAge))){
+        batch.minAge = parseInt(String(minAge));
+      }
+  
+      if(parseInt(String(maxAge))){
+        batch.maxAge = parseInt(String(maxAge));
+      }
+  
+  
+      if(batch.minAge && batch.maxAge && typeof batch.minAge === "number" && typeof batch.maxAge === "number"){
+        const allowedAges: any[] = [];
+  
+        const sub: number = batch.maxAge - batch.minAge;
+  
+        const gap = 3 - sub;
+  
+        allowedAges.push(batch.minAge < 10 ? `0${batch.minAge}` : batch.minAge);
+        for(let i = batch.minAge + 1; i < batch.maxAge; i++){
+          allowedAges.push(i < 10 ? `0${i}` : i);
+        }
+        for(let i = 0; i < gap; i++){
+          let m = batch.minAge - i - 1;
+          let ma = batch.maxAge + i + 1;
+          allowedAges.push(m < 10 ? `0${m}` : m);
+          allowedAges.push(ma < 10 ? `0${ma}` : ma);
+        }
+        allowedAges.push(batch.maxAge < 10 ? `0${batch.maxAge}` : batch.maxAge);
+        batch.ages = JSON.stringify(allowedAges);
+      }
+      
+      const classes = await this.classesRepository.update( {id: batch.id}, {ages: batch.ages, minAge: batch.minAge, maxAge: batch.maxAge});
+      
+      return classes;
+    }catch(e){
+      console.log(e);
+      return e;
+    }
+  }
+
+  async updateAllBatchesAgeGroup(){
+    let result = 0;
+    const batches = await this.classesRepository.find();
+    for(let batch of batches){
+      await this.updateBatchAgeGroup(batch);
+      result += 1;
+    }
+
+    return { success: true, message: `${result} Batches Updated` };
+  }
+
   async createBatchSql(data: any) {
     try {
       var batchStudent: BatchStudent[] = [];
@@ -358,6 +444,8 @@ export class BatchService {
         classes.students = batchStudent;
       }
 
+      await this.updateBatchAgeGroup(classes);
+
       return classes;
     } catch (error) {
       console.log(error);
@@ -398,7 +486,9 @@ export class BatchService {
         classes.updated_at = new Date();
       }
 
-      return await this.classesRepository.update( {id: classes.id}, classes);
+      const batch = await this.classesRepository.update( {id: classes.id}, classes);
+      await this.updateBatchAgeGroup(classes);
+      return batch;
     } catch (error) {
       console.log(error);
       throw new Error("Excetion while stroing teacher");
@@ -485,6 +575,18 @@ export class BatchService {
       query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
     }
 
+    if(parameters.age){
+      // +18 students in a separate class
+      if(parameters.age >= 18){
+        query_list.push(` classes.maxAge >= 18 `);
+      }
+      // below 6 years students be in separate class
+      if(parameters.age < 6){
+        query_list.push(` classes.maxAge < 6 `);
+      }
+      query_list.push(` (classes.ages LIKE '%${parameters.age < 10 ? "0"+parseInt(parameters.age) : parseInt(parameters.age)}%' OR classes.ages IS NULL)`);
+    }
+
     if(parameters.maxStudentsCount){
       havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
     }
@@ -546,6 +648,8 @@ export class BatchService {
     var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.lessonEndTime, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
     classes ${query_string} ${havingQuery} ORDER BY classes.created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
+    
+      console.log(quer);
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -618,8 +722,7 @@ export class BatchService {
         classes.zoomInfo,
         classes.frequency
       );
-      //@ts-ignore-next-line
-      batchView.push({...view, studentsCount: element});
+      batchView.push(view);
     }
 
     return {

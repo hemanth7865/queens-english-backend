@@ -12,6 +12,8 @@ import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
+import moment from "moment";
+import {LESSONS} from "../../../../config/lessons";
 
 export type BatchProps = {
     setSelectedBatch: (v: string) => void;
@@ -19,6 +21,8 @@ export type BatchProps = {
     data: {
       timings?: string;
       courseFrequency?: string;
+      startDate?: Date,
+      startLesson?: string,
     }
 };
 
@@ -27,6 +31,8 @@ const Batch: React.FC<BatchProps> = (props) => {
     const {data} = props;
     const [batch, setBatch] = useState<{value: string, label: string}>();
     const [teacherId, setTeacherId] = useState();
+
+    const lesson = LESSONS.filter(l => data.startLesson && data.startLesson.length > 0 ? l.number === data.startLesson.split(" ")[1]: false)[0];
 
     async function fetchTeachersList(params: {}) {
         const defaultFilter: {
@@ -82,6 +88,41 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     const actionRef = useRef<ActionType>();
     
+    const createBatch = (dom: any) => {
+      let startDate = moment(data.startDate, "YYYY-MM-DD").format("YYYY-MM-DD");
+      let endDate = moment(startDate, "YYYY-MM-DD").add('years', 1).format("YYYY-MM-DD");
+      let startTime = moment(data.timings, "HH:mm").format("HH:mm");
+      let endTime = moment(startTime, "HH:mm").add('hours', 1).format("HH:mm");
+
+      const linkParams: string[] = [
+        `teacherId=${dom.id}`,
+        `teacherName=${dom.name}`,
+        `add=1`,
+      ];
+
+      if(data.startDate && startDate !== "Invalid date"){
+        linkParams.push(`startDate=${startDate}`);
+        linkParams.push(`endDate=${endDate}`);
+      }
+
+      if(data.timings && startTime !== "Invalid date"){
+        linkParams.push(`startTime=${startTime}`);
+        linkParams.push(`endTime=${endTime}`);
+      }
+
+      if(lesson?.id){
+        linkParams.push(`startLesson=${lesson.id}`);
+      }
+
+      if(data.courseFrequency){
+        linkParams.push(`frequency=${data.courseFrequency}`);
+      }
+
+      let params: string = linkParams.join("&");
+
+      window?.open(window.location.origin + `/manage/batch?${params}`, '_blank')?.focus();
+    }
+
     const columns: ProColumns<API.RuleListItem>[] = [
         //date
         {
@@ -168,14 +209,12 @@ const Batch: React.FC<BatchProps> = (props) => {
             title: "Select",
             tip: "Select Batch",
             hideInSearch: true,
-            render: (dom, entity) => {
+            render: (dom: any, entity) => {
               return (
                 <a
                   onClick={() => {
-                    //@ts-ignore-next-line
                     setTeacherId(dom.id);
-                    //@ts-ignore-next-line
-                    window.open(window.location.origin + `/manage/batch?teacherId=${dom.id}&teacherName=${dom.name}&add=1`, '_blank').focus();
+                    createBatch(dom);
                   }}
                 >
                   Create Batch

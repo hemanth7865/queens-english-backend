@@ -72,24 +72,26 @@ const PREMADE_FREQUENCY: {label: string, value: string}[] = [
 const BatchList: React.FC = () => {
   const url = new URL(window.location.href);
 
+  const getParam = (name: string) => url.searchParams.get(name);
+
   const [showDetail, setShowDetail] = useState<boolean>(url.searchParams.get("add") ? true : false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.batchItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.batchItem[]>([]);
   const [addTeacher, setAddTeacher] = useState(url.searchParams.get("add") ? true : false);
-  const [timeRange, setTimeRange] = useState<[any, any] | []>([]);
+  const [timeRange, setTimeRange] = useState<[any, any] | []>(getParam('startTime') && getParam('endTime') ? [moment(getParam('startTime'), "HH:mm"), moment(getParam('endTime'), "HH:mm")] : []);
   const [createBatch, setCreateBatch] = useState(url.searchParams.get("add") ? true : false);
   const [addTeacherComponent, setAddTeacherComponent] = useState(false);
-  const [classDateRange, setClassDateRange] = useState<any>();
+  const [classDateRange, setClassDateRange] = useState<any>(getParam('startDate') && getParam('endDate') ? [moment(getParam('startDate'), "YYYY-MM-DD"), moment(getParam('endDate'), "YYYY-MM-DD")] : []);
   const [studentList, setStudentList] = useState<any[]>([]);
   const [leadList, setLeadList] = useState<any[]>([]);
   const [teacherName, setTeacherName] = useState<any>(url.searchParams.get("teacherId") ? {value: url.searchParams.get("teacherId"), label: url.searchParams.get("teacherName")} : []);
   const [renderEdit,setRenderEdit] = useState(url.searchParams.get("add") ? true : false)
   const [edit, setEdit] = useState(false)
 
-  const [startLesson,setStartLesson] = useState("");
+  const [startLesson,setStartLesson] = useState(getParam('startLesson') || "");
   const [endLesson,setEndLesson] = useState("");
-  const [selectedFrequency,setSelectedFrequency] = useState("");
+  const [selectedFrequency,setSelectedFrequency] = useState(getParam('frequency') || "");
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -313,7 +315,7 @@ const BatchList: React.FC = () => {
           setClassDateRange(tempObj?.batchData?.classes?.classEndDate?.length > 0 && tempObj?.batchData?.classes?.classStartDate?.length ? [
             moment(tempObj.batchData.classes.classStartDate.split("T")[0], dateFormat),
             moment(tempObj.batchData.classes.classEndDate.split("T")[0], dateFormat),
-          ]:undefined)
+          ]: [])
         } catch (e) {
           console.log('start date error', e)
         }
@@ -321,7 +323,7 @@ const BatchList: React.FC = () => {
         try{
           setTimeRange(tempObj?.batchData?.classes?.lessonEndTime?.length > 0 && tempObj?.batchData?.classes?.lessonStartTime?.length ?
             [ moment(tempObj?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
-            moment(tempObj?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")]:undefined)
+            moment(tempObj?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")]:[])
         }catch(e){
           console.log("Time Range Error", e);
         }
@@ -602,12 +604,13 @@ const BatchList: React.FC = () => {
               setEdit(false);
               setFormData(DEFAULT_FORM_DATA);
               setTeacherName([]);
-              setClassDateRange(undefined);
               setStudentList([]);
               setLeadList([]);
               setStartLesson("");
               setEndLesson("");
               setFollowupVersion("");
+              setTimeRange([]);
+              setClassDateRange([]);
             }}
           >
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
@@ -746,7 +749,7 @@ const BatchList: React.FC = () => {
                             prePop?.batchData?.classes?.classEndDate?.length > 0 && prePop?.batchData?.classes?.classStartDate?.length ? [
                               moment(prePop.batchData.classes.classStartDate.split("T")[0], dateFormat),
                               moment(prePop.batchData.classes.classEndDate.split("T")[0], dateFormat),
-                            ]: []} 
+                            ]: classDateRange} 
                         />
                       </Form.Item>
                     </Col>
@@ -764,7 +767,7 @@ const BatchList: React.FC = () => {
                             [
                               moment(prePop?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
                               moment(prePop?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")
-                            ] : []
+                            ] : timeRange
                           }
                           onChange={(value,e)=>handleTimeRange(value)}
                           style={{ width: "551px" }}
@@ -860,13 +863,12 @@ const BatchList: React.FC = () => {
                         ]}
                       >
                         <Select
-                          mode="tags"
                           placeholder="Batch Frequency"
                           maxTagCount={1}
                           onChange={(v) => setSelectedFrequency(v)}
                           value={selectedFrequency}
                           options={PREMADE_FREQUENCY}
-                          defaultValue={!createBatch?prePop?.batchData?.classes?.frequency:''}
+                          defaultValue={!createBatch?prePop?.batchData?.classes?.frequency:selectedFrequency}
                         />
                       </Form.Item>
                     </Col>
