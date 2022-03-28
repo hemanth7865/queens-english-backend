@@ -17,7 +17,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -39,17 +39,24 @@ const EditableCell: React.FC<EditableCellProps> = ({
                   <Option value="Kids">Kids</Option>
                   <Option value="adult">Adult</Option>
                 </Select>)
-    }if(inputType === 'selectDate'){
+    }else if(inputType === 'selectDate'){
       return (
               <input type="date" />
               )
-  }else if(inputType === 'select'){
+    }else if(inputType === 'select'){
       return(
             <Select style={{ width: 120 }} >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
               <Option value="DISE - 1:1">DISE - 1:1</Option>
               <Option value="IELTS - Group Class">IELTS - Group Class</Option>
               <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+            </Select>
+      )
+    }else if(inputType === 'selectSaleWon'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Won">Won</Option>
+              <Option value="Lost">Lost</Option>
             </Select>
       )
     }else if(inputType === 'date'){
@@ -392,9 +399,6 @@ const StudentOnboard: React.FC = () => {
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
-      callStatus: value.callStatus,
-      callBackon: value.callBackon,
-      bdaName: value.bdaName,
       poc: value.poc,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
@@ -425,12 +429,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        //openNotificationWithIcon('error', 'Student', msg.error);
+        openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        //openNotificationWithIcon('success', 'Student', '');
+        openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -456,7 +460,7 @@ const StudentOnboard: React.FC = () => {
       }
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, emi,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -576,7 +580,7 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'POC',
+      title: 'Referral POC',
       dataIndex: 'poc',
       width: 150,
       editable: true,
@@ -614,7 +618,7 @@ console.log('null obj', data)
     {
       title: 'Start Date',
       dataIndex: 'startDate',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
@@ -623,7 +627,7 @@ console.log('null obj', data)
       }
     },
     {
-      title: 'classess sold',
+      title: 'classes sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true,
@@ -641,7 +645,7 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'Plan Mode',
+      title: 'Payment Mode',
       dataIndex: 'paymentMode',
       width: 200,
       editable: true,
@@ -653,7 +657,7 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'Subscription No',
+      title: 'Subscription No. (if auto debit)',
       dataIndex: 'subscriptionNo',
       width: 200,
       editable: true,
@@ -677,26 +681,20 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'Call Status',
-      dataIndex: 'callStatus',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'PRM Comments',
-      dataIndex: 'callBackon',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'BDA Name',
-      dataIndex: 'bdaName',
-      width: 150,
-      editable: true,
-    },
-    {
       title: 'BDA Comments',
       dataIndex: 'comments',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Sale Owner',
+      dataIndex: 'salesowner',
+      width: 150,
+      editable: true,
+    },
+    {
+      title: 'Sale Status',
+      dataIndex: 'salestatus',
       width: 150,
       editable: true,
     },
@@ -704,8 +702,7 @@ console.log('null obj', data)
       title: 'Status',
       dataIndex: 'status',
       width: 150,
-      editable: true,
-
+      editable: false,
     },
     {
       title: 'operation',
@@ -740,7 +737,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'selectDate' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'selectDate' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'selectDate' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon' :'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
