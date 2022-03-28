@@ -12,7 +12,6 @@ interface Item {
   name: string;
   phoneNumber: string;
   email: string;
-  status: number;
 }
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -739,14 +738,6 @@ const openNotification = (type: string,  message: string) => {
       dataIndex: 'status',
       width: 150,
       editable: true,
-      render: (value: string)=>{
-        if(value == "startclasslater"){
-          return "Start Class Later"
-        }else{
-           return "Batching"
-        }
-      }
-
     },
     {
       title: 'operation',

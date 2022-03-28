@@ -701,6 +701,15 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'PRM Name',
+      // dataIndex: 'callBackon',
+      width: 150,
+      editable: false,
+      render: (value)=>{
+        return `${value.prm_firstName} ${value.prm_lastName}`
+      }
+    },
+    {
       title: 'BDA Name',
       dataIndex: 'bdaName',
       width: 150,

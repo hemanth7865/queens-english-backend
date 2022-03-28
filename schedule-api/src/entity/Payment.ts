@@ -18,7 +18,7 @@ export class Payment extends BaseEntity {
     studentId: string;
     @Column("text")
     paymentid: string;
-    @Column("text")
+    @Column({ 'nullable': true })
     plantype: string;
     @Column("text")
     classtype: string;

@@ -17,7 +17,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -39,7 +39,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
                   <Option value="Kids">Kids</Option>
                   <Option value="adult">Adult</Option>
                 </Select>)
-    }else if(inputType === 'select'){
+    }if(inputType === 'selectDate'){
+      return (
+              <input type="date" />
+              )
+  }else if(inputType === 'select'){
       return(
             <Select style={{ width: 120 }} >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
@@ -80,7 +84,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 180 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -116,7 +119,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 130 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -152,7 +154,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 130 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -188,7 +189,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 130 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -224,7 +224,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 240 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -260,7 +259,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 120 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -314,12 +312,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          rules={[
-            {
-              required: true,
-              message: `Add ${title}!`,
-            }
-          ]}
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: `Add ${title}!`,
+          //   }
+          // ]}
         >
           {inputNode()}
         </Form.Item>
@@ -372,6 +370,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    console.log('values', value)
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -416,6 +415,7 @@ const StudentOnboard: React.FC = () => {
       }]
 
     }
+    console.log('data', dataForm)
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -425,12 +425,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
+        //openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        openNotificationWithIcon('success', 'Student', '');
+        //openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -528,7 +528,7 @@ console.log('null obj', data)
     {
       title: 'Date of Birth',
       dataIndex: 'dob',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
@@ -740,7 +740,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'selectDate' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
