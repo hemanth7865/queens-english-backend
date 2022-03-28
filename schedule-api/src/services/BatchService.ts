@@ -273,10 +273,35 @@ export class BatchService {
     let ages = [];
 
     ages = students.map((i: any) => {
-      return moment(new Date()).diff(moment(i.dob,"YYYY-MM-DD"),'years',true)
+      return moment(new Date()).diff(moment(i.student.dob,"YYYY-MM-DD"),'years',true)
     });
 
-    console.log(ages);
+    let minAge: number = 0;
+    let maxAge: number = 0;
+
+    for(let age of ages){
+      if(!age){
+        continue;
+      }
+      if(age > maxAge){
+        maxAge = age;
+      }
+      if(age < minAge || minAge <= 0){
+        minAge = age;
+      }
+    }
+
+    if(parseInt(String(minAge))){
+      batch.minAge = minAge;
+    }
+
+    if(parseInt(String(maxAge))){
+      batch.maxAge = maxAge;
+    }
+
+    const classes = await this.classesRepository.update( {id: batch.id}, batch);
+    
+    return classes;
   }
 
   async createBatchSql(data: any) {
