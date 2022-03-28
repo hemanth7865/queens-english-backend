@@ -280,7 +280,7 @@ export class BatchService {
     let maxAge: number = 0;
 
     for(let age of ages){
-      if(!age){
+      if(!parseInt(String(age))){
         continue;
       }
       if(age > maxAge){
@@ -292,11 +292,33 @@ export class BatchService {
     }
 
     if(parseInt(String(minAge))){
-      batch.minAge = minAge;
+      batch.minAge = parseInt(String(minAge));
     }
 
     if(parseInt(String(maxAge))){
-      batch.maxAge = maxAge;
+      batch.maxAge = parseInt(String(maxAge));
+    }
+
+
+    if(batch.minAge && batch.maxAge && typeof batch.minAge === "number" && typeof batch.maxAge === "number"){
+      const allowedAges: any[] = [];
+
+      const sub: number = batch.maxAge - batch.minAge;
+
+      const gap = 3 - sub;
+
+      allowedAges.push(batch.minAge < 10 ? `0${batch.minAge}` : batch.minAge);
+      for(let i = batch.minAge + 1; i < batch.maxAge; i++){
+        allowedAges.push(i < 10 ? `0${i}` : i);
+      }
+      for(let i = 0; i < gap; i++){
+        let m = batch.minAge - i - 1;
+        let ma = batch.maxAge + i + 1;
+        allowedAges.push(m < 10 ? `0${m}` : m);
+        allowedAges.push(ma < 10 ? `0${ma}` : ma);
+      }
+      allowedAges.push(batch.maxAge < 10 ? `0${batch.maxAge}` : batch.maxAge);
+      batch.ages = JSON.stringify(allowedAges);
     }
 
     const classes = await this.classesRepository.update( {id: batch.id}, batch);
