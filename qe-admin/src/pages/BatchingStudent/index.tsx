@@ -33,17 +33,6 @@ const StudentOnboard: React.FC = () => {
     setVisibleEdit(false);
   };
 
-  const openNotificationWithIcon = (type: string, message: string) => {
-    notification[type]({
-      message,
-      description:
-        '',
-    });
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
-  };
-
 //edit submit 
 const formSubmit = async (value: any)=>{
   //console.log('value', value)

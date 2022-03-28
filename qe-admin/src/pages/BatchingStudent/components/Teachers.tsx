@@ -91,8 +91,8 @@ const Batch: React.FC<BatchProps> = (props) => {
     const createBatch = (dom: any) => {
       let startDate = moment(data.startDate, "YYYY-MM-DD").format("YYYY-MM-DD");
       let endDate = moment(startDate, "YYYY-MM-DD").add('years', 1).format("YYYY-MM-DD");
-      let startTime = moment(startDate + `T${data.timings}`, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
-      let endTime = moment(startTime, "YYYY-MM-DDTHH:mm:ss").add('hours', 1).format("YYYY-MM-DDTHH:mm:ss");
+      let startTime = moment(data.timings, "HH:mm").format("HH:mm");
+      let endTime = moment(startTime, "HH:mm").add('hours', 1).format("HH:mm");
 
       const linkParams: string[] = [
         `teacherId=${dom.id}`,
