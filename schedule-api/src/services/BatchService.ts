@@ -335,6 +335,17 @@ export class BatchService {
     }
   }
 
+  async updateAllBatchesAgeGroup(){
+    let result = 0;
+    const batches = await this.classesRepository.find();
+    for(let batch of batches){
+      await this.updateBatchAgeGroup(batch);
+      result += 1;
+    }
+
+    return { success: true, message: `${result} Batches Updated` };
+  }
+
   async createBatchSql(data: any) {
     try {
       var batchStudent: BatchStudent[] = [];

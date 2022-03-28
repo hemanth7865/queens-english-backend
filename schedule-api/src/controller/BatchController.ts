@@ -129,4 +129,12 @@ export class BatchController {
             return { success: false, error: error.toString() };
         }
     }
+
+    async updateAllBatchesAgeGroup(request: Request, response: Response, next: NextFunction) {
+        try {
+            return await this.batchService.updateAllBatchesAgeGroup();
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }

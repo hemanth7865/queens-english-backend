@@ -136,6 +136,12 @@ export const Routes = [
     action: "createBatch",
   },
   {
+    method: "post",
+    route: "/updateAllBatchesAgeGroup",
+    controller: BatchController,
+    action: "updateAllBatchesAgeGroup",
+  },
+  {
     method: "get",
     route: "/listBatch",
     controller: BatchController,
