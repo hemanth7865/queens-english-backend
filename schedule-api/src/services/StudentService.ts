@@ -11,6 +11,7 @@ const { usersLogger } = require("../Logger.js");
 import { TeacherService } from "./TeacherService";
 import { StudentAvailability } from "../entity/StudentAvailability";
 import { Payment } from "../entity/Payment";
+import { PRManager } from "../entity/PRManager";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -18,6 +19,7 @@ export class StudentService {
   private paymentRepository = getRepository(Payment);
   private studentAvailabilityRepository = getRepository(StudentAvailability);
   private teacherService  = new TeacherService();
+  private prmRepository = getRepository(PRManager);
 
 
   private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
@@ -124,7 +126,7 @@ export class StudentService {
 
   
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.whatsapp, u.address, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments, s.alternativeMobile, CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.callStatus, s.callBackon, s.bdaName, s.bdmName,  s.poc,  p.paymentid, s.courseFrequency, s.timings from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
   let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
 
   console.log(`query string ${query_list}`);
@@ -141,14 +143,17 @@ export class StudentService {
         let slotsResult: any[] = [];
         let batchCodes: any[] = [];
         let payment: string;
+        var prm_info = new PRManager();
    
         var studentOrTeacherId=[];
+        var zoomLinkBatch = [];
+        var zoomInfoBatch = [];
         var batchCode = '';
   
         if (type == 'student' ) {
             
           var quer =
-          "select id,batchNumber from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink, zoomInfo from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
           
@@ -156,13 +161,30 @@ export class StudentService {
           batchCodes.forEach((element) => {
             console.log("batchCode", element);
             studentOrTeacherId.push(element.batchNumber);
+            zoomLinkBatch.push(element.zoomLink)
+            zoomInfoBatch.push(element.zoomInfo)
           });
 
           var paymentQuer =
-          "select * from payment where studentId = '"+element.id+"';";
+          "select * from payment where id = '"+element.id+"';";
           
           payment = await getManager().query(paymentQuer);
+          console.log(`PRM id is ${element.prm_id}`);
+
+          prm_info = await this.prmRepository.findOne(element.prm_id);
         }
+        
+        if (element.dob) {
+          var today = new Date();
+          var birthDate = new Date(element.dob);
+          var age = today.getFullYear() - birthDate.getFullYear();
+          var m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
+          {
+              element.age = age--;
+          }
+        }
+       
         var l = new LeadView(
           element.id,
           element.id,
@@ -207,11 +229,18 @@ export class StudentService {
           element.poc,
           element.courseFrequency,
           element.timings,
+          element.customerEmail,
+          element.state,
+          zoomLinkBatch.join(","),
+          zoomInfoBatch.join(","),
+          prm_info.id,
+          prm_info.firstName,
+          prm_info.lastName
         );
         leadView.push(l);
       }
 
-      console.log('leadsview', leadView)
+     // console.log('leadsview', leadView)
   
       return {
         success: true,
@@ -343,6 +372,8 @@ export class StudentService {
     user.phoneNumber = data.phoneNumber;
     user.email = data.email;
     user.type = data.type;
+    user.customerEmail = data.customerEmail;
+    user.alternativeMobile = data.alternativeMobile;
 
     if (data.id) {
       user.id = data.id;
@@ -398,6 +429,12 @@ export class StudentService {
         payment.dateofsale = element.dateofsale;
         payment.downpayment = element.downpayment ? element.downpayment : 0;
         payment.duedate = element.duedate;
+        payment.subscription = element.subscription;
+        payment.subscriptionNo = element.subscriptionNo;
+        payment.emi = element.emi;
+        payment.emiMonths = element.emiMonths;
+        payment.paymentMode = element.paymentMode;
+        payment.dateofsale = element.dateofsale;
         payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments: 0;
         payments.push(payment);
       }
@@ -676,4 +713,6 @@ export class StudentService {
       pageSize: limit,
     };
   }
+
+  
 }
