@@ -53,7 +53,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <Input placeholder="YYYY-MM-DD"/>
+      return <input type="date" style = {{width: 120}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -108,7 +108,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 240 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -144,7 +143,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 120 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -221,11 +219,11 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string) => {
+  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any) => {
     const waMessage = (
       <div>
         <p>Hello <br/>
-        I am your Academic Counsellor _______ from The Queen’s English and I am thrilled to inform you that your live classes will be starting on XX/XX/XXXX, you can use the below details to join your classes:<br/>
+        I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate,"YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your classes:<br/>
         Zoom Link: <br/>
         Topic: QEXXX<br/>
         Time: {timings} India<br/>
@@ -478,6 +476,14 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'PRM Name',
+      width: 150,
+      editable: false,
+      render: (value)=>{
+        return `${value.prm_firstName} ${value.prm_lastName}`
+      }
+    },
+    {
       title: 'PRM Comments',
       dataIndex: 'callBackon',
       width: 150,
@@ -496,7 +502,7 @@ const StudentOnboard: React.FC = () => {
         return(        
         <a
           onClick={() => {
-            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink)
+            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate)
           }}
         >
           <EyeOutlined/>

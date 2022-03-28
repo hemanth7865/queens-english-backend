@@ -52,7 +52,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <Input placeholder="YYYY-MM-DD"/>
+      return <input type="date" style = {{width: 120}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -83,7 +83,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 180 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -119,7 +118,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 130 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -155,7 +153,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 130 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -191,7 +188,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 130 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -227,7 +223,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 240 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -263,7 +258,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return(
         <Select
         style={{ width: 120 }}
-        placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
             {menu}
@@ -363,12 +357,12 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string,  message: string) => {
+  const openNotification = (type: string,  message: string, prm_firstName: string, prm_lastName: string) => {
     const waMessage = (
       <div>
         <p>Hello <br/>
         We're delighted to welcome you aboard The Queen's English.<br/>
-        I'll be your academic counsellor, and my name is ____.<br/>
+        I'll be your academic counsellor, and my name is {prm_firstName} {prm_lastName}.<br/>
         We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br/>
         Step 1: Go to the Google Play Store and download the app using the following link:     
         <a>https://queensenglish.co/app</a><br/>
@@ -588,7 +582,7 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'POC',
+      title: 'Referral POC',
       dataIndex: 'poc',
       width: 150,
       editable: true,
@@ -635,7 +629,7 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'classess sold',
+      title: 'classes sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true,
@@ -665,7 +659,7 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Subscription No',
+      title: 'Subscription No(if auto debit)',
       dataIndex: 'subscriptionNo',
       width: 200,
       editable: true,
@@ -701,6 +695,14 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'PRM Name',
+      width: 150,
+      editable: false,
+      render: (value)=>{
+        return `${value.prm_firstName} ${value.prm_lastName}`
+      }
+    },
+    {
       title: 'BDA Name',
       dataIndex: 'bdaName',
       width: 150,
@@ -719,7 +721,7 @@ const StudentOnboard: React.FC = () => {
         return(        
         <a
           onClick={() => {
-            openNotification('info', value.phoneNumber)
+            openNotification('info', value.phoneNumber, value.prm_firstName, value.prm_lastName)
           }}
         >
           <EyeOutlined/>
