@@ -97,14 +97,26 @@ const Batch: React.FC<BatchProps> = (props) => {
       const linkParams: string[] = [
         `teacherId=${dom.id}`,
         `teacherName=${dom.name}`,
-        `startTime=${startTime}`,
-        `endTime=${endTime}`,
-        `startDate=${startDate}`,
-        `endDate=${endDate}`,
-        `startLesson=${lesson?.id || ''}`,
-        `frequency=${data.courseFrequency}`,
         `add=1`,
       ];
+
+      if(data.startDate && startDate !== "Invalid date"){
+        linkParams.push(`startDate=${startDate}`);
+        linkParams.push(`endDate=${endDate}`);
+      }
+
+      if(data.timings && startTime !== "Invalid date"){
+        linkParams.push(`startTime=${startTime}`);
+        linkParams.push(`endTime=${endTime}`);
+      }
+
+      if(lesson?.id){
+        linkParams.push(`startLesson=${lesson.id}`);
+      }
+
+      if(data.courseFrequency){
+        linkParams.push(`frequency=${data.courseFrequency}`);
+      }
 
       let params: string = linkParams.join("&");
 
