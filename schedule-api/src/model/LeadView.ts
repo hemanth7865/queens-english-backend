@@ -65,6 +65,8 @@ export class LeadView {
   prm_id:string;
   prm_firstName:string;
   prm_lastName:string;
+  salestatus:string;
+  salesowner:string;
 
   public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
       ratings:number,slots:string,leadType:number, type:string, batchCode:string,   studentID:string, dob?:string|Date, whatsapp?: string, address?: string, 
@@ -73,7 +75,7 @@ export class LeadView {
       comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, 
       studentType?: string, firstFeedback?: string, classesStartDate?: string, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: 
       string, poc?: string, courseFrequency?: string, timings?: string, customerEmail?: string, state?: string, zoomLink?: string, zoomInfo?: string,
-      prm_id?:string,prm_firstName?:string,prm_lastName?:string) {
+      prm_id?:string,prm_firstName?:string,prm_lastName?:string,salestatus?:string,salesowner?:string) {
       this.id = id;
       this.leadId = leadId;
       this.date = date;
@@ -140,5 +142,7 @@ export class LeadView {
       this.prm_id=prm_id,
       this.prm_firstName=prm_firstName;
       this.prm_lastName=prm_lastName;
+      this.salestatus=salestatus;
+      this.salesowner=salesowner;
   }
 }
