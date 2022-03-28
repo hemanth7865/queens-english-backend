@@ -261,69 +261,78 @@ export class BatchService {
   }
 
   async updateBatchAgeGroup(batch: Classes){
-    const students = await getRepository(BatchStudent)
-    .createQueryBuilder("batchStudent")
-    .leftJoin("batchStudent.student", "student")
-    .addSelect(["student.firstName", "student.lastName", "student.dob"])
-    .where("batchStudent.batchId = :id", { id: batch.id })
-    .getMany();
-
-    const moment = require("moment");
-
-    let ages = [];
-
-    ages = students.map((i: any) => {
-      return moment(new Date()).diff(moment(i.student.dob,"YYYY-MM-DD"),'years',true)
-    });
-
-    let minAge: number = 0;
-    let maxAge: number = 0;
-
-    for(let age of ages){
-      if(!parseInt(String(age))){
-        continue;
+    console.log(batch);
+    try{
+      let students: any[];
+        students = await getRepository(BatchStudent)
+        .createQueryBuilder("batchStudent")
+        .leftJoin("batchStudent.student", "student")
+        .addSelect(["student.dob"])
+        .where("batchStudent.batchId = :id", { id: batch.id })
+        .getMany();
+  
+      console.log(students);
+  
+      const moment = require("moment");
+  
+      let ages = [];
+  
+      ages = students.map((i: any) => {
+        return moment(new Date()).diff(moment(i.student?.dob,"YYYY-MM-DD"),'years',true)
+      });
+  
+      let minAge: number = 0;
+      let maxAge: number = 0;
+  
+      for(let age of ages){
+        if(!parseInt(String(age))){
+          continue;
+        }
+        if(age > maxAge){
+          maxAge = age;
+        }
+        if(age < minAge || minAge <= 0){
+          minAge = age;
+        }
       }
-      if(age > maxAge){
-        maxAge = age;
+  
+      if(parseInt(String(minAge))){
+        batch.minAge = parseInt(String(minAge));
       }
-      if(age < minAge || minAge <= 0){
-        minAge = age;
+  
+      if(parseInt(String(maxAge))){
+        batch.maxAge = parseInt(String(maxAge));
       }
+  
+  
+      if(batch.minAge && batch.maxAge && typeof batch.minAge === "number" && typeof batch.maxAge === "number"){
+        const allowedAges: any[] = [];
+  
+        const sub: number = batch.maxAge - batch.minAge;
+  
+        const gap = 3 - sub;
+  
+        allowedAges.push(batch.minAge < 10 ? `0${batch.minAge}` : batch.minAge);
+        for(let i = batch.minAge + 1; i < batch.maxAge; i++){
+          allowedAges.push(i < 10 ? `0${i}` : i);
+        }
+        for(let i = 0; i < gap; i++){
+          let m = batch.minAge - i - 1;
+          let ma = batch.maxAge + i + 1;
+          allowedAges.push(m < 10 ? `0${m}` : m);
+          allowedAges.push(ma < 10 ? `0${ma}` : ma);
+        }
+        allowedAges.push(batch.maxAge < 10 ? `0${batch.maxAge}` : batch.maxAge);
+        batch.ages = JSON.stringify(allowedAges);
+      }
+      
+      const classes = await this.classesRepository.update( {id: batch.id}, {ages: batch.ages, minAge: batch.minAge, maxAge: batch.maxAge});
+      
+      return classes;
+    }catch(e){
+      console.log(e);
+      return e;
     }
-
-    if(parseInt(String(minAge))){
-      batch.minAge = parseInt(String(minAge));
-    }
-
-    if(parseInt(String(maxAge))){
-      batch.maxAge = parseInt(String(maxAge));
-    }
-
-
-    if(batch.minAge && batch.maxAge && typeof batch.minAge === "number" && typeof batch.maxAge === "number"){
-      const allowedAges: any[] = [];
-
-      const sub: number = batch.maxAge - batch.minAge;
-
-      const gap = 3 - sub;
-
-      allowedAges.push(batch.minAge < 10 ? `0${batch.minAge}` : batch.minAge);
-      for(let i = batch.minAge + 1; i < batch.maxAge; i++){
-        allowedAges.push(i < 10 ? `0${i}` : i);
-      }
-      for(let i = 0; i < gap; i++){
-        let m = batch.minAge - i - 1;
-        let ma = batch.maxAge + i + 1;
-        allowedAges.push(m < 10 ? `0${m}` : m);
-        allowedAges.push(ma < 10 ? `0${ma}` : ma);
-      }
-      allowedAges.push(batch.maxAge < 10 ? `0${batch.maxAge}` : batch.maxAge);
-      batch.ages = JSON.stringify(allowedAges);
-    }
-
-    const classes = await this.classesRepository.update( {id: batch.id}, batch);
-    
-    return classes;
   }
 
   async createBatchSql(data: any) {
@@ -423,6 +432,8 @@ export class BatchService {
         }
         classes.students = batchStudent;
       }
+
+      await this.updateBatchAgeGroup(classes);
 
       return classes;
     } catch (error) {
