@@ -716,7 +716,7 @@ export class StudentService {
     };
   }
 
-  async updateStudentsCSV(data: any){
+  async updateStudentsCSV(data: any, query: {test: false}){
     const moment = require("moment");
     const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
     let result = {
@@ -797,7 +797,9 @@ export class StudentService {
 
         const resultData = {...student, ...user};
 
-        await this.saveStudentDetails(resultData);
+        if(!query.test){
+          await this.saveStudentDetails(resultData);
+        }
 
         result.updated ++;
       }catch(e){

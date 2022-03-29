@@ -221,7 +221,7 @@ export class UserController {
                         myResolve(); 
                     });
                 });
-            return this.studentService.updateStudentsCSV(data);
+            return this.studentService.updateStudentsCSV(data, request.query);
         }catch(e){
             return {e, name: file.name, size: file.size, type: file.type};
         }
