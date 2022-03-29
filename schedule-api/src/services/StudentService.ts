@@ -764,7 +764,7 @@ export class StudentService {
           student.id = user.id;
         }
 
-        student.created_at = moment(d["Timestamp"], "DD-MM-YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss");
+        user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
         student.studentID = d["Student ID"];
         student.payment = new Payment();
         student.payment.dateofsale = formatDate(d["Date of Sale"]);
@@ -797,48 +797,13 @@ export class StudentService {
 
         const resultData = {...student, ...user};
 
-        return {resultData};
+        await this.saveStudentDetails(resultData);
+
+        result.updated ++;
       }catch(e){
         console.log(e);
         result.errors++;
       }
-
-
-      // var student = await getManager()
-      //   .createQueryBuilder(Student, "student")
-      //   .where("student.id = :id", { id: id })
-      //   .getOne();
-      //   console.log(student);
-          
-      //     var quer =
-      //     "select studentId , batchId from batch_students where studentId='" +
-      //     id +
-      //     "';";
-      //     var studentOrTeacherId=[];
-      // var  batchCodes = await getManager().query(quer);
-      //   batchCodes.forEach((element) => {
-      //     console.log("batchdode", element);
-      //     studentOrTeacherId.push(element.batchId);
-      //   });
-      
-  
-      // const response = {
-      //   ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id
-      // }
-
-
-      // let student = await this.getStudentDetailsById(d.id);
-      // if(student.success){
-      //   let student = student.data;
-      //   let update = await this.updateStudent(d, student.id);
-      //   if(update.success){
-      //     result.updated++;
-      //   }else{
-      //     result.errors++;
-      //   }
-      // }else{
-      //   result.notFound++;
-      // }
     }
 
     /**
