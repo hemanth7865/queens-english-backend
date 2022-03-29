@@ -7,6 +7,7 @@ import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
 import { UserService } from "../services/UserService";
+import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 
@@ -209,5 +210,20 @@ export class UserController {
 
     }
 
-
+    async updateStudentsCSV(request: Request, response: Response, next: NextFunction) {
+        const file = request.files.students;
+        let data;
+        await new Promise(function(myResolve: any, myReject: any) {
+            parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
+                    data = records;
+                    myResolve(); 
+                });
+            });
+        try{
+            return {data};
+        }catch(e){
+            return {e, name: file.name, size: file.size, type: file.type};
+        }
+        return this.studentService.updateStudentsCSV(request.body);
+    }
 }

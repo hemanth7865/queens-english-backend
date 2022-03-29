@@ -38,7 +38,12 @@ export const Routes = [
     controller: UserController,
     action: "allLeads",
   },
-
+  {
+    method: "post",
+    route: "/leads/csv",
+    controller: UserController,
+    action: "updateStudentsCSV",
+  },
   {
     method: "get",
     route: "/leadsView",
