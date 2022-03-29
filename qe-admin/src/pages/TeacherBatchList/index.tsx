@@ -64,6 +64,7 @@ import Availability from "./availability";
 import moment from "moment";
 import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
+import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 
 
 const DEFAULT_COUNTRY_CODE_NUMBER = "91";
@@ -126,8 +127,9 @@ const TeacherBatchList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
-  const [selectCountryCode, setSelectCountryCode] = useState('')
+  const [selectCountryCode, setSelectCountryCode] = useState(91)
   const [selectCountry, setSelectCountry] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
 
   //state for select option
   const [selectValue, setSelectValue] = useState("");
@@ -152,6 +154,10 @@ const TeacherBatchList: React.FC = () => {
     setVisible(false);
     seteditvisible(false);
   };
+
+  const handleMobileChangeCountry = (e) => {
+    setPhoneNumber(e.target.value);
+  }
 
   const handleMobileChange = (event) => {
     const number = event.target.value
@@ -511,7 +517,7 @@ const TeacherBatchList: React.FC = () => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       dob: dateBirth,
-      phoneNumber: formData.phoneNumber,
+      phoneNumber: '+' + selectCountryCode + phoneNumber,
       email: formData.email,
       address: formData.address,
       whatsapp: formData.whatsapp,
@@ -976,24 +982,33 @@ const TeacherBatchList: React.FC = () => {
 
                   
                   {/* Mobile and Whatsup */}
-
-                  <Col span={12}>
-                    <Form.Item
-                      name="phoneNumber"
-                      rules={[
-                        { required: true, message: "Please enter mobile number" },
-                      ]}
-                    >
-                      <Input
-                        type="text"
-                        placeholder="phoneNumber"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleMobileChange}
-                      //  prefix = {selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                      />
-                    </Form.Item>
-                  </Col>
+                  
+                  {
+                    !formData.phoneNumber && 
+                    (<PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} />) 
+                  }
+                  {
+                    formData.phoneNumber && (
+                      <Col span={12}>
+                        <Form.Item
+                          name="phoneNumber"
+                          rules={[
+                            { required: true, message: "Please enter mobile number" },
+                          ]}
+                        >
+                          <Input
+                            type="text"
+                            placeholder="phoneNumber"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleMobileChange}
+                          //  prefix = {selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
+                          />
+                        </Form.Item>
+                      </Col>
+                    )
+                  }
+      
                   <Col span={12}>
                     <Form.Item name="whatsApp">
                       <Input
