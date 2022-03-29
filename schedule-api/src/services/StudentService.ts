@@ -717,6 +717,134 @@ export class StudentService {
   }
 
   async updateStudentsCSV(data: any){
-    return {data};
+    const moment = require("moment");
+    const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
+    let result = {
+      "updated": 0,
+      "notFound": 0,
+      "errors": 0,
+      "duplicated": 0,
+      "duplicatedRecords": {}
+    };
+
+    const allowedReq = {
+      "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
+      "T-Th-S (Course duration - 8 Months)": "TTS",
+      "M-W-F (Course duration - 8 Months)": "MWF",
+      "Sa - S (Course duration - 14 Months)": "SS",
+    }
+
+    for(let d of data){
+      try{
+        const users = await getManager()
+        .createQueryBuilder(User, "user")
+        .where(`user.phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`)
+        .getMany();
+  
+        if(users.length < 1){
+          result.notFound++;
+          continue;
+        }
+
+        if(users.length > 1){
+          result.duplicated++;
+          result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
+          continue;
+        }
+
+        const user = users[0];
+
+        let student: any = await getManager()
+        .createQueryBuilder(Student, "student")
+        .where("student.id = :id", { id: user.id })
+        .getOne();
+
+        if(!student){
+          student = new Student;
+          student.id = user.id;
+        }
+
+        student.created_at = moment(d["Timestamp"], "DD-MM-YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss");
+        student.studentID = d["Student ID"];
+        student.payment = new Payment();
+        student.payment.dateofsale = formatDate(d["Date of Sale"]);
+        const [pfirstName, plastName] = d["Full name of the customer"].split(" ");
+        student.pfirstName = pfirstName;
+        student.plastName = plastName;
+        user.whatsapp = d["Whatsapp Number"];
+        user.alternativeMobile = d["Alternate Number"];
+        user.customerEmail = d["Email ID of the customer"];
+        user.address = d["Customer Address"];
+        user.state = d["Customer Address - State"];
+        student.course = d["Course"];
+        student.courseFrequency = allowedReq[d["Course Frequency"]];
+        student.timings = d["Preferred Timings"].slice(0, 7);
+        student.startLesson = `Lesson ${d["Starting Level of the Student"].split(" ")[d["Starting Level of the Student"].split(" ").length - 1]}`;
+        student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
+        student.payment.classessold = d["Number of classes sold"];
+        student.payment.saleamount = d["Total Sale Amount (INR)"];
+        student.payment.downpayment = d["Down payment (INR)"];
+        student.payment.emi = d["EMI Amount (INR)"];
+        student.payment.emiMonths = d["Number of months of EMI"];
+        student.payment.paymentMode = d["Payment Mode"];
+        student.payment.paymentid = d["Transaction ID"];
+        student.comments = d["BDA comments"];
+        user.dob = formatDate(d["Date of birth of the student"]);
+        student.payment.plantype = d["Type of Sale"];
+        student.payment.subscription = d["Subscription"];
+
+        student.payment = [student.payment];
+
+        const resultData = {...student, ...user};
+
+        return {resultData};
+      }catch(e){
+        console.log(e);
+        result.errors++;
+      }
+
+
+      // var student = await getManager()
+      //   .createQueryBuilder(Student, "student")
+      //   .where("student.id = :id", { id: id })
+      //   .getOne();
+      //   console.log(student);
+          
+      //     var quer =
+      //     "select studentId , batchId from batch_students where studentId='" +
+      //     id +
+      //     "';";
+      //     var studentOrTeacherId=[];
+      // var  batchCodes = await getManager().query(quer);
+      //   batchCodes.forEach((element) => {
+      //     console.log("batchdode", element);
+      //     studentOrTeacherId.push(element.batchId);
+      //   });
+      
+  
+      // const response = {
+      //   ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id
+      // }
+
+
+      // let student = await this.getStudentDetailsById(d.id);
+      // if(student.success){
+      //   let student = student.data;
+      //   let update = await this.updateStudent(d, student.id);
+      //   if(update.success){
+      //     result.updated++;
+      //   }else{
+      //     result.errors++;
+      //   }
+      // }else{
+      //   result.notFound++;
+      // }
+    }
+
+    /**
+     * Map Data
+     */
+    // saveStudentDetails
+    return result;
   }
 }

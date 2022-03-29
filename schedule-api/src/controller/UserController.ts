@@ -212,18 +212,18 @@ export class UserController {
 
     async updateStudentsCSV(request: Request, response: Response, next: NextFunction) {
         const file = request.files.students;
-        let data;
-        await new Promise(function(myResolve: any, myReject: any) {
-            parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
-                    data = records;
-                    myResolve(); 
-                });
-            });
+        let data = [];
+ 
         try{
-            return {data};
+            await new Promise(function(myResolve: any, myReject: any) {
+                parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
+                        data = records;
+                        myResolve(); 
+                    });
+                });
+            return this.studentService.updateStudentsCSV(data);
         }catch(e){
             return {e, name: file.name, size: file.size, type: file.type};
         }
-        return this.studentService.updateStudentsCSV(request.body);
     }
 }
