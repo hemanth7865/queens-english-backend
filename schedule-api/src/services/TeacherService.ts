@@ -903,9 +903,11 @@ export class TeacherService {
         try {
           var teacherAvailability: TeacherAvailability[] = [];
 
-          userRecord = await (new UserService).isUserExists("phoneNumber", data.rmn, '');
+         // userRecord = await (new UserService).isUserExists("phoneNumber", data.rmn, '');
+       
+          userRecord = await await getRepository(User).findOne({ phoneNumber: Like(`%${data.rmn}%`) });
           if (userRecord) {
-
+            usersLogger.info(`Processing record with phoneNumber ${data.rmn}`)
             teacherRecord = await getRepository(Teacher).findOne({ id: Like(`%${userRecord.id}%`) });
 
             data.weekday.split("-").forEach(async element => {
@@ -937,13 +939,17 @@ export class TeacherService {
               teacherAvailability[i++] = availability;
 
             });
+            usersLogger.info(`Teacher Id updating ... ${data.rmn}`);
             userRecord.teacherAvailability = teacherAvailability;
             getRepository(User).save(userRecord);
             return "Loaded teacher availability ...";
+          }else {
+            usersLogger.info(`User record not found for user ${data.rmn}`)
           }
         }
         catch (err) {
           usersLogger.info(`user not found with phoneNumber ${data.rmn}`);
+          usersLogger.info(err);
         }
       })
       .on('end', async function () {
