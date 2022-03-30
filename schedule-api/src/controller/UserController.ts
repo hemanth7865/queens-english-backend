@@ -49,6 +49,7 @@ export class UserController {
         console.log('End::UserController::SaveLead');
         return resp;
     }
+    
 
     async updateLeadsStatus(request: Request, response: Response, next: NextFunction){
         usersLogger.info('Start::UserController::updateLeadsStatus');
@@ -207,6 +208,14 @@ export class UserController {
         }
         return this.teacherService.availableTeachers(request.body, parameters);
 
+    }
+
+
+    async loadTeacherAvailability(request: Request, response: Response, next: NextFunction) {
+        usersLogger.info("Loading teacher availability ....");
+        let msg = await this.teacherService.updateTeacherAvailability();
+        usersLogger.info("Loading teacher availability completed....");
+        return msg;
     }
 
 

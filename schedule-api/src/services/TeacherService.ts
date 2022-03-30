@@ -1,4 +1,4 @@
-import { Any, getConnection, getRepository } from "typeorm";
+import { Any, getConnection, getRepository, Like, Not } from "typeorm";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
@@ -6,7 +6,10 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import axios from "axios";
 import { Student } from "../entity/Student";
+import { UserService } from "./UserService";
 const { usersLogger } = require("../Logger.js");
+const fs = require('fs'); 
+const csv = require('csv-parser');
 
 export class TeacherService {
   
@@ -879,13 +882,88 @@ export class TeacherService {
         " ";
     });
     if (slot) users.slots = slot;
-    console.log('user sdfsf', users)
     return { success: true, data: users, total: 1, current: 1, pageSize: 1 };
   }
+
+
+  async updateTeacherAvailability() {
+    var map = new Map();
+    map.set("Sun", 0);
+    map.set("Mon", 1);
+    map.set("Tue", 2);
+    map.set("Wed", 3);
+    map.set("Thu", 4);
+    map.set("Fri", 5);
+    map.set("Sat", 6);
+    await fs.createReadStream(process.env.FILE_PATH)
+      .pipe(csv())
+      .on('data', async function (data) {
+        let teacherRecord = new Teacher();
+        let userRecord = new User();
+        try {
+          var teacherAvailability: TeacherAvailability[] = [];
+
+          userRecord = await (new UserService).isUserExists("phoneNumber", data.rmn, '');
+          if (userRecord) {
+
+            teacherRecord = await getRepository(Teacher).findOne({ id: Like(`%${userRecord.id}%`) });
+
+            data.weekday.split("-").forEach(async element => {
+              let i = 0;
+              var availability = new TeacherAvailability();
+              availability.start_date = data.start_date ? data.start_date : null;
+
+              if (data.start_time) {
+                let time = data.start_time.split(":");
+                availability.start_slot = time[0];
+                availability.start_min = time[1];
+                availability.startMin = time[0] * 60 + time[1];
+              }
+
+              if (data.end_time) {
+                let time = data.end_time.split(":");
+                availability.end_slot = time[0];
+                availability.end_min = time[1];
+                availability.endMin = time[0] * 60 + time[1];
+              }
+
+              availability.weekday = parseInt(map.get(element));
+              availability.teacher = await getRepository(Teacher).findOne({ id: userRecord.id });
+              availability.created_at = new Date();
+              availability.updated_at = new Date();
+              availability = await getRepository(TeacherAvailability).save(
+                availability
+              );
+              teacherAvailability[i++] = availability;
+
+            });
+            userRecord.teacherAvailability = teacherAvailability;
+            getRepository(User).save(userRecord);
+            return "Loaded teacher availability ...";
+          }
+        }
+        catch (err) {
+          usersLogger.info(`user not found with phoneNumber ${data.rmn}`);
+        }
+      })
+      .on('end', async function () {
+        return "success";
+      });
+    return "Loaded teacher availability ...";
+  }
+
+  async isTeacherExists(column = "phoneNumber", value: string, id: string | undefined): Promise<any>{
+    let where: any =  {[column]: value};
+    if(id){
+        where['id'] = Not(id);
+    }
+    try{
+      const user = await this.teacherRepository.findOne({where});
+      return user;
+    }catch(e){
+      usersLogger.error(e);
+      return false;
+    }
+  }
+  
 }
-
-function options(options: any, arg1: (res: any) => void) {
-  throw new Error("Function not implemented.");
-}
-
-
