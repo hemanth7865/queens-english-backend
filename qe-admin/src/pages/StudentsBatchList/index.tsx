@@ -201,7 +201,6 @@ const StudentsBatchList: React.FC = () => {
     teacherName: '',
     batchCode: '',
     alternativeMobile: '',
-    studentID: '',
     age: '',
     address: '',
     referralCode: '',
@@ -596,7 +595,6 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber,
       batchCode: formData.batchCode,
       alternativeMobile: formData.alternativeMobile,
-      studentID: formData.studentID,
       age: formData.age,
       address: formData.address,
       classType: formData.classType,
@@ -689,7 +687,6 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
-      studentID: formData.studentID ? formData.studentID : tempDataView.studentID,
       age: formData.age ? formData.age : tempDataView.age,
       address: formData.address ? formData.address : tempDataView.address,
       classType: formData.ClassType?formData.ClassType:tempDataView.classType,
@@ -834,16 +831,6 @@ const StudentsBatchList: React.FC = () => {
             <Form onFinish={handleFormSubmit}>
 
               <Row gutter={16}>
-              <Col span={12}>
-                  <Form.Item name="studentID">
-                    <Input
-                      placeholder="Student ID"
-                      name="studentID"
-                      value={formData.studentID}
-                      onChange={handleFormChange} 
-                    />
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item
                     name="firstName"
@@ -1097,7 +1084,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <Form.Item name="comments">
                     <Input
                       placeholder="comments"
@@ -2063,16 +2050,6 @@ const StudentsBatchList: React.FC = () => {
             <TabPane tab="Student Info" key="1"> 
             <Form onFinish={handleFormSubmitEdit}> 
               <Row gutter={16}>
-              <Col span={12}>
-                  <Form.Item name="studentID">
-                    <Input
-                      placeholder="Student ID"
-                      name="studentID"
-                      defaultValue={tempDataView.studentID}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item
                     name="firstName"
@@ -2303,7 +2280,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <Form.Item name="comments">
                     <Input
                       placeholder="comments"
