@@ -1,16 +1,13 @@
-// @ts-nocheck
 import React, {useState} from 'react';
-import {Form, Input, Button, Row, Col, Select, DatePicker, notification, Spin} from 'antd'
+import {Form, Input, Button, Row, Col, Select, Spin} from 'antd'
 import {
-    isPossiblePhoneNumber,
     isValidPhoneNumber,
     validatePhoneNumberLength,
-    parsePhoneNumber,
-    getCountryCallingCode
   } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
 import {addUserSchedule} from "@/services/ant-design-pro/api";
 import {handleAPIResponse} from "@/services/ant-design-pro/helpers";
+import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 
 //console.log('ccc', CountryList)
 
@@ -36,23 +33,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [selectCountryCode, setSelectCountryCode] = useState(91)
 
     const allCountries = CountryList.getData()
-    // console.log('cdc', allCountries)
-
-    //default country India
-    const defaultCountry = allCountries.filter(country=>country.name === 'India')
-    console.log('default country', defaultCountry, defaultCountry.map(name => name.name))
-
-    //Displaying all countries in select option
-    const handleCountry = (value)=>{
-        console.log('selected country', value)
-        if(value){
-            const code = CountryList.getCode(value)
-            const codeNumber = getCountryCallingCode(code)
-            console.log('code', code, codeNumber)
-            setSelectCountry(code)
-            setSelectCountryCode(codeNumber)
-        }
-    }
+ 
 
     //validation for phone number
     const handleMobileChange = (event)=>{
@@ -179,36 +160,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span = {12}>
-                            <Form.Item
-                                name="countryCode">
-                                <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map(name => name.name)}>
-                                    {allCountries.map((country)=>{
-                                        return <Option value = {country.name} key = {country.code}>{country.name}</Option>
-                                    })}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span = {12}>
-                            <Form.Item name="phoneNumber"
-                            rules={[
-                                {
-                                required: false,
-                                
-                                },
-                            ]}
-                            >
-                                <Input
-                                    placeholder = "Enter Mobile Number"
-                                    name = "phoneNumber"
-                                    onChange = {handleMobileChange}
-                                    addonBefore={"+"+selectCountryCode}
-                                    />
-                                {error? (
-                                    <p style = {{color: 'red'}}>{error}</p>
-                                ): ''}
-                            </Form.Item>
-                        </Col>
+                        <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} /> 
                         <Col span = {12}>
                             <Form.Item
                                 name="Email"

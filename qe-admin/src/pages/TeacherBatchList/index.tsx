@@ -983,31 +983,7 @@ const TeacherBatchList: React.FC = () => {
                   
                   {/* Mobile and Whatsup */}
                   
-                  {
-                    !formData.phoneNumber && 
-                    (<PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} />) 
-                  }
-                  {
-                    formData.phoneNumber && (
-                      <Col span={12}>
-                        <Form.Item
-                          name="phoneNumber"
-                          rules={[
-                            { required: true, message: "Please enter mobile number" },
-                          ]}
-                        >
-                          <Input
-                            type="text"
-                            placeholder="phoneNumber"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleMobileChange}
-                          //  prefix = {selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                          />
-                        </Form.Item>
-                      </Col>
-                    )
-                  }
+                  <PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} /> 
       
                   <Col span={12}>
                     <Form.Item name="whatsApp">

@@ -7,7 +7,12 @@ import {
   import * as CountryList from 'country-list'
 
 
-const PhoneNumberCountrySelect = ({ handleMobileChange, setSelectCountry = (data: any) => {}, setSelectCountryCode = (data: any) => {} }:any) => {
+const PhoneNumberCountrySelect = ({ 
+  handleMobileChange, 
+  setSelectCountry = (data: any) => {}, 
+  setSelectCountryCode = (data: any) => {}, 
+  edit = false }:any) => 
+  {
   const [selectCountry, setSelectCountryLocal] = useState('')
   const [selectCountryCode, setSelectCountryCodeLocal] = useState(91)
 
@@ -32,30 +37,31 @@ const PhoneNumberCountrySelect = ({ handleMobileChange, setSelectCountry = (data
 
   return (
     <>
-      <Col span = {12}>
-          <Form.Item
-              name="countryCode">
-              <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map((name: any) => name.name)}>
-                  {allCountries.map((country: any)=>{
-                      return <Option value = {country.name} key = {country.code}>{country.name}</Option>
-                  })}
-              </Select>
-              
-          </Form.Item>
-      </Col>
-      
+      {
+        !edit  && <Col span = {12}>
+            <Form.Item
+                name="countryCode">
+                <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map((name: any) => name.name)}>
+                    {allCountries.map((country: any)=>{
+                        return <Option value = {country.name} key = {country.code}>{country.name}</Option>
+                    })}
+                </Select>
+                
+            </Form.Item>
+        </Col> 
+      }
       <Col span = {12}>
         <Form.Item name="phoneNumber"
           rules={[
-              { required: false, },
+              { required: true, pattern: !edit ? /^[0-9]+$/ : /^\+?[0-9]+$/},
           ]}
           >
           <Input
               placeholder = "Enter Mobile Number"
               name = "phoneNumber"
               onChange = {handleMobileChange}
-              addonBefore={"+"+selectCountryCode}
-              />
+              addonBefore={!edit && "+"+selectCountryCode}
+          />
         </Form.Item>
       </Col>
     </>
