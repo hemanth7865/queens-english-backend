@@ -724,7 +724,9 @@ export class StudentService {
       "notFound": 0,
       "errors": 0,
       "duplicated": 0,
-      "duplicatedRecords": {}
+      "duplicatedRecords": {},
+      "duplicatedRecordsIDs": [],
+      "notFoundRecordsIDs": [],
     };
 
     const allowedReq = {
@@ -743,12 +745,16 @@ export class StudentService {
   
         if(users.length < 1){
           result.notFound++;
+          result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
           continue;
         }
 
         if(users.length > 1){
           result.duplicated++;
           result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
+          for(let user of users){
+            result["duplicatedRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID']});
+          }
           continue;
         }
 
