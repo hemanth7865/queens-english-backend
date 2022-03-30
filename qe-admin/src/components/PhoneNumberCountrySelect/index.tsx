@@ -11,7 +11,7 @@ const PhoneNumberCountrySelect = ({
   handleMobileChange, 
   setSelectCountry = (data: any) => {}, 
   setSelectCountryCode = (data: any) => {}, 
-  edit = false }:any) => 
+  edit = false, defaultValue }:any) => 
   {
   const [selectCountry, setSelectCountryLocal] = useState('')
   const [selectCountryCode, setSelectCountryCodeLocal] = useState(91)
@@ -60,6 +60,7 @@ const PhoneNumberCountrySelect = ({
               placeholder = "Enter Mobile Number"
               name = "phoneNumber"
               onChange = {handleMobileChange}
+              defaultValue={defaultValue}
               addonBefore={!edit && "+"+selectCountryCode}
           />
         </Form.Item>
