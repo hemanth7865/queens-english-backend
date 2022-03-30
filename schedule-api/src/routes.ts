@@ -231,4 +231,12 @@ export const Routes = [
     authenticate:true
   },
 
+  {
+    method: "get",
+    route: "/loadTeacherAvailability",
+    controller: UserController,
+    action: "loadTeacherAvailability",
+  },
+
+
 ];
