@@ -71,6 +71,7 @@ import moment from "moment";
 import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
 import { Tabs } from 'antd';
+import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 
 const { TabPane } = Tabs;
 
@@ -935,33 +936,8 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>          
                 </Col>  
                 
-                <Col span={12}>
-                  <Form.Item
-                    name="countryCode">
-                    <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
-                      {allCountries.map((country) => {
-                        return <Option value={country.name} key={country.code}>{country.name}</Option>
-                      })}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="phoneNumber" 
-                  rules={[{
-                    required: true,
-                  }]}
-                  >
-                    <Input
-                      placeholder="Enter Primary Mobile Number"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleMobileChange}
-                      addonBefore={'+'+selectCountryCode}
-                    // prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
+                <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} /> 
 
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item name="alternativeMobile">
                     <Input
@@ -2135,18 +2111,7 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
-                <Col span={12}>
-                  <Form.Item name="phoneNumber">
-                    <Input
-                      placeholder="Enter Mobile Number"
-                      name="phoneNumber"
-                      defaultValue={tempDataView.phoneNumber}
-                      onChange={handleFormChange}
-                    //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
-
-                  </Form.Item>
-                </Col>
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView.phoneNumber} /> 
 
                 <Col span={12}>
                   <Form.Item name="alternativeMobile">
