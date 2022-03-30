@@ -983,7 +983,7 @@ const TeacherBatchList: React.FC = () => {
                   
                   {/* Mobile and Whatsup */}
                   
-                  <PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} /> 
+                  <PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} /> 
       
                   <Col span={12}>
                     <Form.Item name="whatsApp">
@@ -1407,16 +1407,8 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
 
                 {/* Mobile and Whatsup */}
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} /> 
 
-                <Col span={12}>
-                  <Form.Item name="phoneNumber">
-                    <Input type="text" 
-                    name="phoneNumber"
-                    onChange={handleFormChange} 
-                    //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item name="whatsApp">
                     <Input name="whatsapp" onChange={handleFormChange} />
