@@ -411,10 +411,10 @@ const StudentOnboard: React.FC = () => {
       plastName: value.plastName,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
-      bdaName: value.bdaName,
       poc: value.poc,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
+      salesowner: value.salesowner,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -703,8 +703,8 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'BDA Name',
-      dataIndex: 'bdaName',
+      title: 'Sale Owner',
+      dataIndex: 'salesowner',
       width: 150,
       editable: true,
     },
