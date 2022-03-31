@@ -402,6 +402,7 @@ const StudentOnboard: React.FC = () => {
       poc: value.poc,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
+      salesowner: value.salesowner,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -460,7 +461,7 @@ const StudentOnboard: React.FC = () => {
       }
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)

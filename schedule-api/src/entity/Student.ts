@@ -113,6 +113,8 @@ export class Student extends BaseEntity {
   bdmName: string;
   @Column({ nullable: true })
   prm_id: number;
+  @Column({ nullable: true })
+  salesowner: string;
   @Column({ nullable: true, type:"date" })
   assesmentDate: Date;
 

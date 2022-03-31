@@ -2241,6 +2241,7 @@ const StudentsBatchList: React.FC = () => {
                       onChange={(value) => {
                         setstatus(value);
                       }}
+                      disabled
                     >
                       <Option value="enrolled">Enrolled</Option>
                       <Option value="startclasslater">Start Class Later</Option>

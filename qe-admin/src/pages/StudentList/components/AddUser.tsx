@@ -94,13 +94,26 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         var code = selectCountryCode?selectCountryCode:'91';
         setIsLoading(true)
         if(!error){
-            const dataForm = {
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                phoneNumber: '+'+ code + formData.phoneNumber,
-                email: formData.email,
-                type: selectUserType
+            let dataForm
+            if(selectUserType === "student"){
+                dataForm = {
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    phoneNumber: '+'+ code + formData.phoneNumber,
+                    email: formData.email,
+                    type: selectUserType,
+                    status: "enrolled"
+                }
+            }else{
+                dataForm = {
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    phoneNumber: '+'+ code + formData.phoneNumber,
+                    email: formData.email,
+                    type: selectUserType,
+                }
             }
+            
             try {
                 const msg = await addUserSchedule({
                   headers: {
