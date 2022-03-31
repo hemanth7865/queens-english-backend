@@ -115,7 +115,7 @@ export class StudentService {
       let PRMSelect: string = "";
       let PRMHaving: string = ` HAVING prm_full_name LIKE '%${prm_name}%'`;
       if(prm_name){
-        PRMSelect = ", concat(prm.firstName , '  ', prm.lastName) as prm_full_name";
+        PRMSelect = ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
         // query_list.push(` prm.prm_full_name LIKE '%${prm_name}%' `);
         innerJoinPRM = "INNER JOIN prm ON prm.id = s.prm_id";
       }
