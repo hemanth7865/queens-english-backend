@@ -13,6 +13,7 @@ import {
     getCountryCallingCode
   } from 'libphonenumber-js'
   import * as CountryList from 'country-list'
+  import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 
 export type EditUserProps = {
     data: {};
@@ -224,22 +225,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                                 
                             </Form.Item>
                         </Col>
-                        
-                        <Col span = {12}>
-                            <Form.Item
-                                name="phoneNumber"
-                            >
-                                <Input
-                                    name = "phoneNumber"
-                                    onChange = {handleMobileChange}
-                                    //prefix = {selectCountryCode?selectCountryCode:'91'}
-                                />
-                                
-                            </Form.Item>
-                            {error? (
-                                <p style = {{color: 'red'}}>{error}</p>
-                            ): ''}
-                        </Col>
+
+                        <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} edit={true} /> 
+          
                         <Col span = {12}>
                             <Form.Item
                                 name="email"

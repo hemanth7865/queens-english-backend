@@ -9,6 +9,7 @@ import * as CookieParser from "cookie-parser";
 var cors = require("cors");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
+const fileUpload = require('express-fileupload');
 
 // get config vars
 dotenv.config();
@@ -16,6 +17,7 @@ createConnection()
   .then(async (connection) => {
     // create express app
     const app = express();
+    app.use(fileUpload());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(CookieParser(process.env.JWT_TOKEN_SECRET));

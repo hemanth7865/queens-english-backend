@@ -71,6 +71,7 @@ import moment from "moment";
 import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
 import { Tabs } from 'antd';
+import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 
 const { TabPane } = Tabs;
 
@@ -201,7 +202,6 @@ const StudentsBatchList: React.FC = () => {
     teacherName: '',
     batchCode: '',
     alternativeMobile: '',
-    studentID: '',
     age: '',
     address: '',
     referralCode: '',
@@ -623,7 +623,6 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber,
       batchCode: formData.batchCode,
       alternativeMobile: formData.alternativeMobile,
-      studentID: formData.studentID,
       age: formData.age,
       address: formData.address,
       classType: formData.classType,
@@ -716,7 +715,6 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
-      studentID: formData.studentID ? formData.studentID : tempDataView.studentID,
       age: formData.age ? formData.age : tempDataView.age,
       address: formData.address ? formData.address : tempDataView.address,
       classType: formData.ClassType?formData.ClassType:tempDataView.classType,
@@ -861,16 +859,6 @@ const StudentsBatchList: React.FC = () => {
             <Form onFinish={handleFormSubmit}>
 
               <Row gutter={16}>
-              <Col span={12}>
-                  <Form.Item name="studentID">
-                    <Input
-                      placeholder="Student ID"
-                      name="studentID"
-                      value={formData.studentID}
-                      onChange={handleFormChange} 
-                    />
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item
                     name="firstName"
@@ -975,33 +963,8 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>          
                 </Col>  
                 
-                <Col span={12}>
-                  <Form.Item
-                    name="countryCode">
-                    <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
-                      {allCountries.map((country) => {
-                        return <Option value={country.name} key={country.code}>{country.name}</Option>
-                      })}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="phoneNumber" 
-                  rules={[{
-                    required: true,
-                  }]}
-                  >
-                    <Input
-                      placeholder="Enter Primary Mobile Number"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleMobileChange}
-                      addonBefore={'+'+selectCountryCode}
-                    // prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
+                <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} /> 
 
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item name="alternativeMobile">
                     <Input
@@ -1114,7 +1077,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <Form.Item name="comments">
                     <Input
                       placeholder="comments"
@@ -2080,16 +2043,6 @@ const StudentsBatchList: React.FC = () => {
             <TabPane tab="Student Info" key="1"> 
             <Form onFinish={handleFormSubmitEdit}> 
               <Row gutter={16}>
-              <Col span={12}>
-                  <Form.Item name="studentID">
-                    <Input
-                      placeholder="Student ID"
-                      name="studentID"
-                      defaultValue={tempDataView.studentID}
-                      onChange={handleFormChange}
-                    />
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item
                     name="firstName"
@@ -2175,18 +2128,7 @@ const StudentsBatchList: React.FC = () => {
                   </Form.Item>
                 </Col>
 
-                <Col span={12}>
-                  <Form.Item name="phoneNumber">
-                    <Input
-                      placeholder="Enter Mobile Number"
-                      name="phoneNumber"
-                      defaultValue={tempDataView.phoneNumber}
-                      onChange={handleFormChange}
-                    //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
-
-                  </Form.Item>
-                </Col>
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView.phoneNumber} /> 
 
                 <Col span={12}>
                   <Form.Item name="alternativeMobile">
@@ -2321,7 +2263,7 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                   <Form.Item name="comments">
                     <Input
                       placeholder="comments"

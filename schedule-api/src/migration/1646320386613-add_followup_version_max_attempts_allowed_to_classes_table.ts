@@ -4,13 +4,13 @@ export class addFollowupVersionMaxAttemptsAllowedToClassesTable1646320386613 imp
     name = 'addFollowupVersionMaxAttemptsAllowedToClassesTable1646320386613'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE classes ADD COLUMN IF NOT EXISTS followupVersion VARCHAR(45) NULL`);
-        await queryRunner.query(`ALTER TABLE classes ADD COLUMN IF NOT EXISTS maxAttemptsAllowed INT(11) NULL`);
+        await queryRunner.query(`ALTER TABLE classes ADD followupVersion VARCHAR(45) NULL`);
+        await queryRunner.query(`ALTER TABLE classes ADD maxAttemptsAllowed INT(11) NULL`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE classes DROP COLUMN IF EXISTS followupVersion`);
-        await queryRunner.query(`ALTER TABLE classes DROP COLUMN IF EXISTS maxAttemptsAllowed`);
+        await queryRunner.query(`ALTER TABLE classes DROP COLUMN followupVersion`);
+        await queryRunner.query(`ALTER TABLE classes DROP COLUMN maxAttemptsAllowed`);
 
     }
 
