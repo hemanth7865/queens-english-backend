@@ -1095,25 +1095,12 @@ const StudentsBatchList: React.FC = () => {
                   {console.log('tempDataView.status')}
                     {console.log(tempDataView.status)}
                     <Select
-                      defaultValue={tempDataView.status == 'InActive'
-                            ? "InActive": tempDataView.status == 'OnHold'
-                            ? "OnHold": tempDataView.status == 'Leave'
-                            ? "Leave": tempDataView.status == 'enrolled'
-                            ? "Enrolled": tempDataView.status == 'startclasslater'
-                            ? "Start Class Later":tempDataView.status == 'batching'
-                            ? "Batching":tempDataView.status == 'onboarding'
-                            ? "Onboarding":"Active"}
+                      placeholder = "select status"
                       onChange={(value) => {
                         setstatus(value);
                       }}
                     >
                       <Option value="enrolled">Enrolled</Option>
-                      <Option value="startclasslater">Start Class Later</Option>
-                      <Option value="batching">Batching</Option>
-                      <Option value="onboarding">Onboarding</Option>
-                      <Option value="active">Active</Option>
-                      <Option value="OnHold">OnHold</Option>
-                      <Option value="Leave">Leave</Option>
                     </Select>
                   </Form.Item>
                 </Col> }
@@ -2300,17 +2287,15 @@ const StudentsBatchList: React.FC = () => {
                 
                 { <Col span={12}>
                   <Form.Item name="status	">
-                  {console.log('tempDataView.status')}
-                    {console.log(tempDataView.status)}
                     <Select
                       defaultValue={tempDataView.status == 'InActive'
                             ? "InActive": tempDataView.status == 'OnHold'
                             ? "OnHold": tempDataView.status == 'Leave'
-                            ? "Leave": tempDataView.status == 'enrolled'
-                            ? "Enrolled": tempDataView.status == 'startclasslater'
+                            ? "Leave": tempDataView.status == 'active'
+                            ? "Active": tempDataView.status == 'startclasslater'
                             ? "Start Class Later":tempDataView.status == 'batching'
                             ? "Batching":tempDataView.status == 'onboarding'
-                            ? "Onboarding":"Active"}
+                            ? "Onboarding":"Enrolled"}
                       onChange={(value) => {
                         setstatus(value);
                       }}
