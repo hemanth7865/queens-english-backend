@@ -768,4 +768,44 @@ export class BatchService {
       pageSize: 1,
     };
   }
+
+
+  async getBatchesWorkingTeachers(request: Request, parameters) {
+    let query_list = [];
+    let query_string = "";
+
+    if(parameters.lessonStartTime){
+      query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
+    }
+
+    if(parameters.lessonEndTime){
+      query_list.push(` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
+    }
+
+    if(parameters.frequency){
+      query_list.push(` classes.frequency = '${parameters.frequency}' `);
+    }
+
+    if (query_list.length > 0) {
+      query_string = " where ";
+    }
+
+    query_list.forEach((value, index) => {
+      if (index != query_list.length - 1) {
+        query_string = query_string + query_list[index] + " and ";
+      } else {
+        query_string = query_string + query_list[index];
+      }
+    });
+
+    var quer = `select DISTINCT teacherId from classes ${query_string};`;
+    var results = await getManager().query(quer);
+    var ids = [];
+
+    for (const element of results) {
+      ids.push(element.teacherId)
+    }
+
+    return ids;
+  }
 }

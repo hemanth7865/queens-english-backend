@@ -4,6 +4,7 @@ import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
+import {BatchService} from "./BatchService";
 import axios from "axios";
 import { Student } from "../entity/Student";
 import { UserService } from "./UserService";
@@ -501,6 +502,7 @@ export class TeacherService {
     var results: User[] = [];
     var leadView: LeadView[] = [];
     var map = new Map();
+    var batchSerivce = new BatchService();
     var leadTem: Teacher[] = [];
     var filter = false;
     var parametersList = [];
@@ -656,7 +658,13 @@ export class TeacherService {
       }
     }
   
-   
+    if(parameters.autoSearch){
+      var teacherIds = await batchSerivce.getBatchesWorkingTeachers(data, {lessonStartTime: parameters.start_slot, frequency: parameters.frequency});
+      if(teacherIds.length > 0){
+        query_list.push(` u.id not in (${teacherIds.map(id => `'${id}'`).join(",")})`);
+      }
+    }
+
     var finalQuery;
     var total;
 

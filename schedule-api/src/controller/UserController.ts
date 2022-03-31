@@ -107,6 +107,8 @@ export class UserController {
             whatsapp: request.query['whatsapp'],
             address: request.query['address'],
             prm_name: request.query['prm_name'],
+            frequency: request.query['frequency'],
+            autoSearch: request.query['autoSearch'],
         }
 
         console.log('requestr', request.query['email'])
