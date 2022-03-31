@@ -35,7 +35,7 @@ export class User extends BaseEntity {
         state: string;
     @Column("text")
         email: string;
-    @Column("text")
+    @Column({'nullable':true})
     customerEmail: string;
     @Column({'nullable':true})
         code: number;

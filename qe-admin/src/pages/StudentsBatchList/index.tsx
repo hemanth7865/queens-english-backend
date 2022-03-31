@@ -442,7 +442,34 @@ const StudentsBatchList: React.FC = () => {
               defaultMessage="Enrolled"
             />
           ),
-          status: "Active",
+          status: "enrolled",
+        },
+        'startclasslater': {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.startclasslater"
+              defaultMessage="Start Class Later"
+            />
+          ),
+          status: "startclasslater",
+        },
+        'batching': {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.batching"
+              defaultMessage="Batching"
+            />
+          ),
+          status: "batching",
+        },
+        'onboarding': {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.onboarding"
+              defaultMessage="Onboarding"
+            />
+          ),
+          status: "onboarding",
         },
         'active': {
           text: (
@@ -1069,21 +1096,24 @@ const StudentsBatchList: React.FC = () => {
                     {console.log(tempDataView.status)}
                     <Select
                       defaultValue={tempDataView.status == 'InActive'
-                        ? "InActive"
-                        : tempDataView.status == 'OnHold'
-                          ? "OnHold"
-                          : tempDataView.status == 'Leave'
-                            ? "Leave"
-                            : tempDataView.status == 'enrolled'
-                            ? "Enrolled":"Active"}
+                            ? "InActive": tempDataView.status == 'OnHold'
+                            ? "OnHold": tempDataView.status == 'Leave'
+                            ? "Leave": tempDataView.status == 'enrolled'
+                            ? "Enrolled": tempDataView.status == 'startclasslater'
+                            ? "Start Class Later":tempDataView.status == 'batching'
+                            ? "Batching":tempDataView.status == 'onboarding'
+                            ? "Onboarding":"Active"}
                       onChange={(value) => {
                         setstatus(value);
                       }}
                     >
-                      <Option value="Active">Active</Option>
-                      <Option value="enrolled">Entrolled</Option>
-                      <Option value="Leave">Leave</Option>
+                      <Option value="enrolled">Enrolled</Option>
+                      <Option value="startclasslater">Start Class Later</Option>
+                      <Option value="batching">Batching</Option>
+                      <Option value="onboarding">Onboarding</Option>
+                      <Option value="active">Active</Option>
                       <Option value="OnHold">OnHold</Option>
+                      <Option value="Leave">Leave</Option>
                     </Select>
                   </Form.Item>
                 </Col> }
@@ -2274,26 +2304,29 @@ const StudentsBatchList: React.FC = () => {
                     {console.log(tempDataView.status)}
                     <Select
                       defaultValue={tempDataView.status == 'InActive'
-                        ? "Active"
-                        : tempDataView.status == 'OnHold'
-                          ? "OnHold"
-                          : tempDataView.status == 'Leave'
-                            ? "Leave"
-                            :  tempDataView.status == 'enrolled'
-                            ? "Enrolled":"Active"}
+                            ? "InActive": tempDataView.status == 'OnHold'
+                            ? "OnHold": tempDataView.status == 'Leave'
+                            ? "Leave": tempDataView.status == 'enrolled'
+                            ? "Enrolled": tempDataView.status == 'startclasslater'
+                            ? "Start Class Later":tempDataView.status == 'batching'
+                            ? "Batching":tempDataView.status == 'onboarding'
+                            ? "Onboarding":"Active"}
                       onChange={(value) => {
                         setstatus(value);
                       }}
                     >
-                      <Option value="Active">Active</Option>
-                      <Option value="enrolled">Entrolled</Option>
-                      <Option value="Leave">Leave</Option>
+                      <Option value="enrolled">Enrolled</Option>
+                      <Option value="startclasslater">Start Class Later</Option>
+                      <Option value="batching">Batching</Option>
+                      <Option value="onboarding">Onboarding</Option>
+                      <Option value="active">Active</Option>
                       <Option value="OnHold">OnHold</Option>
+                      <Option value="Leave">Leave</Option>
                     </Select>
                   </Form.Item>
                 </Col> }
                 
-                               <Col span={12}>
+                <Col span={12}>
                   <Form.Item name="poc">
                     <Input
                       placeholder="poc"
