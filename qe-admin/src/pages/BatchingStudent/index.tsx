@@ -149,10 +149,11 @@ const formSubmit = async (value: any)=>{
       
     },
     {
-      title: 'Class Type',
-      dataIndex: 'classType',
+      title: 'Course',
+      dataIndex: 'course',
       width: 150,
       editable: true,
+      
     },
     {
       title: 'Starting lesson',

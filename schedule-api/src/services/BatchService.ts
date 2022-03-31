@@ -773,6 +773,7 @@ export class BatchService {
   async getBatchesWorkingTeachers(request: Request, parameters) {
     let query_list = [];
     let query_string = "";
+    const moment = require("moment");
 
     if(parameters.lessonStartTime){
       query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
@@ -785,6 +786,8 @@ export class BatchService {
     if(parameters.frequency){
       query_list.push(` classes.frequency = '${parameters.frequency}' `);
     }
+
+    query_list.push(` classes.classEndDate >= '${moment().format("YYYY-MM-DD")}' `);
 
     if (query_list.length > 0) {
       query_string = " where ";
