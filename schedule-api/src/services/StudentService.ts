@@ -489,6 +489,8 @@ export class StudentService {
     student.bdmName = data.bdmName;
     student.courseFrequency = data.courseFrequency;
     student.timings = data.timings;
+    student.salesowner = data.salesowner;
+    student.status = data.status;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
     
 
@@ -628,6 +630,8 @@ export class StudentService {
     student.bdmName = element.bdmName;
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
+    student.salesowner = element.salesowner;
+    student.status = element,status;
     student.timings = element.timings;
 
     usersLogger.info("student record updating is ", student);
