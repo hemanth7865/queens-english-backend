@@ -189,7 +189,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -219,7 +219,7 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any) => {
+  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any) => {
     const waMessage = (
       <div>
         <p>Hello <br/>
@@ -227,10 +227,7 @@ const StudentOnboard: React.FC = () => {
         Zoom Link: <br/>
         Topic: QEXXX<br/>
         Time: {timings} India<br/>
-        Join Zoom Meeting<br/>
-        <a>{zoomLink}</a><br/>
-        Passcode: QE<br/>
-        Days: {days}<br/>
+        {zoomInfo}
         (The details above are recurring and hence you can use the same details to join the class everyday)<br/>
         Please send “OK” or a “:+1:” to activate the link above.<br/>
         For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br/>
@@ -389,7 +386,7 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Zoom Link',
+      title: 'Zoom Info',
       dataIndex: 'zoomInfo',
       width: 250,
       editable: true,
@@ -568,7 +565,7 @@ const StudentOnboard: React.FC = () => {
   const handleFormSubmit = async () => {
     //console.log('status', formData, value)
     try {
-      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
+      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
           current: 1,
           pageSize: 200}
       );
@@ -589,7 +586,7 @@ const StudentOnboard: React.FC = () => {
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
-      <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
+      <div style = {{paddingTop: 20, paddingLeft: 10,  paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
@@ -608,6 +605,12 @@ const StudentOnboard: React.FC = () => {
                   <Col span={6}>
                     <Form.Item name="studentPhoneNumber" label = "Mobile No" >
                       <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={6}>
+                    <Form.Item name="prm_name" label = "PRM Name" >
+                      <Input name = "prm_name" onChange={handleInputChange}/>
                     </Form.Item>
                   </Col>
                   

@@ -327,7 +327,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -788,7 +788,7 @@ const StudentOnboard: React.FC = () => {
   const handleFormSubmit = async () => {
     //console.log('status', formData, value)
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
           current: 1,
           pageSize: 20}
       );
@@ -809,7 +809,7 @@ const StudentOnboard: React.FC = () => {
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
-      <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
+      <div style = {{paddingTop: 20, paddingLeft: 10, paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
@@ -828,6 +828,12 @@ const StudentOnboard: React.FC = () => {
                   <Col span={6}>
                     <Form.Item name="studentPhoneNumber" label = "Mobile No" >
                       <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={6}>
+                    <Form.Item name="prm_name" label = "PRM Name" >
+                      <Input name = "prm_name" onChange={handleInputChange}/>
                     </Form.Item>
                   </Col>
                   
