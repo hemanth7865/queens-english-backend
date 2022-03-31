@@ -75,6 +75,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     useEffect(() => {
         setSelectedBatch(false);
         actionRef?.current?.reload();
+        console.log("id", id);
     } , [id]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
