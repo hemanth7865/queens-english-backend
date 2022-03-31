@@ -390,8 +390,8 @@ const StudentOnboard: React.FC = () => {
       comments:value.comments,
       customerEmail: value.customerEmail,
       id: value.studentID,
-      type: 'student',
-      status: value.status,
+      type: "student",
+      status: "enrolled",
       alternativeMobile: value.alternativeMobile,
       classType: value.classType,
       course: value.course,
@@ -461,7 +461,7 @@ const StudentOnboard: React.FC = () => {
       }
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments,   ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -658,7 +658,7 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'Subscription No. (if auto debit)',
+      title: 'Subscription No. (if auto debit - optional)',
       dataIndex: 'subscriptionNo',
       width: 200,
       editable: true,
@@ -682,7 +682,7 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'BDA Comments',
+      title: 'BDA Comments (optional)',
       dataIndex: 'comments',
       width: 150,
       editable: true,
@@ -692,18 +692,6 @@ console.log('null obj', data)
       dataIndex: 'salesowner',
       width: 150,
       editable: true,
-    },
-    {
-      title: 'Sale Status',
-      dataIndex: 'salestatus',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      width: 150,
-      editable: false,
     },
     {
       title: 'operation',

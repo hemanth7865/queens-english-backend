@@ -528,6 +528,7 @@ export async function studentsDashboardFilter(
   name: string,
   phoneNumber: string,
   email: string,
+  prm_name: string,
   params: {
     // query
     /** 当前的页码 */
@@ -546,6 +547,7 @@ export async function studentsDashboardFilter(
       name: name?name:'',
       phoneNumber: phoneNumber?phoneNumber:'',
       email: email?email:'',
+      prm_name: prm_name?prm_name:'',
     },
     ...(options || {}),
   });

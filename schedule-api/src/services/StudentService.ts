@@ -29,7 +29,6 @@ export class StudentService {
 
   async listStudentDetails(data:any, parameters: any) {
 
-    
     var results: any[] = [];
     var leadView: LeadView[] = [];
     var map = new Map();
@@ -47,7 +46,9 @@ export class StudentService {
 
     let query_list = [];
     let query_string = "";
-  
+    
+    let prm_name = parameters.prm_name;
+
     const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
      
@@ -110,6 +111,15 @@ export class StudentService {
             query_list.push(` u.id in (${[...qIds].join(",")})`);
       } 
 
+      let innerJoinPRM: string = "";
+      let PRMSelect: string = "";
+      let PRMHaving: string = ``;
+      if(prm_name){
+        PRMHaving = ` HAVING prm_full_name LIKE '%${prm_name}%'`;
+        PRMSelect = ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
+        innerJoinPRM = "INNER JOIN prm ON prm.id = s.prm_id";
+      }
+
       query_list.forEach((value, index) => {
         console.log(query_list.join(" and "));
         if (index != query_list.length - 1) {
@@ -119,15 +129,15 @@ export class StudentService {
         }
       });
   
+  
       if(query_string) {
         query_string = " where " + query_string;
       }
 
+ 
 
-  
-
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.salesowner from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${query_string} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
-  let totalQuery = `SELECT COUNT (*) as total from user as u ${query_string}`
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.salesowner from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
+  let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
 
   console.log(`query string ${query_list}`);
 
@@ -151,7 +161,6 @@ export class StudentService {
         var batchCode = '';
   
         if (type == 'student' ) {
-            
           var quer =
           "select id,batchNumber,zoomLink, zoomInfo from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
@@ -242,8 +251,6 @@ export class StudentService {
         leadView.push(l);
       }
 
-     // console.log('leadsview', leadView)
-  
       return {
         success: true,
         data: leadView,
