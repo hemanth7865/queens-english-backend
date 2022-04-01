@@ -18,8 +18,8 @@ const { TabPane } = Tabs;
 export type BatchProps = {
     data: any;
     visible: boolean;
-    setVisible: () =>void;
-    onUpdate: () => void;
+    setVisible: (value: boolean) =>void;
+    onUpdate?: () => void;
 };
 
 const Batch: React.FC<BatchProps> = (props) => {

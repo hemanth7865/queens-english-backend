@@ -132,4 +132,6 @@ declare namespace API {
     status?: string;
     studentsList?: [];
   }
+
+  type Any = any;
 }
