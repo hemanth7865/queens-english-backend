@@ -14,7 +14,7 @@ import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
 import moment from "moment";
 import {
-  getLessonByNumber, timeToLocalTimezone
+  getLessonByNumber
 } from "@/services/ant-design-pro/helpers";
 
 export type BatchProps = {
