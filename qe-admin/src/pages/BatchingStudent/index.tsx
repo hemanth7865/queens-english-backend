@@ -1,6 +1,7 @@
 import { Button, Input, Table, Drawer, Form, Typography, Row, Col, Spin} from "antd";
 import React, { useState, useEffect } from "react";
 import {studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
+import {timeISTToLocalTimezone} from "@/services/ant-design-pro/helpers";
 import moment from "moment";
 import Batch from './components/Batch';
 
@@ -100,7 +101,13 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Time',
       dataIndex: 'timings',
-      width: 150
+      width: 150,
+      render(data: string){
+        if(!data || data.length < 1){
+          return "";
+        }
+        return timeISTToLocalTimezone(data);
+      }
     },
     {
       title: 'Frequency',

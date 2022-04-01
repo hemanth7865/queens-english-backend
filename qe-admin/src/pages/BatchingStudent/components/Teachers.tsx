@@ -14,7 +14,7 @@ import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
 import moment from "moment";
 import {
-  getLessonByNumber
+  getLessonByNumber, timeISTToLocalTimezone
 } from "@/services/ant-design-pro/helpers";
 
 export type BatchProps = {
@@ -98,7 +98,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     const createBatch = (dom: any) => {
       let startDate = moment(data.startDate, "YYYY-MM-DD").format("YYYY-MM-DD");
       let endDate = moment(startDate, "YYYY-MM-DD").add('years', 1).format("YYYY-MM-DD");
-      let startTime = moment(data.timings, "HH:mm").format("HH:mm");
+      let startTime = moment(timeISTToLocalTimezone(data.timings), "HH:mm").format("HH:mm");
       let endTime = moment(startTime, "HH:mm").add('hours', 1).format("HH:mm");
 
       const linkParams: string[] = [
