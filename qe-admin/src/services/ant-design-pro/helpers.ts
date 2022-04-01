@@ -76,7 +76,7 @@ export const timeToLocalTimezone = (time?: string): string => {
  * @param time string aka "HH:mm"
  * @returns 
  */
- export const timeISTToLocalTimezone = (time?: string): string => {
+ export const timeISTToLocalTimezone = (time?: string): string | undefined => {
     let result = "2022-03-24T00:00:00.330Z";
     if(time){
         // only time given in format: HH:mm
@@ -87,7 +87,7 @@ export const timeToLocalTimezone = (time?: string): string => {
             result = time;
         }
     }
-    return format(parseISO(result), "HH:mm");
+    return moment(result).subtract({"hours": 5, "minutes": 30}).format("HH:mm")
 }
 
 /**
@@ -95,8 +95,8 @@ export const timeToLocalTimezone = (time?: string): string => {
  * @param time string aka "HH:mm"
  * @returns 
  */
- export const timeISTToTimezone = (time?: string): string => {
-    let result = "2022-03-24T00:00:00.330Z";
+ export const timeISTToTimezone = (time?: string): string | undefined=> {
+    let result = "2022-03-24T00:00:00";
     if(time){
         // only time given in format: HH:mm
         if(time.length === "HH:mm".length){
@@ -106,7 +106,7 @@ export const timeToLocalTimezone = (time?: string): string => {
             result = time;
         }
     }
-    return moment(result).utc().format("HH:mm")
+    return moment(result).subtract({"hours": 5, "minutes": 30}).format("HH:mm")
 }
 
 /**
