@@ -578,11 +578,11 @@ export class BatchService {
     if(parameters.age){
       // +18 students in a separate class
       if(parameters.age >= 18){
-        query_list.push(` classes.maxAge >= 18 `);
+        query_list.push(` (classes.maxAge >= 18 OR classes.maxAge IS NULL) `);
       }
       // below 6 years students be in separate class
       if(parameters.age < 6){
-        query_list.push(` classes.maxAge < 6 `);
+        query_list.push(` (classes.maxAge < 6 OR classes.maxAge IS NULL) `);
       }
       query_list.push(` (classes.ages LIKE '%${parameters.age < 10 ? "0"+parseInt(parameters.age) : parseInt(parameters.age)}%' OR classes.ages IS NULL)`);
     }
@@ -767,5 +767,48 @@ export class BatchService {
       current: 1,
       pageSize: 1,
     };
+  }
+
+
+  async getBatchesWorkingTeachers(request: Request, parameters) {
+    let query_list = [];
+    let query_string = "";
+    const moment = require("moment");
+
+    if(parameters.lessonStartTime){
+      query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
+    }
+
+    if(parameters.lessonEndTime){
+      query_list.push(` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
+    }
+
+    if(parameters.frequency){
+      query_list.push(` classes.frequency = '${parameters.frequency}' `);
+    }
+
+    query_list.push(` classes.classEndDate >= '${moment().format("YYYY-MM-DD")}' `);
+
+    if (query_list.length > 0) {
+      query_string = " where ";
+    }
+
+    query_list.forEach((value, index) => {
+      if (index != query_list.length - 1) {
+        query_string = query_string + query_list[index] + " and ";
+      } else {
+        query_string = query_string + query_list[index];
+      }
+    });
+
+    var quer = `select DISTINCT teacherId from classes ${query_string};`;
+    var results = await getManager().query(quer);
+    var ids = [];
+
+    for (const element of results) {
+      ids.push(element.teacherId)
+    }
+
+    return ids;
   }
 }

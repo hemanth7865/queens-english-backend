@@ -23,7 +23,7 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {id, timings, startLesson, dob, courseFrequency, startDate} = props.data?props.data:''
+    const {id, timings, startLesson, dob, courseFrequency, startDate, course} = props.data?props.data:''
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -75,6 +75,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     useEffect(() => {
         setSelectedBatch(false);
         actionRef?.current?.reload();
+        console.log("id", id);
     } , [id]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
@@ -257,7 +258,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     return(
         <Spin spinning={isLoading}>
         <Form onFinish={onFinish}>
-            <Tabs defaultActiveKey="1">
+            <Tabs defaultActiveKey={["IELTS - 1:1", "DISE - 1:1"].includes(course) ? "2" : "1"} key={course}>
                 <TabPane tab="Batch" key="1"> 
                     <Row gutter={16}>
                         <Col span={24}>
