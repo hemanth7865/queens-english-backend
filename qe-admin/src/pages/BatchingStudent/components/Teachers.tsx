@@ -13,7 +13,9 @@ import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
 import moment from "moment";
-import {LESSONS} from "../../../../config/lessons";
+import {
+  getLessonByNumber
+} from "@/services/ant-design-pro/helpers";
 
 export type BatchProps = {
     setSelectedBatch: (v: string) => void;
@@ -32,7 +34,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     const [batch, setBatch] = useState<{value: string, label: string}>();
     const [teacherId, setTeacherId] = useState();
 
-    const lesson = LESSONS.filter(l => data.startLesson && data.startLesson.length > 0 ? l.number === data.startLesson.split(" ")[1]: false)[0];
+    const lesson = getLessonByNumber(data.startLesson);
 
     async function fetchTeachersList(params: {}) {
         const defaultFilter: {

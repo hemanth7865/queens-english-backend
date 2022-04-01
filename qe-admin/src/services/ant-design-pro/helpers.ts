@@ -1,4 +1,5 @@
 import { notification } from 'antd';
+import {LESSONS, Lesson} from "../../../config/lessons";
 
 export const openNotificationWithIcon = (type: string, message: string , reload = true) => {
     notification[type]({
@@ -26,4 +27,25 @@ export const handleAPIResponse = (msg: any, success: string, failed: string) => 
     } else {
         openNotificationWithIcon('success', success);
     }
+}
+
+/**
+ * Get Lesson From A Giving String
+ * @param lesson string aka "Lesson NUMBER"
+ * @returns Lesson | undefined
+ */
+export const getLessonByNumber = (lesson?: string): Lesson | undefined => {
+    const result: Lesson | undefined = LESSONS.filter(l => {
+        if(lesson && lesson.length > 0){
+            let lessonNumber = lesson.split(" ")[1];
+            if(parseInt(lessonNumber) < 10){
+                lessonNumber = "0" + lessonNumber;
+            }
+            return l.number === lessonNumber
+        }
+
+        return false;
+    })[0];
+
+    return result;
 }

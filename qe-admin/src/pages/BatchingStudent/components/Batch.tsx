@@ -6,6 +6,9 @@ import {
     getIndividualBatch,
     updateUserStatus
 } from "@/services/ant-design-pro/api";
+import {
+  getLessonByNumber
+} from "@/services/ant-design-pro/helpers";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
@@ -27,7 +30,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
+    const lesson = getLessonByNumber(startLesson);
 
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
