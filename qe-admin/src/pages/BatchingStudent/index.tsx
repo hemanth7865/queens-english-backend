@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import {studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 import Batch from './components/Batch';
+import {timeToLocalTimezone} from "@/services/ant-design-pro/helpers"
 
 interface Item {
   id: string;
@@ -101,6 +102,12 @@ const StudentOnboard: React.FC = () => {
       title: 'Time',
       dataIndex: 'timings',
       width: 150,
+      render(value: string){
+        if(value){
+          return timeToLocalTimezone(value);
+        }
+        return "NA";
+      }
     },
     {
       title: 'Frequency',

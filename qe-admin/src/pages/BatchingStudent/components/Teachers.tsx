@@ -29,7 +29,7 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {selectedBatch, setSelectedBatch} = props;
+    const {setSelectedBatch} = props;
     const {data} = props;
     const [batch, setBatch] = useState<{value: string, label: string}>();
     const [teacherId, setTeacherId] = useState();
@@ -131,7 +131,6 @@ const Batch: React.FC<BatchProps> = (props) => {
     }
 
     const columns: ProColumns<API.RuleListItem>[] = [
-        //date
         {
           title: (
             <FormattedMessage
@@ -141,7 +140,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "phoneNumber",
         },
-        //teacher name
         {
           title: (
             <FormattedMessage
@@ -151,9 +149,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "name",
         },
-        //mobile number
-    
-        //experience
         {
           title: (
             <FormattedMessage
@@ -163,7 +158,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "totalexp",
         },
-        //classes taken
         {
           title: (
             <FormattedMessage
@@ -173,7 +167,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "classesTaken",
         },
-        //time slots
         {
           title: (
             <FormattedMessage
