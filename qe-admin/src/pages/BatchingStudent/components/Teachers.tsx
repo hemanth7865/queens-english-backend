@@ -38,8 +38,12 @@ const Batch: React.FC<BatchProps> = (props) => {
         const defaultFilter: {
           start_slot?: string;
           end_slot?: string;
-          weekday?: string
-        } = {};
+          weekday?: string;
+          frequency?: string;
+          autoSearch?: boolean
+        } = {
+          autoSearch: true
+        };
         if(data?.timings && data?.timings.length > 0){
           defaultFilter.start_slot = data?.timings.slice(0, 5);
           let end_slot_info = defaultFilter.start_slot.split(":");
@@ -58,6 +62,7 @@ const Batch: React.FC<BatchProps> = (props) => {
 
 
           defaultFilter.weekday = frequencies[data?.courseFrequency] || "";
+          defaultFilter.frequency = data?.courseFrequency;
         }
 
         return listTeacherAndStudent({
