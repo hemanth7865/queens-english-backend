@@ -102,11 +102,11 @@ const StudentOnboard: React.FC = () => {
       title: 'Time',
       dataIndex: 'timings',
       width: 150,
-      render(data: string){
-        if(!data || data.length < 1){
-          return "";
+      render: (value: string) => {
+        if(value){
+          return timeISTToLocalTimezone(value)
         }
-        return timeISTToLocalTimezone(data);
+        return "NA";
       }
     },
     {

@@ -7,7 +7,7 @@ import {
     updateUserStatus
 } from "@/services/ant-design-pro/api";
 import {
-  getLessonByNumber
+  getLessonByNumber, timeISTToTimezone, timeToLocalTimezone
 } from "@/services/ant-design-pro/helpers";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
@@ -15,7 +15,6 @@ import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
-import {timeISTToTimezone, timeToLocalTimezone} from "@/services/ant-design-pro/helpers"
 
 const { TabPane } = Tabs;
 
@@ -231,14 +230,13 @@ const Batch: React.FC<BatchProps> = (props) => {
             />
           ),
           dataIndex: "timeSlot",
-          // valueType: "textarea",
           render: (data: any) => {
             if(data.length > 0 && data.split("-").length > 1){
               const [start, end] = data.split("-");
               return `${timeToLocalTimezone(start)} - ${timeToLocalTimezone(end)}`;
             }
             return "... - ...";
-          },
+          }
         },
         {
           title: "Select",
