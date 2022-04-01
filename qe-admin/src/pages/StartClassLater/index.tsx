@@ -50,7 +50,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <input type="date" style = {{width: 120}}/>
+      return <input type="date" style = {{width: 150}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -86,9 +86,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="Add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> add
               </Typography.Link>
             </Space>
           </>
@@ -121,9 +121,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> add
               </Typography.Link>
             </Space>
           </>
@@ -157,9 +157,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -171,7 +171,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectSubscriptionMonth'){
-      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23', '31']);
+      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         console.log(event.target.value)
@@ -192,9 +192,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -227,9 +227,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -262,9 +262,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -411,7 +411,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         plastName: value.plastName,
         callStatus: value.callStatus,
         callBackon: value.callBackon,
-        bdaName: value.bdaName,
+        salesowner: value.salesowner,
         bdmName: value.bdmName,
         poc: value.poc,
         courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
@@ -535,11 +535,11 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     {
       title: 'Date of Birth of Student',
       dataIndex: 'dob',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },
@@ -598,7 +598,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     {
       title: 'Course',
       dataIndex: 'course',
-      width: 150,
+      width: 200,
       editable: true,
     },
     {
@@ -622,7 +622,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     {
       title: 'Start Date',
       dataIndex: 'startDate',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
@@ -705,8 +705,8 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       editable: true,
     },
     {
-      title: 'BDA Name',
-      dataIndex: 'bdaName',
+      title: 'Sales Owner',
+      dataIndex: 'salesowner',
       width: 150,
       editable: true,
     },

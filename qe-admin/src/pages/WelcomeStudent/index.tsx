@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification,Divider, Space, TimePicker} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification,Divider, Space} from "antd";
 import {EyeOutlined} from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
@@ -52,7 +52,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <input type="date" style = {{width: 120}}/>
+      return <input type="date" style = {{width: 140}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -88,9 +88,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -123,9 +123,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -158,44 +158,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
-              </Typography.Link>
-            </Space>
-          </>
-        )}
-      >
-        {items.map(item => (
-          <Option key={item} value = {item}>{item}</Option>
-        ))}
-      </Select>
-      )
-    }else if(inputType === 'selectSubscriptionMonth'){
-      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23', '31']);
-      const [name, setName] = useState('');
-      const onNameChange = event => {
-        console.log(event.target.value)
-      setName(event.target.value);
-      };
-
-      const addItem = e => {
-        console.log(e.target.value)
-        e.preventDefault();
-        setItems([...items, name || `New item ${index++}`]);
-        setName('');
-      };
-      return(
-        <Select
-        style={{ width: 130 }}
-        dropdownRender={menu => (
-          <>
-            {menu}
-            <Divider style={{ margin: '8px 0' }} />
-            <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
-              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -228,9 +193,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -263,9 +228,44 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
                 <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectSubscriptionMonth'){
+      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 130 }}
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="add" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -534,11 +534,11 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Date of Birth',
       dataIndex: 'dob',
-      width: 150,
+      width: 170,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },
@@ -620,7 +620,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Start Date',
       dataIndex: 'startDate',
-      width: 150,
+      width: 170,
       editable: true,
       render: (value: any)=>{
         if(value){
