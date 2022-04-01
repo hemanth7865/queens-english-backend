@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification,Divider, Space, TimePicker} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification,Divider, Space} from "antd";
 import {EyeOutlined} from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
@@ -52,7 +52,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <input type="date" style = {{width: 120}}/>
+      return <input type="date" style = {{width: 140}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -534,11 +534,11 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Date of Birth',
       dataIndex: 'dob',
-      width: 150,
+      width: 170,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },
@@ -620,7 +620,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Start Date',
       dataIndex: 'startDate',
-      width: 150,
+      width: 170,
       editable: true,
       render: (value: any)=>{
         if(value){
@@ -768,7 +768,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'callBackon' ? 'date' : 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

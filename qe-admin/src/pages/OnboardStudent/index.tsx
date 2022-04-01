@@ -53,7 +53,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <input type="date" style = {{width: 120}}/>
+      return <input type="date" style = {{width: 150}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -406,11 +406,11 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Date of Birth',
       dataIndex: 'dob',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD")
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY")
         }
       }
     },
@@ -447,22 +447,22 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Start Date',
       dataIndex: 'startDate',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },
     {
       title: 'Class Start Date',
       dataIndex: 'classesStartDate',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },

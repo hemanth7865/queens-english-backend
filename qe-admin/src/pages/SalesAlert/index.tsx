@@ -39,10 +39,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
                   <Option value="Kids">Kids</Option>
                   <Option value="adult">Adult</Option>
                 </Select>)
-    }else if(inputType === 'selectDate'){
-      return (
-              <input type="date" />
-              )
+    }else if(inputType === 'date'){
+      return <input type="date" style = {{width: 160}}/>
     }else if(inputType === 'select'){
       return(
             <Select style={{ width: 120 }} >
@@ -59,8 +57,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Lost">Lost</Option>
             </Select>
       )
-    }else if(inputType === 'date'){
-      return <Input placeholder="YYYY-MM-DD"/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -320,12 +316,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           // rules={[
-          //   {
-          //     required: true,
-          //     message: `Add ${title}!`,
-          //   }
+          //   { required: true, pattern: /^\+?[0-9]+$/},
           // ]}
         >
+          {/* {console.log('editing', editing)} */}
           {inputNode()}
         </Form.Item>
       ) : (
@@ -537,7 +531,7 @@ console.log('null obj', data)
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },
@@ -726,7 +720,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'selectDate' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'selectDate' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon' :'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon' :'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -746,7 +740,7 @@ console.log('null obj', data)
   const handleFormSubmit = async () => {
     //console.log('status', formData, value)
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail,{
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, '', {
           current: 1,
           pageSize: 20}
       );
