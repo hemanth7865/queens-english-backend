@@ -88,9 +88,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -123,9 +123,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -158,44 +158,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
-              </Typography.Link>
-            </Space>
-          </>
-        )}
-      >
-        {items.map(item => (
-          <Option key={item} value = {item}>{item}</Option>
-        ))}
-      </Select>
-      )
-    }else if(inputType === 'selectSubscriptionMonth'){
-      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23', '31']);
-      const [name, setName] = useState('');
-      const onNameChange = event => {
-        console.log(event.target.value)
-      setName(event.target.value);
-      };
-
-      const addItem = e => {
-        console.log(e.target.value)
-        e.preventDefault();
-        setItems([...items, name || `New item ${index++}`]);
-        setName('');
-      };
-      return(
-        <Select
-        style={{ width: 130 }}
-        dropdownRender={menu => (
-          <>
-            {menu}
-            <Divider style={{ margin: '8px 0' }} />
-            <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
-              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -228,9 +193,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -263,9 +228,44 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
                 <PlusOutlined /> Others
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
+      )
+    }else if(inputType === 'selectSubscriptionMonth'){
+      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
+      return(
+        <Select
+        style={{ width: 130 }}
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="add" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -768,7 +768,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'callBackon' ? 'date' : 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

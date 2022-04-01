@@ -92,9 +92,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -127,9 +127,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -162,9 +162,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -176,7 +176,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectSubscriptionMonth'){
-      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23', '31']);
+      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         console.log(event.target.value)
@@ -197,9 +197,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -232,9 +232,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -267,9 +267,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
