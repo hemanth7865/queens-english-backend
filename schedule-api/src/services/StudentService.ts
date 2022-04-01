@@ -638,7 +638,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element,status;
+    student.status = element.status;
     student.timings = element.timings;
 
     usersLogger.info("student record updating is ", student);

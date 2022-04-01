@@ -311,6 +311,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
+          rules={[
+            { required: true, 
+              message: `${title} is required`
+            }
+          ]}
         >
           {inputNode()}
         </Form.Item>
