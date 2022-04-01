@@ -525,7 +525,7 @@ const StudentOnboard: React.FC = () => {
         return(        
         <a
           onClick={() => {
-            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate)
+            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo)
           }}
         >
           <EyeOutlined/>
