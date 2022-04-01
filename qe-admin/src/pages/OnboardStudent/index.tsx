@@ -53,7 +53,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'date'){
-      return <input type="date" style = {{width: 120}}/>
+      return <input type="date" style = {{width: 150}}/>
     }else if(inputType === 'selectLesson'){
       return(
             <Select style={{ width: 120 }} >
@@ -68,13 +68,39 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'selectPlan'){
+      const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
+      const [name, setName] = useState('');
+      const onNameChange = event => {
+        console.log(event.target.value)
+      setName(event.target.value);
+      };
+
+      const addItem = e => {
+        console.log(e.target.value)
+        e.preventDefault();
+        setItems([...items, name || `New item ${index++}`]);
+        setName('');
+      };
       return(
-            <Select style={{ width: 120 }} >
-              <Option value="Razorpay">Razorpay</Option>
-              <Option value="Bank Transfer">Bank Transfer</Option>
-              <Option value="Cashfree">Cashfree</Option>
-              <Option value="Other">Other</Option>
-            </Select>
+        <Select
+        style={{ width: 180 }}
+        dropdownRender={menu => (
+          <>
+            {menu}
+            <Divider style={{ margin: '8px 0' }} />
+            <Space align="center" style={{ padding: '0 8px 4px' }}>
+              <Input placeholder="add" value={name} onChange={onNameChange} />
+              <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
+                <PlusOutlined /> Add
+              </Typography.Link>
+            </Space>
+          </>
+        )}
+      >
+        {items.map(item => (
+          <Option key={item} value = {item}>{item}</Option>
+        ))}
+      </Select>
       )
     }else if(inputType === 'selectStatus'){
       return(
@@ -113,9 +139,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -148,9 +174,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
             {menu}
             <Divider style={{ margin: '8px 0' }} />
             <Space align="center" style={{ padding: '0 8px 4px' }}>
-              <Input placeholder="Please enter item" value={name} onChange={onNameChange} />
+              <Input placeholder="add" value={name} onChange={onNameChange} />
               <Typography.Link onClick={addItem} style={{ whiteSpace: 'nowrap' }}>
-                <PlusOutlined /> Others
+                <PlusOutlined /> Add
               </Typography.Link>
             </Space>
           </>
@@ -406,11 +432,11 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Date of Birth',
       dataIndex: 'dob',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD")
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY")
         }
       }
     },
@@ -447,22 +473,22 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Start Date',
       dataIndex: 'startDate',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },
     {
       title: 'Class Start Date',
       dataIndex: 'classesStartDate',
-      width: 150,
+      width: 200,
       editable: true,
       render: (value: any)=>{
         if(value){
-          return moment(value,"YYYY-MM-DD").format("YYYY-MM-DD");
+          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
       }
     },

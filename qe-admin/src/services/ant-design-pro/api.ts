@@ -511,7 +511,7 @@ export async function studentsDashboard(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/be/leadsview', {
+  return request<API.Any>('/be/leadsview', {
     method: 'GET',
     params: {
       ...params,

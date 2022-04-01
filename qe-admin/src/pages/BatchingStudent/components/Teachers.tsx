@@ -13,7 +13,9 @@ import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
 import moment from "moment";
-import {LESSONS} from "../../../../config/lessons";
+import {
+  getLessonByNumber
+} from "@/services/ant-design-pro/helpers";
 
 export type BatchProps = {
     setSelectedBatch: (v: string) => void;
@@ -27,12 +29,12 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {selectedBatch, setSelectedBatch} = props;
+    const {setSelectedBatch} = props;
     const {data} = props;
     const [batch, setBatch] = useState<{value: string, label: string}>();
     const [teacherId, setTeacherId] = useState();
 
-    const lesson = LESSONS.filter(l => data.startLesson && data.startLesson.length > 0 ? l.number === data.startLesson.split(" ")[1]: false)[0];
+    const lesson = getLessonByNumber(data.startLesson);
 
     async function fetchTeachersList(params: {}) {
         const defaultFilter: {
@@ -129,7 +131,6 @@ const Batch: React.FC<BatchProps> = (props) => {
     }
 
     const columns: ProColumns<API.RuleListItem>[] = [
-        //date
         {
           title: (
             <FormattedMessage
@@ -139,7 +140,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "phoneNumber",
         },
-        //teacher name
         {
           title: (
             <FormattedMessage
@@ -149,9 +149,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "name",
         },
-        //mobile number
-    
-        //experience
         {
           title: (
             <FormattedMessage
@@ -161,7 +158,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "totalexp",
         },
-        //classes taken
         {
           title: (
             <FormattedMessage
@@ -171,7 +167,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "classesTaken",
         },
-        //time slots
         {
           title: (
             <FormattedMessage

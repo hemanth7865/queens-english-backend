@@ -6,20 +6,24 @@ import {
     getIndividualBatch,
     updateUserStatus
 } from "@/services/ant-design-pro/api";
+import {
+  getLessonByNumber
+} from "@/services/ant-design-pro/helpers";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
+import {timeToUTCTimezone} from "@/services/ant-design-pro/helpers"
 
 const { TabPane } = Tabs;
 
 export type BatchProps = {
     data: any;
     visible: boolean;
-    setVisible: () =>void;
-    onUpdate: () => void;
+    setVisible: (value: boolean) =>void;
+    onUpdate?: () => void;
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
@@ -27,7 +31,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
+    const lesson = getLessonByNumber(startLesson);
 
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
@@ -60,7 +64,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
 
         if(timings && timings.length > 0){
-          fixedFilter.lessonStartTime = timings;
+          fixedFilter.lessonStartTime = timeToUTCTimezone(timings);
         }
 
         return listBatch({
