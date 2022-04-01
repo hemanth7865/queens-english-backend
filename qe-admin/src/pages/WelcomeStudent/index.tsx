@@ -464,12 +464,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        //openNotificationWithIcon('error', 'Student', msg.error);
+        openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        //openNotificationWithIcon('success', 'Student', '');
+        openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
