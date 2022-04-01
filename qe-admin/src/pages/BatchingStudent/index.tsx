@@ -1,4 +1,4 @@
-import { Button, Input, Table, Drawer, Form, Typography, Row, Col, notification, Spin} from "antd";
+import { Button, Input, Table, Drawer, Form, Typography, Row, Col, Spin} from "antd";
 import React, { useState, useEffect } from "react";
 import {studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
@@ -34,6 +34,7 @@ const StudentOnboard: React.FC = () => {
   };
 
   const studentGetApi = async ()=>{
+    setIsLoading(true);
     try {
       let msg = await studentsDashboard('batching', {
           current: 1,
@@ -46,6 +47,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       console.log("error", error);
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -139,7 +141,7 @@ const StudentOnboard: React.FC = () => {
   }
   
   const handleFormSubmit = async () => {
-    //console.log('status', formData, value)
+    setIsLoading(true);
     try {
       let msg = await studentsDashboardFilter('batching', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, "",{
           current: 1,
@@ -150,7 +152,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       console.log("error", error);
     }
-    
+    setIsLoading(false);
   }
 
  const handleReset = ()=>{
@@ -162,72 +164,73 @@ const StudentOnboard: React.FC = () => {
   return (
     <>
       <h2 style = {{textAlign: "center"}}>Pending Batching</h2>
+        <Spin spinning={isLoading}>
+        <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
+          {/* Form for search */}
+          <Form name="basic" form = {form}>
+            <Row gutter={24}>
+              <Col span={6}>
+                <Form.Item name="studentName" label = "Student Name" >
+                  <Input name = "studentName" onChange={handleInputChange}/>
+                </Form.Item>
+              </Col>
 
-      <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
-        {/* Form for search */}
-        <Form name="basic" form = {form}>
-          <Row gutter={24}>
-            <Col span={6}>
-              <Form.Item name="studentName" label = "Student Name" >
-                <Input name = "studentName" onChange={handleInputChange}/>
-              </Form.Item>
-            </Col>
+              <Col span={6}>
+                <Form.Item name="studentEmail" label = "Email" >
+                  <Input name = "studentEmail" onChange={handleInputChange}/>
+                </Form.Item>
+              </Col>
 
-            <Col span={6}>
-              <Form.Item name="studentEmail" label = "Email" >
-                <Input name = "studentEmail" onChange={handleInputChange}/>
+              <Col span={6}>
+                <Form.Item name="studentPhoneNumber" label = "Mobile No" >
+                  <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+                </Form.Item>
+              </Col>
+              
+              <Col span = {1}>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
+                  Query
+                </Button>
               </Form.Item>
-            </Col>
-
-            <Col span={6}>
-              <Form.Item name="studentPhoneNumber" label = "Mobile No" >
-                <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
-              </Form.Item>
-            </Col>
-            
-            <Col span = {1}>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
-                Query
-              </Button>
+              </Col>
+              <Col span = {1} style = {{marginLeft: 10}}>
+              <Form.Item >
+              <Button
+                onClick={handleReset}
+              >
+                Reset
+            </Button>
             </Form.Item>
             </Col>
-            <Col span = {1} style = {{marginLeft: 10}}>
-            <Form.Item >
-            <Button
-              onClick={handleReset}
-            >
-              Reset
-          </Button>
-          </Form.Item>
-          </Col>
-          </Row>
+            </Row>
+          </Form>
+        </div>
+
+        <Form form={form} component={false}>
+          <Table
+            bordered
+            dataSource={data}
+            columns={columns}
+            rowClassName="editable-row"
+            pagination={{
+              onChange: cancel,
+            }}
+            scroll={{ x: 1500 }}
+          />
         </Form>
-      </div>
 
-      <Form form={form} component={false}>
-        <Table
-          bordered
-          dataSource={data}
-          columns={columns}
-          rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
+        <Drawer 
+          title="Proccess Batching"
+          placement="right"
+          onClose={()=>{
+            setVisibleEdit(false)
           }}
-          scroll={{ x: 1500 }}
-        />
-      </Form>
-
-      <Drawer 
-        title="Proccess Batching"
-        placement="right"
-        onClose={()=>{
-          setVisibleEdit(false)
-        }}
-        visible={visibleEdit}
-        width={900}>
-          <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
-      </Drawer>
+          visible={visibleEdit}
+          width={900}>
+            <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
+        </Drawer>
+      </Spin>
     </>
   );
 };
