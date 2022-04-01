@@ -15,7 +15,7 @@ import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
-import {timeToUTCTimezone} from "@/services/ant-design-pro/helpers"
+import {timeToUTCTimezone, timeToLocalTimezone} from "@/services/ant-design-pro/helpers"
 
 const { TabPane } = Tabs;
 
@@ -232,8 +232,12 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "timeSlot",
           // valueType: "textarea",
-          renderFormItem: (value) => {
-            return <TimePicker.RangePicker format="HH:mm" />;
+          render: (data: any) => {
+            if(data.length > 0 && data.split("-").length > 1){
+              const [start, end] = data.split("-");
+              return `${timeToLocalTimezone(start)} - ${timeToLocalTimezone(end)}`;
+            }
+            return "... - ...";
           },
         },
         {
