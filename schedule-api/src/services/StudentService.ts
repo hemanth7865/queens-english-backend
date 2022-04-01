@@ -246,7 +246,8 @@ export class StudentService {
           prm_info.firstName,
           prm_info.lastName,
           element.salestatus,
-          element.salesowner
+          element.salesowner,
+          `${prm_info.firstName} ${prm_info.lastName}`
         );
         leadView.push(l);
       }

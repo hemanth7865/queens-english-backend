@@ -18,7 +18,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -300,6 +300,19 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
       )
+    }else if(inputType === 'selectPRM'){
+      return(
+            <Select style={{ width: 160 }} >
+              <Option value="1 Sukhmanjeet Kaur">Sukhmanjeet Kaur</Option>
+              <Option value="Gaurangana Bhadauria">Gaurangana Bhadauria</Option>
+              <Option value="Aman Naik">Aman Naik</Option>
+              <Option value="Salima Chhatriwala">Salima Chhatriwala</Option>
+              <Option value="Molishka Rai">Molishka Rai</Option>
+              <Option value="Abhishek Kundlia">Abhishek Kundlia</Option>
+              <Option value="Ritik Sahni">Ritik Sahni</Option>
+              <Option value="Aneesh Biswas">Aneesh Biswas</Option>
+            </Select>
+      )
     }
     else{
       return <Input />
@@ -393,6 +406,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    console.log('prm_firstName', value.prm_firstName)
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -450,12 +464,12 @@ const StudentOnboard: React.FC = () => {
       });
       console.log('message', msg)
       if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
+        //openNotificationWithIcon('error', 'Student', msg.error);
       } else {
-        openNotificationWithIcon('success', 'Student', '');
+        //openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     
   }
@@ -701,11 +715,9 @@ const StudentOnboard: React.FC = () => {
     },
     {
       title: 'PRM Name',
-      width: 150,
-      editable: false,
-      render: (value)=>{
-        return `${value.prm_firstName} ${value.prm_lastName}`
-      }
+      dataIndex: 'prm',
+      width: 200,
+      editable: true,
     },
     {
       title: 'Sale Owner',
@@ -773,7 +785,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'prm' ?'selectPRM':'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
