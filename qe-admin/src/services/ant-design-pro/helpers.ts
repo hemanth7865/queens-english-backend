@@ -1,6 +1,7 @@
 import { notification } from 'antd';
 import {LESSONS, Lesson} from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
+import moment from "moment";
 
 export const openNotificationWithIcon = (type: string, message: string , reload = true) => {
     notification[type]({
@@ -56,7 +57,7 @@ export const getLessonByNumber = (lesson?: string): Lesson | undefined => {
  * @param time string aka "HH:mm"
  * @returns 
  */
-export const timeToLocalTimezone = (time: string): string => {
+export const timeToLocalTimezone = (time?: string): string => {
     let result = "2022-03-24T00:00:00.000Z";
     if(time){
         // only time given in format: HH:mm
@@ -68,4 +69,24 @@ export const timeToLocalTimezone = (time: string): string => {
         }
     }
     return format(parseISO(result), "HH:mm");
+}
+
+
+/**
+ * Convert A given Local Time-zone time into UTC timezone
+ * @param time string aka "HH:mm"
+ * @returns 
+ */
+ export const timeToUTCTimezone = (time?: string): string => {
+    let result = "2022-03-24T00:00:00";
+    if(time){
+        // only time given in format: HH:mm
+        if(time.length === "HH:mm".length){
+            result = result.replace("00:00", time);
+        }else{
+            // complete date-time string
+            result = time;
+        }
+    }
+    return moment(result).utc().format("HH:mm")
 }

@@ -15,6 +15,7 @@ import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
+import {timeToUTCTimezone} from "@/services/ant-design-pro/helpers"
 
 const { TabPane } = Tabs;
 
@@ -63,7 +64,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
 
         if(timings && timings.length > 0){
-          fixedFilter.lessonStartTime = timings;
+          fixedFilter.lessonStartTime = timeToUTCTimezone(timings);
         }
 
         return listBatch({
