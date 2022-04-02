@@ -319,7 +319,9 @@ const StudentOnboard: React.FC = () => {
       console.log('message', msg)
       if (msg.status === 500) {
         openNotificationWithIcon('error', 'Student', msg.error);
-      } else {
+      } else if (msg.status === 400){
+        openNotificationWithIcon('error', 'Student', msg.errors[0]);
+      }else {
         openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
@@ -574,7 +576,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

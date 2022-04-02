@@ -312,7 +312,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
           rules={[
             { required: true, 
               message: `${title} is required`
-            }
+            },  
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]+$/}: {},
           ]}
         >
           {inputNode()}
@@ -447,7 +448,10 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         });
         if (msg.status === 500) {
           openNotificationWithIcon('error', 'Student', msg.error);
-        } else {
+        } 
+        else if (msg.status === 400){
+          openNotificationWithIcon('error', 'Student', msg.errors[0]);
+        }else {
           openNotificationWithIcon('success', 'Student', '');
         }
         
@@ -773,7 +777,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
