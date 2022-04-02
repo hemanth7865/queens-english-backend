@@ -13,7 +13,9 @@ import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 import { parse, format } from "date-fns";
 import moment from "moment";
-import {LESSONS} from "../../../../config/lessons";
+import {
+  getLessonByNumber, timeISTToLocalTimezone
+} from "@/services/ant-design-pro/helpers";
 
 export type BatchProps = {
     setSelectedBatch: (v: string) => void;
@@ -27,19 +29,23 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {selectedBatch, setSelectedBatch} = props;
+    const {setSelectedBatch} = props;
     const {data} = props;
     const [batch, setBatch] = useState<{value: string, label: string}>();
     const [teacherId, setTeacherId] = useState();
 
-    const lesson = LESSONS.filter(l => data.startLesson && data.startLesson.length > 0 ? l.number === data.startLesson.split(" ")[1]: false)[0];
+    const lesson = getLessonByNumber(data.startLesson);
 
     async function fetchTeachersList(params: {}) {
         const defaultFilter: {
           start_slot?: string;
           end_slot?: string;
-          weekday?: string
-        } = {};
+          weekday?: string;
+          frequency?: string;
+          autoSearch?: boolean
+        } = {
+          autoSearch: true
+        };
         if(data?.timings && data?.timings.length > 0){
           defaultFilter.start_slot = data?.timings.slice(0, 5);
           let end_slot_info = defaultFilter.start_slot.split(":");
@@ -58,6 +64,7 @@ const Batch: React.FC<BatchProps> = (props) => {
 
 
           defaultFilter.weekday = frequencies[data?.courseFrequency] || "";
+          defaultFilter.frequency = data?.courseFrequency;
         }
 
         return listTeacherAndStudent({
@@ -91,7 +98,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     const createBatch = (dom: any) => {
       let startDate = moment(data.startDate, "YYYY-MM-DD").format("YYYY-MM-DD");
       let endDate = moment(startDate, "YYYY-MM-DD").add('years', 1).format("YYYY-MM-DD");
-      let startTime = moment(data.timings, "HH:mm").format("HH:mm");
+      let startTime = moment(timeISTToLocalTimezone(data.timings), "HH:mm").format("HH:mm");
       let endTime = moment(startTime, "HH:mm").add('hours', 1).format("HH:mm");
 
       const linkParams: string[] = [
@@ -124,7 +131,6 @@ const Batch: React.FC<BatchProps> = (props) => {
     }
 
     const columns: ProColumns<API.RuleListItem>[] = [
-        //date
         {
           title: (
             <FormattedMessage
@@ -134,7 +140,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "phoneNumber",
         },
-        //teacher name
         {
           title: (
             <FormattedMessage
@@ -144,9 +149,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "name",
         },
-        //mobile number
-    
-        //experience
         {
           title: (
             <FormattedMessage
@@ -156,7 +158,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "totalexp",
         },
-        //classes taken
         {
           title: (
             <FormattedMessage
@@ -166,7 +167,6 @@ const Batch: React.FC<BatchProps> = (props) => {
           ),
           dataIndex: "classesTaken",
         },
-        //time slots
         {
           title: (
             <FormattedMessage

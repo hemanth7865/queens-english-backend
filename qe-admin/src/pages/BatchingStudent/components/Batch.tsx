@@ -6,6 +6,9 @@ import {
     getIndividualBatch,
     updateUserStatus
 } from "@/services/ant-design-pro/api";
+import {
+  getLessonByNumber, timeISTToTimezone, timeToLocalTimezone
+} from "@/services/ant-design-pro/helpers";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
@@ -18,16 +21,16 @@ const { TabPane } = Tabs;
 export type BatchProps = {
     data: any;
     visible: boolean;
-    setVisible: () =>void;
-    onUpdate: () => void;
+    setVisible: (value: boolean) =>void;
+    onUpdate?: () => void;
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {id, timings, startLesson, dob, courseFrequency, startDate} = props.data?props.data:''
+    const {id, timings, startLesson, dob, courseFrequency, startDate, course} = props.data?props.data:''
     const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const lesson = LESSONS.filter(l => startLesson && startLesson.length > 0 ? l.number === startLesson.split(" ")[1]: false)[0];
+    const lesson = getLessonByNumber(startLesson);
 
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
@@ -60,7 +63,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
 
         if(timings && timings.length > 0){
-          fixedFilter.lessonStartTime = timings;
+          fixedFilter.lessonStartTime = timeISTToTimezone(timings);
         }
 
         return listBatch({
@@ -75,6 +78,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     useEffect(() => {
         setSelectedBatch(false);
         actionRef?.current?.reload();
+        console.log("id", id);
     } , [id]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
@@ -226,10 +230,13 @@ const Batch: React.FC<BatchProps> = (props) => {
             />
           ),
           dataIndex: "timeSlot",
-          // valueType: "textarea",
-          renderFormItem: (value) => {
-            return <TimePicker.RangePicker format="HH:mm" />;
-          },
+          render: (data: any) => {
+            if(data.length > 0 && data.split("-").length > 1){
+              const [start, end] = data.split("-");
+              return `${timeToLocalTimezone(start)} - ${timeToLocalTimezone(end)}`;
+            }
+            return "... - ...";
+          }
         },
         {
           title: "Select",
@@ -257,7 +264,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     return(
         <Spin spinning={isLoading}>
         <Form onFinish={onFinish}>
-            <Tabs defaultActiveKey="1">
+            <Tabs defaultActiveKey={["IELTS - 1:1", "DISE - 1:1"].includes(course) ? "2" : "1"} key={course}>
                 <TabPane tab="Batch" key="1"> 
                     <Row gutter={16}>
                         <Col span={24}>

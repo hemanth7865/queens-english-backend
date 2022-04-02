@@ -1500,3 +1500,9 @@ export const LESSONS = [
             "type": "lesson"
         }
     ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+
+export type Lesson = {
+    id: string;
+    number: string;
+    type: string;
+}
