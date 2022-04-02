@@ -38,11 +38,12 @@ export class UserController {
 
         try {
             if(request.body.type === 'student') {
-                const studentExists = await (new StudentService()).isStudentExist("alternativeMobile", request.body.alternativeMobile, request.body.id);
-                if(studentExists){
-                    usersLogger.info(`Student With That Number Was Found ${studentExists.id}`);
-                    return { status: 400, errors: ['User already exists with given Alternative Mobile'] };
-                }
+                // TODO: Enable If you need alternative mobile number validation
+                // const studentExists = await (new StudentService()).isStudentExist("alternativeMobile", request.body.alternativeMobile, request.body.id);
+                // if(studentExists){
+                //     usersLogger.info(`Student With That Number Was Found ${studentExists.id}`);
+                //     return { status: 400, errors: ['User already exists with given Alternative Mobile'] };
+                // }
                 resp = await this.studentService.saveStudentDetails(request.body);
                 //console.log('response usercontroller', resp)
             } 
