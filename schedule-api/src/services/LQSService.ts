@@ -286,7 +286,6 @@ export class LQSService {
               usersLogger.info("Iterating element ");
               usersLogger.info(element);
               lqsEntry.id = element.ProspectID;
-              lqsEntry.studentID = element.ProspectID;
               usersLogger.info(element.ProspectID);
               lqsEntry.firstName = element.FirstName;
               lqsEntry.lastName = element.LastName;
@@ -436,6 +435,9 @@ export class LQSService {
                 break;
               case "mx_Custom_29":
                 element.bdaComments = item.Value;
+                break;
+              case "mx_Custom_32":
+                element.studentID = item.Value;
                 break;
               default:
                 usersLogger.info(`Not valid schema name ${item.SchemaName}`);
