@@ -348,6 +348,9 @@ export class LQSService {
               case 'Status':
                 element.status = item.Value;
                 break;
+              case 'SalesOwner':
+                element.salesowner = item.Value;
+                break;
               case "mx_Custom_3":
                 element.dateofsale = item.Value;
                 break;
