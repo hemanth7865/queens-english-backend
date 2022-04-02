@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin} from "antd";
 import React, { useState, useEffect } from "react";
 import {EyeOutlined} from "@ant-design/icons";
 import { useIntl } from "umi";
@@ -223,6 +223,7 @@ const StudentOnboard: React.FC = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -281,6 +282,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -319,16 +321,20 @@ const StudentOnboard: React.FC = () => {
       console.log('message', msg)
       if (msg.status === 500) {
         openNotificationWithIcon('error', 'Student', msg.error);
-      } else {
+      } else if (msg.status === 400){
+        openNotificationWithIcon('error', 'Student', msg.errors[0]);
+      }else {
+        setIsLoading(false);
         openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
       openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
-    
+    setIsLoading(false);
   }
 
   const studentGetApi = async ()=>{
+    setIsLoading(true);
     try {
       let msg = await studentsDashboard('onboarding', {
           current: 1,
@@ -342,6 +348,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       //console.log("error", error);
     }
+    setIsLoading(false);
   }
 
 
@@ -574,7 +581,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -592,7 +599,7 @@ const StudentOnboard: React.FC = () => {
   }
   
   const handleFormSubmit = async () => {
-    //console.log('status', formData, value)
+    setIsLoading(true);
     try {
       let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
           current: 1,
@@ -603,7 +610,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       console.log("error", error);
     }
-    
+    setIsLoading(false);
   }
 
  const handleReset = ()=>{
@@ -615,6 +622,7 @@ const StudentOnboard: React.FC = () => {
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
+      <Spin spinning={isLoading}>
       <div style = {{paddingTop: 20, paddingLeft: 10,  paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
                 <Form name="basic" form = {form}>
@@ -680,6 +688,7 @@ const StudentOnboard: React.FC = () => {
     />
 
     </Form>
+    </Spin>
     </>
   );
 };
