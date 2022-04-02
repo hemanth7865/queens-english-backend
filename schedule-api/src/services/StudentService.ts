@@ -246,7 +246,8 @@ export class StudentService {
           prm_info.firstName,
           prm_info.lastName,
           element.salestatus,
-          element.salesowner
+          element.salesowner,
+          `${prm_info.firstName} ${prm_info.lastName}`
         );
         leadView.push(l);
       }
@@ -638,7 +639,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element,status;
+    student.status = element.status;
     student.timings = element.timings;
 
     usersLogger.info("student record updating is ", student);

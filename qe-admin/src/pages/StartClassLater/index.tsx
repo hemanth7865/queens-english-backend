@@ -309,6 +309,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
+          rules={[
+            { required: true, 
+              message: `${title} is required`
+            }
+          ]}
         >
           {inputNode()}
         </Form.Item>
@@ -412,7 +417,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         callStatus: value.callStatus,
         callBackon: value.callBackon,
         salesowner: value.salesowner,
-        bdmName: value.bdmName,
         poc: value.poc,
         courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
         timings: value.timings,
@@ -707,12 +711,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     {
       title: 'Sales Owner',
       dataIndex: 'salesowner',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'BDM Name',
-      dataIndex: 'bdmName',
       width: 150,
       editable: true,
     },
