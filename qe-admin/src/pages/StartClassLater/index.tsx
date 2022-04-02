@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin} from "antd";
 import {EyeOutlined} from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
@@ -336,6 +336,7 @@ const StudentOnboard: React.FC = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -394,6 +395,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+      setIsLoading(true);
       const dataForm = {
         leadId: value.studentID,
         firstName: value.firstName,
@@ -452,17 +454,18 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         else if (msg.status === 400){
           openNotificationWithIcon('error', 'Student', msg.errors[0]);
         }else {
+          setIsLoading(false);
           openNotificationWithIcon('success', 'Student', '');
         }
         
       } catch (error) {
         openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
       }
-    
-    
+      setIsLoading(false);
   }
 
   const studentGetApi = async ()=>{
+    setIsLoading(true);
     try {
       let msg = await studentsDashboard('startclasslater', {
           current: 1,
@@ -476,6 +479,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     } catch (error) {
       //console.log("error", error);
     }
+    setIsLoading(false);
   }
 
 
@@ -795,6 +799,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
   }
   
   const handleFormSubmit = async () => {
+    setIsLoading(true);
     try {
       let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
           current: 1,
@@ -805,7 +810,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     } catch (error) {
       console.log("error", error);
     }
-    
+    setIsLoading(false);
   }
 
  const handleReset = ()=>{
@@ -819,6 +824,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       <h3 style = {{textAlign: "center"}}>Batching Waitlist</h3>
       <div style = {{paddingTop: 20, paddingLeft: 10, paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
+                <Spin spinning={isLoading}>
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
                   <Col span={6}>
@@ -863,25 +869,28 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
                 </Col>
                 </Row>
               </Form>
+              </Spin>
         </div>
-      <Form form={form} component={false}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
-        pagination={{
-          onChange: cancel,
-        }}
-        scroll={{ x: 100 }}
-    />
+        <Spin spinning={isLoading}>
+        <Form form={form} component={false}>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={data}
+          columns={mergedColumns}
+          rowClassName="editable-row"
+          pagination={{
+            onChange: cancel,
+          }}
+          scroll={{ x: 100 }}
+      />
 
-    </Form>
+      </Form>
+    </Spin>
     </>
   );
 };

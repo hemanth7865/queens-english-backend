@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin} from "antd";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
@@ -341,6 +341,7 @@ const StudentOnboard: React.FC = () => {
   const [data, setData] = useState();
   const [salesData, setSalesData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -371,7 +372,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
-    console.log('values', value)
+    setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -428,12 +429,13 @@ const StudentOnboard: React.FC = () => {
       } else if (msg.status === 400){
         openNotificationWithIcon('error', 'Student', msg.errors[0]);
       }else {
+        setIsLoading(false);
         openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
       openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
-    
+    setIsLoading(false);
   }
 
   function checkProperties(obj) {
@@ -447,6 +449,7 @@ const StudentOnboard: React.FC = () => {
 }
 
   const studentGetApi = async ()=>{
+    setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
           current: 1,
@@ -465,6 +468,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       //console.log("error", error);
     }
+    setIsLoading(false);
   }
 
 console.log('null obj', data)
@@ -741,6 +745,7 @@ console.log('null obj', data)
   
   const handleFormSubmit = async () => {
     //console.log('status', formData, value)
+    setIsLoading(true);
     try {
       let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, '', {
           current: 1,
@@ -751,7 +756,7 @@ console.log('null obj', data)
     } catch (error) {
       console.log("error", error);
     }
-    
+    setIsLoading(false);
   }
 
  const handleReset = ()=>{
@@ -765,6 +770,7 @@ console.log('null obj', data)
       <h3 style = {{textAlign: "center"}}>Sales Alert/ Missing data</h3>
       <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
+                <Spin spinning={isLoading}>
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
                   <Col span={6}>
@@ -803,22 +809,24 @@ console.log('null obj', data)
                 </Col>
                 </Row>
               </Form>
+              </Spin>
         </div>
+        <Spin spinning={isLoading}>
       <Form form={form} component={false}>
-      <Table
-        bordered
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
-        scroll={{ x: 1500 }}
-    />
-
-    </Form>
+        <Table
+          bordered
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          dataSource={data}
+          columns={mergedColumns}
+          rowClassName="editable-row"
+          scroll={{ x: 1500 }}
+      />
+      </Form>
+    </Spin>
     </>
   );
 };

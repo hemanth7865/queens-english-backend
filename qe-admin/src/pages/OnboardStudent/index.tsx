@@ -1,4 +1,4 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space} from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin} from "antd";
 import React, { useState, useEffect } from "react";
 import {EyeOutlined} from "@ant-design/icons";
 import { useIntl } from "umi";
@@ -223,6 +223,7 @@ const StudentOnboard: React.FC = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -281,6 +282,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -322,15 +324,17 @@ const StudentOnboard: React.FC = () => {
       } else if (msg.status === 400){
         openNotificationWithIcon('error', 'Student', msg.errors[0]);
       }else {
+        setIsLoading(false);
         openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
       openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
-    
+    setIsLoading(false);
   }
 
   const studentGetApi = async ()=>{
+    setIsLoading(true);
     try {
       let msg = await studentsDashboard('onboarding', {
           current: 1,
@@ -344,6 +348,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       //console.log("error", error);
     }
+    setIsLoading(false);
   }
 
 
@@ -594,7 +599,7 @@ const StudentOnboard: React.FC = () => {
   }
   
   const handleFormSubmit = async () => {
-    //console.log('status', formData, value)
+    setIsLoading(true);
     try {
       let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
           current: 1,
@@ -605,7 +610,7 @@ const StudentOnboard: React.FC = () => {
     } catch (error) {
       console.log("error", error);
     }
-    
+    setIsLoading(false);
   }
 
  const handleReset = ()=>{
@@ -619,6 +624,7 @@ const StudentOnboard: React.FC = () => {
       <h3 style = {{textAlign: "center"}}>Onboarding Students</h3>
       <div style = {{paddingTop: 20, paddingLeft: 10,  paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
+                <Spin spinning={isLoading}>
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
                   <Col span={6}>
@@ -663,7 +669,9 @@ const StudentOnboard: React.FC = () => {
                 </Col>
                 </Row>
               </Form>
+              </Spin>
         </div>
+      <Spin spinning={isLoading}>
       <Form form={form} component={false}>
       <Table
         components={{
@@ -682,6 +690,7 @@ const StudentOnboard: React.FC = () => {
     />
 
     </Form>
+    </Spin>
     </>
   );
 };
