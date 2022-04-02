@@ -135,6 +135,7 @@ export class LQSService {
       student.course = element.value;
       student.courseFrequency = element.courseFrequency;
       student.status = element.status;    
+      student.salesowner = element.salesowner;
       student.timings = element.timings;
       student.startLesson = element.startingLevel;
       student.startDate = element.startDate;
