@@ -110,8 +110,6 @@ export class Student extends BaseEntity {
   @Column({ nullable: true })
   bdaName: string;
   @Column({ nullable: true })
-  salesowner: string;
-  @Column({ nullable: true })
   bdmName: string;
   @Column({ nullable: true })
   prm_id: number;
