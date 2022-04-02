@@ -34,6 +34,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   ...restProps
 }) => {
   const inputNode = () => {
+    console.log(inputType);
     if(inputType === 'number'){
         return (<Select style={{ width: 120 }} >
                   <Option value="Kids">Kids</Option>
@@ -304,8 +305,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
       )
-    }
-    else{
+    }else{
       return <Input />
     }
   }
@@ -315,9 +315,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
-          // rules={[
-          //   { required: true, pattern: /^\+?[0-9]+$/},
-          // ]}
+          rules={[
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]+$/}: {},
+          ]}
         >
           {/* {console.log('editing', editing)} */}
           {inputNode()}
@@ -720,7 +720,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon' :'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

@@ -1,4 +1,4 @@
-import { FileLogger, getConnection, getRepository } from "typeorm";
+import { FileLogger, getConnection, getRepository, Not } from "typeorm";
 import { User } from "../entity/User";
 import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
@@ -136,7 +136,7 @@ export class StudentService {
 
  
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.salesowner from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.salesowner from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
   let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
 
   console.log(`query string ${query_list}`);
@@ -246,7 +246,8 @@ export class StudentService {
           prm_info.firstName,
           prm_info.lastName,
           element.salestatus,
-          element.salesowner
+          element.salesowner,
+          `${prm_info.firstName} ${prm_info.lastName}`
         );
         leadView.push(l);
       }
@@ -262,11 +263,6 @@ export class StudentService {
 
 
     }
-  
-  
-  
-
-
 
   async saveStudentDetails(data: any) {
     let response;
@@ -357,7 +353,21 @@ export class StudentService {
     }
   }
 
-  
+  async isStudentExist(column = "alternativeMobile", value: string, id: string | undefined): Promise<any>{
+      let where: any =  {[column]: value};
+      if(id){
+          where['id'] = Not(id);
+      }
+      try{
+        const user = await this.studentRepository.findOne({where});
+        return user;
+      }catch(e){
+        console.log(e);
+        usersLogger.error(e);
+        return false;
+      }
+    }
+
   async updateStudentStatus(data: any){
     usersLogger.info(
       `Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
@@ -638,7 +648,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element,status;
+    student.status = element.status;
     student.timings = element.timings;
 
     usersLogger.info("student record updating is ", student);
