@@ -11,7 +11,7 @@ const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time')
 
 export class LQSService {
-  
+
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
   private LSQ_ACCESS_KEY = process.env.LSQ_ACCESS_KEY;
@@ -38,19 +38,21 @@ export class LQSService {
   async createStudents() {
     usersLogger.info('Registering students::Start');
     var lqsEntries = await this.fetchLastDayLSQRecords();
-    var prmsData = await getManager().query('SELECT COUNT(*) as total FROM prm'); 
-    var prmsNo = prmsData.length>0 ? prmsData[0].total:0;    
+    var prmsData = await getManager().query(
+      'SELECT COUNT(*) as total FROM prm'
+    );
+    var prmsNo = prmsData.length > 0 ? prmsData[0].total : 0;
     usersLogger.info('Loading... data from database');
     lqsEntries.forEach(async (element) => {
       usersLogger.info(element.id);
       var userDetails = await this.fillLeadDetails(element, prmsNo);
-      element.lsqstatus = "created";  
+      element.lsqstatus = "created";
       await this.lQSRepository.save(element);
     })
     usersLogger.info('Created students in Admin portal::End');
   }
 
- getRandomArbitrary(min, max) {
+  getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
   }
 
@@ -61,23 +63,30 @@ export class LQSService {
     var prm = await this.fetchPrmRecords();
     console.log(prm);
     usersLogger.info('Created students in Admin portal::End');
-}
-
+  }
 
   async fetchPrmRecords() {
     usersLogger.info('PRMs count');
-   var prmsCount = await getManager().query('SELECT COUNT(*) as total FROM prm'); 
-   //    console.log(prmsCount);
-  //    var prmsAllotment = await getManager().query('SELECT prm_id, COUNT(*) as total FROM student group by prm_id order by count(*) desc'); 
-  var lqsEntries = await this.fetchLastDayPRMRecords();
+    var prmsCount = await getManager().query(
+      'SELECT COUNT(*) as total FROM prm'
+    );
+    //    console.log(prmsCount);
+    //    var prmsAllotment = await getManager().query('SELECT prm_id, COUNT(*) as total FROM student group by prm_id order by count(*) desc');
+    var lqsEntries = await this.fetchLastDayPRMRecords();
   }
 
   async fetchLastDayPRMRecords() {
     const now = new Date();
     now.setDate(now.getDate() - 1);
     var lqsEntries = await this.lQSRepository.find({
-      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_CREATED,LQSService.LSQ_STATUS_SUCCESS])},
-    })
+      where: {
+        updated_at: MoreThanDate(now),
+        lsqstatus: In([
+          LQSService.LSQ_STATUS_CREATED,
+          LQSService.LSQ_STATUS_SUCCESS,
+        ]),
+      },
+    });
     return lqsEntries;
   }
 
@@ -85,14 +94,21 @@ export class LQSService {
     const now = new Date();
     now.setDate(now.getDate() - 1);
     var lqsEntries = await this.lQSRepository.find({
-      where: { updated_at: MoreThanDate(now),lsqstatus: In([LQSService.LSQ_STATUS_ENROLLED,LQSService.LSQ_STATUS_FAILED,LQSService.LSQ_STATUS_SUCCESS])},
-    })
+      where: {
+        updated_at: MoreThanDate(now),
+        lsqstatus: In([
+          LQSService.LSQ_STATUS_ENROLLED,
+          LQSService.LSQ_STATUS_FAILED,
+          LQSService.LSQ_STATUS_SUCCESS,
+        ]),
+      },
+    });
     return lqsEntries;
   }
 
   /**
    * Fetch data from LSQ
-   * @param element 
+   * @param element
    */
   async fillLeadDetails(element: any, count:number) {
     try {
@@ -120,7 +136,7 @@ export class LQSService {
         user.whatsapp = element.whatsapp;
       }
       user.status = LQSService.LSQ_STATUS_ENROLLED;
-      user.type = 'student';    
+      user.type = 'student';
       user.dob = element.dob;
       student.pfirstName = element.pfirstName;
       user.whatsapp = element.whatsapp;
@@ -130,17 +146,17 @@ export class LQSService {
       user.created_at = new Date();
       user.updated_at = new Date();
       user.state = element.customerAddressState;
-     
+
       student.studentID = element.studentID;
-      student.course = element.value;
+      student.course = element.course;
       student.courseFrequency = element.courseFrequency;
-      student.status = element.status;    
+      student.status = element.status;
       student.salesowner = element.salesowner;
       student.timings = element.timings;
       student.startLesson = element.startingLevel;
       student.startDate = element.startDate;
-      student.prm_id = this.getRandomArbitrary(1,count);
-    
+      student.prm_id = this.getRandomArbitrary(1, count);
+      student.teacherName = element.teacherName;
 
       payment.classessold = element.classessold;
       payment.saleamount = element.saleamount;
@@ -150,11 +166,11 @@ export class LQSService {
       payment.plantype = element.saleType;
       payment.subscription = element.subscription;
       payment.subscriptionNo = element.subscriptionNo;
-      payment.emiMonths = element.value;
+      payment.emiMonths = element.emiMonths;
       payment.paymentMode = element.paymentMode;
       payment.paymentid = element.transactionID;
       payment.notes = element.bdaComments;
-      
+
       await this.updateCosmos(user, student, payment);
       this.userRepository.save(user);
       this.studentRepository.save(student);
@@ -162,7 +178,6 @@ export class LQSService {
     } catch (error) {
       usersLogger.info(`Failed during Registering students ${element.id}`);
     }
-
   }
 
   async updateCosmos(user: User, student: Student, payment: Payment) {
@@ -259,9 +274,9 @@ export class LQSService {
           for (let element of res.data) {
             var lqsEntry = await this.lQSRepository.findOne(
               {
-                where:
-                  { id: element.ProspectID }
-              }
+              where: 
+              { id: element.ProspectID }
+            }
             );
             if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
               !lqsEntry) {
@@ -271,6 +286,7 @@ export class LQSService {
               usersLogger.info("Iterating element ");
               usersLogger.info(element);
               lqsEntry.id = element.ProspectID;
+              lqsEntry.studentID = element.ProspectID;
               usersLogger.info(element.ProspectID);
               lqsEntry.firstName = element.FirstName;
               lqsEntry.lastName = element.LastName;
@@ -285,7 +301,7 @@ export class LQSService {
               lqsEntry.created_at = new Date();
               await this.lQSRepository.save(lqsEntry);
             } else {
-              usersLogger.info(`Record processed or with different status id:${element.id} && LSQ record status ${element.ProspectStage}`)
+              usersLogger.info(`Record processed or with different status id:${element.id} && LSQ record status ${element.ProspectStage}`);
             }
           }
         }
@@ -300,7 +316,7 @@ export class LQSService {
     usersLogger.info("Updated Mandatory Fields from Lead API ");
     var lqsRecords = await this.lQSRepository.find(
       {
-        where:
+        where: 
           { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_ENROLLED])}
       }
     );
@@ -308,20 +324,14 @@ export class LQSService {
     for (let element of lqsRecords) {
       usersLogger.info(`Total no of records ... ${lqsRecords.length}`);
       payment: Payment;
-      var url = `${this.LSQ_SALES_LEAD_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`
-      let user = await this.userRepository.findOne(
-        {
-          where:
-            { id: element.id }
-        }
-      );
+      var url = `${this.LSQ_SALES_LEAD_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
+      let user = await this.userRepository.findOne({
+        where: { id: element.id },
+      });
       user == null ? new User() : user;
-      let payment = await this.paymentRepository.findOne(
-        {
-          where:
-            { id: element.id }
-        }
-      );
+      let payment = await this.paymentRepository.findOne({
+        where: { id: element.id },
+      });
       payment == null ? new Payment() : payment;
 
       const details = await axios(url)
@@ -343,46 +353,53 @@ export class LQSService {
 
       usersLogger.info("Updating student Sale related fields :: start");
       if (details && details.length > 0) {
-        details[0].Fields.map(item => {
+        details[0].Fields.map((item) => {
           if (item.Value) {
             switch (item.SchemaName) {
-              case 'Status':
+              case "Status":
                 element.status = item.Value;
                 break;
-              case 'SalesOwner':
+              case "SalesOwner":
                 element.salesowner = item.Value;
-                break;
-              case "mx_Custom_3":
-                element.dateofsale = item.Value;
-                break;
-              case "mx_Custom_10":
-                element.studentID = item.Value;
-                break;
-              case "mx_Custom_11":
-                element.dob = item.Value ? item.value : null;
                 break;
               case "mx_Customer_name":
                 element.pfirstName = item.Value;
                 break;
               case "mx_WhatsApp_Phone_Number":
                 element.whatsapp = item.Value;
-
                 break;
-
+              case "ProductName":
+                element.course = item.Value;
+                break;
+              case "mx_Custom_2":
+                element.saleamount = item.Value;
+                break;
+              case "mx_Custom_3":
+                element.dateofsale = item.Value;
+                break;
+              case "mx_Custom_6":
+                element.downpayment = item.Value;
+                break;
+              case "mx_Custom_8":
+                element.transactionID = item.Value;
+                break;
+              case "mx_Custom_9":
+                element.teacherName = item.Value;
+                break;
+              case "mx_Custom_11":
+                element.dob = item.Value ? item.value : null;
+                break;
               case "mx_Custom_12":
                 element.alternativeMobile = item.Value;
-
                 break;
               case "mx_Custom_13":
                 element.customerEmail = item.Value;
-
                 break;
               case "mx_Custom_14":
                 element.address = item.Value;
                 break;
               case "mx_Custom_15":
                 element.customerAddressState = item.Value;
-
                 break;
               case "mx_Custom_16":
                 element.saleType = item.Value;
@@ -393,9 +410,6 @@ export class LQSService {
               case "mx_Custom_18":
                 element.subscriptionNo = item.Value;
                 break;
-              case "mx_Custom_1":
-                element.course = item.Value;
-                break;
               case "mx_Custom_19":
                 element.courseFrequency = item.Value;
                 break;
@@ -405,51 +419,33 @@ export class LQSService {
               case "mx_Custom_22":
                 element.startingLevel = item.Value;
                 break;
-
               case "mx_Custom_23":
                 element.startDate = item.Value;
                 break;
               case "mx_Custom_24":
                 element.classessold = item.Value;
                 break;
-              case "mx_Custom_2":
-                element.saleamount = item.Value;
-                break;
-              case "mx_Custom_6":
-                element.downpayment = item.Value;
-                break;
-
-
               case "mx_Custom_25":
                 element.emi = item.Value;
                 break;
               case "mx_Custom_26":
                 element.emiMonths = item.Value;
                 break;
-
               case "mx_Custom_27":
                 element.paymentMode = item.Value;
                 break;
-
-              case "mx_Custom_8":
-                element.transactionID = item.Value;
-                break;
-              case "mx_Custom_8":
+              case "mx_Custom_29":
                 element.bdaComments = item.Value;
                 break;
-
               default:
                 usersLogger.info(`Not valid schema name ${item.SchemaName}`);
             }
           }
-
-        })
-
-
+        });
       }
 
       await this.lQSRepository.save(element);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
     usersLogger.info("fetchLQSData :: END");
 
