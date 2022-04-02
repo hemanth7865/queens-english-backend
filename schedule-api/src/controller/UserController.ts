@@ -34,17 +34,25 @@ export class UserController {
             usersLogger.info(`User With That Number Was Found ${userExists.id}`);
             return { status: 400, errors: ['User already exists with given phoneNumber'] };
         }
-        
+
+
         try {
             if(request.body.type === 'student') {
-            resp = await this.studentService.saveStudentDetails(request.body);
-            //console.log('response usercontroller', resp)
+                // TODO: Enable If you need alternative mobile number validation
+                // const studentExists = await (new StudentService()).isStudentExist("alternativeMobile", request.body.alternativeMobile, request.body.id);
+                // if(studentExists){
+                //     usersLogger.info(`Student With That Number Was Found ${studentExists.id}`);
+                //     return { status: 400, errors: ['User already exists with given Alternative Mobile'] };
+                // }
+                resp = await this.studentService.saveStudentDetails(request.body);
+                //console.log('response usercontroller', resp)
             } 
             else {
             resp = await this.teacherService.saveTeacher(request.body);
             }
         
         } catch (error) {
+            console.log(error);
         console.log('Exception::UserController::SaveLead');
         }
         console.log('End::UserController::SaveLead');
