@@ -833,9 +833,9 @@ const StudentOnboard: React.FC = () => {
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Enrolled students / Welcome Call</h3>
+      <Spin spinning={isLoading}>
       <div style = {{paddingTop: 20, paddingLeft: 10, paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
-                <Spin spinning={isLoading}>
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
                   <Col span={6}>
@@ -880,9 +880,7 @@ const StudentOnboard: React.FC = () => {
                 </Col>
                 </Row>
               </Form>
-              </Spin>
         </div>
-        <Spin spinning={isLoading}>
       <Form form={form} component={false}>
       <Table
         components={{

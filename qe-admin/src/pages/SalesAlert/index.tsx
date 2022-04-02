@@ -768,9 +768,9 @@ console.log('null obj', data)
   return (
     <>
       <h3 style = {{textAlign: "center"}}>Sales Alert/ Missing data</h3>
+      <Spin spinning={isLoading}>
       <div style = {{paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center'}}>
                 {/* Form for search */}
-                <Spin spinning={isLoading}>
                 <Form name="basic" form = {form}>
                 <Row gutter={24}>
                   <Col span={6}>
@@ -809,9 +809,7 @@ console.log('null obj', data)
                 </Col>
                 </Row>
               </Form>
-              </Spin>
         </div>
-        <Spin spinning={isLoading}>
       <Form form={form} component={false}>
         <Table
           bordered
