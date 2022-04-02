@@ -1,4 +1,4 @@
-import { FileLogger, getConnection, getRepository } from "typeorm";
+import { FileLogger, getConnection, getRepository, Not } from "typeorm";
 import { User } from "../entity/User";
 import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
@@ -263,11 +263,6 @@ export class StudentService {
 
 
     }
-  
-  
-  
-
-
 
   async saveStudentDetails(data: any) {
     let response;
@@ -358,7 +353,21 @@ export class StudentService {
     }
   }
 
-  
+  async isStudentExist(column = "alternativeMobile", value: string, id: string | undefined): Promise<any>{
+      let where: any =  {[column]: value};
+      if(id){
+          where['id'] = Not(id);
+      }
+      try{
+        const user = await this.studentRepository.findOne({where});
+        return user;
+      }catch(e){
+        console.log(e);
+        usersLogger.error(e);
+        return false;
+      }
+    }
+
   async updateStudentStatus(data: any){
     usersLogger.info(
       `Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
