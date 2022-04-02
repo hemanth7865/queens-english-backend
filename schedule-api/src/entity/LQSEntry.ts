@@ -80,6 +80,8 @@ export class LQSEntry extends BaseEntity {
     salesowner: string;
     @Column({ type: "text" })
     subscriptionNo: string;
+    @Column({ type: "text" })
+    teacherName: string;
     @Column("text")
     lsqstatus: string;
     @Column()
