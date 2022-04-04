@@ -41,6 +41,7 @@ import "./batchList.css";
 import DebounceSelect from "@/components/DebounceSelect";
 import {LESSONS} from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
+import Students from "./components/Students";
 
 const DEFAULT_FORM_DATA = {
   classCode: "",
@@ -162,13 +163,14 @@ const BatchList: React.FC = () => {
         }))
       );
   }
-  async function fetchStudentList(username: string) {
+  async function fetchStudentList(params: any) {
+    console.log("fetching student user", params);
     return listTeacherAndStudent(
       {
         current: 1,
         pageSize: 5,
         type: 'student',
-        keyword: username
+        ...params
       }
     )
       .then((body) =>
@@ -830,8 +832,8 @@ const BatchList: React.FC = () => {
                         </Select>
                       </Form.Item>
                     </Col>
-      
-                    <Col span={24}>
+
+                    {/* <Col span={24}>
                       <Form.Item
                         name="studentList"
                         rules={[{ required: true, message: "Select students" }]}
@@ -853,7 +855,7 @@ const BatchList: React.FC = () => {
                           }}
                         />:<></>}
                       </Form.Item>
-                    </Col>
+                    </Col> */}
 
                     <Col span={24}>
                       <Form.Item
@@ -903,6 +905,19 @@ const BatchList: React.FC = () => {
                           onChange={handleFormChange}
                         />
                       </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                      <Students 
+                        value={studentList}
+                        fetchOptions={fetchStudentList}
+                        options = {currentRow?.id?studentList:[]}
+                        defaultValue={currentRow?.id?studentList:[]}
+                        onChange={(newValue: any[]) => {
+                          console.log("student",studentList)
+                          setStudentList(newValue);
+                        }}
+                      />
                     </Col>
 
                     <Col span={24}>
