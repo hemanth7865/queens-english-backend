@@ -121,35 +121,14 @@ const Batch: React.FC<Props> = (props) => {
       
 
     return(
-        <Row gutter={0}>
-            <Col span={24}>
-                <ProTable<API.RuleListItem, API.PageParams>
-                    headerTitle={"Select Batch Students"}
-                    actionRef={actionRef}
-                    rowKey="key"
-                    search={{
-                      defaultCollapsed:true, 
-                      labelWidth: 60,
-                      split: false,
-                      className: "batch-select-student-form"
-                    }}
-                    request={fetchStudentList}
-                    columns={columns}
-                    pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
-                />
-            </Col>
-
-            <Col span={24} style={{marginTop: 10}}>
-                <ProTable<list, API.PageParams>
-                    headerTitle={"Selected Students"}
-                    rowKey="key"
-                    search={false}
-                    columns={listColumns}
-                    dataSource={value}
-                    pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
-                />
-            </Col>
-        </Row>
+      <ProTable<list, API.PageParams>
+          headerTitle={"Selected Students"}
+          rowKey="key"
+          search={false}
+          columns={listColumns}
+          dataSource={value}
+          pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
+      />
     )
 }
     

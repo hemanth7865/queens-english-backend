@@ -832,30 +832,6 @@ const BatchList: React.FC = () => {
                       </Form.Item>
                     </Col>
 
-                    {/* <Col span={24}>
-                      <Form.Item
-                        name="studentList"
-                        rules={[{ required: true, message: "Select students" }]}
-                      > 
-                         {studentList?
-                        <DebounceSelect
-                          mode="tags"
-                          value={studentList}
-                          placeholder="Select students"
-                          fetchOptions={fetchStudentList}
-                          options = {currentRow?.id?studentList:[]}
-                          defaultValue={currentRow?.id?studentList:[]}
-                          onChange={(newValue: any[]) => {
-                            console.log("student",studentList)
-                            setStudentList(newValue);
-                          }}
-                          style={{
-                            width: "100%",
-                          }}
-                        />:<></>}
-                      </Form.Item>
-                    </Col> */}
-
                     <Col span={24}>
                       <Form.Item
                         name="frequency"
@@ -907,12 +883,29 @@ const BatchList: React.FC = () => {
                     </Col>
 
                     <Col span={24}>
+                         {studentList?
+                        <DebounceSelect
+                          showSearch
+                          value={[]}
+                          placeholder="Select students"
+                          fetchOptions={fetchStudentList}
+                          // options = {currentRow?.id?studentList:[]}
+                          // defaultValue={currentRow?.id?studentList:[]}
+                          onChange={(newValue: any[]) => {
+                            setStudentList([...studentList, newValue]);
+                          }}
+                          style={{
+                            width: "100%",
+                          }}
+                        />:<></>}
+                    </Col>
+
+                    <Col span={24}>
                       <Students 
                         value={studentList}
                         options = {currentRow?.id?studentList:[]}
                         defaultValue={currentRow?.id?studentList:[]}
                         onChange={(newValue: any[]) => {
-                          console.log("student",studentList)
                           setStudentList(newValue);
                         }}
                       />
