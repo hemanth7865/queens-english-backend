@@ -1,21 +1,11 @@
-import React, {useState, useRef} from 'react';
-import {
-    ClockCircleOutlined,
-  } from "@ant-design/icons";
-import { Col, Row, Form, TimePicker,Tooltip } from 'antd';
+import React, {useRef} from 'react';
+import { Col, Row, List } from 'antd';
 import {
     listTeacherAndStudent,
-    listBatch,
 } from "@/services/ant-design-pro/api";
-import DebounceSelect from "@/components/DebounceSelect";
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
-import { parse, format } from "date-fns";
-import moment from "moment";
-import {
-  getLessonByNumber, timeISTToLocalTimezone
-} from "@/services/ant-design-pro/helpers";
 
 type list = {
   label: string | number;
@@ -45,6 +35,10 @@ const Batch: React.FC<Props> = (props) => {
           ...params
         }
       )
+    }
+
+    const remove = (id: string) => {
+      onChange(value.filter((i: list) => i.value !== id))
     }
 
     const columns: ProColumns<API.RuleListItem>[] = [
@@ -78,7 +72,7 @@ const Batch: React.FC<Props> = (props) => {
                   style={selected ? { color: 'red' } : {}}
                   onClick={() => {
                     if(selected){
-                      onChange(value.filter((i: list) => i.value !== dom.id))
+                      remove(dom.id)
                     }else{
                       onChange([...value, {label: `${dom.name} - ${dom.phoneNumber}`, value: dom.id}])
                     }
@@ -91,11 +85,47 @@ const Batch: React.FC<Props> = (props) => {
           },
       ];
 
+
+    const listColumns: ProColumns<list>[] = [
+      {
+        title: (
+          <FormattedMessage
+            id="pages.searchTable.student"
+            defaultMessage="Student"
+          />
+        ),
+        dataIndex: "label",
+      },
+      {
+          title: "Select",
+          tip: "Select Student",
+          hideInSearch: true,
+          render: (dom: any, entity) => {
+            const selected = value.filter((i: list) => i.value === dom.value)[0];
+            return (
+              <a
+                style={selected ? { color: 'red' } : {}}
+                onClick={() => {
+                  if(selected){
+                    remove(dom.value)
+                  }else{
+                    onChange([...value, {label: `${dom.name} - ${dom.phoneNumber}`, value: dom.value}])
+                  }
+                }}
+              >
+                {selected ? "Remove Student" : "Select Student"}
+              </a>
+            );
+          },
+        },
+    ];
+      
+
     return(
-        <Row gutter={16}>
+        <Row gutter={0}>
             <Col span={24}>
                 <ProTable<API.RuleListItem, API.PageParams>
-                    headerTitle={"Students"}
+                    headerTitle={"Select Batch Students"}
                     actionRef={actionRef}
                     rowKey="key"
                     search={{
@@ -106,17 +136,19 @@ const Batch: React.FC<Props> = (props) => {
                     }}
                     request={fetchStudentList}
                     columns={columns}
-                    toolBarRender = { false }
                     pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
                 />
             </Col>
 
-            <Col>
-                  {value.map((item, index) => {
-                    return (
-                      <div>{item.label}</div>
-                    )
-                  })}
+            <Col span={24} style={{marginTop: 10}}>
+                <ProTable<list, API.PageParams>
+                    headerTitle={"Selected Students"}
+                    rowKey="key"
+                    search={false}
+                    columns={listColumns}
+                    dataSource={value}
+                    pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
+                />
             </Col>
         </Row>
     )
