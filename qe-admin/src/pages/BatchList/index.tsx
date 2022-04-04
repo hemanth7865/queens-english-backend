@@ -891,8 +891,10 @@ const BatchList: React.FC = () => {
                           fetchOptions={fetchStudentList}
                           // options = {currentRow?.id?studentList:[]}
                           // defaultValue={currentRow?.id?studentList:[]}
-                          onChange={(newValue: any[]) => {
-                            setStudentList([...studentList, newValue]);
+                          onChange={(newValue: any) => {
+                            if(!studentList.filter(i => i.value === newValue.value)[0]){
+                              setStudentList([...studentList, newValue]);
+                            }
                           }}
                           style={{
                             width: "100%",
