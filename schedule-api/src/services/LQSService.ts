@@ -386,7 +386,7 @@ export class LQSService {
                 element.teacherName = item.Value;
                 break;
               case "mx_Custom_11":
-                element.dob = item.Value ? item.value : null;
+                element.dob = item.Value ? item.Value : null;
                 break;
               case "mx_Custom_12":
                 element.alternativeMobile = item.Value;
