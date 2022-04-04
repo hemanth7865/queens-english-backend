@@ -16,7 +16,6 @@ export type Props = {
   value: list[];
   defaultValue: list[];
   options: list[];
-  fetchStudentList: (params: any) => Promise<list[]>;
   onChange: (data: list[]) => void;
 
 };

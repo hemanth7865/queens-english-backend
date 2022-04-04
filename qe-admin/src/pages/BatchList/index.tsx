@@ -163,14 +163,13 @@ const BatchList: React.FC = () => {
         }))
       );
   }
-  async function fetchStudentList(params: any) {
-    console.log("fetching student user", params);
+  async function fetchStudentList(username: string) {
     return listTeacherAndStudent(
       {
         current: 1,
         pageSize: 5,
         type: 'student',
-        ...params
+        keyword: username
       }
     )
       .then((body) =>
@@ -910,7 +909,6 @@ const BatchList: React.FC = () => {
                     <Col span={24}>
                       <Students 
                         value={studentList}
-                        fetchOptions={fetchStudentList}
                         options = {currentRow?.id?studentList:[]}
                         defaultValue={currentRow?.id?studentList:[]}
                         onChange={(newValue: any[]) => {
