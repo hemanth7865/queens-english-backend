@@ -1,10 +1,7 @@
-import React, {useRef} from 'react';
-import { Col, Row, List } from 'antd';
-import {
-    listTeacherAndStudent,
-} from "@/services/ant-design-pro/api";
+import React from 'react';
+import { DeleteOutlined } from '@ant-design/icons';
 import ProTable from "@ant-design/pro-table";
-import type { ProColumns, ActionType } from "@ant-design/pro-table";
+import type { ProColumns } from "@ant-design/pro-table";
 import { FormattedMessage } from "umi";
 
 type list = {
@@ -23,67 +20,9 @@ export type Props = {
 const Batch: React.FC<Props> = (props) => {
     const {onChange, value} = props;
 
-    const actionRef = useRef<ActionType>();
-
-    async function fetchStudentList(params: any) {
-      return listTeacherAndStudent(
-        {
-          current: 1,
-          pageSize: 5,
-          type: 'student',
-          ...params
-        }
-      )
-    }
-
     const remove = (id: string) => {
       onChange(value.filter((i: list) => i.value !== id))
     }
-
-    const columns: ProColumns<API.RuleListItem>[] = [
-        {
-          title: (
-            <FormattedMessage
-              id="pages.searchTable.student"
-              defaultMessage="Name"
-            />
-          ),
-          dataIndex: "name",
-        },
-        {
-          title: (
-            <FormattedMessage
-              id="pages.searchTable.student"
-              defaultMessage="Phone Number"
-            />
-          ),
-          dataIndex: "phoneNumber",
-          search: false,
-        },
-        {
-            title: "Select",
-            tip: "Select Student",
-            hideInSearch: true,
-            render: (dom: any, entity) => {
-              const selected = value.filter((i: list) => i.value === dom.id)[0];
-              return (
-                <a
-                  style={selected ? { color: 'red' } : {}}
-                  onClick={() => {
-                    if(selected){
-                      remove(dom.id)
-                    }else{
-                      onChange([...value, {label: `${dom.name} - ${dom.phoneNumber}`, value: dom.id}])
-                    }
-                  }}
-                >
-                  {selected ? "Remove Student" : "Select Student"}
-                </a>
-              );
-            },
-          },
-      ];
-
 
     const listColumns: ProColumns<list>[] = [
       {
@@ -105,14 +44,10 @@ const Batch: React.FC<Props> = (props) => {
               <a
                 style={selected ? { color: 'red' } : {}}
                 onClick={() => {
-                  if(selected){
-                    remove(dom.value)
-                  }else{
-                    onChange([...value, {label: `${dom.name} - ${dom.phoneNumber}`, value: dom.value}])
-                  }
+                  remove(dom.value)
                 }}
               >
-                {selected ? "Remove Student" : "Select Student"}
+                <DeleteOutlined />
               </a>
             );
           },
