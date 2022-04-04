@@ -56,7 +56,7 @@ const PhoneNumberCountrySelect = ({
           rules={[
               (edit && defaultValue?.startsWith("+91", 0)) || !edit && selectCountryCode == 91 ? 
               { required: true, pattern: !edit ? /^[0-9]{10}$/ : /^\+[0-9]{12}$/, message: "Make Sure To Write Correct Phone Number"} : 
-              { required: true, pattern: !edit ? /^[0-9]+$/ : /^\+[0-9]+$/, message: "Make Sure To Write Correct Phone Number"} 
+              { required: true, pattern: !edit ? /^[0-9]+$/ : /^\+[0-9]{10,15}$/, message: "Make Sure To Write Correct Phone Number"} 
           ]}
           >
           <Input
