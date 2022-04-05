@@ -12,6 +12,7 @@ import { TeacherService } from "./TeacherService";
 import { StudentAvailability } from "../entity/StudentAvailability";
 import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
+import { LQSService } from "./LQSService";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -311,7 +312,7 @@ export class StudentService {
               return { status: 400, data: res.data };
             } else {
               usersLogger.info(`Data id from cosmos is ${data.id}`);
-              var user = await this.saveStudentSQL(data,data.id);
+              var user = await this.saveStudentSQL(data,data.id, true);
               usersLogger.info(
                 `Successfully registered user: ${data.phoneNumber}`
               );
@@ -380,7 +381,7 @@ export class StudentService {
     return {status: 400, data: "Failed To Update User Status"};
   }
 
-  mapStudentData(data: any, id: string) {
+  async mapStudentData(data: any, id: string, create: boolean = false) {
     let payments: any[] = [];
     let studentAvailability: any[] = [];
 
@@ -510,6 +511,10 @@ export class StudentService {
     student.status = data.status;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
     
+    if (create){
+      const lqsClient = new LQSService();
+      student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
+    }
 
     if (data.studentAvailability) {
       for (let element of  data.studentAvailability) {
@@ -544,7 +549,7 @@ export class StudentService {
     return {student, payments, user, studentAvailability};
   }
 
-  async saveStudentSQL(data: any, id) {
+  async saveStudentSQL(data: any, id, create: boolean = false) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
@@ -552,7 +557,7 @@ export class StudentService {
       var studentAvailabilityList: StudentAvailability[] = [];
       var teacherAvailability: TeacherAvailability[] = [];
 
-      const UserData = this.mapStudentData(data, id);
+      const UserData = await this.mapStudentData(data, id, create);
 
       let {user, payments, studentAvailability, student} = UserData;
 
