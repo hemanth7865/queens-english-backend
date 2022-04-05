@@ -21,7 +21,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectCourseFrequency' | 'selectTimings';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectCourseFrequency' | 'selectTimings' | 'selectWhatsappSent';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -187,6 +187,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
         ))}
       </Select>
       )
+    }else if(inputType === 'selectWhatsappSent'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Yes">Yes</Option>
+              <Option value="No">No</Option>
+            </Select>
+      )
     }
     else{
       return <Input />
@@ -309,6 +316,7 @@ const StudentOnboard: React.FC = () => {
       callBackon: value.callBackon,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
+      waMessageSent: value.waMessageSent,
     }
     console.log("dataForm", dataForm);
     try {
@@ -543,6 +551,12 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
+      title: 'WhatsApp Message Sent',
+      dataIndex: 'waMessageSent',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       width: 200,
@@ -581,7 +595,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

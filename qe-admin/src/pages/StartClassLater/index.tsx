@@ -18,7 +18,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectWhatsappSent';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -298,6 +298,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
       )
+    }else if(inputType === 'selectWhatsappSent'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Yes">Yes</Option>
+              <Option value="No">No</Option>
+            </Select>
+      )
     }
     else{
       return <Input />
@@ -423,6 +430,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         poc: value.poc,
         courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
         timings: value.timings,
+        waMessageSent: value.waMessageSent,
         payment: [{
           paymentid: value.paymentid,
           studentId: value.studentID,
@@ -743,6 +751,12 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       }
     },
     {
+      title: 'WhatsApp Message Sent',
+      dataIndex: 'waMessageSent',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       width: 150,
@@ -781,7 +795,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
