@@ -23,6 +23,7 @@ const StudentOnboard: React.FC = () => {
   const [data, setData] = useState<any>();
   const [tmpDate, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
 
   const edit = (record: Partial<Item> & { id: React.Key }) => {
     form.setFieldsValue(record);
@@ -34,17 +35,18 @@ const StudentOnboard: React.FC = () => {
     setVisibleEdit(false);
   };
 
-  const studentGetApi = async ()=>{
+  const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('batching', {
-          current: 1,
-          pageSize: 20}
+          current,
+          pageSize}
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
       setData(msg.data);
+      setTotalRecords(msg.total);
     } catch (error) {
       console.log("error", error);
     }
@@ -170,7 +172,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h2 style = {{textAlign: "center"}}>Pending Batching</h2>
+      <h3 style = {{textAlign: "center"}}>Pending Batching</h3>
         <Spin spinning={isLoading}>
         <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
           {/* Form for search */}
@@ -220,8 +222,9 @@ const StudentOnboard: React.FC = () => {
             dataSource={data}
             columns={columns}
             rowClassName="editable-row"
-            pagination={{
-              onChange: cancel,
+            pagination={{ 
+              pageSize: 10, total: totalRecords ,
+              onChange: studentGetApi
             }}
             scroll={{ x: 1500 }}
           />
