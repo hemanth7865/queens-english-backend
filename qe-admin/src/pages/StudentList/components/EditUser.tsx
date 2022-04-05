@@ -226,7 +226,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                             </Form.Item>
                         </Col>
 
-                        <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} edit={true} /> 
+                        <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} defaultValue={props.data.phoneNumber} edit={true} /> 
           
                         <Col span = {12}>
                             <Form.Item

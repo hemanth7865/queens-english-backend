@@ -316,7 +316,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]+$/}: {},
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/}: {},
           ]}
         >
           {/* {console.log('editing', editing)} */}
