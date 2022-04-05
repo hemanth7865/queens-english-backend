@@ -846,4 +846,118 @@ export class StudentService {
     // saveStudentDetails
     return result;
   }
+
+  async updateStudentsCSVV2(data: any, query: {test: false}){
+    const moment = require("moment");
+    const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
+    const primaryColumn = "Contact No.";
+    let result = {
+      "updated": 0,
+      "notFound": 0,
+      "errors": 0,
+      "duplicated": 0,
+      "duplicatedRecords": {},
+      "duplicatedRecordsIDs": [],
+      "notFoundRecordsIDs": [],
+    };
+
+    const allowedReq = {
+      "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
+      "T-Th-S (Course duration - 8 Months)": "TTS",
+      "M-W-F (Course duration - 8 Months)": "MWF",
+      "Sa - S (Course duration - 14 Months)": "SS",
+    }
+
+    for(let d of data){
+      try{
+        let users = await getManager()
+        .createQueryBuilder(User, "user")
+        .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
+        .getMany();
+        
+        if(users.length > 1){
+          let [name,] = d["Student Name"].split(" ");
+          users = await getManager()
+          .createQueryBuilder(User, "user")
+          .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%' AND user.firstName LIKE '%${name}%'`)
+          .getMany();
+        }
+
+        if(users.length < 1){
+          result.notFound++;
+          result["notFoundRecordsIDs"].push({phoneNumber: d[primaryColumn], id: d['Student ID']});
+          continue;
+        }
+
+        if(users.length > 1){
+          result.duplicated++;
+          // result["duplicatedRecords"][d[primaryColumn]] = users;
+          for(let user of users){
+            result["duplicatedRecordsIDs"].push({phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID']});
+          }
+          continue;
+        }
+
+        const user = users[0];
+
+        let student: any = await getManager()
+        .createQueryBuilder(Student, "student")
+        .where("student.id = :id", { id: user.id })
+        .getOne();
+
+        if(!student){
+          student = new Student;
+          student.id = user.id;
+        }
+
+        user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
+        student.studentID = d["Student ID"];
+        student.payment = new Payment();
+        student.payment.dateofsale = formatDate(d["Date of Sale"]);
+        const [pfirstName, plastName] = d["Student Name"].split(" ");
+        student.pfirstName = pfirstName;
+        student.plastName = plastName;
+        user.whatsapp = d["Whatsapp Number"];
+        user.alternativeMobile = d["Alternate Number"];
+        user.customerEmail = d["Email ID of the customer"];
+        user.address = d["Customer Address"];
+        user.state = d["Customer Address - State"];
+        student.course = d["Course"];
+        student.courseFrequency = allowedReq[d["Course Frequency"]];
+        student.timings = d["Preferred Timings"];
+        student.startLesson = `Lesson ${d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]}`;
+        student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
+        student.payment.classessold = d["Number of classes sold"];
+        student.payment.saleamount = d["Total Sale Amount (INR)"];
+        student.payment.downpayment = d["Down payment (INR)"];
+        student.payment.emi = d["EMI Amount (INR)"];
+        student.payment.emiMonths = d["Number of months of EMI"];
+        student.payment.paymentMode = d["Payment Mode"];
+        student.payment.paymentid = d["Transaction ID"];
+        student.comments = d["BDA comments"];
+        user.dob = formatDate(d["Date of birth of the student"]);
+        student.payment.plantype = d["Type of Sale"];
+        student.payment.subscription = d["Subscription"];
+
+        student.payment = [student.payment];
+
+        const resultData = {...student, ...user};
+
+        if(!query.test){
+          await this.saveStudentDetails(resultData);
+        }
+
+        result.updated ++;
+      }catch(e){
+        console.log(e);
+        result.errors++;
+      }
+    }
+
+    /**
+     * Map Data
+     */
+    // saveStudentDetails
+    return result;
+  }
 }
