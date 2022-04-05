@@ -35,8 +35,8 @@ const Batch: React.FC<Props> = (props) => {
         dataIndex: "label",
       },
       {
-          title: "Select",
-          tip: "Select Student",
+          title: "Actions",
+          tip: "Remove Student Action",
           hideInSearch: true,
           render: (dom: any, entity) => {
             const selected = value.filter((i: list) => i.value === dom.value)[0];
