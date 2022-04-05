@@ -38,18 +38,22 @@ export class LQSService {
   async createStudents() {
     usersLogger.info('Registering students::Start');
     var lqsEntries = await this.fetchLastDayLSQRecords();
-    var prmsData = await getManager().query(
-      'SELECT COUNT(*) as total FROM prm'
-    );
-    var prmsNo = prmsData.length > 0 ? prmsData[0].total : 0;
     usersLogger.info('Loading... data from database');
     lqsEntries.forEach(async (element) => {
       usersLogger.info(element.id);
-      var userDetails = await this.fillLeadDetails(element, prmsNo);
+      var userDetails = await this.fillLeadDetails(element);
       element.lsqstatus = "created";
       await this.lQSRepository.save(element);
-    })
+    });
     usersLogger.info('Created students in Admin portal::End');
+  }
+
+  async getPRMsAvailability() {
+    var prmsData = await getManager().query(
+      'SELECT SQL_NO_CACHE prm.id, prm.lastName, prm.firstName, COUNT(student.id) as students FROM prm LEFT JOIN student ON prm.id = student.prm_id group by prm.id order by count(student.id) asc limit 1'
+    );
+
+    return prmsData;
   }
 
   getRandomArbitrary(min, max) {
@@ -110,7 +114,7 @@ export class LQSService {
    * Fetch data from LSQ
    * @param element
    */
-  async fillLeadDetails(element: any, count:number) {
+  async fillLeadDetails(element: any) {
     try {
       var user = new User();
       var payment = new Payment();
@@ -155,7 +159,6 @@ export class LQSService {
       student.timings = element.timings;
       student.startLesson = element.startingLevel;
       student.startDate = element.startDate;
-      student.prm_id = this.getRandomArbitrary(1, count);
       student.teacherName = element.teacherName;
 
       payment.classessold = element.classessold;
@@ -172,10 +175,12 @@ export class LQSService {
       payment.notes = element.bdaComments;
 
       await this.updateCosmos(user, student, payment);
-      this.userRepository.save(user);
-      this.studentRepository.save(student);
-      this.paymentRepository.save(payment);
+      await this.userRepository.save(user);
+      student.prm_id =  await (await this.getPRMsAvailability())[0].id;
+      await this.studentRepository.save(student);
+      await this.paymentRepository.save(payment);
     } catch (error) {
+      console.log(error);
       usersLogger.info(`Failed during Registering students ${element.id}`);
     }
   }
