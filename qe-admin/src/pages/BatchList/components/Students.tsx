@@ -62,7 +62,7 @@ const Batch: React.FC<Props> = (props) => {
           search={false}
           columns={listColumns}
           dataSource={value}
-          pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
+          pagination={value.length > 5 ? { defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}: false}
       />
     )
 }
