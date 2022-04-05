@@ -976,17 +976,9 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="whatsapp ">
-                    <Input
-                      placeholder="whatsapp Number"
-                      name="whatsapp "
-                      value={formData.whatsapp }
-                      onChange={handleFormChange}
-                      //prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
-                  </Form.Item>
-                </Col>
+
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} phoneNumberName={"whatsapp"} placeholder="whatsapp Number" edit={true} defaultValue={formData.whatsapp} /> 
+
                 <Col span={12}>
                   <Form.Item
                     name="pfirstName"
@@ -2144,20 +2136,8 @@ const StudentsBatchList: React.FC = () => {
                     ) : ''} */}
                   </Form.Item>
                 </Col>
-                <Col span={12}>
-                  <Form.Item name="whatsapp">
-                    <Input
-                      placeholder="whatsapp Number"
-                      name="whatsapp"
-                      defaultValue={tempDataView.whatsapp}
-                       onChange={handleFormChange}
-                     // prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
-                    />
-                    {/* {error ? (
-                      <p style={{ color: 'red' }}>{error}</p>
-                    ) : ''} */}
-                  </Form.Item>
-                </Col>
+
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} phoneNumberName={"whatsapp"} placeholder="whatsapp Number" edit={true} defaultValue={tempDataView.whatsapp} /> 
 
                 <Col span={12}>
                   <Form.Item
