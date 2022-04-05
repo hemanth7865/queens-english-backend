@@ -335,6 +335,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
+  const [totalRecords, setTotalRecords] = useState<number>(0);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
 
   const [form] = Form.useForm();
@@ -448,23 +449,26 @@ const StudentOnboard: React.FC = () => {
     }
 }
 
-  const studentGetApi = async ()=>{
+  const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
-          current: 1,
-          pageSize: 200}
-      );
-      if (msg.status === "ok") {
-        console.log("API call sucessfull", msg);
+        current,
+        pageSize
       }
+    );
+    if (msg.status === "ok") {
+      console.log("API call sucessfull", msg);
+    }
+    setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
       const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent,   ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
-      setData(nullObj)
+      setData(nullObj);
+      
     } catch (error) {
       //console.log("error", error);
     }
@@ -473,7 +477,7 @@ const StudentOnboard: React.FC = () => {
 
 console.log('null obj', data)
 
-  useEffect(async (params: any) => {
+  useEffect(() => {
   studentGetApi()
   }, []);
 
@@ -821,6 +825,10 @@ console.log('null obj', data)
           dataSource={data}
           columns={mergedColumns}
           rowClassName="editable-row"
+          pagination={{ 
+            pageSize: 10, total: totalRecords ,
+            onChange: studentGetApi
+          }}
           scroll={{ x: 1500 }}
       />
       </Form>
