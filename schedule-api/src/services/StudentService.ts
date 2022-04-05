@@ -242,12 +242,12 @@ export class StudentService {
           element.state,
           zoomLinkBatch.join(","),
           zoomInfoBatch.join(","),
-          prm_info.id,
-          prm_info.firstName,
-          prm_info.lastName,
+          prm_info?prm_info.id:'',
+          prm_info?prm_info.firstName:'',
+          prm_info?prm_info.lastName:'',
           element.salestatus,
           element.salesowner,
-          `${prm_info.firstName} ${prm_info.lastName}`,
+          prm_info?`${prm_info.firstName} ${prm_info.lastName}`:'',
           element.waMessageSent,
         );
         leadView.push(l);
