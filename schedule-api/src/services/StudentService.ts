@@ -509,6 +509,7 @@ export class StudentService {
     student.timings = data.timings;
     student.salesowner = data.salesowner;
     student.status = data.status;
+    student.prm_id = data.prm_id;
     student.waMessageSent = data.waMessageSent;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
     

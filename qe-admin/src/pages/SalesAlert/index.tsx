@@ -460,7 +460,7 @@ const StudentOnboard: React.FC = () => {
       }
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm,   ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent,   ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
