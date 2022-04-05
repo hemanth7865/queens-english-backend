@@ -881,6 +881,25 @@ export class StudentService {
           .createQueryBuilder(User, "user")
           .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%' AND user.firstName LIKE '%${name}%'`)
           .getMany();
+          let tmpUsers = [];
+          for(let user of users){
+            let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u join batch_students bs on bs.id = u.id
+            join classes cl on cl.id = bs.batchId
+            where cl.batchNumber like '%${d['Batch Code']}%' AND u.id = "${user.id}"`;
+            
+            let ids = await getManager().query(bathCodeQuery); 
+            ids = ids.map(i => {
+              i.user = user;
+              return i;
+            })
+            if(ids.length > 0){
+              tmpUsers.push(user);
+            }
+          }
+
+          if(tmpUsers.length > 0){
+            users = tmpUsers;
+          }
         }
 
         if(users.length < 1){
