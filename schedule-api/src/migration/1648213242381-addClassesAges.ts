@@ -19,7 +19,9 @@ export class addClassesAges1648213242381 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         for(let column of this.columns) {
-            await queryRunner.addColumn(column.table, new TableColumn(column));
+            if (!await queryRunner.hasColumn(column.table, column.name)) { 
+                await queryRunner.addColumn(column.table, new TableColumn(column));
+            }
         }
     }
 

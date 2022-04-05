@@ -41,6 +41,9 @@ import "./batchList.css";
 import DebounceSelect from "@/components/DebounceSelect";
 import {LESSONS} from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
+import Students from "./components/Students";
+
+const Option = Select.Option;
 
 const DEFAULT_FORM_DATA = {
   classCode: "",
@@ -89,9 +92,9 @@ const BatchList: React.FC = () => {
   const [renderEdit,setRenderEdit] = useState(url.searchParams.get("add") ? true : false)
   const [edit, setEdit] = useState(false)
 
-  const [startLesson,setStartLesson] = useState(getParam('startLesson') || "");
-  const [endLesson,setEndLesson] = useState("");
-  const [selectedFrequency,setSelectedFrequency] = useState(getParam('frequency') || "");
+  const [startLesson,setStartLesson] = useState(getParam('startLesson') || undefined);
+  const [endLesson,setEndLesson] = useState(undefined);
+  const [selectedFrequency,setSelectedFrequency] = useState(getParam('frequency') || undefined);
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -606,9 +609,10 @@ const BatchList: React.FC = () => {
               setTeacherName([]);
               setStudentList([]);
               setLeadList([]);
-              setStartLesson("");
-              setEndLesson("");
-              setFollowupVersion("");
+              setStartLesson(undefined);
+              setEndLesson(undefined);
+              setSelectedFrequency(undefined);
+              setFollowupVersion("v2");
               setTimeRange([]);
               setClassDateRange([]);
             }}
@@ -683,7 +687,7 @@ const BatchList: React.FC = () => {
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={12}>
                       <Form.Item
                         name="startingLessonId"
                         rules={[
@@ -709,7 +713,7 @@ const BatchList: React.FC = () => {
                         </Select>
                       </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={12}>
                       <Form.Item
                         name="endingLessonId"
                         rules={[
@@ -811,49 +815,6 @@ const BatchList: React.FC = () => {
                         Add New Teacher
                       </Button>
                     </Col>
-                    <Col span={24}>
-                      <Form.Item
-                        name="ageGroup"
-                        rules={[
-                          { required: true, message: "Select age group" },
-                        ]}
-                      >
-                        {console.log('ageGroup',prePop)}
-                        <Select
-                          placeholder="Age Group"
-                          onChange={(v) => setSelectedAgeGroup(v)}
-                          value={selectedAgeGroup}
-                          defaultValue={!createBatch?prePop?.batchData?.classes?.ageGroup:''}
-                        >
-                          <Option value="Pre-Teen">Pre-Teen</Option>
-                          <Option value="Teen">Teen</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-      
-                    <Col span={24}>
-                      <Form.Item
-                        name="studentList"
-                        rules={[{ required: true, message: "Select students" }]}
-                      > 
-                         {studentList?
-                        <DebounceSelect
-                          mode="tags"
-                          value={studentList}
-                          placeholder="Select students"
-                          fetchOptions={fetchStudentList}
-                          options = {currentRow?.id?studentList:[]}
-                          defaultValue={currentRow?.id?studentList:[]}
-                          onChange={(newValue: any[]) => {
-                            console.log("student",studentList)
-                            setStudentList(newValue);
-                          }}
-                          style={{
-                            width: "100%",
-                          }}
-                        />:<></>}
-                      </Form.Item>
-                    </Col>
 
                     <Col span={24}>
                       <Form.Item
@@ -903,6 +864,37 @@ const BatchList: React.FC = () => {
                           onChange={handleFormChange}
                         />
                       </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                         {studentList?
+                        <DebounceSelect
+                          showSearch
+                          value={[]}
+                          placeholder="Select students"
+                          fetchOptions={fetchStudentList}
+                          // options = {currentRow?.id?studentList:[]}
+                          // defaultValue={currentRow?.id?studentList:[]}
+                          onChange={(newValue: any) => {
+                            if(!studentList.filter(i => i.value === newValue.value)[0]){
+                              setStudentList([...studentList, newValue]);
+                            }
+                          }}
+                          style={{
+                            width: "100%",
+                          }}
+                        />:<></>}
+                    </Col>
+
+                    <Col span={24}>
+                      <Students 
+                        value={studentList}
+                        options = {currentRow?.id?studentList:[]}
+                        defaultValue={currentRow?.id?studentList:[]}
+                        onChange={(newValue: any[]) => {
+                          setStudentList(newValue);
+                        }}
+                      />
                     </Col>
 
                     <Col span={24}>

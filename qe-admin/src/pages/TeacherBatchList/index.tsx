@@ -1407,7 +1407,7 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
 
                 {/* Mobile and Whatsup */}
-                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} /> 
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} /> 
 
                 <Col span={12}>
                   <Form.Item name="whatsApp">

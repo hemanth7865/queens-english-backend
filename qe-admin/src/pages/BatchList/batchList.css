@@ -10,3 +10,11 @@
 .ant-picker-time-panel-cell-disabled{
     display: none;
 }
+
+.batch-select-student-form > .ant-row > .ant-col{
+    flex: 0 0 50%;
+}
+
+.batch-select-student-form > .ant-row > .ant-col .ant-pro-form-collapse-button{
+    display: none;
+}

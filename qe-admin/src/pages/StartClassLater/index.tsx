@@ -327,7 +327,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             { required: true, 
               message: `${title} is required`
             },  
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]+$/}: {},
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/}: {},
           ]}
         >
           {inputNode()}

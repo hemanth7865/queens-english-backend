@@ -10,11 +10,15 @@ const { Option } = Select;
 
 const PhoneNumberCountrySelect = ({ 
   handleMobileChange, 
+  phoneNumberName = "phoneNumber",
+  countryCodeName = "countryCode",
+  placeholder = "Enter Mobile Number",
   setSelectCountry = (data: any) => {}, 
   setSelectCountryCode = (data: any) => {}, 
   edit = false, defaultValue }:any) => 
   {
-  const [selectCountry, setSelectCountryLocal] = useState('')
+  const [selectCountry, setSelectCountryLocal] = useState('');
+  const [localValue, setLocalValue] = useState(defaultValue);
   const [selectCountryCode, setSelectCountryCodeLocal] = useState(91)
 
   const allCountries = CountryList.getData()
@@ -41,7 +45,7 @@ const PhoneNumberCountrySelect = ({
       {
         !edit  && <Col span = {12}>
             <Form.Item
-                name="countryCode">
+                name={countryCodeName}>
                 <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map((name: any) => name.name)}>
                     {allCountries.map((country: any)=>{
                         return <Option value = {country.name} key = {country.code}>{country.name}</Option>
@@ -52,15 +56,17 @@ const PhoneNumberCountrySelect = ({
         </Col> 
       }
       <Col span = {12}>
-        <Form.Item name="phoneNumber"
+        <Form.Item name={phoneNumberName}
           rules={[
-              { required: true, pattern: !edit ? /^[0-9]+$/ : /^\+?[0-9]+$/},
+              (edit && localValue?.startsWith("+91", 0)) || !edit && selectCountryCode == 91 ? 
+              { required: true, pattern: !edit ? /^[0-9]{10}$/ : /^\+[0-9]{12}$/, message: "Make Sure To Write Correct Phone Number"} : 
+              { required: true, pattern: !edit ? /^[0-9]+$/ : /^\+[0-9]{10,15}$/, message: "Make Sure To Write Correct Phone Number"} 
           ]}
           >
           <Input
-              placeholder = "Enter Mobile Number"
-              name = "phoneNumber"
-              onChange = {handleMobileChange}
+              placeholder={placeholder}
+              name={phoneNumberName}
+              onChange = {(e) => {handleMobileChange(e); setLocalValue(e.target.value); }}
               defaultValue={defaultValue}
               addonBefore={!edit && "+"+selectCountryCode}
           />
