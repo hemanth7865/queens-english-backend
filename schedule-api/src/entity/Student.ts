@@ -115,6 +115,8 @@ export class Student extends BaseEntity {
   prm_id: number;
   @Column({ nullable: true })
   salesowner: string;
+  @Column({ nullable: true })
+  waMessageSent: string;
   @Column({ nullable: true, type:"date" })
   assesmentDate: Date;
 
