@@ -358,7 +358,8 @@ export class LQSService {
       usersLogger.info("Updating student Sale related fields :: start");
       if (details && details.length > 0) {
         details[0].Fields.map((item) => {
-          if (item.Value) {
+         
+          if (item.Value && item.value !== "Other") {
             switch (item.SchemaName) {
               case "Status":
                 element.status = item.Value;
@@ -382,6 +383,9 @@ export class LQSService {
                 element.dateofsale = item.Value;
                 break;
               case "mx_Custom_6":
+                element.downpayment = item.Value;
+                break;
+              case "mx_Custom_31":
                 element.downpayment = item.Value;
                 break;
               case "mx_Custom_8":
@@ -417,6 +421,9 @@ export class LQSService {
               case "mx_Custom_19":
                 element.courseFrequency = item.Value;
                 break;
+              case "mx_Custom_20":
+                element.courseFrequency = item.Value;
+                break;
               case "mx_Custom_21":
                 element.timings = item.Value;
                 break;
@@ -432,10 +439,19 @@ export class LQSService {
               case "mx_Custom_25":
                 element.emi = item.Value;
                 break;
+              case "mx_Custom_7":
+                element.emi = item.Value;
+                break;
               case "mx_Custom_26":
                 element.emiMonths = item.Value;
                 break;
+              case "mx_Custom_10":
+                element.emiMonths = item.Value;
+                break;
               case "mx_Custom_27":
+                element.paymentMode = item.Value;
+                break;
+              case "mx_Custom_28":
                 element.paymentMode = item.Value;
                 break;
               case "mx_Custom_29":
