@@ -117,6 +117,8 @@ export class Student extends BaseEntity {
   salesowner: string;
   @Column({ nullable: true })
   waMessageSent: string;
+  @Column({ nullable: true })
+  salesDataFilled: string;
   @Column({ nullable: true, type:"date" })
   assesmentDate: Date;
 
