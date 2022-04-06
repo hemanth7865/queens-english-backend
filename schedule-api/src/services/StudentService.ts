@@ -852,7 +852,7 @@ export class StudentService {
     return result;
   }
 
-  async updateStudentsCSVV2(data: any, query: {test: false}){
+  async updateStudentsCSVV2(data: any, query: {test: boolean, clear: boolean} = {test: false, clear: false}){
     const moment = require("moment");
     const formatDate = (date: any, format = "DD/MM/YYYY") => {
       const result = moment(date, format).format("YYYY-MM-DD");
@@ -939,9 +939,11 @@ export class StudentService {
       "": undefined
     };
 
-    let qe = `UPDATE student SET prm_id = NULL`;
+    if(query.clear){
+      let qe = `UPDATE student SET prm_id = NULL`;
 
-    await getManager().query(qe); 
+      await getManager().query(qe); 
+    }
     
     try{
       for(let d of data){
