@@ -50,7 +50,7 @@ export class LQSService {
 
   async getPRMsAvailability() {
     var prmsData = await getManager().query(
-      'SELECT SQL_NO_CACHE prm.id, prm.lastName, prm.firstName, COUNT(student.id) as students FROM prm LEFT JOIN student ON prm.id = student.prm_id group by prm.id order by count(student.id) asc limit 1'
+      'SELECT SQL_NO_CACHE prm.id, prm.firstName, prm.lastName, COUNT(student.id) as students FROM prm LEFT JOIN student ON prm.id = student.prm_id group by prm.id order by count(student.id) asc limit 1'
     );
 
     return prmsData;
