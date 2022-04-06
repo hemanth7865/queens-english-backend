@@ -13,6 +13,7 @@ import { StudentAvailability } from "../entity/StudentAvailability";
 import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
+import {LESSONS} from "./../data/lessons";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -924,6 +925,17 @@ export class StudentService {
       "MTWTF (Course duration - 5 Months)": "MTWTF"
     }
 
+    const courseMap = {
+      "Group classes": "DISE - Group Class",
+      "1:01:00 AM": "DISE - 1:1",
+      "IELTS - Group Class": "IELTS - Group Class",
+      "1:1 (native)": "DISE - 1:1",
+      "DISE - 1:1": "DISE - 1:1",
+      "DISE - Group Class": "DISE - Group Class",
+      "1 - DISE - Group Class": "DISE - 1:1",
+      "": undefined
+    };
+
     let qe = `UPDATE student SET prm_id = NULL`;
 
     await getManager().query(qe); 
@@ -1011,7 +1023,6 @@ export class StudentService {
           }
           
 
-          // TODO: Remap Data
           student.age = d["Age"]
           student.studentID = d["Student ID"];
           student.courseFrequency = allowedReq[d["Days"]];
@@ -1019,37 +1030,29 @@ export class StudentService {
           student.comments = d["Comments"];
           student.timings = d["Time"];
           user.dob = formatDate(d["DOB"]);
-          // user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
-          // student.payment = new Payment();
-          // student.payment.dateofsale = formatDate(d["Date of Sale"]);
-          // const [pfirstName, plastName] = d["Student Name"].split(" ");
-          // student.pfirstName = pfirstName;
-          // student.plastName = plastName;
-          // user.alternativeMobile = d["Alternate Number"];
-          // user.customerEmail = d["Email ID of the customer"];
-          // user.address = d["Customer Address"];
-          // user.state = d["Customer Address - State"];
-          // student.course = d["Course"];
-          // student.startLesson = `Lesson ${d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]}`;
-          // student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
-          // student.payment.classessold = d["Number of classes sold"];
-          // student.payment.saleamount = d["Total Sale Amount (INR)"];
-          // student.payment.downpayment = d["Down payment (INR)"];
-          // student.payment.emi = d["EMI Amount (INR)"];
-          // student.payment.emiMonths = d["Number of months of EMI"];
-          // student.payment.paymentMode = d["Payment Mode"];
-          // student.payment.paymentid = d["Transaction ID"];
-          // student.comments = d["BDA comments"];
-          // user.dob = formatDate(d["Date of birth of the student"]);
-          // student.payment.plantype = d["Type of Sale"];
-          // student.payment.subscription = d["Subscription"];
-  
-          // student.payment = [student.payment];
+          student.classType = d["Kids/Adult"];
+          student.course = courseMap[d["Class type"]];
+          student.callStatus = d["Call Status"];
+          student.callBackon = d["Call Back on"];
+          student.startDate = formatDate(d["Start Date"], "DD MMM YYYY");
+          student.classesStartDate = formatDate(d["Batch Start date"], "DD/MM/YYYY");
+          student.classesPurchase = d["No of Classes"];
+          let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
+          where cl.batchNumber = '${d['Batch Code']}' AND bs.studentId = "${user.id}"`;
+
+          let classes = await getManager().query(classesQuery);
+
+          classes = classes[0];
+
+          if(classes?.startingLessonId){
+            let lessonNumber = LESSONS.filter(i => i.id === classes.startingLessonId)[0];
+            if(lessonNumber){
+              student.startLesson = `lesson ${lessonNumber.number}`;
+            }
+          }
   
           const resultData = {...student, ...user};
 
-          return {d, student, user};
-  
           if(!query.test){
             await this.saveStudentSQL(resultData, user.id);
           }
