@@ -853,7 +853,7 @@ export class StudentService {
 
   async updateStudentsCSVV2(data: any, query: {test: false}){
     const moment = require("moment");
-    const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
+    const formatDate = (date: any, format = "DD/MM/YYYY") => moment(date, format).format("YYYY-MM-DD");
     const primaryColumn = "Contact No.";
     let result: any = {
       "updated": 0,
@@ -1009,25 +1009,27 @@ export class StudentService {
               student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
             }
           }
-  
+          
+
           // TODO: Remap Data
           student.age = d["Age"]
           student.studentID = d["Student ID"];
-          student.studentID = d["Days"];
           student.courseFrequency = allowedReq[d["Days"]];
+          user.whatsapp = d["Whatsapp Number"];
+          student.comments = d["Comments"];
+          student.timings = d["Time"];
+          user.dob = formatDate(d["DOB"]);
           // user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
           // student.payment = new Payment();
           // student.payment.dateofsale = formatDate(d["Date of Sale"]);
           // const [pfirstName, plastName] = d["Student Name"].split(" ");
           // student.pfirstName = pfirstName;
           // student.plastName = plastName;
-          // user.whatsapp = d["Whatsapp Number"];
           // user.alternativeMobile = d["Alternate Number"];
           // user.customerEmail = d["Email ID of the customer"];
           // user.address = d["Customer Address"];
           // user.state = d["Customer Address - State"];
           // student.course = d["Course"];
-          // student.timings = d["Preferred Timings"];
           // student.startLesson = `Lesson ${d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]}`;
           // student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
           // student.payment.classessold = d["Number of classes sold"];
@@ -1045,6 +1047,8 @@ export class StudentService {
           // student.payment = [student.payment];
   
           const resultData = {...student, ...user};
+
+          return {d, student, user};
   
           if(!query.test){
             await this.saveStudentSQL(resultData, user.id);
