@@ -247,7 +247,12 @@ export class UserController {
             await new Promise(function(myResolve: any, myReject: any) {
                 parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
                         data = records;
-                        myResolve(); 
+                        if(data){
+                            myResolve(); 
+                        }else{
+                            console.log(file.data.toString());
+                            myReject();
+                        }
                     });
                 });
             return this.studentService.updateStudentsCSVV2(data, request.query);
