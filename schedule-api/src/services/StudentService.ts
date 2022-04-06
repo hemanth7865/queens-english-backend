@@ -855,7 +855,7 @@ export class StudentService {
     const moment = require("moment");
     const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
     const primaryColumn = "Contact No.";
-    let result = {
+    let result: any = {
       "updated": 0,
       "notFound": 0,
       "errors": 0,
@@ -865,6 +865,7 @@ export class StudentService {
       "duplicatedRecords": {},
       "duplicatedRecordsIDs": [],
       "notFoundRecordsIDs": [],
+      "foundPRM": []
     };
 
     const frequncyList = [];
@@ -885,45 +886,45 @@ export class StudentService {
     //   "Sa - S": "SS",
     //   "TTS": "TTS",
     //   "Monday,Wednesday,Thursday": "MWT",
-    //   "Wednesday,Saturday,Sunday",
-    //   "Sunday,Monday,Tuesday,Wednesday,Thursday",
+    //   "Wednesday,Saturday,Sunday": "WSS",
+    //   "Sunday,Monday,Tuesday,Wednesday,Thursday": "SMTWT",
     //   "M-F",
     //   "MWF",
-    //   "Monday,Tuesday,Wednesday",
-    //   "20bf1398-2adf-4490-af04-c809c2d355d8",
-    //   "M-T-W-T-F",
-    //   " Monday,Tuesday,Wednesday,Thrusday,Friday",
-    //   "Thursday,Friday",
-    //   "M-T-W-Th-F (Course duration - 5 Months)",
-    //   "Tuesday,Thursday,Friday,Saturday",
-    //   "Monday,Tuesday,Thursday",
-    //   "Thursday,Sunday",
-    //   "Friday,Saturday,Sunday",
-    //   "T T S",
-    //   "Sa-S",
-    //   "Sa - S (Course duration - 14 Months)",
-    //   "T-Th-S (Course duration - 8 Months)",
-    //   "M-W-F (Course duration - 8 Months)",
-    //   "S- S",
-    //   "",
-    //   "S-S (Course duration - 14Months)",
-    //   "M-W-F (Course duration- 32Months)",
-    //   "T-Th-S (Course duration - 24 Months)",
-    //   "M-W-F (Course duration- 8Months)",
-    //   "T-Th-S (Course duration - 32 Months)",
-    //   "M-W-F (Course duration - 36 Months)",
-    //   "M-W-F (Course duration - 32 Months)",
-    //   "32 months M-W-F",
-    //   "Sa-S (Course duration - 14 Months)",
-    //   "M-W-F (Course duration - 16 Months)",
-    //   "T-Th-Sa (Course duration - 8 Months)",
-    //   "M-Tu (Course duration - 14 Months)",
-    //   "Sa - S (Course duration - 56 Months)",
-    //   "MWF (Course duration - 8 Months)",
-    //   "T Th sat (Course duration - 8 Months)",
-    //   "TTS (Course duration - 8 Months)",
-    //   "SS (Course duration - 14 Months)",
-    //   "MTWTF (Course duration - 5 Months)"
+    //   "Monday,Tuesday,Wednesday": "MTW",
+    //   "20bf1398-2adf-4490-af04-c809c2d355d8": undefined,
+    //   "M-T-W-T-F": "MTWTF",
+    //   " Monday,Tuesday,Wednesday,Thrusday,Friday": "MTWTF",
+    //   "Thursday,Friday": "TF",
+    //   "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
+    //   "Tuesday,Thursday,Friday,Saturday": "TTFS",
+    //   "Monday,Tuesday,Thursday": "MTT",
+    //   "Thursday,Sunday": "TS",
+    //   "Friday,Saturday,Sunday": "FSS",
+    //   "T T S": "TTS",
+    //   "Sa-S": "SS",
+    //   "Sa - S (Course duration - 14 Months)": "SS",
+    //   "T-Th-S (Course duration - 8 Months)": "TTS",
+    //   "M-W-F (Course duration - 8 Months)": "MWF",
+    //   "S- S": "SS",
+    //   "": undefined,
+    //   "S-S (Course duration - 14Months)": "SS",
+    //   "M-W-F (Course duration- 32Months)": "MWF",
+    //   "T-Th-S (Course duration - 24 Months)": "TTS",
+    //   "M-W-F (Course duration- 8Months)": "MWF",
+    //   "T-Th-S (Course duration - 32 Months)": "TTS",
+    //   "M-W-F (Course duration - 36 Months)": "MWF",
+    //   "M-W-F (Course duration - 32 Months)": "MWF",
+    //   "32 months M-W-F": "MWF",
+    //   "Sa-S (Course duration - 14 Months)": "SS",
+    //   "M-W-F (Course duration - 16 Months)": "MWF",
+    //   "T-Th-Sa (Course duration - 8 Months)": "TTS",
+    //   "M-Tu (Course duration - 14 Months)": "MT",
+    //   "Sa - S (Course duration - 56 Months)": "SS",
+    //   "MWF (Course duration - 8 Months)", "MWF",
+    //   "T Th sat (Course duration - 8 Months)": "TTS",
+    //   "TTS (Course duration - 8 Months)": "TTS",
+    //   "SS (Course duration - 14 Months)": "SS",
+    //   "MTWTF (Course duration - 5 Months): "MTWTF"
     // }
 
     const allowedReq = {
@@ -933,8 +934,24 @@ export class StudentService {
       "Sa - S (Course duration - 14 Months)": "SS",
     }
 
+    /**
+     * PRMs Info List
+     * Abhishek: 208
+     * Salima: 218
+     */
+    const FIND_PRM_COUNT_FOR = "Salima";
+    let totalSearchedPRMCount = 0;
+
+    let qe = `UPDATE student SET prm_id = NULL`;
+
+    await getManager().query(qe); 
+
     for(let d of data){
       try{
+        if(!d[primaryColumn] || d[primaryColumn].length < 4){
+          d[primaryColumn] = "NOT_FOUND";
+        }
+
         let users = await getManager()
         .createQueryBuilder(User, "user")
         .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
@@ -951,8 +968,6 @@ export class StudentService {
             LEFT JOIN classes cl on cl.id = bs.batchId
             where cl.batchNumber = '${d['Batch Code']}' AND u.id = "${user.id}"`;
 
-            // let bathCodeQuery = `SELECT classes.batchNumber FROM classes LEFT JOIN batch_students on batch_students.batchId = classes.id where classes.batchNumber LIKE '%${d['Batch Code']}%' AND batch_students.studentId = "${user.id}"`;
-            
             let ids = await getManager().query(bathCodeQuery); 
 
             ids = ids.map(i => {
@@ -996,7 +1011,11 @@ export class StudentService {
           student.id = user.id;
         }
 
-        let prmQuery = `SELECT * from prm where firstName LIKE '%${d['PRM']}%'`;
+        if(d['PRM'] === "Ameen"){
+          d["PRM"] = "Mohammed";
+        }
+
+        let prmQuery = `SELECT * from prm where firstName='${d['PRM']}'`;
 
         let prm = await getManager().query(prmQuery); 
         prm = prm[0];
@@ -1008,6 +1027,17 @@ export class StudentService {
         }else{
           result.notFoundPRMs.push({prm: d['PRM'], id: d['Student ID']});
         }
+
+        // /**
+        //  * Get PRMs Count For Specific PRM Name
+        //  */
+        // if(FIND_PRM_COUNT_FOR){
+        //   if(d["PRM"] === FIND_PRM_COUNT_FOR){
+        //     totalSearchedPRMCount++;
+        //     result.foundPRM.push({prm: d['PRM'], id: prm.id});
+        //   }
+        //   continue;
+        // }
 
         // TODO: Remap Data
         // user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
@@ -1058,6 +1088,7 @@ export class StudentService {
      * Map Data
      */
     // saveStudentDetails
+    result.totalSearchedPRMCount = totalSearchedPRMCount;
     return result;
   }
 }
