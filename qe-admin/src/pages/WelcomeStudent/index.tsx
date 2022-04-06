@@ -484,19 +484,26 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(false);
   }
 
+  
+
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
-          current,
-          pageSize
+          current: 1,
+          pageSize: 200
         }
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      setData(msg.data);
+      
+      
       setTotalRecords(msg.total);
+
+      let nullObj = msg.data.filter(item => item.salesDataFilled != undefined)
+      console.log('nullobj', nullObj)
+      setData(nullObj);
     } catch (error) {
       //console.log("error", error);
     }
