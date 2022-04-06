@@ -5,6 +5,7 @@ import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
+import {PRMS} from "../../../config/prms";
 
 const { Option } = Select;
 interface Item {
@@ -18,7 +19,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -302,15 +303,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectPRM'){
       return(
-            <Select style={{ width: 160 }} >
-              <Option value="1 Sukhmanjeet Kaur">Sukhmanjeet Kaur</Option>
-              <Option value="Gaurangana Bhadauria">Gaurangana Bhadauria</Option>
-              <Option value="Aman Naik">Aman Naik</Option>
-              <Option value="Salima Chhatriwala">Salima Chhatriwala</Option>
-              <Option value="Molishka Rai">Molishka Rai</Option>
-              <Option value="Abhishek Kundlia">Abhishek Kundlia</Option>
-              <Option value="Ritik Sahni">Ritik Sahni</Option>
-              <Option value="Aneesh Biswas">Aneesh Biswas</Option>
+        <Select style={{ width: 100 + "%" }} >
+          {PRMS.map(prm => <Option value = {prm.id} key = {prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+        </Select>
+      )
+    }else if(inputType === 'selectWhatsappSent'){
+      return(
+            <Select style={{ width: 120 }} >
+              <Option value="Yes">Yes</Option>
+              <Option value="No">No</Option>
             </Select>
       )
     }
@@ -346,6 +347,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
+  const [totalRecords, setTotalRecords] = useState<number>(0);
   const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: ''})
 
   const [form] = Form.useForm();
@@ -408,6 +410,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    console.log('value', value)
     setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
@@ -436,6 +439,8 @@ const StudentOnboard: React.FC = () => {
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
       salesowner: value.salesowner,
+      waMessageSent: value.waMessageSent,
+      prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -479,18 +484,19 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(false);
   }
 
-  const studentGetApi = async ()=>{
+  const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
-          current: 1,
-          pageSize: 200}
+          current,
+          pageSize
+        }
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
       setData(msg.data);
-      console.log('view one',msg.data);
+      setTotalRecords(msg.total);
     } catch (error) {
       //console.log("error", error);
     }
@@ -500,7 +506,7 @@ const StudentOnboard: React.FC = () => {
 
   //console.log('data', data)
 
-  useEffect(async (params: any) => {
+  useEffect(() => {
   studentGetApi()
   }, []);
 
@@ -753,6 +759,12 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
+      title: 'WhatsApp Message Sent',
+      dataIndex: 'waMessageSent',
+      width: 150,
+      editable: true,
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       width: 150,
@@ -792,7 +804,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM':'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -892,13 +904,12 @@ const StudentOnboard: React.FC = () => {
         dataSource={data}
         columns={mergedColumns}
         rowClassName="editable-row"
-        // pagination={{
-        //   onChange: cancel,
-        // }}
-        //pagination={{ pageSize: 25 }}
+        pagination={{ 
+          pageSize: 10, total: totalRecords ,
+          onChange: studentGetApi
+        }}
         scroll={{ x: 1500 }}
     />
-
     </Form>
     </Spin>
     </>
