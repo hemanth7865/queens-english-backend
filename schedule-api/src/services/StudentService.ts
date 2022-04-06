@@ -552,7 +552,7 @@ export class StudentService {
     return {student, payments, user, studentAvailability};
   }
 
-  async saveStudentSQL(data: any, id, create: boolean = false) {
+  async saveStudentSQL(data: any, id, create = false) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
@@ -868,223 +868,201 @@ export class StudentService {
       "foundPRM": []
     };
 
-    const frequncyList = [];
-    // TODO: Handle Frequency Difference
-    // const allowedReq = {
-    //   "Monday,Wednesday,Friday": "MWF",
-    //   "Monday,Tuesday,Wednesday,Thursday,Friday": "MTWTF",
-    //   "Tuesday,Thursday,Saturday": "TTS",
-    //   "M-T-W-Th-F": "MTWTF",
-    //   "M-W-F": "MWF",
-    //   "T-T-S": "TTS",
-    //   "S-S": "SS",
-    //   "Monday,Tuesday,Wednesday,Thursday": "MTWT",
-    //   "Tuesday,Thursday": "TT",
-    //   "Not found": "",
-    //   "T-Th-S": "TTS",
-    //   "Saturday,Sunday": "SS",
-    //   "Sa - S": "SS",
-    //   "TTS": "TTS",
-    //   "Monday,Wednesday,Thursday": "MWT",
-    //   "Wednesday,Saturday,Sunday": "WSS",
-    //   "Sunday,Monday,Tuesday,Wednesday,Thursday": "SMTWT",
-    //   "M-F",
-    //   "MWF",
-    //   "Monday,Tuesday,Wednesday": "MTW",
-    //   "20bf1398-2adf-4490-af04-c809c2d355d8": undefined,
-    //   "M-T-W-T-F": "MTWTF",
-    //   " Monday,Tuesday,Wednesday,Thrusday,Friday": "MTWTF",
-    //   "Thursday,Friday": "TF",
-    //   "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
-    //   "Tuesday,Thursday,Friday,Saturday": "TTFS",
-    //   "Monday,Tuesday,Thursday": "MTT",
-    //   "Thursday,Sunday": "TS",
-    //   "Friday,Saturday,Sunday": "FSS",
-    //   "T T S": "TTS",
-    //   "Sa-S": "SS",
-    //   "Sa - S (Course duration - 14 Months)": "SS",
-    //   "T-Th-S (Course duration - 8 Months)": "TTS",
-    //   "M-W-F (Course duration - 8 Months)": "MWF",
-    //   "S- S": "SS",
-    //   "": undefined,
-    //   "S-S (Course duration - 14Months)": "SS",
-    //   "M-W-F (Course duration- 32Months)": "MWF",
-    //   "T-Th-S (Course duration - 24 Months)": "TTS",
-    //   "M-W-F (Course duration- 8Months)": "MWF",
-    //   "T-Th-S (Course duration - 32 Months)": "TTS",
-    //   "M-W-F (Course duration - 36 Months)": "MWF",
-    //   "M-W-F (Course duration - 32 Months)": "MWF",
-    //   "32 months M-W-F": "MWF",
-    //   "Sa-S (Course duration - 14 Months)": "SS",
-    //   "M-W-F (Course duration - 16 Months)": "MWF",
-    //   "T-Th-Sa (Course duration - 8 Months)": "TTS",
-    //   "M-Tu (Course duration - 14 Months)": "MT",
-    //   "Sa - S (Course duration - 56 Months)": "SS",
-    //   "MWF (Course duration - 8 Months)", "MWF",
-    //   "T Th sat (Course duration - 8 Months)": "TTS",
-    //   "TTS (Course duration - 8 Months)": "TTS",
-    //   "SS (Course duration - 14 Months)": "SS",
-    //   "MTWTF (Course duration - 5 Months): "MTWTF"
-    // }
-
     const allowedReq = {
+      "Monday,Wednesday,Friday": "MWF",
+      "Monday,Tuesday,Wednesday,Thursday,Friday": "MTWTF",
+      "Tuesday,Thursday,Saturday": "TTS",
+      "M-T-W-Th-F": "MTWTF",
+      "M-W-F": "MWF",
+      "T-T-S": "TTS",
+      "S-S": "SS",
+      "Monday,Tuesday,Wednesday,Thursday": "MTWT",
+      "Tuesday,Thursday": "TT",
+      "Not found": "",
+      "T-Th-S": "TTS",
+      "Saturday,Sunday": "SS",
+      "Sa - S": "SS",
+      "TTS": "TTS",
+      "Monday,Wednesday,Thursday": "MWT",
+      "Wednesday,Saturday,Sunday": "WSS",
+      "Sunday,Monday,Tuesday,Wednesday,Thursday": "SMTWT",
+      "M-F": "MF",
+      "MWF": "MWF",
+      "Monday,Tuesday,Wednesday": "MTW",
+      "20bf1398-2adf-4490-af04-c809c2d355d8": undefined,
+      "M-T-W-T-F": "MTWTF",
+      " Monday,Tuesday,Wednesday,Thrusday,Friday": "MTWTF",
+      "Thursday,Friday": "TF",
       "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
+      "Tuesday,Thursday,Friday,Saturday": "TTFS",
+      "Monday,Tuesday,Thursday": "MTT",
+      "Thursday,Sunday": "TS",
+      "Friday,Saturday,Sunday": "FSS",
+      "T T S": "TTS",
+      "Sa-S": "SS",
+      "Sa - S (Course duration - 14 Months)": "SS",
       "T-Th-S (Course duration - 8 Months)": "TTS",
       "M-W-F (Course duration - 8 Months)": "MWF",
-      "Sa - S (Course duration - 14 Months)": "SS",
+      "S- S": "SS",
+      "": undefined,
+      "S-S (Course duration - 14Months)": "SS",
+      "M-W-F (Course duration- 32Months)": "MWF",
+      "T-Th-S (Course duration - 24 Months)": "TTS",
+      "M-W-F (Course duration- 8Months)": "MWF",
+      "T-Th-S (Course duration - 32 Months)": "TTS",
+      "M-W-F (Course duration - 36 Months)": "MWF",
+      "M-W-F (Course duration - 32 Months)": "MWF",
+      "32 months M-W-F": "MWF",
+      "Sa-S (Course duration - 14 Months)": "SS",
+      "M-W-F (Course duration - 16 Months)": "MWF",
+      "T-Th-Sa (Course duration - 8 Months)": "TTS",
+      "M-Tu (Course duration - 14 Months)": "MT",
+      "Sa - S (Course duration - 56 Months)": "SS",
+      "MWF (Course duration - 8 Months)": "MWF",
+      "T Th sat (Course duration - 8 Months)": "TTS",
+      "TTS (Course duration - 8 Months)": "TTS",
+      "SS (Course duration - 14 Months)": "SS",
+      "MTWTF (Course duration - 5 Months)": "MTWTF"
     }
-
-    /**
-     * PRMs Info List
-     * Abhishek: 208
-     * Salima: 218
-     */
-    const FIND_PRM_COUNT_FOR = "Salima";
-    let totalSearchedPRMCount = 0;
 
     let qe = `UPDATE student SET prm_id = NULL`;
 
     await getManager().query(qe); 
-
-    for(let d of data){
-      try{
-        if(!d[primaryColumn] || d[primaryColumn].length < 4){
-          d[primaryColumn] = "NOT_FOUND";
-        }
-
-        let users = await getManager()
-        .createQueryBuilder(User, "user")
-        .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
-        .getMany();
-        
-        if(users.length > 1){
-          users = await getManager()
+    
+    try{
+      for(let d of data){
+        try{
+          if(!d[primaryColumn] || d[primaryColumn].length < 4){
+            d[primaryColumn] = "NOT_FOUND";
+          }
+  
+          let users = await getManager()
           .createQueryBuilder(User, "user")
           .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
           .getMany();
-          let tmpUsers = [];
-          for(let user of users){
-            let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
-            LEFT JOIN classes cl on cl.id = bs.batchId
-            where cl.batchNumber = '${d['Batch Code']}' AND u.id = "${user.id}"`;
-
-            let ids = await getManager().query(bathCodeQuery); 
-
-            ids = ids.map(i => {
-              i.user = user;
-              return i;
-            })
-            if(ids.length > 0){
-              tmpUsers.push(user);
+          
+          if(users.length > 1){
+            users = await getManager()
+            .createQueryBuilder(User, "user")
+            .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
+            .getMany();
+            let tmpUsers = [];
+            for(let user of users){
+              let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
+              LEFT JOIN classes cl on cl.id = bs.batchId
+              where cl.batchNumber = '${d['Batch Code']}' AND u.id = "${user.id}"`;
+  
+              let ids = await getManager().query(bathCodeQuery); 
+  
+              ids = ids.map(i => {
+                i.user = user;
+                return i;
+              })
+              if(ids.length > 0){
+                tmpUsers.push(user);
+              }
+            }
+  
+            if(tmpUsers.length > 0){
+              users = tmpUsers;
             }
           }
-
-          if(tmpUsers.length > 0){
-            users = tmpUsers;
+  
+          if(users.length < 1){
+            result.notFound++;
+            result["notFoundRecordsIDs"].push({phoneNumber: d[primaryColumn], id: d['Student ID']});
+            continue;
           }
-        }
-
-        if(users.length < 1){
-          result.notFound++;
-          // result["notFoundRecordsIDs"].push({phoneNumber: d[primaryColumn], id: d['Student ID']});
-          continue;
-        }
-
-        if(users.length > 1){
-          result.duplicated++;
-          // result["duplicatedRecords"][d[primaryColumn]] = users;
-          for(let user of users){
-            result["duplicatedRecordsIDs"].push({phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID']});
+  
+          if(users.length > 1){
+            result.duplicated++;
+            result["duplicatedRecords"][d[primaryColumn]] = users;
+            for(let user of users){
+              result["duplicatedRecordsIDs"].push({phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID']});
+            }
+            continue;
           }
-          continue;
+  
+          const user = users[0];
+  
+          let student: any = await getManager()
+          .createQueryBuilder(Student, "student")
+          .where("student.id = :id", { id: user.id })
+          .getOne();
+  
+          if(!student){
+            student = new Student;
+            student.id = user.id;
+          }
+  
+          let prmQuery = `SELECT * from prm where firstName='${d['PRM']}'`;
+  
+          let prm = await getManager().query(prmQuery); 
+          prm = prm[0];
+  
+          student.prm_id = prm?.id
+  
+          if(prm?.id){
+            result.PRMs ++;
+          }else{
+            const lqsClient = new LQSService();
+            student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
+          }
+  
+          // TODO: Remap Data
+          student.age = d["Age"]
+          student.studentID = d["Student ID"];
+          student.studentID = d["Days"];
+          student.courseFrequency = allowedReq[d["Days"]];
+          // user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
+          // student.payment = new Payment();
+          // student.payment.dateofsale = formatDate(d["Date of Sale"]);
+          // const [pfirstName, plastName] = d["Student Name"].split(" ");
+          // student.pfirstName = pfirstName;
+          // student.plastName = plastName;
+          // user.whatsapp = d["Whatsapp Number"];
+          // user.alternativeMobile = d["Alternate Number"];
+          // user.customerEmail = d["Email ID of the customer"];
+          // user.address = d["Customer Address"];
+          // user.state = d["Customer Address - State"];
+          // student.course = d["Course"];
+          // student.timings = d["Preferred Timings"];
+          // student.startLesson = `Lesson ${d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]}`;
+          // student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
+          // student.payment.classessold = d["Number of classes sold"];
+          // student.payment.saleamount = d["Total Sale Amount (INR)"];
+          // student.payment.downpayment = d["Down payment (INR)"];
+          // student.payment.emi = d["EMI Amount (INR)"];
+          // student.payment.emiMonths = d["Number of months of EMI"];
+          // student.payment.paymentMode = d["Payment Mode"];
+          // student.payment.paymentid = d["Transaction ID"];
+          // student.comments = d["BDA comments"];
+          // user.dob = formatDate(d["Date of birth of the student"]);
+          // student.payment.plantype = d["Type of Sale"];
+          // student.payment.subscription = d["Subscription"];
+  
+          // student.payment = [student.payment];
+  
+          const resultData = {...student, ...user};
+  
+          if(!query.test){
+            await this.saveStudentSQL(resultData, user.id);
+          }
+  
+          result.updated ++;
+        }catch(e){
+          console.log(e);
+          result.errors++;
         }
-
-        const user = users[0];
-
-        let student: any = await getManager()
-        .createQueryBuilder(Student, "student")
-        .where("student.id = :id", { id: user.id })
-        .getOne();
-
-        if(!student){
-          student = new Student;
-          student.id = user.id;
-        }
-
-        let prmQuery = `SELECT * from prm where firstName='${d['PRM']}'`;
-
-        let prm = await getManager().query(prmQuery); 
-        prm = prm[0];
-
-        student.prm_id = prm?.id
-
-        if(prm?.id){
-          result.PRMs ++;
-        }else{
-          result.notFoundPRMs.push({prm: d['PRM'], id: d['Student ID']});
-        }
-
-        // /**
-        //  * Get PRMs Count For Specific PRM Name
-        //  */
-        // if(FIND_PRM_COUNT_FOR){
-        //   if(d["PRM"] === FIND_PRM_COUNT_FOR){
-        //     totalSearchedPRMCount++;
-        //     result.foundPRM.push({prm: d['PRM'], id: prm.id});
-        //   }
-        //   continue;
-        // }
-
-        // TODO: Remap Data
-        // user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
-        // student.studentID = d["Student ID"];
-        // student.payment = new Payment();
-        // student.payment.dateofsale = formatDate(d["Date of Sale"]);
-        // const [pfirstName, plastName] = d["Student Name"].split(" ");
-        // student.pfirstName = pfirstName;
-        // student.plastName = plastName;
-        // user.whatsapp = d["Whatsapp Number"];
-        // user.alternativeMobile = d["Alternate Number"];
-        // user.customerEmail = d["Email ID of the customer"];
-        // user.address = d["Customer Address"];
-        // user.state = d["Customer Address - State"];
-        // student.course = d["Course"];
-        // student.courseFrequency = allowedReq[d["Course Frequency"]];
-        // student.timings = d["Preferred Timings"];
-        // student.startLesson = `Lesson ${d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]}`;
-        // student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
-        // student.payment.classessold = d["Number of classes sold"];
-        // student.payment.saleamount = d["Total Sale Amount (INR)"];
-        // student.payment.downpayment = d["Down payment (INR)"];
-        // student.payment.emi = d["EMI Amount (INR)"];
-        // student.payment.emiMonths = d["Number of months of EMI"];
-        // student.payment.paymentMode = d["Payment Mode"];
-        // student.payment.paymentid = d["Transaction ID"];
-        // student.comments = d["BDA comments"];
-        // user.dob = formatDate(d["Date of birth of the student"]);
-        // student.payment.plantype = d["Type of Sale"];
-        // student.payment.subscription = d["Subscription"];
-
-        // student.payment = [student.payment];
-
-        const resultData = {...student, ...user};
-
-        if(!query.test){
-          await this.saveStudentSQL(resultData, user.id);
-        }
-
-        result.updated ++;
-      }catch(e){
-        console.log(e);
-        result.errors++;
       }
+    }catch(e){
+      console.log(e, data);
     }
-
+ 
     /**
      * Map Data
      */
     // saveStudentDetails
-    result.totalSearchedPRMCount = totalSearchedPRMCount;
     return result;
   }
 }
