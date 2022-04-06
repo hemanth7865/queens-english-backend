@@ -239,6 +239,23 @@ export class UserController {
         }
     }
 
+    async updateStudentsCSVV2(request: Request, response: Response, next: NextFunction) {
+        const file = request.files.students;
+        let data = [];
+ 
+        try{
+            await new Promise(function(myResolve: any, myReject: any) {
+                parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
+                        data = records;
+                        myResolve(); 
+                    });
+                });
+            return this.studentService.updateStudentsCSVV2(data, request.query);
+        }catch(e){
+            return {e, name: file.name, size: file.size, type: file.type};
+        }
+    }
+
     async loadTeacherAvailability(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Loading teacher availability ....");
         let msg = await this.teacherService.updateTeacherAvailability();

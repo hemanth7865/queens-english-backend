@@ -850,4 +850,214 @@ export class StudentService {
     // saveStudentDetails
     return result;
   }
+
+  async updateStudentsCSVV2(data: any, query: {test: false}){
+    const moment = require("moment");
+    const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
+    const primaryColumn = "Contact No.";
+    let result = {
+      "updated": 0,
+      "notFound": 0,
+      "errors": 0,
+      "duplicated": 0,
+      "PRMs": 0,
+      "notFoundPRMs": [],
+      "duplicatedRecords": {},
+      "duplicatedRecordsIDs": [],
+      "notFoundRecordsIDs": [],
+    };
+
+    const frequncyList = [];
+    // TODO: Handle Frequency Difference
+    // const allowedReq = {
+    //   "Monday,Wednesday,Friday": "MWF",
+    //   "Monday,Tuesday,Wednesday,Thursday,Friday": "MTWTF",
+    //   "Tuesday,Thursday,Saturday": "TTS",
+    //   "M-T-W-Th-F": "MTWTF",
+    //   "M-W-F": "MWF",
+    //   "T-T-S": "TTS",
+    //   "S-S": "SS",
+    //   "Monday,Tuesday,Wednesday,Thursday": "MTWT",
+    //   "Tuesday,Thursday": "TT",
+    //   "Not found": "",
+    //   "T-Th-S": "TTS",
+    //   "Saturday,Sunday": "SS",
+    //   "Sa - S": "SS",
+    //   "TTS": "TTS",
+    //   "Monday,Wednesday,Thursday": "MWT",
+    //   "Wednesday,Saturday,Sunday",
+    //   "Sunday,Monday,Tuesday,Wednesday,Thursday",
+    //   "M-F",
+    //   "MWF",
+    //   "Monday,Tuesday,Wednesday",
+    //   "20bf1398-2adf-4490-af04-c809c2d355d8",
+    //   "M-T-W-T-F",
+    //   " Monday,Tuesday,Wednesday,Thrusday,Friday",
+    //   "Thursday,Friday",
+    //   "M-T-W-Th-F (Course duration - 5 Months)",
+    //   "Tuesday,Thursday,Friday,Saturday",
+    //   "Monday,Tuesday,Thursday",
+    //   "Thursday,Sunday",
+    //   "Friday,Saturday,Sunday",
+    //   "T T S",
+    //   "Sa-S",
+    //   "Sa - S (Course duration - 14 Months)",
+    //   "T-Th-S (Course duration - 8 Months)",
+    //   "M-W-F (Course duration - 8 Months)",
+    //   "S- S",
+    //   "",
+    //   "S-S (Course duration - 14Months)",
+    //   "M-W-F (Course duration- 32Months)",
+    //   "T-Th-S (Course duration - 24 Months)",
+    //   "M-W-F (Course duration- 8Months)",
+    //   "T-Th-S (Course duration - 32 Months)",
+    //   "M-W-F (Course duration - 36 Months)",
+    //   "M-W-F (Course duration - 32 Months)",
+    //   "32 months M-W-F",
+    //   "Sa-S (Course duration - 14 Months)",
+    //   "M-W-F (Course duration - 16 Months)",
+    //   "T-Th-Sa (Course duration - 8 Months)",
+    //   "M-Tu (Course duration - 14 Months)",
+    //   "Sa - S (Course duration - 56 Months)",
+    //   "MWF (Course duration - 8 Months)",
+    //   "T Th sat (Course duration - 8 Months)",
+    //   "TTS (Course duration - 8 Months)",
+    //   "SS (Course duration - 14 Months)",
+    //   "MTWTF (Course duration - 5 Months)"
+    // }
+
+    const allowedReq = {
+      "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
+      "T-Th-S (Course duration - 8 Months)": "TTS",
+      "M-W-F (Course duration - 8 Months)": "MWF",
+      "Sa - S (Course duration - 14 Months)": "SS",
+    }
+
+    for(let d of data){
+      try{
+        let users = await getManager()
+        .createQueryBuilder(User, "user")
+        .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
+        .getMany();
+        
+        if(users.length > 1){
+          users = await getManager()
+          .createQueryBuilder(User, "user")
+          .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
+          .getMany();
+          let tmpUsers = [];
+          for(let user of users){
+            let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
+            LEFT JOIN classes cl on cl.id = bs.batchId
+            where cl.batchNumber = '${d['Batch Code']}' AND u.id = "${user.id}"`;
+
+            // let bathCodeQuery = `SELECT classes.batchNumber FROM classes LEFT JOIN batch_students on batch_students.batchId = classes.id where classes.batchNumber LIKE '%${d['Batch Code']}%' AND batch_students.studentId = "${user.id}"`;
+            
+            let ids = await getManager().query(bathCodeQuery); 
+
+            ids = ids.map(i => {
+              i.user = user;
+              return i;
+            })
+            if(ids.length > 0){
+              tmpUsers.push(user);
+            }
+          }
+
+          if(tmpUsers.length > 0){
+            users = tmpUsers;
+          }
+        }
+
+        if(users.length < 1){
+          result.notFound++;
+          // result["notFoundRecordsIDs"].push({phoneNumber: d[primaryColumn], id: d['Student ID']});
+          continue;
+        }
+
+        if(users.length > 1){
+          result.duplicated++;
+          // result["duplicatedRecords"][d[primaryColumn]] = users;
+          for(let user of users){
+            result["duplicatedRecordsIDs"].push({phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID']});
+          }
+          continue;
+        }
+
+        const user = users[0];
+
+        let student: any = await getManager()
+        .createQueryBuilder(Student, "student")
+        .where("student.id = :id", { id: user.id })
+        .getOne();
+
+        if(!student){
+          student = new Student;
+          student.id = user.id;
+        }
+
+        let prmQuery = `SELECT * from prm where firstName LIKE '%${d['PRM']}%'`;
+
+        let prm = await getManager().query(prmQuery); 
+        prm = prm[0];
+
+        student.prm_id = prm?.id
+
+        if(prm?.id){
+          result.PRMs ++;
+        }else{
+          result.notFoundPRMs.push({prm: d['PRM'], id: d['Student ID']});
+        }
+
+        // TODO: Remap Data
+        // user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
+        // student.studentID = d["Student ID"];
+        // student.payment = new Payment();
+        // student.payment.dateofsale = formatDate(d["Date of Sale"]);
+        // const [pfirstName, plastName] = d["Student Name"].split(" ");
+        // student.pfirstName = pfirstName;
+        // student.plastName = plastName;
+        // user.whatsapp = d["Whatsapp Number"];
+        // user.alternativeMobile = d["Alternate Number"];
+        // user.customerEmail = d["Email ID of the customer"];
+        // user.address = d["Customer Address"];
+        // user.state = d["Customer Address - State"];
+        // student.course = d["Course"];
+        // student.courseFrequency = allowedReq[d["Course Frequency"]];
+        // student.timings = d["Preferred Timings"];
+        // student.startLesson = `Lesson ${d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]}`;
+        // student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
+        // student.payment.classessold = d["Number of classes sold"];
+        // student.payment.saleamount = d["Total Sale Amount (INR)"];
+        // student.payment.downpayment = d["Down payment (INR)"];
+        // student.payment.emi = d["EMI Amount (INR)"];
+        // student.payment.emiMonths = d["Number of months of EMI"];
+        // student.payment.paymentMode = d["Payment Mode"];
+        // student.payment.paymentid = d["Transaction ID"];
+        // student.comments = d["BDA comments"];
+        // user.dob = formatDate(d["Date of birth of the student"]);
+        // student.payment.plantype = d["Type of Sale"];
+        // student.payment.subscription = d["Subscription"];
+
+        // student.payment = [student.payment];
+
+        const resultData = {...student, ...user};
+
+        if(!query.test){
+          await this.saveStudentSQL(resultData, user.id);
+        }
+
+        result.updated ++;
+      }catch(e){
+        console.log(e);
+        result.errors++;
+      }
+    }
+
+    /**
+     * Map Data
+     */
+    // saveStudentDetails
+    return result;
+  }
 }
