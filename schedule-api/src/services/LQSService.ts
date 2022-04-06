@@ -359,7 +359,7 @@ export class LQSService {
       if (details && details.length > 0) {
         details[0].Fields.map((item) => {
          
-          if (item.Value && item.value !== "Other") {
+          if (item.Value && item.Value !== "Other") {
             switch (item.SchemaName) {
               case "Status":
                 element.status = item.Value;
