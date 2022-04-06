@@ -252,6 +252,7 @@ const StudentsBatchList: React.FC = () => {
 	assesmentDate:null,	
 	startLesson:'',
 	batchChange:'',
+  prm_id: ''
    // crossedEndDate:null,
     
   });
@@ -658,6 +659,7 @@ const StudentsBatchList: React.FC = () => {
 	    assesmentDate:formData.assesmentDate,
       startLesson:formData.startLesson,
       batchChange:formData.batchChange,
+      prm_id:formData.prm_id,
       payment: [
         {   
            paymentid: formData.paymentid,
@@ -736,6 +738,7 @@ const StudentsBatchList: React.FC = () => {
       comments:formData.comments? formData.comments : tempDataView.comments,
       crossedEndDate:crossedEndDate,     
       incentive:formData.incentive?formData.incentive:tempDataView.incentive,
+      prm_id:formData.prm_id?formData.prm_id:tempDataView.prm_id,
       classesPurchase:formData.classesPurchase?formData.classesPurchase:tempDataView.classesPurchase,
 			//classesCompleted:formData.incentive?formData.incentive:tempDataView.incentive
 		classesAttended:formData.classesAttended?formData.classesAttended:tempDataView.classesAttended,
