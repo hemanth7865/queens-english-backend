@@ -1011,10 +1011,6 @@ export class StudentService {
           student.id = user.id;
         }
 
-        if(d['PRM'] === "Ameen"){
-          d["PRM"] = "Mohammed";
-        }
-
         let prmQuery = `SELECT * from prm where firstName='${d['PRM']}'`;
 
         let prm = await getManager().query(prmQuery); 
