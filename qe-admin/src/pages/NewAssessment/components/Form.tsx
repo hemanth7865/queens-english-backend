@@ -424,19 +424,6 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
         </Select>
       </Form.Item>
 
-      <Form.Item name="Q11" label="Q11 score">
-        <Select
-          placeholder="Choose score"
-          onChange={(value) => {
-            handleChange(value, "A11");
-          }}
-        >
-          <Option value="1">1</Option>
-          <Option value="0">0</Option>
-          <Option value="NA">NA</Option>
-        </Select>
-      </Form.Item>
-
       <Form.Item name="Q12" label="Q12 score">
         <Select
           placeholder="Choose score"
