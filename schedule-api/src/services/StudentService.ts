@@ -854,7 +854,10 @@ export class StudentService {
 
   async updateStudentsCSVV2(data: any, query: {test: false}){
     const moment = require("moment");
-    const formatDate = (date: any, format = "DD/MM/YYYY") => moment(date, format).format("YYYY-MM-DD");
+    const formatDate = (date: any, format = "DD/MM/YYYY") => {
+      const result = moment(date, format).format("YYYY-MM-DD");
+      return result === "Invalid date" ? undefined: result;
+    };
     const primaryColumn = "Contact No.";
     let result: any = {
       "updated": 0,
