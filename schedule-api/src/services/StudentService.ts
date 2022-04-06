@@ -1019,12 +1019,16 @@ export class StudentService {
           if(prm?.id){
             result.PRMs ++;
           }else{
-            const lqsClient = new LQSService();
+            /**
+             * Pick Random PRM To Take Place Missing: Sukhmanjeet
+             */
             if(d['PRM'] === "Sukhmanjeet"){
+              const lqsClient = new LQSService();
               student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
+            }else{
+              result.notFoundPRMs.push({prm: d['PRM'], id: d['Student ID'], phoneNumber: d[primaryColumn]});
             }
           }
-          
 
           student.age = d["Age"]
           student.studentID = d["Student ID"];
@@ -1069,11 +1073,7 @@ export class StudentService {
     }catch(e){
       console.log(e, data);
     }
- 
-    /**
-     * Map Data
-     */
-    // saveStudentDetails
+
     return result;
   }
 }
