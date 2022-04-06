@@ -865,7 +865,6 @@ export class StudentService {
       "duplicatedRecords": {},
       "duplicatedRecordsIDs": [],
       "notFoundRecordsIDs": [],
-      "foundPRM": []
     };
 
     const allowedReq = {
