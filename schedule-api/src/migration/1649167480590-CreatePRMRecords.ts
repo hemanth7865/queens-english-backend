@@ -3,7 +3,7 @@ import {MigrationInterface, QueryRunner} from "typeorm";
 export class CreatePRMRecords1649167480590 implements MigrationInterface {
     protected records = [
         "Abhishek Kundlia", "Aman Naik", "Aneesh Biswas", "Gaurangana Bhadauria", "Molishka Rai", "Ritik Sahni", "Salima Chhatriwala", "Puja Mishra",
-        "Satprit Kaur Kavalajit Singh Monga", "Karman Kaur Gandhi", "Ameen Mohammed"
+        "Satprit Kaur Kavalajit Singh Monga", "Karman Kaur Gandhi", "Mohammed Ameen"
     ];
 
     public async up(queryRunner: QueryRunner): Promise<void> {
