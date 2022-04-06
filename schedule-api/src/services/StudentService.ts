@@ -1005,7 +1005,9 @@ export class StudentService {
             result.PRMs ++;
           }else{
             const lqsClient = new LQSService();
-            student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
+            if(d['PRM'] === "Sukhmanjeet"){
+              student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
+            }
           }
   
           // TODO: Remap Data
