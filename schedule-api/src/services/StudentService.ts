@@ -1066,6 +1066,7 @@ export class StudentService {
           student.startDate = formatDate(d["Start Date"], "DD MMM YYYY");
           student.classesStartDate = formatDate(d["Batch Start date"], "DD/MM/YYYY");
           student.classesPurchase = d["No of Classes"];
+          student.address = d["Address"];
           student.status = allowedStatuses[d["Status"]];
           user.status = allowedStatuses[d["Status"]];
           let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
