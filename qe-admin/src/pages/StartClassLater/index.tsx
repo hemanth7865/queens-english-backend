@@ -37,13 +37,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const inputNode = () => {
     if(inputType === 'number'){
-        return (<Select style={{ width: 120 }} >
+        return (<Select style={{ width: 100 + "%" }} >
                   <Option value="Kids">Kids</Option>
                   <Option value="adult">Adult</Option>
                 </Select>)
     }else if(inputType === 'select'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
               <Option value="DISE - 1:1">DISE - 1:1</Option>
               <Option value="IELTS - Group Class">IELTS - Group Class</Option>
@@ -54,7 +54,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return <input type="date" style = {{width: 150}}/>
     }else if(inputType === 'selectLesson'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Lesson 1">Lesson 1</Option>
               <Option value="Lesson 31">Lesson 31</Option>
               <Option value="Lesson 61">Lesson 61</Option>
@@ -81,7 +81,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 180 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -116,7 +116,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -151,7 +151,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         placeholder="custom dropdown render"
         dropdownRender={menu => (
           <>
@@ -187,7 +187,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -222,7 +222,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 240 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -257,7 +257,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 120 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -278,14 +278,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectStatus'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="startclasslater">Start Class Later</Option>
               <Option value="batching">Ready to batch</Option>
             </Select>
       )
     }else if(inputType === 'selectCallStatus'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Answered">Answered</Option>
               <Option value="DNP">DNP</Option>
               <Option value="Call Back Later">Call Back Later</Option>
@@ -294,14 +294,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectSubscriptionType'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Manual">Manual</Option>
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
       )
     }else if(inputType === 'selectWhatsappSent'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Yes">Yes</Option>
               <Option value="No">No</Option>
             </Select>
@@ -324,10 +324,18 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
+            inputType !== "comments"?
             { required: true, 
               message: `${title} is required`
-            },  
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/}: {},
+            }: {},  
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/, message: "Enter valid number"}: {},
+            inputType === "email" ? {required: true, type: "email"}: {},
+            inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
+            inputType === "selectCourseFrequency" ? {required: true, pattern: /^[MTWFS]*$/, message: "Enter only any of MTWTFSS days"}:{},
+            inputType === "numberOnly"  ? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectDownPayment"? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectSubscriptionAmount"? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectSubscriptionMonth" ? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
           ]}
         >
           {inputNode()}
@@ -421,7 +429,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         dob: value.dob?moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"):'',
         whatsapp:value.whatsapp,
         comments:value.comments,
-        email:value.email,
+        customerEmail:value.customerEmail,
         id: value.studentID,
         type: 'student',
         status: value.status,
@@ -435,7 +443,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         callStatus: value.callStatus,
         callBackon: value.callBackon,
         salesowner: value.salesowner,
-        poc: value.poc,
         courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
         timings: value.timings,
         waMessageSent: value.waMessageSent,
@@ -539,18 +546,18 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: false,
+      editable: true,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: false,
+      editable: true,
     },
     {
       title: 'Email',
-      dataIndex: 'email',
+      dataIndex: 'customerEmail',
       width: 200,
       editable: true,
       
@@ -607,12 +614,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       
     },
     {
-      title: 'POC',
-      dataIndex: 'poc',
-      width: 150,
-      editable: true,
-    },
-    {
       title: 'Address',
       dataIndex: 'address',
       width: 150,
@@ -661,7 +662,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       }
     },
     {
-      title: 'classess sold',
+      title: 'classes sold',
       dataIndex: 'classessold',
       width: 150,
       editable: true
@@ -803,7 +804,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM':'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

@@ -36,7 +36,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   const inputNode = () => {
     console.log(inputType);
     if(inputType === 'number'){
-        return (<Select style={{ width: 120 }} >
+        return (<Select style={{ width: 100 + "%" }} >
                   <Option value="Kids">Kids</Option>
                   <Option value="adult">Adult</Option>
                 </Select>)
@@ -44,7 +44,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return <input type="date" style = {{width: 160}}/>
     }else if(inputType === 'select'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
               <Option value="DISE - 1:1">DISE - 1:1</Option>
               <Option value="IELTS - Group Class">IELTS - Group Class</Option>
@@ -53,14 +53,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectSaleWon'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Won">Won</Option>
               <Option value="Lost">Lost</Option>
             </Select>
       )
     }else if(inputType === 'selectLesson'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Lesson 1">Lesson 1</Option>
               <Option value="Lesson 31">Lesson 31</Option>
               <Option value="Lesson 61">Lesson 61</Option>
@@ -87,7 +87,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 180 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -122,7 +122,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -157,7 +157,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -192,7 +192,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -227,7 +227,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 240 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -262,7 +262,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 120 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -283,7 +283,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectStatus'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="enrolled">Enrolled</Option>
               <Option value="startclasslater">Start Class Later</Option>
               <Option value="batching">Ready to batch</Option>
@@ -291,7 +291,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectCallStatus'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Answered">Answered</Option>
               <Option value="DNP">DNP</Option>
               <Option value="Call Back Later">Call Back Later</Option>
@@ -300,14 +300,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectSubscriptionType'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Manual">Manual</Option>
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
       )
     }else if(inputType === 'selectConfirmDetails'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Yes">Yes</Option>
               <Option value="No">No</Option>
             </Select>
@@ -324,9 +324,15 @@ const EditableCell: React.FC<EditableCellProps> = ({
           style={{ margin: 0 }}
           rules={[
             inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/}: {},
+            inputType === "email" ? {required: true, type: "email"}: {},
+            inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
+            inputType === "selectCourseFrequency" ? {required: true, pattern: /^[MTWFS]*$/, message: "Enter only any of MTWTFSS days"}:{},
+            inputType === "numberOnly"  ? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectDownPayment"? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectSubscriptionAmount"? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectSubscriptionMonth" ? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
           ]}
         >
-          {/* {console.log('editing', editing)} */}
           {inputNode()}
         </Form.Item>
       ) : (
@@ -402,7 +408,6 @@ const StudentOnboard: React.FC = () => {
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
-      poc: value.poc,
       courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
       timings: value.timings,
       salesowner: value.salesowner,
@@ -461,8 +466,8 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
-        current: 1,
-        pageSize: 200
+        current,
+        pageSize
       }
     );
     if (msg.status === "ok") {
@@ -471,7 +476,7 @@ const StudentOnboard: React.FC = () => {
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent,   ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -519,14 +524,14 @@ console.log('null obj', data)
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: false,
+      editable: true,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: false,
+      editable: true,
     },
     {
       title: 'Customer Email',
@@ -589,12 +594,6 @@ console.log('null obj', data)
     {
       title: 'Address',
       dataIndex: 'address',
-      width: 150,
-      editable: true,
-    },
-    {
-      title: 'Referral POC',
-      dataIndex: 'poc',
       width: 150,
       editable: true,
     },
@@ -744,7 +743,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails':'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
