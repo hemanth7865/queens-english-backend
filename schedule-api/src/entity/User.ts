@@ -87,6 +87,9 @@ export class User extends BaseEntity {
 
     @Column({'nullable':true})
         slots:string;
+        
+    @Column({ nullable: true, type:"boolean" })
+        isSibling: boolean;
 
 @OneToOne(() => Teacher)
     @JoinColumn()
