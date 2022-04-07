@@ -947,7 +947,7 @@ export class StudentService {
       "Inactive": "inactive",
       "On Leave": "onleave",
       "Batching pending": "batching",
-      "Create a batch": "batching",
+      "Create a batch": undefined,
       "Start class later": "startclasslater",
       "Onboarding Pending": "onboarding",
       "DNP 3": undefined,
@@ -955,7 +955,7 @@ export class StudentService {
       "Placement Test pending": undefined,
       "": undefined,
       "Refund": "refund",
-      "First class pending": "batching",
+      "First class pending": undefined,
       "Welcome call pending": "Enrolled",
     };
 
