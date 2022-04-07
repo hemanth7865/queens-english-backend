@@ -28,7 +28,7 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        const userExists = await (new UserService()).isUserExists("phoneNumber", request.body.phoneNumber, request.body.id);
+        const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
         var resp;
         if(userExists){
             usersLogger.info(`User With That Number Was Found ${userExists.id}`);

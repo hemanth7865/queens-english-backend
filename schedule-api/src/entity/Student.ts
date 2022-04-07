@@ -121,8 +121,6 @@ export class Student extends BaseEntity {
   salesDataFilled: string;
   @Column({ nullable: true, type:"date" })
   assesmentDate: Date;
-
-
   
   @Column({ nullable: true, type: "date" })
   crossedEndDate: Date;
