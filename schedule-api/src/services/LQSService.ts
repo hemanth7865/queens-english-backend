@@ -11,12 +11,14 @@ const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time')
 
 export class LQSService {
+  
 
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
   private LSQ_ACCESS_KEY = process.env.LSQ_ACCESS_KEY;
   private LSQ_SECRETKEY = process.env.LSQ_SECRETKEY;
   private LSQ_URL = process.env.LSQ_URL;
+  private LSQ_ACTIVITY_URL = process.env.LSQ_ACTIVITY_URL;
   private LSQ_SALES_LEAD_URL = process.env.LSQ_SALES_LEAD_URL;
   private LSQ_RETRY = process.env.LSQ_RETRY ? process.env.LSQ_RETRY : "3";
   public static LSQ_STATUS_ENROLLED = "Enrolled";
@@ -359,7 +361,7 @@ export class LQSService {
       if (details && details.length > 0) {
         details[0].Fields.map((item) => {
          
-          if (item.Value && item.Value !== "Other") {
+          if (item.Value && item.Value !== "Other" && item.Value !== "") {
             switch (item.SchemaName) {
               case "Status":
                 element.status = item.Value;
@@ -472,6 +474,177 @@ export class LQSService {
     }
     usersLogger.info("fetchLQSData :: END");
 
+    return res1;
+  }
+
+
+  async fetchLSQData(data: any) {
+    usersLogger.info("fetchLSQData :: Start")
+    const options = {
+      url: `${this.LSQ_URL}/Leads.Get?accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
+      json: true,
+      body: {
+        "Parameter": {
+          "LookupName": "ModifiedOn",
+          "LookupValue": data.LookupValue,
+          "SqlOperator": ">"
+        },
+        "Columns": {
+          "Include_CSV": "ProspectID, CreatedOn,ModifiedOn,Source,ProspectStage,mx_Parent_Name,LastModifiedOn, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone"
+        },
+        "Sorting": {
+          "ColumnName": "ModifiedOn",
+          "Direction": "1"
+        },
+        "Paging": {
+          "PageIndex": data.PageIndex,
+          "PageSize": data.PageSize
+        }
+      },
+    };
+
+    var status;
+    var res1 = {};
+
+
+    res1 = await axios
+      .post(options.url, options.body)
+      .then(async (res) => {
+        usersLogger.info("Fetching Mandatory Fields from Lead API ");
+        if (res.data) {
+          for (let element of res.data) {
+            var lqsEntry = await this.lQSRepository.findOne(
+              {
+              where: 
+              { id: element.ProspectID }
+            }
+            );
+            if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
+              !lqsEntry) {
+              if (!lqsEntry) {
+                lqsEntry = new LQSEntry();
+              }
+              lqsEntry.id = element.ProspectID;
+              usersLogger.info(element.ProspectID);
+              lqsEntry.firstName = element.FirstName;
+              lqsEntry.lastName = element.LastName;
+              lqsEntry.pfirstName = element.mx_Parent_Name;
+              lqsEntry.email = element.EmailAddress;
+              lqsEntry.phoneNumber = element.Phone;
+              lqsEntry.whatsapp = element.mx_WhatsApp_Phone_Number;
+              lqsEntry.dob = element.mx_Date_of_Birth;
+              lqsEntry.retry = parseInt(this.LSQ_RETRY);
+              lqsEntry.updated_at = new Date();
+              lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
+              lqsEntry.created_at = new Date();
+              await this.lQSRepository.save(lqsEntry);
+            } else {
+              usersLogger.info(`Record processed or with different status id:${element.id} && LSQ record status ${element.ProspectStage}`);
+            }
+          }
+        }
+        return await res.data.filter(element => element.ProspectStage.toUpperCase() === 'ENROLLED');
+      })
+      .catch((error) => {
+        usersLogger.info(`Error while fetching Data from LQS ${error}`);
+        return { status: 400, error: error?.response?.data };
+        return Promise.reject(error);
+      });
+
+    usersLogger.info("Updated Mandatory Fields from Lead API ");
+    var lqsRecords = await this.lQSRepository.find(
+      {
+        where: 
+          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_ENROLLED])}
+      }
+    );
+    usersLogger.info('Updating... Sales fields in LSQ Records ');
+    for (let element of lqsRecords) {
+      usersLogger.info(`Total no of records ... ${lqsRecords.length}`);
+      payment: Payment;
+     // var url = `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
+
+      const options = {
+        url: `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
+        json: true,
+        body: {
+          "Parameter": {
+            "ActivityEvent": 210
+          },
+          "Paging": {
+            "PageIndex": data.PageIndex,
+            "PageSize": data.PageSize
+          }
+        },
+      };
+
+      
+      let user = await this.userRepository.findOne({
+        where: { id: element.id },
+      });
+      user == null ? new User() : user;
+      let payment = await this.paymentRepository.findOne({
+        where: { id: element.id },
+      });
+      payment == null ? new Payment() : payment;
+
+      const details = await axios
+        .post(options.url, options.body)
+        .then(async (response) => {
+          element.retry = element.retry - 1;
+          if (response.data) {
+            element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+            element.updated_at = new Date();
+            this.lQSRepository.save(element);
+          }
+          return response.data;
+        })
+        .catch(error => {
+          element.lsqstatus = LQSService.LSQ_STATUS_FAILED
+          element.updated_at = new Date();
+          this.lQSRepository.save(element);
+          console.log(error);
+        })
+
+      if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) 
+      {
+        usersLogger.info("Updating ProspectActivities...");
+        var item = details?.ProspectActivities[0].ActivityFields;
+        usersLogger.info(JSON.stringify(item));
+        element.status = item.Status;
+        element.salesowner = item.Owner;
+        element.pfirstName = item.pfirstName;
+        element.whatsapp = item.mx_Custom_30;
+        element.course = item.mx_Custom_9;
+        element.saleamount = item.mx_Custom_16;
+        element.dateofsale = item.mx_Custom_1;
+        element.downpayment = item.mx_Custom_24?item.mx_Custom_24:item.mx_Custom_25;
+        element.transactionID = item.mx_Custom_28;
+        element.teacherName = item.mx_Custom_2;
+        element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
+        element.alternativeMobile = item.mx_Custom_5;
+        element.customerEmail = item.mx_Custom_6;
+        element.address = item.mx_Custom_7;
+        element.customerAddressState = item.mx_Custom_15;
+        element.saleType = item.mx_Custom_15;
+        element.subscription = item.mx_Custom_18;
+        element.subscriptionNo = item.mx_Custom_19;
+        element.courseFrequency = item.mx_Custom_10?item.mx_Custom_10:item.mx_Custom_11;
+        element.timings = item.mx_Custom_12;
+        element.startingLevel = item.mx_Custom_13;
+        element.startDate = item.mx_Custom_14;
+        element.classessold = item.mx_Custom_17;
+        element.emi = item.mx_Custom_20?item.mx_Custom_20:item.mx_Custom_21;
+        element.emiMonths = item.mx_Custom_22?item.mx_Custom_22:item.mx_Custom_23;
+        element.paymentMode = item.mx_Custom_26?item.mx_Custom_26:item.mx_Custom_27;
+        element.bdaComments = item.mx_Custom_29;
+        element.studentID = item.mx_Custom_3;
+      }
+
+      await this.lQSRepository.save(element);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    usersLogger.info("fetchLQSData :: END");
     return res1;
   }
 
