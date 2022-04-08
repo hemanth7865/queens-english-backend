@@ -90,6 +90,7 @@ export class BatchService {
       data.classEndDate =  this.fixDate(data.classEndDate);
       data.lessonStartTime =  this.fixDate(data.lessonStartTime);
       data.lessonEndTime =  this.fixDate(data.lessonEndTime);
+      data.activeLessonId =  data.startingLessonId;
 
       const dateValidate = [
         moment(data.classStartDate).format("YYYY-MM-DD"),
@@ -138,6 +139,7 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           students: studnets,
+          activeLessonId: data.activeLessonId
         },
       };
 
@@ -372,6 +374,7 @@ export class BatchService {
       classes.frequency = data.frequency;
       classes.zoomLink = data.zoomLink;
       classes.zoomInfo = data.zoomInfo;
+      classes.activeLessonId = data.activeLessonId;
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -563,6 +566,10 @@ export class BatchService {
       query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
+    if(parameters.activeLessonId){
+      query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
+    }
+
     if(parameters.lessonStartTime){
       query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
     }
@@ -645,7 +652,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.lessonEndTime, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
+    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
     classes ${query_string} ${havingQuery} ORDER BY classes.created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     
@@ -722,6 +729,7 @@ export class BatchService {
         classes.zoomInfo,
         classes.frequency
       );
+      view.activeLessonId = classes.activeLessonId;
       batchView.push(view);
     }
 

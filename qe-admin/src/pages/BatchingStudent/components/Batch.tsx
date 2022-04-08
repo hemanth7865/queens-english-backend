@@ -34,7 +34,7 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     async function fetchBatchList(params: {}) {
         let fixedFilter: {
-          startingLessonId?: string,
+          activeLessonId?: string,
           dob?: Date,
           age?: number,
           frequency?: string,
@@ -46,7 +46,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         maxStudentsCount: 6
       }
         if(lesson?.id){
-          fixedFilter.startingLessonId = lesson.id;
+          fixedFilter.activeLessonId = lesson.id;
         }
 
         if(dob && dob.length > 0){
@@ -210,6 +210,14 @@ const Batch: React.FC<BatchProps> = (props) => {
             const startLesson = LESSONS.filter(l => entity.startingLessonId ? l.id === entity.startingLessonId: false)[0]?.number;
             const endLesson = LESSONS.filter(l => entity.endingLessonId ? l.id === entity.endingLessonId: false)[0]?.number;
             return `${startLesson || "NA"} To ${endLesson || "NA"}`;
+          }
+        },
+        {
+          title: "Active Lesson",
+          dataIndex: "activeLesson",
+          render(dom, entity: any) {
+            const activeLesson = LESSONS.filter(l => entity.activeLessonId ? l.id === entity.activeLessonId: false)[0]?.number;
+            return activeLesson || "NA";
           }
         },
         {

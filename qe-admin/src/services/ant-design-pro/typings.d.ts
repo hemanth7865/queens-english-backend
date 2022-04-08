@@ -128,6 +128,7 @@ declare namespace API {
     teacher?: string;
     startingLessonId?: string;
     endingLessonId?: string;
+    activeLessonId?: string;
     students?: string;
     status?: string;
     studentsList?: [];
