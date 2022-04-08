@@ -90,6 +90,7 @@ export class BatchService {
       data.classEndDate =  this.fixDate(data.classEndDate);
       data.lessonStartTime =  this.fixDate(data.lessonStartTime);
       data.lessonEndTime =  this.fixDate(data.lessonEndTime);
+      data.activeLessonId =  data.startingLessonId;
 
       const dateValidate = [
         moment(data.classStartDate).format("YYYY-MM-DD"),
@@ -138,6 +139,7 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           students: studnets,
+          activeLessonId: data.activeLessonId
         },
       };
 
