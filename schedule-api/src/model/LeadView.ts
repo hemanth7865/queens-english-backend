@@ -79,7 +79,7 @@ export class LeadView {
       comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, 
       studentType?: string, firstFeedback?: string, classesStartDate?: string, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: 
       string, poc?: string, courseFrequency?: string, timings?: string, customerEmail?: string, state?: string, zoomLink?: string, zoomInfo?: string,
-      prm_id?:string,prm_firstName?:string,prm_lastName?:string,salestatus?:string,salesowner?:string, prm?: string, waMessageSent?: string, salesDataFilled?: string) {
+      prm_id?:string,prm_firstName?:string,prm_lastName?:string,salestatus?:string,salesowner?:string, prm?: string, waMessageSent?: string, salesDataFilled?: string, isSibling?: boolean) {
       this.id = id;
       this.leadId = leadId;
       this.date = date;
@@ -101,6 +101,7 @@ export class LeadView {
       this.address = address;
       this.classType = classType;
       this.payments = payments;
+      this.isSibling = isSibling;
       console.log(payments);
       if(Array.isArray(payments)){
         console.log("in side payments");
