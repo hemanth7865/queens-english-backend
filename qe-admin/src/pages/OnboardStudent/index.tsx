@@ -118,7 +118,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             </Select>
       )
     }else if(inputType === 'selectCourseFrequency'){
-      const [items, setItems] = useState(['MWF (Course duration - 8 Months)', 'TTS (Course duration - 8 Months)', 'SS (Course duration - 14 Months)', 'MTWTF (Course duration - 5 Months)']);
+      const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         console.log(event.target.value)
@@ -324,7 +324,7 @@ const StudentOnboard: React.FC = () => {
       zoomInfo: value.zoomInfo,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
-      courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
+      courseFrequency: value.courseFrequency,
       timings: value.timings,
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
@@ -450,7 +450,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Course Frequency',
       dataIndex: 'courseFrequency',
-      width: 300,
+      width: 150,
       editable: true,
     },
     {
@@ -605,7 +605,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name':  'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

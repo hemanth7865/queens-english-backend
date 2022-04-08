@@ -173,7 +173,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectCourseFrequency'){
-      const [items, setItems] = useState(['MWF (Course duration - 8 Months)', 'TTS (Course duration - 8 Months)', 'SS (Course duration - 14 Months)', 'MTWTF (Course duration - 5 Months)']);
+      const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         console.log(event.target.value)
@@ -443,7 +443,7 @@ const StudentOnboard: React.FC = () => {
       plastName: value.plastName,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
-      courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
+      courseFrequency: value.courseFrequency,
       timings: value.timings,
       salesowner: value.salesowner,
       waMessageSent: value.waMessageSent,
@@ -648,7 +648,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Course Frequency',
       dataIndex: 'courseFrequency',
-      width: 300,
+      width: 150,
       editable: true,
     },
     {

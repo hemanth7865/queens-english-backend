@@ -212,7 +212,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectCourseFrequency'){
-      const [items, setItems] = useState(['MWF (Course duration - 8 Months)', 'TTS (Course duration - 8 Months)', 'SS (Course duration - 14 Months)', 'MTWTF (Course duration - 5 Months)']);
+      const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         console.log(event.target.value)
@@ -323,7 +323,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/}: {},
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/, message: "Enter valid number"}: {},
             inputType === "email" ? {required: true, type: "email"}: {},
             inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
             inputType === "selectCourseFrequency" ? {required: true, pattern: /^[MTWFS]*$/, message: "Enter only any of MTWTFSS days"}:{},
@@ -408,7 +408,7 @@ const StudentOnboard: React.FC = () => {
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       pfirstName: value.pfirstName,
       plastName: value.plastName,
-      courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
+      courseFrequency: value.courseFrequency,
       timings: value.timings,
       salesowner: value.salesowner,
       salesDataFilled: value.salesDataFilled,
@@ -618,7 +618,7 @@ console.log('null obj', data)
     {
       title: 'Course Frequency',
       dataIndex: 'courseFrequency',
-      width: 300,
+      width: 150,
       editable: true,
     },
     {
