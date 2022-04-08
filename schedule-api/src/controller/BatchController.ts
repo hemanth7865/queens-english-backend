@@ -52,6 +52,7 @@ export class BatchController {
             date: request.query['date'],
             week_day: request.query['weekday'],
             startingLessonId: request.query['startingLessonId'],
+            activeLessonId: request.query['activeLessonId'],
             age: request.query['age'],
             frequency: request.query['frequency'],
             lessonStartTime: request.query['lessonStartTime'],

@@ -566,6 +566,10 @@ export class BatchService {
       query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
+    if(parameters.activeLessonId){
+      query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
+    }
+
     if(parameters.lessonStartTime){
       query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
     }
