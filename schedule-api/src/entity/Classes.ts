@@ -96,6 +96,9 @@ export class Classes extends BaseEntity {
     zoomInfo: string;
 
     @Column({ 'nullable': true })
+    activeLessonId: string;
+    
+    @Column({ 'nullable': true })
     created_at: Date
 
     @Column({ 'nullable': true })

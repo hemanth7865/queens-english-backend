@@ -26,15 +26,17 @@ const {Option} = Select
 
 const EditUser: React.FC<EditUserProps> = (props) => {
     //console.log('data', props.data, props.visible, props.setVisible)
-    const {firstName, lastName, email, phoneNumber, type, key} = props.data?props.data:''
+    const {firstName, lastName, email, phoneNumber, type, key, isSibling} = props.data?props.data:''
     // console.log('first', firstName, lastName, email, type, key)
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         phoneNumber: '',
         email: '',
+        isSibling: null,
     })
 
+    const [selectedIsSibling, setIsSibling] = useState<number>(isSibling)
     const [selectUserType, setSelectUserType] = useState('')
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('')
@@ -131,6 +133,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 lastName: formData.lastName?formData.lastName:lastName,
                 phoneNumber: formData.phoneNumber?formData.phoneNumber:phoneNumber,
                 email: formData.email?formData.email:email,
+                isSibling: formData.isSibling === null ? selectedIsSibling : formData.isSibling,
                 type: selectUserType?selectUserType:type,
             }
             if (props.data) {
@@ -165,12 +168,14 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                             lastName: props.data.lastName,
                             phoneNumber: props.data.phoneNumber,
                             email: props.data.email,
+                            isSibling: props.data.isSibling ? 1 : 0,
                             userType: type == 'teacher'?'Teacher':'Student'
-                            })
+                            });
+        setIsSibling(props.data.isSibling ? 1 : 0);
     }
     useEffect(() => {
         defaultValues();
-    }, [firstName, lastName, phoneNumber, email, type])
+    }, [firstName, lastName, phoneNumber, email, type, isSibling])
     
     return(
         <div>
@@ -256,9 +261,20 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                             </Form.Item>
                         </Col>
                         <Col span = {24}>
-                        <Button type="primary" htmlType="submit">
-                            Save Changes
-                        </Button>
+                            <Form.Item name="isSibling">
+                                <Select
+                                    placeholder="Sibling"
+                                    onChange = {(value: number)=>{setIsSibling(value)}}
+                                    >
+                                    <Option value={1}>Yes {isSibling}</Option>
+                                    <Option value={0}>No</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span = {24}>
+                            <Button type="primary" htmlType="submit">
+                                Save Changes
+                            </Button>
                         </Col>
                     </Row>
                 </Form>
