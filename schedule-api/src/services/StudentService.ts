@@ -397,6 +397,7 @@ export class StudentService {
     user.type = data.type;
     user.customerEmail = data.customerEmail;
     user.alternativeMobile = data.alternativeMobile;
+    user.isSibling = data.isSibling;
 
     if (data.id) {
       user.id = data.id;
