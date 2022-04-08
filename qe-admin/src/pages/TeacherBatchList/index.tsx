@@ -6,6 +6,7 @@ import {
   ClockCircleOutlined,
   UploadOutlined,
   EditOutlined,
+  MinusCircleOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -511,6 +512,10 @@ const TeacherBatchList: React.FC = () => {
   const handleFormSubmit = async () => {
     console.log("form submitted");
     setIsLoading(true);
+    leadTotal.forEach((e) => {
+      delete e.user_key;
+    });
+    const leadArray = [ ...leadTotal, ...leadAvailabilities ]
     var code = selectCountryCode?selectCountryCode:'91';
     const dataForm = {
       teacherId: formData.teacherId,
@@ -542,11 +547,10 @@ const TeacherBatchList: React.FC = () => {
         },
       ],
       status: selectStatus,
-      leadAvailability: leadAvailabilities,
+      leadAvailability: leadArray,
     };
     // async (values: API.LoginParams) => {
     try {
-      console.log("data", dataForm);
       const msg = await addTeacherSchedule({
         headers: {
           "Content-Type": "application/json",
@@ -660,7 +664,8 @@ const TeacherBatchList: React.FC = () => {
   };
 
   let leadAvailabilities = [];
-  //console.log('LA',  leadAvailabilities)
+  let leadTotal = [];
+  console.log('LA',  leadAvailabilities, leadTotal)
   //lead availability
   const WeekdayAvailability = (props) => {
     const [value, setValue] = useState({
@@ -670,7 +675,6 @@ const TeacherBatchList: React.FC = () => {
     const [value1, setValue1] = useState({
       weekday: "",
     });
-
     const leadWeekAvailability = {
       start_slot: value[0],
       end_slot: value[1],
@@ -682,7 +686,6 @@ const TeacherBatchList: React.FC = () => {
     let slotStart, slotEnd;
     let leadSlot;
     if (dataLead) {
-      //console.log('le', dataLead.toString().split(',')[0].slice(4))
       dataLead = dataLead.toString();
       slotStart = dataLead.split(",")[0].slice(4);
       slotEnd = dataLead.split(",")[1];
@@ -703,14 +706,14 @@ const TeacherBatchList: React.FC = () => {
     }
     if (dataLead) {
       leadAvailabilities.push(leadSlot);
-      //console.log('Laa', leadAvailabilities)
     }
 
     const format = "HH:mm";
     return (
       <Row style={{ margin: 5 }}>
         <Col span={7}>
-          {dataLead ? (
+          {dataLead ? 
+          (
             <Checkbox
               name="weekday"
               checked="true"
@@ -745,19 +748,81 @@ const TeacherBatchList: React.FC = () => {
             />
           )}
         </Col>
-        <Col span={1}>
-          <a>
-            <PlusOutlined />
-          </a>
-        </Col>
+      </Row>
+    );
+  };
+
+
+  const ExtraWeekdayAvailability = (props) => {
+    const [value, setValue] = useState({
+      start_slot: "",
+      end_slot: "",
+    });
+    const [value1, setValue1] = useState({})
+    const [weeknumber, setWeekNumber] = useState({})
+
+    function handleChange(value) {
+      setWeekNumber(value)
+    }
+
+    const leadWeekAvailability = {
+      start_slot: value[0],
+      end_slot: value[1],
+      weekday: weeknumber,
+      start_date: dateStart,
+      user_key: props.id
+    };
+
+    let slotStart, slotEnd;
+    let leadSlot;
+    if (
+      leadWeekAvailability.start_slot &&
+      leadWeekAvailability.end_slot &&
+      leadWeekAvailability.weekday
+    ) {
+      leadTotal.push(leadWeekAvailability);
+      leadTotal = leadTotal.filter(element => {
+        const isDuplicate = leadTotal.includes(element.user_key);
+        if (!isDuplicate) {
+          leadTotal.push(element.user_key);
+          return true;
+        }
+      });
+    }
+    const format = "HH:mm";
+    return (
+      <Row style={{ margin: 1 }}>
         <Col span={2}>
-          <a>
-            <DeleteOutlined />
-          </a>
+            <Checkbox
+              name="weekday"
+              onChange={(e) => setValue1('new')}
+            >
+            </Checkbox>
+        </Col>
+        <Col span = {6}>
+        <Select onChange={handleChange}>
+          <Option value= {1}>Monday</Option>
+          <Option value= {2}>Tuesday</Option>
+          <Option value= {3}>Wednesday</Option>
+          <Option value= {4}>Thursady</Option>
+          <Option value= {5}>Friday</Option>
+          <Option value= {6}>Saturday</Option>
+          <Option value= {7}>Sunday</Option>
+        </Select>
+        </Col>
+        <Col span = {1}></Col>
+        <Col span={14}>
+            <TimePicker.RangePicker
+              format={format}
+              onChange={(time, timeString) => {
+                setValue(timeString);
+              }}
+            />
         </Col>
       </Row>
     );
   };
+
   let timeSlots = tempDataView ? tempDataView.slots : "";
   let monday, tuesday, wednesday, thursday, friday, saturday, sunday;
   if (timeSlots) {
@@ -1106,13 +1171,36 @@ const TeacherBatchList: React.FC = () => {
                       <WeekdayAvailability weekday={3} week="Wednesday" />
                       <WeekdayAvailability weekday={4} week="Thursday" />
                       <WeekdayAvailability weekday={5} week="Friday" />
-                    </Form.Item>
+                    </Form.Item> 
                   </Col>
                   <Col span={12}>
                     <Form.Item name="leadAvailability">
                       <label>Weekend Availability</label>
                       <WeekdayAvailability weekday={6} week="Saturday" />
                       <WeekdayAvailability weekday={7} week="Sunday" />
+                      <Form.List name="users">
+                        {(fields, { add, remove }) => (
+                          <>
+                            {fields.map(({ key, ...restField }) => (
+                              
+                              <Space key={key} style={{ display: 'flex'}} align="baseline">
+                                {console.log('key', key)}
+                                <Form.Item
+                                  {...restField}
+                                >
+                                  <ExtraWeekdayAvailability key = {key}/>
+                                </Form.Item>
+                                <MinusCircleOutlined onClick={() => remove(name)} />
+                              </Space>
+                            ))}
+                            <Form.Item>
+                              <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                               Extra Availability
+                              </Button>
+                            </Form.Item>
+                          </>
+                        )}
+                      </Form.List>
                     </Form.Item>
                   </Col>
                 </Row>
