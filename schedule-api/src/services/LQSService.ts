@@ -340,11 +340,9 @@ export class LQSService {
       });
       payment == null ? new Payment() : payment;
 
-      const details = await axios(url, {
-        data: {
-          "Parameter": {"ActivityEvent": 210},
-          "Paging": {"Offset": "0","RowCount": "10"}
-        }
+      const details = await axios.post(url, {
+        "Parameter": {"ActivityEvent": 210},
+        "Paging": {"Offset": "0","RowCount": "10"}
       })
         .then(async (response) => {
           element.retry = element.retry - 1
