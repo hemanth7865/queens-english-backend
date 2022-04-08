@@ -516,7 +516,6 @@ const TeacherBatchList: React.FC = () => {
       delete e.user_key;
     });
     const leadArray = [ ...leadTotal, ...leadAvailabilities ]
-    console.log('lead submit', leadTotal, leadAvailabilities, leadArray )
     var code = selectCountryCode?selectCountryCode:'91';
     const dataForm = {
       teacherId: formData.teacherId,
@@ -550,10 +549,8 @@ const TeacherBatchList: React.FC = () => {
       status: selectStatus,
       leadAvailability: leadArray,
     };
-    console.log('dataForm', dataForm)
     // async (values: API.LoginParams) => {
     try {
-      console.log("data", dataForm);
       const msg = await addTeacherSchedule({
         headers: {
           "Content-Type": "application/json",
@@ -678,9 +675,6 @@ const TeacherBatchList: React.FC = () => {
     const [value1, setValue1] = useState({
       weekday: "",
     });
-
-    //console.log('value checkbox', value1)
-
     const leadWeekAvailability = {
       start_slot: value[0],
       end_slot: value[1],
@@ -692,7 +686,6 @@ const TeacherBatchList: React.FC = () => {
     let slotStart, slotEnd;
     let leadSlot;
     if (dataLead) {
-      //console.log('le', dataLead.toString().split(',')[0].slice(4))
       dataLead = dataLead.toString();
       slotStart = dataLead.split(",")[0].slice(4);
       slotEnd = dataLead.split(",")[1];
@@ -713,7 +706,6 @@ const TeacherBatchList: React.FC = () => {
     }
     if (dataLead) {
       leadAvailabilities.push(leadSlot);
-      //console.log('Laa', leadAvailabilities)
     }
 
     const format = "HH:mm";
@@ -756,16 +748,6 @@ const TeacherBatchList: React.FC = () => {
             />
           )}
         </Col>
-        {/* <Col span={1}>
-          <a>
-            <PlusOutlined />
-          </a>
-        </Col>
-        <Col span={2}>
-          <a>
-            <DeleteOutlined />
-          </a>
-        </Col> */}
       </Row>
     );
   };
