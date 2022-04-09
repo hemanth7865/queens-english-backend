@@ -363,7 +363,7 @@ const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: '', studentID: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -442,7 +442,7 @@ const StudentOnboard: React.FC = () => {
       whatsapp:value.whatsapp,
       comments:value.comments,
       customerEmail: value.customerEmail,
-      id: value.studentID,
+      id: value.id,
       type: 'student',
       status: value.status,
       alternativeMobile: value.alternativeMobile,
@@ -467,7 +467,7 @@ const StudentOnboard: React.FC = () => {
         downpayment: value.downpayment,
         classtype:'',
         leadId: value.studentID,
-        id: value.studentID,
+        id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
         emi: value.emi,
@@ -843,7 +843,7 @@ const StudentOnboard: React.FC = () => {
   const handleFormSubmit = async () => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, formData.studentID, {
           current: 1,
           pageSize: 20}
       );
@@ -890,6 +890,12 @@ const StudentOnboard: React.FC = () => {
                   <Col span={6}>
                     <Form.Item name="prm_name" label = "PRM Name" >
                       <Input name = "prm_name" onChange={handleInputChange}/>
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={6}>
+                    <Form.Item name="studentID" label = "lead Id" >
+                      <Input name = "studentID" onChange={handleInputChange}/>
                     </Form.Item>
                   </Col>
                   

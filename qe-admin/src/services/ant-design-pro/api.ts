@@ -529,6 +529,7 @@ export async function studentsDashboardFilter(
   phoneNumber: string,
   email: string,
   prm_name: string,
+  studentID: string,
   params: {
     // query
     /** 当前的页码 */
@@ -548,6 +549,7 @@ export async function studentsDashboardFilter(
       phoneNumber: phoneNumber?phoneNumber:'',
       email: email?email:'',
       prm_name: prm_name?prm_name:'',
+      studentID: studentID?studentID:''
     },
     ...(options || {}),
   });

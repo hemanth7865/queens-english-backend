@@ -35,7 +35,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
   ...restProps
 }) => {
   const inputNode = () => {
-    console.log(inputType);
     if(inputType === 'number'){
         return (<Select style={{ width: 100 + "%" }} >
                   <Option value="Kids">Kids</Option>
@@ -356,7 +355,7 @@ const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', studentID: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -407,7 +406,7 @@ const StudentOnboard: React.FC = () => {
       whatsapp:value.whatsapp,
       comments:value.comments,
       customerEmail: value.customerEmail,
-      id: value.studentID,
+      id: value.id,
       type: "student",
       status: "enrolled",
       alternativeMobile: value.alternativeMobile,
@@ -430,7 +429,7 @@ const StudentOnboard: React.FC = () => {
         downpayment: value.downpayment,
         classtype:'',
         leadId: value.studentID,
-        id: value.studentID,
+        id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
         emi: value.emi,
@@ -774,7 +773,7 @@ console.log('null obj', data)
     //console.log('status', formData, value)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, '', {
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
           current: 1,
           pageSize: 20}
       );
@@ -815,6 +814,12 @@ console.log('null obj', data)
                   <Col span={6}>
                     <Form.Item name="studentPhoneNumber" label = "Mobile No" >
                       <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={6}>
+                    <Form.Item name="studentID" label = "lead Id" >
+                      <Input name = "studentID" onChange={handleInputChange}/>
                     </Form.Item>
                   </Col>
                   
