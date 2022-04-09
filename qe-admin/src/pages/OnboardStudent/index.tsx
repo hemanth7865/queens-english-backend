@@ -5,7 +5,7 @@ import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
-import {PRMS} from "../../../config/prms";
+import prmData from "../../../data/prms.json";
 
 const { Option } = Select;
 
@@ -197,7 +197,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     }else if(inputType === 'selectPRM'){
       return(
         <Select style={{ width: 100 + "%" }} >
-          {PRMS.map(prm => <Option value = {prm.id} key = {prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+          {prmData.map(prm => <Option value = {prm.id} key = {prm.id}>{prm.firstName} {prm.lastName}</Option>)}
         </Select>
       )
     }
