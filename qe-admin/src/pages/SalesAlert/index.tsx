@@ -4,7 +4,7 @@ import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
-import {LSQ_USERS} from "../../../config/lsq_users";
+import lsqUsersData from "../../../data/lsq_users.json";
 
 const { Option } = Select;
 interface Item {
@@ -309,7 +309,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     }else if(inputType === 'selectLSQUsers'){
       return(
         <Select style={{ width: 100 + "%" }} >
-          {LSQ_USERS.map(user => <Option value = {user.ID} key = {user.ID}>{user.FirstName} {user.LastName}</Option>)}
+          {lsqUsersData.map(user => <Option value = {user.ID} key = {user.ID}>{user.FirstName} {user.LastName}</Option>)}
         </Select>
       )
     }else if(inputType === 'selectConfirmDetails'){
