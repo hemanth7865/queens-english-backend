@@ -502,8 +502,6 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(false);
   }
 
-  
-
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
@@ -518,10 +516,37 @@ const StudentOnboard: React.FC = () => {
       
       
       setTotalRecords(msg.total);
+      
+      var tempArray = []
 
-      let nullObj = msg.data.filter(item => item.salesDataFilled != undefined)
-      console.log('nullobj', nullObj)
-      setData(nullObj);
+      msg.data.map((item)=>{
+          var p = item
+          var isEntryStatus = false
+          var isTempEntryStatus = true
+          for (var key in p) {
+              if (p.hasOwnProperty(key)) {
+                  //console.log(key, ' : ', p[key]);
+                  if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'plastName' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'classType' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
+                      var tempKeyValue = p[key] + ''
+                      if(isTempEntryStatus){
+                          if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
+                              isEntryStatus = true
+                          }
+                          else {
+                              isEntryStatus = false
+                              isTempEntryStatus = false
+                          }
+                      }
+                  }
+              }
+          }
+
+    if(isEntryStatus){
+        tempArray.push(item)
+    }
+})
+      
+      setData(tempArray);
     } catch (error) {
       //console.log("error", error);
     }
