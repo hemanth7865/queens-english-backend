@@ -4,6 +4,7 @@ import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
+import {LSQ_USERS} from "../../../config/lsq_users";
 
 const { Option } = Select;
 interface Item {
@@ -17,7 +18,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon' | 'selectConfirmDetails';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon' | 'selectConfirmDetails' | 'selectLSQUsers';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -305,6 +306,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
       )
+    }else if(inputType === 'selectLSQUsers'){
+      return(
+        <Select style={{ width: 100 + "%" }} >
+          {LSQ_USERS.map(user => <Option value = {user.ID} key = {user.ID}>{user.FirstName} {user.LastName}</Option>)}
+        </Select>
+      )
     }else if(inputType === 'selectConfirmDetails'){
       return(
             <Select style={{ width: 100 + "%" }} >
@@ -382,7 +389,9 @@ const StudentOnboard: React.FC = () => {
 
 
 
-
+  function stringContainsNumber(_string) {
+    return /\d/.test(_string);
+  }
 
   //edit submit 
   const formSubmit = async (value: any)=>{
@@ -412,6 +421,7 @@ const StudentOnboard: React.FC = () => {
       timings: value.timings,
       salesowner: value.salesowner,
       salesDataFilled: value.salesDataFilled,
+      lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -476,7 +486,7 @@ const StudentOnboard: React.FC = () => {
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -700,8 +710,8 @@ console.log('null obj', data)
     },
     {
       title: 'Sale Owner',
-      dataIndex: 'salesowner',
-      width: 150,
+      dataIndex: 'lsq_user_name',
+      width: 200,
       editable: true,
     },
     {
@@ -743,7 +753,7 @@ console.log('null obj', data)
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

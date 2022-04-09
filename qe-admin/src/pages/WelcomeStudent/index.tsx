@@ -6,6 +6,7 @@ import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import {PRMS} from "../../../config/prms";
+import {LSQ_USERS} from "../../../config/lsq_users";
 
 const { Option } = Select;
 interface Item {
@@ -19,7 +20,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent' | 'selectLSQUsers';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -307,6 +308,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
           {PRMS.map(prm => <Option value = {prm.id} key = {prm.id}>{prm.firstName} {prm.lastName}</Option>)}
         </Select>
       )
+    }else if(inputType === 'selectLSQUsers'){
+      return(
+        <Select style={{ width: 100 + "%" }} >
+          {LSQ_USERS.map(user => <Option value = {user.ID} key = {user.ID}>{user.FirstName} {user.LastName}</Option>)}
+        </Select>
+      )
     }else if(inputType === 'selectWhatsappSent'){
       return(
             <Select style={{ width: 100 + "%" }} >
@@ -416,6 +423,10 @@ const StudentOnboard: React.FC = () => {
     });
   };
 
+  function stringContainsNumber(_string) {
+    return /\d/.test(_string);
+  }
+
   //edit submit 
   const formSubmit = async (value: any)=>{
     console.log('value', value)
@@ -445,9 +456,9 @@ const StudentOnboard: React.FC = () => {
       callBackon: value.callBackon,
       courseFrequency: value.courseFrequency,
       timings: value.timings,
-      salesowner: value.salesowner,
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
+      lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -741,9 +752,9 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Sale Owner',
-      dataIndex: 'salesowner',
-      width: 150,
+      title: 'Sales Owner',
+      dataIndex: 'lsq_user_name',
+      width: 200,
       editable: true,
     },
     {
@@ -812,7 +823,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
