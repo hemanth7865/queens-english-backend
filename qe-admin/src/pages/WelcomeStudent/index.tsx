@@ -5,7 +5,8 @@ import { useIntl } from "umi";
 import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
-import {PRMS} from "../../../config/prms";
+import lsqUsersData from "../../../data/lsq_users.json";
+import prmData from "../../../data/prms.json";
 
 const { Option } = Select;
 interface Item {
@@ -19,7 +20,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent' | 'selectLSQUsers';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -39,13 +40,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const inputNode = () => {
     if(inputType === 'number'){
-        return (<Select style={{ width: 120 }} >
+        return (<Select style={{ width: 100 + "%" }} >
                   <Option value="Kids">Kids</Option>
                   <Option value="adult">Adult</Option>
                 </Select>)
     }else if(inputType === 'select'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
               <Option value="DISE - 1:1">DISE - 1:1</Option>
               <Option value="IELTS - Group Class">IELTS - Group Class</Option>
@@ -56,7 +57,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return <input type="date" style = {{width: 140}}/>
     }else if(inputType === 'selectLesson'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Lesson 1">Lesson 1</Option>
               <Option value="Lesson 31">Lesson 31</Option>
               <Option value="Lesson 61">Lesson 61</Option>
@@ -83,7 +84,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 180 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -118,7 +119,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -153,7 +154,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -173,7 +174,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectCourseFrequency'){
-      const [items, setItems] = useState(['MWF (Course duration - 8 Months)', 'TTS (Course duration - 8 Months)', 'SS (Course duration - 14 Months)', 'MTWTF (Course duration - 5 Months)']);
+      const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         console.log(event.target.value)
@@ -188,7 +189,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 240 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -223,7 +224,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 120 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -258,7 +259,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       };
       return(
         <Select
-        style={{ width: 130 }}
+        style={{ width: 100 + "%" }}
         dropdownRender={menu => (
           <>
             {menu}
@@ -279,7 +280,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectStatus'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="enrolled">Enrolled</Option>
               <Option value="startclasslater">Start Class Later</Option>
               <Option value="batching">Ready to batch</Option>
@@ -287,7 +288,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectCallStatus'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Answered">Answered</Option>
               <Option value="DNP">DNP</Option>
               <Option value="Call Back Later">Call Back Later</Option>
@@ -296,7 +297,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectSubscriptionType'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Manual">Manual</Option>
               <Option value="Auto-Debit">Auto-Debit</Option>
             </Select>
@@ -304,12 +305,18 @@ const EditableCell: React.FC<EditableCellProps> = ({
     }else if(inputType === 'selectPRM'){
       return(
         <Select style={{ width: 100 + "%" }} >
-          {PRMS.map(prm => <Option value = {prm.id} key = {prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+          {prmData.map(prm => <Option value = {prm.id} key = {prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+        </Select>
+      )
+    }else if(inputType === 'selectLSQUsers'){
+      return(
+        <Select style={{ width: 100 + "%" }} >
+          {lsqUsersData.map(user => <Option value = {user.ID} key = {user.ID}>{user.FirstName} {user.LastName}</Option>)}
         </Select>
       )
     }else if(inputType === 'selectWhatsappSent'){
       return(
-            <Select style={{ width: 120 }} >
+            <Select style={{ width: 100 + "%" }} >
               <Option value="Yes">Yes</Option>
               <Option value="No">No</Option>
             </Select>
@@ -326,10 +333,18 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
+            inputType !== "comments"?
             { required: true, 
               message: `${title} is required`
-            },  
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/}: {},
+            }: {},  
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/, message: "Enter valid number"}: {},
+            inputType === "email" ? {required: true, type: "email"}: {},
+            inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
+            inputType === "selectCourseFrequency" ? {required: true, pattern: /^[MTWFS]*$/, message: "Enter only any of MTWTFSS days"}:{},
+            inputType === "numberOnly"  ? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectDownPayment"? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectSubscriptionAmount"? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
+            inputType ===  "selectSubscriptionMonth" ? {required: true, pattern: /^[0-9]*$/, message: "Enter number only"}:{},
           ]}
         >
           {inputNode()}
@@ -408,6 +423,10 @@ const StudentOnboard: React.FC = () => {
     });
   };
 
+  function stringContainsNumber(_string) {
+    return /\d/.test(_string);
+  }
+
   //edit submit 
   const formSubmit = async (value: any)=>{
     console.log('value', value)
@@ -435,12 +454,11 @@ const StudentOnboard: React.FC = () => {
       plastName: value.plastName,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
-      poc: value.poc,
-      courseFrequency: value.courseFrequency?value.courseFrequency.split(" ")[0]:'',
+      courseFrequency: value.courseFrequency,
       timings: value.timings,
-      salesowner: value.salesowner,
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
+      lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.studentID,
@@ -490,8 +508,8 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
-          current: 1,
-          pageSize: 200
+          current,
+          pageSize
         }
       );
       if (msg.status === "ok") {
@@ -547,14 +565,14 @@ const StudentOnboard: React.FC = () => {
       title: 'Student First Name',
       dataIndex: 'firstName',
       width: 160,
-      editable: false,
+      editable: true,
       fixed: 'left',
     },
     {
       title: 'Student Last Name',
       dataIndex: 'lastName',
       width: 160,
-      editable: false,
+      editable: true,
     },
     {
       title: 'Customer Email',
@@ -621,12 +639,6 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Referral POC',
-      dataIndex: 'poc',
-      width: 150,
-      editable: true,
-    },
-    {
       title: 'Class Type',
       dataIndex: 'classType',
       width: 150,
@@ -647,7 +659,7 @@ const StudentOnboard: React.FC = () => {
     {
       title: 'Course Frequency',
       dataIndex: 'courseFrequency',
-      width: 300,
+      width: 150,
       editable: true,
     },
     {
@@ -740,9 +752,9 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Sale Owner',
-      dataIndex: 'salesowner',
-      width: 150,
+      title: 'Sales Owner',
+      dataIndex: 'lsq_user_name',
+      width: 200,
       editable: true,
     },
     {
@@ -811,7 +823,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM':'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

@@ -14,6 +14,7 @@ import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
 import {LESSONS} from "./../data/lessons";
+import { LSQUser } from "../entity/LSQUser";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -22,6 +23,7 @@ export class StudentService {
   private studentAvailabilityRepository = getRepository(StudentAvailability);
   private teacherService  = new TeacherService();
   private prmRepository = getRepository(PRManager);
+  private lsq_userRepository = getRepository(LSQUser);
 
 
   private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
@@ -138,7 +140,7 @@ export class StudentService {
 
  
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, s.isSibling, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, s.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
   let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
 
   console.log(`query string ${query_list}`);
@@ -156,6 +158,7 @@ export class StudentService {
         let batchCodes: any[] = [];
         let payment: string;
         var prm_info = new PRManager();
+        var lsq_user_info = new LSQUser();
    
         var studentOrTeacherId=[];
         var zoomLinkBatch = [];
@@ -183,6 +186,9 @@ export class StudentService {
           console.log(`PRM id is ${element.prm_id}`);
 
           prm_info = await this.prmRepository.findOne(element.prm_id);
+          lsq_user_info = await this.lsq_userRepository.findOne(element.lsq_users_ID);
+
+          console.log('lsq', lsq_user_info, element.lsq_users_ID)
         }
 
         if (element.dob) {
@@ -198,7 +204,7 @@ export class StudentService {
        
         var l = new LeadView(
           element.id,
-          element.id,
+          element.studentID,
           new Date().toString(),
           element.name,
           element.exp,
@@ -252,8 +258,10 @@ export class StudentService {
           prm_info?`${prm_info.firstName} ${prm_info.lastName}`:'',
           element.waMessageSent,
           element.salesDataFilled,
-          element.isSibling
+          lsq_user_info?lsq_user_info.ID:'',
+          lsq_user_info?`${lsq_user_info.FirstName} ${lsq_user_info.LastName}`:'',
         );
+        l.isSibling = element.isSibling;
         leadView.push(l);
       }
 
@@ -515,6 +523,7 @@ export class StudentService {
     student.salesowner = data.salesowner;
     student.status = data.status;
     student.prm_id = data.prm_id;
+    student.lsq_users_ID = data.lsq_users_ID;
     student.waMessageSent = data.waMessageSent;
     student.salesDataFilled = data.salesDataFilled;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
@@ -665,6 +674,7 @@ export class StudentService {
     student.timings = element.timings;
     student.wabatch = element.wabatch;
     student.salesDataFilled = element.salesDataFilled;
+    student.lsq_users_ID = element.lsq_users_ID;
 
     usersLogger.info("student record updating is ", student);
     return student;
@@ -944,6 +954,23 @@ export class StudentService {
       "": undefined
     };
 
+    const allowedStatuses = {
+      "Active": "active",
+      "Inactive": "inactive",
+      "On Leave": "onleave",
+      "Batching pending": "batching",
+      "Create a batch": undefined,
+      "Start class later": "startclasslater",
+      "Onboarding Pending": "onboarding",
+      "DNP 3": undefined,
+      "DNP 1": undefined,
+      "Placement Test pending": undefined,
+      "": undefined,
+      "Refund": "refund",
+      "First class pending": undefined,
+      "Welcome call pending": "Enrolled",
+    };
+
     if(query.clear){
       let qe = `UPDATE student SET prm_id = NULL`;
 
@@ -1051,6 +1078,9 @@ export class StudentService {
           student.startDate = formatDate(d["Start Date"], "DD MMM YYYY");
           student.classesStartDate = formatDate(d["Batch Start date"], "DD/MM/YYYY");
           student.classesPurchase = d["No of Classes"];
+          student.address = d["Address"];
+          student.status = allowedStatuses[d["Status"]];
+          user.status = allowedStatuses[d["Status"]];
           let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
           where cl.batchNumber = '${d['Batch Code']}' AND bs.studentId = "${user.id}"`;
 

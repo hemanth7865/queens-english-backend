@@ -8,3 +8,5 @@ qe-admin/config/proxy.ts
 qe-admin/config/config.prd.ts
 qe-admin/config/config.ts
 qe-admin/config/config.dev.ts
+qe-admin/data/lsq_users.json
+qe-admin/data/prms.json

@@ -114,6 +114,8 @@ export class Student extends BaseEntity {
   @Column({ nullable: true })
   prm_id: number;
   @Column({ nullable: true })
+  lsq_users_ID: number;
+  @Column({ nullable: true })
   salesowner: string;
   @Column({ nullable: true })
   waMessageSent: string;
