@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Col, Row, Form, Button, notification, Tabs, TimePicker, message, Spin } from 'antd';
+import { Col, Row, Form, Button, notification, Tabs, message, Spin } from 'antd';
 import {
     listBatch,
     addeditbatch,
@@ -26,9 +26,12 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-    const {id, timings, startLesson, dob, courseFrequency, startDate, course} = props.data?props.data:''
-    const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
-    const [isLoading, setIsLoading] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState(props.data);
+
+    const {id, timings, startLesson, dob, courseFrequency, startDate, course} = data
+
 
     const lesson = getLessonByNumber(startLesson);
 
@@ -76,10 +79,10 @@ const Batch: React.FC<BatchProps> = (props) => {
     const actionRef = useRef<ActionType>();
 
     useEffect(() => {
-        setSelectedBatch(false);
-        actionRef?.current?.reload();
-        console.log("id", id);
-    } , [id]);
+      setData(props.data);
+      setSelectedBatch(false);
+      actionRef?.current?.reload();
+    } , [props.data]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
         notification[type]({
