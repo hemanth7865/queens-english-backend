@@ -853,7 +853,7 @@ export class BatchService {
     const studentsIDs = [];
     batch.students = batch.students.map((student: BatchStudent) => {
       studentsIDs.push(student.studentId);
-      return {value: student.id};
+      return {value: student.studentId};
     });
 
     if(!studentsIDs.includes(studentId)){
