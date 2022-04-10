@@ -163,6 +163,7 @@ export class StudentService {
         var studentOrTeacherId=[];
         var zoomLinkBatch = [];
         var zoomInfoBatch = [];
+        var batchesHistory = [];
         var batchCode = '';
   
         if (type == 'student' ) {
@@ -178,6 +179,9 @@ export class StudentService {
             zoomLinkBatch.push(element.zoomLink)
             zoomInfoBatch.push(element.zoomInfo)
           });
+
+          batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = student_batches_history.batchId WHERE student_batches_history.studentId = '${element.id}' ORDER BY student_batches_history.created_at DESC LIMIT 5`);
+
 
           var paymentQuer =
           "select * from payment where id = '"+element.id+"';";
@@ -262,6 +266,7 @@ export class StudentService {
           lsq_user_info?`${lsq_user_info.FirstName} ${lsq_user_info.LastName}`:'',
         );
         l.isSibling = element.isSibling;
+        l.batchesHistory = batchesHistory;
         leadView.push(l);
       }
 
