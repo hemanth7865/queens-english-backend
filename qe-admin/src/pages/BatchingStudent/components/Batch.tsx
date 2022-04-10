@@ -32,6 +32,7 @@ export type BatchProps = {
 const Batch: React.FC<BatchProps> = (props) => {
   const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [excludedTeacher, setExcludedTeacher] = useState<string>();
   const [data, setData] = useState(props.data);
 
     const {id, timings, startLesson, dob, courseFrequency, startDate, course} = data
@@ -49,6 +50,7 @@ const Batch: React.FC<BatchProps> = (props) => {
           lessonEndTime?: string,
           classStartDate?: string,
           maxStudentsCount?: number,
+          excludedTeacher?: string
       } = {
         maxStudentsCount: 6
       }
@@ -73,6 +75,10 @@ const Batch: React.FC<BatchProps> = (props) => {
           fixedFilter.lessonStartTime = timeISTToTimezone(timings);
         }
 
+        if(excludedTeacher && excludedTeacher.length > 0){
+          fixedFilter.excludedTeacher = excludedTeacher;
+        }
+
         return listBatch({
             ...params,
             // pass th rest of filter params here
@@ -89,6 +95,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     useEffect(() => {
       if(data.id !== props.data?.id){
         setData(props.data);
+        setExcludedTeacher(undefined);
       }
       setSelectedBatch(false);
       reload();
@@ -288,7 +295,7 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     return(
         <Spin spinning={isLoading}>
-          <FilterOptions data={data} setData={setData} reload={reload} filterTheme={props.filterTheme} currentBatch={props.currentBatch} />
+          <FilterOptions data={data} setData={setData} reload={reload} filterTheme={props.filterTheme} currentBatch={props.currentBatch} setExcludedTeacher={setExcludedTeacher} excludedTeacher={excludedTeacher} />
           <Form onFinish={onFinish}>
               <Tabs defaultActiveKey={["IELTS - 1:1", "DISE - 1:1"].includes(course) ? "2" : "1"} key={course}>
                   <TabPane tab="Batch" key="1"> 

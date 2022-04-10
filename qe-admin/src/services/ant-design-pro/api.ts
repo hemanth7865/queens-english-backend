@@ -410,7 +410,8 @@ export async function listBatch(
     frequency?: string,
     lessonStartTime?: string, 
     lessonEndTime?: string,
-    classStartDate?: string
+    classStartDate?: string,
+    excludedTeacher?: string,
   },
   options?: { [key: string]: any },
 ) {

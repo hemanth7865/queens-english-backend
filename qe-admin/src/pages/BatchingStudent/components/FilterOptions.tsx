@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { Col, Row, Form, Input, Button } from 'antd';
+import { Col, Row, Form, Input, Button, Select } from 'antd';
 
 import {
   timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone,
@@ -10,9 +10,14 @@ export type Props = {
     setData: (data: any) => any;
     reload: () => any;
     filterTheme?: string;
-    currentBatch?: any
+    currentBatch?: any;
+    excludedTeacher?: string;
+    setExcludedTeacher?: (id: string) => any;
 };
-const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, currentBatch}) => {
+
+const {Option} = Select;
+
+const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, currentBatch, setExcludedTeacher, excludedTeacher}) => {
     const rebatching = filterTheme == "RE_BATCHING";
     const {timings, startLesson, dob, courseFrequency, startDate, course, id} = data
     const [form] = Form.useForm();
@@ -86,6 +91,16 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                     </Col>
                 )
             }
+            {rebatching && (
+                <Col span={inputSpanEight}>
+                    <Form.Item>
+                        <Select onChange={setExcludedTeacher} style={{width: 100 + "%" }} defaultValue={excludedTeacher} placeholder={"Teacher Change Preferred"}>
+                            <Option value={currentBatch?.teacherId}>Yes</Option>
+                            <Option value={0}>No</Option>
+                        </Select>
+                    </Form.Item>
+                </Col>
+            )}
             <Col span={inputSpanTiny}>
                 <Button type="primary" htmlType="submit" block>
                     {rebatching ? "Update Preferred Batch Details" : "Filter"}
@@ -124,16 +139,16 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                         {currentBatch ? data.startLesson: "NA"}
                     </Col>
                     <Col span={6}>
-                        <h3>Teacher: </h3>
-                    </Col>
-                    <Col span={18}>
-                        {currentBatch ? `${currentBatch.teacher?.firstName || "NA"} ${currentBatch.teacher?.lastName}`: "NA"}
-                    </Col>
-                    <Col span={6}>
                         <h3>Start Date: </h3>
                     </Col>
                     <Col span={18}>
                         {currentBatch ? data.startDate: "NA"}
+                    </Col>
+                    <Col span={6}>
+                        <h3>Teacher: </h3>
+                    </Col>
+                    <Col span={18}>
+                        {currentBatch ? `${currentBatch.teacher?.firstName || "NA"} ${currentBatch.teacher?.lastName}`: "NA"}
                     </Col>
                 </Row>
             </Col>
