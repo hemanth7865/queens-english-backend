@@ -71,12 +71,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -121,12 +119,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -156,12 +152,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -205,7 +199,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return <Input />
     }
   }
-  //console.log('inputnode', inputType)
   return (
     <td {...restProps}>
       {editing ? (
@@ -235,7 +228,7 @@ const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: '', studentID: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -311,7 +304,7 @@ const StudentOnboard: React.FC = () => {
       whatsapp:value.whatsapp,
       comments:value.comments,
       customerEmail:value.customerEmail,
-      id: value.studentID,
+      id: value.id,
       type: 'student',
       status: value.status,
       startLesson: value.startLesson,
@@ -329,7 +322,6 @@ const StudentOnboard: React.FC = () => {
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
     }
-    console.log("dataForm", dataForm);
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -337,7 +329,6 @@ const StudentOnboard: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      console.log('message', msg)
       if (msg.status === 500) {
         openNotificationWithIcon('error', 'Student', msg.error);
       } else if (msg.status === 400){
@@ -625,12 +616,11 @@ const StudentOnboard: React.FC = () => {
   const handleFormSubmit = async () => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, {
+      let msg = await studentsDashboardFilter('onboarding', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, formData.studentID, {
           current: 1,
           pageSize: 200}
       );
       setData(msg.data);
-      console.log('search details',msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -675,6 +665,12 @@ const StudentOnboard: React.FC = () => {
                     </Form.Item>
                   </Col>
                   
+                  <Col span={6}>
+                    <Form.Item name="studentID" label = "lead Id" >
+                      <Input name = "studentID" onChange={handleInputChange}/>
+                    </Form.Item>
+                  </Col>
+
                   <Col span = {2}>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >

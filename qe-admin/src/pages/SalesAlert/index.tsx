@@ -35,7 +35,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
   ...restProps
 }) => {
   const inputNode = () => {
-    console.log(inputType);
     if(inputType === 'number'){
         return (<Select style={{ width: 100 + "%" }} >
                   <Option value="Kids">Kids</Option>
@@ -76,12 +75,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -111,12 +108,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999', '7500']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -146,12 +141,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -181,12 +174,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -216,12 +207,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -251,12 +240,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -356,7 +343,7 @@ const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', studentID: ''})
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -377,7 +364,6 @@ const StudentOnboard: React.FC = () => {
 
 
   const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
-    console.log('TYPE', type, messageError)
     notification[type]({
       message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
       description: '',
@@ -407,7 +393,7 @@ const StudentOnboard: React.FC = () => {
       whatsapp:value.whatsapp,
       comments:value.comments,
       customerEmail: value.customerEmail,
-      id: value.studentID,
+      id: value.id,
       type: "student",
       status: "enrolled",
       alternativeMobile: value.alternativeMobile,
@@ -420,7 +406,6 @@ const StudentOnboard: React.FC = () => {
       courseFrequency: value.courseFrequency,
       timings: value.timings,
       salesowner: value.salesowner,
-      salesDataFilled: value.salesDataFilled,
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
@@ -430,7 +415,7 @@ const StudentOnboard: React.FC = () => {
         downpayment: value.downpayment,
         classtype:'',
         leadId: value.studentID,
-        id: value.studentID,
+        id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
         emi: value.emi,
@@ -439,7 +424,6 @@ const StudentOnboard: React.FC = () => {
       }]
 
     }
-    console.log('data', dataForm)
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -447,7 +431,6 @@ const StudentOnboard: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      console.log('message', msg)
       if (msg.status === 500) {
         openNotificationWithIcon('error', 'Student', msg.error);
       } else if (msg.status === 400){
@@ -470,7 +453,7 @@ const StudentOnboard: React.FC = () => {
             continue;
         }
     }
-}
+  }
 
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
@@ -486,7 +469,7 @@ const StudentOnboard: React.FC = () => {
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled,   ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -497,8 +480,6 @@ const StudentOnboard: React.FC = () => {
     }
     setIsLoading(false);
   }
-
-console.log('null obj', data)
 
   useEffect(() => {
   studentGetApi()
@@ -715,12 +696,6 @@ console.log('null obj', data)
       editable: true,
     },
     {
-      title: 'Confirm Filled Details',
-      dataIndex: 'salesDataFilled',
-      width: 150,
-      editable: true,
-    },
-    {
       title: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
@@ -774,7 +749,7 @@ console.log('null obj', data)
     //console.log('status', formData, value)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, '', {
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
           current: 1,
           pageSize: 20}
       );
@@ -815,6 +790,12 @@ console.log('null obj', data)
                   <Col span={6}>
                     <Form.Item name="studentPhoneNumber" label = "Mobile No" >
                       <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={6}>
+                    <Form.Item name="studentID" label = "lead Id" >
+                      <Input name = "studentID" onChange={handleInputChange}/>
                     </Form.Item>
                   </Col>
                   
