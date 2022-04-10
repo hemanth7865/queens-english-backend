@@ -73,6 +73,7 @@ import { parse, format } from "date-fns";
 import { Tabs } from 'antd';
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import Rebatching from "./components/Rebatching";
+import StudentBatchesHistory from "./components/StudentBatchesHistory";
 
 const { TabPane } = Tabs;
 
@@ -1749,6 +1750,7 @@ const StudentsBatchList: React.FC = () => {
               <Col span={6}>
                 <p>Point of contact</p>
               </Col>
+  
               <Col span={11}>
                 <p>:  {tempDataView.poc}</p>
               </Col>
@@ -1759,7 +1761,6 @@ const StudentsBatchList: React.FC = () => {
               <Col span={11}>
                 <p>:  {tempDataView.comments}</p>
               </Col>
-              
               </Row>
             </TabPane>
 
@@ -1868,6 +1869,10 @@ const StudentsBatchList: React.FC = () => {
               
               <Col span={11}>
                 <p>:  {tempDataView.batchChange }</p>
+              </Col>
+
+              <Col span={24}>
+                <StudentBatchesHistory data={tempDataView} />
               </Col>
             </Row>
             </TabPane>

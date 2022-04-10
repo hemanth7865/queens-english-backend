@@ -180,8 +180,7 @@ export class StudentService {
             zoomInfoBatch.push(element.zoomInfo)
           });
 
-          batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = student_batches_history.batchId WHERE student_batches_history.studentId = '${element.id}' ORDER BY student_batches_history.created_at DESC LIMIT 5`);
-
+          batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = sbh.batchId WHERE sbh.studentId = '${element.id}' ORDER BY sbh.created_at DESC`);
 
           var paymentQuer =
           "select * from payment where id = '"+element.id+"';";
@@ -718,9 +717,10 @@ export class StudentService {
         studentOrTeacherId.push(element.batchId);
       });
     
+    let batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = sbh.batchId WHERE sbh.studentId = '${id}' ORDER BY sbh.created_at DESC`);
  
     const response = {
-      ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id
+      ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id, batchesHistory
     }
    
     usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);    
