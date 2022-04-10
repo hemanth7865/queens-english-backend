@@ -133,7 +133,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         let success = true;
         if(props.onFinish && typeof selectedBatch === 'string'){
           await props.onFinish(selectedBatch);
-          const result = await submitUpdateStudent({...props.data, status: "onboarding"});
+          const result = await submitUpdateStudent({...props.data, status: "onboarding", callStatus: "", callBackon: "", waMessageSent: ""});
 
           if(result.status !== 200){
               success = false;

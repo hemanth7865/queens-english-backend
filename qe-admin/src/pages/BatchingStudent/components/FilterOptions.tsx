@@ -25,8 +25,6 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
     const rebatching = filterTheme == "RE_BATCHING";
     const {timings, startLesson, dob, courseFrequency, startDate, course, id} = data
     const [form] = Form.useForm();
-    // const [selectedCourse, setSelectedCourse] = useState(course);
-    // const [selectedFrequency, setSelectedFrequency] = useState(courseFrequency);
 
     const handleFinish = () => {
         const finalData = {...data, ...form.getFieldsValue(), timings: timeUTCToISTTimezone(timeToUTCTimezone(form.getFieldValue('timings')))};

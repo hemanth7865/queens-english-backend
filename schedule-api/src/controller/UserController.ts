@@ -70,7 +70,7 @@ export class UserController {
                 resp = await this.studentService.updateStudentStatus(request.body);
             } 
         } catch (error) {
-            console.log('Exception::UserController::updateLeadsStatus');
+            console.log('Exception::UserController::updateLeadsStatus', error);
         }
         console.log('End::UserController::updateLeadsStatus');
         return resp;
