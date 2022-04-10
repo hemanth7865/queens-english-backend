@@ -773,6 +773,7 @@ export class StudentService {
       let batch = results[i];
       const data = await getManager().query(`SELECT * from user WHERE id='${batch.teacherId}'`);
       batch.teacher = data[0];
+      batch.students = await getManager().query(`SELECT * from batch_students WHERE batchId='${batch.id}'`);
       results[i] = batch;
     }
 

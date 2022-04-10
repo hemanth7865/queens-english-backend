@@ -7,6 +7,7 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
+import {StudentService} from "./StudentService";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
@@ -820,8 +821,31 @@ export class BatchService {
     return ids;
   }
 
-  async reBatch(data: {batchId: string, studentId: string}) {
-    return data;
+  async reBatch({batchId, studentId}: {batchId: string, studentId: string}) {
+    let studentService = new StudentService();
+    let activeBatches = await studentService.getStudentActiveBatches(studentId);
+    /**
+     * Remove Student From Current Active Batches
+     */
+    for(let batch of activeBatches.data){
+      batch.students = batch.students.filter((student: BatchStudent) => student.studentId != studentId);
+      batch.batchAvailability = [{}];
+      batch.edit = true;
+      if(batch.teacher){
+        delete batch.teacher;
+      }
+      batch.students = batch.students.map((student: BatchStudent) => {
+        return {
+          value: student.studentId
+        }
+      });
+
+      const result = await this.createBatch(batch);
+      console.log(result);
+    }
+
+    // createBatch
+    return activeBatches;
   }
 
 }
