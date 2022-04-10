@@ -4,8 +4,6 @@ import { Col, Row, Form, Input, Button } from 'antd';
 import {
   timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone,
 } from "@/services/ant-design-pro/helpers";
-import {LESSONS} from "../../../../config/lessons";
-import frequencyList from "./../../../../data/frequency.json";
 
 export type Props = {
     data: any;
@@ -28,7 +26,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload}) => {
     return (
         <Form form={form} onFinish={handleFinish}>
             <Row gutter={16}>
-                <Col span={6}>
+                <Col span={8}>
                     <Form.Item name="course">
                         <Input
                             name="course"
@@ -36,7 +34,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload}) => {
                         />
                     </Form.Item>
                 </Col>
-                <Col span={6}>
+                <Col span={8}>
                     <Form.Item name="timings">
                         <Input
                             name="timings"
@@ -44,8 +42,42 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload}) => {
                         />
                     </Form.Item>
                 </Col>
+                <Col span={8}>
+                    <Form.Item name="courseFrequency">
+                        <Input
+                            name="courseFrequency"
+                            placeholder="Course Frequency"
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={8}>
+                    <Form.Item name="startLesson">
+                        <Input
+                            name="startLesson"
+                            placeholder="Start Lesson"
+                        />
+                    </Form.Item>
+                </Col>
                 <Col span={6}>
-                    <Button type="primary" htmlType="submit">
+                    <Form.Item name="startDate">
+                        <Input
+                            name="startDate"
+                            type="date"
+                            placeholder="Start Date"
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={6}>
+                    <Form.Item name="dob">
+                        <Input
+                            name="dob"
+                            type="date"
+                            placeholder="Date Of Birth"
+                        />
+                    </Form.Item>
+                </Col>
+                <Col span={4}>
+                    <Button type="primary" htmlType="submit" block>
                        Confim
                     </Button>
                 </Col>
