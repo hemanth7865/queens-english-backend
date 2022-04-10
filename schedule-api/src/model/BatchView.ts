@@ -18,7 +18,8 @@ import { User } from "../entity/User";
             zoomLink:string;  
             zoomInfo:string;  
             frequency:string;  
-            activeLessonId?:string;  
+            activeLessonId?:string;
+            teacherId?: string;  
 
             public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string) {
                 this.id = id;

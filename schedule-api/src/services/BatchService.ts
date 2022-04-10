@@ -583,6 +583,10 @@ export class BatchService {
       query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
     }
 
+    if(parameters.excludedTeacher){
+      query_list.push(` classes.teacherId != '${parameters.excludedTeacher}' `);
+    }
+
     if(parameters.age){
       // +18 students in a separate class
       if(parameters.age >= 18){
@@ -653,7 +657,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
+    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
     classes ${query_string} ${havingQuery} ORDER BY classes.created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     
@@ -731,6 +735,7 @@ export class BatchService {
         classes.frequency
       );
       view.activeLessonId = classes.activeLessonId;
+      view.teacherId = classes.teacherId;
       batchView.push(view);
     }
 
