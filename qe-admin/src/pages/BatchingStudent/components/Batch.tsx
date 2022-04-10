@@ -15,6 +15,7 @@ import { FormattedMessage } from "umi";
 import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
+import FilterOptions from './FilterOptions';
 
 const { TabPane } = Tabs;
 
@@ -76,13 +77,19 @@ const Batch: React.FC<BatchProps> = (props) => {
         });
     }
 
+    const reload = () => {
+      actionRef?.current?.reload();
+    };
+
     const actionRef = useRef<ActionType>();
 
     useEffect(() => {
-      setData(props.data);
+      if(data.id !== props.data?.id){
+        setData(props.data);
+      }
       setSelectedBatch(false);
-      actionRef?.current?.reload();
-    } , [props.data]);
+      reload();
+    } , [props.data, data]);
 
     const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
         notification[type]({
@@ -274,41 +281,42 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     return(
         <Spin spinning={isLoading}>
-        <Form onFinish={onFinish}>
-            <Tabs defaultActiveKey={["IELTS - 1:1", "DISE - 1:1"].includes(course) ? "2" : "1"} key={course}>
-                <TabPane tab="Batch" key="1"> 
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item name="batchId">
-                                <ProTable<API.RuleListItem, API.PageParams>
-                                    headerTitle={"Batches"}
-                                    actionRef={actionRef}
-                                    rowKey="key"
-                                    search={{
-                                        labelWidth: 120,
-                                    }}
-                                    toolBarRender={() => []}
-                                    request={fetchBatchList}
-                                    columns={columns}
-                                    pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </TabPane>
-                <TabPane tab="Teacher" key="2"> 
-                    <Teachers data={props.data} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch} />
-                </TabPane>
-            </Tabs>
-            
-            <Row gutter={16}>
-                <Col span={24}>
-                    <Button type="primary" htmlType="submit" disabled={!selectedBatch}>
-                        Add Student To Batch
-                    </Button>
-                </Col>
-            </Row>
-        </Form>
+          <FilterOptions data={data} setData={setData} reload={reload} />
+          <Form onFinish={onFinish}>
+              <Tabs defaultActiveKey={["IELTS - 1:1", "DISE - 1:1"].includes(course) ? "2" : "1"} key={course}>
+                  <TabPane tab="Batch" key="1"> 
+                      <Row gutter={16}>
+                          <Col span={24}>
+                              <Form.Item name="batchId">
+                                  <ProTable<API.RuleListItem, API.PageParams>
+                                      headerTitle={"Batches"}
+                                      actionRef={actionRef}
+                                      rowKey="key"
+                                      search={{
+                                          labelWidth: 120,
+                                      }}
+                                      toolBarRender={() => []}
+                                      request={fetchBatchList}
+                                      columns={columns}
+                                      pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '20', '30']}}
+                                  />
+                              </Form.Item>
+                          </Col>
+                      </Row>
+                  </TabPane>
+                  <TabPane tab="Teacher" key="2"> 
+                      <Teachers data={data} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch} />
+                  </TabPane>
+              </Tabs>
+              
+              <Row gutter={16}>
+                  <Col span={24}>
+                      <Button type="primary" htmlType="submit" disabled={!selectedBatch}>
+                          Add Student To Batch
+                      </Button>
+                  </Col>
+              </Row>
+          </Form>
         </Spin>
     )
 }
