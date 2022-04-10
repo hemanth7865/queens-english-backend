@@ -6,6 +6,7 @@ import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import prmData from "../../../data/prms.json";
+import { CheckCircleTwoTone } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -400,6 +401,15 @@ const StudentOnboard: React.FC = () => {
       width: 160,
       editable: true,
       fixed: 'left',
+      render: (value: any, entity: any)=>{ 
+        let highlight: any = "";
+        if(entity.batchesHistory.length > 1){
+          highlight = <CheckCircleTwoTone twoToneColor="#52c41a" />;
+        }
+        return <>
+          {value} {" "} {highlight}
+        </>;
+      }
     },
     {
       title: 'Student Last Name',
@@ -511,6 +521,35 @@ const StudentOnboard: React.FC = () => {
         if(value){
           return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
+      }
+    },
+    {
+      title: 'New Teacher',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any)=>{
+        let result = "NA";
+        if(value[0]){
+          return value[0].phoneNumber;
+        }
+        return result;
+      }
+    },
+    {
+      title: 'Old Teacher',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any)=>{
+        let result = "NA";
+        if(value[1]){
+          return value[1].phoneNumber;
+        }
+        if(value[0]){
+          return value[0].phoneNumber;
+        }
+        return result;
       }
     },
     {
