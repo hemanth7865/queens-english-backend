@@ -31,6 +31,16 @@ export class StudentService {
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
 
+  private BATCHES_HISTORY_QUERY = `
+    SELECT c.batchNumber, c.id, sbh.created_at, u.phoneNumber FROM student_batches_history as sbh 
+    INNER JOIN classes c ON c.id = sbh.batchId 
+    INNER JOIN user u ON u.id = c.teacherId 
+    WHERE sbh.studentId = ':studentId' ORDER BY sbh.created_at DESC`;
+
+  constructor(){
+    this.BATCHES_HISTORY_QUERY = this.BATCHES_HISTORY_QUERY.replace(/\n/g, "");
+  }
+
   async listStudentDetails(data:any, parameters: any) {
 
     var results: any[] = [];
@@ -180,7 +190,7 @@ export class StudentService {
             zoomInfoBatch.push(element.zoomInfo)
           });
 
-          batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = sbh.batchId WHERE sbh.studentId = '${element.id}' ORDER BY sbh.created_at DESC`);
+          batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", element.id));
 
           var paymentQuer =
           "select * from payment where id = '"+element.id+"';";
@@ -717,7 +727,7 @@ export class StudentService {
         studentOrTeacherId.push(element.batchId);
       });
     
-    let batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = sbh.batchId WHERE sbh.studentId = '${id}' ORDER BY sbh.created_at DESC`);
+    let batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", id));
  
     const response = {
       ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id, batchesHistory
