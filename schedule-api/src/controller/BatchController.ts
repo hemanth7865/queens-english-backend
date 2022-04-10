@@ -27,6 +27,21 @@ export class BatchController {
         return { "success": true, "data": [batch], "total": 1 };
     }
 
+    async reBatch(request: Request, response: Response, next: NextFunction) {
+        console.log("rebatch batch");
+        if(!request.body.studentId || !request.body.batchId){
+            return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
+        }
+        var batch;
+        try {
+            batch = await this.batchService.reBatch(request.body);
+        } catch (error) {
+            console.log()
+        }
+        return { "success": true, data: batch };
+    }
+    
+
     async deleteBatch(request: Request, response: Response, next: NextFunction) {
         console.log("saving batch");
         var batch;

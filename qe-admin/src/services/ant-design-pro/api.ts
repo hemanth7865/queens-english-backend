@@ -564,3 +564,19 @@ export async function getStudentActiveBatches(
     ...(options || {}),
   });
 }
+
+/**
+ * Rebatch Student
+ * @param studentId 
+ * @param batchId 
+ * @returns 
+ */
+export async function rebatchStudent(studentId: string, batchId: string) {
+  return request<any>('/be/re-batch', {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({studentId, batchId}),
+  });
+}

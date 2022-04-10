@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { Modal, Button, Spin } from 'antd';
 import {
-    getStudentActiveBatches, addTeacherSchedule
+    getStudentActiveBatches, addTeacherSchedule, rebatchStudent
   } from "@/services/ant-design-pro/api";
 import {
     handleAPIResponse
@@ -47,6 +47,17 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
         setIsLoading(false);
     }
 
+    const onFinish = async (batchId: string) => {
+        setIsLoading(true);
+        try {
+            const msg = await rebatchStudent(data.id, batchId);
+            handleAPIResponse(msg, "Student Rebatched Successfully", "Failed To Rebatched Student");
+          } catch (error) {
+            handleAPIResponse({status: 400}, "Student Rebatched Successfully", "Failed To Rebatched Student");
+          }
+        setIsLoading(false);
+    }
+
     useEffect(() => {
         getStudentBatches();
     }, [data.id]);
@@ -62,7 +73,7 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
             }}
         >
             <Spin spinning={isLoading}>
-                <Batch data={data} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} filterCallBack={filterCallBack} />
+                <Batch data={data} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} filterCallBack={filterCallBack} onFinish={onFinish} />
             </Spin>
         </Modal>
         <Button onClick={() => setShow(true)} block style={{ color: "white", backgroundColor: "DodgerBlue" }}>

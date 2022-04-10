@@ -819,4 +819,9 @@ export class BatchService {
 
     return ids;
   }
+
+  async reBatch(data: {batchId: string, studentId: string}) {
+    return data;
+  }
+
 }

@@ -31,10 +31,11 @@ export type BatchProps = {
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
-  const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [excludedTeacher, setExcludedTeacher] = useState<string>();
-  const [data, setData] = useState(props.data);
+    const [selectedBatch, setSelectedBatch] = useState<boolean|string>(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [excludedTeacher, setExcludedTeacher] = useState<string>();
+    const [data, setData] = useState(props.data);
+    const rebatching = props.filterTheme == "RE_BATCHING";
 
     const {id, timings, startLesson, dob, courseFrequency, startDate, course} = data
 
@@ -328,7 +329,7 @@ const Batch: React.FC<BatchProps> = (props) => {
               <Row gutter={16}>
                   <Col span={24}>
                       <Button type="primary" htmlType="submit" disabled={!selectedBatch}>
-                          Add Student To Batch
+                          {rebatching ? "Re-batch Student" :"Add Student To Batch"}
                       </Button>
                   </Col>
               </Row>

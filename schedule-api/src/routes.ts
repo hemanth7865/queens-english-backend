@@ -111,6 +111,12 @@ export const Routes = [
     action: "createBatch",
   },
   {
+    method: "post",
+    route: "/re-batch",
+    controller: BatchController,
+    action: "reBatch",
+  },
+  {
     method: "delete",
     route: "/deleteBatch/:id",
     controller: BatchController,
