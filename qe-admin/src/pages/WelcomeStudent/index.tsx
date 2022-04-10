@@ -72,12 +72,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -107,12 +105,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999', '7500']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -142,12 +138,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -177,12 +171,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -212,12 +204,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -247,12 +237,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -429,7 +417,6 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
-    console.log('value', value)
     setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
@@ -476,7 +463,6 @@ const StudentOnboard: React.FC = () => {
       }]
 
     }
-    console.log("dataForm", dataForm);
     if(value.status == "startclasslater" || value.status == "batching"){
       //openNotification('info', value.phoneNumber);
     }
@@ -487,7 +473,6 @@ const StudentOnboard: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      console.log('message', msg)
       if (msg.status === 500 ) {
         openNotificationWithIcon('error', 'Student', msg.error);
       } else if (msg.status === 400){
@@ -525,7 +510,6 @@ const StudentOnboard: React.FC = () => {
           var isTempEntryStatus = true
           for (var key in p) {
               if (p.hasOwnProperty(key)) {
-                  //console.log(key, ' : ', p[key]);
                   if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'plastName' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'classType' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
                       var tempKeyValue = p[key] + ''
                       if(isTempEntryStatus){
@@ -553,8 +537,6 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(false);
   }
 
-
-  //console.log('data', data)
 
   useEffect(() => {
   studentGetApi()
@@ -873,7 +855,6 @@ const StudentOnboard: React.FC = () => {
           pageSize: 20}
       );
       setData(msg.data);
-      console.log('search details',msg);
     } catch (error) {
       console.log("error", error);
     }

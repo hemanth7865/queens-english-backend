@@ -75,12 +75,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -110,12 +108,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999', '7500']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -145,12 +141,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -180,12 +174,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -215,12 +207,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -250,12 +240,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -376,7 +364,6 @@ const StudentOnboard: React.FC = () => {
 
 
   const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
-    console.log('TYPE', type, messageError)
     notification[type]({
       message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
       description: '',
@@ -437,7 +424,6 @@ const StudentOnboard: React.FC = () => {
       }]
 
     }
-    console.log('data', dataForm)
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -445,7 +431,6 @@ const StudentOnboard: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      console.log('message', msg)
       if (msg.status === 500) {
         openNotificationWithIcon('error', 'Student', msg.error);
       } else if (msg.status === 400){
@@ -485,7 +470,6 @@ const StudentOnboard: React.FC = () => {
 
       //Logic to get only objects containing null values
       const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled,   ...items}) => items)
-      console.log('newArray', newArray)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -496,8 +480,6 @@ const StudentOnboard: React.FC = () => {
     }
     setIsLoading(false);
   }
-
-console.log('null obj', data)
 
   useEffect(() => {
   studentGetApi()

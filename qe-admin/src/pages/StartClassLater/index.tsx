@@ -70,12 +70,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -105,12 +103,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999', '7500']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -140,12 +136,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -176,12 +170,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -211,12 +203,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -246,12 +236,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -474,7 +462,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         }]
     
       }
-      console.log("dataForm", dataForm);
       try {
         const msg = await addTeacherSchedule({
           headers: {
@@ -537,18 +524,15 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       });
       setData(newData);
       setEditingKey('');
-      //console.log('data save', newData, index, newData[index])
       formSubmit(newData[index])
     } else {
       newData.push(row);
       setData(newData);
       setEditingKey('');
-      //console.log('data save else part', newData, index)
     }
   } catch (errInfo) {
     console.log('Validate Failed:', errInfo);
   }
-  //console.log('data at save', data)
   };
 
   const columns = [
@@ -839,7 +823,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
           pageSize: 20}
       );
       setData(msg.data);
-      console.log('search details',msg);
     } catch (error) {
       console.log("error", error);
     }

@@ -71,12 +71,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -121,12 +119,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -156,12 +152,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
       const [items, setItems] = useState(['15:00', '16:30', '18:00', '19:30']);
       const [name, setName] = useState('');
       const onNameChange = event => {
-        console.log(event.target.value)
       setName(event.target.value);
       };
 
       const addItem = e => {
-        console.log(e.target.value)
         e.preventDefault();
         setItems([...items, name || `New item ${index++}`]);
         setName('');
@@ -205,7 +199,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return <Input />
     }
   }
-  //console.log('inputnode', inputType)
   return (
     <td {...restProps}>
       {editing ? (
@@ -329,7 +322,6 @@ const StudentOnboard: React.FC = () => {
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
     }
-    console.log("dataForm", dataForm);
     try {
       const msg = await addTeacherSchedule({
         headers: {
@@ -337,7 +329,6 @@ const StudentOnboard: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      console.log('message', msg)
       if (msg.status === 500) {
         openNotificationWithIcon('error', 'Student', msg.error);
       } else if (msg.status === 400){
@@ -630,7 +621,6 @@ const StudentOnboard: React.FC = () => {
           pageSize: 200}
       );
       setData(msg.data);
-      console.log('search details',msg);
     } catch (error) {
       console.log("error", error);
     }
