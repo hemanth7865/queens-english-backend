@@ -36,9 +36,10 @@ export class BatchController {
         try {
             batch = await this.batchService.reBatch(request.body);
         } catch (error) {
-            console.log()
+            console.log();
+            batch = {status: 400, errors: ["Something went wrong while creating/updating the batch."]}
         }
-        return { "success": true, data: batch };
+        return batch;
     }
     
 

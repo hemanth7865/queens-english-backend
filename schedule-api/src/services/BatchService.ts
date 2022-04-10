@@ -840,12 +840,32 @@ export class BatchService {
         }
       });
 
-      const result = await this.createBatch(batch);
-      console.log(result);
+      await this.createBatch(batch);
     }
 
-    // createBatch
-    return activeBatches;
+    /**
+     * Add Student To Batch
+     */
+    let batchDetails = await this.getBatchDetails(batchId);
+
+    const batch: any = {...batchDetails.data.classes, batchAvailability: [{}], students: batchDetails.data.students, edit: true};
+
+    const studentsIDs = [];
+    batch.students = batch.students.map((student: BatchStudent) => {
+      studentsIDs.push(student.studentId);
+      return {value: student.id};
+    });
+
+    if(!studentsIDs.includes(studentId)){
+      batch.students.push({value: studentId});
+    }
+
+    if(batch.teacher){
+      delete batch.teacher;
+    }
+
+    const result = await this.createBatch(batch);
+    return result;
   }
 
 }
