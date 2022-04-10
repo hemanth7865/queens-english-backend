@@ -129,15 +129,20 @@ const Batch: React.FC<BatchProps> = (props) => {
     }
 
     const onFinish = async () => {
+        setIsLoading(true);
+        let success = true;
         if(props.onFinish && typeof selectedBatch === 'string'){
-          return props.onFinish(selectedBatch);
+          await props.onFinish(selectedBatch);
+          const result = await submitUpdateStudent({...props.data, status: "onboarding"});
+
+          if(result.status !== 200){
+              success = false;
+          }
         }
 
-        let dataForm = {}
-        let success = true;
-        setIsLoading(true);
 
-        if (id && typeof selectedBatch === 'string') {
+        if (id && typeof selectedBatch === 'string' && !props.onFinish) {
+            let dataForm = {}
             try {
                 const batchDetails = await (await getIndividualBatch(selectedBatch)).data;
 
@@ -189,6 +194,7 @@ const Batch: React.FC<BatchProps> = (props) => {
                 console.log("add student to batch error", error);
             }
         }
+
         setIsLoading(false);
         if(success){
             // @ts-ignore-next-line
