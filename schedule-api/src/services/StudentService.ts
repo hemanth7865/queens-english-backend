@@ -1010,7 +1010,7 @@ export class StudentService {
             d[primaryColumn] = "NOT_FOUND";
           }
   
-          let alternativeMobileSearch = d["Whatsapp Number"] && d["Whatsapp Number"].length > 4 ? ` OR user.phoneNumber LIKE '%${d["Whatsapp Number"]}%' ` : null;
+          let alternativeMobileSearch = d["Whatsapp Number"] && d["Whatsapp Number"].length > 4 ? ` OR user.phoneNumber LIKE '%${d["Whatsapp Number"]}%' ` : '';
 
           let users = await getManager()
           .createQueryBuilder(User, "user")
