@@ -3,9 +3,8 @@ import { Classes } from "./Classes";
 import { User } from "./User";
 
 @Entity("student_batches_history")
-export class StudentBatchHistory extends BaseEntity {
-    name: string;
-    StudentBatchHistory() { }
+export class StudentBatchesHistory extends BaseEntity {
+    StudentBatchesHistory() { }
 
     @PrimaryGeneratedColumn()
     id: string;

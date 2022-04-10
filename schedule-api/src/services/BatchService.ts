@@ -11,6 +11,7 @@ import {StudentService} from "./StudentService";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
+import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
 import { v4 as uuidv4 } from "uuid";
 
@@ -27,6 +28,7 @@ export class BatchService {
   private classesRepository = getRepository(Classes);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
+  private studentBatchesHistory = getRepository(StudentBatchesHistory);
 
   BatchService() {}
 
@@ -150,9 +152,10 @@ export class BatchService {
           .post(options.url, options.body)
           .then(async (res) => {
             var batch = await this.createBatchSql(data);
+            await this.addStudentsBatchesHistory(studnets.map(i => i.id), data.id);
             await axios.put(options.url, options.body).catch((error) => {
-            return Promise.reject(error);
-          });
+              return Promise.reject(error);
+            });
             return batch;
           })
           .catch((error) => {
@@ -168,13 +171,16 @@ export class BatchService {
         await this.addStudents(studentsChange.add, data.id);
 
         /**
-         * Remove Students From Batch
-         */
+        * Remove Students From Batch
+        */
         await this.removeStudents(studentsChange.remove, data.id);
+
+        await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
+
             var batch = await this.updateBatchSql(data);
             return batch;
           })
@@ -873,4 +879,25 @@ export class BatchService {
     return result;
   }
 
+  async addStudentsBatchesHistory(students: string[], batchId: string){
+    const studentsBatchesHistory = [];
+    console.log(students, "students");
+    for(let i = 0 ; i < students.length ; i++){
+        const exists = await this.studentBatchesHistory.findOne({studentId: students[i], batchId});
+        if(exists || !students[i]){
+            continue;
+        }
+        let studentBatchesHistory = new StudentBatchesHistory();
+        studentBatchesHistory.studentId = students[i];
+        studentBatchesHistory.batchId = batchId;
+        studentBatchesHistory.active = true;
+        studentsBatchesHistory.push(studentBatchesHistory);
+        await this.studentBatchesHistory.update({active: false}, {studentId: students[i], batchId})
+    }
+    try{
+      await this.studentBatchesHistory.save(studentsBatchesHistory);
+    }catch(e){
+      console.log(e);
+    }
+  }
 }

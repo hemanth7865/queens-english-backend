@@ -41,7 +41,7 @@ export class BatchController {
         }
         return batch;
     }
-    
+
 
     async deleteBatch(request: Request, response: Response, next: NextFunction) {
         console.log("saving batch");

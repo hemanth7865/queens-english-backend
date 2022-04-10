@@ -7,8 +7,8 @@ export class CreateStudentBatchesHistoryTable1649572998257 implements MigrationI
             await queryRunner.query(`
             CREATE TABLE student_batches_history (
                 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                studentId VARCHAR(30) NOT NULL,
-                batchId VARCHAR(30) NOT NULL,
+                studentId VARCHAR(200) NOT NULL,
+                batchId VARCHAR(200) NOT NULL,
                 active TINYINT(1) NOT NULL DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
