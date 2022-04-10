@@ -881,18 +881,12 @@ export class BatchService {
 
   async addStudentsBatchesHistory(students: string[], batchId: string){
     const studentsBatchesHistory = [];
-    console.log(students, "students");
     for(let i = 0 ; i < students.length ; i++){
-        const exists = await this.studentBatchesHistory.findOne({studentId: students[i], batchId});
-        if(exists || !students[i]){
-            continue;
-        }
         let studentBatchesHistory = new StudentBatchesHistory();
         studentBatchesHistory.studentId = students[i];
         studentBatchesHistory.batchId = batchId;
         studentBatchesHistory.active = true;
         studentsBatchesHistory.push(studentBatchesHistory);
-        await this.studentBatchesHistory.update({active: false}, {studentId: students[i], batchId})
     }
     try{
       await this.studentBatchesHistory.save(studentsBatchesHistory);
