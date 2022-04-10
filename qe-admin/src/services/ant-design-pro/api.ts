@@ -559,7 +559,7 @@ export async function getStudentActiveBatches(
   id: string,
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>(`/be/student/active/batches/${id}`, {
+  return request<any>(`/be/student/active/batches/${id}`, {
     method: 'GET',
     ...(options || {}),
   });

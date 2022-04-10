@@ -18,7 +18,6 @@ export type Props = {
 const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
     const [isLoading, setIsLoading] = useState(true);
     const [batches, setBatches] = useState<any[]>([]);
-    console.log("data", data);
 
     const getStudentBatches = async () => {
         setIsLoading(true);
