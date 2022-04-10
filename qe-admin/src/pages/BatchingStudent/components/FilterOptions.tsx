@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import { Col, Row, Form, Input, Button, Select } from 'antd';
 
 import {
-  timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone,
+  timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone, timeToLocalTimezone
 } from "@/services/ant-design-pro/helpers";
 
 export type Props = {
@@ -13,22 +13,28 @@ export type Props = {
     currentBatch?: any;
     excludedTeacher?: string;
     setExcludedTeacher?: (id: string) => any;
+    filterCallBack?: (data: any) => any;
 };
 
 const {Option} = Select;
 
-const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, currentBatch, setExcludedTeacher, excludedTeacher}) => {
+const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, currentBatch, setExcludedTeacher, excludedTeacher, filterCallBack}) => {
     const rebatching = filterTheme == "RE_BATCHING";
     const {timings, startLesson, dob, courseFrequency, startDate, course, id} = data
     const [form] = Form.useForm();
 
     const handleFinish = () => {
-        setData({...data, ...form.getFieldsValue(), timings: timeUTCToISTTimezone(timeToUTCTimezone(form.getFieldValue('timings')))})
+        const finalData = {...data, ...form.getFieldsValue(), timings: timeUTCToISTTimezone(timeToUTCTimezone(form.getFieldValue('timings')))};
+        setData(finalData)
+        if(filterCallBack){
+            filterCallBack(finalData)
+        }
     }
 
     useEffect(() => {
         form.setFieldsValue({timings: timeISTToLocalTimezone(timings), startLesson, dob, courseFrequency, startDate, course});
         reload();
+
     }, [id]);
 
     const inputSpanEight = rebatching ? 24 : 8;
@@ -124,7 +130,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                         <h3>Time: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? timeISTToLocalTimezone(data.timings): "NA"}
+                        {currentBatch ? timeToLocalTimezone(currentBatch.lessonStartTime): "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Frequency: </h3>
@@ -142,7 +148,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                         <h3>Start Date: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? data.startDate: "NA"}
+                        {currentBatch ? currentBatch.classStartDate?.split("T")[0]: "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Teacher: </h3>

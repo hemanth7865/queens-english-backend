@@ -15,7 +15,7 @@ export const openNotificationWithIcon = (type: string, message: string , reload 
     }
 };
 
-export const handleAPIResponse = (msg: any, success: string, failed: string) => {
+export const handleAPIResponse = (msg: any, success: string, failed: string, reload: boolean = true) => {
     if (msg.status === 400 || msg.status === 500) {
         if(Array.isArray(msg.errors)){
             for(let m of msg.errors){
@@ -27,7 +27,7 @@ export const handleAPIResponse = (msg: any, success: string, failed: string) => 
             openNotificationWithIcon('error', failed, false);
         }
     } else {
-        openNotificationWithIcon('success', success);
+        openNotificationWithIcon('success', success, reload);
     }
 }
 

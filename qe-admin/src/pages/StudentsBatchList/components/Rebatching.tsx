@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import { Modal, Button, Spin } from 'antd';
 import {
-    getStudentActiveBatches
+    getStudentActiveBatches, addTeacherSchedule
   } from "@/services/ant-design-pro/api";
+import {
+    handleAPIResponse
+} from "@/services/ant-design-pro/helpers";
 
 import Batch from "./../../BatchingStudent/components/Batch";
 
@@ -28,11 +31,27 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
         setIsLoading(false);
     }
 
+    const filterCallBack = async (data: any) => {
+        setIsLoading(true);
+        try {
+            const msg = await addTeacherSchedule({
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+            handleAPIResponse(msg, "Student Updated Successfully", "Failed To Update Student", false);
+          } catch (error) {
+            handleAPIResponse({status: 400}, "Student Updated Successfully", "Failed To Update Student", false);
+          }
+        setIsLoading(false);
+    }
+
     useEffect(() => {
         getStudentBatches();
     }, [data.id]);
   return (
-      <Spin spinning={isLoading}>
+    <>
         <Modal
             width={960}
             title={"Re-batching"}
@@ -42,13 +61,14 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
                 setShow(false)
             }}
         >
-            <Batch data={data} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} />
+            <Spin spinning={isLoading}>
+                <Batch data={data} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} filterCallBack={filterCallBack} />
+            </Spin>
         </Modal>
-
         <Button onClick={() => setShow(true)} block style={{ color: "white", backgroundColor: "DodgerBlue" }}>
             Change Batch
         </Button>
-      </Spin>
+    </>
   );
 };
 
