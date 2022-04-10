@@ -24,6 +24,9 @@ export type BatchProps = {
     visible: boolean;
     setVisible: (value: boolean) =>void;
     onUpdate?: () => void;
+    onFinish?: (id: string) => any;
+    filterTheme?: string;
+    currentBatch?: any
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
@@ -117,6 +120,10 @@ const Batch: React.FC<BatchProps> = (props) => {
     }
 
     const onFinish = async () => {
+        if(props.onFinish && typeof selectedBatch === 'string'){
+          return props.onFinish(selectedBatch);
+        }
+
         let dataForm = {}
         let success = true;
         setIsLoading(true);
@@ -281,7 +288,7 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     return(
         <Spin spinning={isLoading}>
-          <FilterOptions data={data} setData={setData} reload={reload} />
+          <FilterOptions data={data} setData={setData} reload={reload} filterTheme={props.filterTheme} currentBatch={props.currentBatch} />
           <Form onFinish={onFinish}>
               <Tabs defaultActiveKey={["IELTS - 1:1", "DISE - 1:1"].includes(course) ? "2" : "1"} key={course}>
                   <TabPane tab="Batch" key="1"> 

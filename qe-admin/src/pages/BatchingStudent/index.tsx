@@ -237,7 +237,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
           visible={visibleEdit}
-          width={900}>
+          width={960}>
             <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
         </Drawer>
       </Spin>

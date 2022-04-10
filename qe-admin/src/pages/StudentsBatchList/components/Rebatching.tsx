@@ -42,7 +42,7 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
                 setShow(false)
             }}
         >
-            <Batch data={data} setVisible={setShow} visible={show} />
+            <Batch data={data} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} />
         </Modal>
 
         <Button onClick={() => setShow(true)} block style={{ color: "white", backgroundColor: "DodgerBlue" }}>

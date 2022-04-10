@@ -769,6 +769,13 @@ export class StudentService {
 
     var results = await getManager().query(finalQuery);
 
+    for(let i = 0; i < results.length; i++){
+      let batch = results[i];
+      const data = await getManager().query(`SELECT * from user WHERE id='${batch.teacherId}'`);
+      batch.teacher = data[0];
+      results[i] = batch;
+    }
+
     return {
       success: true,
       data: results,
