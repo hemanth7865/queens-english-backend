@@ -401,7 +401,13 @@ export class StudentService {
     );
     let user;
     if(data.status && data.id){
+      let updateList: any = {};
+      updateList.callStatus = data.callStatus; 
+      updateList.callBackon = data.callBackon; 
+      updateList.waMessageSent = data.waMessageSent; 
+      console.log(updateList);
       user = await this.usersRepository.update({id: data.id}, {status: data.status});
+      let students = await this.studentRepository.update({id: data.id}, updateList);
       return {status: 200, data: user};
     }
     return {status: 400, data: "Failed To Update User Status"};

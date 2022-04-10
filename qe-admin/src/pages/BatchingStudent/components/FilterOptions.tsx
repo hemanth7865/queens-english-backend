@@ -4,6 +4,9 @@ import { Col, Row, Form, Input, Button, Select } from 'antd';
 import {
   timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone, timeToLocalTimezone
 } from "@/services/ant-design-pro/helpers";
+import frequencyList from "./../../../../data/frequency.json";
+import coursesType from "./../../../../data/coursesType.json";
+import {LESSONS} from "./../../../../config/lessons";
 
 export type Props = {
     data: any;
@@ -34,7 +37,6 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
     useEffect(() => {
         form.setFieldsValue({timings: timeISTToLocalTimezone(timings), startLesson, dob, courseFrequency, startDate, course});
         reload();
-
     }, [id]);
 
     const inputSpanEight = rebatching ? 24 : 8;
@@ -45,10 +47,11 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
         <Row gutter={rebatching ? 4 : 16}>
             <Col span={inputSpanEight}>
                 <Form.Item name="course">
-                    <Input
-                        name="course"
-                        placeholder="Course"
-                    />
+                    <Select style={{width: 100 + "%" }} placeholder={"Course"}>
+                        {
+                           coursesType.map(c => <Option key={c.value} value={c.value}>{c.label}</Option>)
+                        }
+                    </Select>
                 </Form.Item>
             </Col>
             <Col span={inputSpanEight}>
@@ -61,18 +64,20 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
             </Col>
             <Col span={inputSpanEight}>
                 <Form.Item name="courseFrequency">
-                    <Input
-                        name="courseFrequency"
-                        placeholder="Course Frequency"
-                    />
+                    <Select style={{width: 100 + "%" }} placeholder={"Course Frequency"}>
+                        {
+                           frequencyList.map(c => <Option key={c.value} value={c.value}>{c.label}</Option>)
+                        }
+                    </Select>
                 </Form.Item>
             </Col>
             <Col span={inputSpanEight}>
-                <Form.Item name="startLesson" rules={[{pattern: /^[a-zA-Z]+\s[0-9]{2,3}$/,  message: "Make Sure To Write Correct Lesson"}]}>
-                    <Input
-                        name="startLesson"
-                        placeholder="Start Lesson"
-                    />
+                <Form.Item name="startLesson">
+                    <Select style={{width: 100 + "%" }} placeholder={"Start Lesson"} showSearch>
+                        {
+                           LESSONS.map(c => <Option key={`Lesson ${c.number}`} value={`Lesson ${c.number}`}>Lesson {c.number}</Option>)
+                        }
+                    </Select>
                 </Form.Item>
             </Col>
             <Col span={inputSpanSmall}>
