@@ -10,6 +10,7 @@ const { Option } = Select;
 
 const PhoneNumberCountrySelect = ({ 
   handleMobileChange, 
+  formData,
   phoneNumberName = "phoneNumber",
   countryCodeName = "countryCode",
   placeholder = "Enter Mobile Number",
@@ -43,7 +44,7 @@ const PhoneNumberCountrySelect = ({
   return (
     <>
       {
-        !edit  && <Col span = {12}>
+        !edit  && <Col span = {12} key={phoneNumberName + defaultValue}>
             <Form.Item
                 name={countryCodeName}>
                 <Select placeholder = "Select a country" onChange = {handleCountry} defaultValue = {defaultCountry.map((name: any) => name.name)}>

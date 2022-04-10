@@ -15,7 +15,7 @@ export const openNotificationWithIcon = (type: string, message: string , reload 
     }
 };
 
-export const handleAPIResponse = (msg: any, success: string, failed: string) => {
+export const handleAPIResponse = (msg: any, success: string, failed: string, reload: boolean = true) => {
     if (msg.status === 400 || msg.status === 500) {
         if(Array.isArray(msg.errors)){
             for(let m of msg.errors){
@@ -27,7 +27,7 @@ export const handleAPIResponse = (msg: any, success: string, failed: string) => 
             openNotificationWithIcon('error', failed, false);
         }
     } else {
-        openNotificationWithIcon('success', success);
+        openNotificationWithIcon('success', success, reload);
     }
 }
 
@@ -126,4 +126,23 @@ export const timeToLocalTimezone = (time?: string): string => {
         }
     }
     return moment(result).utc().format("HH:mm")
+}
+
+/**
+ * Convert A given IST Time-zone time into UTC timezone
+ * @param time string aka "HH:mm"
+ * @returns 
+ */
+ export const timeUTCToISTTimezone = (time?: string): string | undefined=> {
+    let result = "2022-03-24T00:00:00";
+    if(time){
+        // only time given in format: HH:mm
+        if(time.length === "HH:mm".length){
+            result = result.replace("00:00", time);
+        }else{
+            // complete date-time string
+            result = time;
+        }
+    }
+    return moment(result).add(5, "hours").add(30, "minutes").format("HH:mm")
 }

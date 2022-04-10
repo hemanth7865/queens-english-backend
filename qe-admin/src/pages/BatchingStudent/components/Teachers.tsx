@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
     ClockCircleOutlined,
   } from "@ant-design/icons";
@@ -94,7 +94,11 @@ const Batch: React.FC<BatchProps> = (props) => {
     }
 
     const actionRef = useRef<ActionType>();
-    
+
+    useEffect(() => {
+      actionRef?.current?.reload();
+    } , [props.data]);
+
     const createBatch = (dom: any) => {
       let startDate = moment(data.startDate, "YYYY-MM-DD").format("YYYY-MM-DD");
       let endDate = moment(startDate, "YYYY-MM-DD").add('years', 1).format("YYYY-MM-DD");

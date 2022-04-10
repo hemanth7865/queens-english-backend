@@ -7,9 +7,11 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { getManager } from "typeorm";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
+import {StudentService} from "./StudentService";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
+import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
 import { v4 as uuidv4 } from "uuid";
 
@@ -26,6 +28,7 @@ export class BatchService {
   private classesRepository = getRepository(Classes);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
+  private studentBatchesHistory = getRepository(StudentBatchesHistory);
 
   BatchService() {}
 
@@ -149,9 +152,10 @@ export class BatchService {
           .post(options.url, options.body)
           .then(async (res) => {
             var batch = await this.createBatchSql(data);
+            await this.addStudentsBatchesHistory(studnets.map(i => i.id), data.id);
             await axios.put(options.url, options.body).catch((error) => {
-            return Promise.reject(error);
-          });
+              return Promise.reject(error);
+            });
             return batch;
           })
           .catch((error) => {
@@ -167,13 +171,16 @@ export class BatchService {
         await this.addStudents(studentsChange.add, data.id);
 
         /**
-         * Remove Students From Batch
-         */
+        * Remove Students From Batch
+        */
         await this.removeStudents(studentsChange.remove, data.id);
+
+        await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
+
             var batch = await this.updateBatchSql(data);
             return batch;
           })
@@ -582,6 +589,10 @@ export class BatchService {
       query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
     }
 
+    if(parameters.excludedTeacher){
+      query_list.push(` classes.teacherId != '${parameters.excludedTeacher}' `);
+    }
+
     if(parameters.age){
       // +18 students in a separate class
       if(parameters.age >= 18){
@@ -652,7 +663,7 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
+    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
     classes ${query_string} ${havingQuery} ORDER BY classes.created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
     
@@ -730,6 +741,7 @@ export class BatchService {
         classes.frequency
       );
       view.activeLessonId = classes.activeLessonId;
+      view.teacherId = classes.teacherId;
       batchView.push(view);
     }
 
@@ -818,5 +830,68 @@ export class BatchService {
     }
 
     return ids;
+  }
+
+  async reBatch({batchId, studentId}: {batchId: string, studentId: string}) {
+    let studentService = new StudentService();
+    let activeBatches = await studentService.getStudentActiveBatches(studentId);
+    /**
+     * Remove Student From Current Active Batches
+     */
+    for(let batch of activeBatches.data){
+      batch.students = batch.students.filter((student: BatchStudent) => student.studentId != studentId);
+      batch.batchAvailability = [{}];
+      batch.edit = true;
+      if(batch.teacher){
+        delete batch.teacher;
+      }
+      batch.students = batch.students.map((student: BatchStudent) => {
+        return {
+          value: student.studentId
+        }
+      });
+
+      await this.createBatch(batch);
+    }
+
+    /**
+     * Add Student To Batch
+     */
+    let batchDetails = await this.getBatchDetails(batchId);
+
+    const batch: any = {...batchDetails.data.classes, batchAvailability: [{}], students: batchDetails.data.students, edit: true};
+
+    const studentsIDs = [];
+    batch.students = batch.students.map((student: BatchStudent) => {
+      studentsIDs.push(student.studentId);
+      return {value: student.studentId};
+    });
+
+    if(!studentsIDs.includes(studentId)){
+      batch.students.push({value: studentId});
+    }
+
+    if(batch.teacher){
+      delete batch.teacher;
+    }
+
+    const result = await this.createBatch(batch);
+    return result;
+  }
+
+  async addStudentsBatchesHistory(students: string[], batchId: string){
+    const studentsBatchesHistory = [];
+    for(let i = 0 ; i < students.length ; i++){
+        let studentBatchesHistory = new StudentBatchesHistory();
+        studentBatchesHistory.studentId = students[i];
+        studentBatchesHistory.batchId = batchId;
+        studentBatchesHistory.active = true;
+        studentsBatchesHistory.push(studentBatchesHistory);
+    }
+    try{
+      await this.studentBatchesHistory.save(studentsBatchesHistory);
+    }catch(e){
+      console.log(e);
+    }
   }
 }

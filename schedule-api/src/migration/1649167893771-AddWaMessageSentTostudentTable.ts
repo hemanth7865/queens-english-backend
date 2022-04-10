@@ -9,7 +9,7 @@ export class AddWaMessageSentTostudentTable1649167893771 implements MigrationInt
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        if (!await queryRunner.hasColumn('student', 'waMessageSent')) { 
+        if (await queryRunner.hasColumn('student', 'waMessageSent')) { 
         await queryRunner.query(`ALTER TABLE student DROP waMessageSent`);
         }
     }

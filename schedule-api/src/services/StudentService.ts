@@ -140,7 +140,7 @@ export class StudentService {
 
  
 
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
+    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.startdate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)};`;
   let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
 
   console.log(`query string ${query_list}`);
@@ -163,6 +163,7 @@ export class StudentService {
         var studentOrTeacherId=[];
         var zoomLinkBatch = [];
         var zoomInfoBatch = [];
+        var batchesHistory = [];
         var batchCode = '';
   
         if (type == 'student' ) {
@@ -178,6 +179,8 @@ export class StudentService {
             zoomLinkBatch.push(element.zoomLink)
             zoomInfoBatch.push(element.zoomInfo)
           });
+
+          batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = sbh.batchId WHERE sbh.studentId = '${element.id}' ORDER BY sbh.created_at DESC`);
 
           var paymentQuer =
           "select * from payment where id = '"+element.id+"';";
@@ -261,6 +264,8 @@ export class StudentService {
           lsq_user_info?lsq_user_info.ID:'',
           lsq_user_info?`${lsq_user_info.FirstName} ${lsq_user_info.LastName}`:'',
         );
+        l.isSibling = element.isSibling;
+        l.batchesHistory = batchesHistory;
         leadView.push(l);
       }
 
@@ -712,9 +717,10 @@ export class StudentService {
         studentOrTeacherId.push(element.batchId);
       });
     
+    let batchesHistory = await getManager().query(`SELECT c.batchNumber, c.id, sbh.created_at FROM student_batches_history as sbh INNER JOIN classes c ON c.id = sbh.batchId WHERE sbh.studentId = '${id}' ORDER BY sbh.created_at DESC`);
  
     const response = {
-      ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id
+      ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id, batchesHistory
     }
    
     usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);    
@@ -758,6 +764,27 @@ export class StudentService {
       total: total[0].total,
       current: parameters.current,
       pageSize: limit,
+    };
+  }
+
+  async getStudentActiveBatches(id: string) {
+    const moment = require("moment");
+
+    let finalQuery = `SELECT * from classes WHERE classEndDate >= '${moment().format("YYYY-MM-DD")}' and id IN (SELECT batchId FROM batch_students WHERE studentId = '${id}' GROUP BY batchId HAVING COUNT ( * ) > 0)`;
+
+    var results = await getManager().query(finalQuery);
+
+    for(let i = 0; i < results.length; i++){
+      let batch = results[i];
+      const data = await getManager().query(`SELECT * from user WHERE id='${batch.teacherId}'`);
+      batch.teacher = data[0];
+      batch.students = await getManager().query(`SELECT * from batch_students WHERE batchId='${batch.id}'`);
+      results[i] = batch;
+    }
+
+    return {
+      success: true,
+      data: results,
     };
   }
 

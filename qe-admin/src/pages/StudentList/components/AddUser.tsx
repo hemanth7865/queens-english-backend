@@ -26,7 +26,6 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         email: '',
     })
 
-    const [isSibling, setIsSibling] = useState<number>(0)
     const [selectUserType, setSelectUserType] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
@@ -104,7 +103,6 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     email: formData.email,
                     type: selectUserType,
                     status: "enrolled",
-                    isSibling
                 }
             }else{
                 dataForm = {
@@ -113,7 +111,6 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     phoneNumber: '+'+ code + formData.phoneNumber,
                     email: formData.email,
                     type: selectUserType,
-                    isSibling
                 }
             }
             
@@ -202,18 +199,6 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                                     >
                                     <Option value="teacher">Teacher</Option>
                                     <Option value="student">Student</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-
-                        <Col span = {24}>
-                            <Form.Item name="isSibling" rules = {[{required: true}]}>
-                                <Select
-                                    placeholder="Sibling"
-                                    onChange = {(value: number)=>{setIsSibling(value)}}
-                                    >
-                                    <Option value={1}>Yes</Option>
-                                    <Option value={0}>No</Option>
                                 </Select>
                             </Form.Item>
                         </Col>

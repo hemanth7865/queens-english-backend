@@ -73,6 +73,7 @@ export class LeadView {
   isSibling?: boolean;
   lsq_user_id: string;
   lsq_user_name: string;
+  batchesHistory?: {batchNumber: string}[]; 
 
   public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string,email:string,status:string,classestaken:number,
       ratings:number,slots:string,leadType:number, type:string, batchCode:string,   studentID:string, dob?:string|Date, whatsapp?: string, address?: string, 

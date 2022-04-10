@@ -410,7 +410,8 @@ export async function listBatch(
     frequency?: string,
     lessonStartTime?: string, 
     lessonEndTime?: string,
-    classStartDate?: string
+    classStartDate?: string,
+    excludedTeacher?: string,
   },
   options?: { [key: string]: any },
 ) {
@@ -552,5 +553,32 @@ export async function studentsDashboardFilter(
       studentID: studentID?studentID:''
     },
     ...(options || {}),
+  });
+}
+
+//Onboarding search fields
+export async function getStudentActiveBatches(
+  id: string,
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>(`/be/student/active/batches/${id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/**
+ * Rebatch Student
+ * @param studentId 
+ * @param batchId 
+ * @returns 
+ */
+export async function rebatchStudent(studentId: string, batchId: string) {
+  return request<any>('/be/re-batch', {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({studentId, batchId}),
   });
 }
