@@ -68,7 +68,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                 </Form.Item>
             </Col>
             <Col span={inputSpanEight}>
-                <Form.Item name="startLesson" rules={[{pattern: /^[a-zA-Z]+\s[0-9]{2}$/,  message: "Make Sure To Write Correct Lesson"}]}>
+                <Form.Item name="startLesson" rules={[{pattern: /^[a-zA-Z]+\s[0-9]{2,3}$/,  message: "Make Sure To Write Correct Lesson"}]}>
                     <Input
                         name="startLesson"
                         placeholder="Start Lesson"
