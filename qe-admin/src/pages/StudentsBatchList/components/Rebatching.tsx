@@ -4,6 +4,8 @@ import {
     getStudentActiveBatches
   } from "@/services/ant-design-pro/api";
 
+import Batch from "./../../BatchingStudent/components/Batch";
+
 export type Props = {
   show: boolean;
   setShow: (show: boolean) => any;
@@ -19,7 +21,7 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
         setIsLoading(true);
         try{
             let res = await getStudentActiveBatches(data.id);
-            console.log(res, "res");
+            setBatches(res.data);
         }catch(e){
             console.log(e);
         }
@@ -32,15 +34,15 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
   return (
       <Spin spinning={isLoading}>
         <Modal
-            width={640}
-            bodyStyle={{ padding: '32px 40px 48px' }}
+            width={960}
             title={"Re-batching"}
             visible={show}
+            footer={null}
             onCancel={() => {
                 setShow(false)
             }}
         >
-            Hello World
+            <Batch data={data} setVisible={setShow} visible={show} />
         </Modal>
 
         <Button onClick={() => setShow(true)} block style={{ color: "white", backgroundColor: "DodgerBlue" }}>

@@ -78,7 +78,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload}) => {
                 </Col>
                 <Col span={4}>
                     <Button type="primary" htmlType="submit" block>
-                       Confim
+                       Filter
                     </Button>
                 </Col>
             </Row>
