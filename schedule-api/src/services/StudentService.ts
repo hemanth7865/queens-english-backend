@@ -762,6 +762,19 @@ export class StudentService {
     };
   }
 
+  async getStudentActiveBatches(id: string) {
+    const moment = require("moment");
+
+    let finalQuery = `SELECT * from classes WHERE classEndDate >= '${moment().format("YYYY-MM-DD")}' and id IN (SELECT batchId FROM batch_students WHERE studentId = '${id}' GROUP BY batchId HAVING COUNT ( * ) > 0)`;
+
+    var results = await getManager().query(finalQuery);
+
+    return {
+      success: true,
+      data: results,
+    };
+  }
+
   async updateStudentsCSV(data: any, query: {test: false}){
     const moment = require("moment");
     const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");

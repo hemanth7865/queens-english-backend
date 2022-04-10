@@ -552,3 +552,14 @@ export async function studentsDashboardFilter(
     ...(options || {}),
   });
 }
+
+//Onboarding search fields
+export async function getStudentActiveBatches(
+  id: string,
+  options?: { [key: string]: any },
+) {
+  return request<API.RuleList>(`/be/student/active/batches/${id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}

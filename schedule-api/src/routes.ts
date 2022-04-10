@@ -63,6 +63,12 @@ export const Routes = [
     action: "leadFullDetails",
   },
   {
+    method: "get",
+    route: "/student/active/batches/:id",
+    controller: UserController,
+    action: "getStudentActiveBatches",
+  },
+  {
     method: "post",
     route: "/leads",
     controller: UserController,

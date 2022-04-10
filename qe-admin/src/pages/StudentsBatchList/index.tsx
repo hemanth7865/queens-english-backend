@@ -72,6 +72,7 @@ import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
 import { Tabs } from 'antd';
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import Rebatching from "./components/Rebatching";
 
 const { TabPane } = Tabs;
 
@@ -264,9 +265,8 @@ const StudentsBatchList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
+  const [showRebatching, setShowRebatching] = useState<boolean>(false);
 
- 
-  
   const [error, setError] = useState('') 
 
 
@@ -2506,7 +2506,7 @@ const StudentsBatchList: React.FC = () => {
               </Row> */}
 
               </Row>  
-            <Row>
+            <Row gutter={16}>
                 <Col span={8}>
                   <Input
                     type="submit"
@@ -2514,7 +2514,9 @@ const StudentsBatchList: React.FC = () => {
                     style={{ color: "white", backgroundColor: "DodgerBlue" }}
                   />
                 </Col>
-                <Col span={8}></Col>
+                <Col span={8}>
+                  <Rebatching data={tempDataView} show={showRebatching} setShow={setShowRebatching} />
+                </Col>
                 <Col span={8}>
                   <Button
                     onClick={() => { openNotification(tempDataView.userId) }}

@@ -269,5 +269,16 @@ export class UserController {
         return msg;
     }
 
-
+    async getStudentActiveBatches(request: Request, response: Response, next: NextFunction) {
+        let resp;
+        const id: string = request.params.id;
+        try {
+            usersLogger.info("Fetching student Active Batches");
+            resp = await this.studentService.getStudentActiveBatches(id);
+        } catch (error) {
+            console.log(error);
+        }
+        console.log(resp);
+        return resp;
+    }
 }
