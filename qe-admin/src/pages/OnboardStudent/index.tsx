@@ -316,6 +316,7 @@ const StudentOnboard: React.FC = () => {
       batchCode: value.batchCode,
       zoomLink: value.zoomLink,
       zoomInfo: value.zoomInfo,
+      whatsappLink: value.whatsappLink,
       callStatus: value.callStatus,
       callBackon: value.callBackon,
       courseFrequency: value.courseFrequency,
@@ -589,6 +590,12 @@ const StudentOnboard: React.FC = () => {
           <EyeOutlined/>
         </a>)
       }
+    },
+    {
+      title: 'WhatsApp Group Link',
+      dataIndex: 'whatsappLink',
+      width: 250,
+      editable: true,
     },
     {
       title: 'WhatsApp Message Sent',

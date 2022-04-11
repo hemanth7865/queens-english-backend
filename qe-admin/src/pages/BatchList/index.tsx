@@ -63,6 +63,7 @@ const DEFAULT_FORM_DATA = {
   frequency: "",
   zoomInfo: "",
   zoomLink: "",
+  whatsappLink: "",
 };
 
 const PREMADE_FREQUENCY: {label: string, value: string}[] = [
@@ -219,6 +220,7 @@ const BatchList: React.FC = () => {
           batchNumber: formData.batchNumber,
           zoomLink: formData.zoomLink,
           zoomInfo: formData.zoomInfo,
+          whatsappLink: formData.whatsappLink,
           teacherId: teacherName.value,
           startingLessonId: startLesson,
           endingLessonId: endLesson,
@@ -305,7 +307,7 @@ const BatchList: React.FC = () => {
           // return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
 
           setFormData({...formData, classCode: batchData.classes.classCode,
-          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo});
+          batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink});
           setFollowupVersion(batchData.classes.followupVersion);
         }
         var tempObj = {
@@ -861,6 +863,22 @@ const BatchList: React.FC = () => {
                           name="zoomInfo"
                           value={formData.zoomInfo}
                           defaultValue={formData.zoomInfo}
+                          onChange={handleFormChange}
+                        />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                      <Form.Item
+                        name="whatsappLink"
+                        rules={[{ required: true, message: "Whatsapp Link" }]}
+                      >
+                        <Input
+                          type="text"
+                          placeholder="Whatsapp Link"
+                          name="whatsappLink"
+                          value={formData.whatsappLink}
+                          defaultValue={formData.whatsappLink}
                           onChange={handleFormChange}
                         />
                       </Form.Item>
