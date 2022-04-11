@@ -623,7 +623,7 @@ export class LQSService {
         element.address = item.mx_Custom_7;
         element.customerAddressState = item.mx_Custom_8;
         element.course = item.mx_Custom_9;
-        element.courseFrequency = item.mx_Custom_10?item.mx_Custom_10:item.mx_Custom_11;
+        element.courseFrequency = item.mx_Custom_10 !== "Other"?item.mx_Custom_10:item.mx_Custom_11;
         element.timings = item.mx_Custom_12;
         element.startingLevel = item.mx_Custom_13;
         element.startDate = item.mx_Custom_14;
@@ -632,10 +632,10 @@ export class LQSService {
         element.classessold = item.mx_Custom_17;
         element.subscription = item.mx_Custom_18;
         element.subscriptionNo = item.mx_Custom_19;
-        element.emi = item.mx_Custom_20?item.mx_Custom_20:item.mx_Custom_21;
-        element.emiMonths = item.mx_Custom_22?item.mx_Custom_22:item.mx_Custom_23;
-        element.downpayment = item.mx_Custom_24?item.mx_Custom_24:item.mx_Custom_25;
-        element.paymentMode = item.mx_Custom_26?item.mx_Custom_26:item.mx_Custom_27;
+        element.emi = item.mx_Custom_20 !== "Other" ?item.mx_Custom_20:item.mx_Custom_21;
+        element.emiMonths = item.mx_Custom_22 !== "Other" ?item.mx_Custom_22:item.mx_Custom_23;
+        element.downpayment = item.mx_Custom_24 !== "Other" ?item.mx_Custom_24:item.mx_Custom_25;
+        element.paymentMode = item.mx_Custom_26 !== "Other" ?item.mx_Custom_26:item.mx_Custom_27;
         element.transactionID = item.mx_Custom_28;
         element.bdaComments = item.mx_Custom_29;
         element.whatsapp = item.mx_Custom_30;
