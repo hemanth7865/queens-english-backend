@@ -96,6 +96,9 @@ export class Classes extends BaseEntity {
     zoomInfo: string;
 
     @Column({ 'nullable': true })
+    whatsappLink: string;
+
+    @Column({ 'nullable': true })
     activeLessonId: string;
     
     @Column({ 'nullable': true })

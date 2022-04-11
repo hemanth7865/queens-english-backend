@@ -381,6 +381,7 @@ export class BatchService {
       classes.frequency = data.frequency;
       classes.zoomLink = data.zoomLink;
       classes.zoomInfo = data.zoomInfo;
+      classes.whatsappLink = data.whatsappLink;
       classes.activeLessonId = data.activeLessonId;
       classes.created_at = new Date();
       classes.updated_at = new Date();
@@ -486,6 +487,7 @@ export class BatchService {
       classes.frequency = data.frequency;
       classes.zoomLink = data.zoomLink;
       classes.zoomInfo = data.zoomInfo;
+      classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
       
       if (data.id) {
@@ -738,7 +740,8 @@ export class BatchService {
         classes.lessonEndTime,
         classes.zoomLink,
         classes.zoomInfo,
-        classes.frequency
+        classes.frequency,
+        classes.whatsappLink,
       );
       view.activeLessonId = classes.activeLessonId;
       view.teacherId = classes.teacherId;
