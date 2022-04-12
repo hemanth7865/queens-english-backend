@@ -829,37 +829,39 @@ export class StudentService {
 
     for(let d of data){
       try{
-        const users = await getManager()
-        .createQueryBuilder(User, "user")
-        .where(`user.phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`)
+        if(!d["Registered Mobile Number"] || d["Registered Mobile Number"].length < 4){
+          if(!d["Student ID"] || d["Student ID"].length < 4){
+            continue;
+          }
+          d["Registered Mobile Number"] = "NOT_FOUND";
+        }
+
+        let students: any = await getManager()
+        .createQueryBuilder(Student, "student")
+        .where("student.studentID = :id", { id: d['Student ID'] })
         .getMany();
   
-        if(users.length < 1){
+        const user: any = await getManager()
+        .createQueryBuilder(User, "user")
+        .where("user.id = :id", { id: students[0]?.id})
+        .getOne();
+
+        if(students.length < 1 || !user){
           result.notFound++;
           result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
           continue;
         }
 
-        if(users.length > 1){
+        if(students.length > 1){
           result.duplicated++;
-          result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
-          for(let user of users){
+          result["duplicatedRecords"][d["Registered Mobile Number"]] = students;
+          for(let user of students){
             result["duplicatedRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID']});
           }
           continue;
         }
 
-        const user = users[0];
-
-        let student: any = await getManager()
-        .createQueryBuilder(Student, "student")
-        .where("student.id = :id", { id: user.id })
-        .getOne();
-
-        if(!student){
-          student = new Student;
-          student.id = user.id;
-        }
+        const student = students[0];
 
         user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
         student.studentID = d["Student ID"];
@@ -868,16 +870,8 @@ export class StudentService {
         const [pfirstName, plastName] = d["Full name of the customer"].split(" ");
         student.pfirstName = pfirstName;
         student.plastName = plastName;
-        user.whatsapp = d["Whatsapp Number"];
         user.alternativeMobile = d["Alternate Number"];
         user.customerEmail = d["Email ID of the customer"];
-        user.address = d["Customer Address"];
-        user.state = d["Customer Address - State"];
-        student.course = d["Course"];
-        student.courseFrequency = allowedReq[d["Course Frequency"]];
-        student.timings = d["Preferred Timings"].slice(0, 7);
-        student.startLesson = `Lesson ${d["Starting Level of the Student"].split(" ")[d["Starting Level of the Student"].split(" ").length - 1]}`;
-        student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
         student.payment.classessold = d["Number of classes sold"];
         student.payment.saleamount = d["Total Sale Amount (INR)"];
         student.payment.downpayment = d["Down payment (INR)"];
@@ -885,17 +879,16 @@ export class StudentService {
         student.payment.emiMonths = d["Number of months of EMI"];
         student.payment.paymentMode = d["Payment Mode"];
         student.payment.paymentid = d["Transaction ID"];
-        student.comments = d["BDA comments"];
-        user.dob = formatDate(d["Date of birth of the student"]);
         student.payment.plantype = d["Type of Sale"];
         student.payment.subscription = d["Subscription"];
-
+        student.payment.subscriptionNo = d["Sub Reference ID (if autodebit)"];
+        
         student.payment = [student.payment];
 
         const resultData = {...student, ...user};
 
         if(!query.test){
-          await this.saveStudentDetails(resultData);
+          await this.saveStudentSQL(resultData, user.id);
         }
 
         result.updated ++;
@@ -908,7 +901,6 @@ export class StudentService {
     /**
      * Map Data
      */
-    // saveStudentDetails
     return result;
   }
 
