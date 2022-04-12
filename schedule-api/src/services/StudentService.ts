@@ -232,7 +232,7 @@ export class StudentService {
           element.leadtype,
           element.type,
           studentOrTeacherId.join(","),
-          element.id,
+          element.studentID,
           element.dob?element.dob.toISOString().split('T')[0]:'',
           element.whatsapp,
           element.address,
@@ -820,13 +820,6 @@ export class StudentService {
       "notFoundRecordsIDs": [],
     };
 
-    const allowedReq = {
-      "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
-      "T-Th-S (Course duration - 8 Months)": "TTS",
-      "M-W-F (Course duration - 8 Months)": "MWF",
-      "Sa - S (Course duration - 14 Months)": "SS",
-    }
-
     for(let d of data){
       try{
         if(!d["Registered Mobile Number"] || d["Registered Mobile Number"].length < 4){
@@ -1121,7 +1114,9 @@ export class StudentService {
           student.classesPurchase = d["No of Classes"];
           student.address = d["Address"];
           student.status = allowedStatuses[d["Status"]];
+          student.startLesson = d["Start Lesson"] && d["Start Lesson"].length > 0 ? "lesson " + d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]: undefined;
           user.status = allowedStatuses[d["Status"]];
+
           let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
           where cl.batchNumber = '${d['Batch Code']}' AND bs.studentId = "${user.id}"`;
 
