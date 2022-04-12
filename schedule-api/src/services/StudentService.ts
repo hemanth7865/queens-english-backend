@@ -1026,6 +1026,9 @@ export class StudentService {
       for(let d of data){
         try{
           if(!d[primaryColumn] || d[primaryColumn].length < 4){
+            if(!d["Student ID"] || d["Student ID"].length < 4){
+              continue;
+            }
             d[primaryColumn] = "NOT_FOUND";
           }
   
