@@ -829,45 +829,78 @@ export class StudentService {
           d["Registered Mobile Number"] = "NOT_FOUND";
         }
 
-        let students: any = await getManager()
-        .createQueryBuilder(Student, "student")
-        .where("student.studentID = :id", { id: d['Student ID'] })
-        .getMany();
-  
-        const user: any = await getManager()
-        .createQueryBuilder(User, "user")
-        .where("user.id = :id", { id: students[0]?.id})
-        .getOne();
+        let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`);
 
-        if(students.length < 1 || !user){
+        if(users.length < 1){
+          let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
+          if(students.length > 0){
+            users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
+          }
+        }
+
+        if(users.length < 1){
           result.notFound++;
           result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
           continue;
         }
 
-        if(students.length > 1){
+        if(users.length > 1){
+          let tmpUsers = [];
+          for(let user of users){
+            let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
+            LEFT JOIN classes cl on cl.id = bs.batchId
+            where bs.studentId = "${user.id}"`;
+
+            let ids = await getManager().query(bathCodeQuery); 
+
+            ids = ids.map(i => {
+              i.user = user;
+              return i;
+            })
+            if(ids.length > 0){
+              tmpUsers.push(user);
+            }
+          }
+
+          if(tmpUsers.length > 0){
+            users = tmpUsers;
+          }
+          
+          if(users.length > 1){
+            let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
+            if(students.length > 0){
+              users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
+            }
+          }
+        }
+
+        if(users.length > 1){
           result.duplicated++;
-          result["duplicatedRecords"][d["Registered Mobile Number"]] = students;
-          for(let user of students){
+          result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
+          for(let user of users){
             result["duplicatedRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID']});
           }
           continue;
         }
 
-        const student = students[0];
+        const user = users[0];
 
-        user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
-        student.studentID = d["Student ID"];
+        let student: any = await getManager()
+        .createQueryBuilder(Student, "student")
+        .where("student.id = :id", { id: user.id })
+        .getOne();
+
+        if(!student){
+          result.notFound++;
+          result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
+          continue;
+        }
+
         student.payment = new Payment();
         student.payment.dateofsale = formatDate(d["Date of Sale"]);
-        const [pfirstName, plastName] = d["Full name of the customer"].split(" ");
-        student.pfirstName = pfirstName;
-        student.plastName = plastName;
-        user.alternativeMobile = d["Alternate Number"];
-        user.customerEmail = d["Email ID of the customer"];
-        student.payment.classessold = d["Number of classes sold"];
+        student.payment.classessold = parseInt(d["Number of classes sold"]);
         student.payment.saleamount = d["Total Sale Amount (INR)"];
-        student.payment.downpayment = d["Down payment (INR)"];
+        student.payment.downpayment = parseInt(d["Down payment (INR)"]);
         student.payment.emi = d["EMI Amount (INR)"];
         student.payment.emiMonths = d["Number of months of EMI"];
         student.payment.paymentMode = d["Payment Mode"];
@@ -989,7 +1022,7 @@ export class StudentService {
       "Inactive": undefined,
       "On Leave": "onleave",
       "Batching pending": "batching",
-      "Create a batch": "createbatch",
+      "Create a batch": "createBatch",
       "Start class later": "startclasslater",
       "Onboarding Pending": "onboarding",
       "DNP 3": undefined,
