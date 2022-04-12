@@ -636,6 +636,22 @@ export class StudentService {
     }
   }
 
+
+  async saveStudentPaymentSQL(payments: Payment[]) {
+    try {
+      let returnPayments: Payment[] = [];
+      for (let element of payments) {
+          const payment =  await this.paymentRepository.save(element);
+          returnPayments.push(payment);
+          usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+      }
+      return {payments: returnPayments};
+    } catch (error) {
+      console.log(error);
+     return {status:500, error:"Unable to save student payment"}
+    }
+  }
+
   setStudentData = (element: any, id): Student => {
     let student = new Student();
     console.log("student id is ", id);
@@ -897,10 +913,12 @@ export class StudentService {
         }
 
         student.payment = new Payment();
+        student.payment.id = user.id;
+        student.payment.studentId = user.id;
         student.payment.dateofsale = formatDate(d["Date of Sale"]);
-        student.payment.classessold = parseInt(d["Number of classes sold"]);
+        student.payment.classessold = parseInt(d["Number of classes sold"]) || 0;
         student.payment.saleamount = d["Total Sale Amount (INR)"];
-        student.payment.downpayment = parseInt(d["Down payment (INR)"]);
+        student.payment.downpayment = parseInt(d["Down payment (INR)"]) || 0;
         student.payment.emi = d["EMI Amount (INR)"];
         student.payment.emiMonths = d["Number of months of EMI"];
         student.payment.paymentMode = d["Payment Mode"];
@@ -911,10 +929,8 @@ export class StudentService {
         
         student.payment = [student.payment];
 
-        const resultData = {...student, ...user};
-
         if(!query.test){
-          await this.saveStudentSQL(resultData, user.id);
+          await this.saveStudentPaymentSQL(student.payment);
         }
 
         result.updated ++;
