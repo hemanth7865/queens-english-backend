@@ -986,17 +986,17 @@ export class StudentService {
 
     const allowedStatuses = {
       "Active": "active",
-      "Inactive": "inactive",
+      "Inactive": undefined,
       "On Leave": "onleave",
       "Batching pending": "batching",
-      "Create a batch": undefined,
+      "Create a batch": "createbatch",
       "Start class later": "startclasslater",
       "Onboarding Pending": "onboarding",
       "DNP 3": undefined,
       "DNP 1": undefined,
       "Placement Test pending": "Enrolled",
       "": undefined,
-      "Refund": "refund",
+      "Refund": undefined,
       "First class pending": undefined,
       "Welcome call pending": "Enrolled",
     };
