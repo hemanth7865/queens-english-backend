@@ -1029,13 +1029,10 @@ export class StudentService {
             d[primaryColumn] = "NOT_FOUND";
           }
   
-          let alternativeMobileSearch = d["Whatsapp Number"] && d["Whatsapp Number"].length > 4 ? ` OR user.phoneNumber LIKE '%${d["Whatsapp Number"]}%' ` : '';
+          let alternativeMobileSearch = d["WA contact number"] && d["WA contact number"].length > 4 ? ` OR phoneNumber LIKE '%${d["WA contact number"]}%' ` : '';
 
-          let users = await getManager()
-          .createQueryBuilder(User, "user")
-          .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%' ${alternativeMobileSearch}`)
-          .getMany();
-          
+          let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d[primaryColumn]}%'${alternativeMobileSearch}`);
+
           if(users.length > 1){
             users = await getManager()
             .createQueryBuilder(User, "user")
@@ -1114,7 +1111,7 @@ export class StudentService {
           student.age = d["Age"]
           student.studentID = d["Student ID"];
           student.courseFrequency = allowedReq[d["Days"]];
-          user.whatsapp = d["Whatsapp Number"];
+          user.whatsapp = d["WA contact number"];
           student.comments = d["Comments"];
           student.timings = d["Time"];
           user.dob = formatDate(d["DOB"]);
