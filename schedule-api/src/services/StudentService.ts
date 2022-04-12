@@ -232,7 +232,7 @@ export class StudentService {
           element.leadtype,
           element.type,
           studentOrTeacherId.join(","),
-          element.id,
+          element.studentID,
           element.dob?element.dob.toISOString().split('T')[0]:'',
           element.whatsapp,
           element.address,
@@ -820,46 +820,41 @@ export class StudentService {
       "notFoundRecordsIDs": [],
     };
 
-    const allowedReq = {
-      "M-T-W-Th-F (Course duration - 5 Months)": "MTWTF",
-      "T-Th-S (Course duration - 8 Months)": "TTS",
-      "M-W-F (Course duration - 8 Months)": "MWF",
-      "Sa - S (Course duration - 14 Months)": "SS",
-    }
-
     for(let d of data){
       try{
-        const users = await getManager()
-        .createQueryBuilder(User, "user")
-        .where(`user.phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`)
+        if(!d["Registered Mobile Number"] || d["Registered Mobile Number"].length < 4){
+          if(!d["Student ID"] || d["Student ID"].length < 4){
+            continue;
+          }
+          d["Registered Mobile Number"] = "NOT_FOUND";
+        }
+
+        let students: any = await getManager()
+        .createQueryBuilder(Student, "student")
+        .where("student.studentID = :id", { id: d['Student ID'] })
         .getMany();
   
-        if(users.length < 1){
+        const user: any = await getManager()
+        .createQueryBuilder(User, "user")
+        .where("user.id = :id", { id: students[0]?.id})
+        .getOne();
+
+        if(students.length < 1 || !user){
           result.notFound++;
           result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
           continue;
         }
 
-        if(users.length > 1){
+        if(students.length > 1){
           result.duplicated++;
-          result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
-          for(let user of users){
+          result["duplicatedRecords"][d["Registered Mobile Number"]] = students;
+          for(let user of students){
             result["duplicatedRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID']});
           }
           continue;
         }
 
-        const user = users[0];
-
-        let student: any = await getManager()
-        .createQueryBuilder(Student, "student")
-        .where("student.id = :id", { id: user.id })
-        .getOne();
-
-        if(!student){
-          student = new Student;
-          student.id = user.id;
-        }
+        const student = students[0];
 
         user.created_at = moment(d["Timestamp"], "DD-MM-YYYY hh:mm").format("YYYY-MM-DD hh:mm:ss");
         student.studentID = d["Student ID"];
@@ -868,16 +863,8 @@ export class StudentService {
         const [pfirstName, plastName] = d["Full name of the customer"].split(" ");
         student.pfirstName = pfirstName;
         student.plastName = plastName;
-        user.whatsapp = d["Whatsapp Number"];
         user.alternativeMobile = d["Alternate Number"];
         user.customerEmail = d["Email ID of the customer"];
-        user.address = d["Customer Address"];
-        user.state = d["Customer Address - State"];
-        student.course = d["Course"];
-        student.courseFrequency = allowedReq[d["Course Frequency"]];
-        student.timings = d["Preferred Timings"].slice(0, 7);
-        student.startLesson = `Lesson ${d["Starting Level of the Student"].split(" ")[d["Starting Level of the Student"].split(" ").length - 1]}`;
-        student.startDate = formatDate(d["Tentative Start Date (as requested by the customer)"]);
         student.payment.classessold = d["Number of classes sold"];
         student.payment.saleamount = d["Total Sale Amount (INR)"];
         student.payment.downpayment = d["Down payment (INR)"];
@@ -885,17 +872,16 @@ export class StudentService {
         student.payment.emiMonths = d["Number of months of EMI"];
         student.payment.paymentMode = d["Payment Mode"];
         student.payment.paymentid = d["Transaction ID"];
-        student.comments = d["BDA comments"];
-        user.dob = formatDate(d["Date of birth of the student"]);
         student.payment.plantype = d["Type of Sale"];
         student.payment.subscription = d["Subscription"];
-
+        student.payment.subscriptionNo = d["Sub Reference ID (if autodebit)"];
+        
         student.payment = [student.payment];
 
         const resultData = {...student, ...user};
 
         if(!query.test){
-          await this.saveStudentDetails(resultData);
+          await this.saveStudentSQL(resultData, user.id);
         }
 
         result.updated ++;
@@ -908,7 +894,6 @@ export class StudentService {
     /**
      * Map Data
      */
-    // saveStudentDetails
     return result;
   }
 
@@ -1001,17 +986,17 @@ export class StudentService {
 
     const allowedStatuses = {
       "Active": "active",
-      "Inactive": "inactive",
+      "Inactive": undefined,
       "On Leave": "onleave",
       "Batching pending": "batching",
-      "Create a batch": undefined,
+      "Create a batch": "createbatch",
       "Start class later": "startclasslater",
       "Onboarding Pending": "onboarding",
       "DNP 3": undefined,
       "DNP 1": undefined,
-      "Placement Test pending": undefined,
+      "Placement Test pending": "Enrolled",
       "": undefined,
-      "Refund": "refund",
+      "Refund": undefined,
       "First class pending": undefined,
       "Welcome call pending": "Enrolled",
     };
@@ -1026,16 +1011,18 @@ export class StudentService {
       for(let d of data){
         try{
           if(!d[primaryColumn] || d[primaryColumn].length < 4){
+            if(!d["Student ID"] || d["Student ID"].length < 4){
+              continue;
+            }
             d[primaryColumn] = "NOT_FOUND";
           }
   
-          let alternativeMobileSearch = d["Whatsapp Number"] && d["Whatsapp Number"].length > 4 ? ` OR user.phoneNumber LIKE '%${d["Whatsapp Number"]}%' ` : '';
+          let alternativeMobileSearch = d["WA contact number"] && d["WA contact number"].length > 4 ? ` OR phoneNumber LIKE '%${d["WA contact number"]}%' ` : '';
 
-          let users = await getManager()
-          .createQueryBuilder(User, "user")
-          .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%' ${alternativeMobileSearch}`)
-          .getMany();
-          
+          d[primaryColumn] = d[primaryColumn].replace(/ /g, "").replace(/\(/g, "").replace(/\)/g, "");
+
+          let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d[primaryColumn]}%'${alternativeMobileSearch}`);
+
           if(users.length > 1){
             users = await getManager()
             .createQueryBuilder(User, "user")
@@ -1114,7 +1101,7 @@ export class StudentService {
           student.age = d["Age"]
           student.studentID = d["Student ID"];
           student.courseFrequency = allowedReq[d["Days"]];
-          user.whatsapp = d["Whatsapp Number"];
+          user.whatsapp = d["WA contact number"];
           student.comments = d["Comments"];
           student.timings = d["Time"];
           user.dob = formatDate(d["DOB"]);
@@ -1127,7 +1114,9 @@ export class StudentService {
           student.classesPurchase = d["No of Classes"];
           student.address = d["Address"];
           student.status = allowedStatuses[d["Status"]];
+          student.startLesson = d["Start Lesson"] && d["Start Lesson"].length > 0 ? "lesson " + d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]: undefined;
           user.status = allowedStatuses[d["Status"]];
+
           let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
           where cl.batchNumber = '${d['Batch Code']}' AND bs.studentId = "${user.id}"`;
 
