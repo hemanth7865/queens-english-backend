@@ -1,10 +1,9 @@
-import { Button, Input, Table, Drawer, Form, Typography, Row, Col, Spin, Radio, notification} from "antd";
+import { Button, Input, Table, Drawer, Form, Typography, Row, Col, Spin} from "antd";
 import React, { useState, useEffect } from "react";
 import {studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
 import {timeISTToLocalTimezone} from "@/services/ant-design-pro/helpers";
 import moment from "moment";
 import Batch from './components/Batch';
-import { updateUserStatus } from "@/services/ant-design-pro/api";
 
 interface Item {
   id: string;
@@ -25,8 +24,6 @@ const StudentOnboard: React.FC = () => {
   const [tmpDate, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [needBatch, setNeedBatch] = useState<any>();
-  const [needBatchtmpData, setNeedBatchtmpData] = useState<any>();
 
   const edit = (record: Partial<Item> & { id: React.Key }) => {
     form.setFieldsValue(record);
@@ -38,14 +35,10 @@ const StudentOnboard: React.FC = () => {
     setVisibleEdit(false);
   };
 
-  const onChange = ( value: any) => {
-    setNeedBatchtmpData(value)
-  };
-
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('batching', {
+      let msg = await studentsDashboard('createBatch', {
           current,
           pageSize}
       );
@@ -64,45 +57,6 @@ const StudentOnboard: React.FC = () => {
     studentGetApi()
   }, []);
 
-  const openNotificationWithIcon = (type: string, msg = { status: 200, data: 'Error received during adding batch' }) => {
-    notification[type]({
-      message: `Status ${type}` ,
-      description:
-      msg.data,
-    });
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
-  };
-
-  const submitUpdateStudent = async (value: any)=>{
-    const msg = await updateUserStatus({
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify(value),
-    });
-    if (msg.status === 400) {
-        openNotificationWithIcon('error', { status: 400, data: 'Failed To Mark Student Status As Onboarding' })
-    } else {
-        openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Create Batch' });
-    }
-
-    return msg;
-  }
-
-  useEffect(async()=>{
-    if(needBatch){
-      setIsLoading(true);
-      let success = true;
-      console.log('calling useeffect for needbatch', needBatchtmpData)
-      const result = await submitUpdateStudent({...needBatchtmpData, status: "createBatch", callStatus: "", callBackon: "", waMessageSent: ""});
-
-      if(result.status !== 200){
-        success = false;
-    }
-    }
-  }, [needBatch])
 
   const columns = [
     {
@@ -174,19 +128,6 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'Need to create a batch ?',
-      width: 220,
-      render: (_: any, record: Item)=>{
-        //console.log('value', value)
-        return (
-          <Radio.Group onChange={()=>{onChange(record)}}>
-            <Radio value={true} onChange={()=>{setNeedBatch(true)}}>Yes</Radio>
-            <Radio value={false} onChange={()=>{setNeedBatch(false)}}>No</Radio>
-          </Radio.Group>
-        )
-      }
-    },
-    {
       title: 'operation',
       dataIndex: 'operation',
       width: 150,
@@ -199,7 +140,6 @@ const StudentOnboard: React.FC = () => {
     },
   ];
 
-  console.log('tempData', needBatch, needBatchtmpData)
 
   //Search Inputs
   const handleInputChange = (e: any) => {
@@ -298,7 +238,7 @@ const StudentOnboard: React.FC = () => {
           }}
           visible={visibleEdit}
           width={960}>
-            <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit}/>
+            <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
         </Drawer>
       </Spin>
     </>

@@ -50,7 +50,7 @@
         component: './NewAssessment'
       },
       {
-        name: 'Dashboard',
+        name: 'Onboard',
         path: '/manage/dashboard',
         routes: [
           {
@@ -72,6 +72,11 @@
             name: 'Batching',
             path: '/manage/dashboard/batching',
             component: './BatchingStudent',
+          },
+          {
+            name: 'Create Batch',
+            path: '/manage/dashboard/needBatch',
+            component: './NeedBatch',
           },
           {
             name: 'Onboarding',
