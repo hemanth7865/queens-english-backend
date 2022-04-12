@@ -666,6 +666,7 @@ const TeacherBatchList: React.FC = () => {
   let leadAvailabilities = [];
   let leadTotal = [];
   console.log('LA',  leadAvailabilities, leadTotal)
+
   //lead availability
   const WeekdayAvailability = (props) => {
     const [value, setValue] = useState({
@@ -685,11 +686,19 @@ const TeacherBatchList: React.FC = () => {
     let dataLead = props.tempData;
     let slotStart, slotEnd;
     let leadSlot;
+    //console.log('datalead outside', dataLead)
+    
     if (dataLead) {
+      if(dataLead.length > 1){
+        console.log('length is more than one', dataLead)
+        dataLead.map((data)=>{
+          console.log('data map', data)
+        })
+      }
       dataLead = dataLead.toString();
       slotStart = dataLead.split(",")[0].slice(4);
       slotEnd = dataLead.split(",")[1];
-      console.log("slotss", slotStart);
+      console.log("slotss", dataLead, slotStart, slotEnd);
       leadSlot = {
         start_slot: slotStart,
         end_slot: slotEnd,
@@ -713,12 +722,25 @@ const TeacherBatchList: React.FC = () => {
       <Row style={{ margin: 5 }}>
         <Col span={7}>
           {dataLead ? 
+            props.tempData.length>1 ? (
+              props.tempData.map((items)=>{
+                return <Checkbox
+                        name="extra"
+                        checked="true"
+                        //onChange={(e) => setValue1(props.weekday)}
+                      >
+                        {console.log('Displaying in the for loop', props.tempData, items)}
+                        {props.week}
+                    </Checkbox>
+              })
+            ) : 
           (
             <Checkbox
               name="weekday"
               checked="true"
               onChange={(e) => setValue1(props.weekday)}
             >
+              {console.log('Displaying out of the for loop')}
               {props.week}
             </Checkbox>
           ) : (
@@ -728,7 +750,21 @@ const TeacherBatchList: React.FC = () => {
           )}
         </Col>
         <Col span={14}>
-          {dataLead ? (
+          {dataLead ? props.tempData.length>1 ? (
+              props.tempData.map((items)=>{
+                console.log('slots in for loop', slotStart, slotEnd, items.slotEnd)
+                return <TimePicker.RangePicker
+                format={format}
+                defaultValue={[
+                  moment(`${slotStart}`, format),
+                  moment(`${slotEnd}`, format),
+                ]}
+                onChange={(time, timeString) => {
+                  setValue(timeString);
+                }}
+              />
+              })
+            ) : (
             <TimePicker.RangePicker
               format={format}
               defaultValue={[
@@ -1181,7 +1217,7 @@ const TeacherBatchList: React.FC = () => {
                       <Form.List name="users">
                         {(fields, { add, remove }) => (
                           <>
-                            {fields.map(({ key, ...restField }) => (
+                            {fields.map(({ key, name, ...restField }) => (
                               
                               <Space key={key} style={{ display: 'flex'}} align="baseline">
                                 {console.log('key', key)}
