@@ -95,9 +95,7 @@ const StudentOnboard: React.FC = () => {
     if(needBatch){
       setIsLoading(true);
       let success = true;
-      console.log('calling useeffect for needbatch', needBatchtmpData)
       const result = await submitUpdateStudent({...needBatchtmpData, status: "createBatch", callStatus: "", callBackon: "", waMessageSent: ""});
-
       if(result.status !== 200){
         success = false;
     }
@@ -177,7 +175,6 @@ const StudentOnboard: React.FC = () => {
       title: 'Need to create a batch ?',
       width: 220,
       render: (_: any, record: Item)=>{
-        //console.log('value', value)
         return (
           <Radio.Group onChange={()=>{onChange(record)}}>
             <Radio value={true} onChange={()=>{setNeedBatch(true)}}>Yes</Radio>
@@ -198,8 +195,6 @@ const StudentOnboard: React.FC = () => {
       ,
     },
   ];
-
-  console.log('tempData', needBatch, needBatchtmpData)
 
   //Search Inputs
   const handleInputChange = (e: any) => {
