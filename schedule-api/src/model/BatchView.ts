@@ -18,10 +18,11 @@ import { User } from "../entity/User";
             zoomLink:string;  
             zoomInfo:string;  
             frequency:string;  
+            whatsappLink: string;
             activeLessonId?:string;
             teacherId?: string;  
 
-            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string) {
+            public constructor(id:string,date:Date,batchId:string,createdBy:string,teacher:string,students:number,timeSlot:string,dateSlot:string,stauts:string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string, whatsappLink?: string) {
                 this.id = id;
                 this.date=date;
                 this.batchId=batchId;
@@ -39,6 +40,7 @@ import { User } from "../entity/User";
                 this.zoomLink = zoomLink;
                 this.zoomInfo = zoomInfo;
                 this.frequency = frequency;
+                this.whatsappLink = whatsappLink;
             }          
             
     }
