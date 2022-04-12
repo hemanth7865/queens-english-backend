@@ -583,8 +583,10 @@ const TeacherBatchList: React.FC = () => {
 
   const handleFormSubmitEdit = async () => {
     setIsLoading(true);
-    const leadArray = [ ...leadAvailabilities, ...extraWeek]
-    console.log("form submitted", leadAvailabilities, extraWeek);
+    leadTotal.forEach((e) => {
+      delete e.user_key;
+    });
+    const leadArray = [ ...leadAvailabilities, ...leadTotal ]
     const dataForm = {
       teacherId: formData.teacherId
       ? formData.teacherId
@@ -638,9 +640,8 @@ const TeacherBatchList: React.FC = () => {
         },
       ],
       status: selectStatus ? selectStatus : tempDataView.status,
-      leadAvailability: leadAvailabilities,
+      leadAvailability: leadArray,
     };
-    console.log('dataForm edit', dataForm)
     // async (values: API.LoginParams) => {
     if (tempDataView) {
       dataForm.id = tempDataView.id;
@@ -689,21 +690,16 @@ const TeacherBatchList: React.FC = () => {
     let dataLead = props.tempData;
     let slotStart, slotEnd;
     let leadSlot;
-    //console.log('datalead outside', dataLead)
     
     let slotStartRepeat = [];
     let slotEndRepeat = [];
     if (dataLead) {
       if(dataLead.length > 1){
-        //console.log('length is more than one', dataLead)
         dataLead.map((data)=>{
-          //console.log('data map', data)
           data = data.toString();
           slotStart = data.split(",")[0].slice(4);
-          //slotStartRepeat.push({slotStart: slotStart})
           slotEnd = data.split(",")[1];
           slotStartRepeat.push({slotStart: slotStart, slotEnd: slotEnd})
-          //console.log("slotss", data, slotStart, slotEnd);
           leadSlot = {
             start_slot: slotStart,
             end_slot: slotEnd,
@@ -716,7 +712,6 @@ const TeacherBatchList: React.FC = () => {
       dataLead = dataLead.toString();
       slotStart = dataLead.split(",")[0].slice(4);
       slotEnd = dataLead.split(",")[1];
-      //console.log("slotss", dataLead, slotStart, slotEnd);
       leadSlot = {
         start_slot: slotStart,
         end_slot: slotEnd,
@@ -724,7 +719,6 @@ const TeacherBatchList: React.FC = () => {
         weekday: props.weekday,
       };
     }
-    //console.log('leadslot', leadSlot, extraWeek, slotStartRepeat, slotEndRepeat)
     if (
       leadWeekAvailability.start_slot &&
       leadWeekAvailability.end_slot &&
@@ -732,9 +726,6 @@ const TeacherBatchList: React.FC = () => {
     ) {
       leadAvailabilities.push(leadWeekAvailability);
     }
-    // if (dataLead) {
-    //   leadAvailabilities.push(leadSlot);
-    // }
 
 
     const format = "HH:mm";
@@ -761,7 +752,6 @@ const TeacherBatchList: React.FC = () => {
               checked="true"
               onChange={(e) => setValue1(props.weekday)}
             >
-              {console.log('Displaying out of the for loop')}
               {props.week}
             </Checkbox>
           ) : (
@@ -1676,6 +1666,29 @@ const TeacherBatchList: React.FC = () => {
                       week="Sunday"
                       tempData={sunday}
                     />
+                     <Form.List name="users">
+                        {(fields, { add, remove }) => (
+                          <>
+                            {fields.map(({ key, name, ...restField }) => (
+                              
+                              <Space key={key} style={{ display: 'flex'}} align="baseline">
+                                {console.log('key', key)}
+                                <Form.Item
+                                  {...restField}
+                                >
+                                  <ExtraWeekdayAvailability key = {key}/>
+                                </Form.Item>
+                                <MinusCircleOutlined onClick={() => remove(name)} />
+                              </Space>
+                            ))}
+                            <Form.Item>
+                              <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                               Extra Availability
+                              </Button>
+                            </Form.Item>
+                          </>
+                        )}
+                      </Form.List>
                   </Form.Item>
                 </Col>
               </Row>
