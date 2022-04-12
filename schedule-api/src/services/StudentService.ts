@@ -1034,7 +1034,7 @@ export class StudentService {
   
           let alternativeMobileSearch = d["WA contact number"] && d["WA contact number"].length > 4 ? ` OR phoneNumber LIKE '%${d["WA contact number"]}%' ` : '';
 
-          d[primaryColumn] = d[primaryColumn].replaceAll(" ", "").replaceAll("(", "").replaceAll(")", "");
+          d[primaryColumn] = d[primaryColumn].replace(/ /g, "").replace(/\(/g, "").replace(/\)/g, "");
 
           let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d[primaryColumn]}%'${alternativeMobileSearch}`);
 
