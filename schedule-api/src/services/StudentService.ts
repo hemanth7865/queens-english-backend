@@ -994,7 +994,7 @@ export class StudentService {
       "Onboarding Pending": "onboarding",
       "DNP 3": undefined,
       "DNP 1": undefined,
-      "Placement Test pending": undefined,
+      "Placement Test pending": "Enrolled",
       "": undefined,
       "Refund": "refund",
       "First class pending": undefined,
