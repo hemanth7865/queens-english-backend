@@ -418,7 +418,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
   const formSubmit = async (value: any)=>{
       setIsLoading(true);
       const dataForm = {
-        leadId: value.studentID,
+        leadId: value.id,
         firstName: value.firstName,
         lastName: value.lastName,
         phoneNumber: value.phoneNumber,
@@ -447,12 +447,12 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
         payment: [{
           paymentid: value.paymentid,
-          studentId: value.studentID,
+          studentId: value.id,
           classessold: value.classessold,
           saleamount: value.saleamount,
           downpayment: value.downpayment,
           classtype:'',
-          leadId: value.studentID,
+          leadId: value.id,
           id: value.id,
           subscription: value.subscription,
           subscriptionNo: value.subscriptionNo,

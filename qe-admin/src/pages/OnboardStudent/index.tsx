@@ -295,7 +295,7 @@ const StudentOnboard: React.FC = () => {
   const formSubmit = async (value: any)=>{
     setIsLoading(true);
     const dataForm = {
-      leadId: value.studentID,
+      leadId: value.id,
       firstName: value.firstName,
       lastName: value.lastName,
       phoneNumber: value.phoneNumber,

@@ -383,7 +383,7 @@ const StudentOnboard: React.FC = () => {
   const formSubmit = async (value: any)=>{
     setIsLoading(true);
     const dataForm = {
-      leadId: value.studentID,
+      leadId: value.id,
       firstName: value.firstName,
       lastName: value.lastName,
       phoneNumber: value.phoneNumber,
@@ -409,12 +409,12 @@ const StudentOnboard: React.FC = () => {
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
-        studentId: value.studentID,
+        studentId: value.id,
         classessold: value.classessold,
         saleamount: value.saleamount,
         downpayment: value.downpayment,
         classtype:'',
-        leadId: value.studentID,
+        leadId: value.id,
         id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
@@ -469,7 +469,7 @@ const StudentOnboard: React.FC = () => {
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink,   ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink,   ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
