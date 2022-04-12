@@ -583,7 +583,8 @@ const TeacherBatchList: React.FC = () => {
 
   const handleFormSubmitEdit = async () => {
     setIsLoading(true);
-    console.log("form submitted");
+    const leadArray = [ ...leadAvailabilities, ...extraWeek]
+    console.log("form submitted", leadAvailabilities, extraWeek);
     const dataForm = {
       teacherId: formData.teacherId
       ? formData.teacherId
@@ -639,6 +640,7 @@ const TeacherBatchList: React.FC = () => {
       status: selectStatus ? selectStatus : tempDataView.status,
       leadAvailability: leadAvailabilities,
     };
+    console.log('dataForm edit', dataForm)
     // async (values: API.LoginParams) => {
     if (tempDataView) {
       dataForm.id = tempDataView.id;
@@ -665,7 +667,8 @@ const TeacherBatchList: React.FC = () => {
 
   let leadAvailabilities = [];
   let leadTotal = [];
-  console.log('LA',  leadAvailabilities, leadTotal)
+  let extraWeek = [];
+  console.log('LA',  leadAvailabilities, leadTotal, extraWeek)
 
   //lead availability
   const WeekdayAvailability = (props) => {
@@ -688,17 +691,32 @@ const TeacherBatchList: React.FC = () => {
     let leadSlot;
     //console.log('datalead outside', dataLead)
     
+    let slotStartRepeat = [];
+    let slotEndRepeat = [];
     if (dataLead) {
       if(dataLead.length > 1){
-        console.log('length is more than one', dataLead)
+        //console.log('length is more than one', dataLead)
         dataLead.map((data)=>{
-          console.log('data map', data)
+          //console.log('data map', data)
+          data = data.toString();
+          slotStart = data.split(",")[0].slice(4);
+          //slotStartRepeat.push({slotStart: slotStart})
+          slotEnd = data.split(",")[1];
+          slotStartRepeat.push({slotStart: slotStart, slotEnd: slotEnd})
+          //console.log("slotss", data, slotStart, slotEnd);
+          leadSlot = {
+            start_slot: slotStart,
+            end_slot: slotEnd,
+            weekday: props.weekday,
+            start_date: dateStart ? dateStart : tempDataView.startDate,
+          };
+          extraWeek.push(leadSlot)
         })
       }
       dataLead = dataLead.toString();
       slotStart = dataLead.split(",")[0].slice(4);
       slotEnd = dataLead.split(",")[1];
-      console.log("slotss", dataLead, slotStart, slotEnd);
+      //console.log("slotss", dataLead, slotStart, slotEnd);
       leadSlot = {
         start_slot: slotStart,
         end_slot: slotEnd,
@@ -706,6 +724,7 @@ const TeacherBatchList: React.FC = () => {
         weekday: props.weekday,
       };
     }
+    //console.log('leadslot', leadSlot, extraWeek, slotStartRepeat, slotEndRepeat)
     if (
       leadWeekAvailability.start_slot &&
       leadWeekAvailability.end_slot &&
@@ -713,9 +732,10 @@ const TeacherBatchList: React.FC = () => {
     ) {
       leadAvailabilities.push(leadWeekAvailability);
     }
-    if (dataLead) {
-      leadAvailabilities.push(leadSlot);
-    }
+    // if (dataLead) {
+    //   leadAvailabilities.push(leadSlot);
+    // }
+
 
     const format = "HH:mm";
     return (
@@ -724,14 +744,15 @@ const TeacherBatchList: React.FC = () => {
           {dataLead ? 
             props.tempData.length>1 ? (
               props.tempData.map((items)=>{
-                return <Checkbox
-                        name="extra"
-                        checked="true"
-                        //onChange={(e) => setValue1(props.weekday)}
-                      >
-                        {console.log('Displaying in the for loop', props.tempData, items)}
-                        {props.week}
-                    </Checkbox>
+                return <Col style = {{marginLeft: -5, margin: 7}}>
+                        <Checkbox
+                              name="extra"
+                              checked="true"
+                              onChange={(e) => setValue1(props.weekday)}
+                            >
+                              {props.week}
+                          </Checkbox>
+                      </Col>
               })
             ) : 
           (
@@ -751,13 +772,12 @@ const TeacherBatchList: React.FC = () => {
         </Col>
         <Col span={14}>
           {dataLead ? props.tempData.length>1 ? (
-              props.tempData.map((items)=>{
-                console.log('slots in for loop', slotStart, slotEnd, items.slotEnd)
+              slotStartRepeat.map((items)=>{
                 return <TimePicker.RangePicker
                 format={format}
                 defaultValue={[
-                  moment(`${slotStart}`, format),
-                  moment(`${slotEnd}`, format),
+                  moment(`${items.slotStart}`, format),
+                  moment(`${items.slotEnd}`, format),
                 ]}
                 onChange={(time, timeString) => {
                   setValue(timeString);
