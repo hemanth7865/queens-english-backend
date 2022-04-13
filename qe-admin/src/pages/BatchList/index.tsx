@@ -42,6 +42,7 @@ import DebounceSelect from "@/components/DebounceSelect";
 import {LESSONS} from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
 import Students from "./components/Students";
+import View from "./components/View";
 
 const Option = Select.Option;
 
@@ -572,15 +573,6 @@ const BatchList: React.FC = () => {
 
   const dateFormat = "YYYY-MM-DD";
 
-  const timeSlotHandler = (entity: any): string => {
-    try{
-      return format(parseISO(entity.lessonStartTime!), "hh:mm a") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm a")
-    }catch(e){
-      console.log("timeSlotHandler", e);
-    }
-    return " - ";
-  }
-
   return (
     <PageContainer>
       <ProTable<API.batchItem, API.PageParams>
@@ -946,78 +938,7 @@ const BatchList: React.FC = () => {
                     }
                   />
                 )}
-                <div className="title">{
-                  tempData?.batchId
-                }</div>
-                <Row>
-                  <Col span={8}>
-                    <div className="label">Creation Date</div>
-                    <div className="label">Class Date</div>
-                    <div className="label">Created By</div>
-                    <div className="label">Assigned Teacher</div>
-                    <div className="label">Start Lesson</div>
-                    <div className="label">End Lesson</div>
-                    <div className="label">Active Lesson</div>
-                    <div className="label">Student</div>
-                    <div className="label">TimeSlot</div>
-                    <div className="label">Status</div>
-                  </Col>
-                  <Col span={2}>
-                    <Divider style={{ height: "300px" }} type="vertical" />
-                  </Col>
-                  <Col span={12}>
-                    <div className="label">
-                      {tempData?.date ? tempData.date.split("T")[0] : "NA"}
-                    </div>
-                    <div className="label">
-                      {tempData?.dateSlot}
-                    </div>
-                    <div className="label">
-                      {tempData?.createdBy ? tempData.createdBy : "NA"}
-                    </div>
-                    <div className="label">
-                      {tempData?.teacher ? tempData?.teacher : "NA"}
-                    </div>
-                    <div className="label">
-                      {tempData?.startingLessonId ? "Lesson " + LESSONS.filter(i => tempData?.startingLessonId === i.id)[0]?.number : "NA"}
-                    </div>
-                    <div className="label">
-                      {tempData?.endingLessonId ? "Lesson " + LESSONS.filter(i => tempData?.endingLessonId === i.id)[0]?.number : "NA"}
-                    </div>
-                    <div className="label">
-                      {tempData?.activeLessonId ? "Lesson " + LESSONS.filter(i => tempData?.activeLessonId === i.id)[0]?.number : "NA"}
-                    </div>
-                    <div className="label">
-                      {tempData?.students ? tempData?.students : "NA"}
-                    </div>
-                    <div className="label">
-                      {
-                        timeSlotHandler(tempData)
-                      }
-                    </div>
-                    <div className="label"> {tempData?.status}</div>
-                  </Col>
-                  <Col span={24}>
-                    <div className="title">Students</div>
-                    <Table style={{width: "100%"}} dataSource={tempData?.studentsList} columns={[
-                      {
-                        title: "First Name",
-                        dataIndex: "firstName",
-                        key: "firstName"
-                      },
-                      {
-                        title: "Last Name",
-                        dataIndex: "lastName",
-                        key: "lastName"
-                      },
-                      {
-                        title: "Phone Number",
-                        dataIndex: "phoneNumber",
-                        key: "phoneNumber"
-                      }
-                    ]} />
-                  </Col>
-                </Row>
+                <View batchData={tempData} />
               </>
             )}
           </>
