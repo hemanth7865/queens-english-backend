@@ -192,6 +192,7 @@ const StudentsBatchList: React.FC = () => {
   const [selectGender, setSelectGender] = useState('');
   const [selectWABatch, setWABatch] = useState("");
   const [selectLogApp, setLogApp] = useState("");
+  const [formHook] = Form.useForm()
 
   //form states
   const [formData, setFormData] = useState({
@@ -372,6 +373,8 @@ const StudentsBatchList: React.FC = () => {
       }
       setTempDataView(msg.data);
       setIsSibling(msg.data.isSibling);
+      // handle phone number validation correctly for edit
+      formHook.setFieldsValue({phoneNumber: msg.data.phoneNumber, whatsapp: msg.data.whatsapp});
      // setDob(msg.data.dob);
       console.log('view one', msg);
     } catch (error) {
@@ -2060,7 +2063,7 @@ const StudentsBatchList: React.FC = () => {
           <Spin spinning={isLoading}>
            <Tabs defaultActiveKey="1" onChange={callback} key={tempDataView?.id}>
             <TabPane tab="Student Info" key="1"> 
-            <Form onFinish={handleFormSubmitEdit}> 
+            <Form onFinish={handleFormSubmitEdit} form={formHook}> 
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
