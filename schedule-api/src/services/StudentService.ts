@@ -1103,6 +1103,13 @@ export class StudentService {
             if(tmpUsers.length > 0){
               users = tmpUsers;
             }
+
+            if(users > 1){
+              let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
+              if(students.length > 0){
+                users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
+              }
+            }
           }
   
           if(users.length < 1){
