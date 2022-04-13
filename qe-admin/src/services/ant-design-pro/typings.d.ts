@@ -120,6 +120,7 @@ declare namespace API {
 
   type batchItem = {
     id: string;
+    batchId: string;
     lessonStartTime: string | DateTime;
     name?: string;
     date: string | DateTime;
@@ -132,6 +133,9 @@ declare namespace API {
     students?: string;
     status?: string;
     studentsList?: [];
+    zoomLink?: string;
+    zoomInfo?: string;
+    whatsappLink?: string;
   }
 
   type Any = any;
