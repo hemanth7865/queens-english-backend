@@ -1186,7 +1186,7 @@ export class StudentService {
             }
           }
   
-          const resultData = {...student, ...user};
+          const resultData = {...student, ...user, startDate: student.startDate};
 
           if(!query.test){
             await this.saveStudentSQL(resultData, user.id);
