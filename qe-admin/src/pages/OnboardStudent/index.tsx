@@ -326,6 +326,7 @@ const StudentOnboard: React.FC = () => {
       timings: value.timings,
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
+      payments: value.payments
     }
     try {
       const msg = await addTeacherSchedule({
