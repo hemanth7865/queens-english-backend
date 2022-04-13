@@ -25,21 +25,11 @@ const StudentOnboard: React.FC = () => {
   const [tmpDate, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [needBatch, setNeedBatch] = useState<any>();
-  const [needBatchtmpData, setNeedBatchtmpData] = useState<any>();
 
   const edit = (record: Partial<Item> & { id: React.Key }) => {
     form.setFieldsValue(record);
     setTmpData(record);
     setVisibleEdit(true);
-  };
-
-  const cancel = () => {
-    setVisibleEdit(false);
-  };
-
-  const onChange = ( value: any) => {
-    setNeedBatchtmpData(value)
   };
 
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
@@ -91,16 +81,17 @@ const StudentOnboard: React.FC = () => {
     return msg;
   }
 
-  useEffect(async()=>{
-    if(needBatch){
+  const handleNeedBatch = async (data: any) => {
+    if(confirm("Are you sure you want to move student to create batch stage?")){
       setIsLoading(true);
       let success = true;
-      const result = await submitUpdateStudent({...needBatchtmpData, status: "createBatch", callStatus: "", callBackon: "", waMessageSent: ""});
+      const result = await submitUpdateStudent({...data, status: "createBatch", callStatus: "", callBackon: "", waMessageSent: ""});
       if(result.status !== 200){
         success = false;
+      }
+      setIsLoading(false);
     }
-    }
-  }, [needBatch])
+  }
 
   const columns = [
     {
@@ -176,10 +167,9 @@ const StudentOnboard: React.FC = () => {
       width: 220,
       render: (_: any, record: Item)=>{
         return (
-          <Radio.Group onChange={()=>{onChange(record)}}>
-            <Radio value={true} onChange={()=>{setNeedBatch(true)}}>Yes</Radio>
-            <Radio value={false} onChange={()=>{setNeedBatch(false)}}>No</Radio>
-          </Radio.Group>
+          <Typography.Link onClick={() => handleNeedBatch(record)}>
+            Create Batch
+          </Typography.Link>
         )
       }
     },
