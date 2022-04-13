@@ -1104,14 +1104,14 @@ export class StudentService {
               users = tmpUsers;
             }
 
-            if(users > 1){
+            if(users.length > 1){
               let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
               if(students.length > 0){
                 users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
               }
             }
           }
-  
+          
           if(users.length < 1){
             result.notFound++;
             result["notFoundRecordsIDs"].push({phoneNumber: d[primaryColumn], id: d['Student ID']});
