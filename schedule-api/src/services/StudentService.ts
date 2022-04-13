@@ -1024,6 +1024,7 @@ export class StudentService {
       "MWF (Course duration - 8 Months)": "MWF",
       "T Th sat (Course duration - 8 Months)": "TTS",
       "TTS (Course duration - 8 Months)": "TTS",
+      "TTS (Course duration - 24 Months)": "TTS",
       "SS (Course duration - 14 Months)": "SS",
       "MTWTF (Course duration - 5 Months)": "MTWTF"
     }
