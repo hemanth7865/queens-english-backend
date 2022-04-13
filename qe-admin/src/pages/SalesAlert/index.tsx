@@ -409,7 +409,7 @@ const StudentOnboard: React.FC = () => {
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
-        studentId: value.studentID,
+        studentId: value.id,
         classessold: value.classessold,
         saleamount: value.saleamount,
         downpayment: value.downpayment,
@@ -469,7 +469,7 @@ const StudentOnboard: React.FC = () => {
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink,   ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink,   ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -533,10 +533,15 @@ const StudentOnboard: React.FC = () => {
     },
     {
       title: 'Student Id',
-      dataIndex: 'studentID',
+      dataIndex: 'id',
       width: 300,
       editable: false,
-      
+    },
+    {
+      title: 'Lead Id',
+      dataIndex: 'studentID',
+      width: 300,
+      editable: true,
     },
     {
       title: 'Date of Birth',

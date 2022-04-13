@@ -447,7 +447,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
         payment: [{
           paymentid: value.paymentid,
-          studentId: value.studentID,
+          studentId: value.id,
           classessold: value.classessold,
           saleamount: value.saleamount,
           downpayment: value.downpayment,
@@ -558,10 +558,15 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     },
     {
       title: 'Student Id',
-      dataIndex: 'studentID',
+      dataIndex: 'id',
       width: 300,
       editable: false,
-      
+    },
+    {
+      title: 'Lead Id',
+      dataIndex: 'studentID',
+      width: 300,
+      editable: true,
     },
     {
       title: 'Date of Birth of Student',
