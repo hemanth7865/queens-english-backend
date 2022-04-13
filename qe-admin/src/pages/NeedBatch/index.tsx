@@ -31,10 +31,6 @@ const StudentOnboard: React.FC = () => {
     setVisibleEdit(true);
   };
 
-  const cancel = () => {
-    setVisibleEdit(false);
-  };
-
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
     try {
@@ -152,7 +148,7 @@ const StudentOnboard: React.FC = () => {
   const handleFormSubmit = async () => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('batching', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, "", "",{
+      let msg = await studentsDashboardFilter('createBatch', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, "", "",{
           current: 1,
           pageSize: 20}
       );
