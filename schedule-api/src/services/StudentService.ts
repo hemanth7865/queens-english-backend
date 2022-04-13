@@ -739,6 +739,12 @@ export class StudentService {
       .createQueryBuilder(Student, "student")
       .where("student.id = :id", { id: id })
       .getOne();
+
+
+    var payment = await getManager()
+      .createQueryBuilder(Payment, "payment")
+      .where("payment.id = :id", { id: id })
+      .getOne();
       console.log(student);
         
         var quer =
@@ -755,7 +761,7 @@ export class StudentService {
     let batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", id));
  
     const response = {
-      ...users,...student,batchCode:studentOrTeacherId.join(","),studentID:id, batchesHistory
+      ...users,...student,batchCode:studentOrTeacherId.join(","), batchesHistory, ...payment
     }
    
     usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);    
