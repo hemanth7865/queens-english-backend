@@ -419,7 +419,7 @@ const StudentOnboard: React.FC = () => {
   const formSubmit = async (value: any)=>{
     setIsLoading(true);
     const dataForm = {
-      leadId: value.id,
+      leadId: value.studentID,
       firstName: value.firstName,
       lastName: value.lastName,
       phoneNumber: value.phoneNumber,
@@ -453,7 +453,7 @@ const StudentOnboard: React.FC = () => {
         saleamount: value.saleamount,
         downpayment: value.downpayment,
         classtype:'',
-        leadId: value.id,
+        leadId: value.studentID,
         id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
@@ -586,14 +586,18 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'customerEmail',
       width: 200,
       editable: true,
-      
     },
     {
       title: 'Student Id',
-      dataIndex: 'studentID',
+      dataIndex: 'id',
       width: 300,
       editable: false,
-      
+    },
+    {
+      title: 'Lead Id',
+      dataIndex: 'studentID',
+      width: 300,
+      editable: true,
     },
     {
       title: 'Date of Birth',
