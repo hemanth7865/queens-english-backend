@@ -114,21 +114,21 @@ const View = ({ batchData }: Props) => {
             <div>Zoom Link</div>
         </Col>
         <Col span={16}>
-            <div><a href={batchData?.zoomLink} target="_blank">{batchData?.zoomLink}</a></div>
+            <div><a href={batchData?.zoomLink} target="_blank">{batchData?.zoomLink || "NA"}</a></div>
         </Col>
 
         <Col span={8}>
             <div>Zoom Info</div>
         </Col>
         <Col span={16}>
-            <div> {batchData?.zoomInfo}</div>
+            <div> {batchData?.zoomInfo || "NA"}</div>
         </Col>
 
         <Col span={8}>
             <div>Whatsapp Link</div>
         </Col>
         <Col span={16}>
-            <div><a href={batchData?.whatsappLink} target="_blank">{batchData?.whatsappLink}</a></div>
+            <div><a href={batchData?.whatsappLink} target="_blank">{batchData?.whatsappLink || "NA"}</a></div>
         </Col>
 
         <Col span={24}>
