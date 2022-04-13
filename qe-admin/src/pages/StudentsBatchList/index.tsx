@@ -230,6 +230,7 @@ const StudentsBatchList: React.FC = () => {
     downpayment:'',
     duedate:null,
     no_of_delayed_payments:'',
+    studentID:'',
   //  assesmentDate=null,
     delay_date:null,
     delay_status:'',
@@ -417,6 +418,16 @@ const StudentsBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleStudentID"
+          defaultMessage="Student ID"
+        />
+      ),
+      dataIndex: 'id',
+      // hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleLeadID"
           defaultMessage="Lead ID"
         />
       ),
@@ -642,6 +653,7 @@ const StudentsBatchList: React.FC = () => {
       startDate: formData.startDate,
       endDate: formData.endDate,
       startLesson: formData.startLesson,
+      studentID: formData.studentID,
       firstFeedback:formData. firstFeedback,
       fifthFeedback:formData. fifthFeedback,
       fifteenthFeedback: formData.fifteenthFeedback,
@@ -745,6 +757,7 @@ const StudentsBatchList: React.FC = () => {
       customersReferred: formData.customersReferred ? formData.customersReferred : tempDataView.customersReferred,
       whatsapp :formData.whatsapp  ? formData.whatsapp  : tempDataView.whatsapp ,
       comments:formData.comments? formData.comments : tempDataView.comments,
+      studentID:formData.studentID? formData.studentID : tempDataView.studentID,
       crossedEndDate:crossedEndDate,     
       incentive:formData.incentive?formData.incentive:tempDataView.incentive,
       prm_id:formData.prm_id?formData.prm_id:tempDataView.prm_id,
@@ -1091,8 +1104,17 @@ const StudentsBatchList: React.FC = () => {
                     />
                   </Form.Item>
                 </Col>
-               
-                <Col span = {24}>
+                <Col span={12}>
+                  <Form.Item name="studentID">
+                    <Input
+                      placeholder="Lead ID"
+                      name="studentID"
+                      value={formData.studentID}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span = {12}>
                   <Form.Item name="isSibling">
                       <Select
                           placeholder="Is Sibling"
@@ -2283,23 +2305,43 @@ const StudentsBatchList: React.FC = () => {
                       onChange={handleFormChange}
                     />
                   </Form.Item>
-                </Col>               
+                </Col> 
+                <Col span={12}>
+                  <Form.Item name="studentID">
+                    <Input
+                      placeholder="Lead ID"
+                      name="studentID"
+                      defaultValue={tempDataView.studentID}
+                      onChange={handleFormChange}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span = {12}>
+                  <Row>
+                    <Col span={6}>
+                      <label htmlFor="isSibling">
+                        Is Sibling: 
+                      </label>
+                    </Col>
+                    <Col span={18}>
+                      <Form.Item name="isSibling">
+                            <Select
+                                placeholder="Is Sibling"
+                                onChange={(value) => {
+                                  setIsSibling(value);
+                                }}
+                                defaultValue={tempDataView.isSibling ? 1 : 0}
+                                name="isSibling"
+                                style={{ width: 100 + "%" }}
+                                >
+                                <Option value={1}>Yes</Option>
+                                <Option value={0}>No</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                  </Row>
+                </Col>              
              </Row>
-             <Col span = {24}>
-                <Form.Item name="isSibling">
-                    <Select
-                        placeholder="Is Sibling"
-                        onChange={(value) => {
-                          setIsSibling(value);
-                        }}
-                        defaultValue={tempDataView.isSibling ? 1 : 0}
-                        name="isSibling"
-                        >
-                        <Option value={1}>Yes</Option>
-                        <Option value={0}>No</Option>
-                    </Select>
-                </Form.Item>
-            </Col>
               <Row>
                 <Col span={8}>
                   <Input
