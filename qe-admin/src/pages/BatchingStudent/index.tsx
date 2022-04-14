@@ -72,12 +72,20 @@ const StudentOnboard: React.FC = () => {
     },
     body: JSON.stringify(value),
     });
-    if (msg.status === 400) {
+    
+    if(value.status !== "createBatch"){
+      if (msg.status === 400) {
         openNotificationWithIcon('error', { status: 400, data: 'Failed To Mark Student Status As Onboarding' })
-    } else {
-        openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Create Batch' });
+      } else {
+          openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Onboarding' });
+      }
+    }else{
+      if (msg.status === 400) {
+        openNotificationWithIcon('error', { status: 400, data: 'Failed To Mark Student Status As Create Batch' })
+      } else {
+          openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Create Batch' });
+      }
     }
-
     return msg;
   }
 

@@ -119,10 +119,18 @@ const Batch: React.FC<BatchProps> = (props) => {
         },
         body: JSON.stringify(value),
         });
-        if (msg.status === 400) {
+        if(value.status !== "createBatch"){
+          if (msg.status === 400) {
             openNotificationWithIcon('error', { status: 400, data: 'Failed To Mark Student Status As Onboarding' })
-        } else {
-            openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Onboarding' });
+          } else {
+              openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Onboarding' });
+          }
+        }else{
+          if (msg.status === 400) {
+            openNotificationWithIcon('error', { status: 400, data: 'Failed To Mark Student Status As Create Batch' })
+          } else {
+              openNotificationWithIcon('success', { status: 400, data: 'Student Status Is Create Batch' });
+          }
         }
 
         return msg;
@@ -205,6 +213,22 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
     }
     
+    const handleNeedBatch = async (data: any) => {
+      if(confirm("Are you sure you want to move student to create batch stage?")){
+        setIsLoading(true);
+        let success = true;
+        const result = await submitUpdateStudent({...data, status: "createBatch", callStatus: "", callBackon: "", waMessageSent: ""});
+        if(result.status !== 200){
+          success = false;
+        }else{
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000)
+        }
+        setIsLoading(false);
+      }
+    }
+
     const columns: ProColumns<API.RuleListItem>[] = [
         {
           title: (
@@ -333,10 +357,15 @@ const Batch: React.FC<BatchProps> = (props) => {
               </Tabs>
               
               <Row gutter={16}>
-                  <Col span={24}>
+                  <Col>
                       <Button type="primary" htmlType="submit" disabled={!selectedBatch}>
                           {rebatching ? "Re-batch Student" :"Add Student To Batch"}
                       </Button>
+                  </Col>
+                  <Col>
+                    <Button onClick={() => handleNeedBatch(data)}>
+                      Create Batch
+                    </Button>
                   </Col>
               </Row>
           </Form>
