@@ -731,7 +731,7 @@ const StudentsBatchList: React.FC = () => {
       countryCode: formData.countryCode ? formData.countryCode : tempDataView.countryCode,
       email: formData.email ? formData.email : tempDataView.email,
       type: formData.type ? formData.type : 'student',
-      status: status ? status : tempDataView.status,
+      // status: status ? status : tempDataView.status,
       studentName: formData.studentName ? formData.studentName : tempDataView.studentName,
       teacherName: formData.teacherName ? formData.teacherName : tempDataView.teacherName,
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
