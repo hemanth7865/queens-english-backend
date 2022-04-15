@@ -52,9 +52,11 @@ const Batch: React.FC<BatchProps> = (props) => {
           lessonEndTime?: string,
           classStartDate?: string,
           maxStudentsCount?: number,
-          excludedTeacher?: string
+          excludedTeacher?: string,
+          lessonGap?: number, 
       } = {
-        maxStudentsCount: 6
+        maxStudentsCount: 6,
+        lessonGap: 10
       }
         if(lesson?.id){
           fixedFilter.activeLessonId = lesson.id;
