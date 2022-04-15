@@ -947,9 +947,22 @@ export class BatchService {
     
     for(let d of data){
       try{
+        if(d["Batch Code"]){
+          d = {
+            batch_code: d["Batch Code"],
+            "Zoom Link": d["Zoom Link"],
+            "WhatsApp Group Invite link": d["What's app group link"],
+            "Zoom Information": `Meeting ID: ${d["Meeting ID"]}`,
+          }
+        }
+
+        if(!d.batch_code){
+          continue;
+        }
+
         const batchCode = d.batch_code;
         const zoomLink = d["Zoom Link"];
-        const zoomInfo = d["Zoom Information"].replace(/\n/g, "<br />");
+        const zoomInfo = d["Zoom Information"]?.replace(/\n/g, "<br />");
         const whatsappLink = d["WhatsApp Group Invite link"];
   
         let batch = await this.classesRepository.findOne({batchNumber: batchCode});
@@ -960,7 +973,9 @@ export class BatchService {
           continue;
         }
 
-        await this.classesRepository.update({id: batch.id}, {zoomLink, zoomInfo, whatsappLink});
+        if(!query.test){
+          await this.classesRepository.update({id: batch.id}, {zoomLink, zoomInfo, whatsappLink});
+        }
         result.updated++;
       }catch(e){
         result.errors ++;
