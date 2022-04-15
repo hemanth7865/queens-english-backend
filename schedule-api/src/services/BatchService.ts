@@ -576,6 +576,9 @@ export class BatchService {
       query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
+    /**
+     * TODO: Make Logic More Simpler
+     */
     if(parameters.lessonGap && parameters.activeLessonId){
       if(parameters.activeLessonId){
         let lessonNumber: string | number = getLessonByID(parameters.activeLessonId)?.number;
@@ -596,6 +599,9 @@ export class BatchService {
 
           const lessonsIDsQuery = `(${lessonsIDs.map(id => `'${id}'`).join(",")})`;
 
+          /**
+           * TODO: Make query simple once deploy current active lesson
+           */
           query_list.push(` ((classes.activeLessonId IS NOT NULL AND classes.activeLessonId IN ${lessonsIDsQuery}) OR (classes.activeLessonId IS NULL AND classes.startingLessonId IN ${lessonsIDsQuery})) `);
 
         }
