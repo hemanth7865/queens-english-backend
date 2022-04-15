@@ -1517,7 +1517,9 @@ export const getListOfLessonsIDs = (lessons: string[]): string[] => {
             return false;
         })[0];
 
-        ids.push(l.id);
+        if(l?.id){
+            ids.push(l.id);
+        }
     }
 
     return ids;

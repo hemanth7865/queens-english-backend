@@ -576,6 +576,9 @@ export class BatchService {
       query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
+    /**
+     * TODO: Make Logic More Simpler
+     */
     if(parameters.lessonGap && parameters.activeLessonId){
       if(parameters.activeLessonId){
         let lessonNumber: string | number = getLessonByID(parameters.activeLessonId)?.number;
