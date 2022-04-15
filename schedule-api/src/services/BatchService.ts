@@ -13,6 +13,7 @@ import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
+import {getListOfLessonsIDs, getLessonByID} from "./../data/lessons";
 import { v4 as uuidv4 } from "uuid";
 
 const generateRandomCode = (): string => {
@@ -575,8 +576,35 @@ export class BatchService {
       query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
-    if(parameters.activeLessonId){
-      query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
+    if(parameters.lessonGap && parameters.activeLessonId){
+      if(parameters.activeLessonId){
+        let lessonNumber: string | number = getLessonByID(parameters.activeLessonId)?.number;
+
+        if(lessonNumber){
+          // getListOfLessonsIDs
+          lessonNumber = parseInt(lessonNumber);
+          let lessonsNumbers: string[] = [lessonNumber < 10 ? `0${lessonNumber}` :`${lessonNumber}`];
+          let lessonGap = parseInt(parameters.lessonGap);
+          for(let i = lessonNumber + 1; i <= lessonNumber + lessonGap && i <= 300; i++){
+            lessonsNumbers.push(i < 10 ? `0${i}` : `${i}`);
+          }
+          for(let i = lessonNumber - 1; i >= lessonNumber - lessonGap && i > 0; i--){
+            lessonsNumbers.push(i < 10 ? `0${i}` : `${i}`);
+          }
+
+          const lessonsIDs = getListOfLessonsIDs(lessonsNumbers);
+
+          const lessonsIDsQuery = `(${lessonsIDs.map(id => `'${id}'`).join(",")})`;
+
+          query_list.push(` ((classes.activeLessonId IS NOT NULL AND classes.activeLessonId IN ${lessonsIDsQuery}) OR (classes.activeLessonId IS NULL AND classes.startingLessonId IN ${lessonsIDsQuery})) `);
+
+        }
+
+      }
+    }else{
+      if(parameters.activeLessonId){
+        query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
+      }
     }
 
     if(parameters.lessonStartTime){
