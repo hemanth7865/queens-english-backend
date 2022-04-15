@@ -599,6 +599,9 @@ export class BatchService {
 
           const lessonsIDsQuery = `(${lessonsIDs.map(id => `'${id}'`).join(",")})`;
 
+          /**
+           * TODO: Make query simple once deploy current active lesson
+           */
           query_list.push(` ((classes.activeLessonId IS NOT NULL AND classes.activeLessonId IN ${lessonsIDsQuery}) OR (classes.activeLessonId IS NULL AND classes.startingLessonId IN ${lessonsIDsQuery})) `);
 
         }
