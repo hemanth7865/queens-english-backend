@@ -622,7 +622,7 @@ export class BatchService {
     }
 
     if(parameters.classStartDate){
-      query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
+      query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' AND classes.status != 4 `);
     }
 
     if(parameters.classEndDate){
