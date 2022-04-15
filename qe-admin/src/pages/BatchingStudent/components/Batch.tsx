@@ -16,6 +16,7 @@ import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from './FilterOptions';
+import { format } from 'prettier';
 
 const { TabPane } = Tabs;
 
@@ -54,9 +55,11 @@ const Batch: React.FC<BatchProps> = (props) => {
           maxStudentsCount?: number,
           excludedTeacher?: string,
           lessonGap?: number, 
+          classEndDate: string
       } = {
         maxStudentsCount: 6,
-        lessonGap: 10
+        lessonGap: 10, 
+        classEndDate: moment().format("YYYY-MM-DD")
       }
         if(lesson?.id){
           fixedFilter.activeLessonId = lesson.id;
@@ -71,9 +74,12 @@ const Batch: React.FC<BatchProps> = (props) => {
           fixedFilter.frequency = courseFrequency.split(" ")[0]; // make sure to get the frequency only in case there's a space
         }
 
-        if(startDate && startDate.length > 0){
-          fixedFilter.classStartDate = startDate.split("T")[0];
-        }
+        /**
+         * Ignore start date
+         */
+        // if(startDate && startDate.length > 0){
+        //   fixedFilter.classStartDate = startDate.split("T")[0];
+        // }
 
         if(timings && timings.length > 0){
           fixedFilter.lessonStartTime = timeISTToTimezone(timings);
