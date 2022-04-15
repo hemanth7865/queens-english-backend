@@ -16,6 +16,7 @@ import Teachers from "./Teachers";
 import {LESSONS} from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from './FilterOptions';
+import { format } from 'prettier';
 
 const { TabPane } = Tabs;
 
@@ -54,9 +55,11 @@ const Batch: React.FC<BatchProps> = (props) => {
           maxStudentsCount?: number,
           excludedTeacher?: string,
           lessonGap?: number, 
+          classEndDate: string
       } = {
         maxStudentsCount: 6,
-        lessonGap: 10
+        lessonGap: 10, 
+        classEndDate: moment().format("YYYY-MM-DD")
       }
         if(lesson?.id){
           fixedFilter.activeLessonId = lesson.id;

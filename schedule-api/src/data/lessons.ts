@@ -1507,9 +1507,9 @@ export const getListOfLessonsIDs = (lessons: string[]): string[] => {
     for(let lesson of lessons){
         let l: Lesson | undefined = LESSONS.filter(l => {
             if(lesson && lesson.length > 0){
-                let lessonNumber = lesson;
+                let lessonNumber: string = lesson;
                 if(parseInt(lesson) < 10){
-                    lessonNumber = "0" + lesson;
+                    lessonNumber = "0" + parseInt(lesson);
                 }
                 return l.number === lessonNumber
             }

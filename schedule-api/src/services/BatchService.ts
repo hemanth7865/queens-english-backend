@@ -625,6 +625,11 @@ export class BatchService {
       query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
     }
 
+    if(parameters.classEndDate){
+      query_list.push(` classes.classEndDate >= '${parameters.classEndDate}' `);
+    }
+
+
     if(parameters.excludedTeacher){
       query_list.push(` classes.teacherId != '${parameters.excludedTeacher}' `);
     }
