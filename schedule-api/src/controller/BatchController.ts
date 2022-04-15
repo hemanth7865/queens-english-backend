@@ -5,6 +5,8 @@ import { getManager } from "typeorm";
 import { BatchService } from "../services/BatchService";
 import { Classes } from "../entity/Classes";
 import { UserMaster } from "../entity/UserMaster";
+import { parse } from 'csv-parse';
+
 var moment = require('moment');
 const cron = require('node-cron');
 
@@ -155,6 +157,28 @@ export class BatchController {
             return await this.batchService.updateAllBatchesAgeGroup();
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    async updateBatchZoomInfoAndWACSV(request: Request, response: Response, next: NextFunction) {
+        const file = request.files.students;
+        let data = [];
+ 
+        try{
+            await new Promise(function(myResolve: any, myReject: any) {
+                parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
+                        data = records;
+                        if(data){
+                            myResolve(); 
+                        }else{
+                            console.log(file.data.toString());
+                            myReject();
+                        }
+                    });
+                });
+            return this.batchService.updateBatchZoomInfoAndWACSV(data, request.query);
+        }catch(e){
+            return {e, name: file.name, size: file.size, type: file.type};
         }
     }
 }

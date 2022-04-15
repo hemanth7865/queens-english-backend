@@ -936,4 +936,12 @@ export class BatchService {
       console.log(e);
     }
   }
+
+  async updateBatchZoomInfoAndWACSV(data: any, query: {test: boolean}){
+    for(let d of data){
+      return {d};
+    }
+
+    return {data};
+  }
 }
