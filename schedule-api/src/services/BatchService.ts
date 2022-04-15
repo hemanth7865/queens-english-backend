@@ -938,10 +938,35 @@ export class BatchService {
   }
 
   async updateBatchZoomInfoAndWACSV(data: any, query: {test: boolean}){
+    let result = {
+      "updated": 0,
+      "notFound": 0,
+      "errors": 0,
+      "notFoundBatches": []
+    };
+    
     for(let d of data){
-      return {d};
-    }
+      try{
+        const batchCode = d.batch_code;
+        const zoomLink = d["Zoom Link"];
+        const zoomInfo = d["Zoom Information"].replace(/\n/g, "<br />");
+        const whatsappLink = d["WhatsApp Group Invite link"];
+  
+        let batch = await this.classesRepository.findOne({batchNumber: batchCode});
 
-    return {data};
+        if(!batch){
+          result.notFound++;
+          result.notFoundBatches.push(batchCode);
+          continue;
+        }
+
+        await this.classesRepository.update({id: batch.id}, {zoomLink, zoomInfo, whatsappLink});
+        result.updated++;
+      }catch(e){
+        result.errors ++;
+        console.log(e);
+      }
+    }
+    return result;
   }
 }
