@@ -71,9 +71,12 @@ const Batch: React.FC<BatchProps> = (props) => {
           fixedFilter.frequency = courseFrequency.split(" ")[0]; // make sure to get the frequency only in case there's a space
         }
 
-        if(startDate && startDate.length > 0){
-          fixedFilter.classStartDate = startDate.split("T")[0];
-        }
+        /**
+         * Ignore start date
+         */
+        // if(startDate && startDate.length > 0){
+        //   fixedFilter.classStartDate = startDate.split("T")[0];
+        // }
 
         if(timings && timings.length > 0){
           fixedFilter.lessonStartTime = timeISTToTimezone(timings);
