@@ -942,6 +942,7 @@ export class BatchService {
       "updated": 0,
       "notFound": 0,
       "errors": 0,
+      "skipped": 0,
       "notFoundBatches": []
     };
     
@@ -970,6 +971,15 @@ export class BatchService {
         if(!batch){
           result.notFound++;
           result.notFoundBatches.push(batchCode);
+          continue;
+        }
+
+        if(!(
+            (!batch.zoomLink || batch.zoomLink.length < 5) && 
+            (!batch.zoomInfo || batch.zoomInfo.length < 5) && 
+            (!batch.whatsappLink || batch.whatsappLink.length < 5)
+          )){
+          result.skipped ++;
           continue;
         }
 
