@@ -263,15 +263,17 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any) => {
+  const openNotification = (type: string,  message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
     const waMessage = (
       <div>
         <p>Hello <br/>
-        I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate,"YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your classes:<br/>
-        Zoom Link: <br/>
-        Topic: QEXXX<br/>
+        I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate,"YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your 
+        classes:<br/>
+        Zoom Link: {zoomLink} <br/>
+        Whatsapp Group Link: {whatsappLink} <br/>
+        Topic: {batchCode}<br/>
         Time: {timings} India<br/>
-        {zoomInfo}
+        <span dangerouslySetInnerHTML={{__html: zoomInfo}}></span> <br /> <br />
         (The details above are recurring and hence you can use the same details to join the class everyday)<br/>
         Please send “OK” or a “:+1:” to activate the link above.<br/>
         For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br/>
@@ -593,7 +595,7 @@ const StudentOnboard: React.FC = () => {
         return(        
         <a
           onClick={() => {
-            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo)
+            openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink)
           }}
         >
           <EyeOutlined/>
