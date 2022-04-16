@@ -41,7 +41,7 @@ export const getLessonByNumber = (lesson?: string): Lesson | undefined => {
         if(lesson && lesson.length > 0){
             let lessonNumber = lesson.split(" ")[1];
             if(parseInt(lessonNumber) < 10){
-                lessonNumber = "0" + lessonNumber;
+                lessonNumber = "0" + parseInt(lessonNumber);
             }
             return l.number === lessonNumber
         }
