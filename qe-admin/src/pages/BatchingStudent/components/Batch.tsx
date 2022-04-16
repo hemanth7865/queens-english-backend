@@ -58,7 +58,7 @@ const Batch: React.FC<BatchProps> = (props) => {
           classEndDate: string
       } = {
         maxStudentsCount: 6,
-        lessonGap: 10, 
+        lessonGap: rebatching ? 0 : 10, 
         classEndDate: moment().format("YYYY-MM-DD")
       }
         if(lesson?.id){

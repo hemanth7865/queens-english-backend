@@ -21,7 +21,9 @@ const Batch: React.FC<Props> = (props) => {
     const {onChange, value} = props;
 
     const remove = (id: string) => {
-      onChange(value.filter((i: list) => i.value !== id))
+      if(confirm("Are you sure that you wanna remove this student from the batch?")){
+        onChange(value.filter((i: list) => i.value !== id))
+      }
     }
 
     const listColumns: ProColumns<list>[] = [
