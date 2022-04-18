@@ -64,6 +64,17 @@ const StudentOnboard: React.FC = () => {
       )
     },
     {
+      title: "Create Batch Type",
+      dataIndex: 'startDate',
+      width: 150,
+      render: (value: string, entity: any) => {
+        if(entity?.batchCode?.length > 0){
+          return "Rebatch Student";
+        }
+        return "New Student";
+      }
+    },
+    {
       title: 'Email',
       dataIndex: 'customerEmail',
       width: 200,

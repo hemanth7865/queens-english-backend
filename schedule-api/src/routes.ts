@@ -117,6 +117,12 @@ export const Routes = [
     action: "reBatch",
   },
   {
+    method: "post",
+    route: "/update-batch-zoom-info-csv",
+    controller: BatchController,
+    action: "updateBatchZoomInfoAndWACSV",
+  },
+  {
     method: "delete",
     route: "/deleteBatch/:id",
     controller: BatchController,

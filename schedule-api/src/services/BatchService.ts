@@ -13,6 +13,7 @@ import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
+import {getListOfLessonsIDs, getLessonByID} from "./../data/lessons";
 import { v4 as uuidv4 } from "uuid";
 
 const generateRandomCode = (): string => {
@@ -575,8 +576,41 @@ export class BatchService {
       query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
-    if(parameters.activeLessonId){
-      query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
+    /**
+     * TODO: Make Logic More Simpler
+     */
+    if(parameters.lessonGap && parameters.activeLessonId){
+      if(parameters.activeLessonId){
+        let lessonNumber: string | number = getLessonByID(parameters.activeLessonId)?.number;
+
+        if(lessonNumber){
+          // getListOfLessonsIDs
+          lessonNumber = parseInt(lessonNumber);
+          let lessonsNumbers: string[] = [lessonNumber < 10 ? `0${lessonNumber}` :`${lessonNumber}`];
+          let lessonGap = parseInt(parameters.lessonGap);
+          for(let i = lessonNumber + 1; i <= lessonNumber + lessonGap && i <= 300; i++){
+            lessonsNumbers.push(i < 10 ? `0${i}` : `${i}`);
+          }
+          for(let i = lessonNumber - 1; i >= lessonNumber - lessonGap && i > 0; i--){
+            lessonsNumbers.push(i < 10 ? `0${i}` : `${i}`);
+          }
+
+          const lessonsIDs = getListOfLessonsIDs(lessonsNumbers);
+
+          const lessonsIDsQuery = `(${lessonsIDs.map(id => `'${id}'`).join(",")})`;
+
+          /**
+           * TODO: Make query simple once deploy current active lesson
+           */
+          query_list.push(` ((classes.activeLessonId IS NOT NULL AND classes.activeLessonId IN ${lessonsIDsQuery}) OR (classes.activeLessonId IS NULL AND classes.startingLessonId IN ${lessonsIDsQuery})) `);
+
+        }
+
+      }
+    }else{
+      if(parameters.activeLessonId){
+        query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
+      }
     }
 
     if(parameters.lessonStartTime){
@@ -588,8 +622,13 @@ export class BatchService {
     }
 
     if(parameters.classStartDate){
-      query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' `);
+      query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' AND classes.status != 4 `);
     }
+
+    if(parameters.classEndDate){
+      query_list.push(` classes.classEndDate >= '${parameters.classEndDate}' `);
+    }
+
 
     if(parameters.excludedTeacher){
       query_list.push(` classes.teacherId != '${parameters.excludedTeacher}' `);
@@ -896,5 +935,63 @@ export class BatchService {
     }catch(e){
       console.log(e);
     }
+  }
+
+  async updateBatchZoomInfoAndWACSV(data: any, query: {test: boolean}){
+    let result = {
+      "updated": 0,
+      "notFound": 0,
+      "errors": 0,
+      "skipped": 0,
+      "notFoundBatches": []
+    };
+    
+    for(let d of data){
+      try{
+        if(d["Batch Code"]){
+          d = {
+            batch_code: d["Batch Code"],
+            "Zoom Link": d["Zoom Link"],
+            "WhatsApp Group Invite link": d["What's app group link"],
+            "Zoom Information": `Meeting ID: ${d["Meeting ID"]}`,
+          }
+        }
+
+        if(!d.batch_code){
+          continue;
+        }
+
+        const batchCode = d.batch_code;
+        const zoomLink = d["Zoom Link"];
+        const zoomInfo = d["Zoom Information"]?.replace(/\n/g, "<br />");
+        const whatsappLink = d["WhatsApp Group Invite link"];
+  
+        let batch = await this.classesRepository.findOne({batchNumber: batchCode});
+
+        if(!batch){
+          result.notFound++;
+          result.notFoundBatches.push(batchCode);
+          continue;
+        }
+
+        if(!(
+            (!batch.zoomLink || batch.zoomLink.length < 5) && 
+            (!batch.zoomInfo || batch.zoomInfo.length < 5) && 
+            (!batch.whatsappLink || batch.whatsappLink.length < 5)
+          )){
+          result.skipped ++;
+          continue;
+        }
+
+        if(!query.test){
+          await this.classesRepository.update({id: batch.id}, {zoomLink, zoomInfo, whatsappLink});
+        }
+        result.updated++;
+      }catch(e){
+        result.errors ++;
+        console.log(e);
+      }
+    }
+    return result;
   }
 }
