@@ -27,6 +27,7 @@ const generateRandomCode = (): string => {
 }
 export class BatchService {
   private classesRepository = getRepository(Classes);
+  private userRepository = getRepository(User);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
   private studentBatchesHistory = getRepository(StudentBatchesHistory);
@@ -250,7 +251,9 @@ export class BatchService {
       const batch = await this.batchStudentRepository.createQueryBuilder("batchStudent").where("batchStudent.studentId = :val AND batchStudent.batchId != :batchId", {val: student.id, batchId: data.id}).getOne();
 
       if(batch){
-        result = "Student Already In Batch";
+        let batchData = await this.classesRepository.findOne({id: batch.batchId});
+        let user = await this.userRepository.findOne({id: batch.studentId});
+        result = `Student ${user?.firstName} ${user?.lastName} - ${user?.phoneNumber} Already In Batch ${batchData.batchNumber}`;
         break;
       }
     }
