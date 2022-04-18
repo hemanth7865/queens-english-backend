@@ -353,7 +353,8 @@ const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: '', studentID: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', studentID: ''});
+  const [prmName, setPrmName] = useState('');
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -854,9 +855,10 @@ const StudentOnboard: React.FC = () => {
   }
   
   const handleFormSubmit = async () => {
+    console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, formData.studentID, {
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
           current: 1,
           pageSize: 20}
       );
@@ -872,6 +874,7 @@ const StudentOnboard: React.FC = () => {
   setFormData('')
   studentGetApi()
  }
+
 
   return (
     <>
@@ -901,7 +904,9 @@ const StudentOnboard: React.FC = () => {
 
                   <Col span={6}>
                     <Form.Item name="prm_name" label = "PRM Name" >
-                      <Input name = "prm_name" onChange={handleInputChange}/>
+                    <Select style={{ width: 100 + "%" }} onChange = {(value)=>{setPrmName(value)}}>
+                      {prmData.map(prm => <Option value = {`${prm.firstName} ${prm.lastName}`} key = {prm.firstName} name = "prm_name">{prm.firstName} {prm.lastName}</Option>)}
+                    </Select>
                     </Form.Item>
                   </Col>
 
