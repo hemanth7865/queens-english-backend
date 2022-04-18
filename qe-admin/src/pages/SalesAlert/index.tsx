@@ -5,7 +5,7 @@ import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
-import statesData from "../../../data/states.json";
+import statesData from "../../../data/stateCustomer.json";
 
 const { Option } = Select;
 interface Item {
