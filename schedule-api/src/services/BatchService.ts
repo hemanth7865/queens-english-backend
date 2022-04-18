@@ -27,6 +27,7 @@ const generateRandomCode = (): string => {
 }
 export class BatchService {
   private classesRepository = getRepository(Classes);
+  private userRepository = getRepository(User);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
   private studentBatchesHistory = getRepository(StudentBatchesHistory);
@@ -54,7 +55,7 @@ export class BatchService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
-    var studnets = [];
+    var studnets: {id: string, type: string}[] = [];
     let create: boolean = false;
     try {
       await queryRunner.connect();
@@ -108,6 +109,12 @@ export class BatchService {
       }
 
       let alreadyExists;
+
+      let studentHasBatch: boolean | string = await this.checkStudentBatches(studnets, data);
+
+      if(studentHasBatch){
+        return { status: false, message: studentHasBatch };
+      }
 
       if(create){
         data.classCode = generateRandomCode();
@@ -232,6 +239,23 @@ export class BatchService {
 
     if(batch){
       result = batch;
+    }
+
+    return result;
+  }
+
+  async checkStudentBatches(students: {id: string, type: string}[], data: Classes): Promise<boolean|string>{
+    let result: boolean|string = false;
+
+    for(let student of students){
+      const batch = await this.batchStudentRepository.createQueryBuilder("batchStudent").where("batchStudent.studentId = :val AND batchStudent.batchId != :batchId", {val: student.id, batchId: data.id}).getOne();
+
+      if(batch){
+        let batchData = await this.classesRepository.findOne({id: batch.batchId});
+        let user = await this.userRepository.findOne({id: batch.studentId});
+        result = `Student ${user?.firstName} ${user?.lastName} - ${user?.phoneNumber} Already In Batch ${batchData.batchNumber}`;
+        break;
+      }
     }
 
     return result;
