@@ -7,6 +7,7 @@ import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
+import statesData from "../../../data/states.json";
 
 const { Option } = Select;
 interface Item {
@@ -20,7 +21,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectWhatsappSent' | 'selectPRM' | 'selectLSQUsers';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectWhatsappSent' | 'selectPRM' | 'selectLSQUsers' | 'selectState';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -310,6 +311,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
           {lsqUsersData.map(user => <Option value = {user.ID} key = {user.ID}>{user.FirstName} {user.LastName}</Option>)}
         </Select>
       )
+    }else if(inputType === 'selectState'){
+      return(
+        <Select style={{ width: 100 + "%" }} >
+          {statesData.map(state => <Option value = {state.label} key = {state.label}>{state.value}</Option>)}
+        </Select>
+      )
     }else{
       return <Input />
     }
@@ -447,6 +454,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         courseFrequency: value.courseFrequency,
         timings: value.timings,
         waMessageSent: value.waMessageSent,
+        state: value.state,
         prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
         lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
         payment: [{
@@ -621,7 +629,12 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       dataIndex: 'address',
       width: 150,
       editable: true,
-      
+    },
+    {
+      title: 'Customer State',
+      dataIndex: 'state',
+      width: 200,
+      editable: true,
     },
     {
       title: 'Class Type',
@@ -807,7 +820,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': col.dataIndex === 'state' ? 'selectState':'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

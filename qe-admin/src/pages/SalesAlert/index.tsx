@@ -5,6 +5,7 @@ import {addTeacherSchedule, studentsDashboard, studentsDashboardFilter} from "@/
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
+import statesData from "../../../data/states.json";
 
 const { Option } = Select;
 interface Item {
@@ -18,7 +19,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon' | 'selectConfirmDetails' | 'selectLSQUsers';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon' | 'selectConfirmDetails' | 'selectLSQUsers' | 'selectState';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -306,6 +307,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="No">No</Option>
             </Select>
       )
+    }else if(inputType === 'selectState'){
+      return(
+        <Select style={{ width: 100 + "%" }} >
+          {statesData.map(state => <Option value = {state.label} key = {state.label}>{state.value}</Option>)}
+        </Select>
+      )
     }else{
       return <Input />
     }
@@ -406,6 +413,7 @@ const StudentOnboard: React.FC = () => {
       courseFrequency: value.courseFrequency,
       timings: value.timings,
       salesowner: value.salesowner,
+      state: value.state,
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
@@ -469,7 +477,7 @@ const StudentOnboard: React.FC = () => {
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale,  state, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink, plastName, classType,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink, plastName, classType,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)
@@ -571,26 +579,29 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Alternate No',
       dataIndex: 'alternativeMobile',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Address',
       dataIndex: 'address',
       width: 150,
+      editable: true,
+    },
+    {
+      title: 'Customer State',
+      dataIndex: 'state',
+      width: 200,
       editable: true,
     },
     {
@@ -733,7 +744,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
