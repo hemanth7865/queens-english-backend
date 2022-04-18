@@ -49,6 +49,8 @@ const Batch: React.FC<BatchProps> = (props) => {
   const [data, setData] = useState(props.data);
   const rebatching = props.filterTheme == "RE_BATCHING";
 
+  console.log(data);
+
   const { id, timings, startLesson, dob, courseFrequency, startDate, course } =
     data;
 
@@ -173,6 +175,10 @@ const Batch: React.FC<BatchProps> = (props) => {
   };
 
   const onFinish = async () => {
+    if(!rebatching && data.batchCode?.length > 0){
+      alert(`Student is part of batch ${data.batchCode}, Please remove student from this batch, then try to add again.`);
+      return false;
+    }
     setIsLoading(true);
     let success = true;
     if (props.onFinish && typeof selectedBatch === "string") {
