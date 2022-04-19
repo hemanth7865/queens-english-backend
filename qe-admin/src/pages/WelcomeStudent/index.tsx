@@ -509,7 +509,8 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboard('enrolled', {
           current,
-          pageSize
+          pageSize,
+          prm_name: prmName
         }
       );
       if (msg.status === "ok") {
