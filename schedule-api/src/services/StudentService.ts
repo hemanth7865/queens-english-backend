@@ -92,10 +92,12 @@ export class StudentService {
            query_list.push(` u.type like '%${type}%'  `);
       console.log("user type ", type);
     }
-    var StudentIds = [];
+
     if (parameters.studentID) {
-      StudentIds.push(parameters.studentID);
+      query_list.push(` s.studentID like '%${parameters.studentID}%'  `);
     }
+
+    var StudentIds = [];
 
     if (parameters.batchCode) {
       let bathCodeQuery = `SELECT u.id FROM user u join batch_students bs on bs.id = u.id
