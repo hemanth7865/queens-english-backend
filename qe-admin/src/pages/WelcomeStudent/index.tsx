@@ -517,43 +517,46 @@ const StudentOnboard: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       
-      
-      setTotalRecords(msg.total);
-      
-      var tempArray = []
+      handleGetData(msg);
 
-      msg.data.map((item)=>{
-          var p = item
-          var isEntryStatus = false
-          var isTempEntryStatus = true
-          for (var key in p) {
-              if (p.hasOwnProperty(key)) {
-                  if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'state' ||key == 'phoneNumber'){
-                      var tempKeyValue = p[key] + ''
-                      if(isTempEntryStatus){
-                          if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
-                              isEntryStatus = true
-                          }
-                          else {
-                              isEntryStatus = false
-                              isTempEntryStatus = false
-                          }
-                      }
-                  }
-              }
-          }
-          if(isEntryStatus){
-              tempArray.push(item)
-          }
-    })
-      
-      setData(tempArray);
     } catch (error) {
       //console.log("error", error);
     }
     setIsLoading(false);
   }
 
+  const handleGetData = (msg) => {
+    setTotalRecords(msg.total);
+      
+    var tempArray = []
+
+    msg.data.map((item)=>{
+        var p = item
+        var isEntryStatus = false
+        var isTempEntryStatus = true
+        for (var key in p) {
+            if (p.hasOwnProperty(key)) {
+                if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'state' ||key == 'phoneNumber'){
+                    var tempKeyValue = p[key] + ''
+                    if(isTempEntryStatus){
+                        if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
+                            isEntryStatus = true
+                        }
+                        else {
+                            isEntryStatus = false
+                            isTempEntryStatus = false
+                        }
+                    }
+                }
+            }
+        }
+        if(isEntryStatus){
+            tempArray.push(item)
+        }
+  })
+    
+    setData(tempArray);
+  }
 
   useEffect(() => {
   studentGetApi()
@@ -892,7 +895,7 @@ const StudentOnboard: React.FC = () => {
           current: 1,
           pageSize: 20}
       );
-      setData(msg.data);
+      handleGetData(msg);
     } catch (error) {
       console.log("error", error);
     }
