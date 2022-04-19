@@ -380,6 +380,8 @@ const StudentOnboard: React.FC = () => {
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
+  const [current, setCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -530,7 +532,6 @@ const StudentOnboard: React.FC = () => {
       }
       
       handleGetData(msg);
-
     } catch (error) {
       //console.log("error", error);
     }
@@ -568,6 +569,8 @@ const StudentOnboard: React.FC = () => {
   })
     
     setData(tempArray);
+    setCurrent(msg.current);
+    setPageSize(msg.pageSize);
   }
 
   useEffect(() => {
@@ -904,8 +907,8 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(true);
     try {
       let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
-          current: 1,
-          pageSize: 20}
+          current,
+          pageSize}
       );
       handleGetData(msg);
     } catch (error) {
