@@ -411,7 +411,6 @@ const StudentOnboard: React.FC = () => {
       type: "student",
       status: "enrolled",
       alternativeMobile: value.alternativeMobile,
-      classType: value.classType,
       course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
@@ -613,12 +612,6 @@ const StudentOnboard: React.FC = () => {
       title: 'Customer State',
       dataIndex: 'state',
       width: 200,
-      editable: true,
-    },
-    {
-      title: 'Class Type',
-      dataIndex: 'classType',
-      width: 150,
       editable: true,
     },
     {
