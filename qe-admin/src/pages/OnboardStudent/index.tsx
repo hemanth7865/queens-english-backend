@@ -358,7 +358,8 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboard('onboarding', {
           current,
-          pageSize
+          pageSize,
+          prm_name: prmName
         }
       );
       if (msg.status === "ok") {

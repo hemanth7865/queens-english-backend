@@ -519,7 +519,8 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
     try {
       let msg = await studentsDashboard('startclasslater', {
           current,
-          pageSize
+          pageSize,
+          prm_name: prmName
         }
       );
       if (msg.status === "ok") {

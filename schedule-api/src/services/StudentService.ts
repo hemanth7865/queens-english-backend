@@ -218,7 +218,11 @@ export class StudentService {
               element.age = age--;
           }
         }
-       
+        
+        if(!element.isSibling){
+          element.isSibling = await this.usersRepository.findOne({where: {isSibling: 1, phoneNumber: element.phoneNumber}}) ? 1 : 0;
+        }
+
         var l = new LeadView(
           element.id,
           element.studentID,
@@ -767,6 +771,11 @@ export class StudentService {
       ...users,...student,batchCode:studentOrTeacherId.join(","), batchesHistory, ...payment
     }
    
+    if(!response.isSibling){
+      response.isSibling = await this.usersRepository.findOne({where: {isSibling: 1, phoneNumber: response.phoneNumber}}) ? true : false;
+    }
+
+
     usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);    
     return {
       success: true,
@@ -800,7 +809,6 @@ export class StudentService {
     var results = await getManager().query(finalQuery);
     var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
     console.log("results size", results.length);
-
 
     return {
       success: true,
