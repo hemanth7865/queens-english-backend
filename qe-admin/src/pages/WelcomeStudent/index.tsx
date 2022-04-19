@@ -7,6 +7,7 @@ import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
+import statesData from "../../../data/stateCustomer.json";
 
 const { Option } = Select;
 interface Item {
@@ -20,7 +21,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent' | 'selectLSQUsers';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent' | 'selectLSQUsers' | 'selectState' | 'selectIsSibling';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -311,8 +312,20 @@ const EditableCell: React.FC<EditableCellProps> = ({
               <Option value="No">No</Option>
             </Select>
       )
-    }
-    else{
+    }else if(inputType === 'selectState'){
+      return(
+        <Select style={{ width: 100 + "%" }} >
+          {statesData.map(state => <Option value = {state.label} key = {state.label}>{state.value}</Option>)}
+        </Select>
+      )
+    }else if(inputType === 'selectIsSibling'){
+      return(
+            <Select style={{ width: 100 + "%" }}>
+              <Option value="1">Yes</Option>
+              <Option value="0">No</Option>
+            </Select>
+      )
+    }else{
       return <Input />
     }
   }
@@ -323,10 +336,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
-            inputType !== "comments"?
-            { required: true, 
-              message: `${title} is required`
-            }: {},  
+            inputType !== "selectIsSibling"? inputType !== "comments" ?{ required: true, message: `${title} number is required`}: {} : {}, 
             inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/, message: "Enter valid number"}: {},
             inputType === "email" ? {required: true, type: "email"}: {},
             inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
@@ -353,7 +363,8 @@ const StudentOnboard: React.FC = () => {
   const intl = useIntl();
 
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', prm_name: '', studentID: ''})
+  const [formData, setFormData] = useState({studentName: '',  studentPhoneNumber: '', studentEmail: '', studentID: ''});
+  const [prmName, setPrmName] = useState('');
 
   const [form] = Form.useForm();
   const [data, setData] = useState();
@@ -419,6 +430,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    console.log('value', value)
     setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
@@ -446,6 +458,8 @@ const StudentOnboard: React.FC = () => {
       courseFrequency: value.courseFrequency,
       timings: value.timings,
       waMessageSent: value.waMessageSent,
+      state: value.state,
+      isSibling: Number(value.isSibling),
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
@@ -465,6 +479,7 @@ const StudentOnboard: React.FC = () => {
       }]
 
     }
+    console.log('DataForm', dataForm)
     if(value.status == "startclasslater" || value.status == "batching"){
       //openNotification('info', value.phoneNumber);
     }
@@ -512,7 +527,7 @@ const StudentOnboard: React.FC = () => {
           var isTempEntryStatus = true
           for (var key in p) {
               if (p.hasOwnProperty(key)) {
-                  if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
+                  if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'state' ||key == 'phoneNumber'){
                       var tempKeyValue = p[key] + ''
                       if(isTempEntryStatus){
                           if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
@@ -526,11 +541,10 @@ const StudentOnboard: React.FC = () => {
                   }
               }
           }
-
-    if(isEntryStatus){
-        tempArray.push(item)
-    }
-})
+          if(isEntryStatus){
+              tempArray.push(item)
+          }
+    })
       
       setData(tempArray);
     } catch (error) {
@@ -629,26 +643,29 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'phoneNumber',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Whatsapp No',
       dataIndex: 'whatsapp',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Alternate No',
       dataIndex: 'alternativeMobile',
       width: 150,
       editable: true,
-      
     },
     {
       title: 'Address',
       dataIndex: 'address',
       width: 150,
+      editable: true,
+    },
+    {
+      title: 'Customer State',
+      dataIndex: 'state',
+      width: 200,
       editable: true,
     },
     {
@@ -797,6 +814,19 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Student Is sibling',
+      dataIndex: 'isSibling',
+      width: 150,
+      editable: true,
+      render: (value: any)=>{
+        if(!value){
+          return 'No'
+        }else{
+          return 'Yes'
+        }
+      }
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       width: 150,
@@ -836,7 +866,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState':col.dataIndex === 'isSibling' ? 'selectIsSibling': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
@@ -854,9 +884,10 @@ const StudentOnboard: React.FC = () => {
   }
   
   const handleFormSubmit = async () => {
+    console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, formData.prm_name, formData.studentID, {
+      let msg = await studentsDashboardFilter('enrolled', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
           current: 1,
           pageSize: 20}
       );
@@ -872,6 +903,7 @@ const StudentOnboard: React.FC = () => {
   setFormData('')
   studentGetApi()
  }
+
 
   return (
     <>
@@ -901,7 +933,9 @@ const StudentOnboard: React.FC = () => {
 
                   <Col span={6}>
                     <Form.Item name="prm_name" label = "PRM Name" >
-                      <Input name = "prm_name" onChange={handleInputChange}/>
+                    <Select style={{ width: 100 + "%" }} onChange = {(value)=>{setPrmName(value)}}>
+                      {prmData.map(prm => <Option value = {`${prm.firstName} ${prm.lastName}`} key = {prm.firstName} name = "prm_name">{prm.firstName} {prm.lastName}</Option>)}
+                    </Select>
                     </Form.Item>
                   </Col>
 
