@@ -337,7 +337,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           style={{ margin: 0 }}
           rules={[
             inputType !== "selectIsSibling"? inputType !== "comments" ?{ required: true, message: `${title} number is required`}: {} : {}, 
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/, message: "Enter valid number"}: {},
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}: {},
             inputType === "email" ? {required: true, type: "email"}: {},
             inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
             inputType === "selectCourseFrequency" ? {required: true, pattern: /^[MTWFS]*$/, message: "Enter only any of MTWTFSS days"}:{},
@@ -509,7 +509,8 @@ const StudentOnboard: React.FC = () => {
     try {
       let msg = await studentsDashboard('enrolled', {
           current,
-          pageSize
+          pageSize,
+          prm_name: prmName
         }
       );
       if (msg.status === "ok") {

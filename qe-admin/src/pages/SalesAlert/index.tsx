@@ -331,7 +331,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
-            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{10,15}$/, message: "Enter valid number"}: {},
+            inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}: {},
             inputType === "email" ? {required: true, type: "email"}: {},
             inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
             inputType === "selectCourseFrequency" ? {required: true, pattern: /^[MTWFS]*$/, message: "Enter only any of MTWTFSS days"}:{},
@@ -411,7 +411,6 @@ const StudentOnboard: React.FC = () => {
       type: "student",
       status: "enrolled",
       alternativeMobile: value.alternativeMobile,
-      classType: value.classType,
       course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
@@ -475,13 +474,14 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('enrolled', {
-        current,
-        pageSize
+        current: 1,
+        pageSize: 100 
       }
     );
     if (msg.status === "ok") {
       console.log("API call sucessfull", msg);
     }
+    console.log('data total', msg.total)
     setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
@@ -490,7 +490,9 @@ const StudentOnboard: React.FC = () => {
         return checkProperties(item)
       }).filter(item => item != undefined)
       setData(nullObj);
-      
+      const lenth = nullObj.length
+      console.log('null obj length', nullObj.length, newArray.length, lenth)
+      //setTotalRecords(nullObj.length);
     } catch (error) {
       //console.log("error", error);
     }
@@ -610,12 +612,6 @@ const StudentOnboard: React.FC = () => {
       title: 'Customer State',
       dataIndex: 'state',
       width: 200,
-      editable: true,
-    },
-    {
-      title: 'Class Type',
-      dataIndex: 'classType',
-      width: 150,
       editable: true,
     },
     {
