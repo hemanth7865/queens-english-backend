@@ -19,7 +19,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon' | 'selectConfirmDetails' | 'selectLSQUsers' | 'selectState';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectDate' | 'selectSaleWon' | 'selectConfirmDetails' | 'selectLSQUsers' | 'selectState' | 'selectIsSibling';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -313,6 +313,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
           {statesData.map(state => <Option value = {state.label} key = {state.label}>{state.value}</Option>)}
         </Select>
       )
+    }else if(inputType === 'selectIsSibling'){
+      return(
+            <Select style={{ width: 100 + "%" }}>
+              <Option value="1">Yes</Option>
+              <Option value="0">No</Option>
+            </Select>
+      )
     }else{
       return <Input />
     }
@@ -414,6 +421,7 @@ const StudentOnboard: React.FC = () => {
       timings: value.timings,
       salesowner: value.salesowner,
       state: value.state,
+      isSibling: Number(value.isSibling),
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
@@ -712,6 +720,19 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Student Is sibling (optional)',
+      dataIndex: 'isSibling',
+      width: 150,
+      editable: true,
+      render: (value: any)=>{
+        if(!value){
+          return 'No'
+        }else{
+          return 'Yes'
+        }
+      }
+    },
+    {
       title: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
@@ -744,7 +765,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState':col.dataIndex === 'isSibling' ? 'selectIsSibling' : 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
