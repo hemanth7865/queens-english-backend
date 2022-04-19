@@ -21,7 +21,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent' | 'selectLSQUsers' | 'selectState' | 'selectIsSibling';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectDownPayment' | 'selectCourseFrequency' | 'selectSubscriptionAmount' | 'selectSubscriptionMonth' | 'selectTimings' | 'selectSubscriptionAmount' | 'selectSubscriptionType' | 'selectPRM' | 'selectWhatsappSent' | 'selectLSQUsers' | 'selectState' | 'selectIsSibling' | 'selectClassesSold';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -103,7 +103,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectDownPayment'){
-      const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999', '7500']);
+      const [items, setItems] = useState(['0', '599', '799', '849', '1099', '1149', '1599', '1649', '1999', '2399', '2930', '3499', '4799', '4999', '7500']);
       const [name, setName] = useState('');
       const onNameChange = event => {
       setName(event.target.value);
@@ -136,7 +136,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectSubscriptionAmount'){
-      const [items, setItems] = useState(['599', '1099', '1999', '3499', '4999']);
+      const [items, setItems] = useState(['0', '599', '799', '849', '1099', '1149', '1599', '1649', '1999', '2399', '2930', '3199', '3499', '4799', '4999']);
       const [name, setName] = useState('');
       const onNameChange = event => {
       setName(event.target.value);
@@ -235,7 +235,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       </Select>
       )
     }else if(inputType === 'selectSubscriptionMonth'){
-      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23']);
+      const [items, setItems] = useState(['0', '3', '4', '7', '13', '15', '23', '31']);
       const [name, setName] = useState('');
       const onNameChange = event => {
       setName(event.target.value);
@@ -288,9 +288,21 @@ const EditableCell: React.FC<EditableCellProps> = ({
       )
     }else if(inputType === 'selectSubscriptionType'){
       return(
+          <Select style={{ width: 100 + "%" }} >
+            <Option value="Manual (Monthly)">Manual (Monthly)</Option>
+            <Option value="Manual (Quarterly)">Manual (Quarterly)</Option>
+            <Option value="Auto-Debit">Auto-Debit</Option>
+            <Option value="One Time Payment">One Time Payment</Option>
+          </Select>
+      )
+    }else if(inputType === 'selectClassesSold'){
+      return(
             <Select style={{ width: 100 + "%" }} >
-              <Option value="Manual">Manual</Option>
-              <Option value="Auto-Debit">Auto-Debit</Option>
+              <Option value="60">60</Option>
+              <Option value="100">100</Option>
+              <Option value="200">200</Option>
+              <Option value="300">300</Option>
+              <Option value="400">400</Option>
             </Select>
       )
     }else if(inputType === 'selectPRM'){
@@ -866,7 +878,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'numberOnly': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState':col.dataIndex === 'isSibling' ? 'selectIsSibling': 'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType':  col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber":col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'selectClassesSold': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState':col.dataIndex === 'isSibling' ? 'selectIsSibling': 'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
