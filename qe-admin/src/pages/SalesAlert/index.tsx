@@ -448,6 +448,7 @@ const StudentOnboard: React.FC = () => {
         emi: value.emi,
         emiMonths: value.emiMonths,
         paymentMode: value.paymentMode,
+        dateofsale: value.dateofsale,
       }]
 
     }
@@ -559,7 +560,6 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'customerEmail',
       width: 200,
       editable: true,
-      
     },
     {
       title: 'Student Id',

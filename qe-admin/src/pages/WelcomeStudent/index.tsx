@@ -490,6 +490,7 @@ const StudentOnboard: React.FC = () => {
         emi: value.emi,
         emiMonths: value.emiMonths,
         paymentMode: value.paymentMode,
+        dateofsale: value.dateofsale,
       }]
 
     }
@@ -615,6 +616,23 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'lastName',
       width: 160,
       editable: true,
+    },
+    {
+      title: 'Sale Date',
+      dataIndex: 'dateofsale',
+      width: 160,
+      editable: false,
+      render: (value)=>{
+        console.log('value dateofsale', value )
+        let datesale ;
+        if(value){
+          console.log(new Date(value).toISOString())
+          datesale = new Date(value).toISOString()
+          return moment(datesale,"YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+      },
+      sorter: (a: any, b: any) => moment(a.dateofsale).unix() - moment(b.dateofsale).unix()
+
     },
     {
       title: 'Customer Email',
