@@ -559,7 +559,6 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'customerEmail',
       width: 200,
       editable: true,
-      
     },
     {
       title: 'Student Id',

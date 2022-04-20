@@ -520,7 +520,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Start Date',
       dataIndex: 'startDate',
       width: 200,
-      editable: true,
+      editable: false,
       render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
@@ -688,9 +688,10 @@ const StudentOnboard: React.FC = () => {
   }
 
  const handleReset = ()=>{
-  form.resetFields()
-  setFormData('')
-  studentGetApi()
+  form.resetFields();
+  setFormData('');
+  setPrmName('');
+  studentGetApi();
  }
 
   return (

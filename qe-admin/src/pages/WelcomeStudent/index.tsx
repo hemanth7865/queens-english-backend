@@ -617,6 +617,21 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Sale Date',
+      dataIndex: 'dateofsale',
+      width: 160,
+      editable: false,
+      render: (value)=>{
+        let datesale ;
+        if(value){
+          datesale = new Date(value).toISOString()
+          return moment(datesale,"YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+      },
+      sorter: (a: any, b: any) => moment(a.dateofsale).unix() - moment(b.dateofsale).unix()
+
+    },
+    {
       title: 'Customer Email',
       dataIndex: 'customerEmail',
       width: 200,
@@ -721,7 +736,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Start Date',
       dataIndex: 'startDate',
       width: 170,
-      editable: true,
+      editable: false,
       render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
@@ -917,10 +932,11 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(false);
   }
 
- const handleReset = ()=>{
-  form.resetFields()
-  setFormData('')
-  studentGetApi()
+ const handleReset = async ()=>{
+  form.resetFields();
+  setFormData('');
+  setPrmName('');
+  studentGetApi();
  }
 
 

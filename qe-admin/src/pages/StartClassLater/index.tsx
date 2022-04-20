@@ -688,7 +688,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       title: 'Start Date',
       dataIndex: 'startDate',
       width: 200,
-      editable: true,
+      editable: false,
       render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
@@ -883,9 +883,10 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
   }
 
  const handleReset = ()=>{
-  form.resetFields()
-  setFormData('')
-  studentGetApi()
+  form.resetFields();
+  setFormData('');
+  setPrmName('');
+  studentGetApi();
  }
 
   return (
