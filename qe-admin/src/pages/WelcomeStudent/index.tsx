@@ -490,7 +490,6 @@ const StudentOnboard: React.FC = () => {
         emi: value.emi,
         emiMonths: value.emiMonths,
         paymentMode: value.paymentMode,
-        dateofsale: value.dateofsale,
       }]
 
     }
