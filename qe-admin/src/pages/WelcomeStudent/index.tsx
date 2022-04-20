@@ -622,10 +622,8 @@ const StudentOnboard: React.FC = () => {
       width: 160,
       editable: false,
       render: (value)=>{
-        console.log('value dateofsale', value )
         let datesale ;
         if(value){
-          console.log(new Date(value).toISOString())
           datesale = new Date(value).toISOString()
           return moment(datesale,"YYYY-MM-DD").format("DD-MM-YYYY");
         }
