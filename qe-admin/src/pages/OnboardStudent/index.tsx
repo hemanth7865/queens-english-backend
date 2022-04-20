@@ -688,9 +688,10 @@ const StudentOnboard: React.FC = () => {
   }
 
  const handleReset = ()=>{
-  form.resetFields()
-  setFormData('')
-  studentGetApi()
+  form.resetFields();
+  setFormData('');
+  setPrmName('');
+  studentGetApi();
  }
 
   return (

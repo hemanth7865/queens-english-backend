@@ -883,9 +883,10 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
   }
 
  const handleReset = ()=>{
-  form.resetFields()
-  setFormData('')
-  studentGetApi()
+  form.resetFields();
+  setFormData('');
+  setPrmName('');
+  studentGetApi();
  }
 
   return (

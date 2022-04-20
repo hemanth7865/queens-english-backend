@@ -932,10 +932,11 @@ const StudentOnboard: React.FC = () => {
     setIsLoading(false);
   }
 
- const handleReset = ()=>{
-  form.resetFields()
-  setFormData('')
-  studentGetApi()
+ const handleReset = async ()=>{
+  form.resetFields();
+  setFormData('');
+  setPrmName('');
+  studentGetApi();
  }
 
 
