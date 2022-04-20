@@ -1498,7 +1498,212 @@ export const LESSONS = [
             "id": "6e2a23e4-f8a5-4db8-aeca-d6b74785a28c",
             "number": "300",
             "type": "lesson"
-        }
+        },
+        {
+            "id": "2170741b-9aff-4b0f-ae2d-af552406ab4a",
+            "number": "301",
+            "type": "lesson"
+          },
+          {
+            "id": "0b258fcc-0c51-4734-9ef4-447094b2fc92",
+            "number": "302",
+            "type": "lesson"
+          },
+          {
+            "id": "7fe82c66-10f8-43d1-8f71-123cb61a8e0b",
+            "number": "303",
+            "type": "lesson"
+          },
+          {
+            "id": "95197cdb-abe1-4711-a3cf-d2a0d4112398",
+            "number": "304",
+            "type": "lesson"
+          },
+          {
+            "id": "f746b9cf-c894-4537-9e35-2904e3b4ce88",
+            "number": "305",
+            "type": "lesson"
+          },
+          {
+            "id": "b9777e32-7fa1-4e46-b132-7afca591edf1",
+            "number": "306",
+            "type": "lesson"
+          },
+          {
+            "id": "d6d6bcaa-cd0f-468d-ba36-140c01ad1326",
+            "number": "307",
+            "type": "lesson"
+          },
+          {
+            "id": "9dcff4a8-0876-4139-8d91-0ebe56618c66",
+            "number": "308",
+            "type": "lesson"
+          },
+          {
+            "id": "ce40115c-7ab2-4fb2-8058-98d6761a6133",
+            "number": "309",
+            "type": "lesson"
+          },
+          {
+            "id": "1f409865-4398-4ad4-a875-20f88d757de5",
+            "number": "310",
+            "type": "lesson"
+          },
+          {
+            "id": "565d67df-9659-4808-bd67-1eadb360b436",
+            "number": "311",
+            "type": "lesson"
+          },
+          {
+            "id": "30d70efd-81e5-4880-b4dd-399ed5869ca3",
+            "number": "312",
+            "type": "lesson"
+          },
+          {
+            "id": "4d90938f-62e7-4efc-a7b0-854a544c9ecd",
+            "number": "313",
+            "type": "lesson"
+          },
+          {
+            "id": "12d853c0-8563-48bf-96a9-eb1217e83045",
+            "number": "314",
+            "type": "lesson"
+          },
+          {
+            "id": "741b1281-b759-43a2-af09-ebf500fe14e3",
+            "number": "315",
+            "type": "lesson"
+          },
+          {
+            "id": "68b05869-bcfe-4cf1-aa59-80eb289b2f82",
+            "number": "316",
+            "type": "lesson"
+          },
+          {
+            "id": "9f318b0a-d817-4524-88da-f01cdbb9b92f",
+            "number": "317",
+            "type": "lesson"
+          },
+          {
+            "id": "8bea760f-18b3-4e04-8e0a-15d9685892aa",
+            "number": "318",
+            "type": "lesson"
+          },
+          {
+            "id": "4c699824-cdb4-4a3f-9770-500d638baf4c",
+            "number": "319",
+            "type": "lesson"
+          },
+          {
+            "id": "6ce03866-7722-4dd3-8cfb-adf3757d44ae",
+            "number": "320",
+            "type": "lesson"
+          },
+          {
+            "id": "a27f7026-e412-40d6-9494-34b3c7fca30b",
+            "number": "321",
+            "type": "lesson"
+          },
+          {
+            "id": "0e0e2dc2-b96b-40cc-87f7-7115393659fb",
+            "number": "322",
+            "type": "lesson"
+          },
+          {
+            "id": "83b98d24-6483-4274-aab7-8aa09a808e1e",
+            "number": "323",
+            "type": "lesson"
+          },
+          {
+            "id": "2078ec88-04d3-46a5-96b2-17ee00409491",
+            "number": "324",
+            "type": "lesson"
+          },
+          {
+            "id": "4a798084-3473-435e-8d75-9c78ee0a1459",
+            "number": "325",
+            "type": "lesson"
+          },
+          {
+            "id": "85936312-2367-4d25-bfa5-4275a6199adf",
+            "number": "326",
+            "type": "lesson"
+          },
+          {
+            "id": "d1a10ee6-558b-46aa-84de-763ed9738d45",
+            "number": "327",
+            "type": "lesson"
+          },
+          {
+            "id": "218f5496-7c08-4847-be84-81f060b065e1",
+            "number": "328",
+            "type": "lesson"
+          },
+          {
+            "id": "8b24796f-ca93-4f7a-ae36-27302e781df2",
+            "number": "329",
+            "type": "lesson"
+          },
+          {
+            "id": "95219857-d08e-4cc2-8ebb-c4f9a0fbc0d5",
+            "number": "330",
+            "type": "lesson"
+          },
+          {
+            "id": "29967d59-3580-4f06-a85f-da636dbfd3bb",
+            "number": "331",
+            "type": "lesson"
+          },
+          {
+            "id": "99957989-ae4f-465e-a5d0-4dcb2081d6a3",
+            "number": "332",
+            "type": "lesson"
+          },
+          {
+            "id": "f752016c-fa3d-4280-bce5-f7c1b5e1d3bc",
+            "number": "333",
+            "type": "lesson"
+          },
+          {
+            "id": "6d312c3d-39b8-4ac4-8d3d-87d3804ad794",
+            "number": "334",
+            "type": "lesson"
+          },
+          {
+            "id": "f170b935-2f8d-4b62-968d-ab1b6b82360e",
+            "number": "335",
+            "type": "lesson"
+          },
+          {
+            "id": "45159d0b-46e9-4fba-8ab1-439265be134f",
+            "number": "336",
+            "type": "lesson"
+          },
+          {
+            "id": "23bf67ec-6a00-4bf9-9a79-1406bcba42d2",
+            "number": "337",
+            "type": "lesson"
+          },
+          {
+            "id": "ce941515-30cd-4922-b9eb-fb17d7cc19ba",
+            "number": "338",
+            "type": "lesson"
+          },
+          {
+            "id": "af8d309b-688f-43d9-823f-a58da9501fd1",
+            "number": "339",
+            "type": "lesson"
+          },
+          {
+            "id": "fae5c3ca-b344-41b1-ac82-2c9951142b4e",
+            "number": "340",
+            "type": "lesson"
+          },
+          {
+            "id": "f77e8e46-36e6-4439-81b3-04ec44c8f1da",
+            "number": "341",
+            "type": "lesson"
+          }
     ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
 export type Lesson = {
