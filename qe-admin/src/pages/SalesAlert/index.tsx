@@ -490,11 +490,6 @@ const StudentOnboard: React.FC = () => {
         pageSize: 100 
       }
     );
-    if (msg.status === "ok") {
-      console.log("API call sucessfull", msg);
-    }
-    console.log('data total', msg.total)
-    setTotalRecords(msg.total);
 
       //Logic to get only objects containing null values
       const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink, plastName, classType,  ...items}) => items)
@@ -504,9 +499,9 @@ const StudentOnboard: React.FC = () => {
       setData(nullObj);
       const lenth = nullObj.length
       console.log('null obj length', nullObj.length, newArray.length, lenth)
-      //setTotalRecords(nullObj.length);
+      setTotalRecords(nullObj.length);
     } catch (error) {
-      //console.log("error", error);
+      console.log("error", error);
     }
     setIsLoading(false);
   }
