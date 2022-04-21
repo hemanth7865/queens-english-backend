@@ -736,7 +736,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Start Date',
       dataIndex: 'startDate',
       width: 170,
-      editable: false,
+      editable: true,
       render: (value: any)=>{
         if(value){
           return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
