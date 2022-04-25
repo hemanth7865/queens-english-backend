@@ -517,7 +517,7 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Start Date',
+      title: 'Expected Start Date',
       dataIndex: 'startDate',
       width: 200,
       editable: false,
@@ -528,7 +528,7 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'Class Start Date',
+      title: 'Actual Start Date',
       dataIndex: 'classesStartDate',
       width: 200,
       editable: true,
