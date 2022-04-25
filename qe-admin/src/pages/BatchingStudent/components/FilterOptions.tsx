@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import { Col, Row, Form, Input, Button, Select } from 'antd';
 
 import {
-  timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone, timeToLocalTimezone
+  timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone, timeToLocalTimezone, getLessonByID
 } from "@/services/ant-design-pro/helpers";
 import frequencyList from "./../../../../data/frequency.json";
 import coursesType from "./../../../../data/coursesType.json";
@@ -147,7 +147,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                         <h3>Level: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? data.startLesson: "NA"}
+                        {currentBatch ? getLessonByID(currentBatch.activeLessonId)?.number || getLessonByID(currentBatch.startingLessonId)?.number: "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Start Date: </h3>
