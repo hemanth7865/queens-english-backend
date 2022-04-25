@@ -110,7 +110,7 @@ export class BatchService {
 
       let alreadyExists;
 
-      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data): force;
+      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data): false;
 
       if(studentHasBatch){
         return { status: false, message: studentHasBatch };
