@@ -203,9 +203,9 @@ export class StudentService {
           console.log(`PRM id is ${element.prm_id}`);
 
           prm_info = await this.prmRepository.findOne(element.prm_id);
-          lsq_user_info = await this.lsq_userRepository.findOne(element.lsq_users_ID);
+          lsq_user_info = await this.lsq_userRepository.findOne(element.salesowner);
 
-          console.log('lsq', lsq_user_info, element.lsq_users_ID)
+          console.log('lsq', lsq_user_info, element.salesowner)
         }
 
         if (element.dob) {
