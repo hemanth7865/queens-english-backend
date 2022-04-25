@@ -430,10 +430,10 @@ const StudentOnboard: React.FC = () => {
       plastName: value.plastName,
       courseFrequency: value.courseFrequency,
       timings: value.timings,
-      salesowner: value.salesowner,
       state: value.state,
       isSibling: Number(value.isSibling),
       lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
+      salesowner: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.id,
@@ -492,7 +492,7 @@ const StudentOnboard: React.FC = () => {
     );
 
       //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesowner, salesDataFilled, batchesHistory, isSibling, whatsappLink, plastName, classType,  ...items}) => items)
+      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesDataFilled, batchesHistory, isSibling, whatsappLink, plastName, classType,  ...items}) => items)
       let nullObj = newArray.map(item=> {
         return checkProperties(item)
       }).filter(item => item != undefined)

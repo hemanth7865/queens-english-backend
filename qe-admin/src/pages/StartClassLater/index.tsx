@@ -474,6 +474,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         isSibling: Number(value.isSibling),
         prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
         lsq_users_ID: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
+        salesowner: stringContainsNumber(value.lsq_user_name)? value.lsq_user_name : value.lsq_user_id,
         payment: [{
           paymentid: value.paymentid,
           studentId: value.id,
