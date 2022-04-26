@@ -303,7 +303,7 @@ const StudentOnboard: React.FC = () => {
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
-      lastName: value.lastName,
+      lastName: value.lastName.length>0 ? value.lastName : '-',
       phoneNumber: value.phoneNumber,
       studentID: value.studentID,
       address: value.address,
@@ -656,7 +656,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': col.dataIndex === 'plastName' ? 'name': 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date': col.dataIndex === 'classesStartDate' ? 'date': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'timings' ? 'selectTimings': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' :col.dataIndex === 'prm'? 'selectPRM': col.dataIndex === 'customerEmail' ? 'email': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'pfirstName' ? 'name': 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),

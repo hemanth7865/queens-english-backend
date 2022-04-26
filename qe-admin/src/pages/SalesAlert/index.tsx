@@ -413,7 +413,7 @@ const StudentOnboard: React.FC = () => {
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
-      lastName: value.lastName,
+      lastName: value.lastName.length>0 ? value.lastName : '-',
       phoneNumber: value.phoneNumber,
       studentID: value.studentID,
       address: value.address,
@@ -505,7 +505,7 @@ const StudentOnboard: React.FC = () => {
       for (var key in p) {
           if (p.hasOwnProperty(key)) {
               //console.log(key, ' : ', p[key]);
-              if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'plastName' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'classType' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
+              if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'classType' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
                   var tempKeyValue = p[key] + ''
                   if(isTempEntryStatus){
                       if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
@@ -603,7 +603,7 @@ const StudentOnboard: React.FC = () => {
       fixed: 'left',
     },
     {
-      title: 'Student Last Name',
+      title: 'Student Last Name (optional)',
       dataIndex: 'lastName',
       width: 160,
       editable: true,
@@ -826,7 +826,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'lastName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'selectClassesSold': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState':col.dataIndex === 'isSibling' ? 'selectIsSibling' : col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'subscriptionNo' ? 'comments': col.dataIndex === 'pfirstName' ? 'comments': col.dataIndex === 'plastName' ? 'comments':'text' ,
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' :  col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'paymentMode' ? 'selectPlan': col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'classType' ? 'number': col.dataIndex === 'callStatus' ? 'selectCallStatus': col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'downpayment' ?'selectDownPayment' : col.dataIndex === 'courseFrequency' ?'selectCourseFrequency': col.dataIndex === 'emi' ?'selectSubscriptionAmount' : col.dataIndex === 'emiMonths' ? 'selectSubscriptionMonth': col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'subscription' ?'selectSubscriptionType': col.dataIndex === 'salestatus' ? 'selectSaleWon': col.dataIndex === 'phoneNumber' ? 'phoneNumber': col.dataIndex === "alternativeMobile" ? "phoneNumber" :col.dataIndex === "whatsapp" ? "phoneNumber":col.dataIndex === 'salesDataFilled' ? 'selectConfirmDetails': col.dataIndex === 'firstName' ? 'name': col.dataIndex === 'salesowner' ? 'name': col.dataIndex === 'classessold' ? 'selectClassesSold': col.dataIndex === 'saleamount' ? 'numberOnly': col.dataIndex === 'customerEmail' ? 'email':col.dataIndex === 'lsq_user_name'? 'selectLSQUsers':col.dataIndex === 'state' ? 'selectState':col.dataIndex === 'isSibling' ? 'selectIsSibling' : col.dataIndex === 'comments' ? 'comments': col.dataIndex === 'subscriptionNo' ? 'comments': col.dataIndex === 'pfirstName' ? 'comments': col.dataIndex === 'plastName' ? 'comments':col.dataIndex === 'lastName' ? 'comments':'text' ,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
