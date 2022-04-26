@@ -407,6 +407,7 @@ const StudentOnboard: React.FC = () => {
 
   //edit submit 
   const formSubmit = async (value: any)=>{
+    console.log('values', value.saleamount, value.emi, value.emiMonths, value.downpayment)
     setIsLoading(true);
     const dataForm = {
       leadId: value.studentID,
@@ -451,36 +452,38 @@ const StudentOnboard: React.FC = () => {
       }]
 
     }
-    try {
-      const msg = await addTeacherSchedule({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataForm),
-      });
-      if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
-      } else if (msg.status === 400){
-        openNotificationWithIcon('error', 'Student', msg.errors[0]);
-      }else {
-        setIsLoading(false);
-        openNotificationWithIcon('success', 'Student', '');
+    if(value.saleamount == ( Number(value.emi * value.emiMonths) + Number(value.downpayment))){
+      try {
+        const msg = await addTeacherSchedule({
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataForm),
+        });
+        if (msg.status === 500) {
+          openNotificationWithIcon('error', 'Student', msg.error);
+        } else if (msg.status === 400){
+          openNotificationWithIcon('error', 'Student', msg.errors[0]);
+        }else {
+          setIsLoading(false);
+          openNotificationWithIcon('success', 'Student', '');
+        }
+      } catch (error) {
+        openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
       }
-    } catch (error) {
-      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      setIsLoading(false);
+    }else{
+      // openNotificationWithIcon('error', 'Student', 'Enter valid sale amount, subscription Months, subscription amount and downpayment')
+      notification.open({
+        message: '',
+        description:
+          'Enter valid sale amount, subscription Months, subscription amount and downpayment',
+      });
+      setIsLoading(false);
     }
-    setIsLoading(false);
+    
   }
 
-  function checkProperties(obj) {
-    for (const key in obj) {
-        if (obj[key] == "" || obj[key] == null ){
-            return obj;
-        }else{
-            continue;
-        }
-    }
-  }
 
   const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
     setIsLoading(true);
@@ -491,15 +494,70 @@ const StudentOnboard: React.FC = () => {
       }
     );
 
-      //Logic to get only objects containing null values
-      const newArray = msg.data.map(({slots, batchCode, classesTaken, payments, studentId, leadId, classesStartDate,age, bdmName, dateofsale, teacherName, zoomInfo, zoomLink, bdaName, callBackon, plantype, prm_id, subscriptionNo, comments, callStatus, prm_firstName, prm_lastName, prm, waMessageSent, poc, salesDataFilled, batchesHistory, isSibling, whatsappLink, plastName, classType, salesowner, pfirstName,  ...items}) => items)
-      let nullObj = newArray.map(item=> {
-        return checkProperties(item)
-      }).filter(item => item != undefined)
-      setData(nullObj);
-      const lenth = nullObj.length
-      console.log('null obj length', nullObj.length, newArray.length, lenth)
-      setTotalRecords(nullObj.length);
+    var tempArray = []
+    var validateArray = []
+    msg.data.map((item)=>{
+      var p = item
+      var isEntryStatus = false
+      var isTempEntryStatus = true
+      var isValidation = false
+      for (var key in p) {
+          if (p.hasOwnProperty(key)) {
+              //console.log(key, ' : ', p[key]);
+              if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'lastName' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'plastName' ||key == 'pfirstName' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'classType' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
+                  var tempKeyValue = p[key] + ''
+                  if(isTempEntryStatus){
+                      if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
+                          isEntryStatus = true
+                      }
+                      else {
+                          isEntryStatus = false
+                          isTempEntryStatus = false
+                      }
+                  }
+              }
+          }
+      }
+      if(!isEntryStatus){
+          tempArray.push(item)
+      }
+    })
+
+    msg.data.map((item)=>{
+        var p = item
+        var isEntryStatus = false
+        var isTempEntryStatus = true
+        var isValidation = false
+        for (var key in p) {
+            if (p.hasOwnProperty(key)) {
+                if(key == 'emiMonths' ||key == 'emi' ||key == 'saleamount' ||key == 'downpayment'){
+                    var tempKeyValue = p[key] + ''
+                    if(isTempEntryStatus){
+                        if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
+                          isEntryStatus = true
+                            if(item.saleamount == ( Number(item.emi * item.emiMonths) + Number(item.downpayment))){
+                              isValidation = true
+                            }
+                        }
+                        else {
+                            isEntryStatus = false
+                            isTempEntryStatus = false
+                            isValidation = false
+                        }
+                    }
+                }
+            }
+        }
+        if(!isValidation){
+          validateArray.push(item)
+      }
+      })
+      let array3 =  validateArray.concat(tempArray);
+      array3 = array3.filter((item,index)=>{
+        return (array3.indexOf(item) == index)
+      })
+      setData(array3);
+      setTotalRecords(array3.length);
     } catch (error) {
       console.log("error", error);
     }
