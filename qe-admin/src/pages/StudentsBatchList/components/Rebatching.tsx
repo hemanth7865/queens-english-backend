@@ -48,14 +48,21 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
 
     const onFinish = async (batchId: string) => {
         setIsLoading(true);
+        let success = true;
         try {
             const msg = await rebatchStudent(data.id, batchId);
-            handleAPIResponse(msg, "Student Rebatched Successfully", "Failed To Rebatched Student", false);
+            if(msg.status === false && msg.message){
+              msg.status = 400;
+              success = false;
+            }
+            handleAPIResponse(msg, "Student Rebatched Successfully", msg.message || "Failed To Rebatched Student", false);
           } catch (error) {
+            success = false;
             handleAPIResponse({status: 400}, "Student Rebatched Successfully", "Failed To Rebatched Student", false);
           }
         setIsLoading(false);
-    }
+        return success;
+      }
 
     useEffect(() => {
         getStudentBatches();

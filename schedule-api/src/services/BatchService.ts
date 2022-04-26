@@ -50,7 +50,7 @@ export class BatchService {
     return date;
   }
 
-  async createBatch(data: any) {
+  async createBatch(data: any, force: boolean = false) {
     const moment = require("moment");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
@@ -110,7 +110,7 @@ export class BatchService {
 
       let alreadyExists;
 
-      let studentHasBatch: boolean | string = await this.checkStudentBatches(studnets, data);
+      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data): false;
 
       if(studentHasBatch){
         return { status: false, message: studentHasBatch };
@@ -900,7 +900,7 @@ export class BatchService {
 
   async reBatch({batchId, studentId}: {batchId: string, studentId: string}) {
     let studentService = new StudentService();
-    let activeBatches = await studentService.getStudentActiveBatches(studentId);
+    let activeBatches = await studentService.getStudentActiveBatches(studentId, true);
     /**
      * Remove Student From Current Active Batches
      */
@@ -917,7 +917,7 @@ export class BatchService {
         }
       });
 
-      await this.createBatch(batch);
+      let res = await this.createBatch(batch, true);
     }
 
     /**

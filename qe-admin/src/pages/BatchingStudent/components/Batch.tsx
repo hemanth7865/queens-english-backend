@@ -182,7 +182,12 @@ const Batch: React.FC<BatchProps> = (props) => {
     setIsLoading(true);
     let success = true;
     if (props.onFinish && typeof selectedBatch === "string") {
-      await props.onFinish(selectedBatch);
+      const propsResult = await props.onFinish(selectedBatch);
+      if(propsResult === false){
+        success = false;
+        setIsLoading(false);
+        return success;
+      }
       const result = await submitUpdateStudent({
         ...props.data,
         status: "onboarding",
