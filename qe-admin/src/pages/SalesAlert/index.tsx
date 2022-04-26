@@ -495,16 +495,14 @@ const StudentOnboard: React.FC = () => {
       }
     );
 
-    var tempArray = []
-    var validateArray = []
+    //to check empty fields in the data
+    var emptyFieldsArray = [];
     msg.data.map((item)=>{
       var p = item
       var isEntryStatus = false
       var isTempEntryStatus = true
-      var isValidation = false
       for (var key in p) {
           if (p.hasOwnProperty(key)) {
-              //console.log(key, ' : ', p[key]);
               if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'classType' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'phoneNumber'){
                   var tempKeyValue = p[key] + ''
                   if(isTempEntryStatus){
@@ -520,10 +518,11 @@ const StudentOnboard: React.FC = () => {
           }
       }
       if(!isEntryStatus){
-          tempArray.push(item)
+          emptyFieldsArray.push(item)
       }
     })
-
+    //to validate the payment - total sale amount calculation
+    var paymentValidatedArray = [];
     msg.data.map((item)=>{
         var p = item
         var isEntryStatus = false
@@ -550,15 +549,15 @@ const StudentOnboard: React.FC = () => {
             }
         }
         if(!isValidation){
-          validateArray.push(item)
+          paymentValidatedArray.push(item)
       }
       })
-      let array3 =  validateArray.concat(tempArray);
-      array3 = array3.filter((item,index)=>{
-        return (array3.indexOf(item) == index)
+      let TotalArray =  paymentValidatedArray.concat(emptyFieldsArray);
+      TotalArray = TotalArray.filter((item,index)=>{
+        return (TotalArray.indexOf(item) == index)
       })
-      setData(array3);
-      setTotalRecords(array3.length);
+      setData(TotalArray);
+      setTotalRecords(TotalArray.length);
     } catch (error) {
       console.log("error", error);
     }
