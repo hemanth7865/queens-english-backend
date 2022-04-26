@@ -819,10 +819,16 @@ export class StudentService {
     };
   }
 
-  async getStudentActiveBatches(id: string) {
+  async getStudentActiveBatches(id: string, all: boolean = false) {
     const moment = require("moment");
 
-    let finalQuery = `SELECT * from classes WHERE classEndDate >= '${moment().format("YYYY-MM-DD")}' and id IN (SELECT batchId FROM batch_students WHERE studentId = '${id}' GROUP BY batchId HAVING COUNT ( * ) > 0)`;
+    let where: string = ``;
+
+    if(!all){
+      where = `classEndDate >= '${moment().format("YYYY-MM-DD")}' and`;
+    }
+
+    let finalQuery = `SELECT * from classes WHERE ${where} id IN (SELECT batchId FROM batch_students WHERE studentId = '${id}' GROUP BY batchId HAVING COUNT ( * ) > 0)`;
 
     var results = await getManager().query(finalQuery);
 

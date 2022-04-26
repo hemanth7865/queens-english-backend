@@ -52,6 +52,24 @@ export const getLessonByNumber = (lesson?: string): Lesson | undefined => {
     return result;
 }
 
+
+/**
+ * Get Lesson From A Giving String
+ * @param lesson ID string aka "UUID"
+ * @returns Lesson | undefined
+ */
+ export const getLessonByID = (lesson?: string): Lesson | undefined => {
+    const result: Lesson | undefined = LESSONS.filter(l => {
+        if(lesson && lesson.length > 0){
+            return l.id === lesson
+        }
+
+        return false;
+    })[0];
+
+    return result;
+}
+
 /**
  * Convert A given UTC time into local timezone
  * @param time string aka "HH:mm"
