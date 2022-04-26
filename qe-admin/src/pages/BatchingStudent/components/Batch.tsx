@@ -48,6 +48,8 @@ const Batch: React.FC<BatchProps> = (props) => {
   const [excludedTeacher, setExcludedTeacher] = useState<string>();
   const [data, setData] = useState(props.data);
   const rebatching = props.filterTheme == "RE_BATCHING";
+  const currentBatch = props.currentBatch;
+
 
   console.log(data);
 
@@ -55,6 +57,8 @@ const Batch: React.FC<BatchProps> = (props) => {
     data;
 
   const lesson = getLessonByNumber(startLesson);
+
+  //console.log('active lesson id: '+JSON.stringify(currentBatch));
 
   async function fetchBatchList(params: {}) {
     let fixedFilter: {
@@ -74,7 +78,11 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD"),
     };
-    if (lesson?.id) {
+    if(rebatching){
+      fixedFilter.activeLessonId = currentBatch.activeLessonId?currentBatch.activeLessonId:lesson?.id;
+      //console.log('active lesson id: '+JSON.stringify(currentBatch));
+      }
+        else if (lesson?.id) {
       fixedFilter.activeLessonId = lesson.id;
     }
 
