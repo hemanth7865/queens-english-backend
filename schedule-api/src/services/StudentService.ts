@@ -819,12 +819,12 @@ export class StudentService {
     };
   }
 
-  async getStudentActiveBatches(id: string, all: boolean = false) {
+  async getStudentActiveBatches(id: string, fetchAllBatches: boolean = true) {
     const moment = require("moment");
 
     let where: string = ``;
 
-    if(!all){
+    if(!fetchAllBatches){
       where = `classEndDate >= '${moment().format("YYYY-MM-DD")}' and`;
     }
 
