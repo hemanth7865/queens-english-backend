@@ -528,6 +528,11 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
+      
+    setData(msg.data.map((item)=>{
+      item.isSibling = parseInt(item.isSibling) ? "1" : "0";
+      return item
+    }));
       setData(msg.data);
       setTotalRecords(msg.total);
     } catch (error) {
@@ -818,7 +823,7 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
       width: 150,
       editable: true,
       render: (value: any)=>{
-        if(!value){
+        if(!parseInt(value)){
           return 'No'
         }else{
           return 'Yes'

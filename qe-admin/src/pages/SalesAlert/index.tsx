@@ -343,7 +343,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
-            inputType !== "selectIsSibling"? inputType !== "comments" ?{ required: true, message: `${title} number is required`}: {} : {}, 
+            inputType !== "comments" ?{ required: true, message: `${title} number is required`}: {}, 
             inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}: {},
             inputType === "email" ? {required: true, type: "email"}: {},
             inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
@@ -496,9 +496,10 @@ const StudentOnboard: React.FC = () => {
     );
 
     //to check empty fields in the data and payment, total sale calculation
-    var emptyFieldsArray = [];
-    var paymentValidatedArray = [];
+    var emptyFieldsArray: any[] = [];
+    var paymentValidatedArray: any[] = [];
     msg.data.map((item)=>{
+      item.isSibling = parseInt(item.isSibling) ? "1" : "0";
       var p = item
       var isEntryStatus = false
       var isTempEntryStatus = true
@@ -762,7 +763,7 @@ const StudentOnboard: React.FC = () => {
       width: 150,
       editable: true,
       render: (value: any)=>{
-        if(!value){
+        if(!parseInt(value)){
           return 'No'
         }else{
           return 'Yes'
