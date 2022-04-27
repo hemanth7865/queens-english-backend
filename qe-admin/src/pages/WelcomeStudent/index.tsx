@@ -348,7 +348,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
           name={dataIndex}
           style={{ margin: 0 }}
           rules={[
-            inputType !== "selectIsSibling"? inputType !== "comments" ?{ required: true, message: `${title} number is required`}: {} : {}, 
+            inputType !== "comments" ?{ required: true, message: `${title} number is required`}: {},
             inputType === "phoneNumber" ? { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}: {},
             inputType === "email" ? {required: true, type: "email"}: {},
             inputType === "name" ? {required: true, pattern: /^[a-zA-Z\s]*$/}: {},
@@ -543,33 +543,33 @@ const StudentOnboard: React.FC = () => {
   const handleGetData = (msg) => {
     setTotalRecords(msg.total);
       
-    var tempArray = []
+    var tempArray: any[] = []
 
     msg.data.map((item)=>{
-        var p = item
-        var isEntryStatus = false
-        var isTempEntryStatus = true
-        for (var key in p) {
-            if (p.hasOwnProperty(key)) {
-                if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'state' ||key == 'phoneNumber'){
-                    var tempKeyValue = p[key] + ''
-                    if(isTempEntryStatus){
-                        if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
-                            isEntryStatus = true
-                        }
-                        else {
-                            isEntryStatus = false
-                            isTempEntryStatus = false
-                        }
-                    }
-                }
-            }
-        }
-        if(isEntryStatus){
-            tempArray.push(item)
-        }
-  })
-    
+      item.isSibling = parseInt(item.isSibling) ? "1" : "0";
+      var p = item
+      var isEntryStatus = false
+      var isTempEntryStatus = true
+      for (var key in p) {
+          if (p.hasOwnProperty(key)) {
+              if(key == 'lsq_user_name' || key == 'lsq_user_id' ||key == 'prm' ||key == 'prm_id' ||key == 'customerEmail' ||key == 'timings' ||key == 'courseFrequency' ||key == 'firstName' ||key == 'alternativeMobile' ||key == 'course' ||key == 'startLesson' ||key == 'startDate' ||key == 'paymentMode' ||key == 'emiMonths' ||key == 'emi' || key == 'subscription' ||key == 'saleamount' ||key == 'classessold' ||key == 'downpayment' ||key == 'paymentid' ||key == 'address' ||key == 'whatsapp' ||key == 'dob' ||key == 'status' ||key == 'email' ||key == 'state' ||key == 'phoneNumber'){
+                  var tempKeyValue = p[key] + ''
+                  if(isTempEntryStatus){
+                      if(tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null){
+                          isEntryStatus = true
+                      }
+                      else {
+                          isEntryStatus = false
+                          isTempEntryStatus = false
+                      }
+                  }
+              }
+          }
+      }
+      if(isEntryStatus){
+          tempArray.push(item)
+      }
+    })
     setData(tempArray);
     setCurrent(msg.current);
     setPageSize(msg.pageSize);
@@ -582,7 +582,6 @@ const StudentOnboard: React.FC = () => {
   const save = async (id: React.Key) => {
   try {
     const row = (await form.validateFields()) as Item;
-
     const newData = [...data];
     const index = newData.findIndex(item => id === item.id);
     if (index > -1) {
@@ -866,7 +865,7 @@ const StudentOnboard: React.FC = () => {
       width: 150,
       editable: true,
       render: (value: any)=>{
-        if(!value){
+        if(!parseInt(value)){
           return 'No'
         }else{
           return 'Yes'
