@@ -658,6 +658,10 @@ export class BatchService {
       query_list.push(` classes.teacherId != '${parameters.excludedTeacher}' `);
     }
 
+    if(parameters.excludeCurrentBatchId){
+      query_list.push(` classes.id != '${parameters.excludeCurrentBatchId}' `);
+    }
+
     if(parameters.age){
       // +18 students in a separate class
       if(parameters.age >= 18){
