@@ -78,6 +78,7 @@ export class BatchController {
             classStartDate: request.query['classStartDate'],
             maxStudentsCount: request.query['maxStudentsCount'],
             excludedTeacher: request.query['excludedTeacher'],
+            excludeCurrentBatchId: request.query['excludeCurrentBatchId'],
             lessonGap: request.query['lessonGap'],
             classEndDate: request.query['classEndDate'],
         }

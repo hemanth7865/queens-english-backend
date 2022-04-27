@@ -71,6 +71,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       classStartDate?: string;
       maxStudentsCount?: number;
       excludedTeacher?: string;
+      excludeCurrentBatchId?: string;
       lessonGap?: number;
       classEndDate: string;
     } = {
@@ -112,6 +113,10 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     if (excludedTeacher && excludedTeacher.length > 0) {
       fixedFilter.excludedTeacher = excludedTeacher;
+    }
+
+    if (rebatching) {
+      fixedFilter.excludeCurrentBatchId = currentBatch?.id;
     }
 
     return listBatch({
