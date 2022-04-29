@@ -1059,7 +1059,7 @@ const StudentOnboard: React.FC = () => {
           }}
         >
           <Tabsedit tmpData={tmpData} />
-        </Drawer>
+    </Drawer>
     </Spin>
     </>
   );

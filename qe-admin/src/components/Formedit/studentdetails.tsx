@@ -111,7 +111,19 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
     }
     //const studentDetails = { ...props.tempData, ...values };
-    props.submit(dataForm);
+    if(value.saleamount == ( Number(value.emi * value.emiMonths) + Number(value.downpayment))){
+      props.submit(dataForm);
+    }else{
+      notification.open({
+        message: '',
+        description:
+          'Enter valid sale amount, subscription Months, subscription amount and downpayment',
+      });
+      setTimeout(() => {
+        window.location.reload()
+      }, 5000);
+    }
+
     console.log('Success: Student Details Update', dataForm);
   };
 
@@ -264,6 +276,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Student First Name"
             name="firstName"
+            rules={[{
+              required: true,
+              min: 2,
+              type: 'string',
+              pattern: /^[a-zA-Z ]*$/,
+            }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -300,6 +318,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Customer Email"
             name="customerEmail"
+            rules = {[{
+                  required: true,
+                  type: 'email'
+              }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -316,8 +338,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         <Col span={12}>
           <Form.Item
-            label="Registered Mobile Number"
+            label="RMN"
             name="phoneNumber"
+            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
           >
             <Input />
           </Form.Item>
@@ -327,6 +350,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Whatsapp Number"
             name="whatsapp"
+            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -336,6 +360,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Alternate Mobile Number"
             name="alternativeMobile"
+            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -344,6 +369,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item name="dob"
             label="Date of Birth"
+            rules={[{
+              required: true,
+            }]}
           >
             <input type="date"
               onChange={onChange}
@@ -355,6 +383,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Address"
             name="address"
+            rules={[{
+              required: true,
+            }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -492,6 +523,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Total Sale Amount"
             name="saleamount"
+            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -501,6 +533,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Down Payment"
             name="downpayment"
+            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -555,6 +588,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Subscription Amount"
             name="emi"
+            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -564,6 +598,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Months Of Subscription"
             name="emiMonths"
+            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
           >
             <Input onChange={onChange} />
           </Form.Item>
