@@ -870,7 +870,6 @@ const openNotification = (type: string,  message: string, prm_firstName: string,
         return (
           <a
             onClick={() => {
-              console.log('entity', entity)
               setVisibleEdit(true)
               setTmpData(entity)
             }}>

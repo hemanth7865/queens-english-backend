@@ -913,7 +913,6 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log('entity', entity)
               setVisibleEdit(true)
               setTmpData(entity)
             }}>
