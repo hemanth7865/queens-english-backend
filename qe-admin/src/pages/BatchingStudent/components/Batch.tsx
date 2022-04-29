@@ -79,11 +79,8 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD"),
     };
-    if(rebatching){
-      fixedFilter.activeLessonId = currentBatch.activeLessonId?currentBatch.activeLessonId:lesson?.id;
-      //console.log('active lesson id: '+JSON.stringify(currentBatch));
-      }
-        else if (lesson?.id) {
+    
+    if (lesson?.id) {
       fixedFilter.activeLessonId = lesson.id;
     }
 

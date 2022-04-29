@@ -4,7 +4,7 @@ import {
     getStudentActiveBatches, addTeacherSchedule, rebatchStudent
   } from "@/services/ant-design-pro/api";
 import {
-    handleAPIResponse
+    handleAPIResponse, getLessonByID
 } from "@/services/ant-design-pro/helpers";
 
 import Batch from "./../../BatchingStudent/components/Batch";
@@ -18,6 +18,12 @@ export type Props = {
 const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
     const [isLoading, setIsLoading] = useState(true);
     const [batches, setBatches] = useState<any[]>([]);
+
+    let startLesson = data.startLesson;
+    let lesson = getLessonByID(batches[0]?.activeLessonId)?.number;
+    if (lesson) {
+      startLesson = `Lesson ${lesson}`;
+    }
 
     const getStudentBatches = async () => {
         setIsLoading(true);
@@ -79,7 +85,7 @@ const Rebatching: React.FC<Props> = ({show, setShow, data}) => {
             }}
         >
             <Spin spinning={isLoading}>
-                <Batch data={data} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} filterCallBack={filterCallBack} onFinish={onFinish} />
+                <Batch data={{...data, startLesson}} setVisible={setShow} visible={show} filterTheme={"RE_BATCHING"} currentBatch={batches[0]} filterCallBack={filterCallBack} onFinish={onFinish} />
             </Spin>
         </Modal>
         <Button onClick={() => setShow(true)} block style={{ color: "white", backgroundColor: "DodgerBlue" }}>
