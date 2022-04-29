@@ -31,7 +31,6 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
   }, [props.tmpData])
 
   const submit = async (data: any) => {
-    console.log('Success: student details', data);
     setIsLoading(true);
     try {
       const msg = await addTeacherSchedule({
@@ -41,15 +40,15 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
         body: JSON.stringify(data),
       });
       if (msg.status === 500) {
-        //openNotificationWithIcon('error', 'Student', msg.error);
+        openNotificationWithIcon('error', 'Student', msg.error);
       } else if (msg.status === 400) {
-        //openNotificationWithIcon('error', 'Student', msg.errors[0]);
+        openNotificationWithIcon('error', 'Student', msg.errors[0]);
       } else {
         setIsLoading(false);
-        //openNotificationWithIcon('success', 'Student', '');
+        openNotificationWithIcon('success', 'Student', '');
       }
     } catch (error) {
-      //openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
+      openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
     setIsLoading(false);
   }

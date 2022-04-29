@@ -1,5 +1,5 @@
 import { EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Button, Select, Col, Row, notification, DatePicker } from 'antd';
+import { Form, Input, Button, Select, Col, Row, notification} from 'antd';
 import moment from 'moment';
 import { useEffect } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -62,7 +62,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   }
 
   const onFinish = (value: any) => {
-    console.log('values', value)
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -124,14 +123,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }, 5000);
     }
 
-    console.log('Success: Student Details Update', dataForm);
   };
 
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
 
-  console.log('data from student details edit', props.tempData)
 
   const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string) => {
     const waMessage = (
