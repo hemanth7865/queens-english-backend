@@ -434,7 +434,7 @@ export class StudentService {
       }
     } catch (e) {
       usersLogger.info(
-        `Failed To Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
+        `Failed To Update user status in Admin portal with phoneNumber : ${data?.phoneNumber} , error: ${e?.message}`
       );
     }
 
