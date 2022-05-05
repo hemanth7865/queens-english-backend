@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class updateCallBackonColumnSizeInStudentsTable1649768651063 implements MigrationInterface {
 

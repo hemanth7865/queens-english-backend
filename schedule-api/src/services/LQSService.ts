@@ -11,7 +11,7 @@ const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time')
 
 export class LQSService {
-  
+
 
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
@@ -178,7 +178,7 @@ export class LQSService {
 
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
-      student.prm_id =  await (await this.getPRMsAvailability())[0].id;
+      student.prm_id = await (await this.getPRMsAvailability())[0].id;
       await this.studentRepository.save(student);
       await this.paymentRepository.save(payment);
     } catch (error) {
@@ -281,9 +281,9 @@ export class LQSService {
           for (let element of res.data) {
             var lqsEntry = await this.lQSRepository.findOne(
               {
-              where: 
-              { id: element.ProspectID }
-            }
+                where:
+                  { id: element.ProspectID }
+              }
             );
             if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
               !lqsEntry) {
@@ -322,8 +322,8 @@ export class LQSService {
     usersLogger.info("Updated Mandatory Fields from Lead API ");
     var lqsRecords = await this.lQSRepository.find(
       {
-        where: 
-          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_ENROLLED])}
+        where:
+          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS, LQSService.LSQ_STATUS_ENROLLED]) }
       }
     );
     usersLogger.info('Updating... Sales fields in LSQ Records ');
@@ -360,7 +360,7 @@ export class LQSService {
       usersLogger.info("Updating student Sale related fields :: start");
       if (details && details.length > 0) {
         details[0].Fields.map((item) => {
-         
+
           if (item.Value && item.Value !== "Other" && item.Value !== "") {
             switch (item.SchemaName) {
               case "Status":
@@ -515,9 +515,9 @@ export class LQSService {
           for (let element of res.data) {
             var lqsEntry = await this.lQSRepository.findOne(
               {
-              where: 
-              { id: element.ProspectID }
-            }
+                where:
+                  { id: element.ProspectID }
+              }
             );
             if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
               !lqsEntry) {
@@ -554,15 +554,15 @@ export class LQSService {
     usersLogger.info("Updated Mandatory Fields from Lead API ");
     var lqsRecords = await this.lQSRepository.find(
       {
-        where: 
-          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS,LQSService.LSQ_STATUS_ENROLLED])}
+        where:
+          { lsqstatus: In([LQSService.LSQ_STATUS_SUCCESS, LQSService.LSQ_STATUS_ENROLLED]) }
       }
     );
     usersLogger.info('Updating... Sales fields in LSQ Records ');
     for (let element of lqsRecords) {
       usersLogger.info(`Total no of records ... ${lqsRecords.length}`);
       payment: Payment;
-     // var url = `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
+      // var url = `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
 
       const options = {
         url: `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
@@ -578,7 +578,7 @@ export class LQSService {
         },
       };
 
-      
+
       let user = await this.userRepository.findOne({
         where: { id: element.id },
       });
@@ -606,8 +606,7 @@ export class LQSService {
           console.log(error);
         })
 
-      if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) 
-      {
+      if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
         usersLogger.info("Updating ProspectActivities...");
         var item = details?.ProspectActivities[0].ActivityFields;
         usersLogger.info(JSON.stringify(item));
@@ -623,7 +622,7 @@ export class LQSService {
         element.address = item.mx_Custom_7;
         element.customerAddressState = item.mx_Custom_8;
         element.course = item.mx_Custom_9;
-        element.courseFrequency = item.mx_Custom_10 !== "Other"?item.mx_Custom_10:item.mx_Custom_11;
+        element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
         element.timings = item.mx_Custom_12;
         element.startingLevel = item.mx_Custom_13;
         element.startDate = item.mx_Custom_14;
@@ -632,10 +631,10 @@ export class LQSService {
         element.classessold = item.mx_Custom_17;
         element.subscription = item.mx_Custom_18;
         element.subscriptionNo = item.mx_Custom_19;
-        element.emi = item.mx_Custom_20 !== "Other" ?item.mx_Custom_20:item.mx_Custom_21;
-        element.emiMonths = item.mx_Custom_22 !== "Other" ?item.mx_Custom_22:item.mx_Custom_23;
-        element.downpayment = item.mx_Custom_24 !== "Other" ?item.mx_Custom_24:item.mx_Custom_25;
-        element.paymentMode = item.mx_Custom_26 !== "Other" ?item.mx_Custom_26:item.mx_Custom_27;
+        element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
+        element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
+        element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
+        element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
         element.transactionID = item.mx_Custom_28;
         element.bdaComments = item.mx_Custom_29;
         element.whatsapp = item.mx_Custom_30;

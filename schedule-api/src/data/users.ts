@@ -14,7 +14,7 @@ export const USERS = [
         group: "Admin Group",
         tags: [
             {
-                key:"0", 
+                key: "0",
                 label: "Tag1"
             }
         ],
@@ -22,16 +22,16 @@ export const USERS = [
         unreadCount: 11,
         country: "UK",
         access: "admin",
-        geographic:  {
-            province:  {
+        geographic: {
+            province: {
                 label: "London",
                 key: "330000"
             },
-            city:  { 
+            city: {
                 label: "London",
                 key: "330100"
             }
         },
-        address:  "123, address stree",
+        address: "123, address stree",
     }
 ]

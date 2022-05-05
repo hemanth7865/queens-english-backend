@@ -51,7 +51,7 @@ const TableList: React.FC = () => {
   const [assessmentDetails, setAssessmentDetails] = useState("");
 
   const intl = useIntl();
-  
+
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
@@ -74,7 +74,7 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: "batchNumber",
-      sorter: (a, b) => a.batchNumber?a.batchNumber.localeCompare(b.batchNumber):''
+      sorter: (a, b) => a.batchNumber ? a.batchNumber.localeCompare(b.batchNumber) : ''
     },
     {
       title: (
@@ -84,7 +84,7 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: "teacherName",
-      sorter: (a, b) => a.teacherName?a.teacherName.localeCompare(b.teacherName):''
+      sorter: (a, b) => a.teacherName ? a.teacherName.localeCompare(b.teacherName) : ''
 
     },
     {
@@ -95,18 +95,18 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: "studentName",
-      sorter: (a, b) => a.studentName?a.studentName.localeCompare(b.studentName):''
+      sorter: (a, b) => a.studentName ? a.studentName.localeCompare(b.studentName) : ''
     },
     {
-        title: (
-          <FormattedMessage
-            id="pages.searchTable.titlelessonNumber"
-            defaultMessage="Current Lesson"
-          />
-        ),
-        dataIndex: "currentLessonNumber",
-        hideInSearch: true,
-      },
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titlelessonNumber"
+          defaultMessage="Current Lesson"
+        />
+      ),
+      dataIndex: "currentLessonNumber",
+      hideInSearch: true,
+    },
     {
       title: (
         <FormattedMessage
@@ -116,18 +116,18 @@ const TableList: React.FC = () => {
       ),
       dataIndex: "status",
       valueEnum: {
-          "DUE": {
-            text: (
-                <FormattedMessage id="pages.searchTable.nameStatus.DUE" defaultMessage="DUE" />
-              ),
-              status: 'DUE',
-          },
-          "COMPLETED": {
-            text: (
-                <FormattedMessage id="pages.searchTable.nameStatus.COMPLETED" defaultMessage="COMPLETED" />
-              ),
-              status: 'COMPLETED',
-          }
+        "DUE": {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameStatus.DUE" defaultMessage="DUE" />
+          ),
+          status: 'DUE',
+        },
+        "COMPLETED": {
+          text: (
+            <FormattedMessage id="pages.searchTable.nameStatus.COMPLETED" defaultMessage="COMPLETED" />
+          ),
+          status: 'COMPLETED',
+        }
       }
     },
     {
@@ -140,89 +140,89 @@ const TableList: React.FC = () => {
       hideInSearch: true,
       render: (dom, entity) => {
         return (
-          <p>{entity.scores?entity.scores.map((score) => score.score).join("  "):''}</p>
+          <p>{entity.scores ? entity.scores.map((score) => score.score).join("  ") : ''}</p>
         );
       },
     },
     {
-    title: (
+      title: (
         <FormattedMessage
-        id="pages.searchTable.titletotalMarks"
-        defaultMessage="Total Score"
+          id="pages.searchTable.titletotalMarks"
+          defaultMessage="Total Score"
         />
-    ),
-    dataIndex: "totalScore",
-    hideInSearch: true,
+      ),
+      dataIndex: "totalScore",
+      hideInSearch: true,
     },
     {
-    title: (
+      title: (
         <FormattedMessage
-        id="pages.searchTable.titleMastry"
-        defaultMessage="Individual Mastery"
+          id="pages.searchTable.titleMastry"
+          defaultMessage="Individual Mastery"
         />
-    ),
-    hideInSearch: true,
-    render: (value)=>{
-        const totalValue = value.scores?value.scores.length:'NA'
+      ),
+      hideInSearch: true,
+      render: (value) => {
+        const totalValue = value.scores ? value.scores.length : 'NA'
         //console.log('tv', totalValue)
         //console.log('value', value.scores?value.scores.length:'')
-        const totalMarks = `${parseFloat((value.totalScore/totalValue)*100).toFixed(2)} %`
-        if(totalMarks == 'NaN %'){
+        const totalMarks = `${parseFloat((value.totalScore / totalValue) * 100).toFixed(2)} %`
+        if (totalMarks == 'NaN %') {
           return `0 %`
-        }else{
+        } else {
           return totalMarks
         }
       }
     },
     {
-    title: (
+      title: (
         <FormattedMessage
-        id="pages.searchTable.titleVocalScore"
-        defaultMessage="Vocab Score"
+          id="pages.searchTable.titleVocalScore"
+          defaultMessage="Vocab Score"
         />
-    ),
-    hideInSearch: true,
-    dataIndex: "vocabScore"
-    // render: (value)=>{
-    //     //console.log('vv', value.vocabScore)
-    //     return <Rate allowHalf disabled defaultValue={value.vocabScore} style = {{color: "black", fontSize: 10}}/>
-    //   }
+      ),
+      hideInSearch: true,
+      dataIndex: "vocabScore"
+      // render: (value)=>{
+      //     //console.log('vv', value.vocabScore)
+      //     return <Rate allowHalf disabled defaultValue={value.vocabScore} style = {{color: "black", fontSize: 10}}/>
+      //   }
     },
     {
-    title: (
+      title: (
         <FormattedMessage
-        id="pages.searchTable.titlepScore"
-        defaultMessage="Pronounciation Score"
+          id="pages.searchTable.titlepScore"
+          defaultMessage="Pronounciation Score"
         />
-    ),
-    hideInSearch: true,
-    dataIndex: "pronunciationScore"
-    // render: (value)=>{
-    //     return <Rate allowHalf disabled defaultValue={value.pronunciationScore} style = {{color: "black", fontSize: 10}}/>
-    //   }
+      ),
+      hideInSearch: true,
+      dataIndex: "pronunciationScore"
+      // render: (value)=>{
+      //     return <Rate allowHalf disabled defaultValue={value.pronunciationScore} style = {{color: "black", fontSize: 10}}/>
+      //   }
     },
     {
-    title: (
+      title: (
         <FormattedMessage
-        id="pages.searchTable.titleCScore"
-        defaultMessage="Confidence Score"
+          id="pages.searchTable.titleCScore"
+          defaultMessage="Confidence Score"
         />
-    ),
-    hideInSearch: true,
-    dataIndex: "confidenceScore"
-    // render: (value)=>{
-    //     return <Rate allowHalf disabled defaultValue={value.confidenceScore} style = {{color: "black", fontSize: 10}}/>
-    //   }
+      ),
+      hideInSearch: true,
+      dataIndex: "confidenceScore"
+      // render: (value)=>{
+      //     return <Rate allowHalf disabled defaultValue={value.confidenceScore} style = {{color: "black", fontSize: 10}}/>
+      //   }
     },
     {
-        title: (
-          <FormattedMessage
-            id="pages.searchTable.titleComment"
-            defaultMessage="Comments"
-          />
-        ),
-        dataIndex: "comment",
-        hideInSearch: true,
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleComment"
+          defaultMessage="Comments"
+        />
+      ),
+      dataIndex: "comment",
+      hideInSearch: true,
     },
     {
       title: (
@@ -234,7 +234,7 @@ const TableList: React.FC = () => {
       hideInSearch: true,
       render: (dom, entity) => {
         return (
-            <a
+          <a
             onClick={() => {
               console.log(entity)
               setShowDetail(true);
@@ -256,7 +256,7 @@ const TableList: React.FC = () => {
         console.log("API call sucessfull", msg);
       }
       setAssessmentDetails(msg);
-      console.log('view one',msg);
+      console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -268,18 +268,18 @@ const TableList: React.FC = () => {
     <PageContainer>
       <>
         <ProTable<API.RuleListItem, API.PageParams>
-        headerTitle={intl.formatMessage({
-          id: "pages.searchTable.titleAssessment",
-          defaultMessage: "Assessment Management",
-        })}
-        actionRef={actionRef}
-        rowKey="key"
-        search={{
-          labelWidth: 120,
-        }}
-        request={allAssessment}
-        columns={columns}
-      />
+          headerTitle={intl.formatMessage({
+            id: "pages.searchTable.titleAssessment",
+            defaultMessage: "Assessment Management",
+          })}
+          actionRef={actionRef}
+          rowKey="key"
+          search={{
+            labelWidth: 120,
+          }}
+          request={allAssessment}
+          columns={columns}
+        />
       </>
 
       <Drawer
@@ -292,7 +292,7 @@ const TableList: React.FC = () => {
         }}
         closable={false}
       >
-         <AssessmentForm assessmentData={assessmentDetails} />
+        <AssessmentForm assessmentData={assessmentDetails} />
       </Drawer>
     </PageContainer>
   );

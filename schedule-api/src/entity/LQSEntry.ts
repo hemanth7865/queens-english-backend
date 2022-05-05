@@ -85,7 +85,7 @@ export class LQSEntry extends BaseEntity {
     @Column("text")
     lsqstatus: string;
     @Column()
-    retry : number;
+    retry: number;
     @Column({ type: "text" })
     bdaComments: string;
     @CreateDateColumn()

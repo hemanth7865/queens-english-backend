@@ -27,8 +27,8 @@ export class StudentBatchesHistory extends BaseEntity {
     updated_at: Date
 
     @OneToOne(() => User)
-    @JoinColumn({name : "studentId"})
+    @JoinColumn({ name: "studentId" })
     student: User;
-    
+
     batch: Classes;
 }

@@ -1,25 +1,27 @@
-import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
-    ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn} from "typeorm";
-    
+import {
+    Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
+    ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn
+} from "typeorm";
+
 @Entity("lsq_users")
 export class LSQUser extends BaseEntity {
-    LSQUser() {}
+    LSQUser() { }
     @PrimaryColumn("uuid")
-        ID: string;
+    ID: string;
     @Column("text")
-        FirstName: string;
+    FirstName: string;
     @Column("text")
-        LastName: string;
+    LastName: string;
     @Column("text")
-        EmailAddress: string;
-    @Column({'nullable':true})
-        Role:string;
-    @Column({'nullable':true})
-        StatusCode: string;
-    @Column({'nullable':true})
-        Tag: string;
-    @Column({'nullable':true})
-        IsPhoneCallAgent: string;
-    @Column({'nullable':true})
-        alternativeMobile: string;       
+    EmailAddress: string;
+    @Column({ 'nullable': true })
+    Role: string;
+    @Column({ 'nullable': true })
+    StatusCode: string;
+    @Column({ 'nullable': true })
+    Tag: string;
+    @Column({ 'nullable': true })
+    IsPhoneCallAgent: string;
+    @Column({ 'nullable': true })
+    alternativeMobile: string;
 }

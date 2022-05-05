@@ -28,17 +28,17 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        if(!request.body.isSibling){
+        if (!request.body.isSibling) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
             var resp;
-            if(userExists){
+            if (userExists) {
                 usersLogger.info(`User With That Number Was Found ${userExists?.id}`);
                 return { status: 400, errors: ['User already exists with given phoneNumber'] };
             }
         }
 
         try {
-            if(request.body.type === 'student') {
+            if (request.body.type === 'student') {
                 // TODO: Enable If you need alternative mobile number validation
                 // const studentExists = await (new StudentService()).isStudentExist("alternativeMobile", request.body.alternativeMobile, request.body.id);
                 // if(studentExists){
@@ -47,28 +47,28 @@ export class UserController {
                 // }
                 resp = await this.studentService.saveStudentDetails(request.body);
                 //console.log('response usercontroller', resp)
-            } 
-            else {
-            resp = await this.teacherService.saveTeacher(request.body);
             }
-        
+            else {
+                resp = await this.teacherService.saveTeacher(request.body);
+            }
+
         } catch (error) {
             console.log(error);
-        console.log('Exception::UserController::SaveLead');
+            console.log('Exception::UserController::SaveLead');
         }
         console.log('End::UserController::SaveLead');
         return resp;
     }
-    
 
-    async updateLeadsStatus(request: Request, response: Response, next: NextFunction){
+
+    async updateLeadsStatus(request: Request, response: Response, next: NextFunction) {
         usersLogger.info('Start::UserController::updateLeadsStatus');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var resp;
         try {
-            if(request.body.type === 'student') {
+            if (request.body.type === 'student') {
                 resp = await this.studentService.updateStudentStatus(request.body);
-            } 
+            }
         } catch (error) {
             console.log('Exception::UserController::updateLeadsStatus', error);
         }
@@ -111,8 +111,8 @@ export class UserController {
             keyword: request.query['keyword'],
             studentID: request.query['studentID'],
             batchCode: request.query['batchCode'],
-            email:request.query['email'],
-            dob:request.query['dob'],
+            email: request.query['email'],
+            dob: request.query['dob'],
             whatsapp: request.query['whatsapp'],
             address: request.query['address'],
             prm_name: request.query['prm_name'],
@@ -122,7 +122,7 @@ export class UserController {
 
         console.log('requestr', request.query['email'])
 
-       
+
         var studentService = new StudentService();
         var user;
         let resp;
@@ -132,7 +132,7 @@ export class UserController {
                 resp = await studentService.listStudentDetails(request.body, parameters);
 
             } else {
-            resp = await this.teacherService.listLeadDetails(request.body, parameters);
+                resp = await this.teacherService.listLeadDetails(request.body, parameters);
             }
         } catch (error) {
             console.log(error);
@@ -154,13 +154,13 @@ export class UserController {
         try {
             if (type == 'student') {
                 usersLogger.info("Fetching student full details");
-                    resp = this.studentService.fetchStudentFilterData(teacherId);
+                resp = this.studentService.fetchStudentFilterData(teacherId);
             } else {
                 usersLogger.info("Fetching lead full details");
                 resp = await this.teacherService.leadFullDetails(request.body, teacherId);
-            }        
-              
-            
+            }
+
+
             console.log(resp);
         } catch (error) {
             console.log(error);
@@ -214,8 +214,8 @@ export class UserController {
             keyword: request.query['keyword'],
             studentID: request.query['studentID'],
             batchCode: request.query['batchCode'],
-            email:request.query['email'],
-            dob:request.query['dob'],
+            email: request.query['email'],
+            dob: request.query['dob'],
             whatsapp: request.query['whatsapp'],
             address: request.query['address'],
         }
@@ -226,39 +226,39 @@ export class UserController {
     async updateStudentsCSV(request: Request, response: Response, next: NextFunction) {
         const file = request.files.students;
         let data = [];
- 
-        try{
-            await new Promise(function(myResolve: any, myReject: any) {
-                parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
-                        data = records;
-                        myResolve(); 
-                    });
+
+        try {
+            await new Promise(function (myResolve: any, myReject: any) {
+                parse(file.data.toString(), { columns: true, trim: true }, function (e, records) {
+                    data = records;
+                    myResolve();
                 });
+            });
             return this.studentService.updateStudentsCSV(data, request.query);
-        }catch(e){
-            return {e, name: file.name, size: file.size, type: file.type};
+        } catch (e) {
+            return { e, name: file.name, size: file.size, type: file.type };
         }
     }
 
     async updateStudentsCSVV2(request: Request, response: Response, next: NextFunction) {
         const file = request.files.students;
         let data = [];
- 
-        try{
-            await new Promise(function(myResolve: any, myReject: any) {
-                parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
-                        data = records;
-                        if(data){
-                            myResolve(); 
-                        }else{
-                            console.log(file.data.toString());
-                            myReject();
-                        }
-                    });
+
+        try {
+            await new Promise(function (myResolve: any, myReject: any) {
+                parse(file.data.toString(), { columns: true, trim: true }, function (e, records) {
+                    data = records;
+                    if (data) {
+                        myResolve();
+                    } else {
+                        console.log(file.data.toString());
+                        myReject();
+                    }
                 });
+            });
             return this.studentService.updateStudentsCSVV2(data, request.query);
-        }catch(e){
-            return {e, name: file.name, size: file.size, type: file.type};
+        } catch (e) {
+            return { e, name: file.name, size: file.size, type: file.type };
         }
     }
 
