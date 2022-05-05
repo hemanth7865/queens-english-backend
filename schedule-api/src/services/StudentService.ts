@@ -408,16 +408,36 @@ export class StudentService {
       `Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
     let user;
-    if (data.status && data.id) {
-      let updateList: any = {};
-      updateList.callStatus = data.callStatus;
-      updateList.callBackon = data.callBackon;
-      updateList.waMessageSent = data.waMessageSent;
-      console.log(updateList);
-      user = await this.usersRepository.update({ id: data.id }, { status: data.status });
-      let students = await this.studentRepository.update({ id: data.id }, updateList);
-      return { status: 200, data: user };
+    try {
+      if (data.status && data.id) {
+        let updateList: any = {};
+        updateList.callStatus = data.callStatus;
+        updateList.callBackon = data.callBackon;
+        updateList.waMessageSent = data.waMessageSent;
+        console.log(updateList);
+        user = await this.usersRepository.update(
+          { id: data.id },
+          { status: data.status }
+        );
+        let students = await this.studentRepository.update(
+          { id: data.id },
+          updateList
+        );
+        usersLogger.info(
+          `Success Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
+        );
+        return { status: 200, data: user };
+      }else{
+        usersLogger.info(
+          `Failed To Update user status in Admin portal with phoneNumber, missing status or id : ${data?.phoneNumber}`
+        );
+      }
+    } catch (e) {
+      usersLogger.info(
+        `Failed To Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
+      );
     }
+
     return { status: 400, data: "Failed To Update User Status" };
   }
 
