@@ -1,14 +1,14 @@
-import {Entity, Column,  PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany, PrimaryColumn} from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany, PrimaryColumn } from "typeorm";
 import { Status } from "./Status";
-import {Nationality} from "./Nationality";
+import { Nationality } from "./Nationality";
 import { User } from "./User";
 import { TeacherAvailability } from "./TeacherAvailability";
 
 @Entity("lesson")
 export class Lesson extends BaseEntity {
-    Lesson() {}
+    Lesson() { }
     @PrimaryColumn()
-        lessonNumber: number;
-    @Column({'nullable':true,type:"text"})
-        id: string;
+    lessonNumber: number;
+    @Column({ 'nullable': true, type: "text" })
+    id: string;
 }

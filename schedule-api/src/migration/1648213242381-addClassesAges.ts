@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner, TableColumn} from "typeorm";
+import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 
 export class addClassesAges1648213242381 implements MigrationInterface {
 
@@ -18,15 +18,15 @@ export class addClassesAges1648213242381 implements MigrationInterface {
     ];
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        for(let column of this.columns) {
-            if (!await queryRunner.hasColumn(column.table, column.name)) { 
+        for (let column of this.columns) {
+            if (!await queryRunner.hasColumn(column.table, column.name)) {
                 await queryRunner.addColumn(column.table, new TableColumn(column));
             }
         }
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        for(let column of this.columns) {
+        for (let column of this.columns) {
             await queryRunner.dropColumn(column.table, column.name);
         }
     }

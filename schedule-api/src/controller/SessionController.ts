@@ -62,7 +62,7 @@ export class SessionController {
   ) {
     var session: Session = null;
     try {
-      var {id, lessonId} = request.params;
+      var { id, lessonId } = request.params;
       session = await this.SessionService.getBatchLessonSession(id, lessonId);
       if (session == null) {
         return { success: false, message: "Session doesn't exist" };

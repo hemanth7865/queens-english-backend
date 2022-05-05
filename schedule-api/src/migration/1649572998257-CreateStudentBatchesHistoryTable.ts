@@ -1,9 +1,9 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreateStudentBatchesHistoryTable1649572998257 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        if (!await queryRunner.hasTable('student_batches_history')) { 
+        if (!await queryRunner.hasTable('student_batches_history')) {
             await queryRunner.query(`
             CREATE TABLE student_batches_history (
                 id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -18,7 +18,7 @@ export class CreateStudentBatchesHistoryTable1649572998257 implements MigrationI
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        if (await queryRunner.hasTable('student_batches_history')) { 
+        if (await queryRunner.hasTable('student_batches_history')) {
             await queryRunner.query(`DROP TABLE student_batches_history`);
         }
     }

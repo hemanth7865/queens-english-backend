@@ -60,7 +60,7 @@ export class AssessmentController {
     } catch (error) {
       return { success: false, error: error.toString() };
     }
-    return { success: true, "message" : "Successfully Updated Assessment" };
+    return { success: true, "message": "Successfully Updated Assessment" };
   }
 
   async getAssessmentDetail(request: Request, response: Response, next: NextFunction) {

@@ -19,8 +19,8 @@
 //        weekday: ''
 //       }
 // )
-    
-    
+
+
 //     const leadWeekAvailability = {
 //       starttime: value[0],
 //       endtime: value[1],
@@ -33,12 +33,12 @@
 //       leadAvailability = leadWeekAvailability
 //       leadAvailability = [props.onUpdate] 
 //     }
-    
+
 
 //     return(
 //     <Row>
 //     <Col span={24} style = {{margin: "5px"}}>
-      
+
 //       <Checkbox name = "weekday"  onChange = {e=>setValue1(props.weekday)} style = {{marginRight: "4px", marginLeft: "4px"}} >{props.weekday}</Checkbox>
 //       <TimePicker.RangePicker  format = 'HH:mm' style = {{width: "200px"}} onChange = {(time, timeString)=> {setValue(timeString)}}/>
 //       <a><PlusOutlined style = {{marginRight: "4px", marginLeft: "4px"}}/></a>

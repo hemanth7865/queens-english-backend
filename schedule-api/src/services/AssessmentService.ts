@@ -4,7 +4,7 @@ import { StudentAssessment } from "../entity/StudentAssessment";
 export class AssessmentService {
   private assessmentRepository = getRepository(StudentAssessment);
 
-  AssessmentService() {}
+  AssessmentService() { }
 
   async getBatchAssessments(id: string, request) {
     var { overdue, dayOffset } = request.query;

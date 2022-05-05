@@ -52,7 +52,7 @@ export class Classes extends BaseEntity {
 
     @Column({ 'nullable': true })
     ages: string;
-    
+
     @Column({ 'nullable': true, type: "text" })
     classStartDate: string;
 
@@ -100,13 +100,13 @@ export class Classes extends BaseEntity {
 
     @Column({ 'nullable': true })
     activeLessonId: string;
-    
+
     @Column({ 'nullable': true })
     created_at: Date
 
     @Column({ 'nullable': true })
     updated_at: Date
-    
+
     batchAvailability: BatchAvailability;
 
     @OneToOne(() => Classes)
@@ -117,6 +117,6 @@ export class Classes extends BaseEntity {
     students: BatchStudent[];
 
     @OneToOne(() => User)
-    @JoinColumn({name : "teacherId"})
+    @JoinColumn({ name: "teacherId" })
     teacher: User;
 }

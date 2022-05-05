@@ -1,7 +1,7 @@
-import { Button, Input, Table, Drawer, Form, Typography, Row, Col, Spin} from "antd";
+import { Button, Input, Table, Drawer, Form, Typography, Row, Col, Spin } from "antd";
 import React, { useState, useEffect } from "react";
-import {studentsDashboard, studentsDashboardFilter} from "@/services/ant-design-pro/api";
-import {timeISTToLocalTimezone} from "@/services/ant-design-pro/helpers";
+import { studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
+import { timeISTToLocalTimezone } from "@/services/ant-design-pro/helpers";
 import moment from "moment";
 import Batch from './components/Batch';
 
@@ -14,7 +14,7 @@ interface Item {
   status: number;
 }
 
-const DEFAULT_FORM_DATA = {studentName: '',  studentPhoneNumber: '', studentEmail: ''};
+const DEFAULT_FORM_DATA = { studentName: '', studentPhoneNumber: '', studentEmail: '' };
 
 const StudentOnboard: React.FC = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA)
@@ -31,12 +31,13 @@ const StudentOnboard: React.FC = () => {
     setVisibleEdit(true);
   };
 
-  const studentGetApi = async (current: number = 1, pageSize: number = 10)=>{
+  const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
       let msg = await studentsDashboard('createBatch', {
-          current,
-          pageSize}
+        current,
+        pageSize
+      }
       );
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
@@ -68,7 +69,7 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'startDate',
       width: 150,
       render: (value: string, entity: any) => {
-        if(entity?.batchCode?.length > 0){
+        if (entity?.batchCode?.length > 0) {
           return "Rebatch Student";
         }
         return "New Student";
@@ -78,7 +79,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Email',
       dataIndex: 'customerEmail',
       width: 200,
-      
+
     },
     {
       title: 'Parent First Name',
@@ -94,13 +95,13 @@ const StudentOnboard: React.FC = () => {
       title: 'Mobile No',
       dataIndex: 'phoneNumber',
       width: 150,
-      
+
     },
     {
       title: 'Course',
       dataIndex: 'course',
       width: 150,
-      
+
     },
     {
       title: 'Starting lesson',
@@ -112,7 +113,7 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'timings',
       width: 150,
       render: (value: string) => {
-        if(value){
+        if (value) {
           return timeISTToLocalTimezone(value)
         }
         return "NA";
@@ -128,8 +129,8 @@ const StudentOnboard: React.FC = () => {
       dataIndex: 'startDate',
       width: 150,
       render: (value: string) => {
-        if(value){
-          return moment(value,"YYYY-MM-DD").format("DD-MM-YYYY");
+        if (value) {
+          return moment(value, "YYYY-MM-DD").format("DD-MM-YYYY");
         }
         return "NA";
       }
@@ -155,70 +156,71 @@ const StudentOnboard: React.FC = () => {
       [e.target.name]: e.target.value,
     }));
   }
-  
+
   const handleFormSubmit = async () => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('createBatch', formData.studentName,  formData.studentPhoneNumber, formData.studentEmail, "", "",{
-          current: 1,
-          pageSize: 20}
+      let msg = await studentsDashboardFilter('createBatch', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, "", "", {
+        current: 1,
+        pageSize: 20
+      }
       );
       setData(msg.data);
-      console.log('search details',msg);
+      console.log('search details', msg);
     } catch (error) {
       console.log("error", error);
     }
     setIsLoading(false);
   }
 
- const handleReset = ()=>{
-  form.resetFields()
-  setFormData(DEFAULT_FORM_DATA)
-  studentGetApi()
- }
+  const handleReset = () => {
+    form.resetFields()
+    setFormData(DEFAULT_FORM_DATA)
+    studentGetApi()
+  }
 
   return (
     <>
-      <h3 style = {{textAlign: "center"}}>Pending Batching</h3>
-        <Spin spinning={isLoading}>
-        <div style = {{padding: 20, background: "white", marginBottom: 10, alignContent: 'center'}}>
+      <h3 style={{ textAlign: "center" }}>Pending Batching</h3>
+      <Spin spinning={isLoading}>
+        <div style={{ padding: 20, background: "white", marginBottom: 10, alignContent: 'center' }}>
           {/* Form for search */}
-          <Form name="basic" form = {form}>
+          <Form name="basic" form={form}>
             <Row gutter={24}>
               <Col span={6}>
-                <Form.Item name="studentName" label = "Student Name" >
-                  <Input name = "studentName" onChange={handleInputChange}/>
+                <Form.Item name="studentName" label="Student Name" >
+                  <Input name="studentName" onChange={handleInputChange} />
                 </Form.Item>
               </Col>
 
               <Col span={6}>
-                <Form.Item name="studentEmail" label = "Email" >
-                  <Input name = "studentEmail" onChange={handleInputChange}/>
+                <Form.Item name="studentEmail" label="Email" >
+                  <Input name="studentEmail" onChange={handleInputChange} />
                 </Form.Item>
               </Col>
 
               <Col span={6}>
-                <Form.Item name="studentPhoneNumber" label = "Mobile No" >
-                  <Input name = "studentPhoneNumber" onChange={handleInputChange}/>
+                <Form.Item name="studentPhoneNumber" label="Mobile No" >
+                  <Input name="studentPhoneNumber" onChange={handleInputChange} />
                 </Form.Item>
               </Col>
-              
-              <Col span = {1}>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
-                  Query
-                </Button>
-              </Form.Item>
+
+              <Col span={1}>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" onClick={handleFormSubmit} >
+                    Query
+                  </Button>
+                </Form.Item>
               </Col>
-              <Col span = {1} style = {{marginLeft: 10}}>
-              <Form.Item >
-              <Button
-                onClick={handleReset}
-              >
-                Reset
-            </Button>
-            </Form.Item>
-            </Col>
+              <Col span={1} style={{ marginLeft: 10 }}>
+                <Form.Item >
+                  <Button
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </Button>
+                </Form.Item>
+              </Col>
             </Row>
           </Form>
         </div>
@@ -229,23 +231,23 @@ const StudentOnboard: React.FC = () => {
             dataSource={data}
             columns={columns}
             rowClassName="editable-row"
-            pagination={{ 
-              pageSize: 10, total: totalRecords ,
+            pagination={{
+              pageSize: 10, total: totalRecords,
               onChange: studentGetApi
             }}
             scroll={{ x: 1500 }}
           />
         </Form>
 
-        <Drawer 
+        <Drawer
           title="Proccess Batching"
           placement="right"
-          onClose={()=>{
+          onClose={() => {
             setVisibleEdit(false)
           }}
           visible={visibleEdit}
           width={960}>
-            <Batch data={tmpDate} visible= {visibleEdit} setVisible={setVisibleEdit} />
+          <Batch data={tmpDate} visible={visibleEdit} setVisible={setVisibleEdit} />
         </Drawer>
       </Spin>
     </>
