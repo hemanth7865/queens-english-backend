@@ -1266,7 +1266,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="WelcomeStudent First Name"
+              label="Student First Name"
               name="firstName"
               rules={[{
                 required: true,
@@ -1787,7 +1787,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Sales"
+              label="Student First Name"
               name="firstName"
               rules={[{
                 required: true,
