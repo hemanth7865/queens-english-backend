@@ -1,3 +1,5 @@
+import { DatabaseType } from "typeorm";
+
 //import { Lead } from "./Lead";
 export class LeadView {
   id: string;
@@ -50,7 +52,7 @@ export class LeadView {
   days: string;
   studentType: string;
   firstFeedback: string;
-  classesStartDate: string;
+  classesStartDate: string | Date;
   callStatus: string;
   callBackon: string;
   bdaName: string;
@@ -81,7 +83,7 @@ export class LeadView {
       classType?: string, 
       payments?: string, age?: string, startDate?: string, startLesson?: string, pfirstName?: string, plastName?: string, course?: string, 
       comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, 
-      studentType?: string, firstFeedback?: string, classesStartDate?: string, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: 
+      studentType?: string, firstFeedback?: string, classesStartDate?: string | Date, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: 
       string, poc?: string, courseFrequency?: string, timings?: string, customerEmail?: string, state?: string, zoomLink?: string, zoomInfo?: string,
       prm_id?:string,prm_firstName?:string,prm_lastName?:string,salestatus?:string,salesowner?:string, prm?: string, waMessageSent?: string, salesDataFilled?: string, lsq_user_id?: string, lsq_user_name?: string, whatsappLink?: string) {
       this.id = id;

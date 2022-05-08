@@ -81,8 +81,8 @@ export class Student extends BaseEntity {
   comments: string;
   @Column({ nullable: true })
   incentive: string;
-  @Column({ nullable: true, type:"date" })
-  classesStartDate: Date;
+  @Column({ nullable: true })
+  classesStartDate: string;
   @Column({ nullable: true })
   classesPurchase: string;
   @Column({ nullable: true })

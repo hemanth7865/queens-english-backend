@@ -1,5 +1,6 @@
 import { EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Button, Select, Col, Row, notification} from 'antd';
+import { Form, Input, Button, Select, Col, Row, notification } from 'antd';
+import { values } from 'lodash';
 import moment from 'moment';
 import { useEffect } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -11,6 +12,7 @@ const { Option } = Select;
 export type StudentdetailseditProps = {
   tempData: {
     id?: string;
+    email?: string;
     firstName?: string;
     lastName?: string;
     pfirstName?: string;
@@ -24,7 +26,7 @@ export type StudentdetailseditProps = {
     address?: string;
     dob?: string;
     classType?: string;
-    course?: string;
+    course?: any;
     startLesson?: string;
     courseFrequency?: string;
     timings?: string;
@@ -48,8 +50,12 @@ export type StudentdetailseditProps = {
     prmphoneNumber?: string;
     prm_firstName?: string;
     prm_lastName?: string;
-    classesStartDate?: string;
+    classesStartDate?: any;
     isSibling?: any;
+    batchCode?: string;
+    zoomLink?: string;
+    zoomInfo?: string;
+    whatsappLink?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -65,7 +71,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
-      lastName: value.lastName.length>0 ? value.lastName : '-',
+      lastName: value.lastName.length > 0 ? value.lastName : '-',
       phoneNumber: value.phoneNumber,
       studentID: value.studentID,
       address: value.address,
@@ -73,14 +79,15 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       whatsapp: value.whatsapp,
       comments: value.comments,
       customerEmail: value.customerEmail,
-      id: props.tempData.id,
+      classType: value.classType,
+      id: value.id,
       type: 'student',
       status: value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      classesStartDate: moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      classesStartDate: value.classesStartDate ? moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD") : value.startDate,
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       callStatus: value.callStatus,
@@ -89,18 +96,22 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       timings: value.timings,
       waMessageSent: value.waMessageSent,
       state: value.state,
-      isSibling: value.isSibling?value.isSibling:0,
+      batchCode: value.batchCode,
+      zoomLink: value.zoomLink,
+      zoomInfo: value.zoomInfo,
+      whatsappLink: value.whatsappLink,
+      isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
-        studentId: props.tempData.id,
+        studentID: props.tempData.id,
         classessold: value.classessold,
         saleamount: value.saleamount,
         downpayment: value.downpayment,
         classtype: '',
         leadId: value.studentID,
-        id: props.tempData.id,
+        id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
         emi: value.emi,
@@ -109,10 +120,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-    //const studentDetails = { ...props.tempData, ...values };
-    if(value.saleamount == ( Number(value.emi * value.emiMonths) + Number(value.downpayment))){
+
+    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
       props.submit(dataForm);
-    }else{
+    } else {
       notification.open({
         message: '',
         description:
@@ -122,13 +133,44 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         window.location.reload()
       }, 5000);
     }
-
+    console.log('Data', dataForm)
   };
 
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
 
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+    const waMessage = (
+      <div>
+        <p>Hello <br />
+          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
+          classes:<br />
+          Zoom Link: {zoomLink} <br />
+          Whatsapp Group Link: {whatsappLink} <br />
+          Topic: {batchCode}<br />
+          Time: {timings} India<br />
+          <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br /> <br />
+          (The details above are recurring and hence you can use the same details to join the class everyday)<br />
+          Please send “OK” or a “:+1:” to activate the link above.<br />
+          For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।
+          We are really excited to see you soon in class! Happy Learning!_<br /></p>
+      </div>
+    )
+
+    notification[type]({
+      message: 'Whatsapp message',
+      description: waMessage,
+      style: {
+        width: 720,
+      },
+      duration: 0,
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
 
   const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string) => {
     const waMessage = (
@@ -168,6 +210,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       plastName: props.tempData.plastName,
       customerEmail: props.tempData.customerEmail,
       studentID: props.tempData.studentID,
+      id: props.tempData.id,
       phoneNumber: props.tempData.phoneNumber,
       whatsapp: props.tempData.whatsapp,
       alternativeMobile: props.tempData.alternativeMobile,
@@ -200,7 +243,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       prmphoneNumber: props.tempData.prmphoneNumber,
       prm_firstname: props.tempData.prm_firstName,
       prm_lastname: props.tempData.prm_lastName,
-      isSibling: props.tempData.isSibling == 1?1:0,
+      isSibling: props.tempData.isSibling == 1 ? 1 : 0,
+      batchCode: props.tempData.batchCode,
+      zoomLink: props.tempData.zoomLink,
+      zoomInfo: props.tempData.zoomInfo,
+      whatsappLink: props.tempData.whatsappLink,
     });
   }
   useEffect(() => {
@@ -246,6 +293,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       props.tempData.prm_firstName,
       props.tempData.prm_lastName,
       props.tempData.isSibling,
+      props.tempData.batchCode,
+      props.tempData.zoomLink,
+      props.tempData.zoomInfo,
+      props.tempData.whatsappLink,
+      props.tempData.id,
     ]
   )
 
@@ -254,468 +306,1935 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     props.updateTempData(studentDetails)
   }
 
-  return (
-    <Form
-      name="studentdetails"
-      form={form}
-      labelCol={{
-        span: 8,
-      }}
-      wrapperCol={{
-        span: 16,
-      }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
-    >
-      <Row gutter={16}>
-        <Col span={12}>
-          <Form.Item
-            label="Student First Name"
-            name="firstName"
-            rules={[{
-              required: true,
-              min: 2,
-              type: 'string',
-              pattern: /^[a-zA-Z ]*$/,
-            }]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
+  // Form for Onboarding Page Start
 
-        <Col span={12}>
-          <Form.Item
-            label="Student Last Name"
-            name="lastName"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Parent First Name"
-            name="pfirstName"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Parent Last Name"
-            name="plastName"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Customer Email"
-            name="customerEmail"
-            rules = {[{
-                  required: true,
-                  type: 'email'
-              }]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Student ID"
-            name="studentID"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="RMN"
-            name="phoneNumber"
-            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Whatsapp Number"
-            name="whatsapp"
-            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Alternate Mobile Number"
-            name="alternativeMobile"
-            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item name="dob"
-            label="Date of Birth"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <input type="date"
-              onChange={onChange}
-              value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Address"
-            name="address"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="state"
-            label="Customer State">
-            <Select
-              placeholder="Customer State"
-              onChange={onChange}
-            >
-             {statesData.map(state => <Option value = {state.label} key = {state.label}>{state.value}</Option>)}
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="course"
-            label="Course">
-            <Select
-              placeholder="Select Course"
-              onChange={onChange}
-            >
-              <Option value="DISE - Group Class">DISE - Group Class</Option>
-              <Option value="DISE - 1:1">DISE - 1:1</Option>
-              <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-              <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="startLesson"
-            label="Starting Lesson">
-            <Select
-              placeholder="Select Starting Lesson"
-              onChange={onChange}
-            >
-              <Option value="Lesson 1">Lesson 1</Option>
-              <Option value="Lesson 31">Lesson 31</Option>
-              <Option value="Lesson 61">Lesson 61</Option>
-              <Option value="Lesson 121">Lesson 121</Option>
-              <Option value="Lesson 201">Lesson 201</Option>
-              <Option value="Lesson 221">Lesson 221</Option>
-              <Option value="Lesson 240">Lesson 240</Option>
-              <Option value="Lesson 301">Lesson 301</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="courseFrequency"
-            label="Course Frequency">
-            <Select
-              placeholder="Select Course Frequency"
-              onChange={onChange}
-            >
-              <Option value="MWF">MWF</Option>
-              <Option value="TTS">TTS</Option>
-              <Option value="SS">SS</Option>
-              <Option value="MTWTF">MTWTF</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="timings"
-            label="Timings">
-            <Select
-              placeholder="Select Class Timings"
-              onChange={onChange}
-            >
-              <Option value="15:00">15:00</Option>
-              <Option value="16:30">16:30</Option>
-              <Option value="18:00">18:00</Option>
-              <Option value="19:30">19:30</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item name="startDate"
-            label="Expected Start Date"
-          >
-            <input type="date"
-              onChange={onChange}
-              value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
-
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item name="classesStartDate"
-            label="Actual Start Date"
-          >
-            <input type="date"
-              onChange={onChange}
-              value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="lsq_user_name"
-            label="Sales Owner"
-          >
-          <Select style={{ width: 100 + "%" }} >
-            {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
-          </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Classes Sold"
-            name="classessold"
-          >
-            <Select placeholder="classessold" onChange={onChange}>
-            <Option value="60">60</Option>
-            <Option value="100">100</Option>
-            <Option value="200">200</Option>
-            <Option value="300">300</Option>
-            <Option value="400">400</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Total Sale Amount"
-            name="saleamount"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Down Payment"
-            name="downpayment"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="paymentMode"
-            label="Plan Mode"
-          >
-            <Select placeholder="Select Plan Mode" onChange={onChange}>
-              <Option value="razorpay">Razorpay</Option>
-              <Option value="banktransfer">Bank Transfer</Option>
-              <Option value="cashfree">Cashfree</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Transaction ID"
-            name="paymentid"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="subscription"
-            label="Subscription Type">
-            <Select
-              placeholder="Select Subscription Type"
-              onChange={onChange}
-            >
-              <Option value="Manual">Manual</Option>
-              <Option value="Auto-Debit">Auto-Debit</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Subscription Number"
-            name="subscriptionNo"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Subscription Amount"
-            name="emi"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Months Of Subscription"
-            name="emiMonths"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="prm"
-            label="PRM Name">
-            <Select style={{ width: 100 + "%" }} >
-              {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="callStatus"
-            label="Call Status">
-            <Select
-              placeholder="Select Call Status"
-              onChange={onChange}
-            >
-              <Option value="Answered">Answered</Option>
-              <Option value="DNP">DNP</Option>
-              <Option value="Call Back Later">Call Back Later</Option>
-              <Option value="Placement test pending">Placement test pending</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="PRM Comments"
-            name="comments"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="BDA Comments"
-            name="comments"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Message"
-            name="message"
-          >
-            <a
-              onClick={() => {
-                openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
-              }}
-            >
-              <EyeOutlined />
-            </a>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="waMessageSent"
-            label="Whatsapp Message Sent">
-            <Select
-              placeholder="Select Yes/No"
-              onChange={onChange}
-            >
-              <Option value="Yes">Yes</Option>
-              <Option value="No">No</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span = {12}>
-          <Form.Item name="isSibling"
-          label="Is Sibling?">
-              <Select
-                  placeholder="Is Sibling"
-                  >
-                  <Option value={1}>Yes</Option>
-                  <Option value={0}>No</Option>
-              </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="status"
-            label="Status">
-            <Select
-              placeholder="Select Status"
-              onChange={onChange}
-            >
-              <Option value="enrolled">Enrolled</Option>
-              <Option value="startclasslater">Start Class Later</Option>
-              <Option value="batching">Ready to batch</Option>
-              <Option value="onboarding">Onboarding</Option>
-              <Option value="active">Active</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Form.Item
+  if (props.tempData.status == 'onboarding') {
+    return (
+      <Form
+        name="onboardstudentdetails"
+        form={form}
+        labelCol={{
+          span: 8,
+        }}
         wrapperCol={{
-          offset: 8,
           span: 16,
         }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
       >
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
-  );
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Student First Name"
+              name="firstName"
+              rules={[{
+                required: true,
+                min: 2,
+                type: 'string',
+                pattern: /^[a-zA-Z ]*$/,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student Last Name"
+              name="lastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Customer Email"
+              name="customerEmail"
+              rules={[{
+                required: true,
+                type: 'email'
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student ID"
+              name="id"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Lead ID"
+              name="studentID"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Batch Code"
+              name="batchCode"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Zoom Link"
+              name="zoomlink"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Zoom Info"
+              name="zoomInfo"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="courseFrequency"
+              label="Course Frequency"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Course Frequency"
+                onChange={onChange}
+              >
+                <Option value="MWF">MWF</Option>
+                <Option value="TTS">TTS</Option>
+                <Option value="SS">SS</Option>
+                <Option value="MTWTF">MTWTF</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="timings"
+              label="Timings">
+              <Select
+                placeholder="Select Class Timings"
+                onChange={onChange}
+              >
+                <Option value="15:00">15:00</Option>
+                <Option value="16:30">16:30</Option>
+                <Option value="18:00">18:00</Option>
+                <Option value="19:30">19:30</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="dob"
+              label="Date of Birth"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent First Name"
+              name="pfirstName"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent Last Name"
+              name="plastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+
+          <Col span={12}>
+            <Form.Item
+              label="Registered Mobile Number"
+              name="phoneNumber"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Whatsapp Number"
+              name="whatsapp"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="startLesson"
+              label="Starting Lesson"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Starting Lesson"
+                onChange={onChange}
+              >
+                <Option value="Lesson 1">Lesson 1</Option>
+                <Option value="Lesson 31">Lesson 31</Option>
+                <Option value="Lesson 61">Lesson 61</Option>
+                <Option value="Lesson 121">Lesson 121</Option>
+                <Option value="Lesson 201">Lesson 201</Option>
+                <Option value="Lesson 221">Lesson 221</Option>
+                <Option value="Lesson 240">Lesson 240</Option>
+                <Option value="Lesson 301">Lesson 301</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="startDate"
+              label="Expected Start Date"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="classesStartDate"
+              label="Actual Start Date"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="New Teacher"
+              name="batchesHistory"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Old Teacher"
+              name="batchesHistory"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="callStatus"
+              label="Call Status"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Call Status"
+                onChange={onChange}
+              >
+                <Option value="Answered">Answered</Option>
+                <Option value="DNP">DNP</Option>
+                <Option value="Call Back Later">Call Back Later</Option>
+                <Option value="Placement test pending">Placement test pending</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="prm"
+              label="PRM Name"
+              rules={[{
+                required: true,
+              }]}>
+              <Select style={{ width: 100 + "%" }} >
+                {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="PRM Comments"
+              name="callBackon"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="BDA Comments"
+              name="comments"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Message"
+              name="message"
+            >
+              <a
+                onClick={() => {
+                  openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink)
+                }}
+              >
+                <EyeOutlined />
+              </a>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Whatsapp Group Link"
+              name="whatsappLink"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="waMessageSent"
+              label="Whatsapp Message Sent"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Select
+                placeholder="Select Yes/No"
+                onChange={onChange}
+              >
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="isSibling"
+              label="Is Sibling?">
+              <Select
+                placeholder="Is Sibling"
+              >
+                <Option value={1}>Yes</Option>
+                <Option value={0}>No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status">
+              <Select
+                placeholder="Select Status"
+              >
+                <Option value="enrolled">Enrolled</Option>
+                <Option value="startclasslater">Start Class Later</Option>
+                <Option value="batching">Ready to batch</Option>
+                <Option value="onboarding">Onboarding</Option>
+                <Option value="active">Active</Option>
+              </Select>
+            </Form.Item>
+
+          </Col>
+        </Row>
+
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>)
+  }
+
+  // Form for Onboarding Page End
+
+  // Form for Batching Waitlist Start
+
+  else if (props.tempData.status == 'startclasslater') {
+    return (
+      <Form
+        name="startlatertudentdetails"
+        form={form}
+        labelCol={{
+          span: 8,
+        }}
+        wrapperCol={{
+          span: 16,
+        }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Student First Name"
+              name="firstName"
+              rules={[{
+                required: true,
+                min: 2,
+                type: 'string',
+                pattern: /^[a-zA-Z ]*$/,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student Last Name"
+              name="lastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent First Name"
+              name="pfirstName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent Last Name"
+              name="plastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Customer Email"
+              name="customerEmail"
+              rules={[{
+                required: true,
+                type: 'email'
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student ID"
+              name="id"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Lead ID"
+              name="studentID"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="RMN"
+              name="phoneNumber"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Whatsapp Number"
+              name="whatsapp"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Alternate Mobile Number"
+              name="alternativeMobile"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="dob"
+              label="Date of Birth"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Address"
+              name="address"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="state"
+              label="Customer State"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Customer State"
+                onChange={onChange}
+              >
+                {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="classType"
+              label="Class Type"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Class Type"
+              >
+                <Option value="Kids">Kids</Option>
+                <Option value="Adults">Adults</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+
+          <Col span={12}>
+            <Form.Item
+              name="course"
+              label="Course"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Course"
+                onChange={onChange}
+              >
+                <Option value="DISE - Group Class">DISE - Group Class</Option>
+                <Option value="DISE - 1:1">DISE - 1:1</Option>
+                <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+                <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="startLesson"
+              label="Starting Lesson"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Starting Lesson"
+                onChange={onChange}
+              >
+                <Option value="Lesson 1">Lesson 1</Option>
+                <Option value="Lesson 31">Lesson 31</Option>
+                <Option value="Lesson 61">Lesson 61</Option>
+                <Option value="Lesson 121">Lesson 121</Option>
+                <Option value="Lesson 201">Lesson 201</Option>
+                <Option value="Lesson 221">Lesson 221</Option>
+                <Option value="Lesson 240">Lesson 240</Option>
+                <Option value="Lesson 301">Lesson 301</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="courseFrequency"
+              label="Course Frequency"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Course Frequency"
+                onChange={onChange}
+              >
+                <Option value="MWF">MWF</Option>
+                <Option value="TTS">TTS</Option>
+                <Option value="SS">SS</Option>
+                <Option value="MTWTF">MTWTF</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="timings"
+              label="Timings"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Class Timings"
+                onChange={onChange}
+              >
+                <Option value="15:00">15:00</Option>
+                <Option value="16:30">16:30</Option>
+                <Option value="18:00">18:00</Option>
+                <Option value="19:30">19:30</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="startDate"
+              label="Expected Start Date"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="classesStartDate"
+              label="Actual Start Date"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="lsq_user_name"
+              label="Sales Owner"
+            >
+              <Select style={{ width: 100 + "%" }} >
+                {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Classes Sold"
+              name="classessold"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Select placeholder="classessold" onChange={onChange}>
+                <Option value="60">60</Option>
+                <Option value="100">100</Option>
+                <Option value="200">200</Option>
+                <Option value="300">300</Option>
+                <Option value="400">400</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Total Sale Amount"
+              name="saleamount"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Down Payment"
+              name="downpayment"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="paymentMode"
+              label="Plan Mode"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Select placeholder="Select Plan Mode" onChange={onChange}>
+                <Option value="razorpay">Razorpay</Option>
+                <Option value="banktransfer">Bank Transfer</Option>
+                <Option value="cashfree">Cashfree</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Transaction ID"
+              name="paymentid"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="subscription"
+              label="Subscription Type"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Subscription Type"
+                onChange={onChange}
+              >
+                <Option value="Manual">Manual</Option>
+                <Option value="Auto-Debit">Auto-Debit</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Subscription Number"
+              name="subscriptionNo"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Subscription Amount"
+              name="emi"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Months Of Subscription"
+              name="emiMonths"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="prm"
+              label="PRM Name">
+              <Select style={{ width: 100 + "%" }} >
+                {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="callStatus"
+              label="Call Status">
+              <Select
+                placeholder="Select Call Status"
+                onChange={onChange}
+              >
+                <Option value="Answered">Answered</Option>
+                <Option value="DNP">DNP</Option>
+                <Option value="Call Back Later">Call Back Later</Option>
+                <Option value="Placement test pending">Placement test pending</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="PRM Comments"
+              name="callBackon"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="BDA Comments"
+              name="comments"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Message"
+              name="message"
+            >
+              <a
+                onClick={() => {
+                  openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
+                }}
+              >
+                <EyeOutlined />
+              </a>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="waMessageSent"
+              label="Whatsapp Message Sent">
+              <Select
+                placeholder="Select Yes/No"
+                onChange={onChange}
+              >
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="isSibling"
+              label="Is Sibling?">
+              <Select
+                placeholder="Is Sibling"
+              >
+                <Option value={1}>Yes</Option>
+                <Option value={0}>No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status">
+              <Select
+                placeholder="Select Status"
+              >
+                <Option value="enrolled">Enrolled</Option>
+                <Option value="startclasslater">Start Class Later</Option>
+                <Option value="batching">Ready to batch</Option>
+                <Option value="onboarding">Onboarding</Option>
+                <Option value="active">Active</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    )
+  }
+
+  // Form for Batching Waitlist End
+
+  // Form for Welcome Page Start  
+
+  else if (props.tempData.firstName != null && props.tempData.customerEmail != null && props.tempData.phoneNumber != null && props.tempData.whatsapp != null && props.tempData.alternativeMobile != null && props.tempData.address != null && props.tempData.state != null && props.tempData.classesStartDate != null && props.tempData.course != null && props.tempData.courseFrequency != null && props.tempData.startDate != null && props.tempData.startLesson != null) {
+    return (
+      <Form
+        name="welcomestudentdetails"
+        form={form}
+        labelCol={{
+          span: 8,
+        }}
+        wrapperCol={{
+          span: 16,
+        }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="WelcomeStudent First Name"
+              name="firstName"
+              rules={[{
+                required: true,
+                min: 2,
+                type: 'string',
+                pattern: /^[a-zA-Z ]*$/,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student Last Name"
+              name="lastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent First Name"
+              name="pfirstName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent Last Name"
+              name="plastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Customer Email"
+              name="customerEmail"
+              rules={[{
+                required: true,
+                type: 'email'
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student ID"
+              name="id"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Lead ID"
+              name="studentID"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="RMN"
+              name="phoneNumber"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Whatsapp Number"
+              name="whatsapp"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Alternate Mobile Number"
+              name="alternativeMobile"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="dob"
+              label="Date of Birth"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date" onChange={onChange}
+                value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Address"
+              name="address"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="state"
+              label="Customer State"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Customer State"
+              >
+                {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="classType"
+              label="Class Type"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Class Type"
+              >
+                <Option value="Kids">Kids</Option>
+                <Option value="Adults">Adults</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="course"
+              label="Course"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Course"
+              >
+                <Option value="DISE - Group Class">DISE - Group Class</Option>
+                <Option value="DISE - 1:1">DISE - 1:1</Option>
+                <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+                <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="startLesson"
+              label="Starting Lesson"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Starting Lesson"
+              >
+                <Option value="Lesson 1">Lesson 1</Option>
+                <Option value="Lesson 31">Lesson 31</Option>
+                <Option value="Lesson 61">Lesson 61</Option>
+                <Option value="Lesson 121">Lesson 121</Option>
+                <Option value="Lesson 201">Lesson 201</Option>
+                <Option value="Lesson 221">Lesson 221</Option>
+                <Option value="Lesson 240">Lesson 240</Option>
+                <Option value="Lesson 301">Lesson 301</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="courseFrequency"
+              label="Course Frequency"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Course Frequency"
+              >
+                <Option value="MWF">MWF</Option>
+                <Option value="TTS">TTS</Option>
+                <Option value="SS">SS</Option>
+                <Option value="MTWTF">MTWTF</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="timings"
+              label="Timings"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Class Timings"
+              >
+                <Option value="15:00">15:00</Option>
+                <Option value="16:30">16:30</Option>
+                <Option value="18:00">18:00</Option>
+                <Option value="19:30">19:30</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="startDate"
+              label="Expected Start Date"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date" onChange={onChange}
+                value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="lsq_user_name"
+              label="Sales Owner"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Select style={{ width: 100 + "%" }} onChange={onChange}>
+                {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Classes Sold"
+              name="classessold"
+            >
+              <Select placeholder="classessold" onChange={onChange}  >
+                <Option value="60">60</Option>
+                <Option value="100">100</Option>
+                <Option value="200">200</Option>
+                <Option value="300">300</Option>
+                <Option value="400">400</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Total Sale Amount"
+              name="saleamount"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Down Payment"
+              name="downpayment"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="paymentMode"
+              label="Plan Mode"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Select placeholder="Select Plan Mode" onChange={onChange} >
+                <Option value="razorpay">Razorpay</Option>
+                <Option value="banktransfer">Bank Transfer</Option>
+                <Option value="cashfree">Cashfree</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Transaction ID"
+              name="paymentid"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="subscription"
+              label="Subscription Type"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Subscription Type"
+              >
+                <Option value="Manual">Manual</Option>
+                <Option value="Auto-Debit">Auto-Debit</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Subscription Number"
+              name="subscriptionNo"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Subscription Amount"
+              name="emi"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Months Of Subscription"
+              name="emiMonths"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="prm"
+              label="PRM Name"
+              rules={[{
+                required: true,
+              }]}>
+              <Select style={{ width: 100 + "%" }} onChange={onChange} >
+                {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="callStatus"
+              label="Call Status"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Call Status"
+              >
+                <Option value="Answered">Answered</Option>
+                <Option value="DNP">DNP</Option>
+                <Option value="Call Back Later">Call Back Later</Option>
+                <Option value="Placement test pending">Placement test pending</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="PRM Comments"
+              name="callBackon"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="BDA Comments"
+              name="comments"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Message"
+              name="message"
+            >
+              <a
+                onClick={() => {
+                  openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
+                }}
+              >
+                <EyeOutlined />
+              </a>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="waMessageSent"
+              label="Whatsapp Message Sent"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Yes/No"
+
+              >
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="isSibling"
+              label="Is Sibling?">
+              <Select onChange={onChange}
+                placeholder="Is Sibling"
+              >
+                <Option value={1}>Yes</Option>
+                <Option value={0}>No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status">
+              <Select onChange={onChange}
+                placeholder="Select Status"
+              >
+                <Option value="enrolled">Enrolled</Option>
+                <Option value="startclasslater">Start Class Later</Option>
+                <Option value="batching">Ready to batch</Option>
+                <Option value="onboarding">Onboarding</Option>
+                <Option value="active">Active</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    )
+  }
+
+  // Form for Welcome Page End
+
+  // Form for Sales Alert Start
+
+  else {
+    return (
+      <Form
+        name="salesstudentdetails"
+        form={form}
+        labelCol={{
+          span: 8,
+        }}
+        wrapperCol={{
+          span: 16,
+        }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Sales"
+              name="firstName"
+              rules={[{
+                required: true,
+                min: 2,
+                type: 'string',
+                pattern: /^[a-zA-Z ]*$/,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student Last Name"
+              name="lastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent First Name"
+              name="pfirstName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Parent Last Name"
+              name="plastName"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Customer Email"
+              name="customerEmail"
+              rules={[{
+                required: true,
+                type: 'email'
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Student ID"
+              name="id"
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Lead ID"
+              name="studentID"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="RMN"
+              name="phoneNumber"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Whatsapp Number"
+              name="whatsapp"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Alternate Mobile Number"
+              name="alternativeMobile"
+              rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="dob"
+              label="Date of Birth"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Address"
+              name="address"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="state"
+              label="Customer State">
+              <Select
+                placeholder="Customer State"
+                onChange={onChange}
+              >
+                {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="course"
+              label="Course">
+              <Select
+                placeholder="Select Course"
+                onChange={onChange}
+              >
+                <Option value="DISE - Group Class">DISE - Group Class</Option>
+                <Option value="DISE - 1:1">DISE - 1:1</Option>
+                <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+                <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="startLesson"
+              label="Starting Lesson">
+              <Select
+                placeholder="Select Starting Lesson"
+                onChange={onChange}
+              >
+                <Option value="Lesson 1">Lesson 1</Option>
+                <Option value="Lesson 31">Lesson 31</Option>
+                <Option value="Lesson 61">Lesson 61</Option>
+                <Option value="Lesson 121">Lesson 121</Option>
+                <Option value="Lesson 201">Lesson 201</Option>
+                <Option value="Lesson 221">Lesson 221</Option>
+                <Option value="Lesson 240">Lesson 240</Option>
+                <Option value="Lesson 301">Lesson 301</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="courseFrequency"
+              label="Course Frequency">
+              <Select
+                placeholder="Select Course Frequency"
+                onChange={onChange}
+              >
+                <Option value="MWF">MWF</Option>
+                <Option value="TTS">TTS</Option>
+                <Option value="SS">SS</Option>
+                <Option value="MTWTF">MTWTF</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="timings"
+              label="Timings">
+              <Select
+                placeholder="Select Class Timings"
+                onChange={onChange}
+              >
+                <Option value="15:00">15:00</Option>
+                <Option value="16:30">16:30</Option>
+                <Option value="18:00">18:00</Option>
+                <Option value="19:30">19:30</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="startDate"
+              label="Expected Start Date"
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="lsq_user_name"
+              label="Sales Owner"
+            >
+              <Select style={{ width: 100 + "%" }} >
+                {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Classes Sold"
+              name="classessold"
+            >
+              <Select placeholder="classessold" onChange={onChange}>
+                <Option value="60">60</Option>
+                <Option value="100">100</Option>
+                <Option value="200">200</Option>
+                <Option value="300">300</Option>
+                <Option value="400">400</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Total Sale Amount"
+              name="saleamount"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Down Payment"
+              name="downpayment"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="paymentMode"
+              label="Plan Mode"
+            >
+              <Select placeholder="Select Plan Mode" onChange={onChange}>
+                <Option value="razorpay">Razorpay</Option>
+                <Option value="banktransfer">Bank Transfer</Option>
+                <Option value="cashfree">Cashfree</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Transaction ID"
+              name="paymentid"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="subscription"
+              label="Subscription Type">
+              <Select
+                placeholder="Select Subscription Type"
+                onChange={onChange}
+              >
+                <Option value="Manual">Manual</Option>
+                <Option value="Auto-Debit">Auto-Debit</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Subscription Number"
+              name="subscriptionNo"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Subscription Amount"
+              name="emi"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Months Of Subscription"
+              name="emiMonths"
+              rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="prm"
+              label="PRM Name">
+              <Select style={{ width: 100 + "%" }} >
+                {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="callStatus"
+              label="Call Status">
+              <Select
+                placeholder="Select Call Status"
+                onChange={onChange}
+              >
+                <Option value="Answered">Answered</Option>
+                <Option value="DNP">DNP</Option>
+                <Option value="Call Back Later">Call Back Later</Option>
+                <Option value="Placement test pending">Placement test pending</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="PRM Comments"
+              name="callBackon"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="BDA Comments"
+              name="comments"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Message"
+              name="message"
+            >
+              <a
+                onClick={() => {
+                  openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
+                }}
+              >
+                <EyeOutlined />
+              </a>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="waMessageSent"
+              label="Whatsapp Message Sent">
+              <Select
+                placeholder="Select Yes/No"
+                onChange={onChange}
+              >
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item name="isSibling"
+              label="Is Sibling?">
+              <Select
+                placeholder="Is Sibling"
+              >
+                <Option value={1}>Yes</Option>
+                <Option value={0}>No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status">
+              <Select
+                placeholder="Select Status"
+                onChange={onChange}
+              >
+                <Option value="enrolled">Enrolled</Option>
+                <Option value="startclasslater">Start Class Later</Option>
+                <Option value="batching">Ready to batch</Option>
+                <Option value="onboarding">Onboarding</Option>
+                <Option value="active">Active</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    );
+  };
+
+  // Form for Sales Alert End
+
 };
 
 export default Studentdetailsedit;

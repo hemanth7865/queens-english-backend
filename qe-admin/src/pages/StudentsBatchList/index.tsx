@@ -2267,9 +2267,9 @@ const StudentsBatchList: React.FC = () => {
                             ? "OnHold": tempDataView.status == 'Leave'
                             ? "Leave": tempDataView.status == 'active'
                             ? "Active": tempDataView.status == 'startclasslater'
-                            ? "Start Class Later":tempDataView.status == 'batching'
-                            ? "Batching":tempDataView.status == 'onboarding'
-                            ? "Onboarding":"Enrolled"}
+                            ? "Start Class Later": tempDataView.status == 'batching'
+                            ? "Batching": tempDataView.status == 'onboarding'
+                            ? "Onboarding" : "Enrolled"}
                       onChange={(value) => {
                         setstatus(value);
                       }}
