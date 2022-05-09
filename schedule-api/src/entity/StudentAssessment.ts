@@ -13,7 +13,7 @@ import { User } from "./User";
 
 @Entity("student_assessment")
 export class StudentAssessment extends BaseEntity {
-  StudentAssessment() {}
+  StudentAssessment() { }
 
   @PrimaryGeneratedColumn("increment")
   id: number;
@@ -50,10 +50,10 @@ export class StudentAssessment extends BaseEntity {
   batch: Classes;
 
   @OneToOne(() => Assessment)
-  @JoinColumn({name : "assessment_id"})
+  @JoinColumn({ name: "assessment_id" })
   assessment: Assessment;
 
   @OneToOne(() => User)
-  @JoinColumn({name : "teacher_id"})
+  @JoinColumn({ name: "teacher_id" })
   teacher: User;
 }

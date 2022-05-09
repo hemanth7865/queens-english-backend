@@ -1,14 +1,16 @@
-import {Entity, Column, 
-    PrimaryGeneratedColumn, OneToOne, 
-    JoinColumn, CreateDateColumn, UpdateDateColumn} from "typeorm";
+import {
+    Entity, Column,
+    PrimaryGeneratedColumn, OneToOne,
+    JoinColumn, CreateDateColumn, UpdateDateColumn
+} from "typeorm";
 
 @Entity()
 export class Status {
-    Status() {}
+    Status() { }
     @PrimaryGeneratedColumn()
-        id: number;
+    id: number;
     @Column("text")
-        value: string;
+    value: string;
     @Column("text")
-        description:string;
+    description: string;
 }

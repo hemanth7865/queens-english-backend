@@ -1,12 +1,12 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { Col, Row, Form, Input, Button, Select } from 'antd';
 
 import {
-  timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone, timeToLocalTimezone, getLessonByID
+    timeISTToLocalTimezone, timeToUTCTimezone, timeUTCToISTTimezone, timeToLocalTimezone, getLessonByID
 } from "@/services/ant-design-pro/helpers";
 import frequencyList from "./../../../../data/frequency.json";
 import coursesType from "./../../../../data/coursesType.json";
-import {LESSONS} from "./../../../../config/lessons";
+import { LESSONS } from "./../../../../config/lessons";
 
 export type Props = {
     data: any;
@@ -19,23 +19,23 @@ export type Props = {
     filterCallBack?: (data: any) => any;
 };
 
-const {Option} = Select;
+const { Option } = Select;
 
-const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, currentBatch, setExcludedTeacher, excludedTeacher, filterCallBack}) => {
+const FilterOptions: React.FC<Props> = ({ data, setData, reload, filterTheme, currentBatch, setExcludedTeacher, excludedTeacher, filterCallBack }) => {
     const rebatching = filterTheme == "RE_BATCHING";
-    const {timings, startLesson, dob, courseFrequency, startDate, course, id} = data
+    const { timings, startLesson, dob, courseFrequency, startDate, course, id } = data
     const [form] = Form.useForm();
 
     const handleFinish = () => {
-        const finalData = {...data, ...form.getFieldsValue(), timings: timeUTCToISTTimezone(timeToUTCTimezone(form.getFieldValue('timings')))};
+        const finalData = { ...data, ...form.getFieldsValue(), timings: timeUTCToISTTimezone(timeToUTCTimezone(form.getFieldValue('timings'))) };
         setData(finalData)
-        if(filterCallBack){
+        if (filterCallBack) {
             filterCallBack(finalData)
         }
     }
 
     useEffect(() => {
-        form.setFieldsValue({timings: timeISTToLocalTimezone(timings), startLesson, dob, courseFrequency, startDate, course});
+        form.setFieldsValue({ timings: timeISTToLocalTimezone(timings), startLesson, dob, courseFrequency, startDate, course });
         reload();
     }, [id]);
 
@@ -47,15 +47,15 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
         <Row gutter={rebatching ? 4 : 16}>
             <Col span={inputSpanEight}>
                 <Form.Item name="course">
-                    <Select style={{width: 100 + "%" }} placeholder={"Course"}>
+                    <Select style={{ width: 100 + "%" }} placeholder={"Course"}>
                         {
-                           coursesType.map(c => <Option key={c.value} value={c.value}>{c.label}</Option>)
+                            coursesType.map(c => <Option key={c.value} value={c.value}>{c.label}</Option>)
                         }
                     </Select>
                 </Form.Item>
             </Col>
             <Col span={inputSpanEight}>
-                <Form.Item name="timings" rules={[{pattern: /^[0-9]{2}\:[0-9]{2}$/,  message: "Make Sure To Write Correct Time"}]}>
+                <Form.Item name="timings" rules={[{ pattern: /^[0-9]{2}\:[0-9]{2}$/, message: "Make Sure To Write Correct Time" }]}>
                     <Input
                         name="timings"
                         placeholder="Timing Availability"
@@ -64,18 +64,18 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
             </Col>
             <Col span={inputSpanEight}>
                 <Form.Item name="courseFrequency">
-                    <Select style={{width: 100 + "%" }} placeholder={"Course Frequency"}>
+                    <Select style={{ width: 100 + "%" }} placeholder={"Course Frequency"}>
                         {
-                           frequencyList.map(c => <Option key={c.value} value={c.value}>{c.label}</Option>)
+                            frequencyList.map(c => <Option key={c.value} value={c.value}>{c.label}</Option>)
                         }
                     </Select>
                 </Form.Item>
             </Col>
             <Col span={inputSpanEight}>
                 <Form.Item name="startLesson">
-                    <Select style={{width: 100 + "%" }} placeholder={"Start Lesson"} showSearch>
+                    <Select style={{ width: 100 + "%" }} placeholder={"Start Lesson"} showSearch>
                         {
-                           LESSONS.map(c => <Option key={`Lesson ${c.number}`} value={`Lesson ${c.number}`}>Lesson {c.number}</Option>)
+                            LESSONS.map(c => <Option key={`Lesson ${c.number}`} value={`Lesson ${c.number}`}>Lesson {c.number}</Option>)
                         }
                     </Select>
                 </Form.Item>
@@ -105,7 +105,7 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
             {rebatching && (
                 <Col span={inputSpanEight}>
                     <Form.Item>
-                        <Select onChange={setExcludedTeacher} style={{width: 100 + "%" }} defaultValue={excludedTeacher} placeholder={"Teacher Change Preferred"}>
+                        <Select onChange={setExcludedTeacher} style={{ width: 100 + "%" }} defaultValue={excludedTeacher} placeholder={"Teacher Change Preferred"}>
                             <Option value={currentBatch?.teacherId}>Yes</Option>
                             <Option value={0}>No</Option>
                         </Select>
@@ -129,37 +129,37 @@ const FilterOptions: React.FC<Props> = ({data, setData, reload, filterTheme, cur
                         <h3>Type: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? data.course: "NA"}
+                        {currentBatch ? data.course : "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Time: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? timeToLocalTimezone(currentBatch.lessonStartTime): "NA"}
+                        {currentBatch ? timeToLocalTimezone(currentBatch.lessonStartTime) : "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Frequency: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? currentBatch.frequency: "NA"}
+                        {currentBatch ? currentBatch.frequency : "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Level: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? getLessonByID(currentBatch.activeLessonId)?.number || getLessonByID(currentBatch.startingLessonId)?.number: "NA"}
+                        {currentBatch ? getLessonByID(currentBatch.activeLessonId)?.number || getLessonByID(currentBatch.startingLessonId)?.number : "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Start Date: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? currentBatch.classStartDate?.split("T")[0]: "NA"}
+                        {currentBatch ? currentBatch.classStartDate?.split("T")[0] : "NA"}
                     </Col>
                     <Col span={6}>
                         <h3>Teacher: </h3>
                     </Col>
                     <Col span={18}>
-                        {currentBatch ? `${currentBatch.teacher?.firstName || "NA"} ${currentBatch.teacher?.lastName}`: "NA"}
+                        {currentBatch ? `${currentBatch.teacher?.firstName || "NA"} ${currentBatch.teacher?.lastName}` : "NA"}
                     </Col>
                 </Row>
             </Col>

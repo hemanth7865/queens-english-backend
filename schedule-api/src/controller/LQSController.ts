@@ -20,13 +20,13 @@ export class LQSController {
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         var res;
         if (this.ENABLE_ACTIVITY_API) {
-          usersLogger.info(`Activity api enabled .... ${this.ENABLE_ACTIVITY_API}`);
-           res = await this.lQSService.fetchLSQData(request.body);
+            usersLogger.info(`Activity api enabled .... ${this.ENABLE_ACTIVITY_API}`);
+            res = await this.lQSService.fetchLSQData(request.body);
         } else {
-           res = await this.lQSService.fetchLQSData(request.body);
-        }        
+            res = await this.lQSService.fetchLQSData(request.body);
+        }
         await this.lQSService.createStudents();
-        usersLogger.info("Assign PRM records");        
+        usersLogger.info("Assign PRM records");
         usersLogger.info("LQS data fetch :: End");
 
         return res;

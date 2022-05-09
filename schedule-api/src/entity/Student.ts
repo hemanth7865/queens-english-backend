@@ -16,53 +16,53 @@ import { StudentAvailability } from "./StudentAvailability";
 
 @Entity("student")
 export class Student extends BaseEntity {
-  Student() {}
+  Student() { }
   @PrimaryGeneratedColumn("uuid")
   id: string;
   @Column({ nullable: true })
   teacherName: string;
-  @Column({ nullable: true})
-  batchCode:string;
-  @Column({ nullable: true})
+  @Column({ nullable: true })
+  batchCode: string;
+  @Column({ nullable: true })
   alternativeMobile: string;
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   studentName: string;
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   studentID: string;
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   age: string;
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   address: string;
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   classType: string;
-  @Column({ nullable: true})
-  referralCode:String;
-  @Column({ nullable: true})
-  days:number;
-  @Column({ nullable: true})
-  status:string;
-  @Column({ nullable: true})
-  studentType:string;
-  @Column({ nullable: true})
-  courseFrequency:string;
-  @Column({ nullable: true})
-  timings:string;
-  @Column({ nullable: true, type:"date" })
+  @Column({ nullable: true })
+  referralCode: String;
+  @Column({ nullable: true })
+  days: number;
+  @Column({ nullable: true })
+  status: string;
+  @Column({ nullable: true })
+  studentType: string;
+  @Column({ nullable: true })
+  courseFrequency: string;
+  @Column({ nullable: true })
+  timings: string;
+  @Column({ nullable: true, type: "date" })
   dateOfBirth: Date;
   @Column({ nullable: true })
   poc: string;
-  @Column({ nullable: true, type:"date" })
+  @Column({ nullable: true, type: "date" })
   startDate: Date;
-  @Column({ nullable: true, type:"date" })
-  endDate: Date; 
+  @Column({ nullable: true, type: "date" })
+  endDate: Date;
   @Column({ nullable: true })
   startLesson: string;
   @Column({ nullable: true })
   firstFeedback: string;
   @Column({ nullable: true })
-  fifthFeedback:string;
+  fifthFeedback: string;
   @Column({ nullable: true })
-  fifteenthFeedback:string ;
+  fifteenthFeedback: string;
   @Column({ nullable: true })
   classesCompleted: string;
   @Column({ nullable: true })
@@ -96,7 +96,7 @@ export class Student extends BaseEntity {
   @Column({ nullable: true })
   course: string;
   @Column({ nullable: true })
-  assesmentComplete	: string;
+  assesmentComplete: string;
   @Column({ nullable: true })
   assesmentMissed: string;
   @Column({ nullable: true })
@@ -121,9 +121,9 @@ export class Student extends BaseEntity {
   waMessageSent: string;
   @Column({ nullable: true })
   salesDataFilled: string;
-  @Column({ nullable: true, type:"date" })
+  @Column({ nullable: true, type: "date" })
   assesmentDate: Date;
-  
+
   @Column({ nullable: true, type: "date" })
   crossedEndDate: Date;
   @CreateDateColumn()

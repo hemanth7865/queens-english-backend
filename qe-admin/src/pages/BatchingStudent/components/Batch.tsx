@@ -79,11 +79,8 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD"),
     };
-    if(rebatching){
-      fixedFilter.activeLessonId = currentBatch.activeLessonId?currentBatch.activeLessonId:lesson?.id;
-      //console.log('active lesson id: '+JSON.stringify(currentBatch));
-      }
-        else if (lesson?.id) {
+
+    if (lesson?.id) {
       fixedFilter.activeLessonId = lesson.id;
     }
 
@@ -188,7 +185,7 @@ const Batch: React.FC<BatchProps> = (props) => {
   };
 
   const onFinish = async () => {
-    if(!rebatching && data.batchCode?.length > 0){
+    if (!rebatching && data.batchCode?.length > 0) {
       alert(`Student is part of batch ${data.batchCode}, Please remove student from this batch, then try to add again.`);
       return false;
     }
@@ -196,7 +193,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     let success = true;
     if (props.onFinish && typeof selectedBatch === "string") {
       const propsResult = await props.onFinish(selectedBatch);
-      if(propsResult === false){
+      if (propsResult === false) {
         success = false;
         setIsLoading(false);
         return success;

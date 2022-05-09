@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class updatePaymentEMIColumnLength1649799522878 implements MigrationInterface {
 

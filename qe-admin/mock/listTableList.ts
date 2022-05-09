@@ -96,7 +96,7 @@ const genStudentBatches = (current: number, pageSize: number) => {
       lastName: 'lastName' + index,
       email: 'user@gmail.com',
       mobile: '9876543210',
-      type: Math.floor(Math.random()*10)%2,
+      type: Math.floor(Math.random() * 10) % 2,
     });
   }
   tableListDataSource.reverse();

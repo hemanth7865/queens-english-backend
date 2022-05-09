@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreatePRMRecords1649167480590 implements MigrationInterface {
     protected records = [
@@ -11,9 +11,9 @@ export class CreatePRMRecords1649167480590 implements MigrationInterface {
         let phoneNumber = "1234567899";
         let gender = "Male";
         let email = "abc@abc.com";
-        for(let column of this.records){
-            await queryRunner.query(`REPLACE INTO prm SET id='${id}', firstName='${column.split(" ")[0]}', lastName='${column.split(" ").filter((i, index) => index !== 0 ).join(" ")}' , phoneNumber='${phoneNumber}', gender='${gender}', email='${email}'`);
-            id ++;
+        for (let column of this.records) {
+            await queryRunner.query(`REPLACE INTO prm SET id='${id}', firstName='${column.split(" ")[0]}', lastName='${column.split(" ").filter((i, index) => index !== 0).join(" ")}' , phoneNumber='${phoneNumber}', gender='${gender}', email='${email}'`);
+            id++;
         }
     }
 

@@ -1,18 +1,20 @@
-import {Entity, Column, 
-    PrimaryGeneratedColumn, OneToOne, 
-    JoinColumn, CreateDateColumn, UpdateDateColumn} from "typeorm";
+import {
+    Entity, Column,
+    PrimaryGeneratedColumn, OneToOne,
+    JoinColumn, CreateDateColumn, UpdateDateColumn
+} from "typeorm";
 
 @Entity()
 export class Nationality {
-    Nationality() {}
+    Nationality() { }
     @PrimaryGeneratedColumn()
-        id: number;
+    id: number;
     @Column("text")
-        country: string;
+    country: string;
     @Column("text")
-        countrycode:string;
+    countrycode: string;
     @Column("text")
-        nationality:string;
+    nationality: string;
     @Column("text")
-        person:string;
+    person: string;
 }

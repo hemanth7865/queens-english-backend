@@ -8,7 +8,7 @@ export class SessionService {
   private sessionRepository = getRepository(Session);
   private attendanceRepository = getRepository(Attendance);
 
-  SessionService() {}
+  SessionService() { }
 
   async createSession(data: any) {
     const connection = getConnection();
@@ -94,10 +94,10 @@ export class SessionService {
           id == null
             ? await queryRunner.manager.save(attendance)
             : await queryRunner.manager.update(
-                Attendance,
-                attendance.id,
-                attendance
-              );
+              Attendance,
+              attendance.id,
+              attendance
+            );
         }
       }
       await queryRunner.commitTransaction();

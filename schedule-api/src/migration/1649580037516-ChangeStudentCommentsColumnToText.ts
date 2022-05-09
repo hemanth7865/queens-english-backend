@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class ChangeStudentCommentsColumnToText1649580037516 implements MigrationInterface {
 

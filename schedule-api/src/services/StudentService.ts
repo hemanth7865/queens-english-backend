@@ -2,7 +2,7 @@ import { FileLogger, getConnection, getRepository, Not } from "typeorm";
 import { User } from "../entity/User";
 import { Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
-import { TeacherAvailability  } from "../entity/TeacherAvailability";
+import { TeacherAvailability } from "../entity/TeacherAvailability";
 import { getManager } from "typeorm";
 import axios from "axios";
 
@@ -13,7 +13,7 @@ import { StudentAvailability } from "../entity/StudentAvailability";
 import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
-import {LESSONS} from "./../data/lessons";
+import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 
 export class StudentService {
@@ -21,7 +21,7 @@ export class StudentService {
   private studentRepository = getRepository(Student);
   private paymentRepository = getRepository(Payment);
   private studentAvailabilityRepository = getRepository(StudentAvailability);
-  private teacherService  = new TeacherService();
+  private teacherService = new TeacherService();
   private prmRepository = getRepository(PRManager);
   private lsq_userRepository = getRepository(LSQUser);
 
@@ -37,11 +37,11 @@ export class StudentService {
     INNER JOIN user u ON u.id = c.teacherId 
     WHERE sbh.studentId = ':studentId' ORDER BY sbh.created_at DESC`;
 
-  constructor(){
+  constructor() {
     this.BATCHES_HISTORY_QUERY = this.BATCHES_HISTORY_QUERY.replace(/\n/g, "");
   }
 
-  async listStudentDetails(data:any, parameters: any) {
+  async listStudentDetails(data: any, parameters: any) {
 
     var results: any[] = [];
     var leadView: LeadView[] = [];
@@ -60,14 +60,14 @@ export class StudentService {
 
     let query_list = [];
     let query_string = "";
-    
+
     let prm_name = parameters.prm_name;
 
     const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
-     
+
       query_list.push(
-        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${parameters.keyword ? 'or u.phoneNumber LIKE "%'+ name+'%"' : ''}) `
+        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ''}) `
       );
     }
     const mobile = parameters.phoneNumber;
@@ -89,7 +89,7 @@ export class StudentService {
     }
 
     if (type) {
-           query_list.push(` u.type like '%${type}%'  `);
+      query_list.push(` u.type like '%${type}%'  `);
       console.log("user type ", type);
     }
 
@@ -103,202 +103,201 @@ export class StudentService {
       let bathCodeQuery = `SELECT u.id FROM user u join batch_students bs on bs.id = u.id
       join classes cl on cl.id = bs.batchId
       where cl.batchNumber like '%${parameters.batchCode}%'`;
-      
-      let ids = await getManager().query(bathCodeQuery); 
-      for (let element of ids) {  
+
+      let ids = await getManager().query(bathCodeQuery);
+      for (let element of ids) {
         StudentIds.push(element.id);
       }
 
     }
-    console.log('Student ids',StudentIds);
+    console.log('Student ids', StudentIds);
     const keyword = parameters.keyword;
     let query_search: string;
     if (!!keyword?.length) {
       query_search = ` (u.firstName like '%${keyword}%' or u.lastName like '%${keyword}%' or u.phoneNumber like '%${keyword}%' )`;
     }
-    let qIds = new Set();  
- 
-      for (let element of StudentIds) {
-        qIds.add("'"+ element + "'");
+    let qIds = new Set();
+
+    for (let element of StudentIds) {
+      qIds.add("'" + element + "'");
+    }
+    usersLogger.info(`Finale query ids ${JSON.stringify(StudentIds)}`);
+
+    if (qIds.size > 0) {
+      query_list.push(` u.id in (${[...qIds].join(",")})`);
+    }
+
+    let innerJoinPRM: string = "";
+    let PRMSelect: string = "";
+    let PRMHaving: string = ``;
+    if (prm_name) {
+      PRMHaving = ` HAVING prm_full_name LIKE '%${prm_name}%'`;
+      PRMSelect = ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
+      innerJoinPRM = "INNER JOIN prm ON prm.id = s.prm_id";
+    }
+
+    query_list.forEach((value, index) => {
+      console.log(query_list.join(" and "));
+      if (index != query_list.length - 1) {
+        query_string = query_string + query_list[index] + " and ";
+      } else {
+        query_string = query_string + query_list[index];
       }
-      usersLogger.info(`Finale query ids ${JSON.stringify(StudentIds)}`);
-    
-      if (qIds.size > 0) {
-            query_list.push(` u.id in (${[...qIds].join(",")})`);
-      } 
-
-      let innerJoinPRM: string = "";
-      let PRMSelect: string = "";
-      let PRMHaving: string = ``;
-      if(prm_name){
-        PRMHaving = ` HAVING prm_full_name LIKE '%${prm_name}%'`;
-        PRMSelect = ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
-        innerJoinPRM = "INNER JOIN prm ON prm.id = s.prm_id";
-      }
-
-      query_list.forEach((value, index) => {
-        console.log(query_list.join(" and "));
-        if (index != query_list.length - 1) {
-          query_string = query_string + query_list[index] + " and ";
-        } else {
-          query_string = query_string + query_list[index];
-        }
-      });
-  
-  
-      if(query_string) {
-        query_string = " where " + query_string;
-      }
-
- 
-
-    var finalQuery =  `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
-  let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
-
-  console.log(`query string ${query_list}`);
-
-  console.log('Final query executing ', finalQuery);
+    });
 
 
-      results = await getManager().query(finalQuery);
-      var total = await getManager().query(totalQuery);
-      console.log("results size", results.length);
+    if (query_string) {
+      query_string = " where " + query_string;
+    }
 
-      for (const element of results) {
-        
-        let slotsResult: any[] = [];
-        let batchCodes: any[] = [];
-        let payment: string;
-        var prm_info = new PRManager();
-        var lsq_user_info = new LSQUser();
-   
-        var studentOrTeacherId=[];
-        var zoomLinkBatch = [];
-        var zoomInfoBatch = [];
-        var batchesHistory = [];
-        var whatsappLinkBatch = [];
-        var batchCode = '';
-  
-        if (type == 'student' ) {
-          var quer =
+
+
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
+    let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
+
+    console.log(`query string ${query_list}`);
+
+    console.log('Final query executing ', finalQuery);
+
+
+    results = await getManager().query(finalQuery);
+    var total = await getManager().query(totalQuery);
+    console.log("results size", results.length);
+
+    for (const element of results) {
+
+      let slotsResult: any[] = [];
+      let batchCodes: any[] = [];
+      let payment: string;
+      var prm_info = new PRManager();
+      var lsq_user_info = new LSQUser();
+
+      var studentOrTeacherId = [];
+      var zoomLinkBatch = [];
+      var zoomInfoBatch = [];
+      var batchesHistory = [];
+      var whatsappLinkBatch = [];
+      var batchCode = '';
+
+      if (type == 'student') {
+        var quer =
           "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
-          
-          batchCodes = await getManager().query(quer);
-          batchCodes.forEach((element) => {
-            console.log("batchCode", element);
-            studentOrTeacherId.push(element.batchNumber);
-            zoomLinkBatch.push(element.zoomLink);
-            zoomInfoBatch.push(element.zoomInfo);
-            whatsappLinkBatch.push(element.whatsappLink);
-          });
 
-          batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", element.id));
+        batchCodes = await getManager().query(quer);
+        batchCodes.forEach((element) => {
+          console.log("batchCode", element);
+          studentOrTeacherId.push(element.batchNumber);
+          zoomLinkBatch.push(element.zoomLink);
+          zoomInfoBatch.push(element.zoomInfo);
+          whatsappLinkBatch.push(element.whatsappLink);
+        });
 
-          var paymentQuer =
-          "select * from payment where id = '"+element.id+"';";
-          
-          payment = await getManager().query(paymentQuer);
-          console.log(`PRM id is ${element.prm_id}`);
+        batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", element.id));
 
-          prm_info = await this.prmRepository.findOne(element.prm_id);
-          lsq_user_info = await this.lsq_userRepository.findOne(element.salesowner);
+        var paymentQuer =
+          "select * from payment where id = '" + element.id + "';";
 
-          console.log('lsq', lsq_user_info, element.salesowner)
-        }
+        payment = await getManager().query(paymentQuer);
+        console.log(`PRM id is ${element.prm_id}`);
 
-        if (element.dob) {
-          var today = new Date();
-          var birthDate = new Date(element.dob);
-          var age = today.getFullYear() - birthDate.getFullYear();
-          var m = today.getMonth() - birthDate.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
-          {
-              element.age = age--;
-          }
-        }
-        
-        if(!element.isSibling){
-          element.isSibling = await this.usersRepository.findOne({where: {isSibling: 1, phoneNumber: element.phoneNumber}}) ? 1 : 0;
-        }
+        prm_info = await this.prmRepository.findOne(element.prm_id);
+        lsq_user_info = await this.lsq_userRepository.findOne(element.salesowner);
 
-        var l = new LeadView(
-          element.id,
-          element.studentID,
-          new Date().toString(),
-          element.name,
-          element.exp,
-          element.phoneNumber,
-          element.email,
-          element.status,
-            0,
-          element.ratings,
-          '',
-          element.leadtype,
-          element.type,
-          studentOrTeacherId.join(","),
-          element.studentID,
-          element.dob?element.dob.toISOString().split('T')[0]:'',
-          element.whatsapp,
-          element.address,
-          element.classType,
-          payment,
-          element.age,
-          element.startDate?element.startDate.toISOString().split('T')[0]:'',
-          element.startLesson,
-          element.pfirstName,
-          element.plastName,
-          element.course,
-          element.comments,
-          element.alternativeMobile,
-          element.paymentid,
-          element.firstName,
-          element.lastName,
-          element.teacherName,
-          element.days,
-          element.studentType,
-          element.firstFeedback,
-          element.classesStartDate?element.classesStartDate.toISOString().split('T')[0]:'',
-          element.callStatus,
-          element.callBackon,
-          element.bdaName,
-          element.bdmName,
-          element.poc,
-          element.courseFrequency,
-          element.timings,
-          element.customerEmail,
-          element.state,
-          zoomLinkBatch.join(","),
-          zoomInfoBatch.join(","),
-          prm_info?prm_info.id:'',
-          prm_info?prm_info.firstName:'',
-          prm_info?prm_info.lastName:'',
-          element.salestatus,
-          element.salesowner,
-          prm_info?`${prm_info.firstName} ${prm_info.lastName}`:'',
-          element.waMessageSent,
-          element.salesDataFilled,
-          lsq_user_info?lsq_user_info.ID:'',
-          lsq_user_info?`${lsq_user_info.FirstName} ${lsq_user_info.LastName}`:'',
-          whatsappLinkBatch.join(","),
-        );
-        l.isSibling = element.isSibling;
-        l.batchesHistory = batchesHistory;
-        leadView.push(l);
+        console.log('lsq', lsq_user_info, element.salesowner)
       }
 
-      return {
-        success: true,
-        data: leadView,
-        total: parseInt(total[0].total),
-        current: current,
-        pageSize: limit,
-      };
-  
+      if (element.dob) {
+        var today = new Date();
+        var birthDate = new Date(element.dob);
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          element.age = age--;
+        }
+      }
 
+      if (!element.isSibling) {
+        element.isSibling = await this.usersRepository.findOne({ where: { isSibling: 1, phoneNumber: element.phoneNumber } }) ? 1 : 0;
+      }
 
+      var l = new LeadView(
+        element.id,
+        element.studentID,
+        new Date().toString(),
+        element.name,
+        element.exp,
+        element.phoneNumber,
+        element.email,
+        element.status,
+        0,
+        element.ratings,
+        '',
+        element.leadtype,
+        element.type,
+        studentOrTeacherId.join(","),
+        element.studentID,
+        element.dob ? element.dob.toISOString().split('T')[0] : '',
+        element.whatsapp,
+        element.address,
+        element.classType,
+        payment,
+        element.age,
+        element.startDate ? element.startDate.toISOString().split('T')[0] : '',
+        element.startLesson,
+        element.pfirstName,
+        element.plastName,
+        element.course,
+        element.comments,
+        element.alternativeMobile,
+        element.paymentid,
+        element.firstName,
+        element.lastName,
+        element.teacherName,
+        element.days,
+        element.studentType,
+        element.firstFeedback,
+        element.classesStartDate ? element.classesStartDate.toISOString().split('T')[0] : '',
+        element.callStatus,
+        element.callBackon,
+        element.bdaName,
+        element.bdmName,
+        element.poc,
+        element.courseFrequency,
+        element.timings,
+        element.customerEmail,
+        element.state,
+        zoomLinkBatch.join(","),
+        zoomInfoBatch.join(","),
+        prm_info ? prm_info.id : '',
+        prm_info ? prm_info.firstName : '',
+        prm_info ? prm_info.lastName : '',
+        element.salestatus,
+        element.salesowner,
+        prm_info ? `${prm_info.firstName} ${prm_info.lastName}` : '',
+        element.waMessageSent,
+        element.salesDataFilled,
+        lsq_user_info ? lsq_user_info.ID : '',
+        lsq_user_info ? `${lsq_user_info.FirstName} ${lsq_user_info.LastName}` : '',
+        whatsappLinkBatch.join(","),
+      );
+      l.isSibling = element.isSibling;
+      l.batchesHistory = batchesHistory;
+      leadView.push(l);
     }
+
+    return {
+      success: true,
+      data: leadView,
+      total: parseInt(total[0].total),
+      current: current,
+      pageSize: limit,
+    };
+
+
+
+  }
 
   async saveStudentDetails(data: any) {
     let response;
@@ -342,18 +341,18 @@ export class StudentService {
             );
             usersLogger.info(`Update oracle DB:  data.phoneNumber`);
             data.id = res.data.id;
-            if(res.status == 400) {            
+            if (res.status == 400) {
               usersLogger.error(`Error while updating student : ${res.data}`);
               return { status: 400, data: res.data };
             } else {
               usersLogger.info(`Data id from cosmos is ${data.id}`);
-              var user = await this.saveStudentSQL(data,data.id, true);
+              var user = await this.saveStudentSQL(data, data.id, true);
               usersLogger.info(
                 `Successfully registered user: ${data.phoneNumber}`
               );
               return user;
             }
-         
+
           })
           .catch((error) => {
             usersLogger.info(`Error while updating student : ${error.response.data}`);
@@ -389,37 +388,57 @@ export class StudentService {
     }
   }
 
-  async isStudentExist(column = "alternativeMobile", value: string, id: string | undefined): Promise<any>{
-      let where: any =  {[column]: value};
-      if(id){
-          where['id'] = Not(id);
-      }
-      try{
-        const user = await this.studentRepository.findOne({where});
-        return user;
-      }catch(e){
-        console.log(e);
-        usersLogger.error(e);
-        return false;
-      }
+  async isStudentExist(column = "alternativeMobile", value: string, id: string | undefined): Promise<any> {
+    let where: any = { [column]: value };
+    if (id) {
+      where['id'] = Not(id);
     }
+    try {
+      const user = await this.studentRepository.findOne({ where });
+      return user;
+    } catch (e) {
+      console.log(e);
+      usersLogger.error(e);
+      return false;
+    }
+  }
 
-  async updateStudentStatus(data: any){
+  async updateStudentStatus(data: any) {
     usersLogger.info(
       `Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
     let user;
-    if(data.status && data.id){
-      let updateList: any = {};
-      updateList.callStatus = data.callStatus; 
-      updateList.callBackon = data.callBackon; 
-      updateList.waMessageSent = data.waMessageSent; 
-      console.log(updateList);
-      user = await this.usersRepository.update({id: data.id}, {status: data.status});
-      let students = await this.studentRepository.update({id: data.id}, updateList);
-      return {status: 200, data: user};
+    try {
+      if (data.status && data.id) {
+        let updateList: any = {};
+        updateList.callStatus = data.callStatus;
+        updateList.callBackon = data.callBackon;
+        updateList.waMessageSent = data.waMessageSent;
+        console.log(updateList);
+        user = await this.usersRepository.update(
+          { id: data.id },
+          { status: data.status }
+        );
+        let students = await this.studentRepository.update(
+          { id: data.id },
+          updateList
+        );
+        usersLogger.info(
+          `Success Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
+        );
+        return { status: 200, data: user };
+      }else{
+        usersLogger.info(
+          `Failed To Update user status in Admin portal with phoneNumber, missing status or id : ${data?.phoneNumber}`
+        );
+      }
+    } catch (e) {
+      usersLogger.info(
+        `Failed To Update user status in Admin portal with phoneNumber : ${data?.phoneNumber} , error: ${e?.message}`
+      );
     }
-    return {status: 400, data: "Failed To Update User Status"};
+
+    return { status: 400, data: "Failed To Update User Status" };
   }
 
   async mapStudentData(data: any, id: string, create: boolean = false) {
@@ -476,7 +495,7 @@ export class StudentService {
 
     if (data.payment) {
       for (let element of data.payment) {
-        if(element.dateofsale?.length < 5){
+        if (element.dateofsale?.length < 5) {
           continue;
         }
         if (element.id) {
@@ -488,7 +507,7 @@ export class StudentService {
         payment.studentId = element.studentId;
         payment.classtype = element.classtype;
         payment.classessold = element.classessold ? element.classessold : 0;
-        payment.saleamount = element.saleamount ? element.saleamount :0;
+        payment.saleamount = element.saleamount ? element.saleamount : 0;
         payment.dateofsale = element.dateofsale;
         payment.downpayment = element.downpayment ? element.downpayment : 0;
         payment.duedate = element.duedate;
@@ -498,7 +517,7 @@ export class StudentService {
         payment.emiMonths = element.emiMonths;
         payment.paymentMode = element.paymentMode;
         payment.dateofsale = element.dateofsale;
-        payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments: 0;
+        payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments : 0;
         payments.push(payment);
       }
     }
@@ -527,23 +546,23 @@ export class StudentService {
     student.fifteenthFeedback = data.fifteenthFeedback;
     student.classesCompleted = data.classesCompleted;
     student.customersReferred = data.customersReferred;
-    student.waMessageSent= data.waMessageSent;
-    student.logApp  = data.logApp;
-    student.pfirstName= data.pfirstName;
-    student.plastName= data.plastName;
-    student.comments= data.comments;
-    student.incentive= data.incentive;
+    student.waMessageSent = data.waMessageSent;
+    student.logApp = data.logApp;
+    student.pfirstName = data.pfirstName;
+    student.plastName = data.plastName;
+    student.comments = data.comments;
+    student.incentive = data.incentive;
     student.classesStartDate = data.classesStartDate;
-    student.classesPurchase= data.classesPurchase;
+    student.classesPurchase = data.classesPurchase;
     student.classesAttended = data.classesAttended;
     student.classesMissed = data.classesMissed;
     student.partner = data.partner;
-    student.lesson= data.lesson;
+    student.lesson = data.lesson;
     student.course = data.course;
-    student.assesmentComplete  = data.assesmentComplete;
-    student.assesmentMissed = data.assesmentMissed ;
+    student.assesmentComplete = data.assesmentComplete;
+    student.assesmentMissed = data.assesmentMissed;
     student.averageScore = data.averageScore;
-    student.batchChange = data.batchChange ;
+    student.batchChange = data.batchChange;
     student.callStatus = data.callStatus;
     student.callBackon = data.callBackon;
     student.bdaName = data.bdaName;
@@ -557,14 +576,14 @@ export class StudentService {
     student.waMessageSent = data.waMessageSent;
     student.salesDataFilled = data.salesDataFilled;
     student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
-    
-    if (create){
+
+    if (create) {
       const lqsClient = new LQSService();
-      student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
+      student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
     }
 
     if (data.studentAvailability) {
-      for (let element of  data.studentAvailability) {
+      for (let element of data.studentAvailability) {
         var availability = new StudentAvailability();
         availability.start_date = element.startDate;
         availability.start_slot = element.start_slot;
@@ -585,15 +604,15 @@ export class StudentService {
 
         availability.weekday = element.weekday;
         if (element.id) availability.id = element.id;
-          availability.created_at = new Date();
-          availability.updated_at = new Date();
-          availability.start_slot = element.start_slot;
-          availability.end_slot = element.end_slot;
-          studentAvailability.push(availability);
-        }
+        availability.created_at = new Date();
+        availability.updated_at = new Date();
+        availability.start_slot = element.start_slot;
+        availability.end_slot = element.end_slot;
+        studentAvailability.push(availability);
+      }
     }
 
-    return {student, payments, user, studentAvailability};
+    return { student, payments, user, studentAvailability };
   }
 
   async saveStudentSQL(data: any, id, create = false) {
@@ -606,40 +625,40 @@ export class StudentService {
 
       const UserData = await this.mapStudentData(data, id, create);
 
-      let {user, payments, studentAvailability, student} = UserData;
+      let { user, payments, studentAvailability, student } = UserData;
 
       usersLogger.info(`user data is ${JSON.stringify(user)}`);
       user = await this.usersRepository.save(user);
       usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
 
       for (let element of payments) {
-          const payment =  await this.paymentRepository.save(element);
-          user.payment = [payment];
-          usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+        const payment = await this.paymentRepository.save(element);
+        user.payment = [payment];
+        usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
       }
 
       student = await this.studentRepository.save(student);
 
       if (studentAvailabilityList) {
-        for (let element of  studentAvailability) {
+        for (let element of studentAvailability) {
           let availability = await this.studentAvailabilityRepository.save(
             element
           );
           studentAvailabilityList.push(availability);
         }
       }
-  
+
       console.log("leadAvailability", teacherAvailability);
-  
+
       user.teacherAvailability = teacherAvailability;
       user.studentAvailability = studentAvailability;
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
-     
-      return {...user};
+
+      return { ...user };
     } catch (error) {
       console.log(error);
-     return {status:500, error:"Unable to register student"}
+      return { status: 500, error: "Unable to register student" }
     }
   }
 
@@ -648,14 +667,14 @@ export class StudentService {
     try {
       let returnPayments: Payment[] = [];
       for (let element of payments) {
-          const payment =  await this.paymentRepository.save(element);
-          returnPayments.push(payment);
-          usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+        const payment = await this.paymentRepository.save(element);
+        returnPayments.push(payment);
+        usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
       }
-      return {payments: returnPayments};
+      return { payments: returnPayments };
     } catch (error) {
       console.log(error);
-     return {status:500, error:"Unable to save student payment"}
+      return { status: 500, error: "Unable to save student payment" }
     }
   }
 
@@ -692,23 +711,23 @@ export class StudentService {
     student.classesCompleted = element.classesCompleted;
     student.customersReferred = element.customersReferred;
 
-    student.wabatch= element.wabatch;
-    student.logApp  =element.logApp;
-    student.pfirstName= element.pfirstName;
-    student.plastName= element.plastName;
-    student.comments=element.comments;
+    student.wabatch = element.wabatch;
+    student.logApp = element.logApp;
+    student.pfirstName = element.pfirstName;
+    student.plastName = element.plastName;
+    student.comments = element.comments;
     student.classesStartDate = element.classesStartDate;
-    student.incentive=element.incentive;
-    student.classesPurchase= element.classesPurchase;
+    student.incentive = element.incentive;
+    student.classesPurchase = element.classesPurchase;
     student.classesAttended = element.classesAttended;
     student.classesMissed = element.classesMissed;
-    student.partner =element.partner;
-    student.lesson=element.lesson;
+    student.partner = element.partner;
+    student.lesson = element.lesson;
     student.course = element.course;
-    student.assesmentComplete  =element.assesmentComplete;
-    student.assesmentMissed = element.assesmentMissed ;
+    student.assesmentComplete = element.assesmentComplete;
+    student.assesmentMissed = element.assesmentMissed;
     student.averageScore = element.averageScore;
-    student.batchChange = element.batchChange ;
+    student.batchChange = element.batchChange;
     student.callStatus = element.callStatus;
     student.callBackon = element.callBackon;
     student.bdaName = element.bdaName;
@@ -727,17 +746,17 @@ export class StudentService {
   }
 
 
-  async getStudentDetailsById(id: string) {  
+  async getStudentDetailsById(id: string) {
     return this.fetchStudentFilterData(id);
 
   }
 
 
-  
-  fetchStudentFilterData = async (id: string) => {
-    usersLogger.info(`Fetch Student details from oracle with ${id}`);    
 
-   var users = await getManager()
+  fetchStudentFilterData = async (id: string) => {
+    usersLogger.info(`Fetch Student details from oracle with ${id}`);
+
+    var users = await getManager()
       .createQueryBuilder(User, "user")
       .where("user.id = :id", { id: id })
       .getOne();
@@ -752,31 +771,31 @@ export class StudentService {
       .createQueryBuilder(Payment, "payment")
       .where("payment.id = :id", { id: id })
       .getOne();
-      console.log(student);
-        
-        var quer =
-        "select studentId , batchId from batch_students where studentId='" +
-        id +
-        "';";
-        var studentOrTeacherId=[];
-     var  batchCodes = await getManager().query(quer);
-      batchCodes.forEach((element) => {
-        console.log("batchdode", element);
-        studentOrTeacherId.push(element.batchId);
-      });
-    
+    console.log(student);
+
+    var quer =
+      "select studentId , batchId from batch_students where studentId='" +
+      id +
+      "';";
+    var studentOrTeacherId = [];
+    var batchCodes = await getManager().query(quer);
+    batchCodes.forEach((element) => {
+      console.log("batchdode", element);
+      studentOrTeacherId.push(element.batchId);
+    });
+
     let batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", id));
- 
+
     const response = {
-      ...users,...student,batchCode:studentOrTeacherId.join(","), batchesHistory, ...payment
+      ...users, ...student, batchCode: studentOrTeacherId.join(","), batchesHistory, ...payment
     }
-   
-    if(!response.isSibling){
-      response.isSibling = await this.usersRepository.findOne({where: {isSibling: 1, phoneNumber: response.phoneNumber}}) ? true : false;
+
+    if (!response.isSibling) {
+      response.isSibling = await this.usersRepository.findOne({ where: { isSibling: 1, phoneNumber: response.phoneNumber } }) ? true : false;
     }
 
 
-    usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);    
+    usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);
     return {
       success: true,
       data: response,
@@ -824,7 +843,7 @@ export class StudentService {
 
     let where: string = ``;
 
-    if(!fetchAllBatches){
+    if (!fetchAllBatches) {
       where = `classEndDate >= '${moment().format("YYYY-MM-DD")}' and`;
     }
 
@@ -832,7 +851,7 @@ export class StudentService {
 
     var results = await getManager().query(finalQuery);
 
-    for(let i = 0; i < results.length; i++){
+    for (let i = 0; i < results.length; i++) {
       let batch = results[i];
       const data = await getManager().query(`SELECT * from user WHERE id='${batch.teacherId}'`);
       batch.teacher = data[0];
@@ -846,7 +865,7 @@ export class StudentService {
     };
   }
 
-  async updateStudentsCSV(data: any, query: {test: false}){
+  async updateStudentsCSV(data: any, query: { test: false }) {
     const moment = require("moment");
     const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
     let result = {
@@ -859,10 +878,10 @@ export class StudentService {
       "notFoundRecordsIDs": [],
     };
 
-    for(let d of data){
-      try{
-        if(!d["Registered Mobile Number"] || d["Registered Mobile Number"].length < 4){
-          if(!d["Student ID"] || d["Student ID"].length < 4){
+    for (let d of data) {
+      try {
+        if (!d["Registered Mobile Number"] || d["Registered Mobile Number"].length < 4) {
+          if (!d["Student ID"] || d["Student ID"].length < 4) {
             continue;
           }
           d["Registered Mobile Number"] = "NOT_FOUND";
@@ -870,54 +889,54 @@ export class StudentService {
 
         let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`);
 
-        if(users.length < 1){
+        if (users.length < 1) {
           let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
-          if(students.length > 0){
-            users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
+          if (students.length > 0) {
+            users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'" + i.id + "'").join(",")})`);
           }
         }
 
-        if(users.length < 1){
+        if (users.length < 1) {
           result.notFound++;
-          result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
+          result["notFoundRecordsIDs"].push({ phoneNumber: d["Registered Mobile Number"], id: d['Student ID'] });
           continue;
         }
 
-        if(users.length > 1){
+        if (users.length > 1) {
           let tmpUsers = [];
-          for(let user of users){
+          for (let user of users) {
             let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
             LEFT JOIN classes cl on cl.id = bs.batchId
             where bs.studentId = "${user.id}"`;
 
-            let ids = await getManager().query(bathCodeQuery); 
+            let ids = await getManager().query(bathCodeQuery);
 
             ids = ids.map(i => {
               i.user = user;
               return i;
             })
-            if(ids.length > 0){
+            if (ids.length > 0) {
               tmpUsers.push(user);
             }
           }
 
-          if(tmpUsers.length > 0){
+          if (tmpUsers.length > 0) {
             users = tmpUsers;
           }
-          
-          if(users.length > 1){
+
+          if (users.length > 1) {
             let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
-            if(students.length > 0){
-              users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
+            if (students.length > 0) {
+              users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'" + i.id + "'").join(",")})`);
             }
           }
         }
 
-        if(users.length > 1){
+        if (users.length > 1) {
           result.duplicated++;
           result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
-          for(let user of users){
-            result["duplicatedRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID']});
+          for (let user of users) {
+            result["duplicatedRecordsIDs"].push({ phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID'] });
           }
           continue;
         }
@@ -925,13 +944,13 @@ export class StudentService {
         const user = users[0];
 
         let student: any = await getManager()
-        .createQueryBuilder(Student, "student")
-        .where("student.id = :id", { id: user.id })
-        .getOne();
+          .createQueryBuilder(Student, "student")
+          .where("student.id = :id", { id: user.id })
+          .getOne();
 
-        if(!student){
+        if (!student) {
           result.notFound++;
-          result["notFoundRecordsIDs"].push({phoneNumber: d["Registered Mobile Number"], id: d['Student ID']});
+          result["notFoundRecordsIDs"].push({ phoneNumber: d["Registered Mobile Number"], id: d['Student ID'] });
           continue;
         }
 
@@ -949,15 +968,15 @@ export class StudentService {
         student.payment.plantype = d["Type of Sale"];
         student.payment.subscription = d["Subscription"];
         student.payment.subscriptionNo = d["Sub Reference ID (if autodebit)"];
-        
+
         student.payment = [student.payment];
 
-        if(!query.test){
+        if (!query.test) {
           await this.saveStudentPaymentSQL(student.payment);
         }
 
-        result.updated ++;
-      }catch(e){
+        result.updated++;
+      } catch (e) {
         console.log(e);
         result.errors++;
       }
@@ -969,11 +988,11 @@ export class StudentService {
     return result;
   }
 
-  async updateStudentsCSVV2(data: any, query: {test: boolean, clear: boolean} = {test: false, clear: false}){
+  async updateStudentsCSVV2(data: any, query: { test: boolean, clear: boolean } = { test: false, clear: false }) {
     const moment = require("moment");
     const formatDate = (date: any, format = "DD/MM/YYYY") => {
       const result = moment(date, format).format("YYYY-MM-DD");
-      return result === "Invalid date" ? undefined: result;
+      return result === "Invalid date" ? undefined : result;
     };
     const primaryColumn = "Contact No.";
     let result: any = {
@@ -1074,107 +1093,107 @@ export class StudentService {
       "Welcome call pending": "Enrolled",
     };
 
-    if(query.clear){
+    if (query.clear) {
       let qe = `UPDATE student SET prm_id = NULL`;
 
-      await getManager().query(qe); 
+      await getManager().query(qe);
     }
-    
-    try{
-      for(let d of data){
-        try{
-          if(!d[primaryColumn] || d[primaryColumn].length < 4){
-            if(!d["Student ID"] || d["Student ID"].length < 4){
+
+    try {
+      for (let d of data) {
+        try {
+          if (!d[primaryColumn] || d[primaryColumn].length < 4) {
+            if (!d["Student ID"] || d["Student ID"].length < 4) {
               continue;
             }
             d[primaryColumn] = "NOT_FOUND";
           }
-  
+
           let alternativeMobileSearch = d["WA contact number"] && d["WA contact number"].length > 4 ? ` OR phoneNumber LIKE '%${d["WA contact number"]}%' ` : '';
 
           d[primaryColumn] = d[primaryColumn].replace(/ /g, "").replace(/\(/g, "").replace(/\)/g, "");
 
           let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d[primaryColumn]}%'${alternativeMobileSearch}`);
 
-          if(users.length > 1){
+          if (users.length > 1) {
             users = await getManager()
-            .createQueryBuilder(User, "user")
-            .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
-            .getMany();
+              .createQueryBuilder(User, "user")
+              .where(`user.phoneNumber LIKE '%${d[primaryColumn]}%'`)
+              .getMany();
             let tmpUsers = [];
-            for(let user of users){
+            for (let user of users) {
               let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
               LEFT JOIN classes cl on cl.id = bs.batchId
               where cl.batchNumber = '${d['Batch Code']}' AND u.id = "${user.id}"`;
-  
-              let ids = await getManager().query(bathCodeQuery); 
-  
+
+              let ids = await getManager().query(bathCodeQuery);
+
               ids = ids.map(i => {
                 i.user = user;
                 return i;
               })
-              if(ids.length > 0){
+              if (ids.length > 0) {
                 tmpUsers.push(user);
               }
             }
-  
-            if(tmpUsers.length > 0){
+
+            if (tmpUsers.length > 0) {
               users = tmpUsers;
             }
 
-            if(users.length > 1){
+            if (users.length > 1) {
               let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
-              if(students.length > 0){
-                users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'"+i.id+"'").join(",")})`);
+              if (students.length > 0) {
+                users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'" + i.id + "'").join(",")})`);
               }
             }
           }
-          
-          if(users.length < 1){
+
+          if (users.length < 1) {
             result.notFound++;
-            result["notFoundRecordsIDs"].push({phoneNumber: d[primaryColumn], id: d['Student ID']});
+            result["notFoundRecordsIDs"].push({ phoneNumber: d[primaryColumn], id: d['Student ID'] });
             continue;
           }
-  
-          if(users.length > 1){
+
+          if (users.length > 1) {
             result.duplicated++;
             result["duplicatedRecords"][d[primaryColumn]] = users;
-            for(let user of users){
-              result["duplicatedRecordsIDs"].push({phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID']});
+            for (let user of users) {
+              result["duplicatedRecordsIDs"].push({ phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID'] });
             }
             continue;
           }
-  
+
           const user = users[0];
-  
+
           let student: any = await getManager()
-          .createQueryBuilder(Student, "student")
-          .where("student.id = :id", { id: user.id })
-          .getOne();
-  
-          if(!student){
+            .createQueryBuilder(Student, "student")
+            .where("student.id = :id", { id: user.id })
+            .getOne();
+
+          if (!student) {
             student = new Student;
             student.id = user.id;
           }
-  
+
           let prmQuery = `SELECT * from prm where firstName='${d['PRM']}'`;
-  
-          let prm = await getManager().query(prmQuery); 
+
+          let prm = await getManager().query(prmQuery);
           prm = prm[0];
-  
+
           student.prm_id = prm?.id
-  
-          if(prm?.id){
-            result.PRMs ++;
-          }else{
+
+          if (prm?.id) {
+            result.PRMs++;
+          } else {
             /**
              * Pick Random PRM To Take Place Missing: Sukhmanjeet
              */
-            if(d['PRM'] === "Sukhmanjeet"){
+            if (d['PRM'] === "Sukhmanjeet") {
               const lqsClient = new LQSService();
-              student.prm_id = await(await lqsClient.getPRMsAvailability())[0].id;
-            }else{
-              result.notFoundPRMs.push({prm: d['PRM'], id: d['Student ID'], phoneNumber: d[primaryColumn]});
+              student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
+            } else {
+              result.notFoundPRMs.push({ prm: d['PRM'], id: d['Student ID'], phoneNumber: d[primaryColumn] });
             }
           }
 
@@ -1194,7 +1213,7 @@ export class StudentService {
           student.classesPurchase = d["No of Classes"];
           student.address = d["Address"];
           student.status = allowedStatuses[d["Status"]];
-          student.startLesson = d["Start Lesson"] && d["Start Lesson"].length > 0 ? "lesson " + d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1]: undefined;
+          student.startLesson = d["Start Lesson"] && d["Start Lesson"].length > 0 ? "lesson " + d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1] : undefined;
           user.status = allowedStatuses[d["Status"]];
 
           let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
@@ -1204,26 +1223,26 @@ export class StudentService {
 
           classes = classes[0];
 
-          if(classes?.startingLessonId){
+          if (classes?.startingLessonId) {
             let lessonNumber = LESSONS.filter(i => i.id === classes.startingLessonId)[0];
-            if(lessonNumber){
+            if (lessonNumber) {
               student.startLesson = `lesson ${lessonNumber.number}`;
             }
           }
-  
-          const resultData = {...student, ...user, startDate: student.startDate};
 
-          if(!query.test){
+          const resultData = { ...student, ...user, startDate: student.startDate };
+
+          if (!query.test) {
             await this.saveStudentSQL(resultData, user.id);
           }
-  
-          result.updated ++;
-        }catch(e){
+
+          result.updated++;
+        } catch (e) {
           console.log(e);
           result.errors++;
         }
       }
-    }catch(e){
+    } catch (e) {
       console.log(e, data);
     }
 
