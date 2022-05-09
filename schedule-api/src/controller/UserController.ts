@@ -37,6 +37,15 @@ export class UserController {
             }
         }
 
+        if(request.body.type === 'student' && request.body.studentID){
+            const userExists = await (new StudentService()).isLeadExists("studentID", request.body.studentID, request.body.id);
+            var resp;
+            if (userExists) {
+                usersLogger.info(`User With That studentID Was Found ${userExists?.id}`);
+                return { status: 400, errors: ['User already exists with given studentID'] };
+            }
+        } 
+
         try {
             if (request.body.type === 'student') {
                 // TODO: Enable If you need alternative mobile number validation

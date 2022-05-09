@@ -751,8 +751,6 @@ export class StudentService {
 
   }
 
-
-
   fetchStudentFilterData = async (id: string) => {
     usersLogger.info(`Fetch Student details from oracle with ${id}`);
 
@@ -864,6 +862,7 @@ export class StudentService {
       data: results,
     };
   }
+
 
   async updateStudentsCSV(data: any, query: { test: false }) {
     const moment = require("moment");
@@ -1247,5 +1246,20 @@ export class StudentService {
     }
 
     return result;
+  }
+
+  async isLeadExists(column: string, value: string, id: string | undefined): Promise<any> {
+    let where: any = { [column]: value };
+    if (id) {
+      where['id'] = Not(id);
+    }
+    try {
+      const user = await this.studentRepository.findOne({ where });
+      console.log('user leadID', user)
+      return user;
+    } catch (e) {
+      usersLogger.error(e);
+      return false;
+    }
   }
 }
