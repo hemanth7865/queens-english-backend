@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer } from "antd";
 import { EyeOutlined, EditTwoTone } from "@ant-design/icons";
-=======
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
->>>>>>> master
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import { addTeacherSchedule, studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
@@ -1010,7 +1005,6 @@ const StudentOnboard: React.FC = () => {
           />
 
         </Form>
-<<<<<<< HEAD
         <Drawer
           title="Edit Details"
           placement="right"
@@ -1022,8 +1016,6 @@ const StudentOnboard: React.FC = () => {
         >
           <Tabsedit tmpData={tmpData} />
         </Drawer>
-=======
->>>>>>> master
       </Spin>
     </>
   );

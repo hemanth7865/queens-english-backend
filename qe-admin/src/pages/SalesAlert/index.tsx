@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer } from "antd";
-=======
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin } from "antd";
->>>>>>> master
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import { addTeacherSchedule, studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
@@ -513,11 +509,7 @@ const StudentOnboard: React.FC = () => {
         var isValidation = false
         for (var key in p) {
           if (p.hasOwnProperty(key)) {
-<<<<<<< HEAD
             if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'email' || key == 'phoneNumber') {
-=======
-            if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'phoneNumber') {
->>>>>>> master
               var tempKeyValue = p[key] + ''
               if (isTempEntryStatus) {
                 if (tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null) {
@@ -939,7 +931,6 @@ const StudentOnboard: React.FC = () => {
             scroll={{ x: 1500 }}
           />
         </Form>
-<<<<<<< HEAD
         <Drawer
           title="Edit Details"
           placement="right"
@@ -951,8 +942,6 @@ const StudentOnboard: React.FC = () => {
         >
           <Tabsedit tmpData={tmpData} />
         </Drawer>
-=======
->>>>>>> master
       </Spin>
     </>
   );
