@@ -541,7 +541,7 @@ const StudentOnboard: React.FC = () => {
         }
       })
 
-      let TotalArray = paymentValidatedArray.concat(emptyFieldsArray).concat(duplicatesLeadID);
+      let TotalArray = paymentValidatedArray.concat(emptyFieldsArray, duplicatesLeadID);
       TotalArray = TotalArray.filter((item, index) => {
         return (TotalArray.indexOf(item) == index)
       })
