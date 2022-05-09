@@ -388,21 +388,6 @@ export class StudentService {
     }
   }
 
-  async isStudentExist(column = "alternativeMobile", value: string, id: string | undefined): Promise<any> {
-    let where: any = { [column]: value };
-    if (id) {
-      where['id'] = Not(id);
-    }
-    try {
-      const user = await this.studentRepository.findOne({ where });
-      return user;
-    } catch (e) {
-      console.log(e);
-      usersLogger.error(e);
-      return false;
-    }
-  }
-
   async updateStudentStatus(data: any) {
     usersLogger.info(
       `Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
@@ -1248,7 +1233,7 @@ export class StudentService {
     return result;
   }
 
-  async isLeadExists(column: string, value: string, id: string | undefined): Promise<any> {
+  async isLeadIDExists(column: string, value: string, id: string | undefined): Promise<any> {
     let where: any = { [column]: value };
     if (id) {
       where['id'] = Not(id);

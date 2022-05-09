@@ -37,25 +37,14 @@ export class UserController {
             }
         }
 
-        if(request.body.type === 'student' && request.body.studentID){
-            const userExists = await (new StudentService()).isLeadExists("studentID", request.body.studentID, request.body.id);
-            var resp;
-            if (userExists) {
-                usersLogger.info(`User With That studentID Was Found ${userExists?.id}`);
-                return { status: 400, errors: ['User already exists with given studentID'] };
-            }
-        } 
-
         try {
             if (request.body.type === 'student') {
-                // TODO: Enable If you need alternative mobile number validation
-                // const studentExists = await (new StudentService()).isStudentExist("alternativeMobile", request.body.alternativeMobile, request.body.id);
-                // if(studentExists){
-                //     usersLogger.info(`Student With That Number Was Found ${studentExists.id}`);
-                //     return { status: 400, errors: ['User already exists with given Alternative Mobile'] };
-                // }
+                const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
+                if (leadIDExists) {
+                    usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
+                    return { status: 400, errors: ['Student already exists with given studentID'] };
+                }
                 resp = await this.studentService.saveStudentDetails(request.body);
-                //console.log('response usercontroller', resp)
             }
             else {
                 resp = await this.teacherService.saveTeacher(request.body);
