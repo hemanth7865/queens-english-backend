@@ -443,7 +443,7 @@ const StudentOnboard: React.FC = () => {
       title: 'Lead Id',
       dataIndex: 'studentID',
       width: 300,
-      editable: false,
+      editable: true,
     },
     {
       title: 'Batch Code',
