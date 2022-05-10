@@ -405,8 +405,8 @@ export class BatchService {
       classes.createdBy = data.createdBy;
       classes.frequency = data.frequency;
       classes.zoomLink = data.zoomLink;
-      classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
+      classes.zoomInfo = data.zoomInfo;
       classes.activeLessonId = data.activeLessonId;
       classes.created_at = new Date();
       classes.updated_at = new Date();
