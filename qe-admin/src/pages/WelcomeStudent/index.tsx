@@ -1031,46 +1031,25 @@ const StudentOnboard: React.FC = () => {
             </Row>
           </Form>
         </div>
-<<<<<<< HEAD
-  <Form form={form} component={false}>
-    <Table
-      components={{
-        body: {
-          cell: EditableCell,
-        },
-      }}
-      bordered
-      dataSource={data}
-      columns={mergedColumns}
-      rowClassName="editable-row"
-      pagination={{
-        pageSize: 10, total: totalRecords,
-        onChange: studentGetApi
-      }}
-      scroll={{ x: 1500 }}
-    />
-  </Form>
-      </Spin >
-=======
-      <Form form={form} component={false}>
-      <Table
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        bordered
-        dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
-        pagination={{ 
-          pageSize: 10, total: totalRecords ,
-          onChange: studentGetApi
-        }}
-        scroll={{ x: 1500 }}
-    />
-    </Form>
-    <Drawer
+        <Form form={form} component={false}>
+          <Table
+            components={{
+              body: {
+                cell: EditableCell,
+              },
+            }}
+            bordered
+            dataSource={data}
+            columns={mergedColumns}
+            rowClassName="editable-row"
+            pagination={{
+              pageSize: 10, total: totalRecords,
+              onChange: studentGetApi
+            }}
+            scroll={{ x: 1500 }}
+          />
+        </Form>
+        <Drawer
           title="Edit Details"
           placement="right"
           visible={visibleEdit}
@@ -1080,9 +1059,8 @@ const StudentOnboard: React.FC = () => {
           }}
         >
           <Tabsedit tmpData={tmpData} />
-    </Drawer>
-    </Spin>
->>>>>>> b369a05cfe19e971223fc3f828b2b2c971af9f50
+        </Drawer>
+      </Spin>
     </>
   );
 };
