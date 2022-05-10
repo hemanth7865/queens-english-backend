@@ -403,10 +403,6 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
-      classes.frequency = data.frequency;
-      classes.zoomLink = data.zoomLink;
-      classes.whatsappLink = data.whatsappLink;
-      classes.zoomInfo = data.zoomInfo;
       classes.activeLessonId = data.activeLessonId;
       classes.created_at = new Date();
       classes.updated_at = new Date();
