@@ -1,5 +1,5 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer } from "antd";
+import { EyeOutlined, EditTwoTone } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import { addTeacherSchedule, studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
@@ -8,6 +8,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
+import Tabsedit from "@/components/Formedit/tabs";
 
 const { Option } = Select;
 interface Item {
@@ -381,6 +382,8 @@ const StudentOnboard: React.FC = () => {
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [tmpData, setTmpData] = useState<any>();
+  const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -859,6 +862,22 @@ const StudentOnboard: React.FC = () => {
         );
       },
     },
+    {
+      title: 'Form Edit',
+      fixed: 'right',
+      width: 150,
+      render: (dom: any, entity: { id: any; }) => {
+        return (
+          <a
+            onClick={() => {
+              setVisibleEdit(true)
+              setTmpData(entity)
+            }}>
+            <EditTwoTone />
+          </a>
+        );
+      },
+    },
   ];
 
   const mergedColumns = columns.map(col => {
@@ -968,25 +987,58 @@ const StudentOnboard: React.FC = () => {
           </Form>
         </div>
         <Form form={form} component={false}>
-          <Table
-            components={{
-              body: {
-                cell: EditableCell,
-              },
-            }}
-            bordered
-            dataSource={data}
-            columns={mergedColumns}
-            rowClassName="editable-row"
-            pagination={{
-              pageSize: 10, total: totalRecords,
-              onChange: studentGetApi
-            }}
-            scroll={{ x: 100 }}
-          />
+<<<<<<< HEAD
+  <Table
+    components={{
+      body: {
+        cell: EditableCell,
+      },
+    }}
+    bordered
+    dataSource={data}
+    columns={mergedColumns}
+    rowClassName="editable-row"
+    pagination={{
+      pageSize: 10, total: totalRecords,
+      onChange: studentGetApi
+    }}
+    scroll={{ x: 100 }}
+  />
 
-        </Form>
-      </Spin>
+        </Form >
+      </Spin >
+=======
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          bordered
+          dataSource={data}
+          columns={mergedColumns}
+          rowClassName="editable-row"
+          pagination={{ 
+            pageSize: 10, total: totalRecords ,
+            onChange: studentGetApi
+          }}
+          scroll={{ x: 100 }}
+      />
+
+      </Form>
+      <Drawer
+          title="Edit Details"
+          placement="right"
+          visible={visibleEdit}
+          width={1100}
+          onClose={() => {
+            setVisibleEdit(false)
+          }}
+        >
+          <Tabsedit tmpData={tmpData} />
+      </Drawer>
+    </Spin>
+>>>>>>> b369a05cfe19e971223fc3f828b2b2c971af9f50
     </>
   );
 };
