@@ -22,7 +22,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
   dataIndex: string;
   title: any;
-  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectCourseFrequency' | 'selectTimings' | 'selectWhatsappSent' | 'selectPRM';
+  inputType: 'number' | 'text' | 'select' | 'date' | 'selectPlan' | 'selectLesson' | 'selectStatus' | 'selectCallStatus' | 'selectCourseFrequency' | 'selectTimings' | 'selectWhatsappSent' | 'selectPRM' | 'selectIsSibling';
   record: Item;
   index: number;
   children: React.ReactNode;
@@ -198,8 +198,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
           {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
         </Select>
       )
-    }
-    else {
+    } else if (inputType === 'selectIsSibling') {
+      return (
+        <Select style={{ width: 100 + "%" }}>
+          <Option value="1">Yes</Option>
+          <Option value="0">No</Option>
+        </Select>
+      )
+    } else {
       return <Input />
     }
   }
@@ -330,7 +336,7 @@ const StudentOnboard: React.FC = () => {
       waMessageSent: value.waMessageSent,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       payments: value.payments,
-      isSibling: value.isSibling,
+      isSibling: Number(value.isSibling),
     }
     try {
       const msg = await addTeacherSchedule({
@@ -365,7 +371,10 @@ const StudentOnboard: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-      setData(msg.data);
+      setData(msg.data.map((item: any) => {
+        item.isSibling = parseInt(item.isSibling) ? "1" : "0";
+        return item
+      }));
       setTotalRecords(msg.total);
     } catch (error) {
       //console.log("error", error);
@@ -624,6 +633,19 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Student Is sibling',
+      dataIndex: 'isSibling',
+      width: 150,
+      editable: true,
+      render: (value: any) => {
+        if (!parseInt(value)) {
+          return 'No'
+        } else {
+          return 'Yes'
+        }
+      }
+    },
+    {
       title: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
@@ -656,7 +678,7 @@ const StudentOnboard: React.FC = () => {
       ...col,
       onCell: (record: Item) => ({
         record,
-        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' : col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan' : col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'classesStartDate' ? 'date' : col.dataIndex === 'callStatus' ? 'selectCallStatus' : col.dataIndex === 'courseFrequency' ? 'selectCourseFrequency' : col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'phoneNumber' ? 'phoneNumber' : col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber" : col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' : col.dataIndex === 'prm' ? 'selectPRM' : col.dataIndex === 'customerEmail' ? 'email' : col.dataIndex === 'firstName' ? 'name' : col.dataIndex === 'pfirstName' ? 'name' : 'text',
+        inputType: col.dataIndex === 'startLesson' ? 'selectLesson' : col.dataIndex === 'course' ? 'select' : col.dataIndex === 'dob' ? 'date' : col.dataIndex === 'plantype' ? 'selectPlan' : col.dataIndex === 'status' ? 'selectStatus' : col.dataIndex === 'startDate' ? 'date' : col.dataIndex === 'classesStartDate' ? 'date' : col.dataIndex === 'callStatus' ? 'selectCallStatus' : col.dataIndex === 'courseFrequency' ? 'selectCourseFrequency' : col.dataIndex === 'timings' ? 'selectTimings' : col.dataIndex === 'phoneNumber' ? 'phoneNumber' : col.dataIndex === "alternativeMobile" ? "phoneNumber" : col.dataIndex === "whatsapp" ? "phoneNumber" : col.dataIndex === "waMessageSent" ? 'selectWhatsappSent' : col.dataIndex === 'prm' ? 'selectPRM' : col.dataIndex === 'customerEmail' ? 'email' : col.dataIndex === 'firstName' ? 'name' : col.dataIndex === 'pfirstName' ? 'name' : col.dataIndex === 'isSibling' ? 'selectIsSibling' : 'text',
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
