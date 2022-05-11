@@ -378,7 +378,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               label="Lead ID"
-              name="leadId"
+              name="studentID"
               rules={[{
                 required: true,
               }]}
@@ -1268,7 +1268,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
   // Form for Welcome Page Start  
 
-  else if (props.tempData.firstName != null && props.tempData.customerEmail != null && props.tempData.phoneNumber != null && props.tempData.whatsapp != null && props.tempData.alternativeMobile != null && props.tempData.address != null && props.tempData.state != null && props.tempData.classesStartDate != null && props.tempData.course != null && props.tempData.courseFrequency != null && props.tempData.startDate != null && props.tempData.startLesson != null) {
+  else if (props.tempData.firstName != null && props.tempData.customerEmail != null && props.tempData.phoneNumber != null && props.tempData.whatsapp != null && props.tempData.alternativeMobile != null && props.tempData.address != null && props.tempData.state != null && props.tempData.classesStartDate != null && props.tempData.course != null && props.tempData.courseFrequency != null && props.tempData.startDate != null && props.tempData.startLesson != null && props.tempData.studentID != null) {
     return (
       <Form
         name="welcomestudentdetails"
