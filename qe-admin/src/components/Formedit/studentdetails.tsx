@@ -1389,7 +1389,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               name="alternativeMobile"
               rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
             >
-              <Input  />
+              <Input />
             </Form.Item>
           </Col>
 
@@ -1531,7 +1531,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 required: true,
               }]}
             >
-              <Input type="date" 
+              <Input type="date"
                 value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
             </Form.Item>
           </Col>
@@ -1764,7 +1764,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               name="status"
               label="Status">
-              <Select 
+              <Select
                 placeholder="Select Status"
               >
                 <Option value="enrolled">Enrolled</Option>
@@ -1879,6 +1879,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               label="Lead ID"
               name="studentID"
+              rules={[{
+                required: true
+              }]}
             >
               <Input onChange={onChange} />
             </Form.Item>
