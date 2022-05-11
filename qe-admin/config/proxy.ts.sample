@@ -1,0 +1,50 @@
+/**
+ * 在生产环境 代理是无法生效的，所以这里没有生产环境的配置
+ * -------------------------------
+ * The agent cannot take effect in the production environment
+ * so there is no configuration of the production environment
+ * For details, please see
+ * https://pro.ant.design/docs/deploy
+ */
+export default {
+ 
+  dev: {  //mock
+    '/api/': {
+      target: 'http://localhost:3000/api',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+    '/be/': { //backend
+      target: 'http://localhost:3000',
+      changeOrigin: true,
+      pathRewrite: { '^/be': '' },
+    },
+    '/as/': { //assessment
+      target: 'http://localhost:7071/',
+      changeOrigin: true,
+      pathRewrite: { '^/as': '' },
+    },
+    '/am/': { //assessment management UAT
+      target: 'https://ed-uat-functions.azurewebsites.net/',
+      changeOrigin: true,
+      pathRewrite: { '^/am': '' },
+    }
+  },
+  test: {
+    '/api/': {
+      target: 'https://preview.pro.ant.design',
+      changeOrigin: true,
+      pathRewrite: { '^': '' },
+    },
+  },
+  pre: {
+    '/api/': {
+      target: 'your pre url',
+      changeOrigin: true,
+      pathRewrite: { '^': '' },
+    },
+  },
+};
+
+
+
