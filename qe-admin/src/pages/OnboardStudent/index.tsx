@@ -1,12 +1,13 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin } from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer } from "antd";
 import React, { useState, useEffect } from "react";
-import { EyeOutlined } from "@ant-design/icons";
+import { EditTwoTone, EyeOutlined } from "@ant-design/icons";
 import { useIntl } from "umi";
 import { addTeacherSchedule, studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
 import moment from "moment";
 import { PlusOutlined } from '@ant-design/icons';
 import prmData from "../../../data/prms.json";
 import { CheckCircleTwoTone } from '@ant-design/icons';
+import Tabsedit from "@/components/Formedit/tabs";
 
 const { Option } = Select;
 
@@ -245,7 +246,9 @@ const StudentOnboard: React.FC = () => {
   const [data, setData] = useState();
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
+  const [tmpData, setTmpData] = useState<any>();
+  const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  
   const isEditing = (record: Item) => record.id === editingKey;
 
   const edit = (record: Partial<Item> & { id: React.Key }) => {
@@ -668,6 +671,22 @@ const StudentOnboard: React.FC = () => {
         );
       },
     },
+    {
+      title: 'Form Edit',
+      fixed: 'right',
+      width: 150,
+      render: (dom: any, entity: { id: any; }) => {
+        return (
+          <a
+            onClick={() => {
+              setVisibleEdit(true)
+              setTmpData(entity)
+            }}>
+            <EditTwoTone />
+          </a>
+        );
+      },
+    },
   ];
 
   const mergedColumns = columns.map(col => {
@@ -795,6 +814,17 @@ const StudentOnboard: React.FC = () => {
           />
 
         </Form>
+        <Drawer
+          title="Edit Details"
+          placement="right"
+          visible={visibleEdit}
+          width={1100}
+          onClose={() => {
+            setVisibleEdit(false)
+          }}
+        >
+          <Tabsedit tmpData={tmpData} />
+        </Drawer>
       </Spin>
     </>
   );

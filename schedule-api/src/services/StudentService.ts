@@ -1192,7 +1192,7 @@ export class StudentService {
           student.course = courseMap[d["Class type"]];
           student.callStatus = d["Call Status"];
           student.callBackon = d["Call Back on"];
-          student.startDate = formatDate(d["Start Date"], "DD MMM YYYY");
+          student.startDate = formatDate(d["Start Date"], "DD MM YYYY");
           student.classesStartDate = formatDate(d["Batch Start date"], "DD/MM/YYYY");
           student.classesPurchase = d["No of Classes"];
           student.address = d["Address"];
