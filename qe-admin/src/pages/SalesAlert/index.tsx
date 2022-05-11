@@ -493,7 +493,7 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('enrolled', {
+      let msg = await studentsDashboard('enrolled'||'welcomecallpending', {
         current: 1,
         pageSize: 100
       }
@@ -865,7 +865,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h3 style={{ textAlign: "center" }}>Sales Alert/ Missing data</h3>
+      <h3 style={{ textAlign: "center" }}>Sales Alert/ Missing Data</h3>
       <Spin spinning={isLoading}>
         <div style={{ paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center' }}>
           {/* Form for search */}
