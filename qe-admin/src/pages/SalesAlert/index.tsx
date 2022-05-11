@@ -274,6 +274,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
+          <Option value="welcomecallpending">Welcome Call Pending</Option>
           <Option value="enrolled">Enrolled</Option>
           <Option value="startclasslater">Start Class Later</Option>
           <Option value="batching">Ready to batch</Option>
@@ -426,7 +427,7 @@ const StudentOnboard: React.FC = () => {
       customerEmail: value.customerEmail,
       id: value.id,
       type: "student",
-      status: "enrolled",
+      status: 'welcomecallpending',
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -843,7 +844,7 @@ const StudentOnboard: React.FC = () => {
     //console.log('status', formData, value)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
+      let msg = await studentsDashboardFilter('welcomecallpending', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
         current: 1,
         pageSize: 20
       }

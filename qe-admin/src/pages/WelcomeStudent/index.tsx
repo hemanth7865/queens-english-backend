@@ -272,6 +272,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return (
         <Select style={{ width: 100 + "%" }} >
           <Option value="enrolled">Enrolled</Option>
+          <Option value="welcomecallpending">Welcome Call Pending</Option>
           <Option value="startclasslater">Start Class Later</Option>
           <Option value="batching">Ready to batch</Option>
           <Option value="onboarding">Onboarding</Option>
@@ -526,7 +527,7 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('enrolled', {
+      let msg = await studentsDashboard('welcomecallpending' || 'enrolled', {
         current,
         pageSize,
         prm_name: prmName
@@ -952,7 +953,7 @@ const StudentOnboard: React.FC = () => {
     console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
+      let msg = await studentsDashboardFilter('welcomecallpending' || 'enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
         current,
         pageSize
       }
