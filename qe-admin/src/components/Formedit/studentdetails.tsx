@@ -50,7 +50,7 @@ export type StudentdetailseditProps = {
     prmphoneNumber?: string;
     prm_firstName?: string;
     prm_lastName?: string;
-    classesStartDate?: any;
+    classesStartDate?: string;
     isSibling?: any;
     batchCode?: string;
     zoomLink?: string;
@@ -82,12 +82,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       classType: value.classType,
       id: value.id,
       type: 'student',
-      status: value.status,
+      status: value.status == "Enrolled" ? 'welcomecallpending' : value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      classesStartDate: value.classesStartDate ? moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD") : value.startDate,
+      classesStartDate: value.classesStartDate ? moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD") : null,
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       callStatus: value.callStatus,
@@ -385,7 +385,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Input onChange={onChange} />
+            <Input disabled/>
           </Form.Item>
         </Col>
 
@@ -396,21 +396,21 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               label="Batch Code"
               name="batchCode"
             >
-              <Input onChange={onChange} />
+              <Input disabled />
             </Form.Item>
           </Col><Col span={12}>
               <Form.Item
                 label="Zoom Link"
                 name="zoomlink"
               >
-                <Input onChange={onChange} />
+                <Input disabled />
               </Form.Item>
             </Col><Col span={12}>
               <Form.Item
                 label="Zoom Info"
                 name="zoomInfo"
               >
-                <Input onChange={onChange} />
+                <Input disabled />
               </Form.Item>
             </Col></>
 
@@ -418,18 +418,32 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         }
 
-        <Col span={12}>
-          <Form.Item
-            label="Lead ID"
-            name="studentID"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
-
+        {props.tempData.status == 'onboarding' ? (
+          <Col span={12}>
+            <Form.Item
+              label="Lead ID"
+              name="studentID"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input disabled />
+            </Form.Item>
+          </Col>
+        ) : (
+          <Col span={12}>
+            <Form.Item
+              label="Lead ID"
+              name="studentID"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+        )
+        }
         <Col span={12}>
           <Form.Item
             label="RMN"
@@ -781,7 +795,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'welcomecallpending' ? (
+        {props.tempData.status != "Enrolled" ? (
           <Col span={12}>
             <Form.Item
               label="PRM Comments"
@@ -805,20 +819,23 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item
-            label="Message"
-            name="message"
-          >
-            <a
-              onClick={() => {
-                openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
-              }}
+        {props.tempData.status == 'welcomecallpending' ? (
+          <Col span={12}>
+            <Form.Item
+              label="Message"
+              name="message"
             >
-              <EyeOutlined />
-            </a>
-          </Form.Item>
-        </Col>
+              <a
+                onClick={() => {
+                  openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
+                }}
+              >
+                <EyeOutlined />
+              </a>
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
 
         {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
@@ -838,7 +855,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'welcomecallpending' ? (
+        {props.tempData.status != "Enrolled" ? (
           <Col span={12}>
             <Form.Item
               name="waMessageSent"
@@ -857,6 +874,18 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
+        {props.tempData.status == 'onboarding' ? (
+          <Col span={12}>
+            <Form.Item
+              label="Whatsapp Group Link"
+              name="whatsappLink"
+            >
+              <Input disabled />
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
+
         <Col span={12}>
           <Form.Item name="isSibling"
             label="Is Sibling?">
@@ -869,29 +898,45 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
+        {props.tempData.status == "Enrolled" ? (
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Status"
+              >
+                <Option value="welcomecallpending">Welcome Call Pending</Option>
+              </Select>
+            </Form.Item>
+          </Col>
 
-        <Col span={12}>
-          <Form.Item
-            name="status"
-            label="Status"
-            extra="If Sales Data Filled Please Select Welcome Call Pending"
-            rules={[{
-              required: true,
-            }]}>
-            <Select
-              placeholder="Select Status"
-            >
-              <Option value="enrolled">Enrolled</Option>
-              <Option value="welcomecallpending">Welcome Call Pending</Option>
-              <Option value="startclasslater">Start Class Later</Option>
-              <Option value="batching">Ready to batch</Option>
-              <Option value="onboarding">Onboarding</Option>
-              <Option value="active">Active</Option>
-            </Select>
-          </Form.Item>
-        </Col>
+        ) : (
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Status"
+              >
+                <Option value="enrolled">Enrolled</Option>
+                <Option value="welcomecallpending">Welcome Call Pending</Option>
+                <Option value="startclasslater">Start Class Later</Option>
+                <Option value="batching">Ready to batch</Option>
+                <Option value="onboarding">Onboarding</Option>
+                <Option value="active">Active</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        )
+        }
       </Row>
-
       <Form.Item
         wrapperCol={{
           offset: 8,

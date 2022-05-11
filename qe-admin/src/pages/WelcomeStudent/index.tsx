@@ -527,7 +527,7 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('welcomecallpending' || 'enrolled', {
+      let msg = await studentsDashboard('welcomecallpending', {
         current,
         pageSize,
         prm_name: prmName
@@ -953,7 +953,7 @@ const StudentOnboard: React.FC = () => {
     console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('welcomecallpending' || 'enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
+      let msg = await studentsDashboardFilter('welcomecallpending', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
         current,
         pageSize
       }
@@ -975,7 +975,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h3 style={{ textAlign: "center" }}>Enrolled students / Welcome Call</h3>
+      <h3 style={{ textAlign: "center" }}>Enrolled Students / Welcome Call</h3>
       <Spin spinning={isLoading}>
         <div style={{ paddingTop: 20, paddingLeft: 10, paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center' }}>
           {/* Form for search */}
