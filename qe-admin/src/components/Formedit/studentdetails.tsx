@@ -120,7 +120,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-
     if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
       props.submit(dataForm);
     } else {
