@@ -1,6 +1,5 @@
 import { EyeOutlined } from '@ant-design/icons';
 import { Form, Input, Button, Select, Col, Row, notification } from 'antd';
-import { values } from 'lodash';
 import moment from 'moment';
 import { useEffect } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
