@@ -272,6 +272,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       return (
         <Select style={{ width: 100 + "%" }} >
           <Option value="enrolled">Enrolled</Option>
+          <Option value="welcomecallpending">Welcome Call Pending</Option>
           <Option value="startclasslater">Start Class Later</Option>
           <Option value="batching">Ready to batch</Option>
           <Option value="onboarding">Onboarding</Option>
@@ -526,7 +527,7 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('enrolled', {
+      let msg = await studentsDashboard('welcomecallpending' || 'enrolled', {
         current,
         pageSize,
         prm_name: prmName
@@ -555,7 +556,7 @@ const StudentOnboard: React.FC = () => {
       var isTempEntryStatus = true
       for (var key in p) {
         if (p.hasOwnProperty(key)) {
-          if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'state' || key == 'phoneNumber') {
+          if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'email' || key == 'state' || key == 'phoneNumber') {
             var tempKeyValue = p[key] + ''
             if (isTempEntryStatus) {
               if (tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null) {
@@ -952,7 +953,7 @@ const StudentOnboard: React.FC = () => {
     console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
+      let msg = await studentsDashboardFilter('welcomecallpending' || 'enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
         current,
         pageSize
       }

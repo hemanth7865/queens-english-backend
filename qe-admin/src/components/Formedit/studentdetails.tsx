@@ -10,7 +10,9 @@ const { Option } = Select;
 
 export type StudentdetailseditProps = {
   tempData: {
+    leadId?: string;
     id?: string;
+    email?: string;
     firstName?: string;
     lastName?: string;
     pfirstName?: string;
@@ -48,8 +50,12 @@ export type StudentdetailseditProps = {
     prmphoneNumber?: string;
     prm_firstName?: string;
     prm_lastName?: string;
-    classesStartDate?: string;
+    classesStartDate?: any;
     isSibling?: any;
+    batchCode?: string;
+    zoomLink?: string;
+    zoomInfo?: string;
+    whatsappLink?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -73,14 +79,15 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       whatsapp: value.whatsapp,
       comments: value.comments,
       customerEmail: value.customerEmail,
-      id: props.tempData.id,
+      classType: value.classType,
+      id: value.id,
       type: 'student',
       status: value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
       startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      classesStartDate: moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      classesStartDate: value.classesStartDate ? moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD") : value.startDate,
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       callStatus: value.callStatus,
@@ -89,18 +96,22 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       timings: value.timings,
       waMessageSent: value.waMessageSent,
       state: value.state,
+      batchCode: value.batchCode,
+      zoomLink: value.zoomLink,
+      zoomInfo: value.zoomInfo,
+      whatsappLink: value.whatsappLink,
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
-        studentId: props.tempData.id,
+        studentId: value.id,
         classessold: value.classessold,
         saleamount: value.saleamount,
         downpayment: value.downpayment,
         classtype: '',
         leadId: value.studentID,
-        id: props.tempData.id,
+        id: value.id,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
         emi: value.emi,
@@ -109,7 +120,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-    //const studentDetails = { ...props.tempData, ...values };
     if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
       props.submit(dataForm);
     } else {
@@ -120,15 +130,46 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       });
       setTimeout(() => {
         window.location.reload()
-      }, 5000);
+      }, 1000);
     }
-
+    console.log('Data', dataForm)
   };
 
   const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
   };
 
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+    const waMessage = (
+      <div>
+        <p>Hello <br />
+          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
+          classes:<br />
+          Zoom Link: {zoomLink} <br />
+          Whatsapp Group Link: {whatsappLink} <br />
+          Topic: {batchCode}<br />
+          Time: {timings} India<br />
+          <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br /> <br />
+          (The details above are recurring and hence you can use the same details to join the class everyday)<br />
+          Please send “OK” or a “:+1:” to activate the link above.<br />
+          For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।
+          We are really excited to see you soon in class! Happy Learning!_<br /></p>
+      </div>
+    )
+
+    notification[type]({
+      message: 'Whatsapp message',
+      description: waMessage,
+      style: {
+        width: 720,
+      },
+      duration: 0,
+      onClick: () => {
+        console.log('Notification Clicked!');
+      },
+    });
+  };
 
   const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string) => {
     const waMessage = (
@@ -168,6 +209,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       plastName: props.tempData.plastName,
       customerEmail: props.tempData.customerEmail,
       studentID: props.tempData.studentID,
+      leadId: props.tempData.leadId,
+      id: props.tempData.id,
       phoneNumber: props.tempData.phoneNumber,
       whatsapp: props.tempData.whatsapp,
       alternativeMobile: props.tempData.alternativeMobile,
@@ -201,6 +244,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       prm_firstname: props.tempData.prm_firstName,
       prm_lastname: props.tempData.prm_lastName,
       isSibling: props.tempData.isSibling == 1 ? 1 : 0,
+      batchCode: props.tempData.batchCode,
+      zoomLink: props.tempData.zoomLink,
+      zoomInfo: props.tempData.zoomInfo,
+      whatsappLink: props.tempData.whatsappLink,
     });
   }
   useEffect(() => {
@@ -246,6 +293,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       props.tempData.prm_firstName,
       props.tempData.prm_lastName,
       props.tempData.isSibling,
+      props.tempData.batchCode,
+      props.tempData.zoomLink,
+      props.tempData.zoomInfo,
+      props.tempData.whatsappLink,
+      props.tempData.id,
     ]
   )
 
@@ -254,9 +306,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     props.updateTempData(studentDetails)
   }
 
+
   return (
     <Form
-      name="studentdetails"
+      name="welcomestudentdetails"
       form={form}
       labelCol={{
         span: 8,
@@ -320,14 +373,58 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               type: 'email'
             }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
         <Col span={12}>
           <Form.Item
             label="Student ID"
+            name="id"
+            rules={[{
+              required: true,
+            }]}
+          >
+            <Input onChange={onChange} />
+          </Form.Item>
+        </Col>
+
+        {props.tempData.status == 'onboarding' ? (
+
+          <><Col span={12}>
+            <Form.Item
+              label="Batch Code"
+              name="batchCode"
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col><Col span={12}>
+              <Form.Item
+                label="Zoom Link"
+                name="zoomlink"
+              >
+                <Input onChange={onChange} />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Zoom Info"
+                name="zoomInfo"
+              >
+                <Input onChange={onChange} />
+              </Form.Item>
+            </Col></>
+
+        ) : ''
+
+        }
+
+        <Col span={12}>
+          <Form.Item
+            label="Lead ID"
             name="studentID"
+            rules={[{
+              required: true,
+            }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -349,7 +446,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="whatsapp"
             rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -359,7 +456,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="alternativeMobile"
             rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -370,8 +467,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <input type="date"
-              onChange={onChange}
+            <Input type="date" onChange={onChange}
               value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
           </Form.Item>
         </Col>
@@ -384,17 +480,19 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
         <Col span={12}>
           <Form.Item
             name="state"
-            label="Customer State">
+            label="Customer State"
+            rules={[{
+              required: true,
+            }]}>
             <Select
               placeholder="Customer State"
-              onChange={onChange}
             >
               {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
             </Select>
@@ -403,11 +501,29 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         <Col span={12}>
           <Form.Item
+            name="classType"
+            label="Class Type"
+            rules={[{
+              required: true,
+            }]}>
+            <Select onChange={onChange}
+              placeholder="Select Class Type"
+            >
+              <Option value="Kids">Kids</Option>
+              <Option value="Adults">Adults</Option>
+            </Select>
+          </Form.Item>
+        </Col>
+
+        <Col span={12}>
+          <Form.Item
             name="course"
-            label="Course">
+            label="Course"
+            rules={[{
+              required: true,
+            }]}>
             <Select
               placeholder="Select Course"
-              onChange={onChange}
             >
               <Option value="DISE - Group Class">DISE - Group Class</Option>
               <Option value="DISE - 1:1">DISE - 1:1</Option>
@@ -420,10 +536,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item
             name="startLesson"
-            label="Starting Lesson">
+            label="Starting Lesson"
+            rules={[{
+              required: true,
+            }]}>
             <Select
               placeholder="Select Starting Lesson"
-              onChange={onChange}
             >
               <Option value="Lesson 1">Lesson 1</Option>
               <Option value="Lesson 31">Lesson 31</Option>
@@ -440,10 +558,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item
             name="courseFrequency"
-            label="Course Frequency">
+            label="Course Frequency"
+            rules={[{
+              required: true,
+            }]}>
             <Select
               placeholder="Select Course Frequency"
-              onChange={onChange}
             >
               <Option value="MWF">MWF</Option>
               <Option value="TTS">TTS</Option>
@@ -456,10 +576,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item
             name="timings"
-            label="Timings">
-            <Select
+            label="Timings"
+            rules={[{
+              required: true,
+            }]}>
+            <Select onChange={onChange}
               placeholder="Select Class Timings"
-              onChange={onChange}
             >
               <Option value="15:00">15:00</Option>
               <Option value="16:30">16:30</Option>
@@ -472,30 +594,40 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item name="startDate"
             label="Expected Start Date"
+            rules={[{
+              required: true,
+            }]}
           >
-            <input type="date"
-              onChange={onChange}
+            <Input type="date"
               value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
-
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item name="classesStartDate"
-            label="Actual Start Date"
-          >
-            <input type="date"
-              onChange={onChange}
-              value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
-          </Form.Item>
-        </Col>
+        {props.tempData.status == 'onboarding' ? (
+          <Col span={12}>
+            <Form.Item name="classesStartDate"
+              label="Actual Start Date"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input type="date"
+                onChange={onChange}
+                value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
 
         <Col span={12}>
           <Form.Item
             name="lsq_user_name"
             label="Sales Owner"
+            rules={[{
+              required: true,
+            }]}
           >
-            <Select style={{ width: 100 + "%" }} >
+            <Select style={{ width: 100 + "%" }} onChange={onChange}>
               {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
             </Select>
           </Form.Item>
@@ -505,8 +637,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Classes Sold"
             name="classessold"
+            rules={[{
+              required: true,
+            }]}
           >
-            <Select placeholder="classessold" onChange={onChange}>
+            <Select placeholder="classessold" onChange={onChange}  >
               <Option value="60">60</Option>
               <Option value="100">100</Option>
               <Option value="200">200</Option>
@@ -540,8 +675,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             name="paymentMode"
             label="Plan Mode"
+            rules={[{
+              required: true,
+            }]}
           >
-            <Select placeholder="Select Plan Mode" onChange={onChange}>
+            <Select placeholder="Select Plan Mode" onChange={onChange} >
               <Option value="razorpay">Razorpay</Option>
               <Option value="banktransfer">Bank Transfer</Option>
               <Option value="cashfree">Cashfree</Option>
@@ -553,6 +691,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Transaction ID"
             name="paymentid"
+            rules={[{
+              required: true,
+            }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -561,10 +702,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item
             name="subscription"
-            label="Subscription Type">
-            <Select
+            label="Subscription Type"
+            rules={[{
+              required: true,
+            }]}>
+            <Select onChange={onChange}
               placeholder="Select Subscription Type"
-              onChange={onChange}
             >
               <Option value="Manual">Manual</Option>
               <Option value="Auto-Debit">Auto-Debit</Option>
@@ -576,6 +719,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Subscription Number"
             name="subscriptionNo"
+            rules={[{
+              required: true,
+            }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -604,37 +750,51 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item
             name="prm"
-            label="PRM Name">
-            <Select style={{ width: 100 + "%" }} >
+            label="PRM Name"
+            rules={[{
+              required: true,
+            }]}>
+            <Select style={{ width: 100 + "%" }} onChange={onChange} >
               {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
             </Select>
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item
-            name="callStatus"
-            label="Call Status">
-            <Select
-              placeholder="Select Call Status"
-              onChange={onChange}
-            >
-              <Option value="Answered">Answered</Option>
-              <Option value="DNP">DNP</Option>
-              <Option value="Call Back Later">Call Back Later</Option>
-              <Option value="Placement test pending">Placement test pending</Option>
-            </Select>
-          </Form.Item>
-        </Col>
+        {props.tempData.status == 'welcomecallpending' ? (
+          <Col span={12}>
+            <Form.Item
+              name="callStatus"
+              label="Call Status"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Call Status"
+              >
+                <Option value="Answered">Answered</Option>
+                <Option value="DNP">DNP</Option>
+                <Option value="Call Back Later">Call Back Later</Option>
+                <Option value="Placement test pending">Placement test pending</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
 
-        <Col span={12}>
-          <Form.Item
-            label="PRM Comments"
-            name="comments"
-          >
-            <Input onChange={onChange} />
-          </Form.Item>
-        </Col>
+        {props.tempData.status == 'welcomecallpending' ? (
+          <Col span={12}>
+            <Form.Item
+              label="PRM Comments"
+              name="callBackon"
+              rules={[{
+                required: true,
+              }]}
+            >
+              <Input onChange={onChange} />
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
 
         <Col span={12}>
           <Form.Item
@@ -660,24 +820,47 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item
-            name="waMessageSent"
-            label="Whatsapp Message Sent">
-            <Select
-              placeholder="Select Yes/No"
-              onChange={onChange}
+        {props.tempData.status == 'onboarding' ? (
+          <Col span={12}>
+            <Form.Item
+              label="Message"
+              name="message"
             >
-              <Option value="Yes">Yes</Option>
-              <Option value="No">No</Option>
-            </Select>
-          </Form.Item>
-        </Col>
+              <a
+                onClick={() => {
+                  openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink)
+                }}
+              >
+                <EyeOutlined />
+              </a>
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
+
+        {props.tempData.status == 'welcomecallpending' ? (
+          <Col span={12}>
+            <Form.Item
+              name="waMessageSent"
+              label="Whatsapp Message Sent"
+              rules={[{
+                required: true,
+              }]}>
+              <Select onChange={onChange}
+                placeholder="Select Yes/No"
+              >
+                <Option value="Yes">Yes</Option>
+                <Option value="No">No</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        ) : ''
+        }
 
         <Col span={12}>
           <Form.Item name="isSibling"
             label="Is Sibling?">
-            <Select
+            <Select onChange={onChange}
               placeholder="Is Sibling"
             >
               <Option value={1}>Yes</Option>
@@ -686,15 +869,20 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
+
         <Col span={12}>
           <Form.Item
             name="status"
-            label="Status">
+            label="Status"
+            extra="If Sales Data Filled Please Select Welcome Call Pending"
+            rules={[{
+              required: true,
+            }]}>
             <Select
               placeholder="Select Status"
-              onChange={onChange}
             >
               <Option value="enrolled">Enrolled</Option>
+              <Option value="welcomecallpending">Welcome Call Pending</Option>
               <Option value="startclasslater">Start Class Later</Option>
               <Option value="batching">Ready to batch</Option>
               <Option value="onboarding">Onboarding</Option>
@@ -715,7 +903,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         </Button>
       </Form.Item>
     </Form>
-  );
+  )
 };
 
 export default Studentdetailsedit;

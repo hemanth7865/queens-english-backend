@@ -1,11 +1,12 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin } from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer } from "antd";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import { addTeacherSchedule, studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
 import moment from "moment";
-import { PlusOutlined } from '@ant-design/icons';
+import { EditTwoTone, PlusOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
 import statesData from "../../../data/stateCustomer.json";
+import Tabsedit from "@/components/Formedit/tabs";
 
 const { Option } = Select;
 interface Item {
@@ -273,6 +274,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
+          <Option value="welcomecallpending">Welcome Call Pending</Option>
           <Option value="enrolled">Enrolled</Option>
           <Option value="startclasslater">Start Class Later</Option>
           <Option value="batching">Ready to batch</Option>
@@ -377,6 +379,8 @@ const StudentOnboard: React.FC = () => {
   const [salesData, setSalesData] = useState();
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [tmpData, setTmpData] = useState<any>();
+  const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -423,7 +427,7 @@ const StudentOnboard: React.FC = () => {
       customerEmail: value.customerEmail,
       id: value.id,
       type: "student",
-      status: "enrolled",
+      status: 'welcomecallpending',
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -506,7 +510,7 @@ const StudentOnboard: React.FC = () => {
         var isValidation = false
         for (var key in p) {
           if (p.hasOwnProperty(key)) {
-            if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'phoneNumber') {
+            if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'email' || key == 'phoneNumber') {
               var tempKeyValue = p[key] + ''
               if (isTempEntryStatus) {
                 if (tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null) {
@@ -793,6 +797,22 @@ const StudentOnboard: React.FC = () => {
         );
       },
     },
+    {
+      title: 'Form Edit',
+      fixed: 'right',
+      width: 150,
+      render: (dom: any, entity: { id: any; }) => {
+        return (
+          <a
+            onClick={() => {
+              setVisibleEdit(true)
+              setTmpData(entity)
+            }}>
+            <EditTwoTone />
+          </a>
+        );
+      },
+    },
   ];
 
   const mergedColumns = columns.map(col => {
@@ -824,7 +844,7 @@ const StudentOnboard: React.FC = () => {
     //console.log('status', formData, value)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
+      let msg = await studentsDashboardFilter('welcomecallpending', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
         current: 1,
         pageSize: 20
       }
@@ -912,6 +932,17 @@ const StudentOnboard: React.FC = () => {
             scroll={{ x: 1500 }}
           />
         </Form>
+        <Drawer
+          title="Edit Details"
+          placement="right"
+          visible={visibleEdit}
+          width={1100}
+          onClose={() => {
+            setVisibleEdit(false)
+          }}
+        >
+          <Tabsedit tmpData={tmpData} />
+        </Drawer>
       </Spin>
     </>
   );
