@@ -11,6 +11,7 @@ const { Option } = Select;
 
 export type StudentdetailseditProps = {
   tempData: {
+    leadId?: string;
     id?: string;
     email?: string;
     firstName?: string;
@@ -26,7 +27,7 @@ export type StudentdetailseditProps = {
     address?: string;
     dob?: string;
     classType?: string;
-    course?: any;
+    course?: string;
     startLesson?: string;
     courseFrequency?: string;
     timings?: string;
@@ -105,7 +106,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       payment: [{
         paymentid: value.paymentid,
-        studentID: props.tempData.id,
+        studentId: value.id,
         classessold: value.classessold,
         saleamount: value.saleamount,
         downpayment: value.downpayment,
@@ -131,7 +132,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       });
       setTimeout(() => {
         window.location.reload()
-      }, 5000);
+      }, 1000);
     }
     console.log('Data', dataForm)
   };
@@ -210,6 +211,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       plastName: props.tempData.plastName,
       customerEmail: props.tempData.customerEmail,
       studentID: props.tempData.studentID,
+      leadId: props.tempData.leadId,
       id: props.tempData.id,
       phoneNumber: props.tempData.phoneNumber,
       whatsapp: props.tempData.whatsapp,
@@ -376,7 +378,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               label="Lead ID"
-              name="studentID"
+              name="leadId"
               rules={[{
                 required: true,
               }]}
@@ -434,7 +436,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="timings"
-              label="Timings">
+              label="Timings"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Class Timings"
                 onChange={onChange}
@@ -1006,6 +1011,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               name="lsq_user_name"
               label="Sales Owner"
+              rules={[{
+                required: true,
+              }]}
             >
               <Select style={{ width: 100 + "%" }} >
                 {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
@@ -1131,7 +1139,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="prm"
-              label="PRM Name">
+              label="PRM Name"
+              rules={[{
+                required: true,
+              }]}>
               <Select style={{ width: 100 + "%" }} >
                 {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
               </Select>
@@ -1141,7 +1152,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="callStatus"
-              label="Call Status">
+              label="Call Status"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Call Status"
                 onChange={onChange}
@@ -1158,6 +1172,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               label="PRM Comments"
               name="callBackon"
+              rules={[{
+                required: true,
+              }]}
             >
               <Input onChange={onChange} />
             </Form.Item>
@@ -1190,7 +1207,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="waMessageSent"
-              label="Whatsapp Message Sent">
+              label="Whatsapp Message Sent"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Yes/No"
                 onChange={onChange}
@@ -1315,7 +1335,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 type: 'email'
               }]}
             >
-              <Input onChange={onChange} />
+              <Input />
             </Form.Item>
           </Col>
 
@@ -1323,6 +1343,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               label="Student ID"
               name="id"
+              rules={[{
+                required: true,
+              }]}
             >
               <Input onChange={onChange} />
             </Form.Item>
@@ -1346,7 +1369,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               name="phoneNumber"
               rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
             >
-              <Input onChange={onChange} />
+              <Input />
             </Form.Item>
           </Col>
 
@@ -1356,7 +1379,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               name="whatsapp"
               rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
             >
-              <Input onChange={onChange} />
+              <Input />
             </Form.Item>
           </Col>
 
@@ -1366,7 +1389,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               name="alternativeMobile"
               rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
             >
-              <Input onChange={onChange} />
+              <Input  />
             </Form.Item>
           </Col>
 
@@ -1390,7 +1413,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 required: true,
               }]}
             >
-              <Input onChange={onChange} />
+              <Input />
             </Form.Item>
           </Col>
 
@@ -1401,7 +1424,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               rules={[{
                 required: true,
               }]}>
-              <Select onChange={onChange}
+              <Select
                 placeholder="Customer State"
               >
                 {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
@@ -1432,7 +1455,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               rules={[{
                 required: true,
               }]}>
-              <Select onChange={onChange}
+              <Select
                 placeholder="Select Course"
               >
                 <Option value="DISE - Group Class">DISE - Group Class</Option>
@@ -1450,7 +1473,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               rules={[{
                 required: true,
               }]}>
-              <Select onChange={onChange}
+              <Select
                 placeholder="Select Starting Lesson"
               >
                 <Option value="Lesson 1">Lesson 1</Option>
@@ -1472,7 +1495,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               rules={[{
                 required: true,
               }]}>
-              <Select onChange={onChange}
+              <Select
                 placeholder="Select Course Frequency"
               >
                 <Option value="MWF">MWF</Option>
@@ -1508,7 +1531,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 required: true,
               }]}
             >
-              <Input type="date" onChange={onChange}
+              <Input type="date" 
                 value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
             </Form.Item>
           </Col>
@@ -1531,6 +1554,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               label="Classes Sold"
               name="classessold"
+              rules={[{
+                required: true,
+              }]}
             >
               <Select placeholder="classessold" onChange={onChange}  >
                 <Option value="60">60</Option>
@@ -1738,7 +1764,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               name="status"
               label="Status">
-              <Select onChange={onChange}
+              <Select 
                 placeholder="Select Status"
               >
                 <Option value="enrolled">Enrolled</Option>
@@ -1864,7 +1890,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               name="phoneNumber"
               rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
             >
-              <Input />
+              <Input onChange={onChange} />
             </Form.Item>
           </Col>
 
@@ -1916,7 +1942,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="state"
-              label="Customer State">
+              label="Customer State"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Customer State"
                 onChange={onChange}
@@ -1929,7 +1958,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="course"
-              label="Course">
+              label="Course"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Course"
                 onChange={onChange}
@@ -1945,7 +1977,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="startLesson"
-              label="Starting Lesson">
+              label="Starting Lesson"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Starting Lesson"
                 onChange={onChange}
@@ -1965,7 +2000,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="courseFrequency"
-              label="Course Frequency">
+              label="Course Frequency"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Course Frequency"
                 onChange={onChange}
@@ -1981,7 +2019,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="timings"
-              label="Timings">
+              label="Timings"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Class Timings"
                 onChange={onChange}
@@ -1997,6 +2038,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item name="startDate"
               label="Expected Start Date"
+              rules={[{
+                required: true,
+              }]}
             >
               <Input type="date"
                 onChange={onChange}
@@ -2009,6 +2053,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               name="lsq_user_name"
               label="Sales Owner"
+              rules={[{
+                required: true,
+              }]}
             >
               <Select style={{ width: 100 + "%" }} >
                 {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
@@ -2020,6 +2067,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               label="Classes Sold"
               name="classessold"
+              rules={[{
+                required: true,
+              }]}
             >
               <Select placeholder="classessold" onChange={onChange}>
                 <Option value="60">60</Option>
@@ -2068,6 +2118,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Form.Item
               label="Transaction ID"
               name="paymentid"
+              rules={[{
+                required: true,
+              }]}
             >
               <Input onChange={onChange} />
             </Form.Item>
@@ -2076,7 +2129,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item
               name="subscription"
-              label="Subscription Type">
+              label="Subscription Type"
+              rules={[{
+                required: true,
+              }]}>
               <Select
                 placeholder="Select Subscription Type"
                 onChange={onChange}
@@ -2191,7 +2247,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
           <Col span={12}>
             <Form.Item name="isSibling"
-              label="Is Sibling?">
+              label="Is a Sibling?">
               <Select
                 placeholder="Is Sibling"
               >
@@ -2207,8 +2263,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               label="Status">
               <Select
                 placeholder="Select Status"
-                onChange={onChange}
               >
+                <Option value="salesdatamissing">Sales Data Missing</Option>
                 <Option value="enrolled">Enrolled</Option>
                 <Option value="startclasslater">Start Class Later</Option>
                 <Option value="batching">Ready to batch</Option>
