@@ -1,6 +1,6 @@
-import {Any, getRepository} from "typeorm";
-import {NextFunction, Request, Response} from "express";
-import {User} from "../entity/User";
+import { Any, getRepository } from "typeorm";
+import { NextFunction, Request, Response } from "express";
+import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
 import { LeadView } from "../model/LeadView";
 import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
@@ -14,20 +14,20 @@ const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 const CronJob = require('cron').CronJob;
 
-const job = new CronJob('*/1 * * * * *', async function() {
+const job = new CronJob('*/1 * * * * *', async function () {
   console.log("job started");
-  var quer =  `SELECT * FROM users;`;
+  var quer = `SELECT * FROM users;`;
   console.log('quer', quer);
   let totalResult = await getManager().query(quer);
-   //EXPIRING USER
+  //EXPIRING USER
   db.query("SELECT * FROM users", async (err, data) => {
-      if (data.length > 0) {
-          await data.map(async classes => {
-             console.log("Records");
-          })
-      }
+    if (data.length > 0) {
+      await data.map(async classes => {
+        console.log("Records");
+      })
+    }
   })
- 
-}, null, false, );
+
+}, null, false);
 
 job.start();

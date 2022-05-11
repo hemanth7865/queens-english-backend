@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, BaseEntity } from "typeorm";
 
 @Entity("assessment")
 export class Assessment extends BaseEntity {
-  Assessment() {}
+  Assessment() { }
 
   @PrimaryGeneratedColumn("increment")
   id: number;

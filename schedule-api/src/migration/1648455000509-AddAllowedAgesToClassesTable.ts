@@ -1,9 +1,9 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddAllowedAgesToClassesTable1648455000509 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        if (!await queryRunner.hasColumn('classes', 'ages')) { 
+        if (!await queryRunner.hasColumn('classes', 'ages')) {
             await queryRunner.query(`ALTER TABLE classes ADD ages VARCHAR(200) NULL`);
         }
     }

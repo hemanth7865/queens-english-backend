@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PlusOutlined, ClockCircleOutlined, EyeOutlined, EditTwoTone  } from '@ant-design/icons';
+import { PlusOutlined, ClockCircleOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
 import { NotificationInstance as RCNotificationInstance } from 'rc-notification/lib/Notification';
 import { Button, message, Input, Drawer, Tooltip } from 'antd';
 import React, { useState, useRef } from 'react';
@@ -12,7 +12,7 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-import {studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
+import { studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
 import AddUser from './components/AddUser';
 import EditUser from './components/EditUser';
 import ViewStudent from './components/ViewStudent';
@@ -60,14 +60,14 @@ const TableList: React.FC = () => {
     setVisible(false);
   };
 
-  const handleOneDisplay = async (id)=>{
+  const handleOneDisplay = async (id) => {
     try {
       let msg = await userBatchesView(id);
       if (msg.status === "ok") {
         console.log("API call successfull", msg);
       }
       setTempDataEdit(msg.data);
-      console.log('view one',msg);
+      console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
     }
@@ -84,7 +84,7 @@ const TableList: React.FC = () => {
     }, 1000);
   };
 
-  
+
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: (
@@ -144,7 +144,7 @@ const TableList: React.FC = () => {
         },
       },
     },
-    
+
     {
       title: (
         <FormattedMessage
@@ -157,12 +157,12 @@ const TableList: React.FC = () => {
       render: (dom, entity) => {
         return (
           <a
-          onClick={() => {
-            console.log('entity', entity)
-            handleOneDisplay(entity.id)
-            setVisibleEdit(true)
-            setTempData(entity);
-          }}>
+            onClick={() => {
+              console.log('entity', entity)
+              handleOneDisplay(entity.id)
+              setVisibleEdit(true)
+              setTempData(entity);
+            }}>
             <EditTwoTone />
           </a>
         );
@@ -190,7 +190,7 @@ const TableList: React.FC = () => {
             key="primary"
             onClick={showDrawer}
           >
-           Add User
+            Add User
           </Button>,
           <Drawer
             title="Add User"
@@ -199,22 +199,22 @@ const TableList: React.FC = () => {
             visible={visible}
             width={500}
           >
-            <AddUser setVisible = {setVisible}/>
+            <AddUser setVisible={setVisible} />
           </Drawer>
         ]}
       />
 
       {/* Drawer for Edit student */}
-     <Drawer 
-      title="Edit User"
-      placement="right"
-      onClose={()=>{
-        setVisibleEdit(false)
-      }}
-      visible={visibleEdit}
-      width={500}>
-      <EditUser data = {tempDataEdit} visible = {visibleEdit} setVisible = {setVisibleEdit}/>
-     </Drawer>
+      <Drawer
+        title="Edit User"
+        placement="right"
+        onClose={() => {
+          setVisibleEdit(false)
+        }}
+        visible={visibleEdit}
+        width={500}>
+        <EditUser data={tempDataEdit} visible={visibleEdit} setVisible={setVisibleEdit} />
+      </Drawer>
     </PageContainer>
   );
 };

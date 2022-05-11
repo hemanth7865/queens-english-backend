@@ -13,7 +13,7 @@ import { User } from "./User";
 
 @Entity("session")
 export class Session extends BaseEntity {
-  Session() {}
+  Session() { }
 
   @PrimaryGeneratedColumn("increment")
   id: number;
@@ -57,6 +57,6 @@ export class Session extends BaseEntity {
   attendances: Attendance[];
 
   @OneToOne(() => User)
-  @JoinColumn({name : "teacherId"})
+  @JoinColumn({ name: "teacherId" })
   teacher: User;
 }

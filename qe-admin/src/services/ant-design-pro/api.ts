@@ -181,7 +181,7 @@ export async function teacherBatchesView(
 }
 
 export async function studentsBatchesView(
-  id:any,
+  id: any,
   params: {
     // query
     /** 当前的页码 */
@@ -189,7 +189,7 @@ export async function studentsBatchesView(
     /** 页面的容量 */
     pageSize?: number;
   },
-  options?: { [key: string]: any }, 
+  options?: { [key: string]: any },
 
 ) {
   // console.log('id', id)
@@ -197,9 +197,9 @@ export async function studentsBatchesView(
     method: 'GET',
     params: {
       ...params,
-      type:'student',
+      type: 'student',
     },
-   
+
     ...(options || {}),
   });
 }
@@ -271,7 +271,7 @@ export async function studentsBatches(
     method: 'GET',
     params: {
       ...params,
-      type:'student'
+      type: 'student'
     },
     ...(options || {}),
   });
@@ -408,7 +408,7 @@ export async function listBatch(
     startingLessonId?: string,
     age?: number,
     frequency?: string,
-    lessonStartTime?: string, 
+    lessonStartTime?: string,
     lessonEndTime?: string,
     classStartDate?: string,
     excludedTeacher?: string,
@@ -435,7 +435,7 @@ export async function addeditbatch(options?: { [key: string]: any }) {
 
 //REMOVE EXISTING BATCH -DELETE
 export async function deleteBatch(id: string) {
-  return request<any>('/be/deleteBatch/'+id, {
+  return request<any>('/be/deleteBatch/' + id, {
     method: 'DELETE',
   });
 }
@@ -516,7 +516,7 @@ export async function studentsDashboard(
     method: 'GET',
     params: {
       ...params,
-      type:'student',
+      type: 'student',
       status: status
     },
     ...(options || {}),
@@ -546,11 +546,11 @@ export async function studentsDashboardFilter(
       ...params,
       type: 'student',
       status: status,
-      name: name?name:'',
-      phoneNumber: phoneNumber?phoneNumber:'',
-      email: email?email:'',
-      prm_name: prm_name?prm_name:'',
-      studentID: studentID?studentID:''
+      name: name ? name : '',
+      phoneNumber: phoneNumber ? phoneNumber : '',
+      email: email ? email : '',
+      prm_name: prm_name ? prm_name : '',
+      studentID: studentID ? studentID : ''
     },
     ...(options || {}),
   });
@@ -579,6 +579,6 @@ export async function rebatchStudent(studentId: string, batchId: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({studentId, batchId}),
+    body: JSON.stringify({ studentId, batchId }),
   });
 }

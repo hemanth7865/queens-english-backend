@@ -5,18 +5,18 @@ import debounce from 'lodash/debounce';
 
 
 
-const DebounceSelect = ({ fetchOptions, debounceTimeout = 800, ...props }:any) => {
+const DebounceSelect = ({ fetchOptions, debounceTimeout = 800, ...props }: any) => {
   const [fetching, setFetching] = React.useState(false);
   const [options, setOptions] = React.useState(props.options || []);
   const fetchRef = React.useRef(0);
 
   const debounceFetcher = React.useMemo(() => {
-    const loadOptions = (value:any) => {
+    const loadOptions = (value: any) => {
       fetchRef.current += 1;
       const fetchId = fetchRef.current;
       setOptions([]);
       setFetching(true);
-      fetchOptions(value).then((newOptions:any) => {
+      fetchOptions(value).then((newOptions: any) => {
         if (fetchId !== fetchRef.current) {
           // for fetch callback order
           return;

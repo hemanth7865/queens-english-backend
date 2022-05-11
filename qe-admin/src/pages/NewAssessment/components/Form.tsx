@@ -46,7 +46,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
 
   const openNotificationWithIcon = type => {
     notification[type]({
-      message: type == 'error'?'Failed to update assessment': 'Success! Assessment Updated',
+      message: type == 'error' ? 'Failed to update assessment' : 'Success! Assessment Updated',
       description:
         '',
     });
@@ -58,13 +58,13 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
   const sumStr = (str) => {
     const sumall = str.map((item) => Object.values(item)).toString();
     let strArr = sumall.split(",");
-    let sum = strArr.filter((word) => word == 1||0);
-    if(sum.length != 0){
+    let sum = strArr.filter((word) => word == 1 || 0);
+    if (sum.length != 0) {
       sum = sum.reduce(function (total, num) {
-          return parseFloat(total) + parseFloat(num);
-        });
+        return parseFloat(total) + parseFloat(num);
+      });
       return sum;
-    }else{
+    } else {
       return 0;
     }
   }
@@ -477,26 +477,26 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       </Form.Item>
 
       <Form.Item name="VocalScore" label="Vocal Score">
-      <Rate tooltips={desc}  onChange={(value) => {
-            setVocalScoreStar(value)
-          }}
-          />
+        <Rate tooltips={desc} onChange={(value) => {
+          setVocalScoreStar(value)
+        }}
+        />
       </Form.Item>
 
       <Form.Item name="PronounciationScore" label="Pronounciation Score">
-        <Rate tooltips={desc} name = "pronounciationScore" value={pronounciationScoreStar} onChange={(value) => {
-            setPronounciationScoreStar(value)
-          }}/>
+        <Rate tooltips={desc} name="pronounciationScore" value={pronounciationScoreStar} onChange={(value) => {
+          setPronounciationScoreStar(value)
+        }} />
       </Form.Item>
 
       <Form.Item name="ConfidenceScore" label="Confidence Score">
-        <Rate tooltips={desc} name = "confidenceScore" value={confidenceScoreStar} onChange={(value) => {
-            setConfidenceScoreStar(value)
-          }}/>
+        <Rate tooltips={desc} name="confidenceScore" value={confidenceScoreStar} onChange={(value) => {
+          setConfidenceScoreStar(value)
+        }} />
       </Form.Item>
 
       <Form.Item name="comment" label="Comment">
-        <TextArea rows={4} name = "comment"/>
+        <TextArea rows={4} name="comment" />
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

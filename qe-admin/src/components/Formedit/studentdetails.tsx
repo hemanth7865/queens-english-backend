@@ -1,5 +1,5 @@
 import { EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Button, Select, Col, Row, notification} from 'antd';
+import { Form, Input, Button, Select, Col, Row, notification } from 'antd';
 import moment from 'moment';
 import { useEffect } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -65,7 +65,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
-      lastName: value.lastName.length>0 ? value.lastName : '-',
+      lastName: value.lastName.length > 0 ? value.lastName : '-',
       phoneNumber: value.phoneNumber,
       studentID: value.studentID,
       address: value.address,
@@ -89,7 +89,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       timings: value.timings,
       waMessageSent: value.waMessageSent,
       state: value.state,
-      isSibling: value.isSibling?value.isSibling:0,
+      isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       payment: [{
@@ -110,9 +110,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
     }
     //const studentDetails = { ...props.tempData, ...values };
-    if(value.saleamount == ( Number(value.emi * value.emiMonths) + Number(value.downpayment))){
+    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
       props.submit(dataForm);
-    }else{
+    } else {
       notification.open({
         message: '',
         description:
@@ -200,7 +200,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       prmphoneNumber: props.tempData.prmphoneNumber,
       prm_firstname: props.tempData.prm_firstName,
       prm_lastname: props.tempData.prm_lastName,
-      isSibling: props.tempData.isSibling == 1?1:0,
+      isSibling: props.tempData.isSibling == 1 ? 1 : 0,
     });
   }
   useEffect(() => {
@@ -315,10 +315,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Customer Email"
             name="customerEmail"
-            rules = {[{
-                  required: true,
-                  type: 'email'
-              }]}
+            rules={[{
+              required: true,
+              type: 'email'
+            }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -337,7 +337,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="RMN"
             name="phoneNumber"
-            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
+            rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
           >
             <Input />
           </Form.Item>
@@ -347,7 +347,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Whatsapp Number"
             name="whatsapp"
-            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
+            rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -357,7 +357,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Alternate Mobile Number"
             name="alternativeMobile"
-            rules = {[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number"}]}
+            rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -396,7 +396,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               placeholder="Customer State"
               onChange={onChange}
             >
-             {statesData.map(state => <Option value = {state.label} key = {state.label}>{state.value}</Option>)}
+              {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
             </Select>
           </Form.Item>
         </Col>
@@ -495,9 +495,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="lsq_user_name"
             label="Sales Owner"
           >
-          <Select style={{ width: 100 + "%" }} >
-            {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
-          </Select>
+            <Select style={{ width: 100 + "%" }} >
+              {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
+            </Select>
           </Form.Item>
         </Col>
 
@@ -507,11 +507,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="classessold"
           >
             <Select placeholder="classessold" onChange={onChange}>
-            <Option value="60">60</Option>
-            <Option value="100">100</Option>
-            <Option value="200">200</Option>
-            <Option value="300">300</Option>
-            <Option value="400">400</Option>
+              <Option value="60">60</Option>
+              <Option value="100">100</Option>
+              <Option value="200">200</Option>
+              <Option value="300">300</Option>
+              <Option value="400">400</Option>
             </Select>
           </Form.Item>
         </Col>
@@ -520,7 +520,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Total Sale Amount"
             name="saleamount"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
+            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -530,7 +530,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Down Payment"
             name="downpayment"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
+            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -585,7 +585,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Subscription Amount"
             name="emi"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
+            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -595,7 +595,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Form.Item
             label="Months Of Subscription"
             name="emiMonths"
-            rules={[{required: true, pattern: /^[0-9]*$/, message: "Enter number only"}]}
+            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
             <Input onChange={onChange} />
           </Form.Item>
@@ -674,15 +674,15 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span = {12}>
+        <Col span={12}>
           <Form.Item name="isSibling"
-          label="Is Sibling?">
-              <Select
-                  placeholder="Is Sibling"
-                  >
-                  <Option value={1}>Yes</Option>
-                  <Option value={0}>No</Option>
-              </Select>
+            label="Is Sibling?">
+            <Select
+              placeholder="Is Sibling"
+            >
+              <Option value={1}>Yes</Option>
+              <Option value={0}>No</Option>
+            </Select>
           </Form.Item>
         </Col>
 

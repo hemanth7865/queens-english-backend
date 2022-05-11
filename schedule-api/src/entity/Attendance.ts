@@ -5,7 +5,7 @@ import { User } from "./User";
 @Entity("attendance")
 export class Attendance extends BaseEntity {
   name: string;
-  Session() {}
+  Session() { }
 
   @PrimaryGeneratedColumn("increment")
   id: number;
@@ -41,6 +41,6 @@ export class Attendance extends BaseEntity {
   session: Session;
 
   @OneToOne(() => User)
-  @JoinColumn({name : "studentId"})
+  @JoinColumn({ name: "studentId" })
   student: User;
 }

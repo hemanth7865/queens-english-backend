@@ -79,8 +79,8 @@ const TeacherBatchList: React.FC = () => {
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  const [error, setError] = useState('') 
-  const [isLoading, setIsLoading] = useState(false) 
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   /**
    * @en-US The pop-up window of the distribution update window
@@ -103,7 +103,7 @@ const TeacherBatchList: React.FC = () => {
     joiningDate: "",
     email: "",
     address: "",
-    batchCode:"",
+    batchCode: "",
     startDate: "",
     dateOfBirth: "",
     gender: "",
@@ -118,7 +118,7 @@ const TeacherBatchList: React.FC = () => {
     videoProfile: "",
     certificate: "",
     photo: "",
-   // countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
+    // countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
     leadAvailability: null,
     status: "",
   });
@@ -486,7 +486,7 @@ const TeacherBatchList: React.FC = () => {
       hideInSearch: true,
       render: (dom, entity) => {
         return (
-          <a onClick={() => {}}>
+          <a onClick={() => { }}>
             <DeleteOutlined />
           </a>
         );
@@ -515,8 +515,8 @@ const TeacherBatchList: React.FC = () => {
     leadTotal.forEach((e) => {
       delete e.user_key;
     });
-    const leadArray = [ ...leadTotal, ...leadAvailabilities ]
-    var code = selectCountryCode?selectCountryCode:'91';
+    const leadArray = [...leadTotal, ...leadAvailabilities]
+    var code = selectCountryCode ? selectCountryCode : '91';
     const dataForm = {
       teacherId: formData.teacherId,
       firstName: formData.firstName,
@@ -532,7 +532,7 @@ const TeacherBatchList: React.FC = () => {
       startDate: dateStart,
       type: "teacher",
       photo: formData.photo,
-      batchCode:formData.batchCode,
+      batchCode: formData.batchCode,
       lead: [
         {
           resume: uploadResume,
@@ -560,7 +560,7 @@ const TeacherBatchList: React.FC = () => {
 
       handleAPIResponse(msg, "Teacher Added Successfully", "Failed To Add Teacher");
     } catch (error) {
-      handleAPIResponse({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
+      handleAPIResponse({ status: 400 }, "Teacher Added Successfully", "Failed To Add Teacher");
       message.error("Add Teacher Error");
     }
     setVisible(false);
@@ -586,16 +586,16 @@ const TeacherBatchList: React.FC = () => {
     leadTotal.forEach((e) => {
       delete e.user_key;
     });
-    const leadArray = [ ...leadAvailabilities, ...leadTotal ]
+    const leadArray = [...leadAvailabilities, ...leadTotal]
     const dataForm = {
       teacherId: formData.teacherId
-      ? formData.teacherId
-      : tempDataView.teacherId,
+        ? formData.teacherId
+        : tempDataView.teacherId,
       firstName: formData.firstName
         ? formData.firstName
         : tempDataView.firstName,
-    
-        batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,        
+
+      batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       lastName: formData.lastName ? formData.lastName : tempDataView.lastName,
       dob: dateBirth ? dateBirth : tempDataView.dob,
       phoneNumber: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
@@ -617,23 +617,23 @@ const TeacherBatchList: React.FC = () => {
           qualification: formData.education
             ? formData.education
             : tempDataView.teacher &&
-              tempDataView.teacher.map(function (lead, i) {
-                return lead.qualification;
-              }),
+            tempDataView.teacher.map(function (lead, i) {
+              return lead.qualification;
+            }),
           totalexp: formData.experience
             ? formData.experience
             : tempDataView.teacher &&
-              tempDataView.teacher.map(function (lead, i) {
-                return lead.totalexp;
-              }),
+            tempDataView.teacher.map(function (lead, i) {
+              return lead.totalexp;
+            }),
           video: formData.videoProfile,
           certificates: formData.certificate,
           joiningdate: dateJoining
             ? dateJoining
             : tempDataView.teacher &&
-              tempDataView.teacher.map(function (lead, i) {
-                return lead.joiningdate;
-              }),
+            tempDataView.teacher.map(function (lead, i) {
+              return lead.joiningdate;
+            }),
           ratings: 1,
           classestaken: 10,
           teachertype: "teacher",
@@ -660,7 +660,7 @@ const TeacherBatchList: React.FC = () => {
       handleAPIResponse(msg, "Teacher Updated Successfully", "Failed To Update Teacher");
     } catch (error) {
       message.error("Add Teacher Error");
-      handleAPIResponse({status: 400}, "Teacher Added Successfully", "Failed To Add Teacher");
+      handleAPIResponse({ status: 400 }, "Teacher Added Successfully", "Failed To Add Teacher");
     }
     onClose();
     setIsLoading(false);
@@ -669,7 +669,7 @@ const TeacherBatchList: React.FC = () => {
   let leadAvailabilities = [];
   let leadTotal = [];
   let extraWeek = [];
-  console.log('LA',  leadAvailabilities, leadTotal, extraWeek)
+  console.log('LA', leadAvailabilities, leadTotal, extraWeek)
 
   //lead availability
   const WeekdayAvailability = (props) => {
@@ -690,16 +690,16 @@ const TeacherBatchList: React.FC = () => {
     let dataLead = props.tempData;
     let slotStart, slotEnd;
     let leadSlot;
-    
+
     let slotStartRepeat = [];
     let slotEndRepeat = [];
     if (dataLead) {
-      if(dataLead.length > 1){
-        dataLead.map((data)=>{
+      if (dataLead.length > 1) {
+        dataLead.map((data) => {
           data = data.toString();
           slotStart = data.split(",")[0].slice(4);
           slotEnd = data.split(",")[1];
-          slotStartRepeat.push({slotStart: slotStart, slotEnd: slotEnd})
+          slotStartRepeat.push({ slotStart: slotStart, slotEnd: slotEnd })
           leadSlot = {
             start_slot: slotStart,
             end_slot: slotEnd,
@@ -732,38 +732,38 @@ const TeacherBatchList: React.FC = () => {
     return (
       <Row style={{ margin: 5 }}>
         <Col span={7}>
-          {dataLead ? 
-            props.tempData.length>1 ? (
-              props.tempData.map((items)=>{
-                return <Col style = {{marginLeft: -5, margin: 7}}>
-                        <Checkbox
-                              name="extra"
-                              checked="true"
-                              onChange={(e) => setValue1(props.weekday)}
-                            >
-                              {props.week}
-                          </Checkbox>
-                      </Col>
+          {dataLead ?
+            props.tempData.length > 1 ? (
+              props.tempData.map((items) => {
+                return <Col style={{ marginLeft: -5, margin: 7 }}>
+                  <Checkbox
+                    name="extra"
+                    checked="true"
+                    onChange={(e) => setValue1(props.weekday)}
+                  >
+                    {props.week}
+                  </Checkbox>
+                </Col>
               })
-            ) : 
-          (
-            <Checkbox
-              name="weekday"
-              checked="true"
-              onChange={(e) => setValue1(props.weekday)}
-            >
-              {props.week}
-            </Checkbox>
-          ) : (
-            <Checkbox name="weekday" onChange={(e) => setValue1(props.weekday)}>
-              {props.week}
-            </Checkbox>
-          )}
+            ) :
+              (
+                <Checkbox
+                  name="weekday"
+                  checked="true"
+                  onChange={(e) => setValue1(props.weekday)}
+                >
+                  {props.week}
+                </Checkbox>
+              ) : (
+              <Checkbox name="weekday" onChange={(e) => setValue1(props.weekday)}>
+                {props.week}
+              </Checkbox>
+            )}
         </Col>
         <Col span={14}>
-          {dataLead ? props.tempData.length>1 ? (
-              slotStartRepeat.map((items)=>{
-                return <TimePicker.RangePicker
+          {dataLead ? props.tempData.length > 1 ? (
+            slotStartRepeat.map((items) => {
+              return <TimePicker.RangePicker
                 format={format}
                 defaultValue={[
                   moment(`${items.slotStart}`, format),
@@ -773,8 +773,8 @@ const TeacherBatchList: React.FC = () => {
                   setValue(timeString);
                 }}
               />
-              })
-            ) : (
+            })
+          ) : (
             <TimePicker.RangePicker
               format={format}
               defaultValue={[
@@ -839,31 +839,31 @@ const TeacherBatchList: React.FC = () => {
     return (
       <Row style={{ margin: 1 }}>
         <Col span={2}>
-            <Checkbox
-              name="weekday"
-              onChange={(e) => setValue1('new')}
-            >
-            </Checkbox>
+          <Checkbox
+            name="weekday"
+            onChange={(e) => setValue1('new')}
+          >
+          </Checkbox>
         </Col>
-        <Col span = {6}>
-        <Select onChange={handleChange}>
-          <Option value= {1}>Monday</Option>
-          <Option value= {2}>Tuesday</Option>
-          <Option value= {3}>Wednesday</Option>
-          <Option value= {4}>Thursady</Option>
-          <Option value= {5}>Friday</Option>
-          <Option value= {6}>Saturday</Option>
-          <Option value= {7}>Sunday</Option>
-        </Select>
+        <Col span={6}>
+          <Select onChange={handleChange}>
+            <Option value={1}>Monday</Option>
+            <Option value={2}>Tuesday</Option>
+            <Option value={3}>Wednesday</Option>
+            <Option value={4}>Thursady</Option>
+            <Option value={5}>Friday</Option>
+            <Option value={6}>Saturday</Option>
+            <Option value={7}>Sunday</Option>
+          </Select>
         </Col>
-        <Col span = {1}></Col>
+        <Col span={1}></Col>
         <Col span={14}>
-            <TimePicker.RangePicker
-              format={format}
-              onChange={(time, timeString) => {
-                setValue(timeString);
-              }}
-            />
+          <TimePicker.RangePicker
+            format={format}
+            onChange={(time, timeString) => {
+              setValue(timeString);
+            }}
+          />
         </Col>
       </Row>
     );
@@ -944,9 +944,9 @@ const TeacherBatchList: React.FC = () => {
       lastName: tempDataView.lastName,
       joiningDate: moment(
         tempDataView.teacher &&
-          tempDataView.teacher.map(function (lead, i) {
-            return lead.joiningdate;
-          }),
+        tempDataView.teacher.map(function (lead, i) {
+          return lead.joiningdate;
+        }),
         "YYYY/MM/DD"
       ),
       startDate: moment(tempDataView.startDate, "YYYY/MM/DD"),
@@ -972,7 +972,7 @@ const TeacherBatchList: React.FC = () => {
   };
   useEffect(() => {
     defaultValues();
-  }, [ tempDataView.firstName, tempDataView.lastName]);
+  }, [tempDataView.firstName, tempDataView.lastName]);
 
   return (
     <PageContainer>
@@ -1091,11 +1091,11 @@ const TeacherBatchList: React.FC = () => {
                     </Form.Item>
                   </Col>
 
-                  
+
                   {/* Mobile and Whatsup */}
-                  
-                  <PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} /> 
-      
+
+                  <PhoneNumberCountrySelect handleMobileChange={handleMobileChangeCountry} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} />
+
                   <Col span={12}>
                     <Form.Item name="whatsApp">
                       <Input
@@ -1111,13 +1111,13 @@ const TeacherBatchList: React.FC = () => {
                   {/* Email and address */}
 
                   <Col span={12}>
-                    <Form.Item name="email" 
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please enter Email",
-                      },
-                    ]}>
+                    <Form.Item name="email"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter Email",
+                        },
+                      ]}>
                       <Input
                         type="text"
                         placeholder="Email"
@@ -1217,7 +1217,7 @@ const TeacherBatchList: React.FC = () => {
                       <WeekdayAvailability weekday={3} week="Wednesday" />
                       <WeekdayAvailability weekday={4} week="Thursday" />
                       <WeekdayAvailability weekday={5} week="Friday" />
-                    </Form.Item> 
+                    </Form.Item>
                   </Col>
                   <Col span={12}>
                     <Form.Item name="leadAvailability">
@@ -1228,20 +1228,20 @@ const TeacherBatchList: React.FC = () => {
                         {(fields, { add, remove }) => (
                           <>
                             {fields.map(({ key, name, ...restField }) => (
-                              
-                              <Space key={key} style={{ display: 'flex'}} align="baseline">
+
+                              <Space key={key} style={{ display: 'flex' }} align="baseline">
                                 {console.log('key', key)}
                                 <Form.Item
                                   {...restField}
                                 >
-                                  <ExtraWeekdayAvailability key = {key}/>
+                                  <ExtraWeekdayAvailability key={key} />
                                 </Form.Item>
                                 <MinusCircleOutlined onClick={() => remove(name)} />
                               </Space>
                             ))}
                             <Form.Item>
                               <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                               Extra Availability
+                                Extra Availability
                               </Button>
                             </Form.Item>
                           </>
@@ -1541,7 +1541,7 @@ const TeacherBatchList: React.FC = () => {
                 </Col>
 
                 {/* Mobile and Whatsup */}
-                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} /> 
+                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} />
 
                 <Col span={12}>
                   <Form.Item name="whatsApp">
@@ -1605,10 +1605,10 @@ const TeacherBatchList: React.FC = () => {
                         tempDataView.statusId == 1
                           ? "Active"
                           : tempDataView.statusId == 3
-                          ? "OnHold"
-                          : tempDataView.statusId == 2
-                          ? "Leave"
-                          : "In Active"
+                            ? "OnHold"
+                            : tempDataView.statusId == 2
+                              ? "Leave"
+                              : "In Active"
                       }
                       onChange={(value) => {
                         setSelectStatus(value);
@@ -1666,29 +1666,29 @@ const TeacherBatchList: React.FC = () => {
                       week="Sunday"
                       tempData={sunday}
                     />
-                     <Form.List name="users">
-                        {(fields, { add, remove }) => (
-                          <>
-                            {fields.map(({ key, name, ...restField }) => (
-                              
-                              <Space key={key} style={{ display: 'flex'}} align="baseline">
-                                {console.log('key', key)}
-                                <Form.Item
-                                  {...restField}
-                                >
-                                  <ExtraWeekdayAvailability key = {key}/>
-                                </Form.Item>
-                                <MinusCircleOutlined onClick={() => remove(name)} />
-                              </Space>
-                            ))}
-                            <Form.Item>
-                              <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                               Extra Availability
-                              </Button>
-                            </Form.Item>
-                          </>
-                        )}
-                      </Form.List>
+                    <Form.List name="users">
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map(({ key, name, ...restField }) => (
+
+                            <Space key={key} style={{ display: 'flex' }} align="baseline">
+                              {console.log('key', key)}
+                              <Form.Item
+                                {...restField}
+                              >
+                                <ExtraWeekdayAvailability key={key} />
+                              </Form.Item>
+                              <MinusCircleOutlined onClick={() => remove(name)} />
+                            </Space>
+                          ))}
+                          <Form.Item>
+                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                              Extra Availability
+                            </Button>
+                          </Form.Item>
+                        </>
+                      )}
+                    </Form.List>
                   </Form.Item>
                 </Col>
               </Row>

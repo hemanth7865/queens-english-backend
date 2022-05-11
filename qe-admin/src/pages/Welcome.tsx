@@ -19,11 +19,11 @@ export default (): React.ReactNode => {
   return (
     <PageContainer>
       <Card>
-      <Typography.Text strong>
+        <Typography.Text strong>
           <FormattedMessage id="pages.welcome.greetings" defaultMessage={`Hello`} />
         </Typography.Text>
         <br />
-       <Typography.Text>
+        <Typography.Text>
           <FormattedMessage id="pages.welcome.content" defaultMessage={`Dashboard page content`} />
         </Typography.Text>
         {/* <Alert

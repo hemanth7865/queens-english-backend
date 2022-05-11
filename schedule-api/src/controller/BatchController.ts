@@ -31,7 +31,7 @@ export class BatchController {
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
         console.log("rebatch batch");
-        if(!request.body.studentId || !request.body.batchId){
+        if (!request.body.studentId || !request.body.batchId) {
             return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
         }
         var batch;
@@ -39,7 +39,7 @@ export class BatchController {
             batch = await this.batchService.reBatch(request.body);
         } catch (error) {
             console.log();
-            batch = {status: 400, errors: ["Something went wrong while creating/updating the batch."]}
+            batch = { status: 400, errors: ["Something went wrong while creating/updating the batch."] }
         }
         return batch;
     }
@@ -105,37 +105,37 @@ export class BatchController {
 
     async runBatchJob(request: Request, response: Response, next: NextFunction) {
 
-            var current = parseInt(request.query['current']);
-            var pageSize = parseInt(request.query['pageSize']);
+        var current = parseInt(request.query['current']);
+        var pageSize = parseInt(request.query['pageSize']);
 
-            var total = await getManager().query(`SELECT count(*) FROM USER_MASTER`);
-            var results = await getManager().query(`SELECT id FROM USER_MASTER`);
-            console.log('results',results);
-            var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
-            console.log('total is ',total[0].total);
-            console.log('total is ',results[0].id);
-            for (var count=0;count<total[0].total;count++) {
-                try{
+        var total = await getManager().query(`SELECT count(*) FROM USER_MASTER`);
+        var results = await getManager().query(`SELECT id FROM USER_MASTER`);
+        console.log('results', results);
+        var total = await getManager().query(`SELECT FOUND_ROWS() as total;`);
+        console.log('total is ', total[0].total);
+        console.log('total is ', results[0].id);
+        for (var count = 0; count < total[0].total; count++) {
+            try {
                 console.log('Result is ', results[count].id);
                 var condition = {
                     where: { id: results[count].id },
-                  };
-                
+                };
+
                 var userMaster = await this.userMasterRepository.findOne(condition);
                 let user = new User();
                 user.id = userMaster.id;
-                user.firstName=userMaster.firstName;
-                user.lastName=userMaster.lastName;
+                user.firstName = userMaster.firstName;
+                user.lastName = userMaster.lastName;
                 user.email = userMaster.email;
                 user.type = userMaster.type;
                 user.phoneNumber = userMaster.phoneNumber;
                 this.usersRepository.save(user);
-            }catch(error){                
-                console.log('error',error);
+            } catch (error) {
+                console.log('error', error);
             }
         }
-        
-            
+
+
         return { "success": true, "message": "Job execution initiated !!!!" };
     }
 
@@ -164,22 +164,22 @@ export class BatchController {
     async updateBatchZoomInfoAndWACSV(request: Request, response: Response, next: NextFunction) {
         const file = request.files.students;
         let data = [];
- 
-        try{
-            await new Promise(function(myResolve: any, myReject: any) {
-                parse(file.data.toString(), {columns: true, trim: true}, function(e, records){
-                        data = records;
-                        if(data){
-                            myResolve(); 
-                        }else{
-                            console.log(file.data.toString());
-                            myReject();
-                        }
-                    });
+
+        try {
+            await new Promise(function (myResolve: any, myReject: any) {
+                parse(file.data.toString(), { columns: true, trim: true }, function (e, records) {
+                    data = records;
+                    if (data) {
+                        myResolve();
+                    } else {
+                        console.log(file.data.toString());
+                        myReject();
+                    }
                 });
+            });
             return this.batchService.updateBatchZoomInfoAndWACSV(data, request.query);
-        }catch(e){
-            return {e, name: file.name, size: file.size, type: file.type};
+        } catch (e) {
+            return { e, name: file.name, size: file.size, type: file.type };
         }
     }
 }
