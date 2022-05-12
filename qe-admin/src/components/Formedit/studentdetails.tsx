@@ -124,13 +124,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       props.submit(dataForm);
     } else {
       notification.open({
-        message: '',
+        message: 'Sales Amount Error',
         description:
           'Enter valid sale amount, subscription Months, subscription amount and downpayment',
       });
-      setTimeout(() => {
-        window.location.reload()
-      }, 1000);
     }
     console.log('Data', dataForm)
   };
@@ -333,7 +330,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               pattern: /^[a-zA-Z ]*$/,
             }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -342,7 +339,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             label="Student Last Name"
             name="lastName"
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -351,7 +348,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             label="Parent First Name"
             name="pfirstName"
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -360,7 +357,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             label="Parent Last Name"
             name="plastName"
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -379,13 +376,13 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         <Col span={12}>
           <Form.Item
-            label="Student ID"
+            label="ID"
             name="id"
             rules={[{
               required: true,
             }]}
           >
-            <Input disabled/>
+            <Input disabled />
           </Form.Item>
         </Col>
 
@@ -421,7 +418,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item
-              label="Lead ID"
+              label="Student ID"
               name="studentID"
               rules={[{
                 required: true,
@@ -433,13 +430,16 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : (
           <Col span={12}>
             <Form.Item
-              label="Lead ID"
+              label="Student ID"
               name="studentID"
               rules={[{
+                type: 'string',
                 required: true,
+                pattern: /^\S*$/,
+                message: "Lead ID Cannot Have Spaces",
               }]}
             >
-              <Input onChange={onChange} />
+              <Input />
             </Form.Item>
           </Col>
         )
@@ -481,7 +481,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Input type="date" onChange={onChange}
+            <Input type="date"
               value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
           </Form.Item>
         </Col>
@@ -520,7 +520,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             rules={[{
               required: true,
             }]}>
-            <Select onChange={onChange}
+            <Select
               placeholder="Select Class Type"
             >
               <Option value="Kids">Kids</Option>
@@ -594,7 +594,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             rules={[{
               required: true,
             }]}>
-            <Select onChange={onChange}
+            <Select 
               placeholder="Select Class Timings"
             >
               <Option value="15:00">15:00</Option>
@@ -605,17 +605,27 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item name="startDate"
-            label="Expected Start Date"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input type="date"
-              value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
-          </Form.Item>
-        </Col>
+        {props.tempData.startDate != '' ? (
+          <Col span={12}>
+            <Form.Item name="startDate"
+              label="Expected Start Date">
+              <Input type="date"
+                value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} disabled />
+            </Form.Item>
+          </Col>
+
+        ) :
+          <Col span={12}>
+            <Form.Item name="startDate"
+              label="Expected Start Date"
+              rules={[{
+                required: true,
+              }]}>
+              <Input type="date"
+                placeholder="Select Expected Start Date" />
+            </Form.Item>
+          </Col>
+        }
 
         {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
@@ -626,7 +636,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               }]}
             >
               <Input type="date"
-                onChange={onChange}
                 value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
             </Form.Item>
           </Col>
@@ -641,7 +650,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Select style={{ width: 100 + "%" }} onChange={onChange}>
+            <Select style={{ width: 100 + "%" }} >
               {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
             </Select>
           </Form.Item>
@@ -655,7 +664,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Select placeholder="classessold" onChange={onChange}  >
+            <Select placeholder="classessold">
               <Option value="60">60</Option>
               <Option value="100">100</Option>
               <Option value="200">200</Option>
@@ -671,7 +680,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="saleamount"
             rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -681,7 +690,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="downpayment"
             rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -693,7 +702,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Select placeholder="Select Plan Mode" onChange={onChange} >
+            <Select placeholder="Select Plan Mode" >
               <Option value="razorpay">Razorpay</Option>
               <Option value="banktransfer">Bank Transfer</Option>
               <Option value="cashfree">Cashfree</Option>
@@ -709,7 +718,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -720,7 +729,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             rules={[{
               required: true,
             }]}>
-            <Select onChange={onChange}
+            <Select
               placeholder="Select Subscription Type"
             >
               <Option value="Manual">Manual</Option>
@@ -737,7 +746,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               required: true,
             }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -747,7 +756,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="emi"
             rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -757,7 +766,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             name="emiMonths"
             rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -768,7 +777,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             rules={[{
               required: true,
             }]}>
-            <Select style={{ width: 100 + "%" }} onChange={onChange} >
+            <Select style={{ width: 100 + "%" }} >
               {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
             </Select>
           </Form.Item>
@@ -782,7 +791,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               rules={[{
                 required: true,
               }]}>
-              <Select onChange={onChange}
+              <Select
                 placeholder="Select Call Status"
               >
                 <Option value="Answered">Answered</Option>
@@ -804,7 +813,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 required: true,
               }]}
             >
-              <Input onChange={onChange} />
+              <Input />
             </Form.Item>
           </Col>
         ) : ''
@@ -815,7 +824,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             label="BDA Comments"
             name="comments"
           >
-            <Input onChange={onChange} />
+            <Input />
           </Form.Item>
         </Col>
 
@@ -863,7 +872,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               rules={[{
                 required: true,
               }]}>
-              <Select onChange={onChange}
+              <Select
                 placeholder="Select Yes/No"
               >
                 <Option value="Yes">Yes</Option>
@@ -889,7 +898,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item name="isSibling"
             label="Is Sibling?">
-            <Select onChange={onChange}
+            <Select
               placeholder="Is Sibling"
             >
               <Option value={1}>Yes</Option>
