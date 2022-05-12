@@ -426,7 +426,7 @@ const StudentOnboard: React.FC = () => {
       customerEmail: value.customerEmail,
       id: value.id,
       type: "student",
-      status: "enrolled",
+      status: value.status == "Enrolled" ? 'welcomecallpending' : value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -864,7 +864,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h3 style={{ textAlign: "center" }}>Sales Alert/ Missing data</h3>
+      <h3 style={{ textAlign: "center" }}>Sales Alert/ Missing Data</h3>
       <Spin spinning={isLoading}>
         <div style={{ paddingTop: 20, paddingLeft: 10, background: "white", marginBottom: 10, alignContent: 'center' }}>
           {/* Form for search */}
