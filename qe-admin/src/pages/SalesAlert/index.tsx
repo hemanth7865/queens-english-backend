@@ -274,9 +274,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="enrolled">Enrolled</Option>
-          <Option value="startclasslater">Start Class Later</Option>
-          <Option value="batching">Ready to batch</Option>
+          <Option value="welcomecallpending">Welcome Call Pending</Option>
         </Select>
       )
     } else if (inputType === 'selectCallStatus') {
