@@ -446,7 +446,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         }
         <Col span={12}>
           <Form.Item
-            label="RMN"
+            label="Registered Mobile Number"
             name="phoneNumber"
             rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
           >
@@ -477,6 +477,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         <Col span={12}>
           <Form.Item name="dob"
             label="Date of Birth"
+            extra="*Please Select Date Of Birth or Form won't Save"
             rules={[{
               required: true,
             }]}
@@ -594,7 +595,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             rules={[{
               required: true,
             }]}>
-            <Select 
+            <Select
               placeholder="Select Class Timings"
             >
               <Option value="15:00">15:00</Option>
@@ -618,7 +619,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <Col span={12}>
             <Form.Item name="startDate"
               label="Expected Start Date"
+              extra="*Please Select Expected Start Date or Form won't Save"
               rules={[{
+                message: "Please Select Expected Start Date",
                 required: true,
               }]}>
               <Input type="date"
@@ -934,7 +937,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               <Select
                 placeholder="Select Status"
               >
-                <Option value="enrolled">Enrolled</Option>
                 <Option value="welcomecallpending">Welcome Call Pending</Option>
                 <Option value="startclasslater">Start Class Later</Option>
                 <Option value="batching">Ready to batch</Option>
@@ -952,7 +954,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           span: 16,
         }}
       >
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" onChange={onChange}>
           Submit
         </Button>
       </Form.Item>
