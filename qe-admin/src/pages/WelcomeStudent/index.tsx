@@ -529,7 +529,7 @@ const StudentOnboard: React.FC = () => {
       let msg = await studentsDashboard('welcomecallpending', {
         current,
         pageSize,
-        prm_name: prmName
+        prm: prmName
       }
       );
       if (msg.status === "ok") {
