@@ -59,6 +59,7 @@ export type StudentdetailseditProps = {
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
+  salesAlert: '';
 };
 
 const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
@@ -82,7 +83,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       classType: value.classType,
       id: value.id,
       type: 'student',
-      status: value.status == "Enrolled" ? 'welcomecallpending' : value.status,
+      status: value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -120,14 +121,18 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
-      props.submit(dataForm);
+    if (props.tempData.status == 'Enrolled') {
+      if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
+        props.submit(dataForm);
+      } else {
+        notification.open({
+          message: 'Sales Amount Error',
+          description:
+            'Enter valid sale amount, subscription Months, subscription amount and downpayment',
+        });
+      }
     } else {
-      notification.open({
-        message: 'Sales Amount Error',
-        description:
-          'Enter valid sale amount, subscription Months, subscription amount and downpayment',
-      });
+      props.submit(dataForm);
     }
     console.log('Data', dataForm)
   };
@@ -659,119 +664,107 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item
-            label="Classes Sold"
-            name="classessold"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Select placeholder="classessold">
-              <Option value="60">60</Option>
-              <Option value="100">100</Option>
-              <Option value="200">200</Option>
-              <Option value="300">300</Option>
-              <Option value="400">400</Option>
-            </Select>
-          </Form.Item>
-        </Col>
+        {props.tempData.status != 'onboarding' ? (
 
-        <Col span={12}>
-          <Form.Item
-            label="Total Sale Amount"
-            name="saleamount"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Down Payment"
-            name="downpayment"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="paymentMode"
-            label="Plan Mode"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Select placeholder="Select Plan Mode" >
-              <Option value="razorpay">Razorpay</Option>
-              <Option value="banktransfer">Bank Transfer</Option>
-              <Option value="cashfree">Cashfree</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Transaction ID"
-            name="paymentid"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="subscription"
-            label="Subscription Type"
-            rules={[{
-              required: true,
-            }]}>
-            <Select
-              placeholder="Select Subscription Type"
+          <><Col span={12}>
+            <Form.Item
+              label="Classes Sold"
+              name="classessold"
+              rules={[{
+                required: true,
+              }]}
             >
-              <Option value="Manual">Manual</Option>
-              <Option value="Auto-Debit">Auto-Debit</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Subscription Number"
-            name="subscriptionNo"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Subscription Amount"
-            name="emi"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Months Of Subscription"
-            name="emiMonths"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
+              <Select placeholder="classessold">
+                <Option value="60">60</Option>
+                <Option value="100">100</Option>
+                <Option value="200">200</Option>
+                <Option value="300">300</Option>
+                <Option value="400">400</Option>
+              </Select>
+            </Form.Item>
+          </Col><Col span={12}>
+              <Form.Item
+                label="Total Sale Amount"
+                name="saleamount"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Down Payment"
+                name="downpayment"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                name="paymentMode"
+                label="Plan Mode"
+                rules={[{
+                  required: true,
+                }]}
+              >
+                <Select placeholder="Select Plan Mode">
+                  <Option value="razorpay">Razorpay</Option>
+                  <Option value="banktransfer">Bank Transfer</Option>
+                  <Option value="cashfree">Cashfree</Option>
+                </Select>
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Transaction ID"
+                name="paymentid"
+                rules={[{
+                  required: true,
+                }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                name="subscription"
+                label="Subscription Type"
+                rules={[{
+                  required: true,
+                }]}>
+                <Select
+                  placeholder="Select Subscription Type"
+                >
+                  <Option value="Manual">Manual</Option>
+                  <Option value="Auto-Debit">Auto-Debit</Option>
+                </Select>
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Subscription Number"
+                name="subscriptionNo"
+                rules={[{
+                  required: true,
+                }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Subscription Amount"
+                name="emi"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Months Of Subscription"
+                name="emiMonths"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col></>
+        ) : ''
+        }
 
         <Col span={12}>
           <Form.Item
@@ -786,7 +779,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'welcomecallpending' ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               name="callStatus"
@@ -807,7 +800,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status != "Enrolled" ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               label="PRM Comments"
@@ -831,7 +824,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'welcomecallpending' ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               label="Message"
@@ -867,7 +860,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status != "Enrolled" ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               name="waMessageSent"
@@ -910,44 +903,26 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == "Enrolled" ? (
-          <Col span={12}>
-            <Form.Item
-              name="status"
-              label="Status"
-              rules={[{
-                required: true,
-              }]}>
-              <Select
-                placeholder="Select Status"
-              >
-                <Option value="welcomecallpending">Welcome Call Pending</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-
-        ) : (
-          <Col span={12}>
-            <Form.Item
-              name="status"
-              label="Status"
-              rules={[{
-                required: true,
-              }]}>
-              <Select
-                placeholder="Select Status"
-              >
-                <Option value="welcomecallpending">Welcome Call Pending</Option>
-                <Option value="startclasslater">Start Class Later</Option>
-                <Option value="batching">Ready to batch</Option>
-                <Option value="onboarding">Onboarding</Option>
-                <Option value="active">Active</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        )
-        }
+        <Col span={12}>
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[{
+              required: true,
+            }]}>
+            <Select
+              placeholder="Select Status"
+            >
+              <Option value="Enrolled">Enrolled</Option>
+              <Option value="Start Class Later">Start Class Later</Option>
+              <Option value="Ready to batch">Ready to batch</Option>
+              <Option value="Onboarding">Onboarding</Option>
+              <Option value="Active">Active</Option>
+            </Select>
+          </Form.Item>
+        </Col>
       </Row>
+
       <Form.Item
         wrapperCol={{
           offset: 8,
