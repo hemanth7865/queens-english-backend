@@ -110,6 +110,7 @@ export class UserController {
             type: request.query['type'],
             keyword: request.query['keyword'],
             studentID: request.query['studentID'],
+            id: request.query['id'],
             batchCode: request.query['batchCode'],
             email: request.query['email'],
             dob: request.query['dob'],

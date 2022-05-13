@@ -97,6 +97,10 @@ export class StudentService {
       query_list.push(` s.studentID like '%${parameters.studentID}%'  `);
     }
 
+    if (parameters.id) {
+      query_list.push(` u.id like '%${parameters.id}%'  `);
+    }
+
     var StudentIds = [];
 
     if (parameters.batchCode) {
