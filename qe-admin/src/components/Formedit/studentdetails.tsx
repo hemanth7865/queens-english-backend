@@ -391,7 +391,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'Onboarding' ? (
+        {props.tempData.status == 'onboarding' ? (
 
           <><Col span={12}>
             <Form.Item
@@ -420,7 +420,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         }
 
-        {props.tempData.status == 'Onboarding' ? (
+        {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item
               label="Student ID"
@@ -635,7 +635,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Col>
         }
 
-        {props.tempData.status == 'Onboarding' ? (
+        {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item name="classesStartDate"
               label="Actual Start Date"
@@ -664,7 +664,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status != 'Onboarding' ? (
+        {props.tempData.status != 'onboarding' ? (
 
           <><Col span={12}>
             <Form.Item
@@ -842,7 +842,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'Onboarding' ? (
+        {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item
               label="Message"
@@ -879,7 +879,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'Onboarding' ? (
+        {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item
               label="Whatsapp Group Link"
@@ -913,11 +913,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Select
               placeholder="Select Status"
             >
-              <Option value="Enrolled">Enrolled</Option>
+              <Option value="enrolled">Enrolled</Option>
               <Option value="startclasslater">Start Class Later</Option>
-              <Option value="Ready to batch">Ready to batch</Option>
-              <Option value="Onboarding">Onboarding</Option>
-              <Option value="Active">Active</Option>
+              <Option value="batching">Ready to batch</Option>
+              <Option value="onboarding">Onboarding</Option>
+              <Option value="active">Active</Option>
             </Select>
           </Form.Item>
         </Col>
