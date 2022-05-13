@@ -150,7 +150,11 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           students: studnets,
-          activeLessonId: data.activeLessonId
+          activeLessonId: data.activeLessonId,
+          frequency: data.frequency,
+          zoomLink: data.zoomLink,
+          zoomInfo: data.zoomInfo,
+          whatsappLink: data.whatsappLink
         },
       };
 
