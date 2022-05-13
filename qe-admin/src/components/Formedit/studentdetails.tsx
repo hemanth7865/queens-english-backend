@@ -391,7 +391,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'onboarding' ? (
+        {props.tempData.status == 'Onboarding' ? (
 
           <><Col span={12}>
             <Form.Item
@@ -420,7 +420,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         }
 
-        {props.tempData.status == 'onboarding' ? (
+        {props.tempData.status == 'Onboarding' ? (
           <Col span={12}>
             <Form.Item
               label="Student ID"
@@ -635,7 +635,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Col>
         }
 
-        {props.tempData.status == 'onboarding' ? (
+        {props.tempData.status == 'Onboarding' ? (
           <Col span={12}>
             <Form.Item name="classesStartDate"
               label="Actual Start Date"
@@ -664,7 +664,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status != 'onboarding' ? (
+        {props.tempData.status != 'Onboarding' ? (
 
           <><Col span={12}>
             <Form.Item
@@ -842,7 +842,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'onboarding' ? (
+        {props.tempData.status == 'Onboarding' ? (
           <Col span={12}>
             <Form.Item
               label="Message"
@@ -879,7 +879,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'onboarding' ? (
+        {props.tempData.status == 'Onboarding' ? (
           <Col span={12}>
             <Form.Item
               label="Whatsapp Group Link"
