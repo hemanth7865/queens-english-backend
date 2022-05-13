@@ -59,6 +59,7 @@ export type StudentdetailseditProps = {
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
+  salesAlert: '';
 };
 
 const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
@@ -82,7 +83,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       classType: value.classType,
       id: value.id,
       type: 'student',
-      status: value.status == "Enrolled" ? 'welcomecallpending' : value.status,
+      status: value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -660,8 +661,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         </Col>
 
         {props.tempData.status != 'onboarding' ? (
-          
-        <><Col span={12}>
+
+          <><Col span={12}>
             <Form.Item
               label="Classes Sold"
               name="classessold"
@@ -774,7 +775,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'welcomecallpending' ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               name="callStatus"
@@ -795,7 +796,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status != "Enrolled" ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               label="PRM Comments"
@@ -819,7 +820,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'welcomecallpending' ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               label="Message"
@@ -855,7 +856,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status != "Enrolled" ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item
               name="waMessageSent"
@@ -898,44 +899,26 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.status == "Enrolled" ? (
-          <Col span={12}>
-            <Form.Item
-              name="status"
-              label="Status"
-              rules={[{
-                required: true,
-              }]}>
-              <Select
-                placeholder="Select Status"
-              >
-                <Option value="welcomecallpending">Welcome Call Pending</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-
-        ) : (
-          <Col span={12}>
-            <Form.Item
-              name="status"
-              label="Status"
-              rules={[{
-                required: true,
-              }]}>
-              <Select
-                placeholder="Select Status"
-              >
-                <Option value="welcomecallpending">Welcome Call Pending</Option>
-                <Option value="startclasslater">Start Class Later</Option>
-                <Option value="batching">Ready to batch</Option>
-                <Option value="onboarding">Onboarding</Option>
-                <Option value="active">Active</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        )
-        }
+        <Col span={12}>
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[{
+              required: true,
+            }]}>
+            <Select
+              placeholder="Select Status"
+            >
+              <Option value="Enrolled">Enrolled</Option>
+              <Option value="Start Class Later">Start Class Later</Option>
+              <Option value="Ready to batch">Ready to batch</Option>
+              <Option value="Onboarding">Onboarding</Option>
+              <Option value="Active">Active</Option>
+            </Select>
+          </Form.Item>
+        </Col>
       </Row>
+
       <Form.Item
         wrapperCol={{
           offset: 8,

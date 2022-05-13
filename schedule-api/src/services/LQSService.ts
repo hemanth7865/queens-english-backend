@@ -22,6 +22,7 @@ export class LQSService {
   private LSQ_SALES_LEAD_URL = process.env.LSQ_SALES_LEAD_URL;
   private LSQ_RETRY = process.env.LSQ_RETRY ? process.env.LSQ_RETRY : "3";
   public static LSQ_STATUS_ENROLLED = "Enrolled";
+  public static LSQ_STATUS_WELCOMECALLPENDING = "Welcome Call Pending";
   public static LSQ_STATUS_CREATED = "Created";
   public static LSQ_STATUS_FAILED = "Failed";
   public static LSQ_STATUS_SUCCESS = "Success";
@@ -104,6 +105,7 @@ export class LQSService {
         updated_at: MoreThanDate(now),
         lsqstatus: In([
           LQSService.LSQ_STATUS_ENROLLED,
+          LQSService.LSQ_STATUS_WELCOMECALLPENDING,
           LQSService.LSQ_STATUS_FAILED,
           LQSService.LSQ_STATUS_SUCCESS,
         ]),

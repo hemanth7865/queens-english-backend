@@ -274,7 +274,6 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="welcomecallpending">Welcome Call Pending</Option>
           <Option value="enrolled">Enrolled</Option>
           <Option value="startclasslater">Start Class Later</Option>
           <Option value="batching">Ready to batch</Option>
@@ -381,6 +380,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  const [salesAlert, setSalesAlert] = useState(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -427,7 +427,7 @@ const StudentOnboard: React.FC = () => {
       customerEmail: value.customerEmail,
       id: value.id,
       type: "student",
-      status: 'welcomecallpending',
+      status: 'Enrolled',
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -493,7 +493,7 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('enrolled'||'welcomecallpending', {
+      let msg = await studentsDashboard('Enrolled', {
         current: 1,
         pageSize: 100
       }
@@ -539,6 +539,7 @@ const StudentOnboard: React.FC = () => {
         return (TotalArray.indexOf(item) == index)
       })
       setData(TotalArray);
+      setSalesAlert(true);
       setTotalRecords(TotalArray.length);
     } catch (error) {
       console.log("error", error);
@@ -844,7 +845,7 @@ const StudentOnboard: React.FC = () => {
     //console.log('status', formData, value)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('welcomecallpending', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
+      let msg = await studentsDashboardFilter('Enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
         current: 1,
         pageSize: 20
       }
@@ -941,7 +942,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
         >
-          <Tabsedit tmpData={tmpData} />
+          <Tabsedit tmpData={tmpData} salesAlert={salesAlert} />
         </Drawer>
       </Spin>
     </>

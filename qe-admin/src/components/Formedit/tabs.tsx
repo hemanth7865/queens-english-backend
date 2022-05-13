@@ -10,7 +10,8 @@ function callback(key: any) {
 }
 
 export type TabseditProps = {
-  tmpData: {}
+  tmpData: {};
+  salesAlert: '';
 };
 
 const Tabsedit: React.FC<TabseditProps> = (props) => {
@@ -62,7 +63,7 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
       <Spin spinning={isLoading}>
         <Tabs defaultActiveKey="1" onChange={callback}>
           <TabPane tab="Student Details" key="1">
-            <Studentdetailsedit tempData={tmpData} submit={submit} updateTempData={updateTempData} />
+            <Studentdetailsedit tempData={tmpData} submit={submit} updateTempData={updateTempData} salesAlert={props.salesAlert} />
           </TabPane>
         </Tabs>
       </Spin>
