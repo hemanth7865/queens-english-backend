@@ -659,119 +659,107 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item
-            label="Classes Sold"
-            name="classessold"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Select placeholder="classessold">
-              <Option value="60">60</Option>
-              <Option value="100">100</Option>
-              <Option value="200">200</Option>
-              <Option value="300">300</Option>
-              <Option value="400">400</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Total Sale Amount"
-            name="saleamount"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Down Payment"
-            name="downpayment"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="paymentMode"
-            label="Plan Mode"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Select placeholder="Select Plan Mode" >
-              <Option value="razorpay">Razorpay</Option>
-              <Option value="banktransfer">Bank Transfer</Option>
-              <Option value="cashfree">Cashfree</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Transaction ID"
-            name="paymentid"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            name="subscription"
-            label="Subscription Type"
-            rules={[{
-              required: true,
-            }]}>
-            <Select
-              placeholder="Select Subscription Type"
+        {props.tempData.status != 'onboarding' ? (
+          
+        <><Col span={12}>
+            <Form.Item
+              label="Classes Sold"
+              name="classessold"
+              rules={[{
+                required: true,
+              }]}
             >
-              <Option value="Manual">Manual</Option>
-              <Option value="Auto-Debit">Auto-Debit</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Subscription Number"
-            name="subscriptionNo"
-            rules={[{
-              required: true,
-            }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Subscription Amount"
-            name="emi"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={12}>
-          <Form.Item
-            label="Months Of Subscription"
-            name="emiMonths"
-            rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
+              <Select placeholder="classessold">
+                <Option value="60">60</Option>
+                <Option value="100">100</Option>
+                <Option value="200">200</Option>
+                <Option value="300">300</Option>
+                <Option value="400">400</Option>
+              </Select>
+            </Form.Item>
+          </Col><Col span={12}>
+              <Form.Item
+                label="Total Sale Amount"
+                name="saleamount"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Down Payment"
+                name="downpayment"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                name="paymentMode"
+                label="Plan Mode"
+                rules={[{
+                  required: true,
+                }]}
+              >
+                <Select placeholder="Select Plan Mode">
+                  <Option value="razorpay">Razorpay</Option>
+                  <Option value="banktransfer">Bank Transfer</Option>
+                  <Option value="cashfree">Cashfree</Option>
+                </Select>
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Transaction ID"
+                name="paymentid"
+                rules={[{
+                  required: true,
+                }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                name="subscription"
+                label="Subscription Type"
+                rules={[{
+                  required: true,
+                }]}>
+                <Select
+                  placeholder="Select Subscription Type"
+                >
+                  <Option value="Manual">Manual</Option>
+                  <Option value="Auto-Debit">Auto-Debit</Option>
+                </Select>
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Subscription Number"
+                name="subscriptionNo"
+                rules={[{
+                  required: true,
+                }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Subscription Amount"
+                name="emi"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col><Col span={12}>
+              <Form.Item
+                label="Months Of Subscription"
+                name="emiMonths"
+                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col></>
+        ) : ''
+        }
 
         <Col span={12}>
           <Form.Item
