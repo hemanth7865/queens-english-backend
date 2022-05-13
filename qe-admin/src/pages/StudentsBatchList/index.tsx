@@ -412,7 +412,16 @@ const StudentsBatchList: React.FC = () => {
         />
       ),
       dataIndex: 'email',
-      //  hideInSearch: true,
+      hideInTable: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleprm"
+          defaultMessage="PRM Name"
+        />
+      ),
+      dataIndex: 'prm',
     },
     {
       title: (
@@ -1886,6 +1895,27 @@ const StudentsBatchList: React.FC = () => {
                   </Col>
                   <Col span={11}>
                     <p>:  {tempDataView.batchCode}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Zoom Info  </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>: {tempDataView.zoomInfo}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Zoom Link  </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>: <a href={tempDataView.zoomLink} target="_blank">{tempDataView.zoomLink || "NA"}</a></p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Whatsapp Link </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>: <a href={tempDataView.whatsappLink} target="_blank">{tempDataView.whatsappLink || "NA"}</a></p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>

@@ -116,7 +116,7 @@ export class UserController {
             dob: request.query['dob'],
             whatsapp: request.query['whatsapp'],
             address: request.query['address'],
-            prm_name: request.query['prm_name'],
+            prm: request.query['prm'],
             frequency: request.query['frequency'],
             autoSearch: request.query['autoSearch'],
         }

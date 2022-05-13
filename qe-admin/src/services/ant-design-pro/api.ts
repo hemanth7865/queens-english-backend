@@ -549,7 +549,7 @@ export async function studentsDashboardFilter(
       name: name ? name : '',
       phoneNumber: phoneNumber ? phoneNumber : '',
       email: email ? email : '',
-      prm_name: prm_name ? prm_name : '',
+      prm: prm_name ? prm_name : '',
       studentID: studentID ? studentID : ''
     },
     ...(options || {}),
