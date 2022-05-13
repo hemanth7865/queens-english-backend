@@ -914,7 +914,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               placeholder="Select Status"
             >
               <Option value="Enrolled">Enrolled</Option>
-              <Option value="Start Class Later">Start Class Later</Option>
+              <Option value="startclasslater">Start Class Later</Option>
               <Option value="Ready to batch">Ready to batch</Option>
               <Option value="Onboarding">Onboarding</Option>
               <Option value="Active">Active</Option>

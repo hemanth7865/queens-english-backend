@@ -105,11 +105,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="onboarding">Onboarding</Option>
-          <Option value="active">Active</Option>
-          <Option value="batching">Ready to batch</Option>
+          <Option value="Onboarding">Onboarding</Option>
+          <Option value="Active">Active</Option>
+          <Option value="Batching">Ready to batch</Option>
           <Option value="startclasslater">Start Class Later</Option>
-          <Option value="enrolled">Enrolled</Option>
+          <Option value="Enrolled">Enrolled</Option>
         </Select>
       )
     } else if (inputType === 'selectCallStatus') {
@@ -242,7 +242,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
-  
+
   const isEditing = (record: Item) => record.id === editingKey;
 
   const edit = (record: Partial<Item> & { id: React.Key }) => {
