@@ -271,11 +271,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="welcomecallpending">Welcome Call Pending</Option>
-          <Option value="startclasslater">Start Class Later</Option>
-          <Option value="batching">Ready to batch</Option>
-          <Option value="onboarding">Onboarding</Option>
-          <Option value="active">Active</Option>
+          <Option value="Enrolled">Enrolled</Option>
+          <Option value="Start Class Later">Start Class Later</Option>
+          <Option value="Ready To Batch">Ready to batch</Option>
+          <Option value="Onboarding">Onboarding</Option>
+          <Option value="Active">Active</Option>
         </Select>
       )
     } else if (inputType === 'selectCallStatus') {
@@ -526,7 +526,7 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('welcomecallpending', {
+      let msg = await studentsDashboard('Enrolled', {
         current,
         pageSize,
         prm: prmName
@@ -952,7 +952,7 @@ const StudentOnboard: React.FC = () => {
     console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('welcomecallpending', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
+      let msg = await studentsDashboardFilter('Enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
         current,
         pageSize
       }
