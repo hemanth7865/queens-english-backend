@@ -1713,7 +1713,7 @@ const StudentsBatchList: React.FC = () => {
                     <p>Date of Birth </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.dob}</p>
+                    <p>:  {dob == '' ? tempDataView.dob : dob}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -3004,7 +3004,8 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
                       <Col span={8}></Col>
                       <Col span={8}>
-                        <Button
+                          <Button
+                          onClick={() => { openNotification(tempDataView.userId) }}
                           block
                           type="primary"
                         >
