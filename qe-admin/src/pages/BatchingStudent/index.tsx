@@ -156,6 +156,11 @@ const StudentOnboard: React.FC = () => {
       width: 150,
     },
     {
+      title: 'Age',
+      dataIndex: 'age',
+      width: 150,
+    },
+    {
       title: 'Time',
       dataIndex: 'timings',
       width: 150,

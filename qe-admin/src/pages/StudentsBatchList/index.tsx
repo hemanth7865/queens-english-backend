@@ -456,6 +456,16 @@ const StudentsBatchList: React.FC = () => {
     {
       title: (
         <FormattedMessage
+          id="pages.searchTable.titleage"
+          defaultMessage="Age"
+        />
+      ),
+      dataIndex: 'age',
+      //hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
           id="pages.searchTable.titlestatus"
           defaultMessage="Status"
         />
@@ -652,7 +662,7 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber,
       batchCode: formData.batchCode,
       alternativeMobile: formData.alternativeMobile,
-      age: formData.age,
+      age: formData.age ? formData.age : moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(1),
       address: formData.address,
       classType: formData.classType,
       referralCode: formData.referralCode,
@@ -746,7 +756,7 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
-      age: formData.age ? formData.age : tempDataView.age,
+      age: formData.age ? formData.age : moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(1),
       address: formData.address ? formData.address : tempDataView.address,
       classType: formData.ClassType ? formData.ClassType : tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
@@ -981,7 +991,7 @@ const StudentsBatchList: React.FC = () => {
                           <Input
                             placeholder="Age"
                             name="age"
-                            value={formData.age}
+                            value={tempDataView.age}
                             onChange={handleFormChange}
                           />
                         </Form.Item>
@@ -2174,7 +2184,7 @@ const StudentsBatchList: React.FC = () => {
                           <Input
                             placeholder="Age"
                             name="age"
-                            defaultValue={tempDataView.age}
+                            defaultValue={tempDataView.age} //{ moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true)}
                             onChange={handleFormChange}
                           />
                         </Form.Item>
