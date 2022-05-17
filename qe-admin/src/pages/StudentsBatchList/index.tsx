@@ -993,6 +993,7 @@ const StudentsBatchList: React.FC = () => {
                             name="age"
                             value={tempDataView.age}
                             onChange={handleFormChange}
+                            disabled
                           />
                         </Form.Item>
                       </Col>
@@ -1720,7 +1721,7 @@ const StudentsBatchList: React.FC = () => {
                     <p>Age  </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.age}</p>
+                    <p>:  {tempDataView.age == null ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years" : tempDataView.age + " Years"}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -2177,16 +2178,32 @@ const StudentsBatchList: React.FC = () => {
 
                         </Form.Item>
                       </Col>
-                      <Col span={12}>
-                        <Form.Item name="age">
-                          <Input
-                            placeholder="Age"
-                            name="age"
-                            defaultValue={tempDataView.age}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
+                      {tempDataView.age == null ? (
+                        <Col span={12}>
+                          <Form.Item name="age">
+                            <Input
+                              placeholder="Age"
+                              name="age"
+                              defaultValue={tempDataView.age}
+                              onChange={handleFormChange}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Col>
+                      ) : (
+                        <Col span={12}>
+                          <Form.Item name="age">
+                            <Input
+                              placeholder="Age"
+                              name="age"
+                              defaultValue={tempDataView.age + " Years"}
+                              onChange={handleFormChange}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Col>
+                      )
+                      }
                       <Col span={12}>
                         <Form.Item name="classType">
                           <Input
@@ -3004,7 +3021,7 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
                       <Col span={8}></Col>
                       <Col span={8}>
-                          <Button
+                        <Button
                           onClick={() => { openNotification(tempDataView.userId) }}
                           block
                           type="primary"
