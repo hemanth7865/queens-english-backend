@@ -56,7 +56,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap?: number,
       classEndDate: string
     } = {
-      maxStudentsCount: 6,
+      maxStudentsCount: 7,
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD")
     }
