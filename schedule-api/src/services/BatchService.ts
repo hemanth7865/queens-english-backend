@@ -662,18 +662,6 @@ export class BatchService {
       query_list.push(` classes.id != '${parameters.excludeCurrentBatchId}' `);
     }
 
-    if (parameters.age) {
-      // +18 students in a separate class
-      if (parameters.age >= 18) {
-        query_list.push(` (classes.maxAge >= 18 OR classes.maxAge IS NULL) `);
-      }
-      // below 6 years students be in separate class
-      if (parameters.age < 6) {
-        query_list.push(` (classes.maxAge < 6 OR classes.maxAge IS NULL) `);
-      }
-      query_list.push(` (classes.ages LIKE '%${parameters.age < 10 ? "0" + parseInt(parameters.age) : parseInt(parameters.age)}%' OR classes.ages IS NULL)`);
-    }
-
     if (parameters.maxStudentsCount) {
       havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
     }
@@ -732,9 +720,9 @@ export class BatchService {
       }
     });
     current--;
-    var quer = `select classes.id, classes.batchNumber, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
+    var quer = `select classes.id, classes.batchNumber, classes.minAge, classes.maxAge, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
-    classes ${query_string} ${havingQuery} ORDER BY classes.created_at DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
+    classes ${query_string} ${havingQuery} ORDER BY abs(round((classes.minAge+classes.maxAge)/2,0) - 2) ASC, students_count DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
     console.log(quer);
     var results = await getManager().query(quer);
@@ -809,6 +797,8 @@ export class BatchService {
         classes.zoomInfo,
         classes.frequency,
         classes.whatsappLink,
+        classes.minAge,
+        classes.maxAge
       );
       view.activeLessonId = classes.activeLessonId;
       view.teacherId = classes.teacherId;

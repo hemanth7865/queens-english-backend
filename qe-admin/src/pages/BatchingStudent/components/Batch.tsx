@@ -58,13 +58,13 @@ const Batch: React.FC<BatchProps> = (props) => {
 
   const lesson = getLessonByNumber(startLesson);
 
+
   //console.log('active lesson id: '+JSON.stringify(currentBatch));
 
   async function fetchBatchList(params: {}) {
     let fixedFilter: {
       activeLessonId?: string;
       dob?: Date;
-      age?: number;
       frequency?: string;
       lessonStartTime?: string;
       lessonEndTime?: string;
@@ -76,7 +76,6 @@ const Batch: React.FC<BatchProps> = (props) => {
       classEndDate: string;
     } = {
       maxStudentsCount: 7,
-      lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD"),
     };
 
@@ -86,11 +85,6 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     if (dob && dob.length > 0) {
       fixedFilter.dob = dob;
-      fixedFilter.age = moment(new Date()).diff(
-        moment(dob, "YYYY-MM-DD"),
-        "years",
-        true
-      );
     }
 
     if (courseFrequency && courseFrequency.length > 0) {
@@ -114,6 +108,10 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     if (rebatching) {
       fixedFilter.excludeCurrentBatchId = currentBatch?.id;
+    }
+
+    if (!params.lessonGap) {
+      params.lessonGap = 10
     }
 
     return listBatch({
@@ -395,6 +393,31 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
         return "... - ...";
       },
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleAgeGroup"
+          defaultMessage="AgeGroup"
+        />
+      ),
+      render: (value: any) => {
+        return `${value.minAge ? value.minAge : ''}-${value.maxAge ? value.maxAge : ''}`
+      },
+      valueType: "textarea",
+      hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleLessonGap"
+          defaultMessage="Lesson Gap"
+        />
+      ),
+      dataIndex: "lessonGap",
+      valueType: "textarea",
+      hideInTable: true,
+      initialValue: 10,
     },
     {
       title: "Select",
