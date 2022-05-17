@@ -662,19 +662,6 @@ export class BatchService {
       query_list.push(` classes.id != '${parameters.excludeCurrentBatchId}' `);
     }
 
-    // commenting age filter logic as part of DEV-638
-    // if (parameters.age) {
-    //   // +18 students in a separate class
-    //   if (parameters.age >= 18) {
-    //     query_list.push(` (classes.maxAge >= 18 OR classes.maxAge IS NULL) `);
-    //   }
-    //   // below 6 years students be in separate class
-    //   if (parameters.age < 6) {
-    //     query_list.push(` (classes.maxAge < 6 OR classes.maxAge IS NULL) `);
-    //   }
-    //   query_list.push(` (classes.ages LIKE '%${parameters.age < 10 ? "0" + parseInt(parameters.age) : parseInt(parameters.age)}%' OR classes.ages IS NULL)`);
-    // }
-
     if (parameters.maxStudentsCount) {
       havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
     }
