@@ -65,7 +65,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     let fixedFilter: {
       activeLessonId?: string;
       dob?: Date;
-      age?: number;
+      //age?: number;
       frequency?: string;
       lessonStartTime?: string;
       lessonEndTime?: string;
@@ -86,11 +86,11 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     if (dob && dob.length > 0) {
       fixedFilter.dob = dob;
-      fixedFilter.age = moment(new Date()).diff(
-        moment(dob, "YYYY-MM-DD"),
-        "years",
-        true
-      );
+      // fixedFilter.age = moment(new Date()).diff(
+      //   moment(dob, "YYYY-MM-DD"),
+      //   "years",
+      //   true
+      // );
     }
 
     if (courseFrequency && courseFrequency.length > 0) {
@@ -408,7 +408,7 @@ const Batch: React.FC<BatchProps> = (props) => {
         />
       ),
       render: (value: any) => {
-        return `${value?.minAge}-${value?.maxAge}`
+        return `${value.minAge ? value.minAge : ''}-${value.maxAge ? value.maxAge : ''}`
       },
       valueType: "textarea",
       hideInSearch: true,
@@ -423,6 +423,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       dataIndex: "lessonGap",
       valueType: "textarea",
       hideInTable: true,
+      initialValue: 10,
     },
     {
       title: "Select",
