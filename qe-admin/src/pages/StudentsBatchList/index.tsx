@@ -662,7 +662,7 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber,
       batchCode: formData.batchCode,
       alternativeMobile: formData.alternativeMobile,
-      age: formData.age ? formData.age : moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(1),
+      age: formData.age ? formData.age : moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       address: formData.address,
       classType: formData.classType,
       referralCode: formData.referralCode,
@@ -756,7 +756,7 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
-      age: formData.age ? formData.age : moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(1),
+      age: formData.age ? formData.age : moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       address: formData.address ? formData.address : tempDataView.address,
       classType: formData.ClassType ? formData.ClassType : tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
@@ -1713,7 +1713,7 @@ const StudentsBatchList: React.FC = () => {
                     <p>Date of Birth </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.dob}</p>
+                    <p>:  {dob == '' ? tempDataView.dob : dob}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -1734,21 +1734,21 @@ const StudentsBatchList: React.FC = () => {
                     <p>Primary Mobile Number</p>
                   </Col>
                   <Col span={11} >
-                    <p>:   {tempDataView.countryCode} + {tempDataView.phoneNumber}</p>
+                    <p>:  {tempDataView.phoneNumber}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Alternative Contact No</p>
                   </Col>
                   <Col span={11} >
-                    <p>:  {tempDataView.countryCode} + {tempDataView.alternativeMobile}</p>
+                    <p>:  {tempDataView.alternativeMobile}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>whatsapp No. </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.countryCode} + {tempDataView.whatsapp}</p>
+                    <p>:  {tempDataView.whatsapp}</p>
                   </Col>
 
                   <Col span={7}></Col>
@@ -2156,8 +2156,6 @@ const StudentsBatchList: React.FC = () => {
 
                           {tempDataView.dob === null ?
                             <DatePicker
-
-
                               format="YYYY/MM/DD"
                               style={{ width: "355px" }}
                               onChange={(date, dateString) => {
@@ -2184,7 +2182,7 @@ const StudentsBatchList: React.FC = () => {
                           <Input
                             placeholder="Age"
                             name="age"
-                            defaultValue={tempDataView.age} //{ moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true)}
+                            defaultValue={tempDataView.age}
                             onChange={handleFormChange}
                           />
                         </Form.Item>
@@ -3006,7 +3004,7 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
                       <Col span={8}></Col>
                       <Col span={8}>
-                        <Button
+                          <Button
                           onClick={() => { openNotification(tempDataView.userId) }}
                           block
                           type="primary"
