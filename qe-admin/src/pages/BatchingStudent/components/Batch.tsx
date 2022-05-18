@@ -65,6 +65,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     let fixedFilter: {
       activeLessonId?: string;
       dob?: Date;
+      age?: number;
       frequency?: string;
       lessonStartTime?: string;
       lessonEndTime?: string;
@@ -85,6 +86,11 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     if (dob && dob.length > 0) {
       fixedFilter.dob = dob;
+      fixedFilter.age = moment(new Date()).diff(
+        moment(dob, "YYYY-MM-DD"),
+        "years",
+        true
+      );
     }
 
     if (courseFrequency && courseFrequency.length > 0) {
