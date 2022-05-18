@@ -636,7 +636,7 @@ const StudentsBatchList: React.FC = () => {
       //countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
-      status: status,
+      status: status ? status : 'active',
       isSibling,
       studentName: formData.studentName,
       teacherName: formData.teacherName,
