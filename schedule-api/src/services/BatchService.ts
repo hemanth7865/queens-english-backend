@@ -574,6 +574,7 @@ export class BatchService {
     var current = parseInt(parameters.current);
     var pageSize = parseInt(parameters.pageSize);
     var age = parseInt(parameters.age);
+    var orderClause = "";
     var batchView: BatchView[] = [];
 
     var offset = parseInt(parameters.current);
@@ -667,6 +668,14 @@ export class BatchService {
       havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
     }
 
+    if (parameters.age) {
+      orderClause = ` abs(round((classes.minAge+classes.maxAge)/2,0) - ${age}) ASC, students_count DESC `;
+    }
+    else {
+      orderClause = ` classes.created_at DESC `;
+    }
+    console.log('order: ' + orderClause);
+
     const createdBy = parameters.createdBy;
     if (createdBy) {
       query_list.push(` createdBy like '%${createdBy}%' `);
@@ -723,7 +732,7 @@ export class BatchService {
     current--;
     var quer = `select classes.id, classes.batchNumber, classes.minAge, classes.maxAge, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
-    classes ${query_string} ${havingQuery} ORDER BY abs(round((classes.minAge+classes.maxAge)/2,0) - ${age}) ASC, students_count DESC LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
+    classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
     console.log(quer);
     var results = await getManager().query(quer);
