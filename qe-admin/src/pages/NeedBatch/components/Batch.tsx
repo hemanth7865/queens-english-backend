@@ -56,7 +56,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap?: number,
       classEndDate: string
     } = {
-      maxStudentsCount: 7,
+      maxStudentsCount: ["IELTS - 1:1", "DISE - 1:1"].includes(course) ? 1 : 7,
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD")
     }
