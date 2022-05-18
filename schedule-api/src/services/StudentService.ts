@@ -537,7 +537,9 @@ export class StudentService {
     student.days = data.days;
     student.alternativeMobile = data.alternativeMobile;
 
-    student.startDate = data.startDate;
+    student.startDate = data.startDate
+      ? data.startDate.split("T")[0]
+      : data.startDate;
     student.endDate = data.endDate;
     student.startLesson = data.startLesson;
     student.bottleSend = data.bottleSend;
@@ -552,7 +554,9 @@ export class StudentService {
     student.plastName = data.plastName;
     student.comments = data.comments;
     student.incentive = data.incentive;
-    student.classesStartDate = data.classesStartDate;
+    student.classesStartDate = data.classesStartDate
+      ? data.classesStartDate.split("T")[0]
+      : data.classesStartDate;
     student.classesPurchase = data.classesPurchase;
     student.classesAttended = data.classesAttended;
     student.classesMissed = data.classesMissed;
@@ -716,7 +720,7 @@ export class StudentService {
     student.pfirstName = element.pfirstName;
     student.plastName = element.plastName;
     student.comments = element.comments;
-    student.classesStartDate = element.classesStartDate;
+    student.classesStartDate = element.classesStartDate ? element.classesStartDate.split("T")[0] : "";
     student.incentive = element.incentive;
     student.classesPurchase = element.classesPurchase;
     student.classesAttended = element.classesAttended;
