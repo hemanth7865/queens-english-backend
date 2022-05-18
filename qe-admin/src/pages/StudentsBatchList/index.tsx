@@ -1070,21 +1070,8 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
 
-                      {<Col span={12}>
-                        <Form.Item name="status">
-                          {console.log('tempDataView.status')}
-                          {console.log(tempDataView.status)}
-                          <Select
-                            placeholder="select status"
-                            onChange={(value) => {
-                              setstatus(value);
-                            }}
-                          >
-                            <Option value="enrolled">Enrolled</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>}
-                      <Col span={12}>
+
+                      <Col span={24}>
                         <Form.Item name="poc">
                           <Input
                             placeholder="poc"
@@ -2258,7 +2245,7 @@ const StudentsBatchList: React.FC = () => {
                           </Select>
                         </Form.Item>
                       </Col>}
-
+                      {/* 
                       {<Col span={12}>
                         <Form.Item name="status">
                           <Select
@@ -2284,9 +2271,9 @@ const StudentsBatchList: React.FC = () => {
                             <Option value="Leave">Leave</Option>
                           </Select>
                         </Form.Item>
-                      </Col>}
+                      </Col>} */}
 
-                      <Col span={12}>
+                      <Col span={24}>
                         <Form.Item name="poc">
                           <Input
                             placeholder="poc"
