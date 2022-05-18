@@ -61,7 +61,10 @@ const Batch: React.FC<BatchProps> = (props) => {
 
   //console.log('active lesson id: '+JSON.stringify(currentBatch));
 
-  async function fetchBatchList(params: {}) {
+  async function fetchBatchList(params: {
+    lessonGap
+    ?: number
+  }) {
     let fixedFilter: {
       activeLessonId?: string;
       dob?: Date;
