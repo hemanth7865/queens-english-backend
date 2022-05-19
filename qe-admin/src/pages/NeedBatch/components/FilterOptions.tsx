@@ -80,11 +80,19 @@ const FilterOptions: React.FC<Props> = ({ data, setData, reload, filterTheme, cu
                     </Select>
                 </Form.Item>
             </Col>
-            <Col span={inputSpanSmall}>
-                <Form.Item name="age" >
-                    <Input disabled placeholder={"Age"} />
-                </Form.Item>
-            </Col>
+            {age == null && String(age).length > 0 ? (
+                <Col span={inputSpanSmall}>
+                    <Form.Item name="age" >
+                        <Input disabled placeholder={"Age"} />
+                    </Form.Item>
+                </Col>
+            ) : (
+                <Col span={inputSpanSmall}>
+                    <Form.Item name="age" >
+                        <Input prefix="Age :" disabled placeholder={"Age"} />
+                    </Form.Item>
+                </Col>
+            )}
             <Col span={inputSpanSmall}>
                 <Form.Item name="startDate">
                     <Input
