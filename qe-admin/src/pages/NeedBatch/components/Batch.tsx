@@ -16,7 +16,7 @@ import Teachers from "./Teachers";
 import { LESSONS } from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from './FilterOptions';
-import { BatchValues } from '../../../components/ConstantValues/BatchConstantValues';
+import { BatchValues } from '../../../components/Constants/constants';
 
 const { TabPane } = Tabs;
 
