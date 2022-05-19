@@ -824,10 +824,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {!props.salesAlert ? (
+        {!props.salesAlert && props.tempData.status != 'onboarding' ? (
           <Col span={12}>
             <Form.Item
-              label="Message"
+              label="Welcome Message"
               name="message"
             >
               <a
@@ -845,8 +845,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item
-              label="Message"
-              name="message"
+              label="Onboarding Message"
+              name="onboardmessage"
             >
               <a
                 onClick={() => {
