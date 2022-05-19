@@ -28,6 +28,8 @@ import { LESSONS } from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from "./FilterOptions";
 import { format } from "prettier";
+import { BatchValues } from '../../../../data/constantValues';
+
 
 const { TabPane } = Tabs;
 
@@ -58,6 +60,10 @@ const Batch: React.FC<BatchProps> = (props) => {
 
   const lesson = getLessonByNumber(startLesson);
 
+  const maxStudentNumber = BatchValues.maxStudentCount;
+
+  const minStudentNumber = BatchValues.minStudentCount;
+
 
   //console.log('active lesson id: '+JSON.stringify(currentBatch));
 
@@ -79,7 +85,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap?: number;
       classEndDate: string;
     } = {
-      maxStudentsCount: ["IELTS - 1:1", "DISE - 1:1"].includes(course) ? 1 : 7,
+      maxStudentsCount: ["IELTS - 1:1", "DISE - 1:1"].includes(course) ? minStudentNumber : maxStudentNumber,
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD"),
     };

@@ -16,6 +16,7 @@ import Teachers from "./Teachers";
 import { LESSONS } from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from './FilterOptions';
+import { BatchValues } from '../../../../data/constantValues';
 
 const { TabPane } = Tabs;
 
@@ -39,8 +40,11 @@ const Batch: React.FC<BatchProps> = (props) => {
 
   const { id, timings, startLesson, dob, courseFrequency, startDate, course } = data
 
-
   const lesson = getLessonByNumber(startLesson);
+
+  const maxStudentNumber = BatchValues.maxStudentCount;
+
+  const minStudentNumber = BatchValues.minStudentCount;
 
   async function fetchBatchList(params: {}) {
     let fixedFilter: {
@@ -56,7 +60,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap?: number,
       classEndDate: string
     } = {
-      maxStudentsCount: ["IELTS - 1:1", "DISE - 1:1"].includes(course) ? 1 : 7,
+      maxStudentsCount: ["IELTS - 1:1", "DISE - 1:1"].includes(course) ? minStudentNumber : maxStudentNumber,
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD")
     }
