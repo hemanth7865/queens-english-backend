@@ -271,12 +271,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'selectStatus') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="enrolled">Enrolled</Option>
-          <Option value="welcomecallpending">Welcome Call Pending</Option>
-          <Option value="startclasslater">Start Class Later</Option>
-          <Option value="batching">Ready to batch</Option>
-          <Option value="onboarding">Onboarding</Option>
-          <Option value="active">Active</Option>
+          <Option value="Enrolled">Enrolled</Option>
+          <Option value="Start Class Later">Start Class Later</Option>
+          <Option value="Ready To Batch">Ready to batch</Option>
+          <Option value="Onboarding">Onboarding</Option>
+          <Option value="Active">Active</Option>
         </Select>
       )
     } else if (inputType === 'selectCallStatus') {
@@ -527,10 +526,10 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('welcomecallpending' || 'enrolled', {
+      let msg = await studentsDashboard('Enrolled', {
         current,
         pageSize,
-        prm_name: prmName
+        prm: prmName
       }
       );
       if (msg.status === "ok") {
@@ -953,7 +952,7 @@ const StudentOnboard: React.FC = () => {
     console.log('formData', formData)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('welcomecallpending' || 'enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
+      let msg = await studentsDashboardFilter('Enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, prmName, formData.studentID, {
         current,
         pageSize
       }
@@ -975,7 +974,7 @@ const StudentOnboard: React.FC = () => {
 
   return (
     <>
-      <h3 style={{ textAlign: "center" }}>Enrolled students / Welcome Call</h3>
+      <h3 style={{ textAlign: "center" }}>Enrolled Students / Welcome Call</h3>
       <Spin spinning={isLoading}>
         <div style={{ paddingTop: 20, paddingLeft: 10, paddingRight: 10, background: "white", marginBottom: 10, alignContent: 'center' }}>
           {/* Form for search */}

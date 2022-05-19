@@ -412,7 +412,16 @@ const StudentsBatchList: React.FC = () => {
         />
       ),
       dataIndex: 'email',
-      //  hideInSearch: true,
+      hideInTable: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleprm"
+          defaultMessage="PRM Name"
+        />
+      ),
+      dataIndex: 'prm',
     },
     {
       title: (
@@ -442,6 +451,16 @@ const StudentsBatchList: React.FC = () => {
         />
       ),
       dataIndex: 'batchCode',
+      //hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleage"
+          defaultMessage="Age"
+        />
+      ),
+      dataIndex: 'age',
       //hideInSearch: true,
     },
     {
@@ -636,14 +655,14 @@ const StudentsBatchList: React.FC = () => {
       //countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
-      status: status,
+      status: status ? status : 'active',
       isSibling,
       studentName: formData.studentName,
       teacherName: formData.teacherName,
       mobile: formData.phoneNumber,
       batchCode: formData.batchCode,
       alternativeMobile: formData.alternativeMobile,
-      age: formData.age,
+      age: formData.age ? formData.age : moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       address: formData.address,
       classType: formData.classType,
       referralCode: formData.referralCode,
@@ -737,7 +756,7 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
-      age: formData.age ? formData.age : tempDataView.age,
+      age: formData.age ? formData.age : moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       address: formData.address ? formData.address : tempDataView.address,
       classType: formData.ClassType ? formData.ClassType : tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
@@ -972,8 +991,9 @@ const StudentsBatchList: React.FC = () => {
                           <Input
                             placeholder="Age"
                             name="age"
-                            value={formData.age}
+                            value={tempDataView.age}
                             onChange={handleFormChange}
+                            disabled
                           />
                         </Form.Item>
                       </Col>
@@ -1070,21 +1090,8 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
 
-                      {<Col span={12}>
-                        <Form.Item name="status">
-                          {console.log('tempDataView.status')}
-                          {console.log(tempDataView.status)}
-                          <Select
-                            placeholder="select status"
-                            onChange={(value) => {
-                              setstatus(value);
-                            }}
-                          >
-                            <Option value="enrolled">Enrolled</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>}
-                      <Col span={12}>
+
+                      <Col span={24}>
                         <Form.Item name="poc">
                           <Input
                             placeholder="poc"
@@ -1694,14 +1701,14 @@ const StudentsBatchList: React.FC = () => {
                     <p>Date of Birth </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.dob}</p>
+                    <p>:  {dob == '' ? tempDataView.dob : dob}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Age  </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.age}</p>
+                    <p>:  {tempDataView.age == null ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years" : tempDataView.age + " Years"}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -1715,21 +1722,21 @@ const StudentsBatchList: React.FC = () => {
                     <p>Primary Mobile Number</p>
                   </Col>
                   <Col span={11} >
-                    <p>:   {tempDataView.countryCode} + {tempDataView.phoneNumber}</p>
+                    <p>:  {tempDataView.phoneNumber}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Alternative Contact No</p>
                   </Col>
                   <Col span={11} >
-                    <p>:  {tempDataView.countryCode} + {tempDataView.alternativeMobile}</p>
+                    <p>:  {tempDataView.alternativeMobile}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>whatsapp No. </p>
                   </Col>
                   <Col span={11}>
-                    <p>:  {tempDataView.countryCode} + {tempDataView.whatsapp}</p>
+                    <p>:  {tempDataView.whatsapp}</p>
                   </Col>
 
                   <Col span={7}></Col>
@@ -1886,6 +1893,27 @@ const StudentsBatchList: React.FC = () => {
                   </Col>
                   <Col span={11}>
                     <p>:  {tempDataView.batchCode}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Zoom Info  </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>: {tempDataView.zoomInfo}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Zoom Link  </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>: <a href={tempDataView.zoomLink} target="_blank">{tempDataView.zoomLink || "NA"}</a></p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Whatsapp Link </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>: <a href={tempDataView.whatsappLink} target="_blank">{tempDataView.whatsappLink || "NA"}</a></p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -2116,8 +2144,6 @@ const StudentsBatchList: React.FC = () => {
 
                           {tempDataView.dob === null ?
                             <DatePicker
-
-
                               format="YYYY/MM/DD"
                               style={{ width: "355px" }}
                               onChange={(date, dateString) => {
@@ -2139,16 +2165,32 @@ const StudentsBatchList: React.FC = () => {
 
                         </Form.Item>
                       </Col>
-                      <Col span={12}>
-                        <Form.Item name="age">
-                          <Input
-                            placeholder="Age"
-                            name="age"
-                            defaultValue={tempDataView.age}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
+                      {tempDataView.age == null ? (
+                        <Col span={12}>
+                          <Form.Item name="age">
+                            <Input
+                              placeholder="Age"
+                              name="age"
+                              defaultValue={tempDataView.age}
+                              onChange={handleFormChange}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Col>
+                      ) : (
+                        <Col span={12}>
+                          <Form.Item name="age">
+                            <Input
+                              placeholder="Age"
+                              name="age"
+                              defaultValue={tempDataView.age + " Years"}
+                              onChange={handleFormChange}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Col>
+                      )
+                      }
                       <Col span={12}>
                         <Form.Item name="classType">
                           <Input
@@ -2259,34 +2301,7 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>}
 
-                      {<Col span={12}>
-                        <Form.Item name="status">
-                          <Select
-                            defaultValue={tempDataView.status == 'InActive'
-                              ? "InActive" : tempDataView.status == 'OnHold'
-                                ? "OnHold" : tempDataView.status == 'Leave'
-                                  ? "Leave" : tempDataView.status == 'active'
-                                    ? "Active" : tempDataView.status == 'startclasslater'
-                                      ? "Start Class Later" : tempDataView.status == 'batching'
-                                        ? "Batching" : tempDataView.status == 'onboarding'
-                                          ? "Onboarding" : "Enrolled"}
-                            onChange={(value) => {
-                              setstatus(value);
-                            }}
-                            disabled
-                          >
-                            <Option value="enrolled">Enrolled</Option>
-                            <Option value="startclasslater">Start Class Later</Option>
-                            <Option value="batching">Batching</Option>
-                            <Option value="onboarding">Onboarding</Option>
-                            <Option value="active">Active</Option>
-                            <Option value="OnHold">OnHold</Option>
-                            <Option value="Leave">Leave</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>}
-
-                      <Col span={12}>
+                      <Col span={24}>
                         <Form.Item name="poc">
                           <Input
                             placeholder="poc"
