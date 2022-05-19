@@ -914,10 +914,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               <Option value="Ready to batch">Ready to batch</Option>
               <Option value="Onboarding">Onboarding</Option>
               <Option value="Active">Active</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
+            </Select >
+          </Form.Item >
+        </Col >
+      </Row >
 
       <Form.Item
         wrapperCol={{
@@ -929,7 +929,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           Submit
         </Button>
       </Form.Item>
-    </Form>
+    </Form >
   )
 };
 

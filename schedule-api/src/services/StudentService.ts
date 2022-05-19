@@ -15,6 +15,7 @@ import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
+import { getDateOutOfDateTime } from "./../helpers/index";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -24,7 +25,6 @@ export class StudentService {
   private teacherService = new TeacherService();
   private prmRepository = getRepository(PRManager);
   private lsq_userRepository = getRepository(LSQUser);
-
 
   private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
 
@@ -42,7 +42,6 @@ export class StudentService {
   }
 
   async listStudentDetails(data: any, parameters: any) {
-
     var results: any[] = [];
     var leadView: LeadView[] = [];
     var map = new Map();
@@ -65,9 +64,10 @@ export class StudentService {
 
     const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
-
       query_list.push(
-        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ''}) `
+        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${
+          parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ""
+        }) `
       );
     }
     const mobile = parameters.phoneNumber;
@@ -80,11 +80,10 @@ export class StudentService {
       query_list.push(` u.email  like '%${email}%' `);
     }
 
-
     const type = parameters.type;
     var status = parameters.status;
     if (status) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_list.push(` u.status like '${status}' `);
     }
 
@@ -112,9 +111,8 @@ export class StudentService {
       for (let element of ids) {
         StudentIds.push(element.id);
       }
-
     }
-    console.log('Student ids', StudentIds);
+    console.log("Student ids", StudentIds);
     const keyword = parameters.keyword;
     let query_search: string;
     if (!!keyword?.length) {
@@ -149,27 +147,24 @@ export class StudentService {
       }
     });
 
-
     if (query_string) {
       query_string = " where " + query_string;
     }
 
-
-
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
-    let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${
+      limit >= 0 ? limit : 20
+    } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
+    let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
 
     console.log(`query string ${query_list}`);
 
-    console.log('Final query executing ', finalQuery);
-
+    console.log("Final query executing ", finalQuery);
 
     results = await getManager().query(finalQuery);
     var total = await getManager().query(totalQuery);
     console.log("results size", results.length);
 
     for (const element of results) {
-
       let slotsResult: any[] = [];
       let batchCodes: any[] = [];
       let payment: string;
@@ -181,9 +176,9 @@ export class StudentService {
       var zoomInfoBatch = [];
       var batchesHistory = [];
       var whatsappLinkBatch = [];
-      var batchCode = '';
+      var batchCode = "";
 
-      if (type == 'student') {
+      if (type == "student") {
         var quer =
           "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
@@ -198,7 +193,9 @@ export class StudentService {
           whatsappLinkBatch.push(element.whatsappLink);
         });
 
-        batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", element.id));
+        batchesHistory = await getManager().query(
+          this.BATCHES_HISTORY_QUERY.replace(":studentId", element.id)
+        );
 
         var paymentQuer =
           "select * from payment where id = '" + element.id + "';";
@@ -207,9 +204,11 @@ export class StudentService {
         console.log(`PRM id is ${element.prm_id}`);
 
         prm_info = await this.prmRepository.findOne(element.prm_id);
-        lsq_user_info = await this.lsq_userRepository.findOne(element.salesowner);
+        lsq_user_info = await this.lsq_userRepository.findOne(
+          element.salesowner
+        );
 
-        console.log('lsq', lsq_user_info, element.salesowner)
+        console.log("lsq", lsq_user_info, element.salesowner);
       }
 
       if (element.dob) {
@@ -223,7 +222,11 @@ export class StudentService {
       }
 
       if (!element.isSibling) {
-        element.isSibling = await this.usersRepository.findOne({ where: { isSibling: 1, phoneNumber: element.phoneNumber } }) ? 1 : 0;
+        element.isSibling = (await this.usersRepository.findOne({
+          where: { isSibling: 1, phoneNumber: element.phoneNumber },
+        }))
+          ? 1
+          : 0;
       }
 
       var l = new LeadView(
@@ -237,18 +240,18 @@ export class StudentService {
         element.status,
         0,
         element.ratings,
-        '',
+        "",
         element.leadtype,
         element.type,
         studentOrTeacherId.join(","),
         element.studentID,
-        element.dob ? element.dob.toISOString().split('T')[0] : '',
+        element.dob ? element.dob.toISOString().split("T")[0] : "",
         element.whatsapp,
         element.address,
         element.classType,
         payment,
         element.age,
-        element.startDate ? element.startDate.toISOString().split('T')[0] : '',
+        element.startDate ? element.startDate.toISOString().split("T")[0] : "",
         element.startLesson,
         element.pfirstName,
         element.plastName,
@@ -262,7 +265,9 @@ export class StudentService {
         element.days,
         element.studentType,
         element.firstFeedback,
-        element.classesStartDate ? element.classesStartDate.toISOString().split('T')[0] : '',
+        element.classesStartDate
+          ? element.classesStartDate.toISOString().split("T")[0]
+          : "",
         element.callStatus,
         element.callBackon,
         element.bdaName,
@@ -274,17 +279,19 @@ export class StudentService {
         element.state,
         zoomLinkBatch.join(","),
         zoomInfoBatch.join(","),
-        prm_info ? prm_info.id : '',
-        prm_info ? prm_info.firstName : '',
-        prm_info ? prm_info.lastName : '',
+        prm_info ? prm_info.id : "",
+        prm_info ? prm_info.firstName : "",
+        prm_info ? prm_info.lastName : "",
         element.salestatus,
         element.salesowner,
-        prm_info ? `${prm_info.firstName} ${prm_info.lastName}` : '',
+        prm_info ? `${prm_info.firstName} ${prm_info.lastName}` : "",
         element.waMessageSent,
         element.salesDataFilled,
-        lsq_user_info ? lsq_user_info.ID : '',
-        lsq_user_info ? `${lsq_user_info.FirstName} ${lsq_user_info.LastName}` : '',
-        whatsappLinkBatch.join(","),
+        lsq_user_info ? lsq_user_info.ID : "",
+        lsq_user_info
+          ? `${lsq_user_info.FirstName} ${lsq_user_info.LastName}`
+          : "",
+        whatsappLinkBatch.join(",")
       );
       l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;
@@ -298,14 +305,11 @@ export class StudentService {
       current: current,
       pageSize: limit,
     };
-
-
-
   }
 
   async saveStudentDetails(data: any) {
     let response;
-    usersLogger.info('Start::UserController::Register Student');
+    usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
@@ -322,13 +326,17 @@ export class StudentService {
       },
     };
 
-    usersLogger.info(`Start - Reqeust to cosmos DB : ${JSON.stringify(options)}`);
+    usersLogger.info(
+      `Start - Reqeust to cosmos DB : ${JSON.stringify(options)}`
+    );
     try {
       if (data.id) {
         usersLogger.info("Update Request");
         usersLogger.info(data.id);
         options.body["id"] = data.id;
-        usersLogger.info(`Start - Reqeust to cosmos DB1 : ${JSON.stringify(options)}`);
+        usersLogger.info(
+          `Start - Reqeust to cosmos DB1 : ${JSON.stringify(options)}`
+        );
       }
 
       await queryRunner.connect();
@@ -356,10 +364,11 @@ export class StudentService {
               );
               return user;
             }
-
           })
           .catch((error) => {
-            usersLogger.info(`Error while updating student : ${error.response.data}`);
+            usersLogger.info(
+              `Error while updating student : ${error.response.data}`
+            );
             return { status: 400, data: error.response.data };
           });
       } else {
@@ -367,7 +376,7 @@ export class StudentService {
         response = await axios
           .put(options.url, options.body)
           .then(async (res) => {
-            usersLogger.info("Successfully updated user record in cosomos DB")
+            usersLogger.info("Successfully updated user record in cosomos DB");
             // console.log("Posted to cosmos and response is ", res);
             usersLogger.info("Id created in cosmos is ", res.data.id);
             usersLogger.info("Creating data in sql database ", res.data.id);
@@ -378,7 +387,10 @@ export class StudentService {
           })
           .catch((error) => {
             console.log("error", error);
-            response = { status: error.response.status, errors: [error.response.data] };
+            response = {
+              status: error.response.status,
+              errors: [error.response.data],
+            };
             return response;
           });
       }
@@ -392,10 +404,14 @@ export class StudentService {
     }
   }
 
-  async isStudentExist(column = "alternativeMobile", value: string, id: string | undefined): Promise<any> {
+  async isStudentExist(
+    column = "alternativeMobile",
+    value: string,
+    id: string | undefined
+  ): Promise<any> {
     let where: any = { [column]: value };
     if (id) {
-      where['id'] = Not(id);
+      where["id"] = Not(id);
     }
     try {
       const user = await this.studentRepository.findOne({ where });
@@ -431,7 +447,7 @@ export class StudentService {
           `Success Update user status in Admin portal with phoneNumber : ${data?.phoneNumber}`
         );
         return { status: 200, data: user };
-      }else{
+      } else {
         usersLogger.info(
           `Failed To Update user status in Admin portal with phoneNumber, missing status or id : ${data?.phoneNumber}`
         );
@@ -463,12 +479,8 @@ export class StudentService {
 
     if (data.id) {
       user.id = data.id;
-      usersLogger.info(
-        `Userid : ${data.id}`
-      );
-      usersLogger.info(
-        `id : ${data.id}`
-      );
+      usersLogger.info(`Userid : ${data.id}`);
+      usersLogger.info(`id : ${data.id}`);
     } else {
       user.id = id;
     }
@@ -521,7 +533,9 @@ export class StudentService {
         payment.emiMonths = element.emiMonths;
         payment.paymentMode = element.paymentMode;
         payment.dateofsale = element.dateofsale;
-        payment.no_of_delayed_payments = element.no_of_delayed_payments ? element.no_of_delayed_payments : 0;
+        payment.no_of_delayed_payments = element.no_of_delayed_payments
+          ? element.no_of_delayed_payments
+          : 0;
         payments.push(payment);
       }
     }
@@ -541,7 +555,7 @@ export class StudentService {
     student.days = data.days;
     student.alternativeMobile = data.alternativeMobile;
 
-    student.startDate = data.startDate;
+    student.startDate = getDateOutOfDateTime(data.startDate);
     student.endDate = data.endDate;
     student.startLesson = data.startLesson;
     student.bottleSend = data.bottleSend;
@@ -556,7 +570,7 @@ export class StudentService {
     student.plastName = data.plastName;
     student.comments = data.comments;
     student.incentive = data.incentive;
-    student.classesStartDate = data.classesStartDate;
+    student.classesStartDate = getDateOutOfDateTime(data.classesStartDate);
     student.classesPurchase = data.classesPurchase;
     student.classesAttended = data.classesAttended;
     student.classesMissed = data.classesMissed;
@@ -579,7 +593,8 @@ export class StudentService {
     student.lsq_users_ID = data.lsq_users_ID;
     student.waMessageSent = data.waMessageSent;
     student.salesDataFilled = data.salesDataFilled;
-    student.assesmentDate = data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
+    student.assesmentDate =
+      data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
 
     if (create) {
       const lqsClient = new LQSService();
@@ -638,7 +653,9 @@ export class StudentService {
       for (let element of payments) {
         const payment = await this.paymentRepository.save(element);
         user.payment = [payment];
-        usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+        usersLogger.info(
+          `Successfully updated payment  ${JSON.stringify(payment)}`
+        );
       }
 
       student = await this.studentRepository.save(student);
@@ -662,10 +679,9 @@ export class StudentService {
       return { ...user };
     } catch (error) {
       console.log(error);
-      return { status: 500, error: "Unable to register student" }
+      return { status: 500, error: "Unable to register student" };
     }
   }
-
 
   async saveStudentPaymentSQL(payments: Payment[]) {
     try {
@@ -673,12 +689,14 @@ export class StudentService {
       for (let element of payments) {
         const payment = await this.paymentRepository.save(element);
         returnPayments.push(payment);
-        usersLogger.info(`Successfully updated payment  ${JSON.stringify(payment)}`);
+        usersLogger.info(
+          `Successfully updated payment  ${JSON.stringify(payment)}`
+        );
       }
       return { payments: returnPayments };
     } catch (error) {
       console.log(error);
-      return { status: 500, error: "Unable to save student payment" }
+      return { status: 500, error: "Unable to save student payment" };
     }
   }
 
@@ -720,7 +738,7 @@ export class StudentService {
     student.pfirstName = element.pfirstName;
     student.plastName = element.plastName;
     student.comments = element.comments;
-    student.classesStartDate = element.classesStartDate;
+    student.classesStartDate = getDateOutOfDateTime(element.classesStartDate);
     student.incentive = element.incentive;
     student.classesPurchase = element.classesPurchase;
     student.classesAttended = element.classesAttended;
@@ -747,15 +765,11 @@ export class StudentService {
 
     usersLogger.info("student record updating is ", student);
     return student;
-  }
-
+  };
 
   async getStudentDetailsById(id: string) {
     return this.fetchStudentFilterData(id);
-
   }
-
-
 
   fetchStudentFilterData = async (id: string) => {
     usersLogger.info(`Fetch Student details from oracle with ${id}`);
@@ -769,7 +783,6 @@ export class StudentService {
       .createQueryBuilder(Student, "student")
       .where("student.id = :id", { id: id })
       .getOne();
-
 
     var payment = await getManager()
       .createQueryBuilder(Payment, "payment")
@@ -809,11 +822,16 @@ export class StudentService {
     }
 
     if (!response.isSibling) {
-      response.isSibling = await this.usersRepository.findOne({ where: { isSibling: 1, phoneNumber: response.phoneNumber } }) ? true : false;
+      response.isSibling = (await this.usersRepository.findOne({
+        where: { isSibling: 1, phoneNumber: response.phoneNumber },
+      }))
+        ? true
+        : false;
     }
 
-
-    usersLogger.info(`Fetch Student details from oracle with ${id} and response ${response}`);
+    usersLogger.info(
+      `Fetch Student details from oracle with ${id} and response ${response}`
+    );
     return {
       success: true,
       data: response,
@@ -823,13 +841,11 @@ export class StudentService {
     };
   };
 
-
   async getStudentDetails(data: any, parameters: any) {
-
     var offset = parameters.current == 1 ? 0 : parameters.current;
     var limit = parameters.pageSize;
 
-    let query_list = []//getFilterStudentQuery(parameters);
+    let query_list = []; //getFilterStudentQuery(parameters);
     var unique = [-1];
     console.log(`query string ${query_list}`);
 
@@ -840,7 +856,13 @@ export class StudentService {
 
     console.log("value sis ", condition);
 
-    var finalQuery = this.QUERY_FILTER + `${condition} limit ` + offset * limit + "," + limit + `;`;
+    var finalQuery =
+      this.QUERY_FILTER +
+      `${condition} limit ` +
+      offset * limit +
+      "," +
+      limit +
+      `;`;
 
     console.log("finalQuery", finalQuery);
     var results = await getManager().query(finalQuery);
@@ -871,9 +893,13 @@ export class StudentService {
 
     for (let i = 0; i < results.length; i++) {
       let batch = results[i];
-      const data = await getManager().query(`SELECT * from user WHERE id='${batch.teacherId}'`);
+      const data = await getManager().query(
+        `SELECT * from user WHERE id='${batch.teacherId}'`
+      );
       batch.teacher = data[0];
-      batch.students = await getManager().query(`SELECT * from batch_students WHERE batchId='${batch.id}'`);
+      batch.students = await getManager().query(
+        `SELECT * from batch_students WHERE batchId='${batch.id}'`
+      );
       results[i] = batch;
     }
 
@@ -885,38 +911,53 @@ export class StudentService {
 
   async updateStudentsCSV(data: any, query: { test: false }) {
     const moment = require("moment");
-    const formatDate = (date: any) => moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
+    const formatDate = (date: any) =>
+      moment(date, "DD-MM-YYYY").format("YYYY-MM-DD");
     let result = {
-      "updated": 0,
-      "notFound": 0,
-      "errors": 0,
-      "duplicated": 0,
-      "duplicatedRecords": {},
-      "duplicatedRecordsIDs": [],
-      "notFoundRecordsIDs": [],
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      duplicated: 0,
+      duplicatedRecords: {},
+      duplicatedRecordsIDs: [],
+      notFoundRecordsIDs: [],
     };
 
     for (let d of data) {
       try {
-        if (!d["Registered Mobile Number"] || d["Registered Mobile Number"].length < 4) {
+        if (
+          !d["Registered Mobile Number"] ||
+          d["Registered Mobile Number"].length < 4
+        ) {
           if (!d["Student ID"] || d["Student ID"].length < 4) {
             continue;
           }
           d["Registered Mobile Number"] = "NOT_FOUND";
         }
 
-        let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`);
+        let users = await getManager().query(
+          `SELECT * FROM user WHERE phoneNumber LIKE '%${d["Registered Mobile Number"]}%'`
+        );
 
         if (users.length < 1) {
-          let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
+          let students = await getManager().query(
+            `SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`
+          );
           if (students.length > 0) {
-            users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'" + i.id + "'").join(",")})`);
+            users = await getManager().query(
+              `SELECT * FROM user WHERE id IN (${students
+                .map((i) => "'" + i.id + "'")
+                .join(",")})`
+            );
           }
         }
 
         if (users.length < 1) {
           result.notFound++;
-          result["notFoundRecordsIDs"].push({ phoneNumber: d["Registered Mobile Number"], id: d['Student ID'] });
+          result["notFoundRecordsIDs"].push({
+            phoneNumber: d["Registered Mobile Number"],
+            id: d["Student ID"],
+          });
           continue;
         }
 
@@ -929,10 +970,10 @@ export class StudentService {
 
             let ids = await getManager().query(bathCodeQuery);
 
-            ids = ids.map(i => {
+            ids = ids.map((i) => {
               i.user = user;
               return i;
-            })
+            });
             if (ids.length > 0) {
               tmpUsers.push(user);
             }
@@ -943,9 +984,15 @@ export class StudentService {
           }
 
           if (users.length > 1) {
-            let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
+            let students = await getManager().query(
+              `SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`
+            );
             if (students.length > 0) {
-              users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'" + i.id + "'").join(",")})`);
+              users = await getManager().query(
+                `SELECT * FROM user WHERE id IN (${students
+                  .map((i) => "'" + i.id + "'")
+                  .join(",")})`
+              );
             }
           }
         }
@@ -954,7 +1001,11 @@ export class StudentService {
           result.duplicated++;
           result["duplicatedRecords"][d["Registered Mobile Number"]] = users;
           for (let user of users) {
-            result["duplicatedRecordsIDs"].push({ phoneNumber: d["Registered Mobile Number"], studentID: user.id, id: d['Student ID'] });
+            result["duplicatedRecordsIDs"].push({
+              phoneNumber: d["Registered Mobile Number"],
+              studentID: user.id,
+              id: d["Student ID"],
+            });
           }
           continue;
         }
@@ -968,7 +1019,10 @@ export class StudentService {
 
         if (!student) {
           result.notFound++;
-          result["notFoundRecordsIDs"].push({ phoneNumber: d["Registered Mobile Number"], id: d['Student ID'] });
+          result["notFoundRecordsIDs"].push({
+            phoneNumber: d["Registered Mobile Number"],
+            id: d["Student ID"],
+          });
           continue;
         }
 
@@ -976,7 +1030,8 @@ export class StudentService {
         student.payment.id = user.id;
         student.payment.studentId = user.id;
         student.payment.dateofsale = formatDate(d["Date of Sale"]);
-        student.payment.classessold = parseInt(d["Number of classes sold"]) || 0;
+        student.payment.classessold =
+          parseInt(d["Number of classes sold"]) || 0;
         student.payment.saleamount = d["Total Sale Amount (INR)"];
         student.payment.downpayment = parseInt(d["Down payment (INR)"]) || 0;
         student.payment.emi = d["EMI Amount (INR)"];
@@ -1006,7 +1061,10 @@ export class StudentService {
     return result;
   }
 
-  async updateStudentsCSVV2(data: any, query: { test: boolean, clear: boolean } = { test: false, clear: false }) {
+  async updateStudentsCSVV2(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
     const moment = require("moment");
     const formatDate = (date: any, format = "DD/MM/YYYY") => {
       const result = moment(date, format).format("YYYY-MM-DD");
@@ -1014,15 +1072,15 @@ export class StudentService {
     };
     const primaryColumn = "Contact No.";
     let result: any = {
-      "updated": 0,
-      "notFound": 0,
-      "errors": 0,
-      "duplicated": 0,
-      "PRMs": 0,
-      "notFoundPRMs": [],
-      "duplicatedRecords": {},
-      "duplicatedRecordsIDs": [],
-      "notFoundRecordsIDs": [],
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      duplicated: 0,
+      PRMs: 0,
+      notFoundPRMs: [],
+      duplicatedRecords: {},
+      duplicatedRecordsIDs: [],
+      notFoundRecordsIDs: [],
     };
 
     const allowedReq = {
@@ -1039,12 +1097,12 @@ export class StudentService {
       "T-Th-S": "TTS",
       "Saturday,Sunday": "SS",
       "Sa - S": "SS",
-      "TTS": "TTS",
+      TTS: "TTS",
       "Monday,Wednesday,Thursday": "MWT",
       "Wednesday,Saturday,Sunday": "WSS",
       "Sunday,Monday,Tuesday,Wednesday,Thursday": "SMTWT",
       "M-F": "MF",
-      "MWF": "MWF",
+      MWF: "MWF",
       "Monday,Tuesday,Wednesday": "MTW",
       "20bf1398-2adf-4490-af04-c809c2d355d8": undefined,
       "M-T-W-T-F": "MTWTF",
@@ -1080,8 +1138,8 @@ export class StudentService {
       "TTS (Course duration - 8 Months)": "TTS",
       "TTS (Course duration - 24 Months)": "TTS",
       "SS (Course duration - 14 Months)": "SS",
-      "MTWTF (Course duration - 5 Months)": "MTWTF"
-    }
+      "MTWTF (Course duration - 5 Months)": "MTWTF",
+    };
 
     const courseMap = {
       "Group classes": "DISE - Group Class",
@@ -1091,12 +1149,12 @@ export class StudentService {
       "DISE - 1:1": "DISE - 1:1",
       "DISE - Group Class": "DISE - Group Class",
       "1 - DISE - Group Class": "DISE - 1:1",
-      "": undefined
+      "": undefined,
     };
 
     const allowedStatuses = {
-      "Active": "active",
-      "Inactive": undefined,
+      Active: "active",
+      Inactive: undefined,
       "On Leave": "onleave",
       "Batching pending": "batching",
       "Create a batch": "createBatch",
@@ -1106,7 +1164,7 @@ export class StudentService {
       "DNP 1": undefined,
       "Placement Test pending": "Enrolled",
       "": undefined,
-      "Refund": undefined,
+      Refund: undefined,
       "First class pending": undefined,
       "Welcome call pending": "Enrolled",
     };
@@ -1127,11 +1185,19 @@ export class StudentService {
             d[primaryColumn] = "NOT_FOUND";
           }
 
-          let alternativeMobileSearch = d["WA contact number"] && d["WA contact number"].length > 4 ? ` OR phoneNumber LIKE '%${d["WA contact number"]}%' ` : '';
+          let alternativeMobileSearch =
+            d["WA contact number"] && d["WA contact number"].length > 4
+              ? ` OR phoneNumber LIKE '%${d["WA contact number"]}%' `
+              : "";
 
-          d[primaryColumn] = d[primaryColumn].replace(/ /g, "").replace(/\(/g, "").replace(/\)/g, "");
+          d[primaryColumn] = d[primaryColumn]
+            .replace(/ /g, "")
+            .replace(/\(/g, "")
+            .replace(/\)/g, "");
 
-          let users = await getManager().query(`SELECT * FROM user WHERE phoneNumber LIKE '%${d[primaryColumn]}%'${alternativeMobileSearch}`);
+          let users = await getManager().query(
+            `SELECT * FROM user WHERE phoneNumber LIKE '%${d[primaryColumn]}%'${alternativeMobileSearch}`
+          );
 
           if (users.length > 1) {
             users = await getManager()
@@ -1142,14 +1208,14 @@ export class StudentService {
             for (let user of users) {
               let bathCodeQuery = `SELECT u.id, cl.batchNumber, u.phoneNumber, u.firstName FROM user u LEFT JOIN batch_students bs on bs.studentId = u.id
               LEFT JOIN classes cl on cl.id = bs.batchId
-              where cl.batchNumber = '${d['Batch Code']}' AND u.id = "${user.id}"`;
+              where cl.batchNumber = '${d["Batch Code"]}' AND u.id = "${user.id}"`;
 
               let ids = await getManager().query(bathCodeQuery);
 
-              ids = ids.map(i => {
+              ids = ids.map((i) => {
                 i.user = user;
                 return i;
-              })
+              });
               if (ids.length > 0) {
                 tmpUsers.push(user);
               }
@@ -1160,16 +1226,25 @@ export class StudentService {
             }
 
             if (users.length > 1) {
-              let students = await getManager().query(`SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`);
+              let students = await getManager().query(
+                `SELECT * FROM student WHERE studentID = '${d["Student ID"]}'`
+              );
               if (students.length > 0) {
-                users = await getManager().query(`SELECT * FROM user WHERE id IN (${students.map(i => "'" + i.id + "'").join(",")})`);
+                users = await getManager().query(
+                  `SELECT * FROM user WHERE id IN (${students
+                    .map((i) => "'" + i.id + "'")
+                    .join(",")})`
+                );
               }
             }
           }
 
           if (users.length < 1) {
             result.notFound++;
-            result["notFoundRecordsIDs"].push({ phoneNumber: d[primaryColumn], id: d['Student ID'] });
+            result["notFoundRecordsIDs"].push({
+              phoneNumber: d[primaryColumn],
+              id: d["Student ID"],
+            });
             continue;
           }
 
@@ -1177,7 +1252,11 @@ export class StudentService {
             result.duplicated++;
             result["duplicatedRecords"][d[primaryColumn]] = users;
             for (let user of users) {
-              result["duplicatedRecordsIDs"].push({ phoneNumber: d[primaryColumn], studentID: user.id, id: d['Student ID'] });
+              result["duplicatedRecordsIDs"].push({
+                phoneNumber: d[primaryColumn],
+                studentID: user.id,
+                id: d["Student ID"],
+              });
             }
             continue;
           }
@@ -1190,16 +1269,16 @@ export class StudentService {
             .getOne();
 
           if (!student) {
-            student = new Student;
+            student = new Student();
             student.id = user.id;
           }
 
-          let prmQuery = `SELECT * from prm where firstName='${d['PRM']}'`;
+          let prmQuery = `SELECT * from prm where firstName='${d["PRM"]}'`;
 
           let prm = await getManager().query(prmQuery);
           prm = prm[0];
 
-          student.prm_id = prm?.id
+          student.prm_id = prm?.id;
 
           if (prm?.id) {
             result.PRMs++;
@@ -1207,15 +1286,21 @@ export class StudentService {
             /**
              * Pick Random PRM To Take Place Missing: Sukhmanjeet
              */
-            if (d['PRM'] === "Sukhmanjeet") {
+            if (d["PRM"] === "Sukhmanjeet") {
               const lqsClient = new LQSService();
-              student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
+              student.prm_id = await (
+                await lqsClient.getPRMsAvailability()
+              )[0].id;
             } else {
-              result.notFoundPRMs.push({ prm: d['PRM'], id: d['Student ID'], phoneNumber: d[primaryColumn] });
+              result.notFoundPRMs.push({
+                prm: d["PRM"],
+                id: d["Student ID"],
+                phoneNumber: d[primaryColumn],
+              });
             }
           }
 
-          student.age = d["Age"]
+          student.age = d["Age"];
           student.studentID = d["Student ID"];
           student.courseFrequency = allowedReq[d["Days"]];
           user.whatsapp = d["WA contact number"];
@@ -1227,28 +1312,43 @@ export class StudentService {
           student.callStatus = d["Call Status"];
           student.callBackon = d["Call Back on"];
           student.startDate = formatDate(d["Start Date"], "DD MM YYYY");
-          student.classesStartDate = formatDate(d["Batch Start date"], "DD/MM/YYYY");
+          student.classesStartDate = formatDate(
+            d["Batch Start date"],
+            "DD/MM/YYYY"
+          );
           student.classesPurchase = d["No of Classes"];
           student.address = d["Address"];
           student.status = allowedStatuses[d["Status"]];
-          student.startLesson = d["Start Lesson"] && d["Start Lesson"].length > 0 ? "lesson " + d["Start Lesson"].split(" ")[d["Start Lesson"].split(" ").length - 1] : undefined;
+          student.startLesson =
+            d["Start Lesson"] && d["Start Lesson"].length > 0
+              ? "lesson " +
+                d["Start Lesson"].split(" ")[
+                  d["Start Lesson"].split(" ").length - 1
+                ]
+              : undefined;
           user.status = allowedStatuses[d["Status"]];
 
           let classesQuery = `SELECT cl.id, cl.batchNumber, cl.startingLessonId FROM classes cl LEFT JOIN batch_students bs on bs.studentId = "${user.id}"
-          where cl.batchNumber = '${d['Batch Code']}' AND bs.studentId = "${user.id}"`;
+          where cl.batchNumber = '${d["Batch Code"]}' AND bs.studentId = "${user.id}"`;
 
           let classes = await getManager().query(classesQuery);
 
           classes = classes[0];
 
           if (classes?.startingLessonId) {
-            let lessonNumber = LESSONS.filter(i => i.id === classes.startingLessonId)[0];
+            let lessonNumber = LESSONS.filter(
+              (i) => i.id === classes.startingLessonId
+            )[0];
             if (lessonNumber) {
               student.startLesson = `lesson ${lessonNumber.number}`;
             }
           }
 
-          const resultData = { ...student, ...user, startDate: student.startDate };
+          const resultData = {
+            ...student,
+            ...user,
+            startDate: student.startDate,
+          };
 
           if (!query.test) {
             await this.saveStudentSQL(resultData, user.id);

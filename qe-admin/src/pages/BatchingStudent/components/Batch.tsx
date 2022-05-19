@@ -28,6 +28,8 @@ import { LESSONS } from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from "./FilterOptions";
 import { format } from "prettier";
+import { BatchValues } from '../../../../data/constantValues';
+
 
 const { TabPane } = Tabs;
 
@@ -58,9 +60,17 @@ const Batch: React.FC<BatchProps> = (props) => {
 
   const lesson = getLessonByNumber(startLesson);
 
+  const maxStudentNumber = BatchValues.maxStudentCount;
+
+  const minStudentNumber = BatchValues.minStudentCount;
+
+
   //console.log('active lesson id: '+JSON.stringify(currentBatch));
 
-  async function fetchBatchList(params: {}) {
+  async function fetchBatchList(params: {
+    lessonGap
+    ?: number
+  }) {
     let fixedFilter: {
       activeLessonId?: string;
       dob?: Date;
@@ -75,7 +85,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       lessonGap?: number;
       classEndDate: string;
     } = {
-      maxStudentsCount: 6,
+      maxStudentsCount: ["IELTS - 1:1", "DISE - 1:1"].includes(course) ? minStudentNumber : maxStudentNumber,
       lessonGap: 10,
       classEndDate: moment().format("YYYY-MM-DD"),
     };
@@ -114,6 +124,10 @@ const Batch: React.FC<BatchProps> = (props) => {
 
     if (rebatching) {
       fixedFilter.excludeCurrentBatchId = currentBatch?.id;
+    }
+
+    if (!params.lessonGap) {
+      params.lessonGap = 10
     }
 
     return listBatch({
@@ -405,6 +419,31 @@ const Batch: React.FC<BatchProps> = (props) => {
         }
         return "... - ...";
       },
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleAgeGroup"
+          defaultMessage="AgeGroup"
+        />
+      ),
+      render: (value: any) => {
+        return `${value.minAge ? value.minAge : ''}-${value.maxAge ? value.maxAge : ''}`
+      },
+      valueType: "textarea",
+      hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleLessonGap"
+          defaultMessage="Lesson Gap"
+        />
+      ),
+      dataIndex: "lessonGap",
+      valueType: "textarea",
+      hideInTable: true,
+      initialValue: 10,
     },
     {
       title: "Select",
