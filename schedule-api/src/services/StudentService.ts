@@ -60,7 +60,7 @@ export class StudentService {
     let query_list = [];
     let query_string = "";
 
-    let prm_name = parameters.prm_name;
+    let prm = parameters.prm;
 
     const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
@@ -96,6 +96,10 @@ export class StudentService {
       query_list.push(` s.studentID like '%${parameters.studentID}%'  `);
     }
 
+    if (parameters.id) {
+      query_list.push(` u.id like '%${parameters.id}%'  `);
+    }
+
     var StudentIds = [];
 
     if (parameters.batchCode) {
@@ -128,10 +132,9 @@ export class StudentService {
     let innerJoinPRM: string = "";
     let PRMSelect: string = "";
     let PRMHaving: string = ``;
-    if (prm_name) {
-      PRMHaving = ` HAVING prm_full_name LIKE '%${prm_name}%'`;
-      PRMSelect =
-        ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
+    if (prm) {
+      PRMHaving = ` HAVING prm_full_name LIKE '%${prm}%'`;
+      PRMSelect = ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
       innerJoinPRM = "INNER JOIN prm ON prm.id = s.prm_id";
     }
 
@@ -794,21 +797,29 @@ export class StudentService {
     var studentOrTeacherId = [];
     var batchCodes = await getManager().query(quer);
     batchCodes.forEach((element) => {
-      console.log("batchdode", element);
       studentOrTeacherId.push(element.batchId);
     });
 
-    let batchesHistory = await getManager().query(
-      this.BATCHES_HISTORY_QUERY.replace(":studentId", id)
-    );
+    var querZoom =
+          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
+          id +
+          "');";
+    var zoomInfoDetails = [];
+    var zoomLinkDetails = [];
+    var whatsappLinkDetails = [];
+    var batchDetails = await getManager().query(querZoom);
+    batchDetails.forEach((element) => {
+      zoomInfoDetails.push(element.zoomInfo);
+      zoomLinkDetails.push(element.zoomLink);
+      whatsappLinkDetails.push(element.whatsappLink)
+    });
+    console.log("batchdode", zoomInfoDetails);
+
+    let batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", id));
 
     const response = {
-      ...users,
-      ...student,
-      batchCode: studentOrTeacherId.join(","),
-      batchesHistory,
-      ...payment,
-    };
+      ...users, ...student, batchCode: studentOrTeacherId.join(","), zoomInfo: zoomInfoDetails.join(","), zoomLink: zoomLinkDetails.join(","), whatsappLink: whatsappLinkDetails.join(","), batchesHistory, ...payment
+    }
 
     if (!response.isSibling) {
       response.isSibling = (await this.usersRepository.findOne({

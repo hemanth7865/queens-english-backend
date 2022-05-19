@@ -391,6 +391,16 @@ const Batch: React.FC<BatchProps> = (props) => {
     {
       title: (
         <FormattedMessage
+          id="pages.searchTable.age"
+          defaultMessage="Age"
+        />
+      ),
+      dataIndex: "age",
+      valueType: "textarea",
+    },
+    {
+      title: (
+        <FormattedMessage
           id="pages.searchTable.titleTimeSlot"
           defaultMessage="Time Slot"
         />

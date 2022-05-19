@@ -150,7 +150,11 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           students: studnets,
-          activeLessonId: data.activeLessonId
+          activeLessonId: data.activeLessonId,
+          frequency: data.frequency,
+          zoomLink: data.zoomLink,
+          zoomInfo: data.zoomInfo,
+          whatsappLink: data.whatsappLink
         },
       };
 
@@ -403,11 +407,11 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
+      classes.activeLessonId = data.activeLessonId;
       classes.frequency = data.frequency;
       classes.zoomLink = data.zoomLink;
-      classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
-      classes.activeLessonId = data.activeLessonId;
+      classes.zoomInfo = data.zoomInfo;
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
