@@ -16,7 +16,7 @@ import Teachers from "./Teachers";
 import { LESSONS } from "../../../../config/lessons";
 import moment from "moment";
 import FilterOptions from './FilterOptions';
-import { BatchValues } from '../../../../data/constantValues';
+import { BatchValues } from '../../../components/Constants/constants';
 
 const { TabPane } = Tabs;
 
@@ -42,9 +42,9 @@ const Batch: React.FC<BatchProps> = (props) => {
 
   const lesson = getLessonByNumber(startLesson);
 
-  const maxStudentNumber = BatchValues.maxStudentCount;
+  const maxStudentNumber = BatchValues.MAXSTUDENTCOUNT;
 
-  const minStudentNumber = BatchValues.minStudentCount;
+  const minStudentNumber = BatchValues.MINSTUDENTCOUNT;
 
   async function fetchBatchList(params: {}) {
     let fixedFilter: {
