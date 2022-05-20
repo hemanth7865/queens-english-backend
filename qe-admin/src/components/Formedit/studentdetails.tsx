@@ -121,18 +121,14 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-    if (props.tempData.status == 'Enrolled') {
-      if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
-        props.submit(dataForm);
-      } else {
-        notification.open({
-          message: 'Sales Amount Error',
-          description:
-            'Enter valid sale amount, subscription Months, subscription amount and downpayment',
-        });
-      }
-    } else {
+    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
       props.submit(dataForm);
+    } else {
+      notification.open({
+        message: 'Sales Amount Error',
+        description:
+          'Enter valid sale amount, subscription Months, subscription amount and downpayment',
+      });
     }
     console.log('Data', dataForm)
   };
@@ -913,15 +909,15 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Select
               placeholder="Select Status"
             >
-              <Option value="enrolled">Enrolled</Option>
-              <Option value="startclasslater">Start Class Later</Option>
-              <Option value="batching">Ready to batch</Option>
-              <Option value="onboarding">Onboarding</Option>
-              <Option value="active">Active</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
+              <Option value="Enrolled">Enrolled</Option>
+              <Option value="Start Class Later">Start Class Later</Option>
+              <Option value="Ready to batch">Ready to batch</Option>
+              <Option value="Onboarding">Onboarding</Option>
+              <Option value="Active">Active</Option>
+            </Select >
+          </Form.Item >
+        </Col >
+      </Row >
 
       <Form.Item
         wrapperCol={{
@@ -933,7 +929,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           Submit
         </Button>
       </Form.Item>
-    </Form>
+    </Form >
   )
 };
 

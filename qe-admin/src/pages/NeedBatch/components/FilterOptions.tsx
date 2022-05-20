@@ -23,7 +23,7 @@ const { Option } = Select;
 
 const FilterOptions: React.FC<Props> = ({ data, setData, reload, filterTheme, currentBatch, setExcludedTeacher, excludedTeacher, filterCallBack }) => {
     const rebatching = filterTheme == "RE_BATCHING";
-    const { timings, startLesson, dob, courseFrequency, startDate, course, id } = data
+    const { timings, startLesson, dob, courseFrequency, startDate, course, age, id } = data
     const [form] = Form.useForm();
 
     const handleFinish = () => {
@@ -35,7 +35,7 @@ const FilterOptions: React.FC<Props> = ({ data, setData, reload, filterTheme, cu
     }
 
     useEffect(() => {
-        form.setFieldsValue({ timings: timeISTToLocalTimezone(timings), startLesson, dob, courseFrequency, startDate, course });
+        form.setFieldsValue({ timings: timeISTToLocalTimezone(timings), startLesson, dob, courseFrequency, startDate, course, age });
         reload();
     }, [id]);
 
@@ -80,6 +80,19 @@ const FilterOptions: React.FC<Props> = ({ data, setData, reload, filterTheme, cu
                     </Select>
                 </Form.Item>
             </Col>
+            {age == null && String(age).length > 0 ? (
+                <Col span={inputSpanSmall}>
+                    <Form.Item name="age" >
+                        <Input disabled placeholder={"Age"} />
+                    </Form.Item>
+                </Col>
+            ) : (
+                <Col span={inputSpanSmall}>
+                    <Form.Item name="age" >
+                        <Input prefix="Age :" disabled placeholder={"Age"} />
+                    </Form.Item>
+                </Col>
+            )}
             <Col span={inputSpanSmall}>
                 <Form.Item name="startDate">
                     <Input

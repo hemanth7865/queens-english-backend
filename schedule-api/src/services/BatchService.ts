@@ -150,7 +150,11 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           students: studnets,
-          activeLessonId: data.activeLessonId
+          activeLessonId: data.activeLessonId,
+          frequency: data.frequency,
+          zoomLink: data.zoomLink,
+          zoomInfo: data.zoomInfo,
+          whatsappLink: data.whatsappLink
         },
       };
 
@@ -403,11 +407,11 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.createdBy = data.createdBy;
+      classes.activeLessonId = data.activeLessonId;
       classes.frequency = data.frequency;
       classes.zoomLink = data.zoomLink;
-      classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
-      classes.activeLessonId = data.activeLessonId;
+      classes.zoomInfo = data.zoomInfo;
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -665,7 +669,7 @@ export class BatchService {
     }
 
     if (parameters.maxStudentsCount) {
-      havingQuery = ` having students_count < ${parameters.maxStudentsCount} `;
+      havingQuery = ` having students_count < ${parameters.maxStudentsCount} AND students_one_to_one_count < 1`;
     }
 
     if (parameters.age) {
@@ -731,7 +735,7 @@ export class BatchService {
     });
     current--;
     var quer = `select classes.id, classes.batchNumber, classes.minAge, classes.maxAge, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
-    classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from 
+    classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from 
     classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
     console.log(quer);
@@ -739,7 +743,7 @@ export class BatchService {
     let studentCount = [];
     let students = [];
     let name = "";
-    const count = await getManager().query(`select count(classes.id) as total, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count from classes 
+    const count = await getManager().query(`select count(classes.id) as total, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from classes 
     ${query_string} ${havingQuery};`);
 
     for (const element of results) {
