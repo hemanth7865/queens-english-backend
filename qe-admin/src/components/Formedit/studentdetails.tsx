@@ -57,18 +57,21 @@ export type StudentdetailseditProps = {
     zoomInfo?: string;
     whatsappLink?: string;
   },
-  submit: (data: any) => any;
-  updateTempData: (data: any) => any;
+  submit: ( data: any ) => any;
+  updateTempData: ( data: any ) => any;
   salesAlert: '';
 };
 
-const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
+const Studentdetailsedit: React.FC<StudentdetailseditProps> = ( props ) =>
+{
 
-  function stringContainsNumber(_string: any) {
-    return /\d/.test(_string);
+  function stringContainsNumber ( _string: any )
+  {
+    return /\d/.test( _string );
   }
 
-  const onFinish = (value: any) => {
+  const onFinish = ( value: any ) =>
+  {
     const dataForm = {
       leadId: value.studentID,
       firstName: value.firstName,
@@ -76,7 +79,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       phoneNumber: value.phoneNumber,
       studentID: value.studentID,
       address: value.address,
-      dob: value.dob ? moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD") : '',
+      dob: value.dob ? moment( value.dob, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ) : '',
       whatsapp: value.whatsapp,
       comments: value.comments,
       customerEmail: value.customerEmail,
@@ -87,8 +90,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
-      startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      classesStartDate: value.classesStartDate ? moment(value.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD") : null,
+      startDate: moment( value.startDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ),
+      classesStartDate: value.classesStartDate ? moment( value.classesStartDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ) : null,
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       callStatus: value.callStatus,
@@ -102,9 +105,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       zoomInfo: value.zoomInfo,
       whatsappLink: value.whatsappLink,
       isSibling: value.isSibling ? value.isSibling : 0,
-      prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
-      salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
-      payment: [{
+      prm_id: String( value.prm ).length < 3 && parseInt( value.prm ) > 0 ? value.prm : value.prm_id,
+      salesowner: stringContainsNumber( value.lsq_user_name ) ? value.lsq_user_name : value.lsq_user_id,
+      payment: [ {
         paymentid: value.paymentid,
         studentId: value.id,
         classessold: value.classessold,
@@ -118,36 +121,40 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emi: value.emi,
         emiMonths: value.emiMonths,
         paymentMode: value.paymentMode,
-      }]
+      } ]
 
     }
-    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
-      props.submit(dataForm);
-    } else {
-      notification.open({
+    if ( value.saleamount == ( Number( value.emi * value.emiMonths ) + Number( value.downpayment ) ) )
+    {
+      props.submit( dataForm );
+    } else
+    {
+      notification.open( {
         message: 'Sales Amount Error',
         description:
           'Enter valid sale amount, subscription Months, subscription amount and downpayment',
-      });
+      } );
     }
-    console.log('Data', dataForm)
+    console.log( 'Data', dataForm )
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
+  const onFinishFailed = ( errorInfo: any ) =>
+  {
+    console.log( 'Failed:', errorInfo );
   };
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+  const openonboardNotification = ( type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string ) =>
+  {
     const waMessage = (
       <div>
         <p>Hello <br />
-          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
+          I am your Academic Counsellor { prm_firstName } { prm_lastName } from The Queen’s English and I am thrilled to inform you that your live classes will be starting on { moment( classDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ) }, you can use the below details to join your
           classes:<br />
-          Zoom Link: {zoomLink} <br />
-          Whatsapp Group Link: {whatsappLink} <br />
-          Topic: {batchCode}<br />
-          Time: {timings} India<br />
-          <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br /> <br />
+          Zoom Link: { zoomLink } <br />
+          Whatsapp Group Link: { whatsappLink } <br />
+          Topic: { batchCode }<br />
+          Time: { timings } India<br />
+          <span dangerouslySetInnerHTML={ { __html: zoomInfo } }></span> <br /> <br />
           (The details above are recurring and hence you can use the same details to join the class everyday)<br />
           Please send “OK” or a “:+1:” to activate the link above.<br />
           For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
@@ -156,51 +163,55 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       </div>
     )
 
-    notification[type]({
+    notification[ type ]( {
       message: 'Whatsapp message',
       description: waMessage,
       style: {
         width: 720,
       },
       duration: 0,
-      onClick: () => {
-        console.log('Notification Clicked!');
+      onClick: () =>
+      {
+        console.log( 'Notification Clicked!' );
       },
-    });
+    } );
   };
 
-  const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string) => {
+  const openNotification = ( type: string, message: string, prm_firstName: string, prm_lastName: string ) =>
+  {
     const waMessage = (
       <div>
         <p>Hello <br />
           We're delighted to welcome you aboard The Queen's English.<br />
-          I'll be your academic counsellor, and my name is {prm_firstName} {prm_lastName}.<br />
+          I'll be your academic counsellor, and my name is { prm_firstName } { prm_lastName }.<br />
           We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br />
           Step 1: Go to the Google Play Store and download the app using the following link:
           <a>https://queensenglish.co/app</a><br />
           User information:<br />
-          Phone: {message}<br />
+          Phone: { message }<br />
           Please use your registered phone number to log in (once your classes have started).<br />
           We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br />
           Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
       </div>
     )
 
-    notification[type]({
+    notification[ type ]( {
       message: 'Whatsapp message',
       description: waMessage,
       style: {
         width: 720,
       },
-      onClick: () => {
-        console.log('Notification Clicked!');
+      onClick: () =>
+      {
+        console.log( 'Notification Clicked!' );
       },
-    });
+    } );
   }
 
-  const [form] = Form.useForm()
-  const defaultValues = () => {
-    form.setFieldsValue({
+  const [ form ] = Form.useForm()
+  const defaultValues = () =>
+  {
+    form.setFieldsValue( {
       firstName: props.tempData.firstName,
       lastName: props.tempData.lastName,
       pfirstName: props.tempData.pfirstName,
@@ -214,14 +225,14 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       alternativeMobile: props.tempData.alternativeMobile,
       address: props.tempData.address,
       state: props.tempData.state,
-      dob: moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      dob: moment( props.tempData.dob, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ),
       classType: props.tempData.classType,
       course: props.tempData.course,
       startLesson: props.tempData.startLesson,
       courseFrequency: props.tempData.courseFrequency,
       timings: props.tempData.timings,
-      startDate: moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      classesStartDate: moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      startDate: moment( props.tempData.startDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ),
+      classesStartDate: moment( props.tempData.classesStartDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ),
       lsq_user_name: props.tempData.lsq_user_name,
       classessold: props.tempData.classessold,
       saleamount: props.tempData.saleamount,
@@ -246,9 +257,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       zoomLink: props.tempData.zoomLink,
       zoomInfo: props.tempData.zoomInfo,
       whatsappLink: props.tempData.whatsappLink,
-    });
+    } );
   }
-  useEffect(() => {
+  useEffect( () =>
+  {
     defaultValues();
   },
     [
@@ -299,43 +311,44 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     ]
   )
 
-  const onChange = (data: any) => {
+  const onChange = ( data: any ) =>
+  {
     const studentDetails = { ...props.tempData, ...form.getFieldsValue() };
-    props.updateTempData(studentDetails)
+    props.updateTempData( studentDetails )
   }
 
 
   return (
     <Form
       name="welcomestudentdetails"
-      form={form}
-      labelCol={{
+      form={ form }
+      labelCol={ {
         span: 8,
-      }}
-      wrapperCol={{
+      } }
+      wrapperCol={ {
         span: 16,
-      }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
+      } }
+      onFinish={ onFinish }
+      onFinishFailed={ onFinishFailed }
       autoComplete="off"
     >
-      <Row gutter={16}>
-        <Col span={12}>
+      <Row gutter={ 16 }>
+        <Col span={ 12 }>
           <Form.Item
             label="Student First Name"
             name="firstName"
-            rules={[{
+            rules={ [ {
               required: true,
               min: 2,
               type: 'string',
               pattern: /^[a-zA-Z ]*$/,
-            }]}
+            } ] }
           >
             <Input />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Student Last Name"
             name="lastName"
@@ -344,7 +357,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Parent First Name"
             name="pfirstName"
@@ -353,7 +366,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Parent Last Name"
             name="plastName"
@@ -362,48 +375,48 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Customer Email"
             name="customerEmail"
-            rules={[{
+            rules={ [ {
               required: true,
               type: 'email'
-            }]}
+            } ] }
           >
             <Input />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="ID"
             name="id"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}
+            } ] }
           >
             <Input disabled />
           </Form.Item>
         </Col>
 
-        {props.tempData.status == 'onboarding' ? (
+        { props.tempData.status == 'onboarding' ? (
 
-          <><Col span={12}>
+          <><Col span={ 12 }>
             <Form.Item
               label="Batch Code"
               name="batchCode"
             >
               <Input disabled />
             </Form.Item>
-          </Col><Col span={12}>
+          </Col><Col span={ 12 }>
               <Form.Item
                 label="Zoom Link"
                 name="zoomlink"
               >
                 <Input disabled />
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 label="Zoom Info"
                 name="zoomInfo"
@@ -416,112 +429,112 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
         }
 
-        {props.tempData.status == 'onboarding' ? (
-          <Col span={12}>
+        { props.tempData.status == 'onboarding' ? (
+          <Col span={ 12 }>
             <Form.Item
               label="Student ID"
               name="studentID"
-              rules={[{
+              rules={ [ {
                 required: true,
-              }]}
+              } ] }
             >
               <Input disabled />
             </Form.Item>
           </Col>
         ) : (
-          <Col span={12}>
+          <Col span={ 12 }>
             <Form.Item
               label="Student ID"
               name="studentID"
-              rules={[{
+              rules={ [ {
                 type: 'string',
                 required: true,
                 pattern: /^\S*$/,
                 message: "Lead ID Cannot Have Spaces",
-              }]}
+              } ] }
             >
               <Input />
             </Form.Item>
           </Col>
         )
         }
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Registered Mobile Number"
             name="phoneNumber"
-            rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            rules={ [ { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" } ] }
           >
             <Input />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Whatsapp Number"
             name="whatsapp"
-            rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            rules={ [ { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" } ] }
           >
             <Input />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Alternate Mobile Number"
             name="alternativeMobile"
-            rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+            rules={ [ { required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" } ] }
           >
             <Input />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item name="dob"
             label="Date of Birth"
             extra="*Please Select Date Of Birth or Form won't Save"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}
+            } ] }
           >
             <Input type="date"
-              value={moment(props.tempData.dob, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+              value={ moment( props.tempData.dob, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ) } />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="Address"
             name="address"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}
+            } ] }
           >
             <Input />
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="state"
             label="Customer State"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Customer State"
             >
-              {statesData.map(state => <Option value={state.label} key={state.label}>{state.value}</Option>)}
+              { statesData.map( state => <Option value={ state.label } key={ state.label }>{ state.value }</Option> ) }
             </Select>
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="classType"
             label="Class Type"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Select Class Type"
             >
@@ -531,13 +544,13 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="course"
             label="Course"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Select Course"
             >
@@ -549,13 +562,13 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="startLesson"
             label="Starting Lesson"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Select Starting Lesson"
             >
@@ -571,13 +584,13 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="courseFrequency"
             label="Course Frequency"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Select Course Frequency"
             >
@@ -589,13 +602,13 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="timings"
             label="Timings"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Select Class Timings"
             >
@@ -607,68 +620,69 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {props.tempData.startDate != '' ? (
-          <Col span={12}>
+        { props.tempData.startDate != '' ? (
+          <Col span={ 12 }>
             <Form.Item name="startDate"
               label="Expected Start Date">
               <Input type="date"
-                value={moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD")} disabled />
+                value={ moment( props.tempData.startDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ) } disabled />
             </Form.Item>
           </Col>
 
         ) :
-          <Col span={12}>
+          <Col span={ 12 }>
             <Form.Item name="startDate"
               label="Expected Start Date"
               extra="*Please Select Expected Start Date or Form won't Save"
-              rules={[{
+              rules={ [ {
                 message: "Please Select Expected Start Date",
                 required: true,
-              }]}>
+              } ] }>
               <Input type="date"
                 placeholder="Select Expected Start Date" />
             </Form.Item>
           </Col>
         }
 
-        {props.tempData.status == 'onboarding' ? (
-          <Col span={12}>
+        { !props.salesAlert ? (
+          <Col span={ 12 }>
             <Form.Item name="classesStartDate"
               label="Actual Start Date"
-              rules={[{
+              extra="*Please Select Actual Start Date or Form won't Save"
+              rules={ [ {
                 required: true,
-              }]}
+              } ] }
             >
               <Input type="date"
-                value={moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD")} />
+                value={ moment( props.tempData.classesStartDate, "YYYY-MM-DD" ).format( "YYYY-MM-DD" ) } />
             </Form.Item>
           </Col>
         ) : ''
         }
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="lsq_user_name"
             label="Sales Owner"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}
+            } ] }
           >
-            <Select style={{ width: 100 + "%" }} >
-              {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
+            <Select style={ { width: 100 + "%" } } >
+              { lsqUsersData.map( user => <Option value={ user.ID } key={ user.ID }>{ user.FirstName } { user.LastName }</Option> ) }
             </Select>
           </Form.Item>
         </Col>
 
-        {props.tempData.status != 'onboarding' ? (
+        { props.tempData.status != 'onboarding' ? (
 
-          <><Col span={12}>
+          <><Col span={ 12 }>
             <Form.Item
               label="Classes Sold"
               name="classessold"
-              rules={[{
+              rules={ [ {
                 required: true,
-              }]}
+              } ] }
             >
               <Select placeholder="classessold">
                 <Option value="60">60</Option>
@@ -678,29 +692,29 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 <Option value="400">400</Option>
               </Select>
             </Form.Item>
-          </Col><Col span={12}>
+          </Col><Col span={ 12 }>
               <Form.Item
                 label="Total Sale Amount"
                 name="saleamount"
-                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                rules={ [ { required: true, pattern: /^[0-9]*$/, message: "Enter number only" } ] }
               >
                 <Input />
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 label="Down Payment"
                 name="downpayment"
-                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                rules={ [ { required: true, pattern: /^[0-9]*$/, message: "Enter number only" } ] }
               >
                 <Input />
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 name="paymentMode"
                 label="Plan Mode"
-                rules={[{
+                rules={ [ {
                   required: true,
-                }]}
+                } ] }
               >
                 <Select placeholder="Select Plan Mode">
                   <Option value="razorpay">Razorpay</Option>
@@ -708,23 +722,23 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   <Option value="cashfree">Cashfree</Option>
                 </Select>
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 label="Transaction ID"
                 name="paymentid"
-                rules={[{
+                rules={ [ {
                   required: true,
-                }]}
+                } ] }
               >
                 <Input />
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 name="subscription"
                 label="Subscription Type"
-                rules={[{
+                rules={ [ {
                   required: true,
-                }]}>
+                } ] }>
                 <Select
                   placeholder="Select Subscription Type"
                 >
@@ -732,29 +746,29 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   <Option value="Auto-Debit">Auto-Debit</Option>
                 </Select>
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 label="Subscription Number"
                 name="subscriptionNo"
-                rules={[{
+                rules={ [ {
                   required: true,
-                }]}
+                } ] }
               >
                 <Input />
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 label="Subscription Amount"
                 name="emi"
-                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                rules={ [ { required: true, pattern: /^[0-9]*$/, message: "Enter number only" } ] }
               >
                 <Input />
               </Form.Item>
-            </Col><Col span={12}>
+            </Col><Col span={ 12 }>
               <Form.Item
                 label="Months Of Subscription"
                 name="emiMonths"
-                rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                rules={ [ { required: true, pattern: /^[0-9]*$/, message: "Enter number only" } ] }
               >
                 <Input />
               </Form.Item>
@@ -762,27 +776,27 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="prm"
             label="PRM Name"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
-            <Select style={{ width: 100 + "%" }} >
-              {prmData.map(prm => <Option value={prm.id} key={prm.id}>{prm.firstName} {prm.lastName}</Option>)}
+            } ] }>
+            <Select style={ { width: 100 + "%" } } >
+              { prmData.map( prm => <Option value={ prm.id } key={ prm.id }>{ prm.firstName } { prm.lastName }</Option> ) }
             </Select>
           </Form.Item>
         </Col>
 
-        {!props.salesAlert ? (
-          <Col span={12}>
+        { !props.salesAlert ? (
+          <Col span={ 12 }>
             <Form.Item
               name="callStatus"
               label="Call Status"
-              rules={[{
+              rules={ [ {
                 required: true,
-              }]}>
+              } ] }>
               <Select
                 placeholder="Select Call Status"
               >
@@ -796,14 +810,14 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {!props.salesAlert ? (
-          <Col span={12}>
+        { !props.salesAlert ? (
+          <Col span={ 12 }>
             <Form.Item
               label="PRM Comments"
               name="callBackon"
-              rules={[{
+              rules={ [ {
                 required: true,
-              }]}
+              } ] }
             >
               <Input />
             </Form.Item>
@@ -811,7 +825,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             label="BDA Comments"
             name="comments"
@@ -820,16 +834,17 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {!props.salesAlert && props.tempData.status != 'onboarding' ? (
-          <Col span={12}>
+        { !props.salesAlert && props.tempData.status != 'onboarding' ? (
+          <Col span={ 12 }>
             <Form.Item
               label="Welcome Message"
               name="message"
             >
               <a
-                onClick={() => {
-                  openNotification('info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName)
-                }}
+                onClick={ () =>
+                {
+                  openNotification( 'info', props.tempData.message, props.tempData.prm_firstName, props.tempData.prm_lastName )
+                } }
               >
                 <EyeOutlined />
               </a>
@@ -838,16 +853,17 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'onboarding' ? (
-          <Col span={12}>
+        { props.tempData.status == 'onboarding' ? (
+          <Col span={ 12 }>
             <Form.Item
               label="Onboarding Message"
               name="onboardmessage"
             >
               <a
-                onClick={() => {
-                  openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink)
-                }}
+                onClick={ () =>
+                {
+                  openonboardNotification( 'info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink )
+                } }
               >
                 <EyeOutlined />
               </a>
@@ -856,14 +872,14 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {!props.salesAlert ? (
-          <Col span={12}>
+        { !props.salesAlert ? (
+          <Col span={ 12 }>
             <Form.Item
               name="waMessageSent"
               label="Whatsapp Message Sent"
-              rules={[{
+              rules={ [ {
                 required: true,
-              }]}>
+              } ] }>
               <Select
                 placeholder="Select Yes/No"
               >
@@ -875,8 +891,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        {props.tempData.status == 'onboarding' ? (
-          <Col span={12}>
+        { props.tempData.status == 'onboarding' ? (
+          <Col span={ 12 }>
             <Form.Item
               label="Whatsapp Group Link"
               name="whatsappLink"
@@ -887,25 +903,25 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         ) : ''
         }
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item name="isSibling"
             label="Is Sibling?">
             <Select
               placeholder="Is Sibling"
             >
-              <Option value={1}>Yes</Option>
-              <Option value={0}>No</Option>
+              <Option value={ 1 }>Yes</Option>
+              <Option value={ 0 }>No</Option>
             </Select>
           </Form.Item>
         </Col>
 
-        <Col span={12}>
+        <Col span={ 12 }>
           <Form.Item
             name="status"
             label="Status"
-            rules={[{
+            rules={ [ {
               required: true,
-            }]}>
+            } ] }>
             <Select
               placeholder="Select Status"
             >
@@ -920,12 +936,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       </Row >
 
       <Form.Item
-        wrapperCol={{
+        wrapperCol={ {
           offset: 8,
           span: 16,
-        }}
+        } }
       >
-        <Button type="primary" htmlType="submit" onChange={onChange}>
+        <Button type="primary" htmlType="submit" onChange={ onChange }>
           Submit
         </Button>
       </Form.Item>
