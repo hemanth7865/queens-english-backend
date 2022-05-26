@@ -631,10 +631,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Col>
         }
 
-        {props.tempData.status == 'onboarding' ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item name="classesStartDate"
               label="Actual Start Date"
+              extra="*Please Select Actual Start Date or Form won't Save"
               rules={[{
                 required: true,
               }]}
@@ -820,10 +821,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        {!props.salesAlert ? (
+        {!props.salesAlert && props.tempData.status != 'onboarding' ? (
           <Col span={12}>
             <Form.Item
-              label="Message"
+              label="Welcome Message"
               name="message"
             >
               <a
@@ -841,8 +842,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         {props.tempData.status == 'onboarding' ? (
           <Col span={12}>
             <Form.Item
-              label="Message"
-              name="message"
+              label="Onboarding Message"
+              name="onboardmessage"
             >
               <a
                 onClick={() => {
@@ -909,11 +910,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             <Select
               placeholder="Select Status"
             >
-              <Option value="Enrolled">Enrolled</Option>
-              <Option value="Start Class Later">Start Class Later</Option>
-              <Option value="Ready to batch">Ready to batch</Option>
-              <Option value="Onboarding">Onboarding</Option>
-              <Option value="Active">Active</Option>
+              <Option value="enrolled">Enrolled</Option>
+              <Option value="startclasslater">Start Class Later</Option>
+              <Option value="batching">Ready to batch</Option>
+              <Option value="onboarding">Onboarding</Option>
+              <Option value="active">Active</Option>
             </Select >
           </Form.Item >
         </Col >
