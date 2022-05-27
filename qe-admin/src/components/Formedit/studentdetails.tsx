@@ -631,10 +631,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Col>
         }
 
-        {props.tempData.status == 'onboarding' ? (
+        {!props.salesAlert ? (
           <Col span={12}>
             <Form.Item name="classesStartDate"
               label="Actual Start Date"
+              extra="*Please Select Actual Start Date or Form won't Save"
               rules={[{
                 required: true,
               }]}
