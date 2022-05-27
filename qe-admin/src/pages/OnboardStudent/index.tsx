@@ -374,8 +374,10 @@ const StudentOnboard: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
+
       setData(msg.data.map((item: any) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
+        item.timings = item.lessonStartTime ? moment(item.lessonStartTime).format('LT') : item.timings
         return item
       }));
       setTotalRecords(msg.total);

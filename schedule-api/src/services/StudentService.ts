@@ -176,11 +176,12 @@ export class StudentService {
       var zoomInfoBatch = [];
       var batchesHistory = [];
       var whatsappLinkBatch = [];
+      var lessonStartTimeBatch = [];
       var batchCode = "";
 
       if (type == "student") {
         var quer =
-          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, lessonStartTime from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
 
@@ -191,6 +192,7 @@ export class StudentService {
           zoomLinkBatch.push(element.zoomLink);
           zoomInfoBatch.push(element.zoomInfo);
           whatsappLinkBatch.push(element.whatsappLink);
+          lessonStartTimeBatch.push(element.lessonStartTime)
         });
 
         batchesHistory = await getManager().query(
@@ -291,7 +293,8 @@ export class StudentService {
         lsq_user_info
           ? `${lsq_user_info.FirstName} ${lsq_user_info.LastName}`
           : "",
-        whatsappLinkBatch.join(",")
+        whatsappLinkBatch.join(","),
+        lessonStartTimeBatch.join(","),
       );
       l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;
