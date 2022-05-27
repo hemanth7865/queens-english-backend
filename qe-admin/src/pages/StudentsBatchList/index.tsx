@@ -1703,12 +1703,22 @@ const StudentsBatchList: React.FC = () => {
                     <p>:  {dob == '' ? tempDataView.dob : dob}</p>
                   </Col>
                   <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Age  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.age == null ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years" : tempDataView.age + " Years"}</p>
-                  </Col>
+                  {tempDataView.age != "NaN" ? (
+                    <><Col span={6}>
+                      <p>Age  </p>
+                    </Col>
+                      <Col span={11}>
+                        <p>:  {tempDataView.age == null ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years" : tempDataView.age + " Years"}</p>
+                      </Col></>
+                  ) : (
+                    <><Col span={6}>
+                      <p>Age  </p>
+                    </Col>
+                      <Col span={11}>
+                        <p>:  {tempDataView.age == "NaN" ? moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years" : tempDataView.age + " Years"}</p>
+                      </Col> </>
+                  )
+                  }
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Kids/Adults </p>
@@ -1732,7 +1742,7 @@ const StudentsBatchList: React.FC = () => {
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
-                    <p>whatsapp No. </p>
+                    <p>Whatsapp No. </p>
                   </Col>
                   <Col span={11}>
                     <p>:  {tempDataView.whatsapp}</p>
@@ -2161,13 +2171,36 @@ const StudentsBatchList: React.FC = () => {
 
                         </Form.Item>
                       </Col>
-                      {tempDataView.age == null ? (
+                      {tempDataView.dob === null ? (
                         <Col span={12}>
                           <Form.Item name="age">
                             <Input
                               placeholder="Age"
                               name="age"
-                              defaultValue={tempDataView.age}
+                              onChange={handleFormChange}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Col>
+                      ) : (tempDataView.age == null) ? (
+                        <Col span={12}>
+                          <Form.Item name="age">
+                            <Input
+                              placeholder="Age"
+                              name="age"
+                              defaultValue={moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
+                              onChange={handleFormChange}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Col>
+                      ) : (tempDataView.age == 'NaN') ? (
+                        <Col span={12}>
+                          <Form.Item name="age">
+                            <Input
+                              placeholder="Age"
+                              name="age"
+                              defaultValue={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
                               onChange={handleFormChange}
                               disabled
                             />
