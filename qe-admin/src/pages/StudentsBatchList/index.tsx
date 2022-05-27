@@ -215,6 +215,7 @@ const StudentsBatchList: React.FC = () => {
     dob: null,
     poc: '',
     startDate: null,
+    classesStartDate: null,
     endDate: null,
     startLesson: null,
     firstFeedback: "",
@@ -277,9 +278,9 @@ const StudentsBatchList: React.FC = () => {
 
   const [endDate, setEndDate] = useState();
   const [startDate, setStartDate] = useState();
+  const [classesStartDate, setClassesStartDate] = useState("");
   const [crossedEndDate, setCrossedEndDate] = useState();
   const [startLesson, setStartLesson] = useState();
-
 
   //state for select option
   //  const [selectValue, setSelectValue] = useState("");
@@ -670,6 +671,7 @@ const StudentsBatchList: React.FC = () => {
       dob: dob,
       poc: formData.poc,
       startDate: formData.startDate,
+      classesStartDate: classesStartDate,
       endDate: formData.endDate,
       startLesson: formData.startLesson,
       studentID: formData.studentID,
@@ -766,6 +768,7 @@ const StudentsBatchList: React.FC = () => {
       dob: dob,
       poc: formData.poc ? formData.poc : tempDataView.poc,
       startDate: startDate,
+      classesStartDate: classesStartDate,
       endDate: endDate,
       startLesson: startLesson,
       firstFeedback: formData.firstFeedback ? formData.firstFeedback : tempDataView.firstFeedback,
@@ -963,7 +966,6 @@ const StudentsBatchList: React.FC = () => {
                       <Col span={12}>
                         <Form.Item name="dob">
                           {
-
                             formData.dob === null ?
                               <DatePicker
                                 format="YYYY/MM/DD"
@@ -1241,11 +1243,9 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="assesmentDate">
+                        <Form.Item name="assesmentDate" extra="Assessment Date">
                           {formData.assesmentDate === null ?
                             <DatePicker
-
-
                               format="YYYY/MM/DD"
                               style={{ width: "375px" }}
                               onChange={(date, dateString) => {
@@ -1268,14 +1268,12 @@ const StudentsBatchList: React.FC = () => {
                         <Form.Item name="startDate">
                           {formData.startDate === null ?
                             <DatePicker
-
-
                               format="YYYY/MM/DD"
                               style={{ width: "375px" }}
                               onChange={(date, dateString) => {
                                 setStartDate(dateString);
                               }}
-                              placeholder={"Classes Start Date"}
+                              placeholder={"Expected Start Date"}
                             />
                             :
                             <DatePicker
@@ -1287,6 +1285,32 @@ const StudentsBatchList: React.FC = () => {
                               }} />
                           }
                         </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        {tempDataView.classesStartDate === null ?
+                          <Form.Item name="classesStartDate">
+                            <DatePicker
+                              format="YYYY-MM-DD"
+                              style={{ width: "365px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                          :
+                          <Form.Item name="classesStartDate">
+                            <DatePicker
+                              defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
+                              format="YYYY-MM-DD"
+                              style={{ width: "370px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                        }
                       </Col>
                       <Col span={12}>
                         <Form.Item name="startLesson">
@@ -1881,10 +1905,17 @@ const StudentsBatchList: React.FC = () => {
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
-                    <p>Classes Start Date  </p>
+                    <p>Expected Start Date  </p>
                   </Col>
                   <Col span={11}>
                     <p>:  {tempDataView.startDate}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Actual Start Date  </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>:  {tempDataView.classesStartDate ? tempDataView.classesStartDate : classesStartDate}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -2503,7 +2534,7 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="assesmentDate">
+                        <Form.Item name="assesmentDate" extra="Next Assessment Date">
                           {tempDataView.assesmentDate === null ?
                             <DatePicker
                               format="YYYY/MM/DD"
@@ -2525,7 +2556,7 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="startDate">
+                        <Form.Item name="startDate" extra="Expected Start Date">
                           {tempDataView.startDate === null ?
                             <DatePicker
                               format="YYYY/MM/DD"
@@ -2533,7 +2564,7 @@ const StudentsBatchList: React.FC = () => {
                               onChange={(date, dateString) => {
                                 setStartDate(dateString);
                               }}
-                              placeholder={"Classes Start Date"}
+                              placeholder={"Expected Start Date"}
                             />
                             :
                             <DatePicker
@@ -2545,6 +2576,32 @@ const StudentsBatchList: React.FC = () => {
                               }} />
                           }
                         </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        {tempDataView.classesStartDate === null ?
+                          <Form.Item name="classesStartDate" extra="Actual Start Date">
+                            <DatePicker
+                              format="YYYY-MM-DD"
+                              style={{ width: "365px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                          :
+                          <Form.Item name="classesStartDate" extra="Actual Start Date">
+                            <DatePicker
+                              defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
+                              format="YYYY-MM-DD"
+                              style={{ width: "370px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                        }
                       </Col>
                       <Col span={12}>
                         <Form.Item name="startLesson">
