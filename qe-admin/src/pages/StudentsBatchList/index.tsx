@@ -1681,7 +1681,6 @@ const StudentsBatchList: React.FC = () => {
                   <Col span={11}>
                     <p>:  {tempDataView.studentID}</p>
                   </Col>
-
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Student First Name  </p>
@@ -1753,9 +1752,6 @@ const StudentsBatchList: React.FC = () => {
                   <Col span={11}>
                     <p>:  {tempDataView.plastName}</p>
                   </Col>
-
-
-
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Email </p>
