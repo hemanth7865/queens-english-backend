@@ -291,7 +291,7 @@ export class StudentService {
         lsq_user_info
           ? `${lsq_user_info.FirstName} ${lsq_user_info.LastName}`
           : "",
-        whatsappLinkBatch.join(",")
+        whatsappLinkBatch.join(","),
       );
       l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;
@@ -415,6 +415,7 @@ export class StudentService {
         updateList.callStatus = data.callStatus;
         updateList.callBackon = data.callBackon;
         updateList.waMessageSent = data.waMessageSent;
+        updateList.timings = data.timings;
         console.log(updateList);
         user = await this.usersRepository.update(
           { id: data.id },
