@@ -2247,33 +2247,12 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
                       <Col span={12}>
                         {
-                          // (tempDataView.dob != null) ? (
-                          //   <Form.Item name="age">
-                          //     <Input
-                          //       placeholder="Age"
-                          //       name="age"
-                          //       value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
-                          //       onChange={handleFormChange}
-                          //       disabled
-                          //     />
-                          //   </Form.Item>
-                          // ) : (dob != null) ? (
-                          //   <Form.Item name="age">
-                          //     <Input
-                          //       placeholder="Age"
-                          //       name="age"
-                          //       value={moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
-                          //       onChange={handleFormChange}
-                          //       disabled
-                          //     />
-                          //   </Form.Item>
-                          // ) : 
                           (tempDataView.age == null) ? (
                             <Form.Item name="age">
                               <Input
                                 placeholder="Age"
                                 name="age"
-                                value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0)}
+                                value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
                                 onChange={handleFormChange}
                                 disabled
                               />
