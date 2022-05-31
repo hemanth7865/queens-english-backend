@@ -102,7 +102,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     phoneNumber: '+' + code + formData.phoneNumber,
                     email: formData.email,
                     type: selectUserType,
-                    status: "enrolled",
+                    status: "active",
                 }
             } else {
                 dataForm = {
