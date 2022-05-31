@@ -95,6 +95,9 @@ const handleAdd = async (fields: API.RuleListItem) => {
   } catch (error) {
     hide();
     message.error("Adding failed, please try again!");
+    setTimeout(function () {
+      window.location.reload(1);
+    }, 1800);
     return false;
   }
 };
@@ -120,6 +123,9 @@ const handleUpdate = async (fields: FormValueType) => {
   } catch (error) {
     hide();
     message.error("Configuration failed, please try again!");
+    setTimeout(function () {
+      window.location.reload(1);
+    }, 1800);
     return false;
   }
 };
@@ -144,6 +150,9 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
     return true;
   } catch (error) {
     message.error("Delete failed, please try again");
+    setTimeout(function () {
+      window.location.reload(1);
+    }, 1800);
     return false;
   }
 };
@@ -206,7 +215,7 @@ const StudentsBatchList: React.FC = () => {
     teacherName: '',
     batchCode: '',
     alternativeMobile: '',
-    age: '',
+    age: null,
     address: '',
     referralCode: '',
     days: null,
@@ -215,6 +224,7 @@ const StudentsBatchList: React.FC = () => {
     dob: null,
     poc: '',
     startDate: null,
+    classesStartDate: null,
     endDate: null,
     startLesson: null,
     firstFeedback: "",
@@ -277,9 +287,9 @@ const StudentsBatchList: React.FC = () => {
 
   const [endDate, setEndDate] = useState();
   const [startDate, setStartDate] = useState();
+  const [classesStartDate, setClassesStartDate] = useState("");
   const [crossedEndDate, setCrossedEndDate] = useState();
   const [startLesson, setStartLesson] = useState();
-
 
   //state for select option
   //  const [selectValue, setSelectValue] = useState("");
@@ -333,6 +343,9 @@ const StudentsBatchList: React.FC = () => {
       setError('Please Select country first')
     } else if (msg === undefined) {
       setError('')
+      setTimeout(function () {
+        window.location.reload(1);
+      }, 1800);
     } else {
       setError('Phone number is Invalid')
     }
@@ -380,6 +393,9 @@ const StudentsBatchList: React.FC = () => {
       console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
+      setTimeout(function () {
+        window.location.reload(1);
+      }, 1800);
     }
   };
 
@@ -670,6 +686,7 @@ const StudentsBatchList: React.FC = () => {
       dob: dob,
       poc: formData.poc,
       startDate: formData.startDate,
+      classesStartDate: classesStartDate ? classesStartDate : null,
       endDate: formData.endDate,
       startLesson: formData.startLesson,
       studentID: formData.studentID,
@@ -730,9 +747,13 @@ const StudentsBatchList: React.FC = () => {
         body: JSON.stringify(dataForm),
       });
 
-      handleAPIResponse(msg, "Student Added Successfully", "Failed To Add Student");
+      handleAPIResponse(msg, "Student Added Successfully", "Failed To Add Student", setTimeout(function () {
+        window.location.reload(1);
+      }, 1800));
     } catch (error) {
-      handleAPIResponse({ status: 400 }, "Student Added Successfully", "Failed To Add Student");
+      handleAPIResponse({ status: 400 }, "Student Added Successfully", "Failed To Add Student", setTimeout(function () {
+        window.location.reload(1);
+      }, 1800));
     }
     setVisible(false);
     setIsLoading(false);
@@ -756,7 +777,7 @@ const StudentsBatchList: React.FC = () => {
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
-      age: formData.age ? formData.age : moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
+      age: formData.age == NaN ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) : moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       address: formData.address ? formData.address : tempDataView.address,
       classType: formData.ClassType ? formData.ClassType : tempDataView.classType,
       referralCode: formData.referralCode ? formData.referralCode : tempDataView.referralCode,
@@ -766,6 +787,7 @@ const StudentsBatchList: React.FC = () => {
       dob: dob,
       poc: formData.poc ? formData.poc : tempDataView.poc,
       startDate: startDate,
+      classesStartDate: classesStartDate ? classesStartDate : null,
       endDate: endDate,
       startLesson: startLesson,
       firstFeedback: formData.firstFeedback ? formData.firstFeedback : tempDataView.firstFeedback,
@@ -824,9 +846,13 @@ const StudentsBatchList: React.FC = () => {
         },
         body: JSON.stringify(dataForm),
       });
-      handleAPIResponse(msg, "Student Updated Successfully", "Failed To Update Student");
+      handleAPIResponse(msg, "Student Updated Successfully", "Failed To Update Student", setTimeout(function () {
+        window.location.reload(1);
+      }, 1800));
     } catch (error) {
-      handleAPIResponse({ status: 400 }, "Student Updated Successfully", "Failed To Update Student");
+      handleAPIResponse({ status: 400 }, "Student Updated Successfully", "Failed To Update Student", setTimeout(function () {
+        window.location.reload(1);
+      }, 1800));
     }
     onClose();
     setIsLoading(false);
@@ -963,7 +989,6 @@ const StudentsBatchList: React.FC = () => {
                       <Col span={12}>
                         <Form.Item name="dob">
                           {
-
                             formData.dob === null ?
                               <DatePicker
                                 format="YYYY/MM/DD"
@@ -987,15 +1012,28 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="age">
-                          <Input
-                            placeholder="Age"
-                            name="age"
-                            value={tempDataView.age}
-                            onChange={handleFormChange}
-                            disabled
-                          />
-                        </Form.Item>
+                        {
+                          tempDataView.dob === null ?
+                            <Form.Item name="age">
+                              <Input
+                                placeholder="Age"
+                                name="age"
+                                value={moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0)}
+                                onChange={handleFormChange}
+                                disabled
+                              />
+                            </Form.Item>
+                            :
+                            <Form.Item name="age">
+                              <Input
+                                placeholder="Age"
+                                name="age"
+                                value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0)}
+                                onChange={handleFormChange}
+                                disabled
+                              />
+                            </Form.Item>
+                        }
                       </Col>
                       <Col span={12}>
                         <Form.Item name="classType">
@@ -1241,11 +1279,9 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="assesmentDate">
+                        <Form.Item name="assesmentDate" extra="Assessment Date">
                           {formData.assesmentDate === null ?
                             <DatePicker
-
-
                               format="YYYY/MM/DD"
                               style={{ width: "375px" }}
                               onChange={(date, dateString) => {
@@ -1268,14 +1304,12 @@ const StudentsBatchList: React.FC = () => {
                         <Form.Item name="startDate">
                           {formData.startDate === null ?
                             <DatePicker
-
-
                               format="YYYY/MM/DD"
                               style={{ width: "375px" }}
                               onChange={(date, dateString) => {
                                 setStartDate(dateString);
                               }}
-                              placeholder={"Classes Start Date"}
+                              placeholder={"Expected Start Date"}
                             />
                             :
                             <DatePicker
@@ -1287,6 +1321,32 @@ const StudentsBatchList: React.FC = () => {
                               }} />
                           }
                         </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        {tempDataView.classesStartDate === null ?
+                          <Form.Item name="classesStartDate">
+                            <DatePicker
+                              format="YYYY-MM-DD"
+                              style={{ width: "365px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                          :
+                          <Form.Item name="classesStartDate">
+                            <DatePicker
+                              defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
+                              format="YYYY-MM-DD"
+                              style={{ width: "370px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                        }
                       </Col>
                       <Col span={12}>
                         <Form.Item name="startLesson">
@@ -1681,7 +1741,6 @@ const StudentsBatchList: React.FC = () => {
                   <Col span={11}>
                     <p>:  {tempDataView.studentID}</p>
                   </Col>
-
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Student First Name  </p>
@@ -1704,12 +1763,29 @@ const StudentsBatchList: React.FC = () => {
                     <p>:  {dob == '' ? tempDataView.dob : dob}</p>
                   </Col>
                   <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Age  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.age == null ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years" : tempDataView.age + " Years"}</p>
-                  </Col>
+                  {tempDataView.age != null ? (
+                    <><Col span={6}>
+                      <p>Age  </p>
+                    </Col>
+                      <Col span={11}>
+                        <p>:  {tempDataView.age + " Years"}</p>
+                      </Col></>
+                  ) : (tempDataView.dob != null) ? (
+                    <><Col span={6}>
+                      <p>Age  </p>
+                    </Col>
+                      <Col span={11}>
+                        <p>:  {moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}</p>
+                      </Col> </>
+                  ) : (
+                    <><Col span={6}>
+                      <p>Age  </p>
+                    </Col>
+                      <Col span={11}>
+                        <p>:  {moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}</p>
+                      </Col> </>
+                  )
+                  }
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Kids/Adults </p>
@@ -1733,7 +1809,7 @@ const StudentsBatchList: React.FC = () => {
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
-                    <p>whatsapp No. </p>
+                    <p>Whatsapp No. </p>
                   </Col>
                   <Col span={11}>
                     <p>:  {tempDataView.whatsapp}</p>
@@ -1753,9 +1829,6 @@ const StudentsBatchList: React.FC = () => {
                   <Col span={11}>
                     <p>:  {tempDataView.plastName}</p>
                   </Col>
-
-
-
                   <Col span={7}></Col>
                   <Col span={6}>
                     <p>Email </p>
@@ -1875,10 +1948,17 @@ const StudentsBatchList: React.FC = () => {
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
-                    <p>Classes Start Date  </p>
+                    <p>Expected Start Date  </p>
                   </Col>
                   <Col span={11}>
                     <p>:  {tempDataView.startDate}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Actual Start Date  </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>:  {tempDataView.classesStartDate ? tempDataView.classesStartDate : classesStartDate}</p>
                   </Col>
                   <Col span={7}></Col>
                   <Col span={6}>
@@ -2165,32 +2245,50 @@ const StudentsBatchList: React.FC = () => {
 
                         </Form.Item>
                       </Col>
-                      {tempDataView.age == null ? (
-                        <Col span={12}>
-                          <Form.Item name="age">
+                      <Col span={12}>
+                        {
+                          // (tempDataView.dob != null) ? (
+                          //   <Form.Item name="age">
+                          //     <Input
+                          //       placeholder="Age"
+                          //       name="age"
+                          //       value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
+                          //       onChange={handleFormChange}
+                          //       disabled
+                          //     />
+                          //   </Form.Item>
+                          // ) : (dob != null) ? (
+                          //   <Form.Item name="age">
+                          //     <Input
+                          //       placeholder="Age"
+                          //       name="age"
+                          //       value={moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) + " Years"}
+                          //       onChange={handleFormChange}
+                          //       disabled
+                          //     />
+                          //   </Form.Item>
+                          // ) : 
+                          (tempDataView.age == null) ? (
+                            <Form.Item name="age">
+                              <Input
+                                placeholder="Age"
+                                name="age"
+                                value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0)}
+                                onChange={handleFormChange}
+                                disabled
+                              />
+                            </Form.Item>
+                          ) : (
                             <Input
                               placeholder="Age"
                               name="age"
-                              defaultValue={tempDataView.age}
+                              value={tempDataView.age + " Years"}
                               onChange={handleFormChange}
                               disabled
                             />
-                          </Form.Item>
-                        </Col>
-                      ) : (
-                        <Col span={12}>
-                          <Form.Item name="age">
-                            <Input
-                              placeholder="Age"
-                              name="age"
-                              defaultValue={tempDataView.age + " Years"}
-                              onChange={handleFormChange}
-                              disabled
-                            />
-                          </Form.Item>
-                        </Col>
-                      )
-                      }
+                          )
+                        }
+                      </Col>
                       <Col span={12}>
                         <Form.Item name="classType">
                           <Input
@@ -2474,7 +2572,7 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="assesmentDate">
+                        <Form.Item name="assesmentDate" extra="Next Assessment Date">
                           {tempDataView.assesmentDate === null ?
                             <DatePicker
                               format="YYYY/MM/DD"
@@ -2496,7 +2594,7 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="startDate">
+                        <Form.Item name="startDate" extra="Expected Start Date">
                           {tempDataView.startDate === null ?
                             <DatePicker
                               format="YYYY/MM/DD"
@@ -2504,7 +2602,7 @@ const StudentsBatchList: React.FC = () => {
                               onChange={(date, dateString) => {
                                 setStartDate(dateString);
                               }}
-                              placeholder={"Classes Start Date"}
+                              placeholder={"Expected Start Date"}
                             />
                             :
                             <DatePicker
@@ -2516,6 +2614,32 @@ const StudentsBatchList: React.FC = () => {
                               }} />
                           }
                         </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        {tempDataView.classesStartDate === null ?
+                          <Form.Item name="classesStartDate" extra="Actual Start Date">
+                            <DatePicker
+                              format="YYYY-MM-DD"
+                              style={{ width: "365px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                          :
+                          <Form.Item name="classesStartDate" extra="Actual Start Date">
+                            <DatePicker
+                              defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
+                              format="YYYY-MM-DD"
+                              style={{ width: "370px" }}
+                              onChange={(date, dateString) => {
+                                setClassesStartDate(dateString);
+                              }}
+                              placeholder={"Actual Start Date"}
+                            />
+                          </Form.Item>
+                        }
                       </Col>
                       <Col span={12}>
                         <Form.Item name="startLesson">
