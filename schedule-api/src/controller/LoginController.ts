@@ -19,12 +19,11 @@ export class LoginController {
       console.log("found user", foundUser, req);
 
       if (foundUser.superadmin == 'true') {
-        console.log("User is SuperAdmin", foundUser.superadmin)
         const tokenPayload = {
           email: foundUser.email,
           expiry: new Date().getTime() + 24 * 60 * 60,
         };
-        const adminsessionToken = new JWSTokenHandler().signToken(
+        const sessionToken = new JWSTokenHandler().signToken(
           JSON.stringify(tokenPayload)
         );
 
@@ -34,7 +33,7 @@ export class LoginController {
           signed: true,
         };
 
-        response.cookie("qe-superadmin-token", adminsessionToken, options);
+        response.cookie("qe-admin-token", sessionToken, options);
 
         response
           .status(200)
@@ -43,9 +42,10 @@ export class LoginController {
             type: "account",
             currentAuthority: "SuperAdmin",
             role: "SuperAdmin",
-            token: adminsessionToken,
+            token: sessionToken,
           })
           .end();
+
       } else  if (foundUser) {
         const tokenPayload = {
           email: foundUser.email,
@@ -68,8 +68,8 @@ export class LoginController {
           .send({
             status: "ok",
             type: "account",
-            currentAuthority: "Admin",
-            role: "Admin",
+            currentAuthority: "User",
+            role: "User",
             token: sessionToken,
           })
           .end();
@@ -105,50 +105,6 @@ export class LoginController {
     response.status(200).send({ status: "ok" }).end();
   }
 
-  async currentSuperAdmin(request: Request, response: Response, next: NextFunction) {
-    console.log("currentSuperAdmin", request.signedCookies);
-
-    const cookies = request.signedCookies;
-    const token = cookies["qe-superadmin-token"];
-    if (!token) {
-      // return 401
-      response
-        .status(401)
-        .send({
-          message: "Invalid user session. Please login.",
-        })
-        .end();
-    }
-
-    console.log("token", token);
-    const decodedToken = new JWSTokenHandler().decode(token);
-    console.log("decodedToken", decodedToken);
-    const tokenPayload = JSON.parse(decodedToken.payload || "{}");
-    const foundUser = await this.adminRepository.findOne({
-      select: ["firstname", "lastname", "email", "phone","superadmin"],
-      where: { email: tokenPayload.email },
-    });
-    if (!foundUser) {
-      // return 401
-      response
-        .status(401)
-        .send({
-          message: "Invalid user session. Please login.",
-        })
-        .end();
-    }
-
-    response
-      .status(200)
-      .send({
-        success: true,
-        ...foundUser,
-        token,
-      })
-      .end();
-
-  }
-
   async currentUser(request: Request, response: Response, next: NextFunction) {
     console.log("currentUser", request.signedCookies);
 
@@ -169,7 +125,7 @@ export class LoginController {
     console.log("decodedToken", decodedToken);
     const tokenPayload = JSON.parse(decodedToken.payload || "{}");
     const foundUser = await this.adminRepository.findOne({
-      select: ["firstname", "lastname", "email", "phone"],
+      select: ["firstname", "lastname", "email", "phone", "superadmin"],
       where: { email: tokenPayload.email },
     });
     if (!foundUser) {
@@ -180,7 +136,7 @@ export class LoginController {
           message: "Invalid user session. Please login.",
         })
         .end();
-    }
+    } 
 
     response
       .status(200)

@@ -7,7 +7,8 @@ declare namespace API {
     lastname?: string;
     name?: string;
     avatar?: string;
-    roles?: string[];
+    role?: string;
+    superadmin?: string;
     org?: string;
     userid?: string;
     email?: string;
