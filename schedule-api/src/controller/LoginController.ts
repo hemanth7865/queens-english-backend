@@ -12,13 +12,41 @@ export class LoginController {
 
     try {
       const foundUser = await this.adminRepository.findOne({
-        select: ["firstname", "lastname", "email", "phone"],
+        select: ["firstname", "lastname", "email", "phone", "superadmin"],
         where: { email: req.username, password: req.password },
       });
 
       console.log("found user", foundUser, req);
 
-      if (foundUser) {
+      if (foundUser.superadmin == 'true') {
+        console.log("User is SuperAdmin", foundUser.superadmin)
+        const tokenPayload = {
+          email: foundUser.email,
+          expiry: new Date().getTime() + 24 * 60 * 60,
+        };
+        const adminsessionToken = new JWSTokenHandler().signToken(
+          JSON.stringify(tokenPayload)
+        );
+
+        const options = {
+          maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
+          httpOnly: true,
+          signed: true,
+        };
+
+        response.cookie("qe-superadmin-token", adminsessionToken, options);
+
+        response
+          .status(200)
+          .send({
+            status: "ok",
+            type: "account",
+            currentAuthority: "SuperAdmin",
+            role: "SuperAdmin",
+            token: adminsessionToken,
+          })
+          .end();
+      } else  if (foundUser) {
         const tokenPayload = {
           email: foundUser.email,
           expiry: new Date().getTime() + 24 * 60 * 60,
@@ -41,17 +69,18 @@ export class LoginController {
             status: "ok",
             type: "account",
             currentAuthority: "Admin",
+            role: "Admin",
             token: sessionToken,
           })
           .end();
       } else {
         response
-          .status(401)
-          .send({
-            status: "failed",
-            type: "account",
-          })
-          .end();
+        .status(401)
+        .send({
+          status: "failed",
+          type: "account",
+        })
+        .end();
       }
     } catch (e) {
       console.log("error", e);
@@ -74,6 +103,50 @@ export class LoginController {
 
     response.cookie("qe-admin-token", "", options);
     response.status(200).send({ status: "ok" }).end();
+  }
+
+  async currentSuperAdmin(request: Request, response: Response, next: NextFunction) {
+    console.log("currentSuperAdmin", request.signedCookies);
+
+    const cookies = request.signedCookies;
+    const token = cookies["qe-superadmin-token"];
+    if (!token) {
+      // return 401
+      response
+        .status(401)
+        .send({
+          message: "Invalid user session. Please login.",
+        })
+        .end();
+    }
+
+    console.log("token", token);
+    const decodedToken = new JWSTokenHandler().decode(token);
+    console.log("decodedToken", decodedToken);
+    const tokenPayload = JSON.parse(decodedToken.payload || "{}");
+    const foundUser = await this.adminRepository.findOne({
+      select: ["firstname", "lastname", "email", "phone","superadmin"],
+      where: { email: tokenPayload.email },
+    });
+    if (!foundUser) {
+      // return 401
+      response
+        .status(401)
+        .send({
+          message: "Invalid user session. Please login.",
+        })
+        .end();
+    }
+
+    response
+      .status(200)
+      .send({
+        success: true,
+        ...foundUser,
+        token,
+      })
+      .end();
+
   }
 
   async currentUser(request: Request, response: Response, next: NextFunction) {
