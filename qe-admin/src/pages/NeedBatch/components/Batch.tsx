@@ -35,6 +35,7 @@ const Batch: React.FC<BatchProps> = (props) => {
   const [selectedBatch, setSelectedBatch] = useState<boolean | string>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [excludedTeacher, setExcludedTeacher] = useState<string>();
+  const [timingsBatch, setTimingsBatch] = useState<string>();
   const [data, setData] = useState(props.data);
   const rebatching = props.filterTheme == "RE_BATCHING";
 
@@ -144,7 +145,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     let success = true;
     if (props.onFinish && typeof selectedBatch === 'string') {
       await props.onFinish(selectedBatch);
-      const result = await submitUpdateStudent({ ...props.data, status: "onboarding", callStatus: "", callBackon: "", waMessageSent: "" });
+      const result = await submitUpdateStudent({ ...props.data, status: "onboarding", callStatus: "", callBackon: "", waMessageSent: "", timings: timingsBatch, });
 
       if (result.status !== 200) {
         success = false;
@@ -189,7 +190,7 @@ const Batch: React.FC<BatchProps> = (props) => {
           } else {
             openNotificationWithIcon('success', { data: "Completed Adding Student To Batch, Marking Student As Onboard...", status: 200 });
 
-            const result = await submitUpdateStudent({ ...props.data, status: "onboarding" });
+            const result = await submitUpdateStudent({ ...props.data, status: "onboarding", timings: timingsBatch });
 
             if (result.status !== 200) {
               success = false;
@@ -298,6 +299,7 @@ const Batch: React.FC<BatchProps> = (props) => {
           <a
             onClick={() => {
               // @ts-ignore-next-line
+              setTimingsBatch(moment(entity.lessonStartTime).format('LT'));
               setSelectedBatch(dom.id);
             }}
           >

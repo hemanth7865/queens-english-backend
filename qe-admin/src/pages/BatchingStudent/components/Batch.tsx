@@ -49,6 +49,7 @@ const Batch: React.FC<BatchProps> = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [excludedTeacher, setExcludedTeacher] = useState<string>();
   const [data, setData] = useState(props.data);
+  const [timingsBatch, setTimingsBatch] = useState<string>();
   const rebatching = props.filterTheme == "RE_BATCHING";
   const currentBatch = props.currentBatch;
 
@@ -214,6 +215,7 @@ const Batch: React.FC<BatchProps> = (props) => {
       const result = await submitUpdateStudent({
         ...props.data,
         status: "onboarding",
+        timings: timingsBatch,
         callStatus: "",
         callBackon: "",
         waMessageSent: "",
@@ -275,6 +277,7 @@ const Batch: React.FC<BatchProps> = (props) => {
 
             const result = await submitUpdateStudent({
               ...props.data,
+              timings: timingsBatch,
               status: "onboarding",
             });
 
@@ -443,6 +446,7 @@ const Batch: React.FC<BatchProps> = (props) => {
           <a
             onClick={() => {
               // @ts-ignore-next-line
+              setTimingsBatch(moment(entity.lessonStartTime).format('LT'));
               setSelectedBatch(dom.id);
             }}
           >
