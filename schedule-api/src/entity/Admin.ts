@@ -32,6 +32,6 @@ export class Admin extends BaseEntity {
     updated_at: Date
 
     @Column({ 'nullable': false, type: "text" })
-    superadmin: string;
+    role: string;
 
 }

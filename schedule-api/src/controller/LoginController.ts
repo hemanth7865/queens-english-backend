@@ -12,7 +12,7 @@ export class LoginController {
 
     try {
       const foundUser = await this.adminRepository.findOne({
-        select: ["firstname", "lastname", "email", "phone", "superadmin"],
+        select: ["firstname", "lastname", "email", "phone", "role"],
         where: { email: req.username, password: req.password },
       });
       
@@ -41,7 +41,6 @@ export class LoginController {
             status: "ok",
             type: "account",
             currentAuthority: "Admin",
-            role: "Admin",
             token: sessionToken,
           })
           .end();
@@ -97,7 +96,7 @@ export class LoginController {
     console.log("decodedToken", decodedToken);
     const tokenPayload = JSON.parse(decodedToken.payload || "{}");
     const foundUser = await this.adminRepository.findOne({
-      select: ["firstname", "lastname", "email", "phone", "superadmin"],
+      select: ["firstname", "lastname", "email", "phone", "role"],
       where: { email: tokenPayload.email },
     });
     if (!foundUser) {
