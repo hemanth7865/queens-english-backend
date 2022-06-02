@@ -15,10 +15,10 @@ export class LoginController {
         select: ["firstname", "lastname", "email", "phone", "superadmin"],
         where: { email: req.username, password: req.password },
       });
-
+      
       console.log("found user", foundUser, req);
 
-      if (foundUser.superadmin == 'true') {
+      if (foundUser) {
         const tokenPayload = {
           email: foundUser.email,
           expiry: new Date().getTime() + 24 * 60 * 60,
@@ -40,36 +40,8 @@ export class LoginController {
           .send({
             status: "ok",
             type: "account",
-            currentAuthority: "SuperAdmin",
-            role: "SuperAdmin",
-            token: sessionToken,
-          })
-          .end();
-
-      } else  if (foundUser) {
-        const tokenPayload = {
-          email: foundUser.email,
-          expiry: new Date().getTime() + 24 * 60 * 60,
-        };
-        const sessionToken = new JWSTokenHandler().signToken(
-          JSON.stringify(tokenPayload)
-        );
-
-        const options = {
-          maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
-          httpOnly: true,
-          signed: true,
-        };
-
-        response.cookie("qe-admin-token", sessionToken, options);
-
-        response
-          .status(200)
-          .send({
-            status: "ok",
-            type: "account",
-            currentAuthority: "User",
-            role: "User",
+            currentAuthority: "Admin",
+            role: "Admin",
             token: sessionToken,
           })
           .end();

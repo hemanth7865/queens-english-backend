@@ -889,7 +889,7 @@ const StudentsBatchList: React.FC = () => {
     }
   };
 
-  if (access.canAdmin) {
+  if (access.canSuperAdmin) {
     // User is Super Admin
   }
 
@@ -916,7 +916,7 @@ const StudentsBatchList: React.FC = () => {
         toolBarRender={() => [
           <div>
             <Access
-              accessible={access.canAdmin}
+              accessible={access.canSuperAdmin}
               fallback={<div> </div>}
             >
               <Button type="primary" key="primary" onClick={showDrawer}>
@@ -2435,7 +2435,7 @@ const StudentsBatchList: React.FC = () => {
                         </Row>
                       </Col>
                       <Access
-                        accessible={access.canAdmin}
+                        accessible={access.canSuperAdmin}
                         fallback={<div> </div>}
                       >
                         <Col span={12}>

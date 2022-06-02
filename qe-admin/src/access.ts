@@ -4,6 +4,7 @@
 export default function access(initialState: { currentUser?: API.CurrentUser | undefined }) {
   const { currentUser } = initialState || {};
   return {
-    canAdmin: currentUser?.superadmin == 'true',
+    canAdmin: currentUser && currentUser?.role?.indexOf('admin'),
+    canSuperAdmin: currentUser?.superadmin == 'true',
   };
 }

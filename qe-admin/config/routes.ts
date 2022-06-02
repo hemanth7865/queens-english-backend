@@ -38,7 +38,7 @@
         name: 'User',
         path: '/manage/UserBatch',
         component: './StudentList',
-        access: 'canAdmin'
+        access: 'canSuperAdmin'
       },
       {
         name: 'Student',
