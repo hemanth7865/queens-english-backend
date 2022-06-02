@@ -82,6 +82,12 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/retryLSQFailedRecords",
+    controller: LQSController,
+    action: "retryLSQFailedRecords",
+  },
+  {
+    method: "post",
     route: "/fetchLQSData",
     controller: LQSController,
     action: "updateLQSData",
