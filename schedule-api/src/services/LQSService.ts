@@ -156,7 +156,7 @@ export class LQSService {
       student.studentID = element.studentID;
       student.course = element.course;
       student.courseFrequency = element.courseFrequency;
-      student.status == 'Won' ? 'enrolled' : element.status;
+      student.status = element.status;
       student.salesowner = element.salesowner;
       student.timings = element.timings;
       student.startLesson = element.startingLevel;

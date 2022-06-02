@@ -570,7 +570,7 @@ export class StudentService {
     student.courseFrequency = data.courseFrequency;
     student.timings = data.timings;
     student.salesowner = data.salesowner;
-    student.status == 'Won' ? 'enrolled' : data.status;
+    student.status = data.status == 'Won' ? 'enrolled' : data.status;
     student.prm_id = data.prm_id;
     student.lsq_users_ID = data.lsq_users_ID;
     student.waMessageSent = data.waMessageSent;
