@@ -570,7 +570,7 @@ export class StudentService {
     student.courseFrequency = data.courseFrequency;
     student.timings = data.timings;
     student.salesowner = data.salesowner;
-    student.status = data.status;
+    student.status = data.status == 'Won' ? 'enrolled' : data.status;
     student.prm_id = data.prm_id;
     student.lsq_users_ID = data.lsq_users_ID;
     student.waMessageSent = data.waMessageSent;
@@ -739,7 +739,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element.status;
+    student.status == 'Won' ? 'enrolled' : element.status;
     student.timings = element.timings;
     student.wabatch = element.wabatch;
     student.salesDataFilled = element.salesDataFilled;
