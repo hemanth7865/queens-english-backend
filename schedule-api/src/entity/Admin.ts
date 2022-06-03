@@ -31,5 +31,7 @@ export class Admin extends BaseEntity {
     @Column({ 'nullable': true, type: "datetime" })
     updated_at: Date
 
+    @Column({ 'nullable': false, type: "text" })
+    role: string;
 
 }

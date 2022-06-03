@@ -32,7 +32,7 @@ import {
 } from "antd";
 import * as CountryList from 'country-list';
 import React, { useState, useRef } from "react";
-import { useIntl, FormattedMessage } from "umi";
+import { useIntl, FormattedMessage, useAccess, Access } from "umi";
 import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
@@ -74,6 +74,7 @@ import { Tabs } from 'antd';
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import Rebatching from "./components/Rebatching";
 import StudentBatchesHistory from "./components/StudentBatchesHistory";
+import access from "@/access";
 
 const { TabPane } = Tabs;
 
@@ -194,9 +195,11 @@ const StudentsBatchList: React.FC = () => {
   const [dateofsale, setSaleDate] = useState("");
   const [assesmentDate, setAssesmentDate] = useState("");
 
+  //Role Based Access
+  const access = useAccess();
 
   //const [selectClassType, setSelectClassType] = useState('')
-  const [status, setstatus] = useState("");
+  const [status, setStatus] = useState("");
   const [isSibling, setIsSibling] = useState<number>(0);
   const [selectGender, setSelectGender] = useState('');
   const [selectWABatch, setWABatch] = useState("");
@@ -885,6 +888,11 @@ const StudentsBatchList: React.FC = () => {
       console.log("error", error);
     }
   };
+
+  if (access.canSuperAdmin) {
+    // User is Super Admin
+  }
+
   return (
     <PageContainer>
       {/* {console.log('teacherbatches', teacherBatches)} */}
@@ -906,9 +914,16 @@ const StudentsBatchList: React.FC = () => {
         //   },
         // }}
         toolBarRender={() => [
-          <Button type="primary" key="primary" onClick={showDrawer}>
-            Add Student
-          </Button>,
+          <div>
+            <Access
+              accessible={access.canSuperAdmin}
+              fallback={<div> </div>}
+            >
+              <Button type="primary" key="primary" onClick={showDrawer}>
+                Add Student
+              </Button>
+            </Access>
+          </div>,
           <Drawer
             title="Add Student"
             placement="right"
@@ -2419,6 +2434,27 @@ const StudentsBatchList: React.FC = () => {
                           </Col>
                         </Row>
                       </Col>
+                      <Access
+                        accessible={access.canSuperAdmin}
+                        fallback={<div> </div>}
+                      >
+                        <Col span={12}>
+                          <Form.Item name="Status">
+                            <Select
+                              placeholder="Select Status"
+                              name="status"
+                              defaultValue={tempDataView.status}
+                              onChange={(value) => {
+                                setStatus(value);
+                              }}
+                            >
+                              <Option value='active'>Active</Option>
+                              <Option value='inactive'>InActive</Option>
+                              <Option value='batching'>Re-Batch</Option>
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                      </Access>
                     </Row>
                     <Row>
                       <Col span={8}>
