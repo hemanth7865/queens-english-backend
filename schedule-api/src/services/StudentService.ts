@@ -739,7 +739,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status == 'Won' ? 'enrolled' : element.status;
+    student.status = element.status == 'Won' ? 'enrolled' : element.status ;
     student.timings = element.timings;
     student.wabatch = element.wabatch;
     student.salesDataFilled = element.salesDataFilled;
