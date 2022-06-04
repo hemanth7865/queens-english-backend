@@ -131,8 +131,6 @@ const handleUpdate = async (fields: FormValueType) => {
   }
 };
 
-
-
 /**
  *  Delete node
  * @zh-CN 删除节点
@@ -359,24 +357,10 @@ const StudentsBatchList: React.FC = () => {
     if (message === false && msg === undefined) {
       setError('Enter a valid Mobile Number')
     }
-    //console.log(validatePhoneNumberLength(number, 'IN'))
-
   }
 
 
-  //edit drawer
 
-  // const showChildrenDrawer = () => {
-  //   setchildrenDrawer(true);
-  // };
-
-  // const onChildrenDrawerClose = () => {
-  //   setchildrenDrawer(false);
-  // };
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
   const intl = useIntl();
 
   const handleOneView = async (id) => {
@@ -767,7 +751,7 @@ const StudentsBatchList: React.FC = () => {
       countryCode: formData.countryCode ? formData.countryCode : tempDataView.countryCode,
       email: formData.email ? formData.email : tempDataView.email,
       type: formData.type ? formData.type : 'student',
-      // status: status ? status : tempDataView.status,
+      status: status ? status : tempDataView.status,
       studentName: formData.studentName ? formData.studentName : tempDataView.studentName,
       teacherName: formData.teacherName ? formData.teacherName : tempDataView.teacherName,
       mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
@@ -2638,7 +2622,7 @@ const StudentsBatchList: React.FC = () => {
                             />
                           </Form.Item>
                           :
-                          <Form.Item name="classesStartDate" extra="Actual Start Date">
+                          <Form.Item name="classesStartDate" label="Actual Start Date">
                             <DatePicker
                               defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
                               format="YYYY-MM-DD"
