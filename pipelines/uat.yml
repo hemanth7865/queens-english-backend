@@ -1,0 +1,25 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - feature-release
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: SSH@0
+    displayName: "Connect UAT Server, And Run Deployment Scripts"
+    inputs:
+      sshEndpoint: "QE_PORTAL UAT"
+      runOptions: "commands"
+      commands: |
+        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
+        cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
+        cd /home/qeuser/qe-backend/qe-admin && npm run build
+        pm2 restart all
+      readyTimeout: "20000"
+      # Don't Show Error Message If Command Fail
+      # failOnStdErr: false
