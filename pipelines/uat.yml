@@ -18,7 +18,7 @@ steps:
       commands: |
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
         cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
-        cd /home/qeuser/qe-backend/qe-admin && npm run build
+        cd /home/qeuser/qe-backend/qe-admin && npm run build &> /home/qeuser/build.txt && cat /home/qeuser/build.txt 
         cd /home/qeuser/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
         pm2 restart all
       readyTimeout: "20000"
