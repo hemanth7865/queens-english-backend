@@ -41,14 +41,16 @@ export class UserController {
         try {
             if (request.body.type === 'student') {
                 const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
-                const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
-                if (validatingStudent.status == 'Error') {
-                    return { status: 400, errors: [validatingStudent.message] };
+                if (request.body.status == 'enrolled' || request.body.status == 'startclasslater' || request.body.status == 'Enrolled') {
+                    const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
+                    if (validatingStudent.status == 'Error') {
+                        return { status: 400, errors: [validatingStudent.message] };
+                    }
                 }
-                // if (leadIDExists) {
-                //     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
-                //     return { status: 400, errors: ['Student already exists with given studentID'] };
-                // }
+                if (leadIDExists) {
+                    usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
+                    return { status: 400, errors: ['Student already exists with given studentID'] };
+                }
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
             else {

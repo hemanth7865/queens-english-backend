@@ -343,9 +343,6 @@ const StudentsBatchList: React.FC = () => {
       setError('Please Select country first')
     } else if (msg === undefined) {
       setError('')
-      setTimeout(function () {
-        window.location.reload(1);
-      }, 1800);
     } else {
       setError('Phone number is Invalid')
     }
