@@ -121,15 +121,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
-      props.submit(dataForm);
-    } else {
-      notification.open({
-        message: 'Sales Amount Error',
-        description:
-          'Enter valid sale amount, subscription Months, subscription amount and downpayment',
-      });
-    }
+    props.submit(dataForm);
     console.log('Data', dataForm)
   };
 

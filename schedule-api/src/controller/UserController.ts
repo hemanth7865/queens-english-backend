@@ -45,10 +45,10 @@ export class UserController {
                 if (validatingStudent.status == 'Error') {
                     return { status: 400, errors: [validatingStudent.message] };
                 }
-                if (leadIDExists) {
-                    usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
-                    return { status: 400, errors: ['Student already exists with given studentID'] };
-                }
+                // if (leadIDExists) {
+                //     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
+                //     return { status: 400, errors: ['Student already exists with given studentID'] };
+                // }
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
             else {
