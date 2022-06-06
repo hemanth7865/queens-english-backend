@@ -8,7 +8,7 @@ import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
 import { randomFill } from "crypto";
 const { usersLogger } = require("../Logger.js");
-import { StudentService } from "../services/StudentService";
+import { validations } from "../helpers/validations";
 const date = require('date-and-time')
 
 export class LQSService {
@@ -113,48 +113,6 @@ export class LQSService {
     });
     return lqsEntries;
   }
-  
-  //function to validate students
-  async validateStudent(payment, user, student){
-    var total = {
-      ...student,
-      ...user,
-      ...payment
-    }
-    var status = LQSService.LSQ_STATUS_ENROLLED;
-    var p = total;
-    var isEntryStatus = false;
-    var isTempEntryStatus = true;
-    var isValidation = false;
-    for (var key in p) {
-      if (p.hasOwnProperty(key)) {
-      if (key == "customerEmail" || key == "timings" || key == "courseFrequency" || key == "firstName" || key == "alternativeMobile" || key == "course" || key == "startLesson" || key == "startDate" || key == "paymentMode" || key == "emiMonths" || key == "emi" || key == "subscription" || key == "saleamount" || key == "classessold" || key == "downpayment" || key == "paymentid" || key == "address" || key == "whatsapp" || key == "dob" || key == "status" || key == "phoneNumber" || key == "studentID") {
-          var tempKeyValue = p[key] + "";
-          if (isTempEntryStatus) {
-              if (tempKeyValue.length > 0 && tempKeyValue != "undefined" && tempKeyValue != "null" && tempKeyValue != " ") {
-                  isEntryStatus = true;
-                  if (total.saleamount == (Number(total.emi * total.emiMonths) + Number(total.downpayment))) {
-                      isValidation = true;
-                    }
-              }
-              else {
-                  isEntryStatus = false;
-                  isTempEntryStatus = false;
-              }
-          }
-      }
-      }
-    }
-
-    const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", student.studentID, student.id);
-    if (!isEntryStatus || !isValidation) {
-      status = LQSService.LSQ_STATUS_Error;
-    }
-    if(leadIDExists){
-      status = LQSService.LSQ_STATUS_Error;
-    }
-    return status;
-  }
 
   /**
    * Fetch data from LSQ
@@ -221,12 +179,13 @@ export class LQSService {
       payment.notes = element.bdaComments;
 
       usersLogger.info(`Applying Validate ${user.id}`);
-      if(await this.validateStudent(payment, user, student) == LQSService.LSQ_STATUS_Error){
+      const validateStudent = await (new validations()).validateStudent('LSQValidate', student, user, payment);
+      if (validateStudent.status == LQSService.LSQ_STATUS_Error) {
         user.status = LQSService.LSQ_STATUS_Error;
         usersLogger.info(`Validate failed ${user.id}`);
       }
 
-      
+
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
       student.prm_id = await (await this.getPRMsAvailability())[0].id;
