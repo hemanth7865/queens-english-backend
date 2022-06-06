@@ -33,7 +33,7 @@ export class validations {
                     if (isTempEntryStatus) {
                         if (tempKeyValue.length > 0 && tempKeyValue != "undefined" && tempKeyValue != "null" && tempKeyValue != " ") {
                             isEntryStatus = true;
-                            if (total.saleamount != 0 && total.emi != 0 && total.emiMonths != 0 && total.downpayment != 0 && paymentTally == 0) {
+                            if (total.saleamount != 0 && total.downpayment != 0 && paymentTally == 0) {
                                 isValidation = true;
                             }
                         }
