@@ -11,3 +11,4 @@ qe-admin/config/config.dev.ts
 qe-admin/data/lsq_users.json
 qe-admin/data/prms.json
 .vscode/settings.json
+.vscode/settings.json
