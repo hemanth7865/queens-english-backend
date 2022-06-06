@@ -8,6 +8,7 @@ import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
 import { randomFill } from "crypto";
 const { usersLogger } = require("../Logger.js");
+import { validations } from "../helpers/validations";
 const date = require('date-and-time')
 
 export class LQSService {
@@ -25,6 +26,7 @@ export class LQSService {
   public static LSQ_STATUS_CREATED = "Created";
   public static LSQ_STATUS_FAILED = "Failed";
   public static LSQ_STATUS_SUCCESS = "Success";
+  public static LSQ_STATUS_Error = "Error";
 
 
   private lQSRepository = getRepository(LQSEntry);
@@ -175,6 +177,14 @@ export class LQSService {
       payment.paymentMode = element.paymentMode;
       payment.paymentid = element.transactionID;
       payment.notes = element.bdaComments;
+
+      usersLogger.info(`Applying Validate ${user.id}`);
+      const validateStudent = await (new validations()).validateStudent('LSQValidate', student, user, payment);
+      if (validateStudent.status == LQSService.LSQ_STATUS_Error) {
+        user.status = LQSService.LSQ_STATUS_Error;
+        usersLogger.info(`Validate failed ${user.id}`);
+      }
+
 
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
