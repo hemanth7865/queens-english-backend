@@ -313,17 +313,23 @@ export class StudentService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
+    const cosmosUserBody: any = {
+      type: data.type,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      isAdministrator: false,
+      phoneNumber: data.phoneNumber,
+    }
+
+    if(data.cacheTime){
+      cosmosUserBody.cacheTime = data.cacheTime
+    }
+
     const options = {
       url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
       json: true,
-      body: {
-        type: data.type,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        isAdministrator: false,
-        phoneNumber: data.phoneNumber,
-      },
+      body: cosmosUserBody,
     };
 
     usersLogger.info(
