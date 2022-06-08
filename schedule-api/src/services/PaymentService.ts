@@ -31,7 +31,6 @@ export class PaymentService {
     let response = {}
     usersLogger.info('Student Service payment Details ::Start');
     const t = await this.transactionRepository.find({studentId:parameters.studentId});
-    console.log(t);
     for ( let transaction of t) {
       var view = new PaymentsView();
       view.id=transaction.id;   
