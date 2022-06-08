@@ -50,6 +50,11 @@
         component: './NewAssessment'
       },
       {
+        name: 'Payment',
+        path: '/manage/payment',
+        component: './Payment'
+      },
+      {
         name: 'Onboard',
         path: '/manage/dashboard',
         routes: [
