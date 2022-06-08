@@ -4,6 +4,7 @@ qe-admin/src/.umi-production
 schedule-api/ormconfig.json
 schedule-api/.env
 qe-admin/.env
+qe-admin/dist
 qe-admin/config/proxy.ts
 qe-admin/config/config.prd.ts
 qe-admin/config/config.ts

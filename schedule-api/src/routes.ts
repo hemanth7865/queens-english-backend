@@ -5,6 +5,7 @@ import { SessionController } from "./controller/SessionController";
 import { AssessmentController } from "./controller/AssessmentController";
 import { Assessment } from "./entity/Assessment";
 import { LQSController } from "./controller/LQSController";
+import { PaymentController } from "./controller/PaymentController";
 
 export const Routes = [
   {
@@ -79,6 +80,12 @@ export const Routes = [
     route: "/leads/update/status",
     controller: UserController,
     action: "updateLeadsStatus",
+  },
+  {
+    method: "post",
+    route: "/retryLSQFailedRecords",
+    controller: LQSController,
+    action: "retryLSQFailedRecords",
   },
   {
     method: "post",
@@ -262,5 +269,26 @@ export const Routes = [
     action: "loadTeacherAvailability",
   },
 
+  
+  {
+    method: "get",
+    route: "/studentPaymentDetails",
+    controller: PaymentController,
+    action: "studentPaymentDetails",
+  },
+  
+  {
+    method: "post",
+    route: "/paymentsDetails",
+    controller: PaymentController,
+    action: "loadTeacherAvailability",
+  },
 
+  {
+    method: "post",
+    route: "/fetchPaymentsDetails",
+    controller: PaymentController,
+    action: "loadTeacherAvailability",
+  },
+  
 ];
