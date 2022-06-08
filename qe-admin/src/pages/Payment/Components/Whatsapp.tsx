@@ -3,7 +3,7 @@ import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notifi
 
 export type WhatsappProps = {
     data: {};
-    visible: '';
+    visible: {};
     setVisible: () => void;
     onUpdate: () => void;
 };

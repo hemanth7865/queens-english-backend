@@ -1,6 +1,6 @@
-import { PlusOutlined, ClockCircleOutlined, EyeOutlined, EditTwoTone, WhatsAppOutlined } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone } from '@ant-design/icons';
 import { NotificationInstance as RCNotificationInstance } from 'rc-notification/lib/Notification';
-import { Button, message, Input, Drawer, Tooltip, Modal } from 'antd';
+import { Button, message, Input, Drawer, Tooltip, Modal, notification, Popover, Popconfirm } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -10,9 +10,11 @@ import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
-import { studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
+import { studentBatches, userBatchesView, getAllPayment } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import Whatsapp from './Components/Whatsapp';
+import RazorpayDetails from './Components/RazorpayDetails';
+import { entriesIn } from 'lodash';
 
 /**
  * @en-US Add node
@@ -40,20 +42,23 @@ const TableList: React.FC = () => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isWhatsappVisible, setIsWhatsappVisible] = useState(false);
+    const [isAmountDisplay, setIsAmountDisplay] = useState(false);
+    const [displayRazorpay, setDisplayRazorpay] = useState(false);
+    const [otherPayment, setOtherPayment] = useState(false);
+    const [netbankingVisible, setNetbankingVisible] = useState(false);
+    const [autodebitVisible, setAutodebitVisible] = useState(false);
 
-    /**
-     * @en-US International configuration
-     * @zh-CN 国际化配置
-     * */
+
     const intl = useIntl();
 
-    const showDrawer = () => {
-        setVisible(true);
-    };
-
-    const onClose = () => {
+    const closeModal = () => {
+        setIsModalVisible(false);
+        setIsWhatsappVisible(false);
         setVisible(false);
-    };
+        setIsAmountDisplay(false);
+        setAutodebitVisible(false);
+        setNetbankingVisible(false);
+    }
 
     const handleOneDisplay = async (id) => {
         try {
@@ -68,16 +73,19 @@ const TableList: React.FC = () => {
         }
     }
 
+    const handleVisibleChange = (newVisible: boolean) => {
+        setOtherPayment(newVisible);
+    };
 
     const columns: ProColumns<API.RuleListItem>[] = [
         {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleStudentID"
-                    defaultMessage="student ID"
+                    defaultMessage="studentId"
                 />
             ),
-            dataIndex: 'studentID',
+            dataIndex: 'studentId',
             fixed: 'left',
         },
         {
@@ -132,7 +140,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Due Date"
                 />
             ),
-            dataIndex: 'DueDate',
+            dataIndex: 'dueDate',
         },
         {
             title: (
@@ -141,7 +149,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Installment Rs"
                 />
             ),
-            dataIndex: 'InstallmentRs',
+            dataIndex: 'emiAmount',
         },
         {
             title: (
@@ -150,7 +158,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Call Disposition"
                 />
             ),
-            dataIndex: 'CallDisposition',
+            dataIndex: 'callDisposition',
         },
         {
             title: (
@@ -159,7 +167,17 @@ const TableList: React.FC = () => {
                     defaultMessage="Razorpay Link"
                 />
             ),
-            dataIndex: 'RazorpayLink',
+            render: (dom, entity) => {
+                return (
+                    <a
+                        onClick={() => {
+                            setCurrentRow(entity);
+                            setDisplayRazorpay(true);
+                        }}>
+                        {entity.razorpayLink}
+                    </a>
+                )
+            },
         },
         {
             title: (
@@ -168,7 +186,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Installment Status"
                 />
             ),
-            dataIndex: 'InstallmentStatus',
+            dataIndex: 'status',
         },
         {
             title: (
@@ -177,7 +195,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Installment Collected"
                 />
             ),
-            dataIndex: 'InstallmentCollected',
+            dataIndex: 'paidAmount',
         },
         {
             title: (
@@ -186,7 +204,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Paid Date"
                 />
             ),
-            dataIndex: 'PaidDate',
+            dataIndex: 'paidDate',
         },
         {
             title: (
@@ -211,13 +229,13 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleedit"
-                    defaultMessage="Edit"
+                    defaultMessage="Operations"
                 />
             ),
             dataIndex: "edit",
             hideInSearch: true,
             fixed: 'right',
-            width: 80,
+            width: 150,
             render: (dom, entity) => {
                 return (
                     <div>
@@ -227,7 +245,7 @@ const TableList: React.FC = () => {
                                 setIsModalVisible(true);
                             }}
                             style={{ marginLeft: 10 }}>
-                            <EditTwoTone />
+                            <EditTwoTone title='Edit' />
                         </a>
                         <a
                             onClick={() => {
@@ -238,6 +256,55 @@ const TableList: React.FC = () => {
                             style={{ marginLeft: 10 }}>
                             <WhatsAppOutlined title='whatsapp' />
                         </a>
+                        <a
+                            style={{ marginLeft: 10 }}>
+                            <LinkOutlined title='Regenerate Link' />
+                        </a>
+                        <a
+                            onClick={() => {
+                                setTempData(entity);
+                                setIsModalVisible(true);
+                                setIsAmountDisplay(true);
+                            }}
+                            style={{ marginLeft: 10, marginRight: 10 }}>
+                            <MoneyCollectTwoTone title='Change Amount' />
+                        </a>
+                        <Popover
+                            content={
+                                <div>
+                                    <Button
+                                        onClick={() => {
+                                            setNetbankingVisible(true);
+                                            setOtherPayment(false);
+                                            setTempData(entity);
+                                            setIsModalVisible(true);
+                                        }}
+                                        style={{ marginRight: 10 }}
+                                    >
+                                        Auto debit
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            setAutodebitVisible(true);
+                                            setOtherPayment(false);
+                                            setTempData(entity);
+                                            setIsModalVisible(true);
+                                        }}>Netbanking</Button><br />
+                                    <a onClick={() => { setOtherPayment(false) }}>Close</a>
+                                </div>
+
+                            }
+                            title="Choose the mode of payment"
+                            trigger="click"
+                            visible={otherPayment}
+                            onVisibleChange={handleVisibleChange}
+                            overlayStyle={{
+                                width: "25vw"
+                            }}
+                            key={entity.id}
+                        >
+                            <PlusSquareTwoTone title='Other Payment' />
+                        </Popover>
                     </div>
                 );
             },
@@ -249,37 +316,35 @@ const TableList: React.FC = () => {
             <ProTable<API.RuleListItem, API.PageParams>
                 headerTitle={intl.formatMessage({
                     id: 'pages.searchTable.titleUser',
-                    defaultMessage: 'User Management',
+                    defaultMessage: 'Payment Management',
                 })}
                 actionRef={actionRef}
                 rowKey="key"
                 search={{
                     labelWidth: 120,
                 }}
-                request={studentBatches}
+                request={getAllPayment}
                 columns={columns}
                 scroll={{
                     x: 1500,
                 }}
-                toolBarRender={() => [
-                    <Button
-                        type="primary"
-                        key="primary"
-                        onClick={showDrawer}
-                    >
-                        Add User
-                    </Button>,
-                    <Drawer
-                        title="Add User"
-                        placement="right"
-                        onClose={onClose}
-                        visible={visible}
-                        width={500}
-                    >
-                        {/* <AddUser setVisible={setVisible} /> */}
-                    </Drawer>
-                ]}
             />
+
+            <Drawer
+                width={600}
+                visible={displayRazorpay}
+                title="Razorpay details"
+                onClose={() => {
+                    setCurrentRow('');
+                    setDisplayRazorpay(false);
+                }}
+                closable={true}
+            >
+                <RazorpayDetails data={currentRow} />
+
+            </Drawer>
+
+
 
             {/* Drawer for Edit student */}
             <Modal
@@ -287,12 +352,23 @@ const TableList: React.FC = () => {
                 visible={isModalVisible}
                 footer={null}
                 centered
-                onCancel={() => { setIsModalVisible(false) }}
+                onCancel={closeModal}
                 width={700}
             >
                 {isWhatsappVisible ?
-                    <Whatsapp data={tempData} visible={visibleEdit} setVisible={setVisibleEdit} /> :
-                    <FormUser data={tempData} visible={visibleEdit} setVisible={setVisibleEdit} />
+                    <Whatsapp
+                        data={tempData}
+                        visible={visibleEdit}
+                        setVisible={setVisibleEdit}
+                    /> :
+                    <FormUser
+                        data={tempData}
+                        visible={visibleEdit}
+                        setVisible={setVisibleEdit}
+                        isAmountDisplay={isAmountDisplay}
+                        netbankingVisible={netbankingVisible}
+                        autodebitVisible={autodebitVisible}
+                    />
                 }
             </Modal>
         </PageContainer>
