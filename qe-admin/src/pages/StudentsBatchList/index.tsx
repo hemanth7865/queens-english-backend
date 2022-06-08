@@ -343,9 +343,6 @@ const StudentsBatchList: React.FC = () => {
       setError('Please Select country first')
     } else if (msg === undefined) {
       setError('')
-      setTimeout(function () {
-        window.location.reload(1);
-      }, 1800);
     } else {
       setError('Phone number is Invalid')
     }
@@ -1049,18 +1046,35 @@ const StudentsBatchList: React.FC = () => {
                       <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} />
 
                       <Col span={12}>
-                        <Form.Item name="alternativeMobile">
+                        <Form.Item name="alternativeMobile"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Alternate Number"
+                          }]}>
                           <Input
                             placeholder="Alternative Contact No"
                             name="alternativeMobile"
                             value={formData.alternativeMobile}
                             onChange={handleFormChange}
-                          //   prefix = {selectCountryCode?selectCountryCode:DEFAULT_COUNTRY_CODE_NUMBER}
                           />
                         </Form.Item>
                       </Col>
 
-                      <PhoneNumberCountrySelect handleMobileChange={handleFormChange} formData={formData} phoneNumberName={"whatsapp"} placeholder="whatsapp Number" edit={true} defaultValue={formData.whatsapp} />
+                      <Col span={12}>
+                        <Form.Item name="Whatsapp Number" rules={[{
+                          required: false,
+                          pattern: /^\+[0-9]{12}$/,
+                          message: "Enter valid Whatsapp Number"
+                        }]}>
+                          <Input
+                            placeholder="Whatsapp Number"
+                            name="whatsapp"
+                            value={formData.whatsapp}
+                            onChange={handleFormChange}
+                          />
+                        </Form.Item>
+                      </Col>
 
                       <Col span={12}>
                         <Form.Item
@@ -2315,7 +2329,12 @@ const StudentsBatchList: React.FC = () => {
                       <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView.phoneNumber} />
 
                       <Col span={12}>
-                        <Form.Item name="alternativeMobile">
+                        <Form.Item name="alternativeMobile"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Alternate Number"
+                          }]}>
                           <Input
                             placeholder="Alternative Contact No"
                             name="alternativeMobile"
@@ -2323,13 +2342,25 @@ const StudentsBatchList: React.FC = () => {
                             onChange={handleFormChange}
                           // prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
                           />
-                          {/* {error ? (
-                      <p style={{ color: 'red' }}>{error}</p>
-                    ) : ''} */}
                         </Form.Item>
                       </Col>
 
-                      <PhoneNumberCountrySelect handleMobileChange={handleFormChange} phoneNumberName={"whatsapp"} placeholder="whatsapp Number" edit={true} defaultValue={tempDataView.whatsapp} />
+                      <Col span={12}>
+                        <Form.Item name="Whatsapp Number"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Whatsapp Number"
+                          }]}>
+                          <Input
+                            placeholder="Whatsapp Number"
+                            name="whatsapp"
+                            value={formData.whatsapp}
+                            onChange={handleFormChange}
+                            defaultValue={tempDataView.whatsapp}
+                          />
+                        </Form.Item>
+                      </Col>
 
                       <Col span={12}>
                         <Form.Item
