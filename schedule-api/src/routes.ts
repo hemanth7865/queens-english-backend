@@ -272,16 +272,16 @@ export const Routes = [
     route: "/update-installment-status",
     controller: InstallmentController,
     action: "updateTransctionPaymentStatus",
+    apiKey: true,
   },
 
-  
   {
     method: "get",
     route: "/studentPaymentDetails",
     controller: PaymentController,
     action: "studentPaymentDetails",
   },
-  
+
   {
     method: "post",
     route: "/paymentDetails",
@@ -295,5 +295,4 @@ export const Routes = [
     controller: PaymentController,
     action: "loadTeacherAvailability",
   },
-  
 ];
