@@ -5,6 +5,7 @@ import { SessionController } from "./controller/SessionController";
 import { AssessmentController } from "./controller/AssessmentController";
 import { Assessment } from "./entity/Assessment";
 import { LQSController } from "./controller/LQSController";
+import { PaymentController } from "./controller/PaymentController";
 
 export const Routes = [
   {
@@ -260,6 +261,13 @@ export const Routes = [
     route: "/loadTeacherAvailability",
     controller: UserController,
     action: "loadTeacherAvailability",
+  },
+
+  {
+    method: "post",
+    route: "/generatePaymentLink",
+    controller: PaymentController,
+    action: "generatePaymentLink"
   },
 
 
