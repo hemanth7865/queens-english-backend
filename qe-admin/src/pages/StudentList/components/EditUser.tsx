@@ -43,6 +43,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
 
     const allCountries = CountryList.getData()
     const allCountryCodes = getCountries()
+    const [clearCache, setClearCache] = useState(false);
     const countryCodes = allCountryCodes.map((code) => {
         return getCountryCallingCode(code)
     })
@@ -136,6 +137,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             if (props.data) {
                 dataForm.id = props.data.id;
             }
+            if (clearCache) {
+                dataForm.cacheTime = new Date().getTime();
+            }
             try {
                 // 登录
                 console.log("data", dataForm);
@@ -160,6 +164,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
 
     const [form] = Form.useForm()
     const defaultValues = () => {
+        setClearCache(false);
         form.setFieldsValue({
             FirstName: props.data.firstName,
             lastName: props.data.lastName,
@@ -255,9 +260,17 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={24}>
-                            <Button type="primary" htmlType="submit">
+                        <Col span={24} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <Button type="primary" htmlType="submit" onClick={() => {
+                                setClearCache(false);
+                            }}>
                                 Save Changes
+                            </Button>
+
+                            <Button type="primary" htmlType="submit" onClick={() => {
+                                setClearCache(true);
+                            }}>
+                                Clear Cache
                             </Button>
                         </Col>
                     </Row>
