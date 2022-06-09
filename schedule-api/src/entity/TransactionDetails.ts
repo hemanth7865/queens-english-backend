@@ -16,20 +16,14 @@ export class TransactionDetails extends BaseEntity {
     id: String;
     @Column({type:"text",name:"transaction_id"})
     transactionId: string;
-    @Column({type:"text",name:"razorpay_link"})
-    razorpayLink: string;
-    @Column({ 'nullable': true })
-    status: string;
     @Column({type:"text",name:"whatsapp_link_sent"})
     whatsAppLinkSent: string;
-    @Column({type:"text",name:"mode_of_payment"})
-    modeOfPayment: string;
     @Column({ 'nullable': true,name:"call_disposition" })
     callDisposition: string;
     @Column({ 'nullable': true, name:"feedback_call"})
     feedBackCall: string;
-    @Column({ 'nullable': true, type: "date" , name:"payment_mode"})
-    paymentMode: Date;   
+    @Column({ 'nullable': true, type: "text" , name:"payment_mode"})
+    paymentMode: string;   
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()

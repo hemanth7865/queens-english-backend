@@ -21,7 +21,7 @@ export class PaymentsView {
   modeOfPayment: string;
   callDisposition: string;
   feedBackCall: string;
-  paymentMode: Date;   
+  paymentMode: string;   
   transaction_details_created_at: Date;
   transaction_details_updated_at: Date;
   payment_mode_id: string;
@@ -30,10 +30,12 @@ export class PaymentsView {
   comments: string;
   created_at: Date;
   updated_at: Date;
+  collectionAgent: number;
+  referenceId:string;
 
 
   PaymentsView(id: String,  studentId: string,  dueDate: Date,  paidDate: Date,  emiAmount: string,  paidAmount: string,  status: string,  tran_created_at: Date,  tran_updated_at: Date,  transaction_details_id: String,  transactionId: string,  
-               transaction_details_status: string,  whatsAppLinkSent: string,  modeOfPayment: string,  callDisposition: string,  feedBackCall: string,  paymentMode: Date,     transaction_details_created_at: Date,  transaction_details_updated_at: Date,  payment_mode_id: string,  razorpayLink: string,  payment_mode_status: string,  transactionReference: string,  comments: string,  created_at: Date,  updated_at: Date){
+               transaction_details_status: string,  whatsAppLinkSent: string,  modeOfPayment: string,  callDisposition: string,  feedBackCall: string,  paymentMode: string,     transaction_details_created_at: Date,  transaction_details_updated_at: Date,  payment_mode_id: string,  razorpayLink: string,  payment_mode_status: string,  transactionReference: string,  comments: string,  created_at: Date,  updated_at: Date){
 
                 this.id = id;
                 this.studentId=studentId;

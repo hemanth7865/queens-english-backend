@@ -56,6 +56,12 @@ export class PaymentService {
         case "id":
           whereCondition.push(`id = '${parameters["id"]}'`)
           break;
+        case "referenceId":
+          whereCondition.push(`reference_id = '${parameters["referenceId"]}'`)
+          break;
+        case "collection_agent":
+          whereCondition.push(`collection_agent = '${parameters["collectionAgent"]}'`)
+          break;
      }
    }
 
@@ -99,9 +105,9 @@ export class PaymentService {
        case "paymentMode":
          whereCondition.push(`paymentMode = '${parameters["paymentMode"]}'`)
          break;
-         case "transaction_details_id":
-          whereCondition.push(`transaction_details_id = '${parameters["transaction_details_id"]}'`)
-          break;
+        case "transaction_details_id":
+        whereCondition.push(`transaction_details_id = '${parameters["transaction_details_id"]}'`)
+        break;
     }
   }
 
@@ -120,18 +126,15 @@ export class PaymentService {
       view.paidDate=record.paidDate;
       view.emiAmount=record.emiAmount;
       view.paidAmount=record.paidAmount;
+      view.collectionAgent = record.collectionAgent;
       view.status=record.status;
       view.created_at=record.created_at;
       view.updated_at=record.updated_at;
-
      // const td = await this.transaDetailsRepository.findOne({transactionId:item["transactionId"]});
       
       view.transaction_details_id = item.id;
-      view.transactionId=item.transactionId;
-      view.razorpayLink=item.razorpayLink;
-      view.status=item.status;
+      view.transactionId=item.transactionId;     
       view.whatsAppLinkSent=item.whatsAppLinkSent
-      view.modeOfPayment=item.modeOfPayment;
       view.callDisposition=item.callDisposition;
       view.feedBackCall=item.feedBackCall;
       view.paymentMode=item.paymentMode;
@@ -190,10 +193,7 @@ try{
         transactiondetail.updated_at=new Date();
        }
       
-       transactiondetail.razorpayLink=data.razorpayLink;
-       transactiondetail.status=data.status;
        transactiondetail.whatsAppLinkSent=data.whatsAppLinkSent;
-       transactiondetail.modeOfPayment=data.modeOfPayment;
        transactiondetail.callDisposition=data.callDisposition;
        transactiondetail.feedBackCall=data.feedBackCall;
        transactiondetail.paymentMode=data.paymentMode;

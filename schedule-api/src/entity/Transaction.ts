@@ -7,7 +7,7 @@ import {
  * Student transaction information
  */
 
-@Entity("transactions")
+@Entity("installments")
 export class Transactions extends BaseEntity {
 
     Transactions() { }
@@ -15,8 +15,10 @@ export class Transactions extends BaseEntity {
     id: string;
     @Column({type:"text",name:"student_id"})
     studentId: string;
-    @Column({type:"text",name:"transaction_id"})
+    @Column({type:"text",name:"reference_id"})
     transactionId: string;
+    @Column({type:"text",name:"collection_agent"})
+    collectionAgent: number;
     @Column({ 'nullable': true, type: "date",name:"due_date" })
     dueDate: Date;
     @Column({ 'nullable': true, type: "date",name:"paid_date" })
