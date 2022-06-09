@@ -19,50 +19,139 @@ export class PaymentService {
    */
 
   async studentPaymentDetails(parameters: any){
+    console.log('parameters');
+    console.log(parameters);
+    const moment = require("moment");
     var paymentView: PaymentsView[] = [];
     var transactions : Transactions[] = []
     let response = {}
     usersLogger.info('Student Service payment Details ::Start');
     let t ;
-    if (parameters.studentId){
+    var offset = parameters.current;
+    var current = offset;
+    var limit = parameters.pageSize;
+    offset = offset == 1 ? offset = 0: offset;
+    var whereCondition = [];
+    var condition = ""
+   // whereCondition.push("");
+   for (let param in parameters) {
+     console.log('param');
+     console.log(param);
+     switch(param) {
+        case "dueDate":
+          whereCondition.push(`due_date = '${parameters["dueDate"]}'`);
+          break;
+        case "paidDate":
+          whereCondition.push(`paid_date = '${parameters["paidDate"]}'`)
+          break;
+        case "emiAmount":
+          whereCondition.push(`emi_amount = '${parameters["emiAmount"]}'`)
+          break;
+        case "status":
+          whereCondition.push(`payment_status = '${parameters["status"]}'`)
+          break;
+        case "paidAmount":
+          whereCondition.push(`paid_amount = '${parameters["paidAmount"]}'`)
+          break;
+        case "id":
+          whereCondition.push(`id = '${parameters["id"]}'`)
+          break;
+     }
+   }
+
+   console.log(whereCondition);
+   console.log('join');
+   console.log(whereCondition.join(' and '));
+   whereCondition.push(" 1 = 1 ");
+   condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
+   console.log(condition);
+   
+
+   if (parameters.studentId){
     t = await this.transactionRepository.find({studentId:parameters.studentId});
     } else {
       t = await getManager()
-          .createQueryBuilder(Transactions, "transactions").offset(parameters.current).limit(parameters.pageSize).getMany();
+          .createQueryBuilder(Transactions, "transactions").where(condition).offset(offset).limit(limit).getMany();
     }
-    for ( let transaction of t) {
+    console.log('t');
+    console.log(t);
+    var ids =t.map((i) => "'" + i.id + "'").join(",");
+    console.log(ids);
+
+
+
+   whereCondition = [];
+   if (ids.length>0)
+      whereCondition.push(`transaction_id in  (${ids})`);
+
+   for (let param in parameters) {
+    
+    switch(param) {
+      case "tdstatus":
+       whereCondition.push(`status = '${parameters["tdstatus"]}'`);
+       break;
+      case "whatsAppLinkSent":
+       whereCondition.push(`whatsapp_link_sent = '${parameters["whatsAppLinkSent"]}'`);
+       break;
+       case "modeOfPayment":
+         whereCondition.push(`mode_of_payment = '${parameters["modeOfPayment"]}'`);
+         break;
+       case "callDisposition":
+         whereCondition.push(`call_disposition = '${parameters["callDisposition"]}'`);
+         break;
+       case "feedBackCall":
+         whereCondition.push(`feedback_call = '${parameters["paidAmount"]}'`);
+         break;
+       case "paymentMode":
+         whereCondition.push(`paymentMode = '${parameters["paymentMode"]}'`)
+         break;
+         case "transaction_details_id":
+          whereCondition.push(`transaction_details_id = '${parameters["transaction_details_id"]}'`)
+          break;
+    }
+  }
+
+  condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
+  console.log(condition);
+
+  var tdetails = await getManager()
+  .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).offset(offset).limit(limit).getMany();
+
+    for ( let item of tdetails) {
+      var record = await this.transactionRepository.findOne({id:item.transactionId});
       var view = new PaymentsView();
-      view.id=transaction.id;
-      view.studentId=transaction.studentId;
-      view.dueDate=transaction.dueDate;
-      view.paidDate=transaction.paidDate;
-      view.emiAmount=transaction.emiAmount;
-      view.paidAmount=transaction.paidAmount;
-      view.status=transaction.status;
-      view.created_at=transaction.created_at;
-      view.updated_at=transaction.updated_at;
+      view.id=record.id;
+      view.studentId=record.studentId;
+      view.dueDate=record.dueDate;
+      view.paidDate=record.paidDate;
+      view.emiAmount=record.emiAmount;
+      view.paidAmount=record.paidAmount;
+      view.status=record.status;
+      view.created_at=record.created_at;
+      view.updated_at=record.updated_at;
 
-      const td = await this.transaDetailsRepository.findOne({transactionId:transaction["transactionId"]});
+     // const td = await this.transaDetailsRepository.findOne({transactionId:item["transactionId"]});
       
-      view.transaction_details_id = td.id;
-      view.transactionId=td.transactionId;
-      view.razorpayLink=td.razorpayLink;
-      view.status=td.status;
-      view.whatsAppLinkSent=td.whatsAppLinkSent
-      view.modeOfPayment=td.modeOfPayment;
-      view.callDisposition=td.callDisposition;
-      view.feedBackCall=td.feedBackCall;
-      view.paymentMode=td.paymentMode;
-      view.created_at=td.created_at;
-      view.updated_at=td.updated_at;
-
-     paymentView.push(view);
+      view.transaction_details_id = item.id;
+      view.transactionId=item.transactionId;
+      view.razorpayLink=item.razorpayLink;
+      view.status=item.status;
+      view.whatsAppLinkSent=item.whatsAppLinkSent
+      view.modeOfPayment=item.modeOfPayment;
+      view.callDisposition=item.callDisposition;
+      view.feedBackCall=item.feedBackCall;
+      view.paymentMode=item.paymentMode;
+      view.created_at=item.created_at;
+      view.updated_at=item.updated_at;
+      paymentView.push(view);
     }
   
     usersLogger.info('Fetching student payment details::End');
 
     return {
       success:true,
+      pageSize:paymentView.length,
+      current:offset,
       data:paymentView,
       status:200
     }

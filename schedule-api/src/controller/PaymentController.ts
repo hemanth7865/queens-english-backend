@@ -12,9 +12,10 @@ export class PaymentController {
             current: parseInt(request.query['current']),
             pageSize: parseInt(request.query['pageSize']),
             studentId: request.query['studentId'],
+
         }
         usersLogger.info("Fetching student payment details .... :: Start");
-        var res = await this.paymentService.studentPaymentDetails(parameters);
+        var res = await this.paymentService.studentPaymentDetails(request.query);
         usersLogger.info("Fetching student payment details .... :: END");
         return res;
     }
