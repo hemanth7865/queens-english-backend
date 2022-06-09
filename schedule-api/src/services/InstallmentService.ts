@@ -1,14 +1,14 @@
 import razorpay from "./RazorpayService";
-import { QueryFailedError, getManager } from "typeorm";
+import { getRepository } from "typeorm";
+import { Transactions } from "../entity/Transaction";
 
 export class InstallmentService {
-  private tableName = "transactions";
   private installmentStatus = "Installment Pending";
-  private query = getManager();
+  private query = getRepository(Transactions);
 
   async getPendingPayments() {
-    return await this.query.query(
-      `SELECT * FROM ${this.tableName} WHERE payment_status = ${this.installmentStatus}`
-    );
+    return await this.query.find({
+      where: { status: this.installmentStatus },
+    });
   }
 }
