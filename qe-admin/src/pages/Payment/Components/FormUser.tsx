@@ -16,11 +16,29 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount } = props.data ? props.data : ''
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode } = props.data ? props.data : ''
     console.log('props', props.data)
 
     const onFinish = async (values: any) => {
         console.log('values', values)
+        const dataForm = [{
+            id: id,
+            studentId: studentId,
+            dueDate: dueDate,
+            paidDate: paidDate,
+            emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
+            paidAmount: paidAmount,
+            status: status,
+            transaction_details_id: transaction_details_id,
+            transactionId: transactionId,
+            razorpayLink: razorpayLink,
+            whatsAppLinkSent: whatsAppLinkSent,
+            modeOfPayment: modeOfPayment,
+            callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
+            feedBackCall: feedBackCall,
+            paymentMode: paymentMode,
+        }]
+        console.log('dataForm', dataForm)
     }
 
 
@@ -28,12 +46,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const defaultValues = () => {
         form.setFieldsValue({
             studentID: studentId,
-            installments: emiAmount
+            emiAmount: emiAmount,
+            callDisposition: callDisposition,
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [studentId, emiAmount])
+    }, [studentId, emiAmount, callDisposition])
 
     return (
         <div>
@@ -57,7 +76,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
                     <Form.Item
                         label="Installment Rs"
-                        name="installments"
+                        name="emiAmount"
                         rules={[{ required: true, message: 'Please input your password!' }]}
                     >
                         <Input />
