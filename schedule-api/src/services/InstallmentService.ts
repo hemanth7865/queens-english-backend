@@ -1,4 +1,3 @@
-import razorpay from "./RazorpayService";
 import { getRepository } from "typeorm";
 import { Transactions } from "../entity/Transaction";
 
@@ -9,6 +8,11 @@ export class InstallmentService {
   async getPendingPayments() {
     return await this.query.find({
       where: { status: this.installmentStatus },
+      take: 10,
     });
+  }
+
+  async updatePayment(id, data) {
+    return await this.query.update(id, data);
   }
 }
