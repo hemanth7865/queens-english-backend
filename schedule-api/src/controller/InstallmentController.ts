@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { InstallmentService } from "../services/InstallmentService";
-import { getPaymentById as getRazorpayPaymentById } from "../services/RazorpayService";
+import {
+  getPaymentById as getRazorpayPaymentById,
+  Payment as RazorpayPayment,
+} from "../services/RazorpayService";
 import { logger } from "./../Logger.js";
+const moment = require("moment");
 
 export class InstallmentController {
   private service = new InstallmentService();
@@ -23,10 +27,14 @@ export class InstallmentController {
       for (let payment of pendingPayments) {
         try {
           const paymentId = payment.id;
-          const paymentStatus = await getRazorpayPaymentById(paymentId);
+          const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
+            paymentId
+          );
           if (paymentStatus.status === "captured") {
             await this.service.updatePayment(paymentId, {
               status: "Installment Paid",
+              paidAmount: paymentStatus.amount / 100,
+              paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
             });
             result.paid++;
             logger.info(

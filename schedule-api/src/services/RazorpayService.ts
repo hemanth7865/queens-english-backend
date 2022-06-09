@@ -9,4 +9,10 @@ export const getPaymentById = async (id: string) => {
   return await client.payments.fetch(id);
 };
 
+export interface Payment {
+  id: string;
+  status: string;
+  amount: number;
+}
+
 export default client;
