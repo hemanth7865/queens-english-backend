@@ -3,7 +3,7 @@ import { UserController } from "./controller/UserController";
 import { BatchController } from "./controller/BatchController";
 import { SessionController } from "./controller/SessionController";
 import { AssessmentController } from "./controller/AssessmentController";
-import { TransactionController } from "./controller/TransactionController";
+import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 
 export const Routes = [
@@ -262,8 +262,8 @@ export const Routes = [
   },
   {
     method: "get",
-    route: "/update-transaction-status",
-    controller: TransactionController,
+    route: "/update-installment-status",
+    controller: InstallmentController,
     action: "updateTransctionPaymentStatus",
   },
 ];

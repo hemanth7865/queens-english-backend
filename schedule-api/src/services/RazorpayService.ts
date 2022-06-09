@@ -1,6 +1,12 @@
-import Razorpay from "razorpay";
+const Razorpay = require("razorpay");
 
-export default new Razorpay({
+const client = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SCERET,
 });
+
+export const getPaymentById = async (id: string) => {
+  return await client.payments.fetch(id);
+};
+
+export default client;
