@@ -18,5 +18,6 @@ const usersLogger = createLogger({
 });
 
 module.exports = {
-    usersLogger: usersLogger
+    usersLogger: usersLogger,
+    logger: usersLogger
 };
