@@ -332,6 +332,7 @@ const TableList: React.FC = () => {
                     netbankingVisible={netbankingVisible}
                     autodebitVisible={autodebitVisible}
                     isWhatsappVisible={isWhatsappVisible}
+                    isModalVisible={setIsModalVisible}
                 />
             </Modal>
         </PageContainer>

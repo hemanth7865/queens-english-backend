@@ -13,6 +13,7 @@ export type FormUserProps = {
     netbankingVisible: {};
     autodebitVisible: {};
     isWhatsappVisible: {};
+    isModalVisible: () => void;
 };
 
 const { Option } = Select;
@@ -70,6 +71,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment");
         }
         props.setVisible(false);
+        props.isModalVisible(false);
         setIsLoading(false);
         console.log('dataForm', dataForm)
     }
