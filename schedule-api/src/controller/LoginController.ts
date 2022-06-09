@@ -12,10 +12,10 @@ export class LoginController {
 
     try {
       const foundUser = await this.adminRepository.findOne({
-        select: ["firstname", "lastname", "email", "phone"],
+        select: ["firstname", "lastname", "email", "phone", "role"],
         where: { email: req.username, password: req.password },
       });
-
+      
       console.log("found user", foundUser, req);
 
       if (foundUser) {
@@ -46,12 +46,12 @@ export class LoginController {
           .end();
       } else {
         response
-          .status(401)
-          .send({
-            status: "failed",
-            type: "account",
-          })
-          .end();
+        .status(401)
+        .send({
+          status: "failed",
+          type: "account",
+        })
+        .end();
       }
     } catch (e) {
       console.log("error", e);
@@ -96,7 +96,7 @@ export class LoginController {
     console.log("decodedToken", decodedToken);
     const tokenPayload = JSON.parse(decodedToken.payload || "{}");
     const foundUser = await this.adminRepository.findOne({
-      select: ["firstname", "lastname", "email", "phone"],
+      select: ["firstname", "lastname", "email", "phone", "role"],
       where: { email: tokenPayload.email },
     });
     if (!foundUser) {
@@ -107,7 +107,7 @@ export class LoginController {
           message: "Invalid user session. Please login.",
         })
         .end();
-    }
+    } 
 
     response
       .status(200)
