@@ -68,6 +68,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     return /\d/.test(_string);
   }
 
+
   const onFinish = (value: any) => {
     const dataForm = {
       leadId: value.studentID,
@@ -83,7 +84,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       classType: value.classType,
       id: value.id,
       type: 'student',
-      status: value.status,
+      status: props.salesAlert?'Enrolled':value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -121,15 +122,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       }]
 
     }
-    if (value.saleamount == (Number(value.emi * value.emiMonths) + Number(value.downpayment))) {
-      props.submit(dataForm);
-    } else {
-      notification.open({
-        message: 'Sales Amount Error',
-        description:
-          'Enter valid sale amount, subscription Months, subscription amount and downpayment',
-      });
-    }
+    props.submit(dataForm);
     console.log('Data', dataForm)
   };
 

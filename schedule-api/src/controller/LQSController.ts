@@ -14,6 +14,14 @@ export class LQSController {
     private lQSService = new LQSService();
     private ENABLE_ACTIVITY_API = process.env.ENABLE_ACTIVITY_API;
 
+    async retryLSQFailedRecords(request: Request, response: Response, next: NextFunction) {
+        usersLogger.info("Processing LSQ failed records :: Start");
+        var res = await this.lQSService.fetchFailedLSQRecords();
+        await this.lQSService.createStudents();
+        usersLogger.info("Processing LSQ failed records :: END");
+        return res;
+    }
+
     async updateLQSData(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("LQS data fetch :: Start");
         usersLogger.info('Start::UserController::SaveLead');

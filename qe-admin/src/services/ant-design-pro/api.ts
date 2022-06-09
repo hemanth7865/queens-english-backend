@@ -582,3 +582,30 @@ export async function rebatchStudent(studentId: string, batchId: string) {
     body: JSON.stringify({ studentId, batchId }),
   });
 }
+
+//Payment API's
+export async function getAllPayment(
+  //studentId: string,
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.Any>(`/be/studentPaymentDetails`, {
+    method: 'GET',
+    params: {
+      ...params,
+      //studentId,
+    },
+    ...(options || {}),
+  });
+}
+
+export async function editPayment(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/paymentDetails', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}

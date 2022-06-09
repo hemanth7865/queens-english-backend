@@ -38,6 +38,7 @@
         name: 'User',
         path: '/manage/UserBatch',
         component: './StudentList',
+        access: 'canSuperAdmin'
       },
       {
         name: 'Student',
@@ -48,6 +49,11 @@
         name: 'Assessment',
         path: '/manage/assessment',
         component: './NewAssessment'
+      },
+      {
+        name: 'Payment',
+        path: '/manage/payment',
+        component: './Payment'
       },
       {
         name: 'Onboard',

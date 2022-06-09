@@ -83,6 +83,12 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/retryLSQFailedRecords",
+    controller: LQSController,
+    action: "retryLSQFailedRecords",
+  },
+  {
+    method: "post",
     route: "/fetchLQSData",
     controller: LQSController,
     action: "updateLQSData",
@@ -264,11 +270,31 @@ export const Routes = [
   },
 
   {
+    method: "get",
+    route: "/studentPaymentDetails",
+    controller: PaymentController,
+    action: "studentPaymentDetails",
+  },
+
+  {
+    method: "post",
+    route: "/paymentDetails",
+    controller: PaymentController,
+    action: "paymentDetails",
+  },
+
+  {
     method: "post",
     route: "/generatePaymentLink",
     controller: PaymentController,
     action: "generatePaymentLink"
   },
 
+  {
+    method: "post",
+    route: "/fetchPaymentsDetails",
+    controller: PaymentController,
+    action: "loadTeacherAvailability",
+  },
 
 ];
