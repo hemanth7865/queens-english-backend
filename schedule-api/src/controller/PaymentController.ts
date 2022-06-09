@@ -19,6 +19,20 @@ export class PaymentController {
         return res;
     }
 
+    /**
+     * Post call to create/update student payment details
+     * @param request 
+     * @param response 
+     * @param next 
+     * @returns 
+     */
+    async paymentDetails(request: Request, response: Response, next: NextFunction) {
+        usersLogger.info('Persist payment details::Start');
+        usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
+        return await this.paymentService.paymentDetails(request.body);
+    }
+
+    
     async fetchPaymentsDetails(request: Request, response: Response, next: NextFunction) {
 
     }
