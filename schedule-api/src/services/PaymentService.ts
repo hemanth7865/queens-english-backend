@@ -59,8 +59,6 @@ export class PaymentService {
      }
    }
 
-   console.log(whereCondition);
-   console.log('join');
    console.log(whereCondition.join(' and '));
    whereCondition.push(" 1 = 1 ");
    condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
@@ -73,14 +71,10 @@ export class PaymentService {
       t = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).offset(offset).limit(limit).getMany();
     }
-    console.log('t');
-    console.log(t);
+
     var ids =t.map((i) => "'" + i.id + "'").join(",");
-    console.log(ids);
 
-
-
-   whereCondition = [];
+    whereCondition = [];
    if (ids.length>0)
       whereCondition.push(`transaction_id in  (${ids})`);
 
@@ -112,7 +106,7 @@ export class PaymentService {
   }
 
   condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
-  console.log(condition);
+  usersLogger.info(condition);
 
   var tdetails = await getManager()
   .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).offset(offset).limit(limit).getMany();
