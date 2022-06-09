@@ -12,7 +12,7 @@ export class Transactions extends BaseEntity {
 
     Transactions() { }
     @PrimaryGeneratedColumn("uuid")
-    id: String;
+    id: string;
     @Column({type:"text",name:"student_id"})
     studentId: string;
     @Column({type:"text",name:"transaction_id"})

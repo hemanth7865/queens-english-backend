@@ -279,9 +279,9 @@ export const Routes = [
   
   {
     method: "post",
-    route: "/paymentsDetails",
+    route: "/paymentDetails",
     controller: PaymentController,
-    action: "loadTeacherAvailability",
+    action: "paymentDetails",
   },
 
   {
