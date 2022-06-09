@@ -1,20 +1,14 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone } from '@ant-design/icons';
-import { NotificationInstance as RCNotificationInstance } from 'rc-notification/lib/Notification';
-import { Button, message, Input, Drawer, Tooltip, Modal, notification, Popover, Popconfirm } from 'antd';
+import { Button, Drawer, Modal, Popover } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
-import { studentBatches, userBatchesView, getAllPayment } from '@/services/ant-design-pro/api';
+import { getAllPayment } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import Whatsapp from './Components/Whatsapp';
 import RazorpayDetails from './Components/RazorpayDetails';
-import { entriesIn } from 'lodash';
 
 /**
  * @en-US Add node
@@ -23,18 +17,8 @@ import { entriesIn } from 'lodash';
  */
 
 const TableList: React.FC = () => {
-    /**
-     * @en-US Pop-up window of new window
-     * @zh-CN 新建窗口的弹窗
-     *  */
-    const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-    /**
-     * @en-US The pop-up window of the distribution update window
-     * @zh-CN 分布更新窗口的弹窗
-     * */
     const actionRef = useRef<ActionType>();
     const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-    const [currentRowEdit, setCurrentRowEdit] = useState();
 
     const [visible, setVisible] = useState<boolean>(false);
     const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
@@ -58,19 +42,6 @@ const TableList: React.FC = () => {
         setIsAmountDisplay(false);
         setAutodebitVisible(false);
         setNetbankingVisible(false);
-    }
-
-    const handleOneDisplay = async (id) => {
-        try {
-            let msg = await userBatchesView(id);
-            if (msg.status === "ok") {
-                console.log("API call successfull", msg);
-            }
-            setTempDataEdit(msg.data);
-            console.log('view one', msg);
-        } catch (error) {
-            console.log("error", error);
-        }
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -222,7 +193,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Notes"
                 />
             ),
-            dataIndex: 'Notes',
+            dataIndex: 'feedBackCall',
             hideInSearch: true,
         },
         {
@@ -290,18 +261,16 @@ const TableList: React.FC = () => {
                                             setTempData(entity);
                                             setIsModalVisible(true);
                                         }}>Netbanking</Button><br />
-                                    <a onClick={() => { setOtherPayment(false) }}>Close</a>
                                 </div>
-
                             }
                             title="Choose the mode of payment"
                             trigger="click"
-                            visible={otherPayment}
+                            //visible={otherPayment}
                             onVisibleChange={handleVisibleChange}
                             overlayStyle={{
                                 width: "25vw"
                             }}
-                            key={entity.id}
+                            key={entity.studentId}
                         >
                             <PlusSquareTwoTone title='Other Payment' />
                         </Popover>
@@ -355,21 +324,15 @@ const TableList: React.FC = () => {
                 onCancel={closeModal}
                 width={700}
             >
-                {isWhatsappVisible ?
-                    <Whatsapp
-                        data={tempData}
-                        visible={visibleEdit}
-                        setVisible={setVisibleEdit}
-                    /> :
-                    <FormUser
-                        data={tempData}
-                        visible={visibleEdit}
-                        setVisible={setVisibleEdit}
-                        isAmountDisplay={isAmountDisplay}
-                        netbankingVisible={netbankingVisible}
-                        autodebitVisible={autodebitVisible}
-                    />
-                }
+                <FormUser
+                    data={tempData}
+                    visible={visibleEdit}
+                    setVisible={setVisibleEdit}
+                    isAmountDisplay={isAmountDisplay}
+                    netbankingVisible={netbankingVisible}
+                    autodebitVisible={autodebitVisible}
+                    isWhatsappVisible={isWhatsappVisible}
+                />
             </Modal>
         </PageContainer>
     );

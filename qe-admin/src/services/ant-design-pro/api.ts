@@ -592,12 +592,20 @@ export async function getAllPayment(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.Any>(`/be/studentPaymentDetails?studentId=${1}`, {
+  return request<API.Any>(`/be/studentPaymentDetails`, {
     method: 'GET',
     params: {
       ...params,
       //studentId,
     },
+    ...(options || {}),
+  });
+}
+
+export async function editPayment(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/paymentDetails', {
+    method: 'POST',
     ...(options || {}),
   });
 }
