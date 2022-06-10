@@ -7,9 +7,13 @@ export class InstallmentService {
 
   private query = getRepository(Transactions);
 
-  async getPendingInstallments() {
+  async getPendingInstallments(params) {
+    const where = { status: this.installmentStatus };
+    if (params?.installment_id) {
+      where["id"] = params.installment_id;
+    }
     return await this.query.find({
-      where: { status: this.installmentStatus },
+      where,
       take: 10,
     });
   }
