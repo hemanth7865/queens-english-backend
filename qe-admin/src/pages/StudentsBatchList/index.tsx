@@ -1032,7 +1032,12 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="alternativeMobile" label="Alternate Contact No.">
+                        <Form.Item name="alternativeMobile"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Alternate Number"
+                          }]}>
                           <Input
                             placeholder="Alternative Contact No"
                             name="alternativeMobile"
@@ -1043,8 +1048,17 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="classType" label="Whatsapp Number">
-                          <Input handleMobileChange={handleFormChange} formData={formData} phoneNumberName={"whatsapp"} placeholder="whatsapp Number" edit={true} defaultValue={formData.whatsapp} />
+                        <Form.Item name="Whatsapp Number" rules={[{
+                          required: false,
+                          pattern: /^\+[0-9]{12}$/,
+                          message: "Enter valid Whatsapp Number"
+                        }]}>
+                          <Input
+                            placeholder="Whatsapp Number"
+                            name="whatsapp"
+                            value={formData.whatsapp}
+                            onChange={handleFormChange}
+                          />
                         </Form.Item>
                       </Col>
 
@@ -2288,7 +2302,12 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="alternativeMobile" label="Alternate Contact No.">
+                        <Form.Item name="alternativeMobile"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Alternate Number"
+                          }]}>
                           <Input
                             placeholder="Alternative Contact No"
                             name="alternativeMobile"
@@ -2300,8 +2319,19 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item label="Whatsapp Number">
-                          <Input handleMobileChange={handleFormChange} phoneNumberName={"whatsapp"} placeholder="Whatsapp Number" edit={true} defaultValue={tempDataView.whatsapp} />
+                        <Form.Item name="Whatsapp Number"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Whatsapp Number"
+                          }]}>
+                          <Input
+                            placeholder="Whatsapp Number"
+                            name="whatsapp"
+                            value={formData.whatsapp}
+                            onChange={handleFormChange}
+                            defaultValue={tempDataView.whatsapp}
+                          />
                         </Form.Item>
                       </Col>
 

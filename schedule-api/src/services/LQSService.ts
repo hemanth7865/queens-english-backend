@@ -7,6 +7,7 @@ import { LQSEntry } from "../entity/LQSEntry";
 import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
 import { randomFill } from "crypto";
+import { Constants } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 const date = require('date-and-time')
@@ -164,6 +165,7 @@ export class LQSService {
       student.startLesson = element.startingLevel;
       student.startDate = element.startDate;
       student.teacherName = element.teacherName;
+      student.partner = Constants.PARTNER_CODE_QE;
 
       payment.classessold = element.classessold;
       payment.saleamount = element.saleamount;
