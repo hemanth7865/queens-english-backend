@@ -268,6 +268,29 @@ export class UserController {
         }
     }
 
+    async updateStudentsCollectionExpertsCSV(request: Request, response: Response, next: NextFunction) {
+        const file = request.files.students;
+        let data = [];
+
+        try {
+            await new Promise(function (myResolve: any, myReject: any) {
+                parse(file.data.toString(), { columns: true, trim: true }, function (e, records) {
+                    data = records;
+                    if (data) {
+                        myResolve();
+                    } else {
+                        console.log(file.data.toString());
+                        myReject();
+                    }
+                });
+            });
+            return this.studentService.updateStudentsCollectionExpertsCSV(data, request.query);
+        } catch (e) {
+            return { e, name: file.name, size: file.size, type: file.type };
+        }
+    }
+
+
     async loadTeacherAvailability(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Loading teacher availability ....");
         let msg = await this.teacherService.updateTeacherAvailability();
