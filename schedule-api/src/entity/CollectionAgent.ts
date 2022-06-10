@@ -9,7 +9,7 @@ export class CollectionAgent extends BaseEntity {
     CollectionAgent() { }
     @PrimaryGeneratedColumn()
     //@NextVal('seq_client')
-    id: string;
+    id: number;
     @Column("text")
     firstName: string;
     @Column("text")
