@@ -22,6 +22,7 @@ export class PaymentService {
   private transaDetailsRepository = getRepository(TransactionDetails);
   private paymentModeDetails = getRepository(PaymentModeDetails);
   private collectionAgent = getRepository(CollectionAgent);
+  private studentRepository = getRepository(Student);
   private razorPayUtils = new RazorPayUtils();
   private installmentService = new InstallmentService();
 
@@ -205,15 +206,11 @@ export class PaymentService {
       var view = new PaymentsView();
 
       var student: string;
-      var studentData: any[] = [];
-      var actualStartDate = [];
       var studentQuer = "select * from user where id = '" + record.studentId + "';";
       student = await getManager().query(studentQuer);
-      var startDateQuer = "select classesStartDate from student where id = '" + record.studentId + "';";
-      studentData = await getManager().query(startDateQuer);
-      studentData.forEach((element) => {
-        actualStartDate.push(element.classesStartDate)
-      });
+
+      const studentData = await this.studentRepository.findOne({ id: record.studentId });
+      const collectionAgent = await this.collectionAgent.findOne({ id: studentData.collection_agent_id });
 
 
 
@@ -223,7 +220,7 @@ export class PaymentService {
       view.paidDate = record.paidDate;
       view.emiAmount = record.emiAmount;
       view.paidAmount = record.paidAmount;
-      view.collectionAgent = record.collectionAgent;
+      view.collectionAgent = collectionAgent?.firstName ? `${collectionAgent?.firstName} ${collectionAgent?.lastName || ''}` : "Not Found";
       view.status = record.status;
       view.created_at = record.created_at;
       view.updated_at = record.updated_at;
@@ -239,7 +236,8 @@ export class PaymentService {
       view.created_at = item.created_at;
       view.updated_at = item.updated_at;
       view.student = student;
-      view.actualStartDate = actualStartDate.join(",");
+      view.collectionAgentObj = collectionAgent;
+      view.actualStartDate = studentData.classesStartDate;
       view.notes = item.notes;
       paymentView.push(view);
     }
