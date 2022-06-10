@@ -29,6 +29,7 @@ createConnection()
       (app as any)[route.method](
         route.route,
         route.authenticate ? authenticateToken : bypassAuth,
+        route.apiKey ? authenticateAPIKey : bypassAuth,
         (req: Request, res: Response, next: Function) => {
           const result = new (route.controller as any)()[route.action](
             req,
@@ -71,4 +72,17 @@ function authenticateToken(req, res, next) {
     req.user = username;
     next();
   });
+}
+
+/**
+ * Middleware to authenticate API key 
+ */
+function authenticateAPIKey(req, res, next) {
+  const apiKey = req.query.apiKey;
+
+  if(apiKey != process.env.API_KEY){
+    return res.sendStatus(401)
+  }
+
+  next();
 }
