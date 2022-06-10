@@ -8,6 +8,7 @@ import { TransactionDetails } from "../entity/TransactionDetails";
 import { User } from "../entity/User";
 import { PaymentsView } from "../model/PaymentView";
 import { CollectionAgent } from "../entity/CollectionAgent";
+import { totalmem } from "os";
 const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time');
 import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
@@ -97,10 +98,9 @@ export class PaymentService {
     let response = {}
     usersLogger.info('Student Service payment Details ::Start');
     let t;
-    var offset = parameters.current;
-    var current = offset;
-    var limit = parameters.pageSize;
-    offset = offset == 1 ? offset = 0 : offset;
+    const offset = parameters.current ? parseInt(parameters.current) : 0;
+    const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
+    const offsetRecords = (offset - 1) * limit;
     var whereCondition = [];
     var condition = ""
     // whereCondition.push("");
@@ -140,12 +140,17 @@ export class PaymentService {
     condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
     console.log(condition);
 
-
+    let total: number = 0;
     if (parameters.studentId) {
-      t = await this.transactionRepository.find({ studentId: parameters.studentId });
+      t = await getManager()
+        .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).skip(offsetRecords).take(limit).getMany();
+      total = await getManager()
+        .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).getCount();
     } else {
       t = await getManager()
-        .createQueryBuilder(Transactions, "transactions").where(condition).offset(offset).limit(limit).getMany();
+        .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).getMany();
+      total = await getManager()
+        .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).getCount();
     }
 
     console.log('Transaction condition');
@@ -187,13 +192,31 @@ export class PaymentService {
     condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
     usersLogger.info(condition);
 
+
+
     var tdetails = await getManager()
-      .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).offset(offset).limit(limit).getMany();
+      .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).getMany();
+
     console.log("Transaction details log");
     console.log(condition);
+
     for (let item of tdetails) {
       var record = await this.transactionRepository.findOne({ id: item.transactionId });
       var view = new PaymentsView();
+
+      var student: string;
+      var studentData: any[] = [];
+      var actualStartDate = [];
+      var studentQuer = "select * from user where id = '" + record.studentId + "';";
+      student = await getManager().query(studentQuer);
+      var startDateQuer = "select classesStartDate from student where id = '" + record.studentId + "';";
+      studentData = await getManager().query(startDateQuer);
+      studentData.forEach((element) => {
+        actualStartDate.push(element.classesStartDate)
+      });
+
+
+
       view.id = record.id;
       view.studentId = record.studentId;
       view.dueDate = record.dueDate;
@@ -208,12 +231,16 @@ export class PaymentService {
 
       view.transaction_details_id = item.id;
       view.transactionId = item.transactionId;
+      view.razorpayLink = record.paymentLink;
       view.whatsAppLinkSent = item.whatsAppLinkSent
       view.callDisposition = item.callDisposition;
       view.feedBackCall = item.feedBackCall;
       view.paymentMode = item.paymentMode;
       view.created_at = item.created_at;
       view.updated_at = item.updated_at;
+      view.student = student;
+      view.actualStartDate = actualStartDate.join(",");
+      view.notes = item.notes;
       paymentView.push(view);
     }
 
@@ -221,8 +248,9 @@ export class PaymentService {
 
     return {
       success: true,
-      pageSize: paymentView.length,
+      pageSize: limit,
       current: offset,
+      total: total,
       data: paymentView,
       status: 200
     }
@@ -274,6 +302,8 @@ export class PaymentService {
       transactiondetail.callDisposition = data.callDisposition;
       transactiondetail.feedBackCall = data.feedBackCall;
       transactiondetail.paymentMode = data.paymentMode;
+      transactiondetail.notes = data.notes;
+
 
       let tdeails = await this.transaDetailsRepository.save(transactiondetail);
       response.push({ ...transactions, ...tdeails });

@@ -1,14 +1,16 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone } from '@ant-design/icons';
-import { Button, Drawer, Modal, Popover } from 'antd';
+import { Button, Drawer, Modal, Popover, Typography, Spin } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import Whatsapp from './Components/Whatsapp';
 import RazorpayDetails from './Components/RazorpayDetails';
+import moment from 'moment';
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
 /**
  * @en-US Add node
@@ -31,6 +33,7 @@ const TableList: React.FC = () => {
     const [otherPayment, setOtherPayment] = useState(false);
     const [netbankingVisible, setNetbankingVisible] = useState(false);
     const [autodebitVisible, setAutodebitVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const intl = useIntl();
@@ -42,6 +45,26 @@ const TableList: React.FC = () => {
         setIsAmountDisplay(false);
         setAutodebitVisible(false);
         setNetbankingVisible(false);
+    }
+
+    const handleRegenerateLink = async (data: any) => {
+        console.log(data)
+        if (confirm("Are you sure to regenerate new razorpay link ?")) {
+            setIsLoading(true);
+            try {
+                const msg = await regeneratePaymentLink({
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ installmentId: data.transactionId }),
+                });
+                console.log('msg', msg)
+                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated");
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated");
+            }
+            setIsLoading(false);
+        }
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -58,6 +81,19 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'studentId',
             fixed: 'left',
+            width: 250,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleStudentName"
+                    defaultMessage="student Name"
+                />
+            ),
+            render: (dom, entity) => {
+                return <p>{entity.student[0].firstName} {entity.student[0].lastName}</p>
+            },
+            hideInSearch: true,
         },
         {
             title: (
@@ -66,7 +102,10 @@ const TableList: React.FC = () => {
                     defaultMessage="student RMN"
                 />
             ),
-            dataIndex: 'phoneNumber',
+            render: (dom, entity) => {
+                return <p>{entity.student[0].phoneNumber}</p>
+            },
+            hideInSearch: true,
         },
         {
             title: (
@@ -75,7 +114,11 @@ const TableList: React.FC = () => {
                     defaultMessage="Actual Start Date"
                 />
             ),
-            dataIndex: 'ActualStartDate',
+            render: (dom, entity) => {
+                return <p>{moment.utc(entity.actualStartDate).format('YYYY-MM-DD')}</p>
+            },
+            width: 140,
+            hideInSearch: true,
         },
         {
             title: (
@@ -85,24 +128,24 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'StartDate',
+            render: (dom, entity) => {
+                const startDate = entity.student[0].startDate
+                return <p>{moment.utc(startDate).format('YYYY-MM-DD')}</p>
+            },
+            width: 160,
+            hideInSearch: true,
         },
         {
             title: (
                 <FormattedMessage
-                    id="pages.searchTable.titleEndDate"
-                    defaultMessage="End Date"
-                />
-            ),
-            dataIndex: 'EndDate',
-        },
-        {
-            title: (
-                <FormattedMessage
-                    id="pages.searchTable.titleStatus"
+                    id="pages.searchTable.titleStudentStatus"
                     defaultMessage="Student status"
                 />
             ),
-            dataIndex: 'status',
+            render: (dom, entity) => {
+                return <p>{entity.student[0].status}</p>
+            },
+            hideInSearch: true,
         },
         {
             title: (
@@ -112,6 +155,7 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'dueDate',
+            width: 160,
         },
         {
             title: (
@@ -176,6 +220,7 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'paidDate',
+            width: 160,
         },
         {
             title: (
@@ -193,8 +238,9 @@ const TableList: React.FC = () => {
                     defaultMessage="Notes"
                 />
             ),
-            dataIndex: 'feedBackCall',
+            dataIndex: 'notes',
             hideInSearch: true,
+            width: 200
         },
         {
             title: (
@@ -206,7 +252,7 @@ const TableList: React.FC = () => {
             dataIndex: "edit",
             hideInSearch: true,
             fixed: 'right',
-            width: 150,
+            width: 240,
             render: (dom, entity) => {
                 return (
                     <div>
@@ -224,13 +270,20 @@ const TableList: React.FC = () => {
                                 setIsModalVisible(true);
                                 setIsWhatsappVisible(true);
                             }}
-                            style={{ marginLeft: 10 }}>
+                            style={{ marginLeft: 10, marginRight: 10 }}>
                             <WhatsAppOutlined title='whatsapp' />
                         </a>
-                        <a
+                        {/* <a
+                            onClick={() => {
+                                setTempData(entity);
+                                alert('Are you sure to regenerate a razorpay')
+                            }}
                             style={{ marginLeft: 10 }}>
                             <LinkOutlined title='Regenerate Link' />
-                        </a>
+                        </a> */}
+                        <Typography.Link onClick={() => handleRegenerateLink(entity)}>
+                            <LinkOutlined title='Regenerate Link' />
+                        </Typography.Link>
                         <a
                             onClick={() => {
                                 setTempData(entity);
@@ -282,23 +335,24 @@ const TableList: React.FC = () => {
 
     return (
         <PageContainer>
-            <ProTable<API.RuleListItem, API.PageParams>
-                headerTitle={intl.formatMessage({
-                    id: 'pages.searchTable.titleUser',
-                    defaultMessage: 'Payment Management',
-                })}
-                actionRef={actionRef}
-                rowKey="key"
-                search={{
-                    labelWidth: 120,
-                }}
-                request={getAllPayment}
-                columns={columns}
-                scroll={{
-                    x: 1500,
-                }}
-            />
-
+            <Spin spinning={isLoading}>
+                <ProTable<API.RuleListItem, API.PageParams>
+                    headerTitle={intl.formatMessage({
+                        id: 'pages.searchTable.titleUser',
+                        defaultMessage: 'Payment Management',
+                    })}
+                    actionRef={actionRef}
+                    rowKey="key"
+                    search={{
+                        labelWidth: 120,
+                    }}
+                    request={getAllPayment}
+                    columns={columns}
+                    scroll={{
+                        x: 1700,
+                    }}
+                />
+            </Spin>
             <Drawer
                 width={600}
                 visible={displayRazorpay}

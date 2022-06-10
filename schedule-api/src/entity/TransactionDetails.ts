@@ -14,16 +14,18 @@ export class TransactionDetails extends BaseEntity {
     TransactionDetails() { }
     @PrimaryGeneratedColumn("uuid")
     id: String;
-    @Column({type:"text",name:"transaction_id"})
+    @Column({ type: "text", name: "transaction_id" })
     transactionId: string;
-    @Column({type:"text",name:"whatsapp_link_sent"})
+    @Column({ type: "text", name: "whatsapp_link_sent" })
     whatsAppLinkSent: string;
-    @Column({ 'nullable': true,name:"call_disposition" })
+    @Column({ 'nullable': true, name: "call_disposition" })
     callDisposition: string;
-    @Column({ 'nullable': true, name:"feedback_call"})
+    @Column({ 'nullable': true, name: "feedback_call" })
     feedBackCall: string;
-    @Column({ 'nullable': true, type: "text" , name:"payment_mode"})
-    paymentMode: string;   
+    @Column({ 'nullable': true, type: "text", name: "payment_mode" })
+    paymentMode: string;
+    @Column({ 'nullable': true, type: "text", name: "notes" })
+    notes: string;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
