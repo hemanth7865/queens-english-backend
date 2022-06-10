@@ -1370,7 +1370,6 @@ export class StudentService {
       updated: 0,
       notFound: 0,
       errors: 0,
-      CEs: 0,
       notFoundCEs: [],
     };
 
@@ -1402,7 +1401,7 @@ export class StudentService {
           const CE = ce[0];
 
           if (CE?.id) {
-            result.CEs++;
+            result.updated++;
             if (!query.test) {
               await this.studentRepository.update({id: student.id}, {collection_agent_id: CE.id})
             }
@@ -1412,7 +1411,6 @@ export class StudentService {
               });
           }
 
-          result.updated++;
         } catch (e) {
           console.log(e);
           result.errors++;
