@@ -31,7 +31,7 @@ export class InstallmentService {
     const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
       paymentId
     );
-    if (paymentStatus.status === "captured") {
+    if (paymentStatus.status === "paid") {
       await this.updateInstallment(paymentId, {
         status: PAYMENT_STATUS.PAID,
         paidAmount: paymentStatus.amount / 100,
