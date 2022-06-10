@@ -56,15 +56,28 @@ export class PaymentController {
 
     }
 
-    async generatePaymentLink(request: Request, response: Response, next: NextFunction) {
-        console.log("generating payment links");
+    async generateBulkPaymentLinks(request: Request, response: Response, next: NextFunction) {
+        console.log("generating bulk payment links");
         try {
             return await this.paymentService.createPaymentLinksForInstallments();
         } catch (error) {
             console.log(error);
             return {
                 status: "error",
-                message: "Some exception during payment link generation"
+                message: "Exception during bulk payment link generation"
+            }
+        }
+    }
+
+    async regeneratePaymentLink(request: Request, response: Response, next: NextFunction) {
+        console.log("regenerating payment link");
+        try {
+            return await this.paymentService.regeneratePaymentLink(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception during payment link regeneration"
             }
         }
     }
