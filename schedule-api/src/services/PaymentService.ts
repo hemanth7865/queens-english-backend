@@ -12,6 +12,7 @@ const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time');
 import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
+import { InstallmentService } from "./InstallmentService";
 
 
 export class PaymentService {
@@ -21,7 +22,7 @@ export class PaymentService {
   private paymentModeDetails = getRepository(PaymentModeDetails);
   private collectionAgent = getRepository(CollectionAgent);
   private razorPayUtils = new RazorPayUtils();
-
+  private installmentService = new InstallmentService();
 
   /**
    * 
@@ -341,11 +342,20 @@ export class PaymentService {
         message: "No installment available for the given id"
       }
     }
-    if (installment.status != PAYMENT_STATUS.PENDING) {
-      console.log('Installment status is not pending for the given id');
+
+    // update payment status of current transaction for real time data, if the current status is PENDING
+    let paymentStatus = installment.status;
+    console.log('current payment status: ', paymentStatus);
+    if (paymentStatus == PAYMENT_STATUS.PENDING) {
+      paymentStatus = await this.installmentService.updateInstallmentStatus(installment.transactionId);
+    }
+    console.log('updated payment status: ', paymentStatus);
+
+    if (paymentStatus == PAYMENT_STATUS.PAID) {
+      console.log('Installment status is paid for the given id');
       return {
         status: "error",
-        message: "Installment status is not pending for the given id"
+        message: "Installment status is paid for the given id"
       }
     }
 
@@ -362,6 +372,8 @@ export class PaymentService {
       var installmentsForUpdate: Transactions[] = [];
       installment.transactionId = paymentResponse.id;
       installment.paymentLink = paymentResponse.short_url;
+      // paid date is set to null since installment status is pending
+      installment.paidDate = null;
       installmentsForUpdate.push(installment);
       await this.updateInstallmentData(installmentsForUpdate);
       return {
