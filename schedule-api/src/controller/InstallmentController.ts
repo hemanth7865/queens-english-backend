@@ -24,7 +24,7 @@ export class InstallmentController {
     };
     logger.info("InstallmentController.updateTransctionPaymentStatus: Start.");
     try {
-      const pendingPayments = await this.service.getPendingInstallments();
+      const pendingPayments = await this.service.getPendingInstallments(request.query);
       for (const payment of pendingPayments) {
         try {
           const paymentId = payment.id;
