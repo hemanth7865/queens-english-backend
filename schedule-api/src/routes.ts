@@ -295,4 +295,12 @@ export const Routes = [
     controller: PaymentController,
     action: "loadTeacherAvailability",
   },
+
+  {
+    method: "get",
+    route: "/fetchCollectionAgent",
+    controller: PaymentController,
+    action: "fetchCollectionAgent",
+  },
+  
 ];
