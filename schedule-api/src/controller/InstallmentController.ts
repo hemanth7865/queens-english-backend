@@ -24,14 +24,16 @@ export class InstallmentController {
     };
     logger.info("InstallmentController.updateTransctionPaymentStatus: Start.");
     try {
-      const pendingPayments = await this.service.getPendingInstallments(request.query);
+      const pendingPayments = await this.service.getPendingInstallments(
+        request.query
+      );
       for (const payment of pendingPayments) {
         try {
           const paymentId = payment.id;
           const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
             paymentId
           );
-          if (paymentStatus.status === "captured") {
+          if (paymentStatus.status === "paid") {
             await this.service.updateInstallment(paymentId, {
               status: this.COMPLETED_STATUS,
               paidAmount: paymentStatus.amount / 100,
