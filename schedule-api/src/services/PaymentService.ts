@@ -3,6 +3,7 @@ import { Transactions } from "../entity/Transaction";
 import { TransactionDetails } from "../entity/TransactionDetails";
 import { PaymentModeDetails } from "../entity/PaymentModeDetails";
 import { PaymentsView } from "../model/PaymentView";
+import { CollectionAgent } from "../entity/CollectionAgent";
 const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time');
 
@@ -12,7 +13,68 @@ export class PaymentService {
   private transactionRepository = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
   private paymentModeDetails = getRepository(PaymentModeDetails);
+  private collectionAgent = getRepository(CollectionAgent);
 
+
+  /**
+   * 
+   * @param parameters 
+   * @returns 
+   */
+
+  
+   async fetchCollectionAgent(parameters: any) {
+    let t ;
+    var offset = parameters.current;
+    var current = offset;
+    var limit = parameters.pageSize;
+    offset = offset == 1 ? offset = 0: offset;
+    var whereCondition = [];
+    var condition = ""
+    for (let param in parameters) {
+      switch(param) {
+         case "firstName":
+           whereCondition.push(`firstName = '${parameters["firstName"]}'`);
+           break;
+         case "lastName":
+           whereCondition.push(`lastName = '${parameters["lastName"]}'`)
+           break;
+         case "gender":
+           whereCondition.push(`gender = '${parameters["gender"]}'`)
+           break;
+         case "phoneNumber":
+           whereCondition.push(`phoneNumber = '${parameters["phoneNumber"]}'`)
+           break;
+         case "alternativeMobile":
+           whereCondition.push(`alternativeMobile = '${parameters["alternativeMobile"]}'`)
+           break;
+        case "id":
+        whereCondition.push(`id = '${parameters["id"]}'`)
+        break;
+         case "email":
+           whereCondition.push(`email = '${parameters["email"]}'`)
+           break;
+      }
+    }
+
+    whereCondition.push(" 1 = 1 ");
+    condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
+ 
+    if (parameters.id){
+      t = await this.collectionAgent.find({id:parameters.id});
+      } else {
+        t = await getManager()
+            .createQueryBuilder(CollectionAgent, "collectionAgent").where(condition).offset(offset).limit(limit).getMany();
+      }
+      return {
+        success:true,
+        pageSize:t.length,
+        current:offset,
+        data:t,
+        status:200
+      }
+   
+   }
 
   /**
    * Student Payment Service 
@@ -78,6 +140,9 @@ export class PaymentService {
           .createQueryBuilder(Transactions, "transactions").where(condition).offset(offset).limit(limit).getMany();
     }
 
+    console.log('Transaction condition');
+    console.log(condition);
+
     var ids =t.map((i) => "'" + i.id + "'").join(",");
 
     whereCondition = [];
@@ -116,7 +181,8 @@ export class PaymentService {
 
   var tdetails = await getManager()
   .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).offset(offset).limit(limit).getMany();
-
+     console.log("Transaction details log");
+     console.log(condition);
     for ( let item of tdetails) {
       var record = await this.transactionRepository.findOne({id:item.transactionId});
       var view = new PaymentsView();
