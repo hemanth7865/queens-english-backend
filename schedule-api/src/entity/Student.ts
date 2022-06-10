@@ -16,7 +16,7 @@ import { StudentAvailability } from "./StudentAvailability";
 
 @Entity("student")
 export class Student extends BaseEntity {
-  Student() { }
+  Student() {}
   @PrimaryGeneratedColumn("uuid")
   id: string;
   @Column({ nullable: true })
@@ -114,6 +114,8 @@ export class Student extends BaseEntity {
   @Column({ nullable: true })
   prm_id: number;
   @Column({ nullable: true })
+  collection_agent_id: number;
+  @Column({ nullable: true })
   lsq_users_ID: number;
   @Column({ nullable: true })
   salesowner: string;
@@ -130,6 +132,4 @@ export class Student extends BaseEntity {
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
-
-
 }
