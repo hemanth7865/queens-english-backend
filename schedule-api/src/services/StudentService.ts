@@ -1365,12 +1365,11 @@ export class StudentService {
     data: any,
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
   ) {
-    const primaryColumn = "Contact No.";
+    const primaryColumn = "Student ID";
     let result: any = {
       updated: 0,
       notFound: 0,
       errors: 0,
-      duplicated: 0,
       CEs: 0,
       notFoundCEs: [],
     };
@@ -1388,33 +1387,29 @@ export class StudentService {
           if (!d[primaryColumn] || d[primaryColumn].length < 4) {
             continue;
           }
-      
-          let student: any = await getManager()
-            .createQueryBuilder(Student, "student")
-            .where("student.studentID = :studentID", { id: d[primaryColumn] })
-            .getOne();
+          
+          const condition = {where: {studentID: d[primaryColumn]}}
+          let student = await this.studentRepository.findOne(condition);
+          
+          if(!student?.id){
+            result.notFound++;
+            continue;
+          }
 
           let ceQuery = `SELECT * from collection_agent where firstName='${d["Collection Support"]}'`;
 
           let ce = await getManager().query(ceQuery);
-          const prcem = ce[0];
+          const CE = ce[0];
 
-          student.prm_id = ce?.id;
-
-          if (prcem?.id) {
+          if (CE?.id) {
             result.CEs++;
+            if (!query.test) {
+              await this.studentRepository.update({id: student.id}, {collection_agent_id: CE.id})
+            }
           } else {
               result.notFoundCEs.push({
                 id: d["Student ID"],
               });
-          }
-
-          const resultData = {
-            ...student,
-          };
-
-          if (!query.test) {
-            // await this.saveStudentSQL(resultData, user.id);
           }
 
           result.updated++;

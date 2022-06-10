@@ -52,6 +52,12 @@ export const Routes = [
     action: "updateStudentsCSVV2",
   },
   {
+    method: "post",
+    route: "/leads/csv/CE",
+    controller: UserController,
+    action: "updateStudentsCollectionExpertsCSV",
+  },
+  {
     method: "get",
     route: "/leadsView",
     controller: UserController,
