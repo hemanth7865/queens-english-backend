@@ -294,7 +294,8 @@ export class PaymentService {
 
   async createPaymentLinksForInstallments() {
     var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
-    var count = 0;
+    var successCount = 0;
+    var failureCount = 0;
     console.log('currMonth: ' + currentMonth);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
@@ -307,19 +308,20 @@ export class PaymentService {
       var paymentResponse = await this.createPaymentLink(installment);
       if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
         console.log('Payment link generation failed for installment: {0} payment response: {1}', installment.id, paymentResponse);
+        failureCount++;
       }
       else {
         //update installment data
         installment.transactionId = paymentResponse.id;
         installment.paymentLink = paymentResponse.short_url;
         installmentsForUpdate.push(installment);
-        count++;
+        successCount++;
       }
     }
     this.updateInstallmentData(installmentsForUpdate);
     return {
       status: "success",
-      message: "Payment links generated for " + count + " installments"
+      message: "Payment links generated for " + successCount + " installments, Failure count: " + failureCount
     }
   }
 
