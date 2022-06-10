@@ -1360,6 +1360,76 @@ export class StudentService {
     return result;
   }
 
+
+  async updateStudentsCollectionExpertsCSV(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
+    const primaryColumn = "Contact No.";
+    let result: any = {
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      duplicated: 0,
+      CEs: 0,
+      notFoundCEs: [],
+    };
+
+
+    if (query.clear) {
+      let qe = `UPDATE student SET collection_agent_id = NULL`;
+
+      await getManager().query(qe);
+    }
+
+    try {
+      for (let d of data) {
+        try {
+          if (!d[primaryColumn] || d[primaryColumn].length < 4) {
+            continue;
+          }
+      
+          let student: any = await getManager()
+            .createQueryBuilder(Student, "student")
+            .where("student.studentID = :studentID", { id: d[primaryColumn] })
+            .getOne();
+
+          let ceQuery = `SELECT * from collection_agent where firstName='${d["Collection Support"]}'`;
+
+          let ce = await getManager().query(ceQuery);
+          const prcem = ce[0];
+
+          student.prm_id = ce?.id;
+
+          if (prcem?.id) {
+            result.CEs++;
+          } else {
+              result.notFoundCEs.push({
+                id: d["Student ID"],
+              });
+          }
+
+          const resultData = {
+            ...student,
+          };
+
+          if (!query.test) {
+            // await this.saveStudentSQL(resultData, user.id);
+          }
+
+          result.updated++;
+        } catch (e) {
+          console.log(e);
+          result.errors++;
+        }
+      }
+    } catch (e) {
+      console.log(e, data);
+    }
+
+    return result;
+  }
+
   async isLeadIDExists(column: string, value: string, id: string | undefined): Promise<any> {
     let where: any = { [column]: value };
     if (id) {
