@@ -347,10 +347,58 @@ export class PaymentService {
         successCount++;
       }
     }
-    this.updateInstallmentData(installmentsForUpdate);
+    await this.updateInstallmentData(installmentsForUpdate);
     return {
       status: "success",
       message: "Payment links generated for " + successCount + " installments, Failure count: " + failureCount
+    }
+  }
+
+  async regeneratePaymentLink(request: any) {
+    if (isNullOrUndefined(request.installmentId)) {
+      console.log('No installment id available for regenerating payment link');
+      return {
+        status: "error",
+        message: "No installment id available for regenerating payment link"
+      }
+    }
+    var installment = await this.transactionRepository.findOne({ id: request.installmentId });
+    if (isNullOrUndefined(installment)) {
+      console.log('No installment available for the given id');
+      return {
+        status: "error",
+        message: "No installment available for the given id"
+      }
+    }
+    if (installment.status != PAYMENT_STATUS.PENDING) {
+      console.log('Installment status is not pending for the given id');
+      return {
+        status: "error",
+        message: "Installment status is not pending for the given id"
+      }
+    }
+
+    //regenerate payment link
+    var paymentResponse = await this.createPaymentLink(installment);
+    if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
+      console.log('Payment link generation failed for installment: {0} payment response: {1}', installment.id, paymentResponse);
+      return {
+        status: "error",
+        message: "Razor pay response: " + paymentResponse
+      }
+    }
+    else {
+      var installmentsForUpdate: Transactions[] = [];
+      installment.transactionId = paymentResponse.id;
+      installment.paymentLink = paymentResponse.short_url;
+      installmentsForUpdate.push(installment);
+      await this.updateInstallmentData(installmentsForUpdate);
+      return {
+        status: "success",
+        message: "Payment link regenerated for installment id",
+        paymentId: paymentResponse.id,
+        paymentLink: paymentResponse.short_url
+      }
     }
   }
 
@@ -385,6 +433,7 @@ export class PaymentService {
     for (let installment of installmentsWithoutLinks) {
       await this.transactionRepository.update({ id: installment.id }, installment);
     }
+    return;
   }
 
 }
