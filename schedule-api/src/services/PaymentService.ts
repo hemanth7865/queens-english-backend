@@ -230,6 +230,7 @@ export class PaymentService {
 
       view.transaction_details_id = item.id;
       view.transactionId = item.transactionId;
+      view.razorpayLink = record.paymentLink;
       view.whatsAppLinkSent = item.whatsAppLinkSent
       view.callDisposition = item.callDisposition;
       view.feedBackCall = item.feedBackCall;
@@ -391,6 +392,8 @@ export class PaymentService {
       var installmentsForUpdate: Transactions[] = [];
       installment.transactionId = paymentResponse.id;
       installment.paymentLink = paymentResponse.short_url;
+      //paid date is set to null since installment status is pending
+      installment.paidDate = null;
       installmentsForUpdate.push(installment);
       await this.updateInstallmentData(installmentsForUpdate);
       return {

@@ -602,9 +602,19 @@ export async function getAllPayment(
   });
 }
 
+//edit payment
 export async function editPayment(options?: { [key: string]: any }) {
   console.log('option', options)
   return request<any>('/be/paymentDetails', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+//regenerate razorpay link
+export async function regeneratePaymentLink(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/regeneratePaymentLink', {
     method: 'POST',
     ...(options || {}),
   });
