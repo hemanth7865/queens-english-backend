@@ -13,6 +13,7 @@ import { StudentAvailability } from "../entity/StudentAvailability";
 import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
+import { CollectionAgentService } from "./CollectionAgentService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
@@ -587,6 +588,9 @@ export class StudentService {
     if (create) {
       const lqsClient = new LQSService();
       student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
+
+      const collectionAgent = new CollectionAgentService();
+      student.collection_agent_id = await (await collectionAgent.getAvailabileCollectionAgents())[0].id;
     }
 
     if (data.studentAvailability) {
