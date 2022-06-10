@@ -23,7 +23,7 @@ export class InstallmentController {
     };
     logger.info("InstallmentController.updateTransctionPaymentStatus: Start.");
     try {
-      const pendingPayments = await this.service.getPendingPayments();
+      const pendingPayments = await this.service.getPendingInstallments();
       for (let payment of pendingPayments) {
         try {
           const paymentId = payment.id;
@@ -31,7 +31,7 @@ export class InstallmentController {
             paymentId
           );
           if (paymentStatus.status === "captured") {
-            await this.service.updatePayment(paymentId, {
+            await this.service.updateInstallment(paymentId, {
               status: "Installment Paid",
               paidAmount: paymentStatus.amount / 100,
               paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
