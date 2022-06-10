@@ -85,7 +85,7 @@ function authenticateToken(req, res, next) {
 function authenticateAPIKey(req, res, next) {
   const apiKey = req.query.apiKey;
 
-  if(apiKey != process.env.API_KEY){
+  if (apiKey != process.env.API_KEY) {
     return res.sendStatus(401)
   }
 

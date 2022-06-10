@@ -322,7 +322,7 @@ export const Routes = [
     route: "/regeneratePaymentLink",
     controller: PaymentController,
     action: "regeneratePaymentLink",
-    authenticate: true
+    // authenticate: true
   },
 
 ];

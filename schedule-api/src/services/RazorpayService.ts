@@ -6,7 +6,7 @@ const client = new Razorpay({
 });
 
 export const getPaymentById = async (id: string) => {
-  return await client.payments.fetch(id);
+  return await client.paymentLink.fetch(id);
 };
 
 export interface Payment {
