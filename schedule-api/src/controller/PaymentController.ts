@@ -45,10 +45,13 @@ export class PaymentController {
     async generatePaymentLink(request: Request, response: Response, next: NextFunction) {
         console.log("generating payment links");
         try {
-            await this.paymentService.createPaymentLinksForStudents(request.body);
-            return { "success": true };
+            return await this.paymentService.createPaymentLinksForInstallments();
         } catch (error) {
-            console.log()
+            console.log(error);
+            return {
+                status: "error",
+                message: "Some exception during payment link generation"
+            }
         }
     }
 

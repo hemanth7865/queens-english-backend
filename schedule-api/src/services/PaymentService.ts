@@ -1,5 +1,5 @@
 import { getConnection, getManager, getRepository } from "typeorm";
-import { isNullOrUndefined } from "util";
+import { isNull, isNullOrUndefined } from "util";
 import { Payment } from "../entity/Payment";
 import { PaymentModeDetails } from "../entity/PaymentModeDetails";
 import { Student } from "../entity/Student";
@@ -9,7 +9,8 @@ import { User } from "../entity/User";
 import { PaymentsView } from "../model/PaymentView";
 const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time');
-const { createRazorPayLink } = require("../utils/payment/RazorPayUtils");
+import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
+import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 
 
 export class PaymentService {
@@ -17,7 +18,7 @@ export class PaymentService {
   private transactionRepository = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
   private paymentModeDetails = getRepository(PaymentModeDetails);
-
+  private razorPayUtils = new RazorPayUtils();
 
   /**
    * Student Payment Service 
@@ -185,6 +186,9 @@ export class PaymentService {
       transaction.emiAmount = data.emiAmount;
       transaction.paidAmount = data.paidAmount;
       transaction.status = data.status;
+      //payment details from razor pay
+      transaction.transactionId = data.paymentId;
+      transaction.paymentLink = data.paymentLink;
 
       var transactions = await this.transactionRepository.save(transaction);
 
@@ -202,7 +206,6 @@ export class PaymentService {
       transactiondetail.callDisposition = data.callDisposition;
       transactiondetail.feedBackCall = data.feedBackCall;
       transactiondetail.paymentMode = data.paymentMode;
-
 
       let tdeails = await this.transaDetailsRepository.save(transactiondetail);
       response.push({ ...transactions, ...tdeails });
@@ -222,49 +225,68 @@ export class PaymentService {
     };
   }
 
-  async createPaymentLinksForStudents(request) {
-    return await this.fetchPaymentData(request);
+  async createPaymentLinksForInstallments() {
+    var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
+    var count = 0;
+    console.log('currMonth: ' + currentMonth);
+    var installmentsWithoutLinks = await getRepository(Transactions)
+      .createQueryBuilder("transactions")
+      .where("(transactions.paymentLink is null or transactions.paymentLink = '') and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
+      .getMany();
+    console.log('installments without links: ', installmentsWithoutLinks.length);
+
+    var installmentsForUpdate: Transactions[] = [];
+    for (let installment of installmentsWithoutLinks) {
+      var paymentResponse = await this.createPaymentLink(installment);
+      if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
+        console.log('Payment link generation failed for installment: {0} payment response: {1}', installment.id, paymentResponse);
+      }
+      else {
+        //update installment data
+        installment.transactionId = paymentResponse.id;
+        installment.paymentLink = paymentResponse.short_url;
+        installmentsForUpdate.push(installment);
+        count++;
+      }
+    }
+    this.updateInstallmentData(installmentsForUpdate);
+    return {
+      status: "success",
+      message: "Payment links generated for " + count + " installments"
+    }
   }
 
-  fetchPaymentData = async (request: any) => {
-    if (!request.id) {
-      console.log('No Student available for generating payment link');
-      return;
+  createPaymentLink = async (installment: any) => {
+    if (isNullOrUndefined(installment)) {
+      console.log('No installment available for generating payment link');
+      return {
+        status: "error",
+        message: "No installment available for generating payment link"
+      }
     }
-    var id = request.id;
-    console.log('Fetch Student details with id: {0}', id);
 
+    console.log('Generating payment link for installment id: ', installment.id);
     var user = await getManager()
       .createQueryBuilder(User, "user")
-      .where("user.id = :id", { id: id })
+      .where("user.id = :id", { id: installment.studentId })
       .getOne();
     if (isNullOrUndefined(user)) {
-      console.log('No user available for the given id: {0}', id);
-      return;
-    }
-    var student = await getManager()
-      .createQueryBuilder(Student, "student")
-      .where("student.id = :id", { id: id })
-      .getOne();
-    if (isNullOrUndefined(student)) {
-      console.log('No Student available for the given id: {0}', id);
-      return;
-    }
-    var payment = await getManager()
-      .createQueryBuilder(Payment, "payment")
-      .where("payment.studentId = :id", { id: id })
-      .getOne();
-    if (isNullOrUndefined(payment)) {
-      console.log('No payment available for the given id: {0}', id);
-      return;
+      console.log('No user available for the given id: {0}', installment.studentId);
+      return {
+        status: "error",
+        message: "No user available for the given id"
+      }
     }
     console.log(user);
-    console.log(student);
-    console.log(payment);
 
-    var razorPayResponse = await createRazorPayLink(payment, student, user);
+    return await this.razorPayUtils.createRazorPayLink(installment, user);
+  }
 
-    return;
+  async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
+    console.log('installments without links for update: ', installmentsWithoutLinks.length);
+    for (let installment of installmentsWithoutLinks) {
+      await this.transactionRepository.update({ id: installment.id }, installment);
+    }
   }
 
 }

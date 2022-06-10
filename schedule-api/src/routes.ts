@@ -287,7 +287,8 @@ export const Routes = [
     method: "post",
     route: "/generatePaymentLink",
     controller: PaymentController,
-    action: "generatePaymentLink"
+    action: "generatePaymentLink",
+    // authenticate: true
   },
 
   {
