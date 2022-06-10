@@ -1,4 +1,4 @@
 export const BatchValues = {
-    MAXSTUDENTCOUNT: 7, 
+    MAXSTUDENTCOUNT: 7,
     MINSTUDENTCOUNT: 1
 }

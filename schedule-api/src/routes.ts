@@ -3,7 +3,7 @@ import { UserController } from "./controller/UserController";
 import { BatchController } from "./controller/BatchController";
 import { SessionController } from "./controller/SessionController";
 import { AssessmentController } from "./controller/AssessmentController";
-import { Assessment } from "./entity/Assessment";
+import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
 
@@ -188,42 +188,42 @@ export const Routes = [
     route: "/session/:id",
     controller: SessionController,
     action: "getSessionDetail",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/session/batch/:id",
     controller: SessionController,
     action: "getBatchSessions",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/session/batch/:id/:lessonId",
     controller: SessionController,
     action: "getBatchLessonSession",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/session",
     controller: SessionController,
     action: "getSessions",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "post",
     route: "/session",
     controller: SessionController,
     action: "createSession",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "put",
     route: "/session/:id",
     controller: SessionController,
     action: "updateSession",
-    authenticate: true
+    authenticate: true,
   },
 
   {
@@ -231,57 +231,70 @@ export const Routes = [
     route: "/assessment/batch/:id",
     controller: AssessmentController,
     action: "getBatchAssessments",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/assessment",
     controller: AssessmentController,
     action: "getAssessments",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "put",
     route: "/assessment/:id",
     controller: AssessmentController,
     action: "updateAssessment",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/assessment/:id",
     controller: AssessmentController,
     action: "getAssessmentDetail",
-    authenticate: true
+    authenticate: true,
   },
   {
     method: "post",
     route: "/availableTeachers",
     controller: UserController,
     action: "availableTeachers",
-    authenticate: true
+    authenticate: true,
   },
-
   {
     method: "get",
     route: "/loadTeacherAvailability",
     controller: UserController,
     action: "loadTeacherAvailability",
   },
+  {
+    method: "get",
+    route: "/update-installment-status",
+    controller: InstallmentController,
+    action: "updateTransctionPaymentStatus",
+    apiKey: true,
+  },
 
-  
   {
     method: "get",
     route: "/studentPaymentDetails",
     controller: PaymentController,
     action: "studentPaymentDetails",
   },
-  
+
   {
     method: "post",
     route: "/paymentDetails",
     controller: PaymentController,
     action: "paymentDetails",
+  },
+
+  {
+    method: "post",
+    route: "/generatePaymentLink",
+    controller: PaymentController,
+    action: "generatePaymentLink",
+    // authenticate: true
   },
 
   {
@@ -297,5 +310,5 @@ export const Routes = [
     controller: PaymentController,
     action: "fetchCollectionAgent",
   },
-  
+
 ];

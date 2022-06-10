@@ -1,12 +1,18 @@
-import { getRepository, LessThan, MoreThan, Not, In, Transaction, getConnection, TransactionRepository, getManager } from "typeorm";
+import { getConnection, getManager, getRepository } from "typeorm";
+import { isNull, isNullOrUndefined } from "util";
+import { Payment } from "../entity/Payment";
+import { PaymentModeDetails } from "../entity/PaymentModeDetails";
+import { Student } from "../entity/Student";
 import { Transactions } from "../entity/Transaction";
 import { TransactionDetails } from "../entity/TransactionDetails";
-import { PaymentModeDetails } from "../entity/PaymentModeDetails";
+import { User } from "../entity/User";
 import { PaymentsView } from "../model/PaymentView";
 import { CollectionAgent } from "../entity/CollectionAgent";
 import { totalmem } from "os";
 const { usersLogger } = require("../Logger.js");
 const date = require('date-and-time');
+import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
+import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 
 
 export class PaymentService {
@@ -15,6 +21,7 @@ export class PaymentService {
   private transaDetailsRepository = getRepository(TransactionDetails);
   private paymentModeDetails = getRepository(PaymentModeDetails);
   private collectionAgent = getRepository(CollectionAgent);
+  private razorPayUtils = new RazorPayUtils();
 
 
   /**
@@ -273,6 +280,9 @@ export class PaymentService {
       transaction.emiAmount = data.emiAmount;
       transaction.paidAmount = data.paidAmount;
       transaction.status = data.status;
+      //payment details from razor pay
+      transaction.transactionId = data.paymentId;
+      transaction.paymentLink = data.paymentLink;
 
       var transactions = await this.transactionRepository.save(transaction);
 
@@ -311,5 +321,70 @@ export class PaymentService {
     };
   }
 
+  async createPaymentLinksForInstallments() {
+    var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
+    var successCount = 0;
+    var failureCount = 0;
+    console.log('currMonth: ' + currentMonth);
+    var installmentsWithoutLinks = await getRepository(Transactions)
+      .createQueryBuilder("transactions")
+      .where("(transactions.paymentLink is null or transactions.paymentLink = '') and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
+      .getMany();
+    console.log('installments without links: ', installmentsWithoutLinks.length);
+
+    var installmentsForUpdate: Transactions[] = [];
+    for (let installment of installmentsWithoutLinks) {
+      var paymentResponse = await this.createPaymentLink(installment);
+      if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
+        console.log('Payment link generation failed for installment: {0} payment response: {1}', installment.id, paymentResponse);
+        failureCount++;
+      }
+      else {
+        //update installment data
+        installment.transactionId = paymentResponse.id;
+        installment.paymentLink = paymentResponse.short_url;
+        installmentsForUpdate.push(installment);
+        successCount++;
+      }
+    }
+    this.updateInstallmentData(installmentsForUpdate);
+    return {
+      status: "success",
+      message: "Payment links generated for " + successCount + " installments, Failure count: " + failureCount
+    }
+  }
+
+  createPaymentLink = async (installment: any) => {
+    if (isNullOrUndefined(installment)) {
+      console.log('No installment available for generating payment link');
+      return {
+        status: "error",
+        message: "No installment available for generating payment link"
+      }
+    }
+
+    console.log('Generating payment link for installment id: ', installment.id);
+    var user = await getManager()
+      .createQueryBuilder(User, "user")
+      .where("user.id = :id", { id: installment.studentId })
+      .getOne();
+    if (isNullOrUndefined(user)) {
+      console.log('No user available for the given id: {0}', installment.studentId);
+      return {
+        status: "error",
+        message: "No user available for the given id"
+      }
+    }
+    console.log(user);
+
+    return await this.razorPayUtils.createRazorPayLink(installment, user);
+  }
+
+  async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
+    console.log('installments without links for update: ', installmentsWithoutLinks.length);
+    for (let installment of installmentsWithoutLinks) {
+      await this.transactionRepository.update({ id: installment.id }, installment);
+    }
+  }
 
 }
