@@ -9,6 +9,7 @@ const moment = require("moment");
 
 export class InstallmentController {
   private service = new InstallmentService();
+  private COMPLETED_STATUS = "Installment Paid";
 
   async updateTransctionPaymentStatus(
     request: Request,
@@ -24,7 +25,7 @@ export class InstallmentController {
     logger.info("InstallmentController.updateTransctionPaymentStatus: Start.");
     try {
       const pendingPayments = await this.service.getPendingInstallments();
-      for (let payment of pendingPayments) {
+      for (const payment of pendingPayments) {
         try {
           const paymentId = payment.id;
           const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
@@ -32,7 +33,7 @@ export class InstallmentController {
           );
           if (paymentStatus.status === "captured") {
             await this.service.updateInstallment(paymentId, {
-              status: "Installment Paid",
+              status: this.COMPLETED_STATUS,
               paidAmount: paymentStatus.amount / 100,
               paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
             });
