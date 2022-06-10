@@ -21,12 +21,13 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode } = props.data ? props.data : ''
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : ''
     console.log('props', props.data)
 
     const [isLoading, setIsLoading] = useState(false);
+    const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
 
-    const teacherMessageTemplate = `    Dear Parent of ______,
+    const teacherMessageTemplate = `    Dear Parent of ${name},
 
     Your next instalment of INR ${emiAmount} is due on or before ${dueDate}. 
     
@@ -56,6 +57,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             modeOfPayment: modeOfPayment,
             callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
+            notes: values.notes? values.notes: notes,
             paymentMode: paymentMode,
         }]
         try {
@@ -83,13 +85,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             studentID: studentId,
             emiAmount: emiAmount,
             callDisposition: callDisposition,
-            feedBackCall: feedBackCall,
+            notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [studentId, emiAmount, callDisposition, whatsAppLinkSent])
+    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent])
 
     return (
         <div>
@@ -203,7 +205,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
                                         <Form.Item
                                             label="Notes"
-                                            name="feedBackCall"
+                                            name="notes"
                                         >
                                             <TextArea rows={3} />
                                         </Form.Item>

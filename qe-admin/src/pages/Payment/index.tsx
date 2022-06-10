@@ -9,6 +9,7 @@ import { getAllPayment } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import Whatsapp from './Components/Whatsapp';
 import RazorpayDetails from './Components/RazorpayDetails';
+import moment from 'moment';
 
 /**
  * @en-US Add node
@@ -58,6 +59,19 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'studentId',
             fixed: 'left',
+            width: 250,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleStudentName"
+                    defaultMessage="student Name"
+                />
+            ),
+            render: (dom, entity) => {
+                return <p>{entity.student[0].firstName} {entity.student[0].lastName}</p>
+            },
+            hideInSearch: true,
         },
         {
             title: (
@@ -66,7 +80,10 @@ const TableList: React.FC = () => {
                     defaultMessage="student RMN"
                 />
             ),
-            dataIndex: 'phoneNumber',
+            render: (dom, entity) => {
+                return <p>{entity.student[0].phoneNumber}</p>
+            },
+            hideInSearch: true,
         },
         {
             title: (
@@ -75,7 +92,11 @@ const TableList: React.FC = () => {
                     defaultMessage="Actual Start Date"
                 />
             ),
-            dataIndex: 'ActualStartDate',
+            render: (dom, entity) => {
+                return <p>{moment.utc(entity.actualStartDate).format('YYYY-MM-DD')}</p>
+            },
+            width: 140,
+            hideInSearch: true,
         },
         {
             title: (
@@ -85,24 +106,24 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'StartDate',
+            render: (dom, entity) => {
+                const startDate = entity.student[0].startDate
+                return <p>{moment.utc(startDate).format('YYYY-MM-DD')}</p>
+            },
+            width: 160,
+            hideInSearch: true,
         },
         {
             title: (
                 <FormattedMessage
-                    id="pages.searchTable.titleEndDate"
-                    defaultMessage="End Date"
-                />
-            ),
-            dataIndex: 'EndDate',
-        },
-        {
-            title: (
-                <FormattedMessage
-                    id="pages.searchTable.titleStatus"
+                    id="pages.searchTable.titleStudentStatus"
                     defaultMessage="Student status"
                 />
             ),
-            dataIndex: 'status',
+            render: (dom, entity) => {
+                return <p>{entity.student[0].status}</p>
+            },
+            hideInSearch: true,
         },
         {
             title: (
@@ -112,6 +133,7 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'dueDate',
+            width: 160,
         },
         {
             title: (
@@ -176,6 +198,7 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'paidDate',
+            width: 160,
         },
         {
             title: (
@@ -193,8 +216,9 @@ const TableList: React.FC = () => {
                     defaultMessage="Notes"
                 />
             ),
-            dataIndex: 'feedBackCall',
+            dataIndex: 'notes',
             hideInSearch: true,
+            width: 200
         },
         {
             title: (
@@ -206,7 +230,7 @@ const TableList: React.FC = () => {
             dataIndex: "edit",
             hideInSearch: true,
             fixed: 'right',
-            width: 150,
+            width: 240,
             render: (dom, entity) => {
                 return (
                     <div>
@@ -295,7 +319,7 @@ const TableList: React.FC = () => {
                 request={getAllPayment}
                 columns={columns}
                 scroll={{
-                    x: 1500,
+                    x: 1700,
                 }}
             />
 
