@@ -10,6 +10,11 @@ var cors = require("cors");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const fileUpload = require('express-fileupload');
+import * as utils from './utils/payment/RazorPayUtils';
+
+export default {
+  utils
+}
 
 // get config vars
 dotenv.config();

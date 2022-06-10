@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-const { usersLogger } = require("../Logger.js");
 import { PaymentService } from "../services/PaymentService";
+const { usersLogger } = require("../Logger.js");
 
 export class PaymentController {
     private paymentService = new PaymentService();
@@ -47,13 +47,26 @@ export class PaymentController {
         return await this.paymentService.paymentDetails(request.body);
     }
 
-    
+
     async fetchPaymentsDetails(request: Request, response: Response, next: NextFunction) {
 
     }
 
     async paymentsDetails(request: Request, response: Response, next: NextFunction) {
-      
+
+    }
+
+    async generatePaymentLink(request: Request, response: Response, next: NextFunction) {
+        console.log("generating payment links");
+        try {
+            return await this.paymentService.createPaymentLinksForInstallments();
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Some exception during payment link generation"
+            }
+        }
     }
 
 }

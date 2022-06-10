@@ -291,6 +291,14 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/generatePaymentLink",
+    controller: PaymentController,
+    action: "generatePaymentLink",
+    // authenticate: true
+  },
+
+  {
+    method: "post",
     route: "/fetchPaymentsDetails",
     controller: PaymentController,
     action: "loadTeacherAvailability",
@@ -302,5 +310,5 @@ export const Routes = [
     controller: PaymentController,
     action: "fetchCollectionAgent",
   },
-  
+
 ];
