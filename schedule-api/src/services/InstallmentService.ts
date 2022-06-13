@@ -17,6 +17,11 @@ export class InstallmentService {
     if (params?.installment_id) {
       where["id"] = params.installment_id;
     }
+
+    if (params?.reference_id) {
+      where["transactionId"] = params.reference_id;
+    }
+
     return await this.query.find({
       where,
       take: 10,
@@ -38,10 +43,8 @@ export class InstallmentService {
         paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
       });
       return PAYMENT_STATUS.PAID;
-    }
-    else {
+    } else {
       return PAYMENT_STATUS.PENDING;
     }
   }
-
 }
