@@ -28,11 +28,11 @@ export default class LoggerService {
   public async payment(
     oldRecord: {
       transaction: Transactions;
-      transactionDetails: TransactionDetails;
+      transactionDetails?: TransactionDetails;
     },
     newRecord: {
       transaction: Transactions;
-      transactionDetails: TransactionDetails;
+      transactionDetails?: TransactionDetails;
     },
     user: object | boolean
   ) {
@@ -62,7 +62,7 @@ export default class LoggerService {
       page: this.page,
       title,
       event,
-      debug: {...debug, user},
+      debug: { ...debug, user },
     };
     return this;
   }

@@ -465,7 +465,17 @@ export class PaymentService {
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info('installments without links for update: ' + installmentsWithoutLinks.length);
     for (let installment of installmentsWithoutLinks) {
-      await this.transactionRepository.update({ id: installment.id }, installment);
+      const oldTransaction = await this.transactionRepository.findOne({ id: installment.id });
+       await this.transactionRepository.update({ id: installment.id }, installment);
+      const newData = {
+        transaction: installment
+      }
+
+      const oldData = {
+        transaction: oldTransaction
+      }
+
+      await (await this.logger.payment(oldData, newData, {})).save();
     }
     return;
   }

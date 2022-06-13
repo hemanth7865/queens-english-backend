@@ -9,12 +9,12 @@ import * as CookieParser from "cookie-parser";
 var cors = require("cors");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-const fileUpload = require("express-fileupload");
-import * as utils from "./utils/payment/RazorPayUtils";
+const fileUpload = require('express-fileupload');
+import * as utils from './utils/payment/RazorPayUtils';
 
 export default {
-  utils,
-};
+  utils
+}
 
 // get config vars
 dotenv.config();
@@ -64,9 +64,6 @@ createConnection()
   .catch((error) => console.log(error));
 
 function bypassAuth(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  console.log(token);
   next();
 }
 function authenticateToken(req, res, next) {
@@ -83,13 +80,13 @@ function authenticateToken(req, res, next) {
 }
 
 /**
- * Middleware to authenticate API key
+ * Middleware to authenticate API key 
  */
 function authenticateAPIKey(req, res, next) {
   const apiKey = req.query.apiKey;
 
   if (apiKey != process.env.API_KEY) {
-    return res.sendStatus(401);
+    return res.sendStatus(401)
   }
 
   next();
