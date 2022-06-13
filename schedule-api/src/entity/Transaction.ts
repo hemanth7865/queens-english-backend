@@ -2,6 +2,7 @@ import {
     Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
     ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn
 } from "typeorm";
+import { Student } from "./Student";
 
 /**
  * Student transaction information
@@ -37,4 +38,6 @@ export class Transactions extends BaseEntity {
     created_at: Date;
     @UpdateDateColumn()
     updated_at: Date;
+    @OneToOne(type => Student, student => student.id)
+    student: Student;
 }

@@ -10,6 +10,7 @@ import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import collectionAgents from "./../../../data/collection_agent.json";
 import { parse, format } from "date-fns";
 
 /**
@@ -276,15 +277,7 @@ const TableList: React.FC = () => {
             renderFormItem: (value) => {
                 return (
                     <Select>
-                        <Option value="Aman">Aman</Option>
-                        <Option value="Anurag">Anurag</Option>
-                        <Option value="Gaurav">Gaurav</Option>
-                        <Option value="Mohit">Mohit</Option>
-                        <Option value="Molishka">Molishka</Option>
-                        <Option value="Ritik">Ritik</Option>
-                        <Option value="Sameeksha">Sameeksha</Option>
-                        <Option value="Satpreet">Satpreet</Option>
-                        <Option value="Sultana">Sultana</Option>
+                        {collectionAgents.map(i => (<Option value={i.id} key={i.id}>{i.firstName}</Option>))}
                     </Select>
                 );
             },
