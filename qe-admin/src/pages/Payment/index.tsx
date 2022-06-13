@@ -49,7 +49,6 @@ const TableList: React.FC = () => {
     }
 
     const handleRegenerateLink = async (data: any) => {
-        console.log(data)
         if (confirm("Are you sure to regenerate new razorpay link ?")) {
             setIsLoading(true);
             try {
@@ -59,13 +58,13 @@ const TableList: React.FC = () => {
                     },
                     body: JSON.stringify({ installmentId: data.transactionId }),
                 });
-                console.log('msg', msg)
-                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated");
+                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
             } catch (error) {
-                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated");
+                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
             }
             setIsLoading(false);
         }
+        actionRef.current.reload();
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -77,7 +76,7 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleStudentID"
-                    defaultMessage="student ID"
+                    defaultMessage="Lead Id"
                 />
             ),
             dataIndex: 'leadId',
@@ -262,6 +261,9 @@ const TableList: React.FC = () => {
             dataIndex: 'paidDate',
             width: 160,
             valueType: 'date',
+            render: (dom, entity) => {
+                return <p>{entity.paidDate != "NaN-NaN-NaN" && entity.paidDate != null ? moment.utc(entity.paidDate).format('YYYY-MM-DD') : '-'}</p>
+            },
         },
         {
             title: (
@@ -289,6 +291,29 @@ const TableList: React.FC = () => {
             search: {
                 transform: (value) => {
                     return { collectionAgent: value };
+                },
+            },
+        },
+
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleWhatsapp"
+                    defaultMessage="Whatsapp Link Sent"
+                />
+            ),
+            dataIndex: 'whatsAppLinkSent',
+            renderFormItem: (value) => {
+                return (
+                    <Select>
+                        <Option value="Yes">Yes</Option>
+                        <Option value="No">No</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { whatsAppLinkSent: value };
                 },
             },
         },
@@ -334,14 +359,6 @@ const TableList: React.FC = () => {
                             style={{ marginLeft: 10, marginRight: 10 }}>
                             <WhatsAppOutlined title='whatsapp' />
                         </a>
-                        {/* <a
-                            onClick={() => {
-                                setTempData(entity);
-                                alert('Are you sure to regenerate a razorpay')
-                            }}
-                            style={{ marginLeft: 10 }}>
-                            <LinkOutlined title='Regenerate Link' />
-                        </a> */}
                         <Typography.Link onClick={() => handleRegenerateLink(entity)}>
                             <LinkOutlined title='Regenerate Link' />
                         </Typography.Link>
@@ -410,7 +427,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 1700,
+                        x: 1800,
                     }}
                 />
             </Spin>
@@ -449,6 +466,7 @@ const TableList: React.FC = () => {
                     isWhatsappVisible={isWhatsappVisible}
                     isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
+                    setIsAmountDisplay={setIsAmountDisplay}
                 />
             </Modal>
         </PageContainer>

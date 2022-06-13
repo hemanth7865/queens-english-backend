@@ -7,11 +7,12 @@ import {
 } from "../services/RazorpayService";
 const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
-
+import LoggerService from "./LoggerService";
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
 
+  private logger = new LoggerService();
   private query = getRepository(Transactions);
 
   async getPendingInstallments(params) {
@@ -31,16 +32,25 @@ export class InstallmentService {
   }
 
   async updateInstallment(id, data) {
-    return await this.query.update(id, data);
+    const oldTransaction = await this.query.findOne({ where: { id } });
+    const updated = await this.query.update(id, data);
+    await (
+      await this.logger.payment(
+        { transaction: oldTransaction },
+        { transaction: {...data, id} },
+        {}
+      )
+    ).save();
+    return updated;
   }
 
   async updateInstallmentStatus(paymentId) {
-    usersLogger.info('rzp status update api call');
+    usersLogger.info("rzp status update api call");
     try {
       const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
         paymentId
       );
-      usersLogger.info('rzp resp: ' + JSON.stringify(paymentStatus));
+      usersLogger.info("rzp resp: " + JSON.stringify(paymentStatus));
       if (paymentStatus.status === "paid") {
         await this.updateInstallment(paymentId, {
           status: PAYMENT_STATUS.PAID,
@@ -48,13 +58,22 @@ export class InstallmentService {
           paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
         });
         return PAYMENT_STATUS.PAID;
-      }
-      else {
+      } else {
         return PAYMENT_STATUS.PENDING;
       }
-    }
-    catch (error) {
-      usersLogger.error(`Error in razor pay update status call: ${JSON.stringify(error)}`);
+    } catch (error) {
+      usersLogger.error(
+        `Error in razor pay update status call: ${JSON.stringify(error)}`
+      );
+      await (
+        await this.logger.customPayment(
+          paymentId || "UNKNOWN",
+          "Failed Update Installemnt Status",
+          "PAYMENT_UPDATE_STATUS_ERROR",
+          { paymentId, error, message: error.message },
+          {}
+        )
+      ).save();
       return PAYMENT_STATUS.PENDING;
     }
   }

@@ -31,6 +31,8 @@ export class Transactions extends BaseEntity {
     status: string;
     @Column({ 'nullable': true, type: "text", name: "payment_link" })
     paymentLink: string;
+    @Column({ 'nullable': true, type: "text", name: "subscription_id" })
+    subscriptionId: string;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()

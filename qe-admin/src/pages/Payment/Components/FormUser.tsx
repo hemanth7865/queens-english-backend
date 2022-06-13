@@ -15,6 +15,7 @@ export type FormUserProps = {
     isWhatsappVisible: {};
     isModalVisible: () => void;
     actionRef: any;
+    setIsAmountDisplay: any;
 };
 
 const { Option } = Select;
@@ -22,8 +23,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : ''
-    console.log('props', props.data)
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
@@ -42,7 +42,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
-        console.log('values', values)
         const dataForm = [{
             id: id,
             studentId: studentId,
@@ -50,7 +49,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidDate: paidDate,
             emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
             paidAmount: paidAmount,
-            status: status,
+            status: values.status ? values.status : status,
             transaction_details_id: transaction_details_id,
             transactionId: transactionId,
             razorpayLink: razorpayLink,
@@ -60,9 +59,10 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
+            referenceId: values.referenceId ? values.referenceId : transactionId,
+            subscriptionId: values.subscriptionId ? values.subscriptionId : ''
         }]
         try {
-            console.log("data", dataForm);
             const msg = await editPayment({
                 headers: {
                     "Content-Type": "application/json",
@@ -76,6 +76,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         props.setVisible(false);
         props.isModalVisible(false);
         setIsLoading(false);
+        props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
         console.log('dataForm', dataForm)
     }
@@ -89,11 +90,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             callDisposition: callDisposition,
             notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
+            status: status,
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent])
+    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
 
     return (
         <div>
@@ -119,32 +121,43 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                         <Form.Item
                             label="Installment Rs"
                             name="emiAmount"
-                            rules={[{ required: true, message: 'Please input your password!' }]}
+                            rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
                         >
                             <Input />
                         </Form.Item> :
 
-                        props.autodebitVisible ?
+                        props.netbankingVisible ?
 
                             <div>
                                 <Form.Item
                                     label="Subscription ID"
-                                    name="subscriptionID"
+                                    name="subscriptionId"
                                     rules={[{ required: true, message: 'Please Enter Subscription ID!' }]}
                                 >
                                     <Input />
                                 </Form.Item>
 
                                 <Form.Item
-                                    label=" First Instalment Payment ID"
-                                    name="paymentId"
+                                    label="First Instalment Payment ID"
+                                    name="referenceId"
                                     rules={[{ required: true, message: 'Please Enter  First Instalment Payment ID!' }]}
                                 >
                                     <Input />
                                 </Form.Item>
+
+                                <Form.Item
+                                    label="Installment status"
+                                    name="status"
+                                    rules={[{ required: true, message: 'Please Enter Installment Status' }]}
+                                >
+                                    <Select>
+                                        <Option value="Installment Pending">Installment Pending</Option>
+                                        <Option value="Installment Paid">Installment Paid</Option>
+                                    </Select>
+                                </Form.Item>
                             </div> :
 
-                            props.netbankingVisible ?
+                            props.autodebitVisible ?
 
                                 <div>
                                     <Form.Item
@@ -185,7 +198,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         <Form.Item
                                             label="Call Disposition"
                                             name="callDisposition"
-                                            rules={[{ required: true, message: 'Please input your password!' }]}
+                                            rules={[{ required: true, message: 'Please Enter Call Disposition' }]}
                                         >
                                             <Select >
                                                 <Option value="No response">No response</Option>
@@ -210,6 +223,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             name="notes"
                                         >
                                             <TextArea rows={3} />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Installment status"
+                                            name="status"
+                                            rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                        >
+                                            <Select>
+                                                <Option value="Installment Pending">Installment Pending</Option>
+                                                <Option value="Installment Paid">Installment Paid</Option>
+                                            </Select>
                                         </Form.Item>
                                     </div>
 
