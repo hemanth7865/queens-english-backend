@@ -278,7 +278,7 @@ export const Routes = [
     route: "/update-installment-status",
     controller: InstallmentController,
     action: "updateTransctionPaymentStatus",
-    apiKey: true,
+    apiKey: false,
   },
 
   {
