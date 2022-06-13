@@ -32,6 +32,7 @@ export class PaymentsView {
   updated_at: Date;
   collectionAgent?: string;
   referenceId: string;
+  subscriptionId:string;
   student: string;
   actualStartDate?: string;
   notes?: string;
