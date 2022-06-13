@@ -15,29 +15,34 @@ export class RazorPayUtils {
     usersLogger.info('contact: ' + user.phoneNumber);
     usersLogger.info('studentId: ' + user.id);
     usersLogger.info('paymentId: ' + installment.id);
-    var response = await instance.paymentLink.create({
-      "amount": Number(installment.emiAmount + '00'),
-      "currency": "INR",
-      "accept_partial": false,
-      // "first_min_partial_amount": 100,
-      "description": "For student id " + user.id + " installment due date " + installment.dueDate,
-      "customer": {
-        "name": user.firstName,
-        "email": user.customerEmail,
-        "contact": user.phoneNumber
-      },
-      // "notify": {
-      //   "sms": true,
-      //   "email": true
-      // },
-      "reminder_enable": true,
-      "notes": {
-        "studentId": user.id
-      },
-      // "callback_url": "https://example-callback-url.com/",
-      // "callback_method": "get"
-    });
-    usersLogger.info('razorpay response: ' + JSON.stringify(response));
+    try {
+      var response = await instance.paymentLink.create({
+        "amount": Number(installment.emiAmount + '00'),
+        "currency": "INR",
+        "accept_partial": false,
+        // "first_min_partial_amount": 100,
+        "description": "For student id " + user.id + " installment due date " + installment.dueDate,
+        "customer": {
+          "name": user.firstName,
+          "email": user.customerEmail,
+          "contact": user.phoneNumber
+        },
+        // "notify": {
+        //   "sms": true,
+        //   "email": true
+        // },
+        "reminder_enable": true,
+        "notes": {
+          "studentId": user.id
+        },
+        // "callback_url": "https://example-callback-url.com/",
+        // "callback_method": "get"
+      });
+      usersLogger.info('razorpay response: ' + JSON.stringify(response));
+    }
+    catch (error) {
+      usersLogger.error('Error in generating link for razor pay: ' + JSON.stringify(response));
+    }
     return response;
   }
 
