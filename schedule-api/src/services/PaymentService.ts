@@ -349,7 +349,7 @@ export class PaymentService {
     usersLogger.info('currMonth: ' + currentMonth);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
-      .where("(transactions.paymentLink is null or transactions.paymentLink = '') and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
+      .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
       .getMany();
     usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
 
