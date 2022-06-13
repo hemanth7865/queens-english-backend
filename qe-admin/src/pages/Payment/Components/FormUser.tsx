@@ -15,6 +15,7 @@ export type FormUserProps = {
     isWhatsappVisible: {};
     isModalVisible: () => void;
     actionRef: any;
+    setIsAmountDisplay: any;
 };
 
 const { Option } = Select;
@@ -22,8 +23,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : ''
-    console.log('props', props.data)
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
@@ -42,7 +42,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
-        console.log('values', values)
         const dataForm = [{
             id: id,
             studentId: studentId,
@@ -64,7 +63,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             subscriptionId: values.subscriptionId ? values.subscriptionId : ''
         }]
         try {
-            console.log("data", dataForm);
             const msg = await editPayment({
                 headers: {
                     "Content-Type": "application/json",
@@ -78,6 +76,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         props.setVisible(false);
         props.isModalVisible(false);
         setIsLoading(false);
+        props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
         console.log('dataForm', dataForm)
     }
@@ -122,7 +121,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                         <Form.Item
                             label="Installment Rs"
                             name="emiAmount"
-                            rules={[{ required: true, message: 'Please input Installment Rs' }]}
+                            rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
                         >
                             <Input />
                         </Form.Item> :
@@ -149,7 +148,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 <Form.Item
                                     label="Installment status"
                                     name="status"
-                                    rules={[{ required: true, message: 'Please input Installment Status' }]}
+                                    rules={[{ required: true, message: 'Please Enter Installment Status' }]}
                                 >
                                     <Select>
                                         <Option value="Installment Pending">Installment Pending</Option>
@@ -199,7 +198,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         <Form.Item
                                             label="Call Disposition"
                                             name="callDisposition"
-                                            rules={[{ required: true, message: 'Please input your password!' }]}
+                                            rules={[{ required: true, message: 'Please Enter Call Disposition' }]}
                                         >
                                             <Select >
                                                 <Option value="No response">No response</Option>
@@ -229,7 +228,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         <Form.Item
                                             label="Installment status"
                                             name="status"
-                                            rules={[{ required: false, message: 'Please input Installment Status' }]}
+                                            rules={[{ required: false, message: 'Please Enter Installment Status' }]}
                                         >
                                             <Select>
                                                 <Option value="Installment Pending">Installment Pending</Option>
