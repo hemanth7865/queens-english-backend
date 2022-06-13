@@ -14,6 +14,7 @@ const date = require('date-and-time');
 import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
+import { fail } from "assert";
 
 
 export class PaymentService {
@@ -322,17 +323,25 @@ export class PaymentService {
     };
   }
 
-  async createPaymentLinksForInstallments() {
+  async createPaymentLinksForInstallmentsWithLimit(limit: any) {
     var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
-    var successCount = 0;
-    var failureCount = 0;
     usersLogger.info('currMonth: ' + currentMonth);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
       .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
-      .getMany();
+      .limit(limit).getMany();
     usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
 
+    await this.createPaymentLinkForSpecificInstallments(installmentsWithoutLinks);
+    return {
+      status: "success",
+      message: "Payment links processed for count: " + installmentsWithoutLinks.length
+    }
+  }
+
+  async createPaymentLinkForSpecificInstallments(installmentsWithoutLinks: any) {
+    var failureCount = 0;
+    var successCount = 0;
     var installmentsForUpdate: Transactions[] = [];
     for (let installment of installmentsWithoutLinks) {
       var paymentResponse = await this.createPaymentLink(installment);
@@ -349,10 +358,7 @@ export class PaymentService {
       }
     }
     await this.updateInstallmentData(installmentsForUpdate);
-    return {
-      status: "success",
-      message: "Payment links generated for " + successCount + " installments, Failure count: " + failureCount
-    }
+    usersLogger.info('Payment link generation success count: ' + successCount + 'failure count: ' + failureCount);
   }
 
   async regeneratePaymentLink(request: any) {
