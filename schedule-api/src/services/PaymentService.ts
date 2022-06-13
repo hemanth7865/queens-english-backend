@@ -317,7 +317,7 @@ export class PaymentService {
           transactionDetails: tdeails, transaction: transactions
         }
 
-        await this.logger.payment(oldData, newData, {}).save();
+        await (await this.logger.payment(oldData, newData, {})).save();
 
         response.push({ ...transactions, ...tdeails });
       }
