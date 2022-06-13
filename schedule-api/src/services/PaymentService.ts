@@ -325,18 +325,18 @@ export class PaymentService {
     var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
     var successCount = 0;
     var failureCount = 0;
-    console.log('currMonth: ' + currentMonth);
+    usersLogger.info('currMonth: ' + currentMonth);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
       .where("(transactions.paymentLink is null or transactions.paymentLink = '') and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
       .getMany();
-    console.log('installments without links: ', installmentsWithoutLinks.length);
+    usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
 
     var installmentsForUpdate: Transactions[] = [];
     for (let installment of installmentsWithoutLinks) {
       var paymentResponse = await this.createPaymentLink(installment);
       if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
-        console.log('Payment link generation failed for installment: {0} payment response: {1}', installment.id, paymentResponse);
+        usersLogger.info('Payment link generation failed for installment: ' + installment.id + 'payment response: ' + JSON.stringify(paymentResponse));
         failureCount++;
       }
       else {
@@ -356,7 +356,7 @@ export class PaymentService {
 
   async regeneratePaymentLink(request: any) {
     if (isNullOrUndefined(request.installmentId)) {
-      console.log('No installment id available for regenerating payment link');
+      usersLogger.info('No installment id available for regenerating payment link');
       return {
         status: "error",
         message: "No installment id available for regenerating payment link"
@@ -364,7 +364,7 @@ export class PaymentService {
     }
     var installment = await this.transactionRepository.findOne({ id: request.installmentId });
     if (isNullOrUndefined(installment)) {
-      console.log('No installment available for the given id');
+      usersLogger.info('No installment available for the given id');
       return {
         status: "error",
         message: "No installment available for the given id"
@@ -373,14 +373,14 @@ export class PaymentService {
 
     // update payment status of current transaction for real time data, if the current status is PENDING
     let paymentStatus = installment.status;
-    console.log('current payment status: ', paymentStatus);
-    if (paymentStatus == PAYMENT_STATUS.PENDING) {
+    usersLogger.info('current payment status: ' + paymentStatus);
+    if (paymentStatus == PAYMENT_STATUS.PENDING && !isNullOrUndefined(installment.transactionId)) {
       paymentStatus = await this.installmentService.updateInstallmentStatus(installment.transactionId);
     }
-    console.log('updated payment status: ', paymentStatus);
+    usersLogger.info('updated payment status: ' + paymentStatus);
 
     if (paymentStatus == PAYMENT_STATUS.PAID) {
-      console.log('Installment status is paid for the given id');
+      usersLogger.info('Installment status is paid for the given id');
       return {
         status: "error",
         message: "Installment status is paid for the given id"
@@ -390,7 +390,7 @@ export class PaymentService {
     //regenerate payment link
     var paymentResponse = await this.createPaymentLink(installment);
     if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
-      console.log('Payment link generation failed for installment: {0} payment response: {1}', installment.id, paymentResponse);
+      usersLogger.info('Payment link generation failed for installment: ' + installment.id + 'payment response: ' + JSON.stringify(paymentResponse));
       return {
         status: "error",
         message: "Razor pay response: " + paymentResponse
@@ -415,32 +415,32 @@ export class PaymentService {
 
   createPaymentLink = async (installment: any) => {
     if (isNullOrUndefined(installment)) {
-      console.log('No installment available for generating payment link');
+      usersLogger.info('No installment available for generating payment link');
       return {
         status: "error",
         message: "No installment available for generating payment link"
       }
     }
 
-    console.log('Generating payment link for installment id: ', installment.id);
+    usersLogger.info('Generating payment link for installment id: ' + installment.id);
     var user = await getManager()
       .createQueryBuilder(User, "user")
       .where("user.id = :id", { id: installment.studentId })
       .getOne();
     if (isNullOrUndefined(user)) {
-      console.log('No user available for the given id: {0}', installment.studentId);
+      usersLogger.info('No user available for the given id: {0}' + installment.studentId);
       return {
         status: "error",
         message: "No user available for the given id"
       }
     }
-    console.log(user);
+    usersLogger.info('User: ' + JSON.stringify(user));
 
     return await this.razorPayUtils.createRazorPayLink(installment, user);
   }
 
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
-    console.log('installments without links for update: ', installmentsWithoutLinks.length);
+    usersLogger.info('installments without links for update: ' + installmentsWithoutLinks.length);
     for (let installment of installmentsWithoutLinks) {
       await this.transactionRepository.update({ id: installment.id }, installment);
     }

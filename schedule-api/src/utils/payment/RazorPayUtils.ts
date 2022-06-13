@@ -1,5 +1,6 @@
 import { Transactions } from "../../entity/Transaction";
 import { User } from "../../entity/User";
+const { usersLogger } = require("../../Logger.js");
 
 const Razorpay = require('razorpay');
 var instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SCERET });
@@ -7,13 +8,13 @@ var instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: p
 export class RazorPayUtils {
 
   async createRazorPayLink(installment: Transactions, user: User) {
-    console.log('inside razor pay utils');
-    console.log('emi: ', installment.emiAmount);
-    console.log('fname: ', user.firstName);
-    console.log('email: ', user.customerEmail);
-    console.log('contact: ', user.phoneNumber);
-    console.log('studentId: ', user.id);
-    console.log('paymentId: ', installment.id);
+    usersLogger.info('inside razor pay utils');
+    usersLogger.info('emi: ' + installment.emiAmount);
+    usersLogger.info('fname: ' + user.firstName);
+    usersLogger.info('email: ' + user.customerEmail);
+    usersLogger.info('contact: ' + user.phoneNumber);
+    usersLogger.info('studentId: ' + user.id);
+    usersLogger.info('paymentId: ' + installment.id);
     var response = await instance.paymentLink.create({
       "amount": Number(installment.emiAmount + '00'),
       "currency": "INR",
@@ -36,7 +37,7 @@ export class RazorPayUtils {
       // "callback_url": "https://example-callback-url.com/",
       // "callback_method": "get"
     });
-    console.log('razorpay response: ' + JSON.stringify(response));
+    usersLogger.info('razorpay response: ' + JSON.stringify(response));
     return response;
   }
 
