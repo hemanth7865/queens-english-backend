@@ -9,7 +9,7 @@ export class RazorPayUtils {
 
   async createRazorPayLink(installment: Transactions, user: User) {
     usersLogger.info('inside razor pay utils');
-    usersLogger.info('emi: ' + Number(installment.emiAmount.replace(/\D/g, '')));
+    usersLogger.info('emi: ' + Number(installment.emiAmount.replace(/,/g, '')));
     usersLogger.info('fname: ' + user.firstName);
     usersLogger.info('email: ' + user.customerEmail);
     usersLogger.info('contact: ' + user.phoneNumber);
