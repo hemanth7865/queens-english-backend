@@ -28,11 +28,11 @@ export default class LoggerService {
   public async payment(
     oldRecord: {
       transaction: Transactions;
-      transactionDetails: TransactionDetails;
+      transactionDetails?: TransactionDetails;
     },
     newRecord: {
       transaction: Transactions;
-      transactionDetails: TransactionDetails;
+      transactionDetails?: TransactionDetails;
     },
     user: object | boolean
   ) {
@@ -45,6 +45,24 @@ export default class LoggerService {
       event: this.page,
       debug: {},
       ...logData,
+    };
+    return this;
+  }
+
+  public async customPayment(
+    id: string,
+    title: string,
+    event: string,
+    debug: object,
+    user: object | boolean
+  ) {
+    this.page = "payments";
+    this.logData = {
+      id: id,
+      page: this.page,
+      title,
+      event,
+      debug: { ...debug, user },
     };
     return this;
   }

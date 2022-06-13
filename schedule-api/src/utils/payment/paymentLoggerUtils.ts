@@ -3,11 +3,11 @@ import { TransactionDetails } from "../../entity/TransactionDetails";
 const log = async (
   oldRecord: {
     transaction: Transactions;
-    transactionDetails: TransactionDetails;
+    transactionDetails?: TransactionDetails;
   },
   newRecord: {
     transaction: Transactions;
-    transactionDetails: TransactionDetails;
+    transactionDetails?: TransactionDetails;
   },
   user: object | boolean
 ): Promise<object> => {
@@ -44,61 +44,103 @@ const log = async (
   const transaction = newRecord.transaction;
   const oldTransaction = oldRecord.transaction;
 
-  if (transaction.studentId !== oldTransaction.studentId) {
+  if (
+    transaction.studentId !== oldTransaction.studentId &&
+    transaction.studentId
+  ) {
     title += "Student Id Changed, ";
   }
 
-  if (transaction.dueDate !== oldTransaction.dueDate) {
+  if (transaction.dueDate !== oldTransaction.dueDate && transaction.dueDate) {
     title += `Due Date Changed To: ${transaction.dueDate}, `;
   }
 
-  if (transaction.paidDate !== oldTransaction.paidDate) {
+  if (
+    transaction.paidDate !== oldTransaction.paidDate &&
+    transaction.paidDate
+  ) {
     title += `Paid Date Changed To: ${transaction.paidDate}, `;
   }
 
-  if (transaction.paidAmount !== oldTransaction.paidAmount) {
+  if (
+    transaction.paidAmount !== oldTransaction.paidAmount &&
+    transaction.paidAmount
+  ) {
     title += `Paid Amount Changed To: ${transaction.paidAmount}, `;
   }
 
-  if (transaction.emiAmount !== oldTransaction.emiAmount) {
+  if (
+    transaction.emiAmount !== oldTransaction.emiAmount &&
+    transaction.emiAmount
+  ) {
     title += `Installment Amount Changed To: ${transaction.emiAmount}, `;
   }
 
-  if (transaction.status !== oldTransaction.status) {
+  if (transaction.status !== oldTransaction.status && transaction.status) {
     title += `Paid Status Changed To: ${transaction.status}, `;
   }
 
-  if (transaction.paymentLink !== oldTransaction.paymentLink) {
-    title += "Payment Link Changed, ";
+  if (
+    transaction.subscriptionId !== oldTransaction.subscriptionId &&
+    transaction.subscriptionId
+  ) {
+    title += `Subscription ID Changed To: ${transaction.subscriptionId}, `;
+  }
+
+  if (
+    transaction.transactionId !== oldTransaction.transactionId &&
+    transaction.transactionId
+  ) {
+    title += `Transaction ID Changed To: ${transaction.transactionId}, `;
+  }
+
+  if (
+    transaction.paymentLink !== oldTransaction.paymentLink &&
+    transaction.paymentLink
+  ) {
+    console.log(transaction.paymentLink, oldTransaction.paymentLink);
+    title += `Payment Link Changed To: ${transaction.paymentLink}, `;
   }
 
   /**
    * Check Transaction Details Updates
    */
-  const transactionDetails = newRecord.transactionDetails;
-  const oldTransactionDetails = oldRecord.transactionDetails;
+  const transactionDetails: any = newRecord.transactionDetails || {};
+  const oldTransactionDetails: any = oldRecord.transactionDetails || {};
 
   if (
-    transactionDetails.callDisposition !== oldTransactionDetails.callDisposition
+    transactionDetails.callDisposition !==
+      oldTransactionDetails.callDisposition &&
+    transactionDetails.callDisposition
   ) {
     title += `Call Disposition Changed To: ${transactionDetails.callDisposition}, `;
   }
 
-  if (transactionDetails.feedBackCall !== oldTransactionDetails.feedBackCall) {
+  if (
+    transactionDetails.feedBackCall !== oldTransactionDetails.feedBackCall &&
+    transactionDetails.feedBackCall
+  ) {
     title += `Feedback Call Changed To: ${transactionDetails.feedBackCall}, `;
   }
 
-  if (transactionDetails.paymentMode !== oldTransactionDetails.paymentMode) {
+  if (
+    transactionDetails.paymentMode !== oldTransactionDetails.paymentMode &&
+    transactionDetails.paymentMode
+  ) {
     title += `Payment Mode Changed To: ${transactionDetails.paymentMode}, `;
   }
 
-  if (transactionDetails.notes !== oldTransactionDetails.notes) {
+  if (
+    transactionDetails.notes !== oldTransactionDetails.notes &&
+    transactionDetails.notes
+  ) {
     title += `Notes Changed To: ${transactionDetails.notes}, `;
   }
 
   if (
     transactionDetails.whatsAppLinkSent !==
-    oldTransactionDetails.whatsAppLinkSent
+      oldTransactionDetails.whatsAppLinkSent &&
+    transactionDetails.whatsAppLinkSent
   ) {
     title += `Whatsapp send status Changed To: ${transactionDetails.whatsAppLinkSent}, `;
   }
