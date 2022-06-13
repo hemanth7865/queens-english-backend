@@ -50,7 +50,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidDate: paidDate,
             emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
             paidAmount: paidAmount,
-            status: status,
+            status: values.status ? values.status : status,
             transaction_details_id: transaction_details_id,
             transactionId: transactionId,
             razorpayLink: razorpayLink,
@@ -60,6 +60,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
+            referenceId: values.referenceId ? values.referenceId : transactionId,
+            subscriptionId: values.subscriptionId ? values.subscriptionId : ''
         }]
         try {
             console.log("data", dataForm);
@@ -89,11 +91,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             callDisposition: callDisposition,
             notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
+            status: status,
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent])
+    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
 
     return (
         <div>
@@ -119,32 +122,43 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                         <Form.Item
                             label="Installment Rs"
                             name="emiAmount"
-                            rules={[{ required: true, message: 'Please input your password!' }]}
+                            rules={[{ required: true, message: 'Please input Installment Rs' }]}
                         >
                             <Input />
                         </Form.Item> :
 
-                        props.autodebitVisible ?
+                        props.netbankingVisible ?
 
                             <div>
                                 <Form.Item
                                     label="Subscription ID"
-                                    name="subscriptionID"
+                                    name="subscriptionId"
                                     rules={[{ required: true, message: 'Please Enter Subscription ID!' }]}
                                 >
                                     <Input />
                                 </Form.Item>
 
                                 <Form.Item
-                                    label=" First Instalment Payment ID"
-                                    name="paymentId"
+                                    label="First Instalment Payment ID"
+                                    name="referenceId"
                                     rules={[{ required: true, message: 'Please Enter  First Instalment Payment ID!' }]}
                                 >
                                     <Input />
                                 </Form.Item>
+
+                                <Form.Item
+                                    label="Installment status"
+                                    name="status"
+                                    rules={[{ required: true, message: 'Please input Installment Status' }]}
+                                >
+                                    <Select>
+                                        <Option value="Installment Pending">Installment Pending</Option>
+                                        <Option value="Installment Paid">Installment Paid</Option>
+                                    </Select>
+                                </Form.Item>
                             </div> :
 
-                            props.netbankingVisible ?
+                            props.autodebitVisible ?
 
                                 <div>
                                     <Form.Item
@@ -210,6 +224,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             name="notes"
                                         >
                                             <TextArea rows={3} />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Installment status"
+                                            name="status"
+                                            rules={[{ required: false, message: 'Please input Installment Status' }]}
+                                        >
+                                            <Select>
+                                                <Option value="Installment Pending">Installment Pending</Option>
+                                                <Option value="Installment Paid">Installment Paid</Option>
+                                            </Select>
                                         </Form.Item>
                                     </div>
 

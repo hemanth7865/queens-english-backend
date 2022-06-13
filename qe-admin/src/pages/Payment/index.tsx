@@ -60,12 +60,13 @@ const TableList: React.FC = () => {
                     body: JSON.stringify({ installmentId: data.transactionId }),
                 });
                 console.log('msg', msg)
-                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated");
+                handleAPIResponse(msg.message, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
             } catch (error) {
-                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated");
+                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
             }
             setIsLoading(false);
         }
+        actionRef.current.reload();
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -77,7 +78,7 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleStudentID"
-                    defaultMessage="student ID"
+                    defaultMessage="Lead Id"
                 />
             ),
             dataIndex: 'leadId',
@@ -262,6 +263,9 @@ const TableList: React.FC = () => {
             dataIndex: 'paidDate',
             width: 160,
             valueType: 'date',
+            render: (dom, entity) => {
+                return <p>{entity.paidDate != "NaN-NaN-NaN" && entity.paidDate != null ? moment.utc(entity.paidDate).format('YYYY-MM-DD') : '-'}</p>
+            },
         },
         {
             title: (
@@ -289,6 +293,29 @@ const TableList: React.FC = () => {
             search: {
                 transform: (value) => {
                     return { collectionAgent: value };
+                },
+            },
+        },
+
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleWhatsapp"
+                    defaultMessage="Whatsapp Link Sent"
+                />
+            ),
+            dataIndex: 'whatsAppLinkSent',
+            renderFormItem: (value) => {
+                return (
+                    <Select>
+                        <Option value="Yes">Yes</Option>
+                        <Option value="No">No</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { whatsAppLinkSent: value };
                 },
             },
         },
@@ -410,7 +437,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 1700,
+                        x: 1800,
                     }}
                 />
             </Spin>
