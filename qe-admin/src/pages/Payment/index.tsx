@@ -77,10 +77,10 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleStudentID"
-                    defaultMessage="studentId"
+                    defaultMessage="student ID"
                 />
             ),
-            dataIndex: 'studentId',
+            dataIndex: 'leadId',
             fixed: 'left',
             width: 250,
         },
@@ -270,7 +270,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Collection Expert Name"
                 />
             ),
-            dataIndex: 'CollectionExpertName',
+            dataIndex: 'collectionAgent',
         },
         {
             title: (
