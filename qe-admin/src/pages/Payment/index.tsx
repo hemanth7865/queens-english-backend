@@ -49,7 +49,6 @@ const TableList: React.FC = () => {
     }
 
     const handleRegenerateLink = async (data: any) => {
-        console.log(data)
         if (confirm("Are you sure to regenerate new razorpay link ?")) {
             setIsLoading(true);
             try {
@@ -59,8 +58,7 @@ const TableList: React.FC = () => {
                     },
                     body: JSON.stringify({ installmentId: data.transactionId }),
                 });
-                console.log('msg', msg)
-                handleAPIResponse(msg.message, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
             } catch (error) {
                 handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
             }
@@ -361,14 +359,6 @@ const TableList: React.FC = () => {
                             style={{ marginLeft: 10, marginRight: 10 }}>
                             <WhatsAppOutlined title='whatsapp' />
                         </a>
-                        {/* <a
-                            onClick={() => {
-                                setTempData(entity);
-                                alert('Are you sure to regenerate a razorpay')
-                            }}
-                            style={{ marginLeft: 10 }}>
-                            <LinkOutlined title='Regenerate Link' />
-                        </a> */}
                         <Typography.Link onClick={() => handleRegenerateLink(entity)}>
                             <LinkOutlined title='Regenerate Link' />
                         </Typography.Link>
@@ -476,6 +466,7 @@ const TableList: React.FC = () => {
                     isWhatsappVisible={isWhatsappVisible}
                     isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
+                    setIsAmountDisplay={setIsAmountDisplay}
                 />
             </Modal>
         </PageContainer>

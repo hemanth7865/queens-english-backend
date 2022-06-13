@@ -16,13 +16,16 @@ export const openNotificationWithIcon = (type: string, message: string, reload =
 };
 
 export const handleAPIResponse = (msg: any, success: string, failed: string, reload: boolean = true) => {
-    if (msg.status === 400 || msg.status === 500) {
+    if (msg.status === 400 || msg.status === 500 || msg.status == "error") {
         if (Array.isArray(msg.errors)) {
             for (let m of msg.errors) {
                 openNotificationWithIcon('error', m, false);
             }
         } else if (typeof msg.error === "string") {
             openNotificationWithIcon('error', msg.error, false);
+        }
+        else if (typeof msg.message === "string") {
+            openNotificationWithIcon('error', msg.message, false);
         } else {
             openNotificationWithIcon('error', failed, false);
         }
