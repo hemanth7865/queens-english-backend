@@ -217,8 +217,12 @@ export class PaymentService {
 
     for (let item of tdetails) {
       var record = await this.transactionRepository.findOne({ id: item.transactionId });
+      if(!record){
+        usersLogger.info(`Installmend with ID: ${item.transactionId} Not Found`);
+        continue;
+      }
       var view = new PaymentsView();
-
+      
       var student: string;
       var studentQuer = "select * from user where id = '" + record.studentId + "';";
       student = await getManager().query(studentQuer);
