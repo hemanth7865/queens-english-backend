@@ -135,6 +135,9 @@ export class PaymentService {
         case "collection_agent":
           whereCondition.push(`collection_agent = '${parameters["collectionAgent"]}'`)
           break;
+        case "subscriptionId":
+          whereCondition.push(`subscription_id = '${parameters["subscriptionId"]}'`)
+          break;
       }
     }
 
@@ -218,6 +221,8 @@ export class PaymentService {
 
       view.id = record.id;
       view.studentId = record.studentId;
+      view.referenceId = record.transactionId;
+      view.subscriptionId=record.subscriptionId;
       view.dueDate = record.dueDate;
       view.paidDate = record.paidDate;
       view.emiAmount = record.emiAmount;
