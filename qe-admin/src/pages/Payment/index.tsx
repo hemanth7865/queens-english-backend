@@ -48,20 +48,24 @@ const TableList: React.FC = () => {
         setNetbankingVisible(false);
     }
 
+    const regenerateLink = async (data: any) => {
+        try {
+            const msg = await regeneratePaymentLink({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ installmentId: data.transactionId }),
+            });
+            handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+        }
+    }
+
     const handleRegenerateLink = async (data: any) => {
         if (confirm("Are you sure to regenerate new razorpay link ?")) {
             setIsLoading(true);
-            try {
-                const msg = await regeneratePaymentLink({
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ installmentId: data.transactionId }),
-                });
-                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-            } catch (error) {
-                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-            }
+            await regenerateLink(data);
             setIsLoading(false);
         }
         actionRef.current.reload();
@@ -467,6 +471,7 @@ const TableList: React.FC = () => {
                     isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
                     setIsAmountDisplay={setIsAmountDisplay}
+                    regenerateLink={regenerateLink}
                 />
             </Modal>
         </PageContainer>
