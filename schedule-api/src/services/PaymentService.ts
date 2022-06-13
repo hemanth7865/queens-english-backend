@@ -14,6 +14,7 @@ const date = require('date-and-time');
 import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
+import LoggerService from "./LoggerService";
 
 
 export class PaymentService {
@@ -25,6 +26,7 @@ export class PaymentService {
   private studentRepository = getRepository(Student);
   private razorPayUtils = new RazorPayUtils();
   private installmentService = new InstallmentService();
+  private logger = new LoggerService();
 
   /**
    * 
@@ -271,46 +273,59 @@ export class PaymentService {
     let response = [];
     try {
 
-      for (var data of requestData)
+      for (var data of requestData){
+        const oldTransactionDetails = await this.transaDetailsRepository.findOne({ where: {id: data.transaction_details_id} });
+        const oldTransaction = await this.transactionRepository.findOne({ where: {id: data.id} });
+        const oldData = {
+          transactionDetails: oldTransactionDetails, transaction: oldTransaction
+        }
         var transaction = new Transactions();
-      if (data.id) {
-        transaction.id = data.id;
-        transaction.updated_at = new Date();
-      } else {
-        transaction.created_at = new Date();
-        transaction.updated_at = new Date();
+        if (data.id) {
+          transaction.id = data.id;
+          transaction.updated_at = new Date();
+        } else {
+          transaction.created_at = new Date();
+          transaction.updated_at = new Date();
+        }
+        transaction.studentId = data.studentId
+        transaction.dueDate = data.dueDate;
+        transaction.paidDate = data.paidDate;
+        transaction.emiAmount = data.emiAmount;
+        transaction.paidAmount = data.paidAmount;
+        transaction.status = data.status;
+        //payment details from razor pay
+        transaction.transactionId = data.paymentId;
+        transaction.paymentLink = data.paymentLink;
+
+        var transactions = await this.transactionRepository.save(transaction);
+
+        var transactiondetail = new TransactionDetails();
+        if (data.transaction_details_id) {
+          transactiondetail.id = data.transaction_details_id
+          transactiondetail.updated_at = new Date();
+        } else {
+          transactiondetail.transactionId = transactions.id;
+          transactiondetail.created_at = new Date();
+          transactiondetail.updated_at = new Date();
+        }
+
+        transactiondetail.whatsAppLinkSent = data.whatsAppLinkSent;
+        transactiondetail.callDisposition = data.callDisposition;
+        transactiondetail.feedBackCall = data.feedBackCall;
+        transactiondetail.paymentMode = data.paymentMode;
+        transactiondetail.notes = data.notes;
+
+
+        let tdeails = await this.transaDetailsRepository.save(transactiondetail);
+
+        const newData = {
+          transactionDetails: tdeails, transaction: transactions
+        }
+
+        await (await this.logger.payment(oldData, newData, {})).save();
+
+        response.push({ ...transactions, ...tdeails });
       }
-      transaction.studentId = data.studentId
-      transaction.dueDate = data.dueDate;
-      transaction.paidDate = data.paidDate;
-      transaction.emiAmount = data.emiAmount;
-      transaction.paidAmount = data.paidAmount;
-      transaction.status = data.status;
-      //payment details from razor pay
-      transaction.transactionId = data.paymentId;
-      transaction.paymentLink = data.paymentLink;
-
-      var transactions = await this.transactionRepository.save(transaction);
-
-      var transactiondetail = new TransactionDetails();
-      if (data.transaction_details_id) {
-        transactiondetail.id = data.transaction_details_id
-        transactiondetail.updated_at = new Date();
-      } else {
-        transactiondetail.transactionId = transactions.id;
-        transactiondetail.created_at = new Date();
-        transactiondetail.updated_at = new Date();
-      }
-
-      transactiondetail.whatsAppLinkSent = data.whatsAppLinkSent;
-      transactiondetail.callDisposition = data.callDisposition;
-      transactiondetail.feedBackCall = data.feedBackCall;
-      transactiondetail.paymentMode = data.paymentMode;
-      transactiondetail.notes = data.notes;
-
-
-      let tdeails = await this.transaDetailsRepository.save(transactiondetail);
-      response.push({ ...transactions, ...tdeails });
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
