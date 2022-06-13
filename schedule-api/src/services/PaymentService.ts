@@ -239,6 +239,7 @@ export class PaymentService {
       view.collectionAgentObj = collectionAgent;
       view.actualStartDate = studentData.classesStartDate;
       view.notes = item.notes;
+      view.leadId = studentData.studentID;
       paymentView.push(view);
     }
 

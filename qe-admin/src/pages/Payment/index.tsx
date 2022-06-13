@@ -1,5 +1,5 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone } from '@ant-design/icons';
-import { Button, Drawer, Modal, Popover, Typography, Spin } from 'antd';
+import { Button, Drawer, Modal, Popover, Typography, Spin, Select } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -7,16 +7,17 @@ import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { getAllPayment, regeneratePaymentLink } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
-import Whatsapp from './Components/Whatsapp';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { parse, format } from "date-fns";
 
 /**
  * @en-US Add node
  * @zh-CN 添加节点
  * @param fields
  */
+const { Option } = Select
 
 const TableList: React.FC = () => {
     const actionRef = useRef<ActionType>();
@@ -76,10 +77,10 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleStudentID"
-                    defaultMessage="studentId"
+                    defaultMessage="student ID"
                 />
             ),
-            dataIndex: 'studentId',
+            dataIndex: 'leadId',
             fixed: 'left',
             width: 250,
         },
@@ -156,6 +157,7 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'dueDate',
             width: 160,
+            valueType: 'date',
         },
         {
             title: (
@@ -174,6 +176,31 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'callDisposition',
+            renderFormItem: (value) => {
+                return (
+                    <Select>
+                        <Option value="No response">No response</Option>
+                        <Option value="Call back later">Call back later</Option>
+                        <Option value="This Week">This Week</Option>
+                        <Option value="This Month">This Month</Option>
+                        <Option value="Want to Discontinue">Want to Discontinue</Option>
+                        <Option value="Dormant">Dormant</Option>
+                        <Option value="Payment after issue resolution">Payment after issue resolution</Option>
+                        <Option value="Demands Leaves">Demands Leaves</Option>
+                        <Option value="Exams in school">Exams in school</Option>
+                        <Option value="Paid">Paid</Option>
+                        <Option value="Subscription Lost">Subscription Lost</Option>
+                        <Option value="DNP">DNP</Option>
+                        <Option value="On Leave">On Leave</Option>
+                        <Option value="other">other</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { callDisposition: value };
+                },
+            },
         },
         {
             title: (
@@ -202,6 +229,19 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'status',
+            renderFormItem: (value) => {
+                return (
+                    <Select>
+                        <Option value="Installment Pending">Installment Pending</Option>
+                        <Option value="Installment Paid">Installment Paid</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { status: value };
+                },
+            },
         },
         {
             title: (
@@ -221,6 +261,7 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'paidDate',
             width: 160,
+            valueType: 'date',
         },
         {
             title: (
@@ -229,7 +270,27 @@ const TableList: React.FC = () => {
                     defaultMessage="Collection Expert Name"
                 />
             ),
-            dataIndex: 'CollectionExpertName',
+            dataIndex: 'collectionAgent',
+            renderFormItem: (value) => {
+                return (
+                    <Select>
+                        <Option value="Aman">Aman</Option>
+                        <Option value="Anurag">Anurag</Option>
+                        <Option value="Gaurav">Gaurav</Option>
+                        <Option value="Mohit">Mohit</Option>
+                        <Option value="Molishka">Molishka</Option>
+                        <Option value="Ritik">Ritik</Option>
+                        <Option value="Sameeksha">Sameeksha</Option>
+                        <Option value="Satpreet">Satpreet</Option>
+                        <Option value="Sultana">Sultana</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { collectionAgent: value };
+                },
+            },
         },
         {
             title: (
@@ -387,6 +448,7 @@ const TableList: React.FC = () => {
                     autodebitVisible={autodebitVisible}
                     isWhatsappVisible={isWhatsappVisible}
                     isModalVisible={setIsModalVisible}
+                    actionRef={actionRef}
                 />
             </Modal>
         </PageContainer>
