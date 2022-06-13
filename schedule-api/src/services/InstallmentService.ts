@@ -6,6 +6,8 @@ import {
   Payment as RazorpayPayment,
 } from "../services/RazorpayService";
 const moment = require("moment");
+const { usersLogger } = require("../Logger.js");
+
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -33,17 +35,26 @@ export class InstallmentService {
   }
 
   async updateInstallmentStatus(paymentId) {
-    const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
-      paymentId
-    );
-    if (paymentStatus.status === "paid") {
-      await this.updateInstallment(paymentId, {
-        status: PAYMENT_STATUS.PAID,
-        paidAmount: paymentStatus.amount / 100,
-        paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
-      });
-      return PAYMENT_STATUS.PAID;
-    } else {
+    usersLogger.info('rzp status update api call');
+    try {
+      const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
+        paymentId
+      );
+      usersLogger.info('rzp resp: ' + JSON.stringify(paymentStatus));
+      if (paymentStatus.status === "paid") {
+        await this.updateInstallment(paymentId, {
+          status: PAYMENT_STATUS.PAID,
+          paidAmount: paymentStatus.amount / 100,
+          paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+        });
+        return PAYMENT_STATUS.PAID;
+      }
+      else {
+        return PAYMENT_STATUS.PENDING;
+      }
+    }
+    catch (error) {
+      usersLogger.error(`Error in razor pay update status call: ${JSON.stringify(error)}`);
       return PAYMENT_STATUS.PENDING;
     }
   }
