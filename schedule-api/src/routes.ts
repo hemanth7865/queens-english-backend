@@ -274,11 +274,11 @@ export const Routes = [
     action: "loadTeacherAvailability",
   },
   {
-    method: "get",
+    method: "post",
     route: "/update-installment-status",
     controller: InstallmentController,
     action: "updateTransctionPaymentStatus",
-    apiKey: true,
+    apiKey: false,
   },
 
   {
