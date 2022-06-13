@@ -582,3 +582,40 @@ export async function rebatchStudent(studentId: string, batchId: string) {
     body: JSON.stringify({ studentId, batchId }),
   });
 }
+
+//Payment API's
+export async function getAllPayment(
+  //studentId: string,
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.Any>(`/be/studentPaymentDetails`, {
+    method: 'GET',
+    params: {
+      ...params,
+      //studentId,
+    },
+    ...(options || {}),
+  });
+}
+
+//edit payment
+export async function editPayment(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/paymentDetails', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+//regenerate razorpay link
+export async function regeneratePaymentLink(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/regeneratePaymentLink', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}

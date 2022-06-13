@@ -493,65 +493,17 @@ const StudentOnboard: React.FC = () => {
   const studentGetApi = async (current: number = 1, pageSize: number = 10) => {
     setIsLoading(true);
     try {
-      let msg = await studentsDashboard('Enrolled', {
-        current: 1,
-        pageSize: 100
+      let msg = await studentsDashboard('Error', {
+        current,
+        pageSize
       }
       );
-
-      //to check empty fields in the data and payment, total sale calculation
-      var emptyFieldsArray: any[] = [];
-      var paymentValidatedArray: any[] = [];
-      var duplicatesLeadID: any[] = [];
-      const duplicateIds = msg.data.map((v: any) => (v.studentID)).filter((v: any, i: any, vIds: any) => vIds.indexOf(v) !== i)
-
-      msg.data.map((item: any) => {
+      setData(msg.data.map((item) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
-        var p = item
-        var isEntryStatus = false
-        var isTempEntryStatus = true
-        var isValidation = false
-        var isDuplicates = false
-        for (var key in p) {
-          if (p.hasOwnProperty(key)) {
-            if (key == 'lsq_user_name' || key == 'lsq_user_id' || key == 'prm' || key == 'prm_id' || key == 'customerEmail' || key == 'timings' || key == 'courseFrequency' || key == 'firstName' || key == 'alternativeMobile' || key == 'course' || key == 'startLesson' || key == 'startDate' || key == 'paymentMode' || key == 'emiMonths' || key == 'emi' || key == 'subscription' || key == 'saleamount' || key == 'classessold' || key == 'downpayment' || key == 'paymentid' || key == 'address' || key == 'whatsapp' || key == 'dob' || key == 'status' || key == 'phoneNumber' || key == 'studentID') {
-              var tempKeyValue = p[key] + ''
-              if (isTempEntryStatus) {
-                if (tempKeyValue.length > 0 && tempKeyValue != undefined && tempKeyValue != null) {
-                  isEntryStatus = true
-                  if (item.saleamount == (Number(item.emi * item.emiMonths) + Number(item.downpayment))) {
-                    isValidation = true
-                  }
-                  if (item.studentID != null && duplicateIds.includes(item.studentID)) {
-                    isDuplicates = true
-                  }
-                }
-                else {
-                  isEntryStatus = false
-                  isTempEntryStatus = false
-                }
-              }
-            }
-          }
-        }
-        if (!isEntryStatus) {
-          emptyFieldsArray.push(item)
-        }
-        if (!isValidation) {
-          paymentValidatedArray.push(item)
-        }
-        if (isDuplicates) {
-          duplicatesLeadID.push(item);
-        }
-      })
-
-      let TotalArray = paymentValidatedArray.concat(emptyFieldsArray, duplicatesLeadID);
-      TotalArray = TotalArray.filter((item, index) => {
-        return (TotalArray.indexOf(item) == index)
-      })
-      setData(TotalArray);
+        return item
+      }));
       setSalesAlert(true);
-      setTotalRecords(TotalArray.length);
+      setTotalRecords(msg.total);
     } catch (error) {
       console.log("error", error);
     }

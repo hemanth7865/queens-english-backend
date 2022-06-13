@@ -10,6 +10,7 @@ import { UserService } from "../services/UserService";
 import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
+import { validations } from "../helpers/validations";
 
 export class UserController {
 
@@ -40,6 +41,12 @@ export class UserController {
         try {
             if (request.body.type === 'student') {
                 const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
+                if (request.body.status == 'enrolled' || request.body.status == 'startclasslater' || request.body.status == 'Enrolled') {
+                    const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
+                    if (validatingStudent.status == 'Error') {
+                        return { status: 400, errors: [validatingStudent.message] };
+                    }
+                }
                 if (leadIDExists) {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
@@ -260,6 +267,29 @@ export class UserController {
             return { e, name: file.name, size: file.size, type: file.type };
         }
     }
+
+    async updateStudentsCollectionExpertsCSV(request: Request, response: Response, next: NextFunction) {
+        const file = request.files.students;
+        let data = [];
+
+        try {
+            await new Promise(function (myResolve: any, myReject: any) {
+                parse(file.data.toString(), { columns: true, trim: true }, function (e, records) {
+                    data = records;
+                    if (data) {
+                        myResolve();
+                    } else {
+                        console.log(file.data.toString());
+                        myReject();
+                    }
+                });
+            });
+            return this.studentService.updateStudentsCollectionExpertsCSV(data, request.query);
+        } catch (e) {
+            return { e, name: file.name, size: file.size, type: file.type };
+        }
+    }
+
 
     async loadTeacherAvailability(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Loading teacher availability ....");

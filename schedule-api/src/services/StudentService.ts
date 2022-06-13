@@ -13,6 +13,7 @@ import { StudentAvailability } from "../entity/StudentAvailability";
 import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
+import { CollectionAgentService } from "./CollectionAgentService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
@@ -576,7 +577,7 @@ export class StudentService {
     student.courseFrequency = data.courseFrequency;
     student.timings = data.timings;
     student.salesowner = data.salesowner;
-    student.status = data.status;
+    student.status = data.status == 'Won' ? 'enrolled' : data.status;
     student.prm_id = data.prm_id;
     student.lsq_users_ID = data.lsq_users_ID;
     student.waMessageSent = data.waMessageSent;
@@ -587,6 +588,9 @@ export class StudentService {
     if (create) {
       const lqsClient = new LQSService();
       student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
+
+      const collectionAgent = new CollectionAgentService();
+      student.collection_agent_id = await (await collectionAgent.getAvailabileCollectionAgents())[0].id;
     }
 
     if (data.studentAvailability) {
@@ -745,7 +749,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element.status;
+    student.status = element.status == 'Won' ? 'enrolled' : element.status ;
     student.timings = element.timings;
     student.wabatch = element.wabatch;
     student.salesDataFilled = element.salesDataFilled;
@@ -1344,6 +1348,69 @@ export class StudentService {
           }
 
           result.updated++;
+        } catch (e) {
+          console.log(e);
+          result.errors++;
+        }
+      }
+    } catch (e) {
+      console.log(e, data);
+    }
+
+    return result;
+  }
+
+
+  async updateStudentsCollectionExpertsCSV(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
+    const primaryColumn = "Student ID";
+    let result: any = {
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      notFoundCEs: [],
+    };
+
+
+    if (query.clear) {
+      let qe = `UPDATE student SET collection_agent_id = NULL`;
+
+      await getManager().query(qe);
+    }
+
+    try {
+      for (let d of data) {
+        try {
+          if (!d[primaryColumn] || d[primaryColumn].length < 4) {
+            continue;
+          }
+          
+          const condition = {where: {studentID: d[primaryColumn]}}
+          let student = await this.studentRepository.findOne(condition);
+          
+          if(!student?.id){
+            result.notFound++;
+            continue;
+          }
+
+          let ceQuery = `SELECT * from collection_agent where firstName='${d["Collection Support"]}'`;
+
+          let ce = await getManager().query(ceQuery);
+          const CE = ce[0];
+
+          if (CE?.id) {
+            result.updated++;
+            if (!query.test) {
+              await this.studentRepository.update({id: student.id}, {collection_agent_id: CE.id})
+            }
+          } else {
+              result.notFoundCEs.push({
+                id: d["Student ID"],
+              });
+          }
+
         } catch (e) {
           console.log(e);
           result.errors++;
