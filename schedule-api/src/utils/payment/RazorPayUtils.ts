@@ -17,11 +17,11 @@ export class RazorPayUtils {
     usersLogger.info('paymentId: ' + installment.id);
     try {
       var response = await instance.paymentLink.create({
-        "amount": Number(installment.emiAmount.replace(/,/g, '') + '00'),
+        "amount": Number(installment.emiAmount.replace(/,/g, '')) * 100,
         "currency": "INR",
         "accept_partial": false,
         // "first_min_partial_amount": 100,
-        "description": "For student id " + user.id + " installment due date " + installment.dueDate,
+        "description": "Student: " + user.firstName + ", Installment due date: " + installment.dueDate,
         "customer": {
           "name": user.firstName,
           "email": user.customerEmail,
