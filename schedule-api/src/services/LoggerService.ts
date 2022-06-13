@@ -49,6 +49,24 @@ export default class LoggerService {
     return this;
   }
 
+  public async customPayment(
+    id: string,
+    title: string,
+    event: string,
+    debug: object,
+    user: object | boolean
+  ) {
+    this.page = "payments";
+    this.logData = {
+      id: id,
+      page: this.page,
+      title,
+      event,
+      debug: {...debug, user},
+    };
+    return this;
+  }
+
   public async save() {
     try {
       return await log(this.logData.page, this.logData.id, this.logData);

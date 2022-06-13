@@ -323,13 +323,15 @@ export class PaymentService {
         }
 
         await (await this.logger.payment(oldData, newData, {})).save();
-
+        
         response.push({ ...transactions, ...tdeails });
       }
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
       console.log(error);
+      const data = requestData[0];
+      await (await this.logger.customPayment( data?.id || "UNKNOWN", "Failed To Create/Update Payment", data?.id ? "PAYMENT_UPDATE_ERROR": "PAMYNET_CREATE_ERROR", {requestData, error, message: error.message}, {})).save();
       return {
         status: "error",
         message: "Unable to create payment data"
