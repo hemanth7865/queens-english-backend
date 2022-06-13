@@ -68,6 +68,10 @@ const log = async (
     title += `Paid Status Changed To: ${transaction.status}, `;
   }
 
+  if (transaction.subscriptionId !== oldTransaction.subscriptionId) {
+    title += `Subscription ID Changed To: ${transaction.subscriptionId}, `;
+  }
+
   if (
     transaction.paymentLink !== oldTransaction.paymentLink &&
     (transaction.paymentLink || oldTransaction.paymentLink.length > 0)
