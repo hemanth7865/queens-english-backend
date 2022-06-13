@@ -34,7 +34,7 @@ export class InstallmentController {
             paymentId
           );
           if (paymentStatus.status === "paid") {
-            await this.service.updateInstallment(paymentId, {
+            await this.service.updateInstallment(payment.id, {
               status: this.COMPLETED_STATUS,
               paidAmount: paymentStatus.amount / 100,
               paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
