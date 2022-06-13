@@ -16,6 +16,7 @@ export type FormUserProps = {
     isModalVisible: () => void;
     actionRef: any;
     setIsAmountDisplay: any;
+    regenerateLink: any;
 };
 
 const { Option } = Select;
@@ -51,7 +52,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidAmount: paidAmount,
             status: values.status ? values.status : status,
             transaction_details_id: transaction_details_id,
-            transactionId: transactionId,
+            referenceId: values.transactionID ? values.transactionID : transactionId,
             razorpayLink: razorpayLink,
             whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
             modeOfPayment: modeOfPayment,
@@ -59,8 +60,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
-            referenceId: values.referenceId ? values.referenceId : transactionId,
-            subscriptionId: values.subscriptionId ? values.subscriptionId : ''
         }]
         try {
             const msg = await editPayment({
@@ -69,6 +68,9 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 },
                 body: JSON.stringify(dataForm),
             });
+            if (values.emiAmount) {
+                await props.regenerateLink({ transactionId });
+            }
             handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
@@ -171,7 +173,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     <Form.Item
                                         label="Upload Screenshot"
                                         name="upload"
-                                        rules={[{ required: true, message: 'Please Upload the screenshot!' }]}
+                                        rules={[{ required: false, message: 'Please Upload the screenshot!' }]}
                                     >
                                         <Upload {...props}>
                                             <Button icon={<UploadOutlined />}>Click to Upload</Button>

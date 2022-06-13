@@ -10,6 +10,7 @@ import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import collectionAgents from "./../../../data/collection_agent.json";
 import { parse, format } from "date-fns";
 
 /**
@@ -48,20 +49,24 @@ const TableList: React.FC = () => {
         setNetbankingVisible(false);
     }
 
+    const regenerateLink = async (data: any) => {
+        try {
+            const msg = await regeneratePaymentLink({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ installmentId: data.transactionId }),
+            });
+            handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+        }
+    }
+
     const handleRegenerateLink = async (data: any) => {
         if (confirm("Are you sure to regenerate new razorpay link ?")) {
             setIsLoading(true);
-            try {
-                const msg = await regeneratePaymentLink({
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ installmentId: data.transactionId }),
-                });
-                handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-            } catch (error) {
-                handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-            }
+            await regenerateLink(data);
             setIsLoading(false);
         }
         actionRef.current.reload();
@@ -276,15 +281,7 @@ const TableList: React.FC = () => {
             renderFormItem: (value) => {
                 return (
                     <Select>
-                        <Option value="Aman">Aman</Option>
-                        <Option value="Anurag">Anurag</Option>
-                        <Option value="Gaurav">Gaurav</Option>
-                        <Option value="Mohit">Mohit</Option>
-                        <Option value="Molishka">Molishka</Option>
-                        <Option value="Ritik">Ritik</Option>
-                        <Option value="Sameeksha">Sameeksha</Option>
-                        <Option value="Satpreet">Satpreet</Option>
-                        <Option value="Sultana">Sultana</Option>
+                        {collectionAgents.map(i => (<Option value={i.id} key={i.id}>{i.firstName}</Option>))}
                     </Select>
                 );
             },
@@ -467,6 +464,7 @@ const TableList: React.FC = () => {
                     isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
                     setIsAmountDisplay={setIsAmountDisplay}
+                    regenerateLink={regenerateLink}
                 />
             </Modal>
         </PageContainer>
