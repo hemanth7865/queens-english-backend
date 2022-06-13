@@ -14,6 +14,7 @@ const date = require('date-and-time');
 import { PAYMENT_MODE, PAYMENT_STATUS } from '../helpers/Constants';
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
+import { fail } from "assert";
 import LoggerService from "./LoggerService";
 
 
@@ -222,7 +223,7 @@ export class PaymentService {
       view.id = record.id;
       view.studentId = record.studentId;
       view.referenceId = record.transactionId;
-      view.subscriptionId=record.subscriptionId;
+      view.subscriptionId = record.subscriptionId;
       view.dueDate = record.dueDate;
       view.paidDate = record.paidDate;
       view.emiAmount = record.emiAmount;
@@ -273,9 +274,9 @@ export class PaymentService {
     let response = [];
     try {
 
-      for (var data of requestData){
-        const oldTransactionDetails = await this.transaDetailsRepository.findOne({ where: {id: data.transaction_details_id} });
-        const oldTransaction = await this.transactionRepository.findOne({ where: {id: data.id} });
+      for (var data of requestData) {
+        const oldTransactionDetails = await this.transaDetailsRepository.findOne({ where: { id: data.transaction_details_id } });
+        const oldTransaction = await this.transactionRepository.findOne({ where: { id: data.id } });
         const oldData = {
           transactionDetails: oldTransactionDetails, transaction: oldTransaction
         }
@@ -323,7 +324,7 @@ export class PaymentService {
         }
 
         await (await this.logger.payment(oldData, newData, {})).save();
-        
+
         response.push({ ...transactions, ...tdeails });
       }
       await queryRunner.commitTransaction();
@@ -331,7 +332,7 @@ export class PaymentService {
       await queryRunner.rollbackTransaction();
       console.log(error);
       const data = requestData[0];
-      await (await this.logger.customPayment( data?.id || "UNKNOWN", "Failed To Create/Update Payment", data?.id ? "PAYMENT_UPDATE_ERROR": "PAMYNET_CREATE_ERROR", {requestData, error, message: error.message}, {})).save();
+      await (await this.logger.customPayment(data?.id || "UNKNOWN", "Failed To Create/Update Payment", data?.id ? "PAYMENT_UPDATE_ERROR" : "PAMYNET_CREATE_ERROR", { requestData, error, message: error.message }, {})).save();
       return {
         status: "error",
         message: "Unable to create payment data"
@@ -344,17 +345,25 @@ export class PaymentService {
     };
   }
 
-  async createPaymentLinksForInstallments() {
+  async createPaymentLinksForInstallmentsWithLimit(limit: any) {
     var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
-    var successCount = 0;
-    var failureCount = 0;
     usersLogger.info('currMonth: ' + currentMonth);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
       .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
-      .getMany();
+      .limit(limit).getMany();
     usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
 
+    await this.createPaymentLinkForSpecificInstallments(installmentsWithoutLinks);
+    return {
+      status: "success",
+      message: "Payment links processed for count: " + installmentsWithoutLinks.length
+    }
+  }
+
+  async createPaymentLinkForSpecificInstallments(installmentsWithoutLinks: any) {
+    var failureCount = 0;
+    var successCount = 0;
     var installmentsForUpdate: Transactions[] = [];
     for (let installment of installmentsWithoutLinks) {
       var paymentResponse = await this.createPaymentLink(installment);
@@ -371,10 +380,7 @@ export class PaymentService {
       }
     }
     await this.updateInstallmentData(installmentsForUpdate);
-    return {
-      status: "success",
-      message: "Payment links generated for " + successCount + " installments, Failure count: " + failureCount
-    }
+    usersLogger.info('Payment link generation success count: ' + successCount + 'failure count: ' + failureCount);
   }
 
   async regeneratePaymentLink(request: any) {
@@ -466,7 +472,7 @@ export class PaymentService {
     usersLogger.info('installments without links for update: ' + installmentsWithoutLinks.length);
     for (let installment of installmentsWithoutLinks) {
       const oldTransaction = await this.transactionRepository.findOne({ id: installment.id });
-       await this.transactionRepository.update({ id: installment.id }, installment);
+      await this.transactionRepository.update({ id: installment.id }, installment);
       const newData = {
         transaction: installment
       }

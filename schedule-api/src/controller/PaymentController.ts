@@ -59,7 +59,7 @@ export class PaymentController {
     async generateBulkPaymentLinks(request: Request, response: Response, next: NextFunction) {
         console.log("generating bulk payment links");
         try {
-            return await this.paymentService.createPaymentLinksForInstallments();
+            return await this.paymentService.createPaymentLinksForInstallmentsWithLimit(request.body.limit);
         } catch (error) {
             console.log(error);
             return {
