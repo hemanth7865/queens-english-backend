@@ -271,6 +271,26 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'collectionAgent',
+            renderFormItem: (value) => {
+                return (
+                    <Select>
+                        <Option value="Aman">Aman</Option>
+                        <Option value="Anurag">Anurag</Option>
+                        <Option value="Gaurav">Gaurav</Option>
+                        <Option value="Mohit">Mohit</Option>
+                        <Option value="Molishka">Molishka</Option>
+                        <Option value="Ritik">Ritik</Option>
+                        <Option value="Sameeksha">Sameeksha</Option>
+                        <Option value="Satpreet">Satpreet</Option>
+                        <Option value="Sultana">Sultana</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { collectionAgent: value };
+                },
+            },
         },
         {
             title: (
@@ -428,6 +448,7 @@ const TableList: React.FC = () => {
                     autodebitVisible={autodebitVisible}
                     isWhatsappVisible={isWhatsappVisible}
                     isModalVisible={setIsModalVisible}
+                    actionRef={actionRef}
                 />
             </Modal>
         </PageContainer>

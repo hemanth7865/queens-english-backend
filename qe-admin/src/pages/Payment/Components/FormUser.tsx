@@ -14,6 +14,7 @@ export type FormUserProps = {
     autodebitVisible: {};
     isWhatsappVisible: {};
     isModalVisible: () => void;
+    actionRef: any;
 };
 
 const { Option } = Select;
@@ -57,7 +58,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             modeOfPayment: modeOfPayment,
             callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
-            notes: values.notes? values.notes: notes,
+            notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
         }]
         try {
@@ -68,13 +69,14 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 },
                 body: JSON.stringify(dataForm),
             });
-            handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment");
+            handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
         } catch (error) {
-            handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment");
+            handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
         }
         props.setVisible(false);
         props.isModalVisible(false);
         setIsLoading(false);
+        props.actionRef.current.reload();
         console.log('dataForm', dataForm)
     }
 
