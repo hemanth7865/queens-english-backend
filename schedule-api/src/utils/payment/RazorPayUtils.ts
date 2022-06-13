@@ -41,7 +41,7 @@ export class RazorPayUtils {
       usersLogger.info('razorpay response: ' + JSON.stringify(response));
     }
     catch (error) {
-      usersLogger.error('Error in generating link for razor pay: ' + JSON.stringify(response));
+      usersLogger.error('Error in generating link for razor pay: ' + JSON.stringify(error));
     }
     return response;
   }
