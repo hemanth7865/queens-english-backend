@@ -19,6 +19,11 @@ export class InstallmentService {
     if (params?.installment_id) {
       where["id"] = params.installment_id;
     }
+
+    if (params?.reference_id) {
+      where["transactionId"] = params.reference_id;
+    }
+
     return await this.query.find({
       where,
       take: 10,
@@ -53,5 +58,4 @@ export class InstallmentService {
       return PAYMENT_STATUS.PENDING;
     }
   }
-
 }
