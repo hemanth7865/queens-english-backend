@@ -68,7 +68,10 @@ const log = async (
     title += `Paid Status Changed To: ${transaction.status}, `;
   }
 
-  if (transaction.paymentLink !== oldTransaction.paymentLink) {
+  if (
+    transaction.paymentLink !== oldTransaction.paymentLink &&
+    (transaction.paymentLink || oldTransaction.paymentLink.length > 0)
+  ) {
     title += "Payment Link Changed, ";
   }
 
