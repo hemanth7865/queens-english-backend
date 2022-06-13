@@ -29,7 +29,7 @@ export class InstallmentController {
       );
       for (const payment of pendingPayments) {
         try {
-          const paymentId = payment.id;
+          const paymentId = payment.transactionId;
           const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
             paymentId
           );
