@@ -95,197 +95,191 @@ export class PaymentService {
    */
 
   async studentPaymentDetails(parameters: any) {
-    console.log('parameters');
-    console.log(parameters);
-    const moment = require("moment");
-    var paymentView: PaymentsView[] = [];
-    var transactions: Transactions[] = []
-    let response = {}
-    usersLogger.info('Student Service payment Details ::Start');
-    let t;
-    const offset = parameters.current ? parseInt(parameters.current) : 0;
-    const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
-    const offsetRecords = (offset - 1) * limit;
-    var whereCondition = [];
-    var condition = ""
-    // whereCondition.push("");
-    for (let param in parameters) {
-      console.log('param');
-      console.log(param);
-      switch (param) {
-        case "dueDate":
-          whereCondition.push(`due_date <= '${parameters["dueDate"]}'`);
-          break;
-        case "paidDate":
-          whereCondition.push(`paid_date = '${parameters["paidDate"]}'`)
-          break;
-        case "emiAmount":
-          whereCondition.push(`emi_amount = '${parameters["emiAmount"]}'`)
-          break;
-        case "status":
-          whereCondition.push(`payment_status = '${parameters["status"]}'`)
-          break;
-        case "paidAmount":
-          whereCondition.push(`paid_amount = '${parameters["paidAmount"]}'`)
-          break;
-        case "id":
-          whereCondition.push(`id = '${parameters["id"]}'`)
-          break;
-        case "referenceId":
-          whereCondition.push(`reference_id = '${parameters["referenceId"]}'`)
-          break;
-        case "collection_agent":
-          whereCondition.push(`collection_agent = '${parameters["collectionAgent"]}'`)
-          break;
-        case "subscriptionId":
-          whereCondition.push(`subscription_id = '${parameters["subscriptionId"]}'`)
-          break;
-      }
-    }
-
-    console.log(whereCondition.join(' and '));
-    whereCondition.push(" 1 = 1 ");
-    condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
-    console.log(condition);
-    if (parameters.leadId) {
-      let student = await getManager()
-       .createQueryBuilder(Student, "student").where({ id: parameters.leadId }).getOne();
-       if (student.studentID) {
-       parameters.studentId = student.studentID;
-       } else {
-        return {
-          success: false,
-          msg: " Unable to find given lead id and student id mapping...."
+    try {
+      const moment = require("moment");
+      var paymentView: PaymentsView[] = [];
+      var transactions: Transactions[] = []
+      let response = {}
+      usersLogger.info('Student Service payment Details ::Start');
+      let t;
+      const offset = parameters.current ? parseInt(parameters.current) : 0;
+      const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
+      const offsetRecords = (offset - 1) * limit;
+      var whereCondition = [];
+      var condition = ""
+      // whereCondition.push("");
+      for (let param in parameters) {
+        console.log('param');
+        console.log(param);
+        switch (param) {
+          case "dueDate":
+            whereCondition.push(`due_date <= '${parameters["dueDate"]}'`);
+            break;
+          case "paidDate":
+            whereCondition.push(`paid_date = '${parameters["paidDate"]}'`)
+            break;
+          case "emiAmount":
+            whereCondition.push(`emi_amount = '${parameters["emiAmount"]}'`)
+            break;
+          case "status":
+            whereCondition.push(`payment_status = '${parameters["status"]}'`)
+            break;
+          case "paidAmount":
+            whereCondition.push(`paid_amount = '${parameters["paidAmount"]}'`)
+            break;
+          case "id":
+            whereCondition.push(`id = '${parameters["id"]}'`)
+            break;
+          case "referenceId":
+            whereCondition.push(`reference_id = '${parameters["referenceId"]}'`)
+            break;
+          case "collection_agent":
+            whereCondition.push(`collection_agent = '${parameters["collectionAgent"]}'`)
+            break;
+          case "subscriptionId":
+            whereCondition.push(`subscription_id = '${parameters["subscriptionId"]}'`)
+            break;
         }
-       }
-     }
-    let total: number = 0;
-    if (parameters.studentId) {
-      t = await getManager()
-        .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).skip(offsetRecords).take(limit).getMany();
-      total = await getManager()
-        .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).getCount();
-    } else {
-      if(parameters.collectionAgent){
-        const innerJoinQuery = `s.collection_agent_id = ${parseInt(parameters.collectionAgent)}`;
+      }
+  
+      console.log(whereCondition.join(' and '));
+      whereCondition.push(" 1 = 1 ");
+      condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
+      console.log(condition);
+  
+      let total: number = 0;
+      if (parameters.leadId) {
         t = await getManager()
-          .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).getMany();
+          .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).skip(offsetRecords).take(limit).getMany();
         total = await getManager()
-          .createQueryBuilder(Transactions, "transactions").where(condition).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).skip(offsetRecords).getCount();
-      }else{
-        t = await getManager()
-          .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).getMany();
-        total = await getManager()
-          .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).getCount();
+          .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).getCount();
+      } else {
+        if(parameters.collectionAgent){
+          const innerJoinQuery = `s.collection_agent_id = ${parseInt(parameters.collectionAgent)}`;
+          t = await getManager()
+            .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).getMany();
+          total = await getManager()
+            .createQueryBuilder(Transactions, "transactions").where(condition).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).skip(offsetRecords).getCount();
+        }else{
+          t = await getManager()
+            .createQueryBuilder(Transactions, "transactions").innerJoin(TransactionDetails, 'tDetails', 'transactions.transactionId = tDetails.transaction_id').andWhere(condition).skip(offsetRecords).take(limit).getMany();
+          total = await getManager()
+            .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).getCount();
+        }
+      }
+  
+      console.log('Transaction condition');
+      console.log(condition);
+  
+      var ids = t.map((i) => "'" + i.id + "'").join(",");
+  
+      whereCondition = [];
+      if (ids.length > 0)
+        whereCondition.push(`transaction_id in  (${ids})`);
+  
+      for (let param in parameters) {
+  
+        switch (param) {
+          case "tdstatus":
+            whereCondition.push(`status = '${parameters["tdstatus"]}'`);
+            break;
+          case "whatsAppLinkSent":
+            whereCondition.push(`whatsapp_link_sent = '${parameters["whatsAppLinkSent"]}'`);
+            break;
+          case "modeOfPayment":
+            whereCondition.push(`mode_of_payment = '${parameters["modeOfPayment"]}'`);
+            break;
+          case "callDisposition":
+            whereCondition.push(`call_disposition = '${parameters["callDisposition"]}'`);
+            break;
+          case "feedBackCall":
+            whereCondition.push(`feedback_call = '${parameters["paidAmount"]}'`);
+            break;
+          case "paymentMode":
+            whereCondition.push(`paymentMode = '${parameters["paymentMode"]}'`)
+            break;
+          case "transaction_details_id":
+            whereCondition.push(`transaction_details_id = '${parameters["transaction_details_id"]}'`)
+            break;
+        }
+      }
+  
+      condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
+      usersLogger.info(condition);
+  
+      var tdetails = await getManager()
+        .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).getMany();
+  
+      console.log("Transaction details log");
+      console.log(condition);
+  
+      for (let item of tdetails) {
+        var record = await this.transactionRepository.findOne({ id: item.transactionId });
+        if(!record){
+          usersLogger.info(`Installmend with ID: ${item.transactionId} Not Found`);
+          continue;
+        }
+        var view = new PaymentsView();
+        
+        var student: string;
+        var studentQuer = "select * from user where id = '" + record.studentId + "';";
+        student = await getManager().query(studentQuer);
+        console.log(record.studentId);
+        const studentData = await this.studentRepository.findOne({ id: record.studentId });
+  
+        const collectionAgent = await this.collectionAgent.findOne({ id: studentData.collection_agent_id });
+  
+  
+  
+        view.id = record.id;
+        view.studentId = record.studentId;
+        view.referenceId = record.transactionId;
+        view.subscriptionId = record.subscriptionId;
+        view.dueDate = record.dueDate;
+        view.paidDate = record.paidDate;
+        view.emiAmount = record.emiAmount;
+        view.paidAmount = record.paidAmount;
+        view.collectionAgent = collectionAgent?.firstName ? `${collectionAgent?.firstName} ${collectionAgent?.lastName || ''}` : "Not Found";
+        view.status = record.status;
+        view.created_at = record.created_at;
+        view.updated_at = record.updated_at;
+        // const td = await this.transaDetailsRepository.findOne({transactionId:item["transactionId"]});
+  
+        view.transaction_details_id = item.id;
+        view.transactionId = item.transactionId;
+        view.razorpayLink = record.paymentLink;
+        view.whatsAppLinkSent = item.whatsAppLinkSent
+        view.callDisposition = item.callDisposition;
+        view.feedBackCall = item.feedBackCall;
+        view.paymentMode = item.paymentMode;
+        view.created_at = item.created_at;
+        view.updated_at = item.updated_at;
+        view.student = student;
+        view.collectionAgentObj = collectionAgent;
+        view.actualStartDate = studentData.classesStartDate;
+        view.notes = item.notes;
+        view.leadId = studentData.studentID;
+        paymentView.push(view);
+      }
+  
+      usersLogger.info('Fetching student payment details::End');
+  
+      return {
+        success: true,
+        pageSize: limit,
+        current: offset,
+        total: total,
+        data: paymentView,
+        status: 200
+      }
+    } catch (error) {
+      console.log(error);
+      return {
+        success: true,
+        msg: "Unable to retrieve data ..."
       }
     }
-
-    console.log('Transaction condition');
-    console.log(condition);
-
-    var ids = t.map((i) => "'" + i.id + "'").join(",");
-
-    whereCondition = [];
-    if (ids.length > 0)
-      whereCondition.push(`transaction_id in  (${ids})`);
-
-    for (let param in parameters) {
-
-      switch (param) {
-        case "tdstatus":
-          whereCondition.push(`status = '${parameters["tdstatus"]}'`);
-          break;
-        case "whatsAppLinkSent":
-          whereCondition.push(`whatsapp_link_sent = '${parameters["whatsAppLinkSent"]}'`);
-          break;
-        case "modeOfPayment":
-          whereCondition.push(`mode_of_payment = '${parameters["modeOfPayment"]}'`);
-          break;
-        case "callDisposition":
-          whereCondition.push(`call_disposition = '${parameters["callDisposition"]}'`);
-          break;
-        case "feedBackCall":
-          whereCondition.push(`feedback_call = '${parameters["paidAmount"]}'`);
-          break;
-        case "paymentMode":
-          whereCondition.push(`paymentMode = '${parameters["paymentMode"]}'`)
-          break;
-        case "transaction_details_id":
-          whereCondition.push(`transaction_details_id = '${parameters["transaction_details_id"]}'`)
-          break;
-      }
-    }
-
-    condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
-    usersLogger.info(condition);
-
-
-
-    var tdetails = await getManager()
-      .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).getMany();
-
-    console.log("Transaction details log");
-    console.log(condition);
-
-    for (let item of tdetails) {
-      var record = await this.transactionRepository.findOne({ id: item.transactionId });
-      if(!record){
-        usersLogger.info(`Installmend with ID: ${item.transactionId} Not Found`);
-        continue;
-      }
-      var view = new PaymentsView();
-      
-      var student: string;
-      var studentQuer = "select * from user where id = '" + record.studentId + "';";
-      student = await getManager().query(studentQuer);
-      console.log(record.studentId);
-      const studentData = await this.studentRepository.findOne({ id: record.studentId });
-
-      const collectionAgent = await this.collectionAgent.findOne({ id: studentData.collection_agent_id });
-
-
-
-      view.id = record.id;
-      view.studentId = record.studentId;
-      view.referenceId = record.transactionId;
-      view.subscriptionId = record.subscriptionId;
-      view.dueDate = record.dueDate;
-      view.paidDate = record.paidDate;
-      view.emiAmount = record.emiAmount;
-      view.paidAmount = record.paidAmount;
-      view.collectionAgent = collectionAgent?.firstName ? `${collectionAgent?.firstName} ${collectionAgent?.lastName || ''}` : "Not Found";
-      view.status = record.status;
-      view.created_at = record.created_at;
-      view.updated_at = record.updated_at;
-      // const td = await this.transaDetailsRepository.findOne({transactionId:item["transactionId"]});
-
-      view.transaction_details_id = item.id;
-      view.transactionId = item.transactionId;
-      view.razorpayLink = record.paymentLink;
-      view.whatsAppLinkSent = item.whatsAppLinkSent
-      view.callDisposition = item.callDisposition;
-      view.feedBackCall = item.feedBackCall;
-      view.paymentMode = item.paymentMode;
-      view.created_at = item.created_at;
-      view.updated_at = item.updated_at;
-      view.student = student;
-      view.collectionAgentObj = collectionAgent;
-      view.actualStartDate = studentData.classesStartDate;
-      view.notes = item.notes;
-      view.leadId = studentData.studentID;
-      paymentView.push(view);
-    }
-
-    usersLogger.info('Fetching student payment details::End');
-
-    return {
-      success: true,
-      pageSize: limit,
-      current: offset,
-      total: total,
-      data: paymentView,
-      status: 200
-    }
+   
   }
 
   async paymentDetails(requestData: any) {
