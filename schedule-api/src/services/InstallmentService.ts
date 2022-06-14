@@ -31,11 +31,11 @@ export class InstallmentService {
       limit = params.limit;
     }
 
-    if (params?.lastCheckedMinutes) {
-      // console.log('moment in unix: ' + moment().add(-params.lastCheckedMinutes, 'minutes'));
-      console.log('moment formatted: ' + moment().add(-params.lastCheckedMinutes, 'minutes').format("YYYY-MM-DD HH:mm:ss"));
-      // console.log('moment in date: ' + moment().add(-params.lastCheckedMinutes, 'minutes').toDate());
-      where["lastCheckedAt"] < moment().add(-params.lastCheckedMinutes, 'minutes');
+    if (params?.lastCheckedMinutesDifference) {
+      // console.log('moment in unix: ' + moment().add(-params.lastCheckedMinutesDifference, 'minutes'));
+      console.log('moment formatted: ' + moment().add(-params.lastCheckedMinutesDifference, 'minutes').format("YYYY-MM-DD HH:mm:ss"));
+      // console.log('moment in date: ' + moment().add(-params.lastCheckedMinutesDifference, 'minutes').toDate());
+      where["lastCheckedAt"] < moment().add(-params.lastCheckedMinutesDifference, 'minutes');
     }
 
     return await this.query.find({
