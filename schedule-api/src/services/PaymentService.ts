@@ -154,13 +154,13 @@ export class PaymentService {
       total = await getManager()
         .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).getCount();
     } else {
-      if(parameters.collectionAgent){
+      if (parameters.collectionAgent) {
         const innerJoinQuery = `s.collection_agent_id = ${parseInt(parameters.collectionAgent)}`;
         t = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).getMany();
         total = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).skip(offsetRecords).getCount();
-      }else{
+      } else {
         t = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).getMany();
         total = await getManager()
@@ -217,12 +217,12 @@ export class PaymentService {
 
     for (let item of tdetails) {
       var record = await this.transactionRepository.findOne({ id: item.transactionId });
-      if(!record){
+      if (!record) {
         usersLogger.info(`Installmend with ID: ${item.transactionId} Not Found`);
         continue;
       }
       var view = new PaymentsView();
-      
+
       var student: string;
       var studentQuer = "select * from user where id = '" + record.studentId + "';";
       student = await getManager().query(studentQuer);
@@ -387,6 +387,8 @@ export class PaymentService {
         //update installment data
         installment.transactionId = paymentResponse.id;
         installment.paymentLink = paymentResponse.short_url;
+        // paid date is set to null since installment status is pending
+        installment.paidDate = null;
         installmentsForUpdate.push(installment);
         successCount++;
       }
