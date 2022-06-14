@@ -96,8 +96,6 @@ export class PaymentService {
 
   async studentPaymentDetails(parameters: any) {
     try {
-      console.log('parameters');
-      console.log(parameters);
       const moment = require("moment");
       var paymentView: PaymentsView[] = [];
       var transactions: Transactions[] = []
