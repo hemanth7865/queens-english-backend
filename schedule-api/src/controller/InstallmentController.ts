@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { isNullOrUndefined } from "util";
 import { InstallmentService } from "../services/InstallmentService";
 import {
   getPaymentById as getRazorpayPaymentById,
@@ -27,17 +28,27 @@ export class InstallmentController {
       const pendingPayments = await this.service.getPendingInstallments(
         request.query
       );
+      logger.info('Fetch installments: ' + JSON.stringify(pendingPayments));
       for (const payment of pendingPayments) {
         try {
           const paymentId = payment.transactionId;
-          const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
+          const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
             paymentId
           );
-          if (paymentStatus.status === "paid") {
+          logger.info('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
+          if (paymentLinkDetails.status === "paid") {
+            var paidDate = moment().format("YYYY-MM-DD HH:mm:ss");
+            logger.info('Default paid date: ' + paidDate);
+            //get the paid date from payments
+            if (!isNullOrUndefined(paymentLinkDetails.payments) && paymentLinkDetails.payments.length > 0 && paymentLinkDetails.payments[0].status == 'captured') {
+              paidDate = moment(paymentLinkDetails.payments[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
+              logger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
+            }
+
             await this.service.updateInstallment(payment.id, {
               status: this.COMPLETED_STATUS,
-              paidAmount: paymentStatus.amount / 100,
-              paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+              paidAmount: paymentLinkDetails.amount / 100,
+              paidDate: paidDate,
             });
             result.paid++;
             logger.info(
@@ -45,6 +56,9 @@ export class InstallmentController {
             );
           } else {
             result.ignored++;
+            await this.service.updateInstallment(payment.id, {
+              lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+            });
           }
         } catch (e) {
           if (e?.error?.description === "The id provided does not exist") {

@@ -8,6 +8,7 @@ import {
 const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
+import { isNullOrUndefined } from "util";
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -16,6 +17,7 @@ export class InstallmentService {
   private query = getRepository(Transactions);
 
   async getPendingInstallments(params) {
+    var limit = 10;
     const where = { status: this.installmentStatus };
     if (params?.installment_id) {
       where["id"] = params.installment_id;
@@ -25,22 +27,36 @@ export class InstallmentService {
       where["transactionId"] = params.reference_id;
     }
 
+    if (params?.limit) {
+      limit = params.limit;
+    }
+
+    if (params?.lastCheckedMinutes) {
+      // console.log('moment in unix: ' + moment().add(-params.lastCheckedMinutes, 'minutes'));
+      console.log('moment formatted: ' + moment().add(-params.lastCheckedMinutes, 'minutes').format("YYYY-MM-DD HH:mm:ss"));
+      // console.log('moment in date: ' + moment().add(-params.lastCheckedMinutes, 'minutes').toDate());
+      where["lastCheckedAt"] < moment().add(-params.lastCheckedMinutes, 'minutes');
+    }
+
     return await this.query.find({
       where,
-      take: 10,
+      take: limit,
     });
   }
 
   async updateInstallment(id, data) {
     const oldTransaction = await this.query.findOne({ where: { id } });
     const updated = await this.query.update(id, data);
-    await (
-      await this.logger.payment(
-        { transaction: oldTransaction },
-        { transaction: {...data, id} },
-        {}
-      )
-    ).save();
+    //ignore logs for only updating last_checked_at which is considered in batch job
+    if (isNullOrUndefined(data.last_checked_at)) {
+      await (
+        await this.logger.payment(
+          { transaction: oldTransaction },
+          { transaction: { ...data, id } },
+          {}
+        )
+      ).save();
+    }
     return updated;
   }
 

@@ -364,12 +364,12 @@ export class PaymentService {
     };
   }
 
-  async createPaymentLinksForInstallmentsWithLimit(limit: any) {
-    var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
-    usersLogger.info('currMonth: ' + currentMonth);
+  async createBulkPaymentsLink(limit: any, dueMonth: string) {
+    // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
+    usersLogger.info('due month: ' + dueMonth + ' limit: ' + limit);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
-      .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :currentMonth and transactions.status = :status", { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING })
+      .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status", { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING })
       .limit(limit).getMany();
     usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
 

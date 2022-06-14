@@ -35,11 +35,13 @@ export class Transactions extends BaseEntity {
     @Column({ 'nullable': true, type: "text", name: "subscription_id" })
     subscriptionId: string;
     @Column({ 'nullable': true, type: "text", name: "netbank_ref_link" })
-    netbankRefLink: string;     
+    netbankRefLink: string;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
     updated_at: Date;
+    @Column({ 'nullable': true, type: "date", name: "last_checked_at" })
+    lastCheckedAt: Date;
     @OneToOne(type => Student, student => student.id)
     student: Student;
 }
