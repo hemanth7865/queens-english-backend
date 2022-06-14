@@ -57,15 +57,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
-        let netBankingForm
-        if (values.transactionId && values.netbankRefLink) {
-            netBankingForm = {
-                id: id,
-                transactionId: values.transactionId,
-                netbankRefLink: values.netbankRefLink
-            }
-
-        }
         const dataForm = [{
             id: id,
             studentId: studentId,
