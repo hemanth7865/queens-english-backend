@@ -379,8 +379,8 @@ export class PaymentService {
         successCount++;
       }
     }
-    await this.updateInstallmentData(installmentsForUpdate);
     usersLogger.info('Payment link generation success count: ' + successCount + 'failure count: ' + failureCount);
+    return await this.updateInstallmentData(installmentsForUpdate);
   }
 
   async regeneratePaymentLink(request: any) {
@@ -416,7 +416,13 @@ export class PaymentService {
       }
     }
 
-    //regenerate payment link
+    //cancel existing payment link
+    var cancelExistingLinkResponse = await this.razorPayUtils.cancelRazorPayLink(installment.transactionId);
+    if (!isNullOrUndefined(cancelExistingLinkResponse) && !isNullOrUndefined(cancelExistingLinkResponse.status) && cancelExistingLinkResponse.status == 'cancelled') {
+      usersLogger.info('Existing payment link cancelled for id: ' + installment.transactionId + ' link: ' + installment.paymentLink);
+    }
+
+    //regenerate new payment link
     var paymentResponse = await this.createPaymentLink(installment);
     if (isNullOrUndefined(paymentResponse) || isNullOrUndefined(paymentResponse.id) || isNullOrUndefined(paymentResponse.short_url)) {
       usersLogger.info('Payment link generation failed for installment: ' + installment.id + 'payment response: ' + JSON.stringify(paymentResponse));
@@ -470,18 +476,23 @@ export class PaymentService {
 
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info('installments without links for update: ' + installmentsWithoutLinks.length);
-    for (let installment of installmentsWithoutLinks) {
-      const oldTransaction = await this.transactionRepository.findOne({ id: installment.id });
-      await this.transactionRepository.update({ id: installment.id }, installment);
-      const newData = {
-        transaction: installment
-      }
+    try {
+      for (let installment of installmentsWithoutLinks) {
+        const oldTransaction = await this.transactionRepository.findOne({ id: installment.id });
+        await this.transactionRepository.update({ id: installment.id }, installment);
+        const newData = {
+          transaction: installment
+        }
 
-      const oldData = {
-        transaction: oldTransaction
-      }
+        const oldData = {
+          transaction: oldTransaction
+        }
 
-      await (await this.logger.payment(oldData, newData, {})).save();
+        await (await this.logger.payment(oldData, newData, {})).save();
+      }
+    }
+    catch (error) {
+      usersLogger.error('Error in saving payment links: ' + JSON.stringify(error));
     }
     return;
   }
