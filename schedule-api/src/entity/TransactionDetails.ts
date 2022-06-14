@@ -26,6 +26,8 @@ export class TransactionDetails extends BaseEntity {
     paymentMode: string;
     @Column({ 'nullable': true, type: "text", name: "notes" })
     notes: string;
+    @Column({ 'nullable': true, type: "text", name: "reason_amount_change" })
+    reasonAmountChange: string;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()

@@ -1,17 +1,17 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment, regeneratePaymentLink } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
-import { parse, format } from "date-fns";
+
 
 /**
  * @en-US Add node
@@ -70,6 +70,20 @@ const TableList: React.FC = () => {
             setIsLoading(false);
         }
         actionRef.current.reload();
+    }
+
+    const handleRefreshStatus = async (data: any) => {
+        if (confirm("Are you sure to refresh the installment status ?")) {
+            try {
+                const msg = await refreshRazorpayStatus(
+                    data.transactionId,
+                    data.referenceId,
+                );
+                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            }
+        }
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -193,6 +207,7 @@ const TableList: React.FC = () => {
                         <Option value="Demands Leaves">Demands Leaves</Option>
                         <Option value="Exams in school">Exams in school</Option>
                         <Option value="Paid">Paid</Option>
+                        <Option value="Fully Paid">Fully Paid</Option>
                         <Option value="Subscription Lost">Subscription Lost</Option>
                         <Option value="DNP">DNP</Option>
                         <Option value="On Leave">On Leave</Option>
@@ -402,6 +417,9 @@ const TableList: React.FC = () => {
                         >
                             <PlusSquareTwoTone title='Other Payment' />
                         </Popover>
+                        <Typography.Link onClick={() => handleRefreshStatus(entity)} style={{ marginLeft: 10 }}>
+                            <ReloadOutlined title='Refresh Installment status' />
+                        </Typography.Link>
                     </div>
                 );
             },
@@ -424,7 +442,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 1800,
+                        x: 1900,
                     }}
                 />
             </Spin>
@@ -442,9 +460,6 @@ const TableList: React.FC = () => {
 
             </Drawer>
 
-
-
-            {/* Drawer for Edit student */}
             <Modal
                 title={isWhatsappVisible ? "WA Message" : "Edit"}
                 visible={isModalVisible}

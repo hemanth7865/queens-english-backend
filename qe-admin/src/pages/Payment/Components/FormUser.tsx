@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { UploadOutlined } from '@ant-design/icons';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin, Upload } from 'antd';
-import { editPayment } from '@/services/ant-design-pro/api';
+import { Form, Input, Button, Select, DatePicker, Spin } from 'antd';
+import { editPayment, editNetBanking } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import moment from 'moment';
 
 export type FormUserProps = {
     data: {};
@@ -24,9 +24,10 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
+    const [selectPaidDate, setSelectPaidDate] = useState('');
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
 
     const teacherMessageTemplate = `    Dear Parent of ${name},
@@ -41,46 +42,80 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     Team Queen’s English`;
 
-    const onFinish = async (values: any) => {
-        setIsLoading(true);
-        const dataForm = [{
-            id: id,
-            studentId: studentId,
-            dueDate: dueDate,
-            paidDate: paidDate,
-            emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
-            paidAmount: paidAmount,
-            status: values.status ? values.status : status,
-            transaction_details_id: transaction_details_id,
-            referenceId: values.transactionID ? values.transactionID : transactionId,
-            razorpayLink: razorpayLink,
-            whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
-            modeOfPayment: modeOfPayment,
-            callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
-            feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
-            notes: values.notes ? values.notes : notes,
-            paymentMode: paymentMode,
-        }]
+    const editPaymentDetails = async (data: any) => {
         try {
             const msg = await editPayment({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(dataForm),
+                body: JSON.stringify(data),
             });
-            if (values.emiAmount) {
-                await props.regenerateLink({ transactionId });
-            }
             handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
+        }
+    }
+
+    const editNetBankingDetails = async (data: any) => {
+        try {
+            const msg = await editNetBanking({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            handleAPIResponse(msg, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+        }
+    }
+
+    const onFinish = async (values: any) => {
+        setIsLoading(true);
+        if (values.transactionId && values.netbankRefLink) {
+            const netBankingForm = {
+                id: id,
+                transactionId: values.transactionId,
+                netbankRefLink: values.netbankRefLink
+            }
+            await editNetBankingDetails(netBankingForm);
+        }
+        else {
+            const dataForm = [{
+                id: id,
+                studentId: studentId,
+                dueDate: dueDate,
+                emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
+                paidAmount: paidAmount,
+                status: values.status ? values.status : status,
+                transaction_details_id: transaction_details_id,
+                razorpayLink: razorpayLink,
+                whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
+                modeOfPayment: modeOfPayment,
+                callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
+                feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
+                notes: values.notes ? values.notes : notes,
+                paymentMode: paymentMode,
+                paidDate: selectPaidDate ? selectPaidDate : paidDate,
+                reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
+            }]
+            if (values.emiAmount) {
+                if (status === "Installment Pending") {
+                    await editPaymentDetails(dataForm);
+                    await props.regenerateLink({ transactionId });
+                } else {
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+                }
+            } else {
+                await editPaymentDetails(dataForm);
+            }
         }
         props.setVisible(false);
         props.isModalVisible(false);
         setIsLoading(false);
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
-        console.log('dataForm', dataForm)
+        form.resetFields();
     }
 
 
@@ -93,11 +128,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
             status: status,
+            reasonAmountChange: reasonAmountChange,
+            paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, paidDate])
 
     return (
         <div>
@@ -120,13 +157,35 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
                     {props.isAmountDisplay ?
 
-                        <Form.Item
-                            label="Installment Rs"
-                            name="emiAmount"
-                            rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
-                        >
-                            <Input />
-                        </Form.Item> :
+                        <div>
+                            <Form.Item
+                                label="Installment Rs"
+                                name="emiAmount"
+                                rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Reason for amount change"
+                                name="reasonAmountChange"
+                                rules={[{ required: true, message: 'Please Select the reason for amount change' }]}
+                            >
+                                <Select >
+                                    <Option value="Discount">Discount</Option>
+                                    <Option value="Paying Full Amount">Paying Full Amount</Option>
+                                    <Option value="Change in Notes">Change in Notes</Option>
+                                    <Option value="Other">Other</Option>
+                                </Select>
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Notes"
+                                name="notes"
+                            >
+                                <TextArea rows={3} />
+                            </Form.Item>
+                        </div> :
 
                         props.netbankingVisible ?
 
@@ -164,20 +223,18 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 <div>
                                     <Form.Item
                                         label="Transaction ID"
-                                        name="transactionID"
+                                        name="transactionId"
                                         rules={[{ required: true, message: 'Please Enter Transaction ID!' }]}
                                     >
                                         <Input />
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Upload Screenshot"
-                                        name="upload"
-                                        rules={[{ required: false, message: 'Please Upload the screenshot!' }]}
+                                        label="Upload google drive link"
+                                        name="netbankRefLink"
+                                        rules={[{ required: true, message: 'Please Enter the Link!' }]}
                                     >
-                                        <Upload {...props}>
-                                            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                        </Upload>
+                                        <Input />
                                     </Form.Item>
                                 </div> :
 
@@ -213,6 +270,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <Option value="Demands Leaves">Demands Leaves</Option>
                                                 <Option value="Exams in school">Exams in school</Option>
                                                 <Option value="Paid">Paid</Option>
+                                                <Option value="Fully Paid">Fully Paid</Option>
                                                 <Option value="Subscription Lost">Subscription Lost</Option>
                                                 <Option value="DNP">DNP</Option>
                                                 <Option value="On Leave">On Leave</Option>
@@ -236,6 +294,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <Option value="Installment Pending">Installment Pending</Option>
                                                 <Option value="Installment Paid">Installment Paid</Option>
                                             </Select>
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Paid Date"
+                                            name="paidDate"
+                                        >
+                                            <DatePicker
+                                                format='YYYY-MM-DD'
+                                                onChange={(date, dateString) => {
+                                                    setSelectPaidDate(dateString);
+                                                }} />
                                         </Form.Item>
                                     </div>
 
