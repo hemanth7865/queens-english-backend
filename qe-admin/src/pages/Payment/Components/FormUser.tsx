@@ -115,6 +115,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         setIsLoading(false);
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
+        form.resetFields();
     }
 
 
