@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Select, DatePicker, Spin } from 'antd';
-import { editPayment } from '@/services/ant-design-pro/api';
+import { editPayment, editNetBanking } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import moment from 'moment';
 
@@ -56,40 +56,65 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         }
     }
 
+    const editNetBankingDetails = async (data: any) => {
+        try {
+            const msg = await editNetBanking({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            handleAPIResponse(msg, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+        }
+    }
+
     const onFinish = async (values: any) => {
         setIsLoading(true);
-        const dataForm = [{
-            id: id,
-            studentId: studentId,
-            dueDate: dueDate,
-            paidDate: selectPaidDate ? selectPaidDate : paidDate,
-            emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
-            paidAmount: paidAmount,
-            status: values.status ? values.status : status,
-            transaction_details_id: transaction_details_id,
-            razorpayLink: razorpayLink,
-            whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
-            modeOfPayment: modeOfPayment,
-            callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
-            feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
-            notes: values.notes ? values.notes : notes,
-            paymentMode: paymentMode,
-            reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
-        }]
-        if (values.emiAmount) {
-            const msg = await props.regenerateLink({ transactionId });
-            if (msg.status == "success") {
+        if (values.transactionId && values.netbankRefLink) {
+            const netBankingForm = {
+                id: id,
+                transactionId: values.transactionId,
+                netbankRefLink: values.netbankRefLink
+            }
+            await editNetBankingDetails(netBankingForm);
+        }
+        else {
+            const dataForm = [{
+                id: id,
+                studentId: studentId,
+                dueDate: dueDate,
+                emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
+                paidAmount: paidAmount,
+                status: values.status ? values.status : status,
+                transaction_details_id: transaction_details_id,
+                razorpayLink: razorpayLink,
+                whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
+                modeOfPayment: modeOfPayment,
+                callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
+                feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
+                notes: values.notes ? values.notes : notes,
+                paymentMode: paymentMode,
+                paidDate: selectPaidDate ? selectPaidDate : paidDate,
+                reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
+            }]
+            if (values.emiAmount) {
+                if (status === "Installment Pending") {
+                    await editPaymentDetails(dataForm);
+                    await props.regenerateLink({ transactionId });
+                } else {
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+                }
+            } else {
                 await editPaymentDetails(dataForm);
             }
-        } else {
-            await editPaymentDetails(dataForm);
         }
         props.setVisible(false);
         props.isModalVisible(false);
         setIsLoading(false);
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
-        console.log('dataForm', dataForm)
     }
 
 
@@ -206,7 +231,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     <Form.Item
                                         label="Upload google drive link"
                                         name="netbankRefLink"
-                                        rules={[{ required: true, message: 'Please Enter the Link!', type: 'url' }]}
+                                        rules={[{ required: true, message: 'Please Enter the Link!' }]}
                                     >
                                         <Input />
                                     </Form.Item>
