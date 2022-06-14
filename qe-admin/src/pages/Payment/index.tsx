@@ -58,7 +58,6 @@ const TableList: React.FC = () => {
                 body: JSON.stringify({ installmentId: data.transactionId }),
             });
             handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-            return msg;
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
         }

@@ -619,3 +619,12 @@ export async function regeneratePaymentLink(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+//Add Net Banking details
+export async function editNetBanking(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/uploadNetBankingResource', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
