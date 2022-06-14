@@ -34,6 +34,8 @@ export class Transactions extends BaseEntity {
     paymentLink: string;
     @Column({ 'nullable': true, type: "text", name: "subscription_id" })
     subscriptionId: string;
+    @Column({ 'nullable': true, type: "text", name: "netbank_ref_link" })
+    netbankRefLink: string;     
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()
