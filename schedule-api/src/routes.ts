@@ -325,4 +325,13 @@ export const Routes = [
     // authenticate: true
   },
 
+  {
+    method: "post",
+    route: "/uploadNetBankingResource",
+    controller: PaymentController,
+    action: "uploadNetBankingResource",
+    // authenticate: true
+  },
+
+
 ];
