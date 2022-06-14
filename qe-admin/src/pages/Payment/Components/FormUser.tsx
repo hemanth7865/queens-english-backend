@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { UploadOutlined } from '@ant-design/icons';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin, Upload } from 'antd';
+import { Form, Input, Button, Select, DatePicker, Spin } from 'antd';
 import { editPayment } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import moment from 'moment';
 
 export type FormUserProps = {
     data: {};
@@ -27,6 +27,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
+    const [selectPaidDate, setSelectPaidDate] = useState('');
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
 
     const teacherMessageTemplate = `    Dear Parent of ${name},
@@ -61,7 +62,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             id: id,
             studentId: studentId,
             dueDate: dueDate,
-            paidDate: paidDate,
+            paidDate: selectPaidDate ? selectPaidDate : paidDate,
             emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
             paidAmount: paidAmount,
             status: values.status ? values.status : status,
@@ -102,11 +103,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             whatsAppLinkSent: whatsAppLinkSent,
             status: status,
             reasonAmountChange: reasonAmountChange,
+            paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, paidDate])
 
     return (
         <div>
@@ -266,6 +268,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <Option value="Installment Pending">Installment Pending</Option>
                                                 <Option value="Installment Paid">Installment Paid</Option>
                                             </Select>
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Paid Date"
+                                            name="paidDate"
+                                        >
+                                            <DatePicker
+                                                format='YYYY-MM-DD'
+                                                onChange={(date, dateString) => {
+                                                    setSelectPaidDate(dateString);
+                                                }} />
                                         </Form.Item>
                                     </div>
 
