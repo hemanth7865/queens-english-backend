@@ -19,7 +19,7 @@ import LoggerService from "./LoggerService";
 
 
 export class PaymentService {
- 
+
 
   private transactionRepository = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
@@ -261,6 +261,7 @@ export class PaymentService {
       view.actualStartDate = studentData.classesStartDate;
       view.notes = item.notes;
       view.leadId = studentData.studentID;
+      view.reasonAmountChange = item.reasonAmountChange;
       paymentView.push(view);
     }
 
@@ -328,6 +329,7 @@ export class PaymentService {
         transactiondetail.feedBackCall = data.feedBackCall;
         transactiondetail.paymentMode = data.paymentMode;
         transactiondetail.notes = data.notes;
+        transactiondetail.reasonAmountChange = data.reasonAmountChange;
 
 
         let tdeails = await this.transaDetailsRepository.save(transactiondetail);
@@ -512,22 +514,22 @@ export class PaymentService {
     return;
   }
 
- async uploadNetBankingResource(body: any) {
-   try {
+  async uploadNetBankingResource(body: any) {
+    try {
       const installment = await this.transactionRepository.findOne({ id: body.id });
       installment.netbankRefLink = body.netbankRefLink;
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
       await this.transactionRepository.update({ id: installment.id }, installment);
-      return  {
-        success:true,
+      return {
+        success: true,
         msg: "successfully updated link"
       }
-   } catch (error) {
-     
-   }
-   
-}
+    } catch (error) {
+
+    }
+
+  }
 
 }
