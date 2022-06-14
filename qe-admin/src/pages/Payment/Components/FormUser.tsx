@@ -16,6 +16,7 @@ export type FormUserProps = {
     isModalVisible: () => void;
     actionRef: any;
     setIsAmountDisplay: any;
+    regenerateLink: any;
 };
 
 const { Option } = Select;
@@ -23,7 +24,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
@@ -51,7 +52,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidAmount: paidAmount,
             status: values.status ? values.status : status,
             transaction_details_id: transaction_details_id,
-            transactionId: transactionId,
+            referenceId: values.transactionID ? values.transactionID : transactionId,
             razorpayLink: razorpayLink,
             whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
             modeOfPayment: modeOfPayment,
@@ -59,8 +60,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
-            referenceId: values.referenceId ? values.referenceId : transactionId,
-            subscriptionId: values.subscriptionId ? values.subscriptionId : ''
         }]
         try {
             const msg = await editPayment({
@@ -69,6 +68,9 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 },
                 body: JSON.stringify(dataForm),
             });
+            if (values.emiAmount) {
+                await props.regenerateLink({ transactionId });
+            }
             handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
@@ -85,7 +87,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const [form] = Form.useForm()
     const defaultValues = () => {
         form.setFieldsValue({
-            studentID: studentId,
+            leadId: leadId,
             emiAmount: emiAmount,
             callDisposition: callDisposition,
             notes: notes,
@@ -95,7 +97,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     }
     useEffect(() => {
         defaultValues();
-    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
 
     return (
         <div>
@@ -110,8 +112,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                     autoComplete="off"
                 >
                     <Form.Item
-                        label="Student ID"
-                        name="studentID"
+                        label="Lead Id"
+                        name="leadId"
                     >
                         <Input disabled />
                     </Form.Item>
@@ -171,7 +173,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     <Form.Item
                                         label="Upload Screenshot"
                                         name="upload"
-                                        rules={[{ required: true, message: 'Please Upload the screenshot!' }]}
+                                        rules={[{ required: false, message: 'Please Upload the screenshot!' }]}
                                     >
                                         <Upload {...props}>
                                             <Button icon={<UploadOutlined />}>Click to Upload</Button>
