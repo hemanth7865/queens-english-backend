@@ -41,7 +41,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     Team Queen’s English`;
 
-    const postapiCall = async (data: any) => {
+    const editPaymentDetails = async (data: any) => {
         try {
             const msg = await editPayment({
                 headers: {
@@ -57,6 +57,15 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
+        let netBankingForm
+        if (values.transactionId && values.netbankRefLink) {
+            netBankingForm = {
+                id: id,
+                transactionId: values.transactionId,
+                netbankRefLink: values.netbankRefLink
+            }
+
+        }
         const dataForm = [{
             id: id,
             studentId: studentId,
@@ -66,7 +75,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidAmount: paidAmount,
             status: values.status ? values.status : status,
             transaction_details_id: transaction_details_id,
-            referenceId: values.transactionID ? values.transactionID : transactionId,
             razorpayLink: razorpayLink,
             whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
             modeOfPayment: modeOfPayment,
@@ -75,13 +83,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
         }]
-        if (values.emiAmount && dataForm[0].status == "Installment Paid") {
-            handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Installment status is paid for the given id", false);
-        } else if (values.emiAmount && dataForm[0].status == "Installment Pending") {
-            await props.regenerateLink({ transactionId });
-            await postapiCall(dataForm);
+        if (values.emiAmount) {
+            const msg = await props.regenerateLink({ transactionId });
+            if (msg.status == "success") {
+                await editPaymentDetails(dataForm);
+            }
         } else {
-            await postapiCall(dataForm);
+            await editPaymentDetails(dataForm);
         }
         props.setVisible(false);
         props.isModalVisible(false);
@@ -172,20 +180,18 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 <div>
                                     <Form.Item
                                         label="Transaction ID"
-                                        name="transactionID"
+                                        name="transactionId"
                                         rules={[{ required: true, message: 'Please Enter Transaction ID!' }]}
                                     >
                                         <Input />
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Upload Screenshot"
-                                        name="upload"
-                                        rules={[{ required: false, message: 'Please Upload the screenshot!' }]}
+                                        label="Upload google drive link"
+                                        name="netbankRefLink"
+                                        rules={[{ required: true, message: 'Please Enter the Link!', type: 'url' }]}
                                     >
-                                        <Upload {...props}>
-                                            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                        </Upload>
+                                        <Input />
                                     </Form.Item>
                                 </div> :
 
