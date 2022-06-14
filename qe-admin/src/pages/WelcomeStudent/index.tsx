@@ -925,7 +925,7 @@ const StudentOnboard: React.FC = () => {
         pageSize
       }
       );
-      handleGetData(msg);
+      setData(msg.data);
     } catch (error) {
       console.log("error", error);
     }

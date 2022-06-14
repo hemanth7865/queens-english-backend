@@ -82,4 +82,10 @@ export class PaymentController {
         }
     }
 
+    async uploadNetBankingResource(request: Request, response: Response, next: NextFunction) {
+        console.log("Read netbanking payment receipt.....");      
+            return await this.paymentService.uploadNetBankingResource(request.body);
+    
+
+    }
 }

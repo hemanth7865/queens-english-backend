@@ -808,7 +808,7 @@ const StudentOnboard: React.FC = () => {
     //console.log('status', formData, value)
     setIsLoading(true);
     try {
-      let msg = await studentsDashboardFilter('Enrolled', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
+      let msg = await studentsDashboardFilter('Error', formData.studentName, formData.studentPhoneNumber, formData.studentEmail, '', formData.studentID, {
         current: 1,
         pageSize: 20
       }
