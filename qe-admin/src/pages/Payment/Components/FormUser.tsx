@@ -24,7 +24,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
@@ -73,6 +73,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
+            reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
         }]
         if (values.emiAmount) {
             const msg = await props.regenerateLink({ transactionId });
@@ -100,11 +101,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
             status: status,
+            reasonAmountChange: reasonAmountChange,
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange])
 
     return (
         <div>
@@ -127,13 +129,35 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
                     {props.isAmountDisplay ?
 
-                        <Form.Item
-                            label="Installment Rs"
-                            name="emiAmount"
-                            rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
-                        >
-                            <Input />
-                        </Form.Item> :
+                        <div>
+                            <Form.Item
+                                label="Installment Rs"
+                                name="emiAmount"
+                                rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Reason for amount change"
+                                name="reasonAmountChange"
+                                rules={[{ required: true, message: 'Please Select the reason for amount change' }]}
+                            >
+                                <Select >
+                                    <Option value="Discount">Discount</Option>
+                                    <Option value="Paying Full Amount">Paying Full Amount</Option>
+                                    <Option value="Change in Notes">Change in Notes</Option>
+                                    <Option value="Other">Other</Option>
+                                </Select>
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Notes"
+                                name="notes"
+                            >
+                                <TextArea rows={3} />
+                            </Form.Item>
+                        </div> :
 
                         props.netbankingVisible ?
 
@@ -218,6 +242,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <Option value="Demands Leaves">Demands Leaves</Option>
                                                 <Option value="Exams in school">Exams in school</Option>
                                                 <Option value="Paid">Paid</Option>
+                                                <Option value="Fully Paid">Fully Paid</Option>
                                                 <Option value="Subscription Lost">Subscription Lost</Option>
                                                 <Option value="DNP">DNP</Option>
                                                 <Option value="On Leave">On Leave</Option>

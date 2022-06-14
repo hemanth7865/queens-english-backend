@@ -194,6 +194,7 @@ const TableList: React.FC = () => {
                         <Option value="Demands Leaves">Demands Leaves</Option>
                         <Option value="Exams in school">Exams in school</Option>
                         <Option value="Paid">Paid</Option>
+                        <Option value="Fully Paid">Fully Paid</Option>
                         <Option value="Subscription Lost">Subscription Lost</Option>
                         <Option value="DNP">DNP</Option>
                         <Option value="On Leave">On Leave</Option>

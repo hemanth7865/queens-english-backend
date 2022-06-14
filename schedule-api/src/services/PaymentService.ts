@@ -19,7 +19,7 @@ import LoggerService from "./LoggerService";
 
 
 export class PaymentService {
- 
+
 
   private transactionRepository = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
@@ -155,13 +155,13 @@ export class PaymentService {
       total = await getManager()
         .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).getCount();
     } else {
-      if(parameters.collectionAgent){
+      if (parameters.collectionAgent) {
         const innerJoinQuery = `s.collection_agent_id = ${parseInt(parameters.collectionAgent)}`;
         t = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).getMany();
         total = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).skip(offsetRecords).getCount();
-      }else{
+      } else {
         t = await getManager()
           .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).getMany();
         total = await getManager()
@@ -218,12 +218,12 @@ export class PaymentService {
 
     for (let item of tdetails) {
       var record = await this.transactionRepository.findOne({ id: item.transactionId });
-      if(!record){
+      if (!record) {
         usersLogger.info(`Installmend with ID: ${item.transactionId} Not Found`);
         continue;
       }
       var view = new PaymentsView();
-      
+
       var student: string;
       var studentQuer = "select * from user where id = '" + record.studentId + "';";
       student = await getManager().query(studentQuer);
@@ -261,6 +261,7 @@ export class PaymentService {
       view.actualStartDate = studentData.classesStartDate;
       view.notes = item.notes;
       view.leadId = studentData.studentID;
+      view.reasonAmountChange = item.reasonAmountChange;
       paymentView.push(view);
     }
 
@@ -328,6 +329,7 @@ export class PaymentService {
         transactiondetail.feedBackCall = data.feedBackCall;
         transactiondetail.paymentMode = data.paymentMode;
         transactiondetail.notes = data.notes;
+        transactiondetail.reasonAmountChange = data.reasonAmountChange;
 
 
         let tdeails = await this.transaDetailsRepository.save(transactiondetail);
@@ -499,22 +501,22 @@ export class PaymentService {
     return;
   }
 
- async uploadNetBankingResource(body: any) {
-   try {
+  async uploadNetBankingResource(body: any) {
+    try {
       const installment = await this.transactionRepository.findOne({ id: body.id });
       installment.netbankRefLink = body.netbankRefLink;
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
       await this.transactionRepository.update({ id: installment.id }, installment);
-      return  {
-        success:true,
+      return {
+        success: true,
         msg: "successfully updated link"
       }
-   } catch (error) {
-     
-   }
-   
-}
+    } catch (error) {
+
+    }
+
+  }
 
 }
