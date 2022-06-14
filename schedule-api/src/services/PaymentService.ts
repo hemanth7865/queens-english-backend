@@ -19,7 +19,7 @@ import LoggerService from "./LoggerService";
 
 
 export class PaymentService {
- 
+
 
   private transactionRepository = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
@@ -141,12 +141,12 @@ export class PaymentService {
             break;
         }
       }
-  
+
       console.log(whereCondition.join(' and '));
       whereCondition.push(" 1 = 1 ");
       condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
       console.log(condition);
-  
+
       let total: number = 0;
       if (parameters.leadId) {
         t = await getManager()
@@ -154,31 +154,31 @@ export class PaymentService {
         total = await getManager()
           .createQueryBuilder(Transactions, "transactions").where({ studentId: parameters.studentId }).getCount();
       } else {
-        if(parameters.collectionAgent){
+        if (parameters.collectionAgent) {
           const innerJoinQuery = `s.collection_agent_id = ${parseInt(parameters.collectionAgent)}`;
           t = await getManager()
             .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).take(limit).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).getMany();
           total = await getManager()
             .createQueryBuilder(Transactions, "transactions").where(condition).innerJoin(Student, 's', 's.id = transactions.studentId').andWhere(innerJoinQuery).skip(offsetRecords).getCount();
-        }else{
+        } else {
           t = await getManager()
             .createQueryBuilder(Transactions, "transactions").innerJoin(TransactionDetails, 'tDetails', 'transactions.transactionId = tDetails.transaction_id').andWhere(condition).skip(offsetRecords).take(limit).getMany();
           total = await getManager()
             .createQueryBuilder(Transactions, "transactions").where(condition).skip(offsetRecords).getCount();
         }
       }
-  
+
       console.log('Transaction condition');
       console.log(condition);
-  
+
       var ids = t.map((i) => "'" + i.id + "'").join(",");
-  
+
       whereCondition = [];
       if (ids.length > 0)
         whereCondition.push(`transaction_id in  (${ids})`);
-  
+
       for (let param in parameters) {
-  
+
         switch (param) {
           case "tdstatus":
             whereCondition.push(`status = '${parameters["tdstatus"]}'`);
@@ -203,34 +203,34 @@ export class PaymentService {
             break;
         }
       }
-  
+
       condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
       usersLogger.info(condition);
-  
+
       var tdetails = await getManager()
         .createQueryBuilder(TransactionDetails, "transactiondetails").where(condition).getMany();
-  
+
       console.log("Transaction details log");
       console.log(condition);
-  
+
       for (let item of tdetails) {
         var record = await this.transactionRepository.findOne({ id: item.transactionId });
-        if(!record){
+        if (!record) {
           usersLogger.info(`Installmend with ID: ${item.transactionId} Not Found`);
           continue;
         }
         var view = new PaymentsView();
-        
+
         var student: string;
         var studentQuer = "select * from user where id = '" + record.studentId + "';";
         student = await getManager().query(studentQuer);
         console.log(record.studentId);
         const studentData = await this.studentRepository.findOne({ id: record.studentId });
-  
+
         const collectionAgent = await this.collectionAgent.findOne({ id: studentData.collection_agent_id });
-  
-  
-  
+
+
+
         view.id = record.id;
         view.studentId = record.studentId;
         view.referenceId = record.transactionId;
@@ -244,7 +244,7 @@ export class PaymentService {
         view.created_at = record.created_at;
         view.updated_at = record.updated_at;
         // const td = await this.transaDetailsRepository.findOne({transactionId:item["transactionId"]});
-  
+
         view.transaction_details_id = item.id;
         view.transactionId = item.transactionId;
         view.razorpayLink = record.paymentLink;
@@ -261,9 +261,9 @@ export class PaymentService {
         view.leadId = studentData.studentID;
         paymentView.push(view);
       }
-  
+
       usersLogger.info('Fetching student payment details::End');
-  
+
       return {
         success: true,
         pageSize: limit,
@@ -279,7 +279,7 @@ export class PaymentService {
         msg: "Unable to retrieve data ..."
       }
     }
-   
+
   }
 
   async paymentDetails(requestData: any) {
@@ -394,6 +394,8 @@ export class PaymentService {
         //update installment data
         installment.transactionId = paymentResponse.id;
         installment.paymentLink = paymentResponse.short_url;
+        // paid date is set to null since installment status is pending
+        installment.paidDate = null;
         installmentsForUpdate.push(installment);
         successCount++;
       }
@@ -516,22 +518,22 @@ export class PaymentService {
     return;
   }
 
- async uploadNetBankingResource(body: any) {
-   try {
+  async uploadNetBankingResource(body: any) {
+    try {
       const installment = await this.transactionRepository.findOne({ id: body.id });
       installment.netbankRefLink = body.netbankRefLink;
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
       await this.transactionRepository.update({ id: installment.id }, installment);
-      return  {
-        success:true,
+      return {
+        success: true,
         msg: "successfully updated link"
       }
-   } catch (error) {
-     
-   }
-   
-}
+    } catch (error) {
+
+    }
+
+  }
 
 }
