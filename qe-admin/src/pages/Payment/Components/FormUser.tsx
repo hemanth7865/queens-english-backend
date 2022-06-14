@@ -24,7 +24,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
@@ -87,7 +87,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const [form] = Form.useForm()
     const defaultValues = () => {
         form.setFieldsValue({
-            studentID: studentId,
+            leadId: leadId,
             emiAmount: emiAmount,
             callDisposition: callDisposition,
             notes: notes,
@@ -97,7 +97,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     }
     useEffect(() => {
         defaultValues();
-    }, [studentId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status])
 
     return (
         <div>
@@ -112,8 +112,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                     autoComplete="off"
                 >
                     <Form.Item
-                        label="Student ID"
-                        name="studentID"
+                        label="Lead Id"
+                        name="leadId"
                     >
                         <Input disabled />
                     </Form.Item>
