@@ -259,6 +259,7 @@ export class PaymentService {
         view.actualStartDate = studentData.classesStartDate;
         view.notes = item.notes;
         view.leadId = studentData.studentID;
+        view.reasonAmountChange = item.reasonAmountChange;
         paymentView.push(view);
       }
 
@@ -334,6 +335,7 @@ export class PaymentService {
         transactiondetail.feedBackCall = data.feedBackCall;
         transactiondetail.paymentMode = data.paymentMode;
         transactiondetail.notes = data.notes;
+        transactiondetail.reasonAmountChange = data.reasonAmountChange;
 
 
         let tdeails = await this.transaDetailsRepository.save(transactiondetail);

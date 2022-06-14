@@ -619,3 +619,22 @@ export async function regeneratePaymentLink(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+//Add Net Banking details
+export async function editNetBanking(options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>('/be/uploadNetBankingResource', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+//Refresh the installment status
+export async function refreshRazorpayStatus(transactionId: string, reference_id: string, options?: { [key: string]: any }) {
+  console.log('option', options)
+  return request<any>(`/be/update-installment-status?installment_id=${transactionId}&reference_id=${reference_id}`, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
