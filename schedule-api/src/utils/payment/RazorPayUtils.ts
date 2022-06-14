@@ -4,6 +4,9 @@ const { usersLogger } = require("../../Logger.js");
 
 const Razorpay = require('razorpay');
 var instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SCERET });
+const RAZORPAY_NOTIFY_SMS = process.env.RAZORPAY_NOTIFY_SMS;
+const RAZORPAY_NOTIFY_EMAIL = process.env.RAZORPAY_NOTIFY_EMAIL;
+const RAZORPAY_ENABLE_REMINDER = process.env.RAZORPAY_ENABLE_REMINDER;
 
 export class RazorPayUtils {
 
@@ -27,11 +30,11 @@ export class RazorPayUtils {
           "email": user.customerEmail,
           "contact": user.phoneNumber
         },
-        // "notify": {
-        //   "sms": true,
-        //   "email": true
-        // },
-        "reminder_enable": true,
+        "notify": {
+          "sms": RAZORPAY_NOTIFY_SMS,
+          "email": RAZORPAY_NOTIFY_EMAIL
+        },
+        "reminder_enable": RAZORPAY_ENABLE_REMINDER,
         "notes": {
           "studentId": user.id
         },
@@ -42,6 +45,18 @@ export class RazorPayUtils {
     }
     catch (error) {
       usersLogger.error('Error in generating link for razor pay: ' + JSON.stringify(error));
+    }
+    return response;
+  }
+
+  async cancelRazorPayLink(transactionId: string) {
+    usersLogger.info('inside razor pay utils cancel link');
+    try {
+      var response = await instance.paymentLink.cancel(transactionId);
+      usersLogger.info('razorpay response for cancel link: ' + JSON.stringify(response));
+    }
+    catch (error) {
+      usersLogger.error('Error in cancelling link for razor pay: ' + JSON.stringify(error));
     }
     return response;
   }
