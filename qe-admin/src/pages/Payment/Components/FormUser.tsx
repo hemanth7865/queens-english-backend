@@ -41,6 +41,20 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     Team Queen’s English`;
 
+    const postapiCall = async (data: any) => {
+        try {
+            const msg = await editPayment({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
+        }
+    }
+
     const onFinish = async (values: any) => {
         setIsLoading(true);
         const dataForm = [{
@@ -61,19 +75,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             notes: values.notes ? values.notes : notes,
             paymentMode: paymentMode,
         }]
-        try {
-            const msg = await editPayment({
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataForm),
-            });
-            if (values.emiAmount) {
-                await props.regenerateLink({ transactionId });
-            }
-            handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
-        } catch (error) {
-            handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
+        if (values.emiAmount && dataForm[0].status == "Installment Paid") {
+            handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Installment status is paid for the given id", false);
+        } else if (values.emiAmount && dataForm[0].status == "Installment Pending") {
+            await props.regenerateLink({ transactionId });
+            await postapiCall(dataForm);
+        } else {
+            await postapiCall(dataForm);
         }
         props.setVisible(false);
         props.isModalVisible(false);
