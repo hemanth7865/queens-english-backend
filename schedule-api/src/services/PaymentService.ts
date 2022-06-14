@@ -19,6 +19,7 @@ import LoggerService from "./LoggerService";
 
 
 export class PaymentService {
+ 
 
   private transactionRepository = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
@@ -510,5 +511,23 @@ export class PaymentService {
     }
     return;
   }
+
+ async uploadNetBankingResource(body: any) {
+   try {
+      const installment = await this.transactionRepository.findOne({ id: body.id });
+      installment.netbankRefLink = body.netbankRefLink;
+      if (body.transactionId) {
+        installment.transactionId = body.transactionId;
+      }
+      await this.transactionRepository.update({ id: installment.id }, installment);
+      return  {
+        success:true,
+        msg: "successfully updated link"
+      }
+   } catch (error) {
+     
+   }
+   
+}
 
 }

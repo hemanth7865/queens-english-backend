@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
 import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin, Upload } from 'antd';
-import { editPayment } from '@/services/ant-design-pro/api';
+import { editPayment, editNetBanking } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
 export type FormUserProps = {
@@ -41,46 +41,78 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     Team Queen’s English`;
 
-    const onFinish = async (values: any) => {
-        setIsLoading(true);
-        const dataForm = [{
-            id: id,
-            studentId: studentId,
-            dueDate: dueDate,
-            paidDate: paidDate,
-            emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
-            paidAmount: paidAmount,
-            status: values.status ? values.status : status,
-            transaction_details_id: transaction_details_id,
-            referenceId: values.transactionID ? values.transactionID : transactionId,
-            razorpayLink: razorpayLink,
-            whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
-            modeOfPayment: modeOfPayment,
-            callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
-            feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
-            notes: values.notes ? values.notes : notes,
-            paymentMode: paymentMode,
-        }]
+    const editPaymentDetails = async (data: any) => {
         try {
             const msg = await editPayment({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(dataForm),
+                body: JSON.stringify(data),
             });
-            if (values.emiAmount) {
-                await props.regenerateLink({ transactionId });
-            }
             handleAPIResponse(msg, "Payment Updated Successfully", "Failed To Update Payment", false);
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Payment Updated Successfully", "Failed To Update Payment", false);
+        }
+    }
+
+    const editNetBankingDetails = async (data: any) => {
+        try {
+            const msg = await editNetBanking({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            handleAPIResponse(msg, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+        }
+    }
+
+    const onFinish = async (values: any) => {
+        setIsLoading(true);
+        if (values.transactionId && values.netbankRefLink) {
+            const netBankingForm = {
+                id: id,
+                transactionId: values.transactionId,
+                netbankRefLink: values.netbankRefLink
+            }
+            await editNetBankingDetails(netBankingForm);
+        }
+        else {
+            const dataForm = [{
+                id: id,
+                studentId: studentId,
+                dueDate: dueDate,
+                paidDate: paidDate,
+                emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
+                paidAmount: paidAmount,
+                status: values.status ? values.status : status,
+                transaction_details_id: transaction_details_id,
+                razorpayLink: razorpayLink,
+                whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
+                modeOfPayment: modeOfPayment,
+                callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
+                feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
+                notes: values.notes ? values.notes : notes,
+                paymentMode: paymentMode,
+            }]
+            if (values.emiAmount) {
+                if (status === "Installment Pending") {
+                    await editPaymentDetails(dataForm);
+                    await props.regenerateLink({ transactionId });
+                } else {
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+                }
+            } else {
+                await editPaymentDetails(dataForm);
+            }
         }
         props.setVisible(false);
         props.isModalVisible(false);
         setIsLoading(false);
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
-        console.log('dataForm', dataForm)
     }
 
 
@@ -164,20 +196,18 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 <div>
                                     <Form.Item
                                         label="Transaction ID"
-                                        name="transactionID"
+                                        name="transactionId"
                                         rules={[{ required: true, message: 'Please Enter Transaction ID!' }]}
                                     >
                                         <Input />
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="Upload Screenshot"
-                                        name="upload"
-                                        rules={[{ required: false, message: 'Please Upload the screenshot!' }]}
+                                        label="Upload google drive link"
+                                        name="netbankRefLink"
+                                        rules={[{ required: true, message: 'Please Enter the Link!' }]}
                                     >
-                                        <Upload {...props}>
-                                            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                        </Upload>
+                                        <Input />
                                     </Form.Item>
                                 </div> :
 
