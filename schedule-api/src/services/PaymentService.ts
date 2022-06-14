@@ -114,7 +114,7 @@ export class PaymentService {
       console.log(param);
       switch (param) {
         case "dueDate":
-          whereCondition.push(`due_date = '${parameters["dueDate"]}'`);
+          whereCondition.push(`due_date <= '${parameters["dueDate"]}'`);
           break;
         case "paidDate":
           whereCondition.push(`paid_date = '${parameters["paidDate"]}'`)
@@ -147,7 +147,18 @@ export class PaymentService {
     whereCondition.push(" 1 = 1 ");
     condition = whereCondition.length > 1 ? whereCondition.join(' and ') : whereCondition.toString();
     console.log(condition);
-
+    if (parameters.leadId) {
+      let student = await getManager()
+       .createQueryBuilder(Student, "student").where({ id: parameters.leadId }).getOne();
+       if (student.studentID) {
+       parameters.studentId = student.studentID;
+       } else {
+        return {
+          success: false,
+          msg: " Unable to find given lead id and student id mapping...."
+        }
+       }
+     }
     let total: number = 0;
     if (parameters.studentId) {
       t = await getManager()
@@ -227,8 +238,9 @@ export class PaymentService {
       var student: string;
       var studentQuer = "select * from user where id = '" + record.studentId + "';";
       student = await getManager().query(studentQuer);
-
+      console.log(record.studentId);
       const studentData = await this.studentRepository.findOne({ id: record.studentId });
+
       const collectionAgent = await this.collectionAgent.findOne({ id: studentData.collection_agent_id });
 
 
