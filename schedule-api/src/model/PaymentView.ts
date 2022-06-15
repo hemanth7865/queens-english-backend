@@ -33,25 +33,58 @@ export class PaymentsView {
   collectionAgent?: string;
   referenceId: string;
   subscriptionId: string;
-  student: string;
+  student: any;
   actualStartDate?: string;
   notes?: string;
   collectionAgentObj?: any;
   leadId?: string;
   reasonAmountChange?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  startDate?: string;
 
-  PaymentsView(id: String, studentId: string, dueDate: Date, paidDate: Date, emiAmount: string, paidAmount: string, status: string, tran_created_at: Date, tran_updated_at: Date, transaction_details_id: String, transactionId: string,
-    transaction_details_status: string, whatsAppLinkSent: string, modeOfPayment: string, callDisposition: string, feedBackCall: string, paymentMode: string, transaction_details_created_at: Date, transaction_details_updated_at: Date, payment_mode_id: string, razorpayLink: string, payment_mode_status: string, transactionReference: string, comments: string, created_at: Date, updated_at: Date, student?: string, actualStartDate?: string, notes?: string, reasonAmountChange?: string,) {
-
+  PaymentsView(
+    id: String,
+    studentId: string,
+    dueDate: Date,
+    paidDate: Date,
+    emiAmount: string,
+    paidAmount: string,
+    status: string,
+    tran_created_at: Date,
+    tran_updated_at: Date,
+    transaction_details_id: String,
+    transactionId: string,
+    transaction_details_status: string,
+    whatsAppLinkSent: string,
+    modeOfPayment: string,
+    callDisposition: string,
+    feedBackCall: string,
+    paymentMode: string,
+    transaction_details_created_at: Date,
+    transaction_details_updated_at: Date,
+    payment_mode_id: string,
+    razorpayLink: string,
+    payment_mode_status: string,
+    transactionReference: string,
+    comments: string,
+    created_at: Date,
+    updated_at: Date,
+    student?: string,
+    actualStartDate?: string,
+    notes?: string,
+    reasonAmountChange?: string
+  ) {
     this.id = id;
     this.studentId = studentId;
     this.dueDate = dueDate;
     this.paidDate = paidDate;
-    this.emiAmount = emiAmount
-    this.paidAmount = paidAmount
+    this.emiAmount = emiAmount;
+    this.paidAmount = paidAmount;
     this.status = status;
     this.tran_created_at = tran_created_at;
-    this.tran_updated_at = tran_updated_at
+    this.tran_updated_at = tran_updated_at;
     this.transaction_details_id = transaction_details_id;
     this.transactionId = transactionId;
     this.razorpayLink = razorpayLink;
@@ -74,7 +107,4 @@ export class PaymentsView {
     this.notes = notes;
     this.reasonAmountChange = reasonAmountChange;
   }
-
-
 }
-

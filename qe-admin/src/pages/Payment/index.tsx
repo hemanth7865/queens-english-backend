@@ -110,7 +110,7 @@ const TableList: React.FC = () => {
                 />
             ),
             render: (dom, entity) => {
-                return <p>{entity.student[0].firstName} {entity.student[0].lastName}</p>
+                return <p>{entity.firstName} {entity.lastName}</p>
             },
             hideInSearch: true,
         },
@@ -122,7 +122,7 @@ const TableList: React.FC = () => {
                 />
             ),
             render: (dom, entity) => {
-                return <p>{entity.student[0].phoneNumber}</p>
+                return <p>{entity.phoneNumber}</p>
             },
             hideInSearch: true,
         },
@@ -148,7 +148,7 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'StartDate',
             render: (dom, entity) => {
-                const startDate = entity.student[0].startDate
+                const startDate = entity.startDate
                 return <p>{moment.utc(startDate).format('YYYY-MM-DD')}</p>
             },
             width: 160,
@@ -162,7 +162,7 @@ const TableList: React.FC = () => {
                 />
             ),
             render: (dom, entity) => {
-                return <p>{entity.student[0].status}</p>
+                return <p>{entity.status}</p>
             },
             hideInSearch: true,
         },
