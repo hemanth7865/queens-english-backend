@@ -259,8 +259,9 @@ export class PaymentService {
         view.leadId = record.student_studentID;
         view.firstName = record.user_firstName;
         view.lastName = record.user_lastName;
-        view.phoneNumber = record.user_whatsapp;
+        view.phoneNumber = record.user_phoneNumber;
         view.collectionAgent = record.agent_firstName;
+        view.whatsapp = record.user_whatsapp;
         paymentView.push(view);
       }
 
