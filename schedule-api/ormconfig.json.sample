@@ -7,7 +7,11 @@
    "password": "pwd",
    "database": "database",
    "synchronize": false,
-   "logging": false,
+   "logging": [
+      "error"
+   ],
+   "logger": "file",
+   "maxQueryExecutionTime": 1000,
    "entities": [
       "src/entity/**/*.ts"
    ],
