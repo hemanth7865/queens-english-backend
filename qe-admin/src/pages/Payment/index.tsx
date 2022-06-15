@@ -131,9 +131,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Whatsapp No"
                 />
             ),
-            render: (dom, entity) => {
-                return <p>{entity.student[0].whatsapp}</p>
-            },
+            dataIndex: 'whatsapp',
             hideInSearch: true,
         },
         {
