@@ -44,6 +44,7 @@ export class PaymentsView {
   phoneNumber?: string;
   startDate?: string;
   whatsapp?: string;
+
   PaymentsView(
     id: String,
     studentId: string,
