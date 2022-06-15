@@ -129,6 +129,18 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleWhatsappNo"
+                    defaultMessage="Whatsapp No"
+                />
+            ),
+            render: (dom, entity) => {
+                return <p>{entity.student[0].whatsapp}</p>
+            },
+            hideInSearch: true,
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleActualStartDate"
                     defaultMessage="Actual Start Date"
                 />
@@ -442,7 +454,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 1900,
+                        x: 2000,
                     }}
                 />
             </Spin>
