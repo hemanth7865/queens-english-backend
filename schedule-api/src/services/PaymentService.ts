@@ -243,13 +243,13 @@ export class PaymentService {
         view.status = record.transactions_payment_status;
         view.created_at = record.transactions_created_at;
         view.updated_at = record.transactions_updated_at;
-        view.reasonAmountChange = record.transactions_reasonAmountChange;
-        view.transactionId = record.transactions_transactionId;
-        view.razorpayLink = record.transactions_paymentLink;
+        view.reasonAmountChange = record.transactions_reason_amount_change;
+        view.transactionId = record.transactions_transaction_id;
+        view.razorpayLink = record.transactions_payment_link;
 
-        view.transaction_details_id = record.tDetail_id;
+        view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
-        view.callDisposition = record.tDetails_callDisposition;
+        view.callDisposition = record.tDetails_call_disposition;
         view.feedBackCall = record.tDetails_feedback_call;
         view.paymentMode = record.tDetails_payment_mode;
         view.notes = record.tDetails_notes;

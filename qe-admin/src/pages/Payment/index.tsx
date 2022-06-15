@@ -121,9 +121,7 @@ const TableList: React.FC = () => {
                     defaultMessage="student RMN"
                 />
             ),
-            render: (dom, entity) => {
-                return <p>{entity.phoneNumber}</p>
-            },
+            dataIndex: 'phoneNumber',
             hideInSearch: true,
         },
         {
@@ -133,9 +131,8 @@ const TableList: React.FC = () => {
                     defaultMessage="Actual Start Date"
                 />
             ),
-            render: (dom, entity) => {
-                return <p>{moment.utc(entity.actualStartDate).format('YYYY-MM-DD')}</p>
-            },
+            dataIndex: 'actualStartDate',
+            valueType: 'date',
             width: 140,
             hideInSearch: true,
         },
@@ -146,26 +143,23 @@ const TableList: React.FC = () => {
                     defaultMessage="Start Date"
                 />
             ),
-            dataIndex: 'StartDate',
-            render: (dom, entity) => {
-                const startDate = entity.startDate
-                return <p>{moment.utc(startDate).format('YYYY-MM-DD')}</p>
-            },
+            dataIndex: 'startDate',
+            valueType: 'date',
             width: 160,
             hideInSearch: true,
         },
-        {
-            title: (
-                <FormattedMessage
-                    id="pages.searchTable.titleStudentStatus"
-                    defaultMessage="Student status"
-                />
-            ),
-            render: (dom, entity) => {
-                return <p>{entity.status}</p>
-            },
-            hideInSearch: true,
-        },
+        // {
+        //     title: (
+        //         <FormattedMessage
+        //             id="pages.searchTable.titleStudentStatus"
+        //             defaultMessage="Student status"
+        //         />
+        //     ),
+        //     render: (dom, entity) => {
+        //         return <p>{entity.status}</p>
+        //     },
+        //     hideInSearch: true,
+        // },
         {
             title: (
                 <FormattedMessage
