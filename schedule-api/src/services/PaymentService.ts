@@ -205,13 +205,18 @@ export class PaymentService {
 
       var tdetails = await getManager()
         .createQueryBuilder(Transactions, "transactions")
-        .innerJoinAndSelect("transactions.student", "student")
-        .innerJoinAndSelect(
+        .leftJoinAndSelect("transactions.student", "student")
+        .leftJoinAndSelect(
           TransactionDetails,
           "tDetails",
           "transactions.id = tDetails.transaction_id"
         )
-        .innerJoinAndSelect(User, "user", "student.id = user.id")
+        .leftJoinAndSelect(User, "user", "student.id = user.id")
+        .leftJoinAndSelect(
+          CollectionAgent,
+          "agent",
+          "transactions.collection_agent = agent.id"
+        )
         .where(condition)
         .getRawMany();
 
@@ -224,32 +229,32 @@ export class PaymentService {
         view.id = record.transactions_id;
         view.studentId = record.transactions_student_id;
         view.referenceId = record.transactions_reference_id;
-        view.subscriptionId = record.subscription_id;
-        view.dueDate = record.due_date;
-        view.paidDate = record.paid_date;
-        view.emiAmount = record.emi_amount;
-        view.paidAmount = record.paid_amount;
+        view.subscriptionId = record.transactions_subscription_id;
+        view.dueDate = record.transactions_due_date;
+        view.paidDate = record.transactions_paid_date;
+        view.emiAmount = record.transactions_emi_amount;
+        view.paidAmount = record.transactions_paid_amount;
         view.status = record.transactions_payment_status;
-        view.created_at = record.created_at;
-        view.updated_at = record.updated_at;
-
-        view.transaction_details_id = record.id;
-        view.transactionId = record.transactionId;
-        view.razorpayLink = record.transactions_paymentLink;
-        view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
-        view.callDisposition = record.callDisposition;
-        view.feedBackCall = record.tDetails_feedback_call;
-        view.paymentMode = record.tDetails_payment_mode;
         view.created_at = record.transactions_created_at;
         view.updated_at = record.transactions_updated_at;
-        view.actualStartDate = record.student_classesStartDate;
+        view.reasonAmountChange = record.transactions_reasonAmountChange;
+        view.transactionId = record.transactions_transactionId;
+        view.razorpayLink = record.transactions_paymentLink;
+
+        view.transaction_details_id = record.tDetail_id;
+        view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
+        view.callDisposition = record.tDetails_callDisposition;
+        view.feedBackCall = record.tDetails_feedback_call;
+        view.paymentMode = record.tDetails_payment_mode;
         view.notes = record.tDetails_notes;
+
+        view.actualStartDate = record.student_classesStartDate;
+        view.startDate = record.student_startDate;
         view.leadId = record.student_studentID;
-        view.reasonAmountChange = record.reasonAmountChange;
         view.firstName = record.user_firstName;
         view.lastName = record.user_lastName;
-        view.startDate = record.student_startDate;
-
+        view.phoneNumber = record.user_whatsapp;
+        view.collectionAgent = record.agent_firstName;
         paymentView.push(view);
       }
 
