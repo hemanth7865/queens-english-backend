@@ -15,3 +15,4 @@ qe-admin/data/collection_agent.json
 .vscode/settings.json
 package-lock.json
 .sample
+schedule-api/ormlogs.log
