@@ -28,7 +28,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState('');
-    const name = `${props.data.student[0].firstName} ${props.data.student[0].lastName}`
+    const name = `${props.data.firstName} ${props.data.lastName}`
 
     const teacherMessageTemplate = `    Dear Parent of ${name},
 
@@ -84,7 +84,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             const dataForm = [{
                 id: id,
                 studentId: studentId,
-                dueDate: dueDate,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
                 status: values.status ? values.status : status,
