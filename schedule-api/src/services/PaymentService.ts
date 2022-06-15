@@ -203,7 +203,7 @@ export class PaymentService {
           : whereCondition.toString();
       console.log(condition);
 
-      var tdetails = await getManager()
+      var tdetailsQuery = await getManager()
         .createQueryBuilder(Transactions, "transactions")
         .leftJoinAndSelect("transactions.student", "student")
         .leftJoinAndSelect(
@@ -217,14 +217,20 @@ export class PaymentService {
           "agent",
           "transactions.collection_agent = agent.id"
         )
-        .where(condition)
+        .where(condition);
+
+      var tdetails = await tdetailsQuery
+        .offset(offsetRecords)
+        .limit(limit)
         .getRawMany();
+
+      var tdetailsCount = await tdetailsQuery.getCount();
 
       console.log("Transaction details log");
       console.log(condition);
-      console.log(tdetails.length);
+      console.log('OFFSET', offsetRecords);
+
       for (let record of tdetails) {
-        console.log(record);
         let view = new PaymentsView();
         view.id = record.transactions_id;
         view.studentId = record.transactions_student_id;
@@ -264,7 +270,7 @@ export class PaymentService {
         success: true,
         pageSize: limit,
         current: offset,
-        // total: total,
+        total: tdetailsCount,
         data: paymentView,
         status: 200,
       };
@@ -415,9 +421,9 @@ export class PaymentService {
       ) {
         usersLogger.info(
           "Payment link generation failed for installment: " +
-            installment.id +
-            "payment response: " +
-            JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
         );
         failureCount++;
       } else {
@@ -432,9 +438,9 @@ export class PaymentService {
     }
     usersLogger.info(
       "Payment link generation success count: " +
-        successCount +
-        "failure count: " +
-        failureCount
+      successCount +
+      "failure count: " +
+      failureCount
     );
     return await this.updateInstallmentData(installmentsForUpdate);
   }
@@ -491,9 +497,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Existing payment link cancelled for id: " +
-          installment.transactionId +
-          " link: " +
-          installment.paymentLink
+        installment.transactionId +
+        " link: " +
+        installment.paymentLink
       );
     }
 
@@ -506,9 +512,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
+        installment.id +
+        "payment response: " +
+        JSON.stringify(paymentResponse)
       );
       return {
         status: "error",
@@ -564,7 +570,7 @@ export class PaymentService {
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info(
       "installments without links for update: " +
-        installmentsWithoutLinks.length
+      installmentsWithoutLinks.length
     );
     try {
       for (let installment of installmentsWithoutLinks) {
@@ -610,6 +616,6 @@ export class PaymentService {
         success: true,
         msg: "successfully updated link",
       };
-    } catch (error) {}
+    } catch (error) { }
   }
 }
