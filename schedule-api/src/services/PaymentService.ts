@@ -227,7 +227,7 @@ export class PaymentService {
 
       console.log("Transaction details log");
       console.log(condition);
-      console.log('OFFSET', offsetRecords);
+      console.log("OFFSET", offsetRecords);
 
       for (let record of tdetails) {
         let view = new PaymentsView();
@@ -258,7 +258,8 @@ export class PaymentService {
         view.leadId = record.student_studentID;
         view.firstName = record.user_firstName;
         view.lastName = record.user_lastName;
-        view.phoneNumber = record.user_whatsapp;
+        view.phoneNumber = record.user_phoneNumber;
+        view.whatsapp = record.user_whatsapp;
         view.collectionAgent = record.agent_firstName;
         paymentView.push(view);
       }
@@ -413,9 +414,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Payment link generation failed for installment: " +
-        installment.id +
-        "payment response: " +
-        JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
       );
       failureCount++;
     } else {

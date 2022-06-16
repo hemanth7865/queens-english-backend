@@ -43,6 +43,7 @@ export class PaymentsView {
   lastName?: string;
   phoneNumber?: string;
   startDate?: string;
+  whatsapp?: string;
 
   PaymentsView(
     id: String,
