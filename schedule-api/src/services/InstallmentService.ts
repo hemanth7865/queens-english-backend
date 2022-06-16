@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getRepository, LessThan, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
 import { Constants, PAYMENT_STATUS } from "./../helpers/Constants";
 import {
@@ -9,6 +9,8 @@ const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 import { isNullOrUndefined } from "util";
+import { format } from "date-and-time";
+const date = require('date-and-time')
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -17,7 +19,7 @@ export class InstallmentService {
   private query = getRepository(Transactions);
 
   async getPendingInstallments(params) {
-    var limit = 10;
+    var limit = 100;
     const where = { status: this.installmentStatus };
     if (params?.installment_id) {
       where["id"] = params.installment_id;
@@ -32,12 +34,14 @@ export class InstallmentService {
     }
 
     if (params?.lastCheckedMinutesDifference) {
-      // console.log('moment in unix: ' + moment().add(-params.lastCheckedMinutesDifference, 'minutes'));
-      console.log('moment formatted: ' + moment().add(-params.lastCheckedMinutesDifference, 'minutes').format("YYYY-MM-DD HH:mm:ss"));
-      // console.log('moment in date: ' + moment().add(-params.lastCheckedMinutesDifference, 'minutes').toDate());
-      where["lastCheckedAt"] < moment().add(-params.lastCheckedMinutesDifference, 'minutes');
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);  
+      now.setSeconds(0);
+      console.log('Date for last checked: ' + now);
+      where["lastCheckedAt"] = LessThanDate(now);
     }
 
+    console.log('where: ',where);
     return await this.query.find({
       where,
       take: limit,
@@ -94,3 +98,6 @@ export class InstallmentService {
     }
   }
 }
+
+export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
+export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
