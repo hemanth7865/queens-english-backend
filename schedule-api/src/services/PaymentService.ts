@@ -262,7 +262,6 @@ export class PaymentService {
         view.phoneNumber = record.user_phoneNumber;
         view.whatsapp = record.user_whatsapp;
         view.collectionAgent = record.agent_firstName;
-        view.whatsapp = record.user_whatsapp;
         paymentView.push(view);
       }
 
@@ -423,9 +422,9 @@ export class PaymentService {
       ) {
         usersLogger.info(
           "Payment link generation failed for installment: " +
-            installment.id +
-            "payment response: " +
-            JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
         );
         failureCount++;
       } else {
@@ -440,9 +439,9 @@ export class PaymentService {
     }
     usersLogger.info(
       "Payment link generation success count: " +
-        successCount +
-        "failure count: " +
-        failureCount
+      successCount +
+      "failure count: " +
+      failureCount
     );
     return await this.updateInstallmentData(installmentsForUpdate);
   }
@@ -499,9 +498,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Existing payment link cancelled for id: " +
-          installment.transactionId +
-          " link: " +
-          installment.paymentLink
+        installment.transactionId +
+        " link: " +
+        installment.paymentLink
       );
     }
 
@@ -514,9 +513,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
+        installment.id +
+        "payment response: " +
+        JSON.stringify(paymentResponse)
       );
       return {
         status: "error",
@@ -572,7 +571,7 @@ export class PaymentService {
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info(
       "installments without links for update: " +
-        installmentsWithoutLinks.length
+      installmentsWithoutLinks.length
     );
     try {
       for (let installment of installmentsWithoutLinks) {
@@ -618,6 +617,6 @@ export class PaymentService {
         success: true,
         msg: "successfully updated link",
       };
-    } catch (error) {}
+    } catch (error) { }
   }
 }
