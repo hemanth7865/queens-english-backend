@@ -244,7 +244,7 @@ export class PaymentService {
         view.created_at = record.transactions_created_at;
         view.updated_at = record.transactions_updated_at;
         view.reasonAmountChange = record.transactions_reason_amount_change;
-        view.transactionId = record.transactions_transaction_id;
+        view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
 
         view.transaction_details_id = record.tDetails_id;
