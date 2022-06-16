@@ -127,6 +127,16 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleWhatsappNo"
+                    defaultMessage="Whatsapp No"
+                />
+            ),
+            dataIndex: 'whatsapp',
+            hideInSearch: true,
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleActualStartDate"
                     defaultMessage="Actual Start Date"
                 />
@@ -436,7 +446,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 1900,
+                        x: 2000,
                     }}
                 />
             </Spin>
