@@ -228,7 +228,7 @@ export class PaymentService {
 
       console.log("Transaction details log");
       console.log(condition);
-      console.log('OFFSET', offsetRecords);
+      console.log("OFFSET", offsetRecords);
 
       for (let record of tdetails) {
         let view = new PaymentsView();
@@ -260,6 +260,7 @@ export class PaymentService {
         view.firstName = record.user_firstName;
         view.lastName = record.user_lastName;
         view.phoneNumber = record.user_phoneNumber;
+        view.whatsapp = record.user_whatsapp;
         view.collectionAgent = record.agent_firstName;
         view.whatsapp = record.user_whatsapp;
         paymentView.push(view);
