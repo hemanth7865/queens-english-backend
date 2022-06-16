@@ -97,8 +97,7 @@ export class PaymentService {
   /**
    * Student Payment Service
    */
-
-  async studentPaymentDetails(parameters: any) {
+   async studentPaymentDetails(parameters: any) {
     try {
       const moment = require("moment");
       var paymentView: PaymentsView[] = [];
@@ -381,129 +380,31 @@ export class PaymentService {
     };
   }
 
-  async createPaymentLinksForInstallmentsWithLimit(limit: any) {
-    var currentMonth = date.format(new Date(), "YYYY-MM") + "%";
-    usersLogger.info("currMonth: " + currentMonth);
-    var installmentsWithoutLinks = await getRepository(Transactions)
-      .createQueryBuilder("transactions")
-      .where(
-        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :currentMonth and transactions.status = :status",
-        { currentMonth: currentMonth, status: PAYMENT_STATUS.PENDING }
-      )
-      .limit(limit)
-      .getMany();
-    usersLogger.info(
-      "installments without links: " + installmentsWithoutLinks.length
-    );
 
-    await this.createPaymentLinkForSpecificInstallments(
-      installmentsWithoutLinks
-    );
-    return {
-      status: "success",
-      message:
-        "Payment links processed for count: " + installmentsWithoutLinks.length,
-    };
-  }
+  async createBulkPaymentsLink(limit: any, dueMonth: string) {
+  // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
+  usersLogger.info('due month: ' + dueMonth + ' limit: ' + limit);
+  var installmentsWithoutLinks = await getRepository(Transactions)
+    .createQueryBuilder("transactions")
+    .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status", { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING })
+    .limit(limit).getMany();
+  usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
+
+  await this.createPaymentLinkForSpecificInstallments(installmentsWithoutLinks);
+  return {
+    status: "success",
+    message:
+      "Payment links processed for count: " + installmentsWithoutLinks.length,
+  };
+}
 
   async createPaymentLinkForSpecificInstallments(
-    installmentsWithoutLinks: any
-  ) {
-    var failureCount = 0;
-    var successCount = 0;
-    var installmentsForUpdate: Transactions[] = [];
-    for (let installment of installmentsWithoutLinks) {
-      var paymentResponse = await this.createPaymentLink(installment);
-      if (
-        isNullOrUndefined(paymentResponse) ||
-        isNullOrUndefined(paymentResponse.id) ||
-        isNullOrUndefined(paymentResponse.short_url)
-      ) {
-        usersLogger.info(
-          "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
-        );
-        failureCount++;
-      } else {
-        //update installment data
-        installment.transactionId = paymentResponse.id;
-        installment.paymentLink = paymentResponse.short_url;
-        // paid date is set to null since installment status is pending
-        installment.paidDate = null;
-        installmentsForUpdate.push(installment);
-        successCount++;
-      }
-    }
-    usersLogger.info(
-      "Payment link generation success count: " +
-      successCount +
-      "failure count: " +
-      failureCount
-    );
-    return await this.updateInstallmentData(installmentsForUpdate);
-  }
-
-  async regeneratePaymentLink(request: any) {
-    if (isNullOrUndefined(request.installmentId)) {
-      usersLogger.info(
-        "No installment id available for regenerating payment link"
-      );
-      return {
-        status: "error",
-        message: "No installment id available for regenerating payment link",
-      };
-    }
-    var installment = await this.transactionRepository.findOne({
-      id: request.installmentId,
-    });
-    if (isNullOrUndefined(installment)) {
-      usersLogger.info("No installment available for the given id");
-      return {
-        status: "error",
-        message: "No installment available for the given id",
-      };
-    }
-
-    // update payment status of current transaction for real time data, if the current status is PENDING
-    let paymentStatus = installment.status;
-    usersLogger.info("current payment status: " + paymentStatus);
-    if (
-      paymentStatus == PAYMENT_STATUS.PENDING &&
-      !isNullOrUndefined(installment.transactionId)
-    ) {
-      paymentStatus = await this.installmentService.updateInstallmentStatus(
-        installment.transactionId
-      );
-    }
-    usersLogger.info("updated payment status: " + paymentStatus);
-
-    if (paymentStatus == PAYMENT_STATUS.PAID) {
-      usersLogger.info("Installment status is paid for the given id");
-      return {
-        status: "error",
-        message: "Installment status is paid for the given id",
-      };
-    }
-
-    //cancel existing payment link
-    var cancelExistingLinkResponse =
-      await this.razorPayUtils.cancelRazorPayLink(installment.transactionId);
-    if (
-      !isNullOrUndefined(cancelExistingLinkResponse) &&
-      !isNullOrUndefined(cancelExistingLinkResponse.status) &&
-      cancelExistingLinkResponse.status == "cancelled"
-    ) {
-      usersLogger.info(
-        "Existing payment link cancelled for id: " +
-        installment.transactionId +
-        " link: " +
-        installment.paymentLink
-      );
-    }
-
-    //regenerate new payment link
+  installmentsWithoutLinks: any
+) {
+  var failureCount = 0;
+  var successCount = 0;
+  var installmentsForUpdate: Transactions[] = [];
+  for (let installment of installmentsWithoutLinks) {
     var paymentResponse = await this.createPaymentLink(installment);
     if (
       isNullOrUndefined(paymentResponse) ||
@@ -516,106 +417,197 @@ export class PaymentService {
         "payment response: " +
         JSON.stringify(paymentResponse)
       );
-      return {
-        status: "error",
-        message: "Razor pay response: " + paymentResponse,
-      };
+      failureCount++;
     } else {
-      var installmentsForUpdate: Transactions[] = [];
+      //update installment data
       installment.transactionId = paymentResponse.id;
       installment.paymentLink = paymentResponse.short_url;
       // paid date is set to null since installment status is pending
       installment.paidDate = null;
       installmentsForUpdate.push(installment);
-      await this.updateInstallmentData(installmentsForUpdate);
-      return {
-        status: "success",
-        message: "Payment link regenerated for installment id",
-        paymentId: paymentResponse.id,
-        paymentLink: paymentResponse.short_url,
-      };
+      successCount++;
     }
   }
+  usersLogger.info(
+    "Payment link generation success count: " +
+    successCount +
+    "failure count: " +
+    failureCount
+  );
+  return await this.updateInstallmentData(installmentsForUpdate);
+}
 
-  createPaymentLink = async (installment: any) => {
-    if (isNullOrUndefined(installment)) {
-      usersLogger.info("No installment available for generating payment link");
-      return {
-        status: "error",
-        message: "No installment available for generating payment link",
-      };
-    }
-
+  async regeneratePaymentLink(request: any) {
+  if (isNullOrUndefined(request.installmentId)) {
     usersLogger.info(
-      "Generating payment link for installment id: " + installment.id
+      "No installment id available for regenerating payment link"
     );
-    var user = await getManager()
-      .createQueryBuilder(User, "user")
-      .where("user.id = :id", { id: installment.studentId })
-      .getOne();
-    if (isNullOrUndefined(user)) {
-      usersLogger.info(
-        "No user available for the given id: {0}" + installment.studentId
-      );
-      return {
-        status: "error",
-        message: "No user available for the given id",
-      };
-    }
-    usersLogger.info("User: " + JSON.stringify(user));
+    return {
+      status: "error",
+      message: "No installment id available for regenerating payment link",
+    };
+  }
+  var installment = await this.transactionRepository.findOne({
+    id: request.installmentId,
+  });
+  if (isNullOrUndefined(installment)) {
+    usersLogger.info("No installment available for the given id");
+    return {
+      status: "error",
+      message: "No installment available for the given id",
+    };
+  }
 
-    return await this.razorPayUtils.createRazorPayLink(installment, user);
-  };
+  // update payment status of current transaction for real time data, if the current status is PENDING
+  let paymentStatus = installment.status;
+  usersLogger.info("current payment status: " + paymentStatus);
+  if (
+    paymentStatus == PAYMENT_STATUS.PENDING &&
+    !isNullOrUndefined(installment.transactionId)
+  ) {
+    paymentStatus = await this.installmentService.updateInstallmentStatus(
+      installment.transactionId
+    );
+  }
+  usersLogger.info("updated payment status: " + paymentStatus);
+
+  if (paymentStatus == PAYMENT_STATUS.PAID) {
+    usersLogger.info("Installment status is paid for the given id");
+    return {
+      status: "error",
+      message: "Installment status is paid for the given id",
+    };
+  }
+
+  //cancel existing payment link
+  var cancelExistingLinkResponse =
+    await this.razorPayUtils.cancelRazorPayLink(installment.transactionId);
+  if (
+    !isNullOrUndefined(cancelExistingLinkResponse) &&
+    !isNullOrUndefined(cancelExistingLinkResponse.status) &&
+    cancelExistingLinkResponse.status == "cancelled"
+  ) {
+    usersLogger.info(
+      "Existing payment link cancelled for id: " +
+      installment.transactionId +
+      " link: " +
+      installment.paymentLink
+    );
+  }
+
+  //regenerate new payment link
+  var paymentResponse = await this.createPaymentLink(installment);
+  if (
+    isNullOrUndefined(paymentResponse) ||
+    isNullOrUndefined(paymentResponse.id) ||
+    isNullOrUndefined(paymentResponse.short_url)
+  ) {
+    usersLogger.info(
+      "Payment link generation failed for installment: " +
+      installment.id +
+      "payment response: " +
+      JSON.stringify(paymentResponse)
+    );
+    return {
+      status: "error",
+      message: "Razor pay response: " + paymentResponse,
+    };
+  } else {
+    var installmentsForUpdate: Transactions[] = [];
+    installment.transactionId = paymentResponse.id;
+    installment.paymentLink = paymentResponse.short_url;
+    // paid date is set to null since installment status is pending
+    installment.paidDate = null;
+    installmentsForUpdate.push(installment);
+    await this.updateInstallmentData(installmentsForUpdate);
+    return {
+      status: "success",
+      message: "Payment link regenerated for installment id",
+      paymentId: paymentResponse.id,
+      paymentLink: paymentResponse.short_url,
+    };
+  }
+}
+
+createPaymentLink = async (installment: any) => {
+  if (isNullOrUndefined(installment)) {
+    usersLogger.info("No installment available for generating payment link");
+    return {
+      status: "error",
+      message: "No installment available for generating payment link",
+    };
+  }
+
+  usersLogger.info(
+    "Generating payment link for installment id: " + installment.id
+  );
+  var user = await getManager()
+    .createQueryBuilder(User, "user")
+    .where("user.id = :id", { id: installment.studentId })
+    .getOne();
+  if (isNullOrUndefined(user)) {
+    usersLogger.info(
+      "No user available for the given id: {0}" + installment.studentId
+    );
+    return {
+      status: "error",
+      message: "No user available for the given id",
+    };
+  }
+  usersLogger.info("User: " + JSON.stringify(user));
+
+  return await this.razorPayUtils.createRazorPayLink(installment, user);
+};
 
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
-    usersLogger.info(
-      "installments without links for update: " +
-      installmentsWithoutLinks.length
-    );
-    try {
-      for (let installment of installmentsWithoutLinks) {
-        const oldTransaction = await this.transactionRepository.findOne({
-          id: installment.id,
-        });
-        await this.transactionRepository.update(
-          { id: installment.id },
-          installment
-        );
-        const newData = {
-          transaction: installment,
-        };
-
-        const oldData = {
-          transaction: oldTransaction,
-        };
-
-        await (await this.logger.payment(oldData, newData, {})).save();
-      }
-    } catch (error) {
-      usersLogger.error(
-        "Error in saving payment links: " + JSON.stringify(error)
-      );
-    }
-    return;
-  }
-
-  async uploadNetBankingResource(body: any) {
-    try {
-      const installment = await this.transactionRepository.findOne({
-        id: body.id,
+  usersLogger.info(
+    "installments without links for update: " +
+    installmentsWithoutLinks.length
+  );
+  try {
+    for (let installment of installmentsWithoutLinks) {
+      const oldTransaction = await this.transactionRepository.findOne({
+        id: installment.id,
       });
-      installment.netbankRefLink = body.netbankRefLink;
-      if (body.transactionId) {
-        installment.transactionId = body.transactionId;
-      }
       await this.transactionRepository.update(
         { id: installment.id },
         installment
       );
-      return {
-        success: true,
-        msg: "successfully updated link",
+      const newData = {
+        transaction: installment,
       };
-    } catch (error) { }
+
+      const oldData = {
+        transaction: oldTransaction,
+      };
+
+      await (await this.logger.payment(oldData, newData, {})).save();
+    }
+  } catch (error) {
+    usersLogger.error(
+      "Error in saving payment links: " + JSON.stringify(error)
+    );
   }
+  return;
+}
+
+  async uploadNetBankingResource(body: any) {
+  try {
+    const installment = await this.transactionRepository.findOne({
+      id: body.id,
+    });
+    installment.netbankRefLink = body.netbankRefLink;
+    if (body.transactionId) {
+      installment.transactionId = body.transactionId;
+    }
+    await this.transactionRepository.update(
+      { id: installment.id },
+      installment
+    );
+    return {
+      success: true,
+      msg: "successfully updated link",
+    };
+  } catch (error) { }
+}
 }

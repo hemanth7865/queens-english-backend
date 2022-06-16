@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { isNullOrUndefined } from "util";
 import { PaymentService } from "../services/PaymentService";
 const { usersLogger } = require("../Logger.js");
 
@@ -59,7 +60,13 @@ export class PaymentController {
     async generateBulkPaymentLinks(request: Request, response: Response, next: NextFunction) {
         console.log("generating bulk payment links");
         try {
-            return await this.paymentService.createPaymentLinksForInstallmentsWithLimit(request.body.limit);
+            if (isNullOrUndefined(request.body) || isNullOrUndefined(request.body.limit) || isNullOrUndefined(request.body.dueMonth)) {
+                return {
+                    status: "error",
+                    message: "Missing request parameters for bulk payment link generation - limit & dueMonth"
+                }
+            }
+            return await this.paymentService.createBulkPaymentsLink(request.body.limit, request.body.dueMonth);
         } catch (error) {
             console.log(error);
             return {
@@ -83,9 +90,9 @@ export class PaymentController {
     }
 
     async uploadNetBankingResource(request: Request, response: Response, next: NextFunction) {
-        console.log("Read netbanking payment receipt.....");      
-            return await this.paymentService.uploadNetBankingResource(request.body);
-    
+        console.log("Read netbanking payment receipt.....");
+        return await this.paymentService.uploadNetBankingResource(request.body);
+
 
     }
 }

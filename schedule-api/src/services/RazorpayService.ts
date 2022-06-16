@@ -13,6 +13,7 @@ export interface Payment {
   id: string;
   status: string;
   amount: number;
+  payments: any[];
 }
 
 export default client;
