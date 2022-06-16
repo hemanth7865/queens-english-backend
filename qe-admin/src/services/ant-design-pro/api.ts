@@ -456,21 +456,24 @@ export async function detailsAssessment(
 
 ) {
   // console.log('id', id)
-  return request<API.RuleList>(`/am/api/studentAssessment/details/${id}?code=${CODE}`, {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
+  return request<API.RuleList>(
+    `${AZURE_URL}api/studentAssessment/details/${id}?code=${CODE}`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
 }
 
 
 //PUT - ASSESSMENT DETAILS
 export async function putAssessment(options?: { [key: string]: any }) {
   console.log('option', options)
-  return request<any>(`/am/api/studentAssessment?code=${CODE}`, {
-    method: 'PUT',
+  return request<any>(`${AZURE_URL}api/studentAssessment?code=${CODE}`, {
+    method: "PUT",
     ...(options || {}),
   });
 }
@@ -490,13 +493,16 @@ export async function allAssessment(
   options?: { [key: string]: any },
 ) {
   console.log("assessment", options)
-  return request<API.AssessmentList>(`/am/api/studentAssessment?code=${CODE}`, {
-    method: 'GET',
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
+  return request<API.AssessmentList>(
+    `${AZURE_URL}api/studentAssessment?code=${CODE}`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
 }
 
 
