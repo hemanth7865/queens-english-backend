@@ -19,7 +19,7 @@ import { Student } from "./Student";
 
 @Entity("installments")
 export class Transactions extends BaseEntity {
-  Transactions() {}
+  Transactions() { }
   @PrimaryGeneratedColumn("uuid")
   id: string;
   @Column({ type: "text", name: "student_id" })
@@ -30,7 +30,7 @@ export class Transactions extends BaseEntity {
   collectionAgent: number;
   @Column({ nullable: true, type: "date", name: "due_date" })
   dueDate: Date;
-  @Column({ nullable: true, type: "date", name: "paid_date" })
+  @Column({ nullable: true, type: "datetime", name: "paid_date" })
   paidDate: Date;
   @Column({ nullable: true, type: "text", name: "emi_amount" })
   emiAmount: string;
