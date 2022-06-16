@@ -6,6 +6,7 @@ import { AssessmentController } from "./controller/AssessmentController";
 import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
+import { AzureProxyController } from "./controller/AzureProxyController";
 
 export const Routes = [
   {
@@ -333,5 +334,11 @@ export const Routes = [
     // authenticate: true
   },
 
-
+  {
+    method: "all",
+    route: "/azure",
+    controller: AzureProxyController,
+    action: "serve",
+    // authenticate: true
+  },
 ];
