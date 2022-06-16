@@ -48,6 +48,8 @@ export class Transactions extends BaseEntity {
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
+  @Column({ 'nullable': true, type: "date", name: "last_checked_at" })
+  lastCheckedAt: Date;
   @OneToOne((type) => Student, (student) => student.id)
   @JoinColumn({ name: "student_id" })
   student: Student;

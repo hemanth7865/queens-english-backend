@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getRepository, LessThan, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
 import { Constants, PAYMENT_STATUS } from "./../helpers/Constants";
 import {
@@ -8,6 +8,9 @@ import {
 const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
+import { isNullOrUndefined } from "util";
+import { format } from "date-and-time";
+const date = require('date-and-time')
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -16,6 +19,7 @@ export class InstallmentService {
   private query = getRepository(Transactions);
 
   async getPendingInstallments(params) {
+    var limit = 100;
     const where = { status: this.installmentStatus };
     if (params?.installment_id) {
       where["id"] = params.installment_id;
@@ -25,22 +29,38 @@ export class InstallmentService {
       where["transactionId"] = params.reference_id;
     }
 
+    if (params?.limit) {
+      limit = params.limit;
+    }
+
+    if (params?.lastCheckedMinutesDifference) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);  
+      now.setSeconds(0);
+      console.log('Date for last checked: ' + now);
+      where["lastCheckedAt"] = LessThanDate(now);
+    }
+
+    console.log('where: ',where);
     return await this.query.find({
       where,
-      take: 10,
+      take: limit,
     });
   }
 
   async updateInstallment(id, data) {
     const oldTransaction = await this.query.findOne({ where: { id } });
     const updated = await this.query.update(id, data);
-    await (
-      await this.logger.payment(
-        { transaction: oldTransaction },
-        { transaction: {...data, id} },
-        {}
-      )
-    ).save();
+    //ignore logs for only updating last_checked_at which is considered in batch job
+    if (isNullOrUndefined(data.last_checked_at)) {
+      await (
+        await this.logger.payment(
+          { transaction: oldTransaction },
+          { transaction: { ...data, id } },
+          {}
+        )
+      ).save();
+    }
     return updated;
   }
 
@@ -78,3 +98,6 @@ export class InstallmentService {
     }
   }
 }
+
+export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
+export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
