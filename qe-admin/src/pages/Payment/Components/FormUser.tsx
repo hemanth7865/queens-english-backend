@@ -29,7 +29,9 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
-    const name = `${props.data.firstName} ${props.data.lastName}`
+    const [selectStatus, setSelectStatus] = useState(status);
+
+    const name = `${props.data.firstName} ${props.data.lastName}`;
 
     const teacherMessageTemplate = `    Dear Parent of ${name},
 
@@ -87,7 +89,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 studentId: studentId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
-                status: values.status ? values.status : status,
+                status: selectStatus ? selectStatus : status,
                 transaction_details_id: transaction_details_id,
                 razorpayLink: razorpayLink,
                 whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
@@ -115,10 +117,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         setIsLoading(false);
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
-        form.resetFields();
         setSelectPaidDate(INITITALPAIDDATE);
+        form.resetFields();
     }
 
+    useEffect(() => {
+        setSelectStatus(status);
+    }, [status]);
+
+    useEffect(() => {
+        setSelectStatus(selectStatus);
+    }, [selectStatus]);
 
     const [form] = Form.useForm()
     const defaultValues = () => {
@@ -291,22 +300,26 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             name="status"
                                             rules={[{ required: false, message: 'Please Enter Installment Status' }]}
                                         >
-                                            <Select>
+                                            <Select onChange={(value) => { setSelectStatus(value) }}>
                                                 <Option value="Installment Pending">Installment Pending</Option>
                                                 <Option value="Installment Paid">Installment Paid</Option>
                                             </Select>
                                         </Form.Item>
 
-                                        <Form.Item
-                                            label="Paid Date"
-                                            name="paidDate"
-                                        >
-                                            <DatePicker
-                                                format='YYYY-MM-DD'
-                                                onChange={(date, dateString) => {
-                                                    setSelectPaidDate(dateString);
-                                                }} />
-                                        </Form.Item>
+                                        {(selectStatus == "Installment Paid") ?
+
+                                            <Form.Item
+                                                label="Paid Date"
+                                                name="paidDate"
+                                            >
+                                                <DatePicker
+                                                    format='YYYY-MM-DD'
+                                                    onChange={(date, dateString) => {
+                                                        setSelectPaidDate(dateString);
+                                                    }}
+                                                />
+                                            </Form.Item> : ''
+                                        }
                                     </div>
 
                     }
