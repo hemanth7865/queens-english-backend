@@ -986,7 +986,7 @@ const StudentsBatchList: React.FC = () => {
                             formData.dob === null ?
                               <DatePicker
                                 format="YYYY/MM/DD"
-                                style={{ width: "426px" }}
+                                style={{ width: "416px" }}
                                 onChange={(date, dateString) => {
                                   setDob(dateString);
                                 }}
@@ -996,7 +996,7 @@ const StudentsBatchList: React.FC = () => {
                               <DatePicker
                                 defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                                 format="YYYY/MM/DD"
-                                style={{ width: "426px" }}
+                                style={{ width: "416px" }}
                                 onChange={(date, dateString) => {
                                   setDob(dateString);
                                 }}
@@ -2226,7 +2226,7 @@ const StudentsBatchList: React.FC = () => {
                           {tempDataView.dob === null ?
                             <DatePicker
                               format="YYYY/MM/DD"
-                              style={{ width: "428x" }}
+                              style={{ width: "418x" }}
                               onChange={(date, dateString) => {
                                 setDob(dateString);
                               }}
@@ -2236,7 +2236,7 @@ const StudentsBatchList: React.FC = () => {
                             <DatePicker
                               defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                               format="YYYY/MM/DD"
-                              style={{ width: "428px" }}
+                              style={{ width: "418px" }}
                               onChange={(date, dateString) => {
                                 setDob(dateString);
                               }}
