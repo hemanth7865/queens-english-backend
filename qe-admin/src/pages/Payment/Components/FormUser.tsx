@@ -75,6 +75,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
+        console.log('values', values)
         if (values.transactionId && values.netbankRefLink) {
             const netBankingForm = {
                 id: id,
@@ -89,7 +90,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 studentId: studentId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
-                status: selectStatus ? selectStatus : status,
+                status: values.status ? values.status : status,
                 transaction_details_id: transaction_details_id,
                 razorpayLink: razorpayLink,
                 whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
