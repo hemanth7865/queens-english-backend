@@ -60,6 +60,10 @@ createConnection()
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
     );
+
+    if (process.env.NODE_ENV === "production") {
+      console.log = function () {};
+    }
   })
   .catch((error) => console.log(error));
 
