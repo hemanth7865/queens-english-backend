@@ -986,7 +986,7 @@ const StudentsBatchList: React.FC = () => {
                             formData.dob === null ?
                               <DatePicker
                                 format="YYYY/MM/DD"
-                                style={{ width: "426px" }}
+                                style={{ width: "416px" }}
                                 onChange={(date, dateString) => {
                                   setDob(dateString);
                                 }}
@@ -996,7 +996,7 @@ const StudentsBatchList: React.FC = () => {
                               <DatePicker
                                 defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                                 format="YYYY/MM/DD"
-                                style={{ width: "426px" }}
+                                style={{ width: "416px" }}
                                 onChange={(date, dateString) => {
                                   setDob(dateString);
                                 }}
@@ -1027,12 +1027,12 @@ const StudentsBatchList: React.FC = () => {
 
                       <Col span={12}>
                         <Form.Item name="classType" label="Registered Contact No.">
-                          <Input handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} />
+                          <Input placeholder="Registered Contact No" handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} />
                         </Form.Item>
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="alternativeMobile"
+                        <Form.Item name="alternativeMobile" label="Alternate Contact No."
                           rules={[{
                             required: false,
                             pattern: /^\+[0-9]{12}$/,
@@ -1048,11 +1048,12 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="Whatsapp Number" rules={[{
-                          required: false,
-                          pattern: /^\+[0-9]{12}$/,
-                          message: "Enter valid Whatsapp Number"
-                        }]}>
+                        <Form.Item name="Whatsapp Number" label="Whatsapp Number"
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter valid Whatsapp Number"
+                          }]}>
                           <Input
                             placeholder="Whatsapp Number"
                             name="whatsapp"
@@ -1677,7 +1678,7 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="notes">
+                        <Form.Item name="notes" label="Notes">
                           <Input
                             placeholder="Notes"
                             name="notes "
@@ -2225,7 +2226,7 @@ const StudentsBatchList: React.FC = () => {
                           {tempDataView.dob === null ?
                             <DatePicker
                               format="YYYY/MM/DD"
-                              style={{ width: "428x" }}
+                              style={{ width: "418x" }}
                               onChange={(date, dateString) => {
                                 setDob(dateString);
                               }}
@@ -2235,7 +2236,7 @@ const StudentsBatchList: React.FC = () => {
                             <DatePicker
                               defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
                               format="YYYY/MM/DD"
-                              style={{ width: "428px" }}
+                              style={{ width: "418px" }}
                               onChange={(date, dateString) => {
                                 setDob(dateString);
                               }}
@@ -2297,12 +2298,12 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
                       <Col span={12}>
                         <Form.Item label="Registered Contact No.">
-                          <Input handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView.phoneNumber} />
+                          <Input handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView.phoneNumber} placeholder="Registered Contact No" />
                         </Form.Item>
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="alternativeMobile"
+                        <Form.Item name="alternativeMobile" label="Alternate Contact No."
                           rules={[{
                             required: false,
                             pattern: /^\+[0-9]{12}$/,
@@ -2319,7 +2320,7 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="Whatsapp Number"
+                        <Form.Item name="Whatsapp Number" label="Whatsapp Number"
                           rules={[{
                             required: false,
                             pattern: /^\+[0-9]{12}$/,
