@@ -26,13 +26,14 @@ const { TextArea } = Input;
 const FormUser: React.FC<FormUserProps> = (props) => {
     const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange } = props.data ? props.data : '';
 
+    const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
-    const [selectPaidDate, setSelectPaidDate] = useState('');
+    const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
     const name = `${props.data.firstName} ${props.data.lastName}`
 
     const teacherMessageTemplate = `    Dear Parent of ${name},
 
-    Your next instalment of INR ${emiAmount} is due on or before ${dueDate}. 
+    Your next instalment of INR ${emiAmount} is due on or before ${moment(dueDate).format('YYYY-MM-DD')}. 
     
     Kindly make the payment at the link below. Payment link - ${razorpayLink}
 
@@ -115,6 +116,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
         form.resetFields();
+        setSelectPaidDate(INITITALPAIDDATE);
     }
 
 

@@ -414,9 +414,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
+        installment.id +
+        "payment response: " +
+        JSON.stringify(paymentResponse)
       );
       failureCount++;
     } else {
