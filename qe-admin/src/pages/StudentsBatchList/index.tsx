@@ -647,7 +647,7 @@ const StudentsBatchList: React.FC = () => {
       lastName: formData.lastName,
       pfirstName: formData.pfirstName,
       plastName: formData.plastName,
-      phoneNumber: '+' + selectCountryCode + formData.phoneNumber,
+      phoneNumber: formData.phoneNumber,
       //countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
       email: formData.email,
       type: 'student',
@@ -655,7 +655,6 @@ const StudentsBatchList: React.FC = () => {
       isSibling,
       studentName: formData.studentName,
       teacherName: formData.teacherName,
-      mobile: formData.phoneNumber,
       batchCode: formData.batchCode,
       alternativeMobile: formData.alternativeMobile,
       age: dob ? moment(new Date()).diff(moment(dob, "YYYY-MM-DD"), 'years', true).toFixed(0) : null,
@@ -754,7 +753,6 @@ const StudentsBatchList: React.FC = () => {
       status: status ? status : tempDataView.status,
       studentName: formData.studentName ? formData.studentName : tempDataView.studentName,
       teacherName: formData.teacherName ? formData.teacherName : tempDataView.teacherName,
-      mobile: formData.phoneNumber ? formData.phoneNumber : tempDataView.phoneNumber,
       batchCode: formData.batchCode ? formData.batchCode : tempDataView.batchCode,
       alternativeMobile: formData.alternativeMobile ? formData.alternativeMobile : tempDataView.alternativeMobile,
       age: formData.dob == null ? moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) : tempDataView.dob == null ? moment(new Date()).diff(moment(formData.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) : tempDataView.age == "NaN" ? null : tempDataView.age,
@@ -952,7 +950,7 @@ const StudentsBatchList: React.FC = () => {
                           }]}
                         >
                           <Input
-                            placeholder="StudentLast Name"
+                            placeholder="Student Last Name"
                             name="lastName"
                             value={formData.lastName}
                             onChange={handleFormChange}
@@ -1026,8 +1024,19 @@ const StudentsBatchList: React.FC = () => {
                       </Col>
 
                       <Col span={12}>
-                        <Form.Item name="classType" label="Registered Contact No.">
-                          <Input placeholder="Registered Contact No" handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} />
+                        <Form.Item name="phoneNumber" label="Registered Contact No."
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter Valid Phone Number"
+                          }]}>
+                          <Input
+                            placeholder="Registered Contact Number"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleFormChange}
+                            defaultValue={tempDataView.phoneNumber}
+                          />
                         </Form.Item>
                       </Col>
 
@@ -2296,9 +2305,21 @@ const StudentsBatchList: React.FC = () => {
                           </Select>
                         </Form.Item>
                       </Col>
+
                       <Col span={12}>
-                        <Form.Item label="Registered Contact No.">
-                          <Input handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView.phoneNumber} placeholder="Registered Contact No" />
+                        <Form.Item name="phoneNumber" label="Registered Contact No."
+                          rules={[{
+                            required: false,
+                            pattern: /^\+[0-9]{12}$/,
+                            message: "Enter Valid Phone Number"
+                          }]}>
+                          <Input
+                            placeholder="Registered Contact Number"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleMobileChange}
+                            defaultValue={tempDataView.phoneNumber}
+                          />
                         </Form.Item>
                       </Col>
 
