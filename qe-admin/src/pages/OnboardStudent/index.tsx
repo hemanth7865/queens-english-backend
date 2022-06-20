@@ -552,7 +552,20 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'New Teacher',
+      title: 'New Teacher Name',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any) => {
+        let result = "NA";
+        if (value[0]) {
+          return value[0].name;
+        }
+        return result;
+      }
+    },
+    {
+      title: 'New Teacher No.',
       dataIndex: 'batchesHistory',
       width: 200,
       editable: false,
@@ -565,7 +578,20 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'Old Teacher',
+      title: 'Old Teacher Name',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any) => {
+        let result = "NA";
+        if (value[1]) {
+          return value[1].name;
+        }
+        return result;
+      }
+    },
+    {
+      title: 'Old Teacher No.',
       dataIndex: 'batchesHistory',
       width: 200,
       editable: false,

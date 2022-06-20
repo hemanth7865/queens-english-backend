@@ -33,7 +33,7 @@ export class StudentService {
   private COSMOS_CODE = process.env.COSMOS_CODE;
 
   private BATCHES_HISTORY_QUERY = `
-    SELECT c.batchNumber, c.id, sbh.created_at, u.phoneNumber FROM student_batches_history as sbh 
+    SELECT concat(u.firstName , "  ", u.lastName) as name, c.batchNumber, c.id, sbh.created_at, u.phoneNumber FROM student_batches_history as sbh 
     INNER JOIN classes c ON c.id = sbh.batchId 
     INNER JOIN user u ON u.id = c.teacherId 
     WHERE sbh.studentId = ':studentId' ORDER BY sbh.created_at DESC`;
