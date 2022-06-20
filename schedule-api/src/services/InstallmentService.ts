@@ -37,11 +37,11 @@ export class InstallmentService {
       const now = new Date();
       now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);  
       now.setSeconds(0);
-      console.log('Date for last checked: ' + now);
+      usersLogger.info('Date for last checked: ' + now);
       where["lastCheckedAt"] = LessThanDate(now);
     }
 
-    console.log('where: ',where);
+    usersLogger.info('where: '+ where);
     return await this.query.find({
       where,
       take: limit,
