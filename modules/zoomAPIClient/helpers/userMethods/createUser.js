@@ -15,12 +15,12 @@ module.exports = createUser;
  */
 
 module.exports.createUserSample = {
-  action: "create",
+  action: "autoCreate",
   user_info: {
-    email: "jchill@example.com",
-    type: 1,
-    first_name: "Jill",
-    last_name: "Chill",
-    password: "if42!LfH@",
+    email: "bishoy2@queensenglish.co",
+    type: 2,
+    first_name: "Bishoy",
+    last_name: "Romany",
+    password: "123@queensEnglish",
   },
 };
