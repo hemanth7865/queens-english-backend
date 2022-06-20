@@ -17,7 +17,7 @@ class ZoomAPI {
 
   public init = () => {
     this.generateToken();
-    console.log(this.JWTToken);
+    console.log(this.JWTToken, "changed");
     return this;
   };
 }

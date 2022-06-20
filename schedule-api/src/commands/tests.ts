@@ -1,3 +1,10 @@
-const zoomAPIClient = require("zoomAPIClient");
+require("dotenv").config({ path: "./../../.env" });
+const { ZoomAPI } = require("zoomAPIClient");
 
-console.log(zoomAPIClient.init());
+const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
+
+const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
+
+zoomClient.init();
+
+console.log(zoomClient);
