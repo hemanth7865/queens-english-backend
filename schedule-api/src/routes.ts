@@ -6,6 +6,7 @@ import { AssessmentController } from "./controller/AssessmentController";
 import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
+import { AzureProxyController } from "./controller/AzureProxyController";
 
 export const Routes = [
   {
@@ -25,19 +26,21 @@ export const Routes = [
     route: "/lessons",
     controller: UserController,
     action: "lessons",
-    // authenticate:true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/currentUser",
     controller: LoginController,
     action: "currentUser",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/leads",
     controller: UserController,
     action: "allLeads",
+    authenticate: true,
   },
   {
     method: "post",
@@ -62,30 +65,35 @@ export const Routes = [
     route: "/leadsView",
     controller: UserController,
     action: "listLeadDetails",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/leadsFullView/:id",
     controller: UserController,
     action: "leadFullDetails",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/student/active/batches/:id",
     controller: UserController,
     action: "getStudentActiveBatches",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/leads",
     controller: UserController,
     action: "saveLeads",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/leads/update/status",
     controller: UserController,
     action: "updateLeadsStatus",
+    authenticate: true,
   },
   {
     method: "post",
@@ -104,30 +112,35 @@ export const Routes = [
     route: "/filterLead",
     controller: UserController,
     action: "filterLeadDetails",
+    authenticate: true,
   },
   {
     method: "delete",
     route: "/users/:id",
     controller: UserController,
     action: "remove",
+    authenticate: true,
   },
   {
     method: "delete",
     route: "/batch/:id",
     controller: BatchController,
     action: "remove",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/re-batch",
     controller: BatchController,
     action: "reBatch",
+    authenticate: true,
   },
   {
     method: "post",
@@ -140,18 +153,21 @@ export const Routes = [
     route: "/deleteBatch/:id",
     controller: BatchController,
     action: "deleteBatch",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/listBatch",
     controller: BatchController,
     action: "listBatch",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/listclass",
     controller: BatchController,
     action: "getClasses",
+    authenticate: true,
   },
   {
     method: "get",
@@ -164,18 +180,21 @@ export const Routes = [
     route: "/listBatch/:id",
     controller: BatchController,
     action: "getBatchDetails",
+    authenticate: true,
   },
   {
     method: "delete",
     route: "/batch/:id",
     controller: BatchController,
     action: "remove",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
+    authenticate: true,
   },
   {
     method: "post",
@@ -188,6 +207,7 @@ export const Routes = [
     route: "/listBatch",
     controller: BatchController,
     action: "listBatch",
+    authenticate: true,
   },
   {
     method: "get",
@@ -272,6 +292,7 @@ export const Routes = [
     route: "/loadTeacherAvailability",
     controller: UserController,
     action: "loadTeacherAvailability",
+    authenticate: true,
   },
   {
     method: "post",
@@ -286,6 +307,7 @@ export const Routes = [
     route: "/studentPaymentDetails",
     controller: PaymentController,
     action: "studentPaymentDetails",
+    authenticate: true,
   },
 
   {
@@ -293,6 +315,7 @@ export const Routes = [
     route: "/paymentDetails",
     controller: PaymentController,
     action: "paymentDetails",
+    authenticate: true,
   },
 
   {
@@ -308,6 +331,7 @@ export const Routes = [
     route: "/fetchPaymentsDetails",
     controller: PaymentController,
     action: "loadTeacherAvailability",
+    authenticate: true,
   },
 
   {
@@ -315,6 +339,7 @@ export const Routes = [
     route: "/fetchCollectionAgent",
     controller: PaymentController,
     action: "fetchCollectionAgent",
+    authenticate: true,
   },
 
   {
@@ -322,7 +347,7 @@ export const Routes = [
     route: "/regeneratePaymentLink",
     controller: PaymentController,
     action: "regeneratePaymentLink",
-    // authenticate: true
+    authenticate: true,
   },
 
   {
@@ -333,5 +358,11 @@ export const Routes = [
     // authenticate: true
   },
 
-
+  {
+    method: "all",
+    route: "/azure",
+    controller: AzureProxyController,
+    action: "serve",
+    authenticate: true,
+  },
 ];

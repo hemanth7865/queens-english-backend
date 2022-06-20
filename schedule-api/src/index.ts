@@ -60,15 +60,45 @@ createConnection()
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
     );
+
+    if (process.env.NODE_ENV === "production") {
+      console.log = function () {};
+    }
   })
   .catch((error) => console.log(error));
 
 function bypassAuth(req, res, next) {
-  next();
+    const authHeader = req.headers["authorization"];
+    let token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+      const cookies = req.signedCookies;
+      token = cookies["qe-admin-token"];
+    }
+
+    if (token == null) return next();
+    jwt.verify(
+      token,
+      process.env.JWT_TOKEN_SECRET,
+      (err: any, username: any) => {
+        // console.log(err);
+        if (err) return next();
+        req.user = username;
+        next();
+      }
+    );
+  
 }
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  let token = authHeader && authHeader.split(" ")[1];
+
+  if(!token){
+    const cookies = req.signedCookies;
+    token = cookies["qe-admin-token"];
+  }
+
+  console.log(token);
 
   if (token == null) return res.sendStatus(401);
   jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err: any, username: any) => {

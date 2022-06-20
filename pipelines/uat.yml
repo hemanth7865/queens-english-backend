@@ -9,6 +9,13 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
+    BRANCH_NAME: $[ replace(variables['Build.SourceBranch'], 'refs/heads/', '') ]
+
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+    BRANCH_NAME: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
+
 steps:
   - task: SSH@0
     displayName: "Connect UAT Server, And Run Deployment Scripts"
@@ -16,6 +23,10 @@ steps:
       sshEndpoint: "QE_PORTAL UAT"
       runOptions: "commands"
       commands: |
+        echo "Download Updates"
+        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
+        echo "Checkout Branch $(BRANCH_NAME)"
+        cd /home/qeuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/qeuser/git-checkout.txt && cat /home/qeuser/git-checkout.txt
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
         cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
         cd /home/qeuser/qe-backend/qe-admin && npm run build &> /home/qeuser/build.txt && cat /home/qeuser/build.txt 

@@ -17,6 +17,7 @@ export class InstallmentController {
     response: Response,
     next: NextFunction
   ) {
+    this.service.request = request;
     const result = {
       error: 0,
       paid: 0,
@@ -35,9 +36,12 @@ export class InstallmentController {
           if(isNullOrUndefined(paymentId)){
             logger.error('Payment id missing for installment: ' + payment.id);
             result.ignored++;
-            await this.service.updateInstallment(payment.id, {
-              lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-            });
+            await this.service.updateInstallment(
+              payment.id,
+              {
+                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+              }
+            );
           }
           else{
             const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
@@ -53,21 +57,27 @@ export class InstallmentController {
                 logger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
               }
   
-              await this.service.updateInstallment(payment.id, {
-                status: this.COMPLETED_STATUS,
-                paidAmount: paymentLinkDetails.amount / 100,
-                paidDate: paidDate,
-                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
-              });
+              await this.service.updateInstallment(
+                payment.id,
+                {
+                  status: this.COMPLETED_STATUS,
+                  paidAmount: paymentLinkDetails.amount / 100,
+                  paidDate: paidDate,
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                }
+              );
               result.paid++;
               logger.info(
                 `InstallmentController.updateTransctionPaymentStatus: Mark Payment: ${paymentId} As Paid.`
               );
             } else {
               result.ignored++;
-              await this.service.updateInstallment(payment.id, {
-                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-              });
+              await this.service.updateInstallment(
+                payment.id,
+                {
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                }
+              );
             }  
           }
         } catch (e) {
