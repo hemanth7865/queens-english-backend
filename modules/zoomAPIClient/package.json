@@ -4,21 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.ts",
-    "build": "tsc --build && npm --prefix ./../schedule-api install --save ./"
+    "start": "nodemon index.js",
+    "test": "nodemon tests/index.js",
+    "build": "npm --prefix ./../schedule-api install --save ./"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "nodemon": "^2.0.16",
-    "ts-node": "^10.8.1",
-    "typescript": "^4.7.4"
+    "nodemon": "^2.0.16"
   }
 }

@@ -1,20 +1,39 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const generateToken_1 = require("./helpers/generateToken");
+const generateToken = require("./helpers/generateToken");
+const axios = require("./helpers/axios");
+const { listUsers } = require("./helpers/userMethods");
+
 class ZoomAPI {
-    constructor(APIKey, APISecret) {
-        this.generateToken = () => {
-            this.JWTToken = (0, generateToken_1.default)(this.APIKey, this.APISecret);
-            return this;
-        };
-        this.init = () => {
-            this.generateToken();
-            console.log(this.JWTToken, "changed");
-            return this;
-        };
-        this.APIKey = APIKey;
-        this.APISecret = APISecret;
-    }
+  APIKey;
+  APISecret;
+  JWTToken;
+  axios = axios;
+  constructor(APIKey, APISecret) {
+    this.APIKey = APIKey;
+    this.APISecret = APISecret;
+  }
+
+  handleAPI = axios.handleAPI;
+
+  generateToken = () => {
+    this.JWTToken = generateToken(this.APIKey, this.APISecret);
+    return this;
+  };
+
+  initAxios = () => {
+    this.axios.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${this.JWTToken}`;
+  };
+
+  init = async () => {
+    this.generateToken();
+    this.initAxios();
+    const data = await this.listUsers();
+    console.log(this.JWTToken, data);
+    return this;
+  };
 }
+
+ZoomAPI.prototype.listUsers = listUsers;
+
 exports.ZoomAPI = ZoomAPI;
-//# sourceMappingURL=index.js.map
