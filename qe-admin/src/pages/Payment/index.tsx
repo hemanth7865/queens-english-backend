@@ -69,7 +69,7 @@ const TableList: React.FC = () => {
             await regenerateLink(data);
             setIsLoading(false);
         }
-        actionRef.current.reload();
+        actionRef.current?.reload();
     }
 
     const handleRefreshStatus = async (data: any) => {
@@ -84,6 +84,7 @@ const TableList: React.FC = () => {
                 handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
             }
         }
+        actionRef.current?.reload();
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
