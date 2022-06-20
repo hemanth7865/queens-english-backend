@@ -29,7 +29,9 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
-    const name = `${props.data.firstName} ${props.data.lastName}`
+    const [selectStatus, setSelectStatus] = useState(status);
+
+    const name = `${props.data.firstName} ${props.data.lastName}`;
 
     const teacherMessageTemplate = `    Dear Parent of ${name},
 
@@ -73,6 +75,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
+        console.log('values', values)
         if (values.transactionId && values.netbankRefLink) {
             const netBankingForm = {
                 id: id,
@@ -115,10 +118,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         setIsLoading(false);
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
-        form.resetFields();
         setSelectPaidDate(INITITALPAIDDATE);
+        form.resetFields();
     }
 
+    useEffect(() => {
+        setSelectStatus(status);
+    }, [status]);
+
+    useEffect(() => {
+        setSelectStatus(selectStatus);
+    }, [selectStatus]);
 
     const [form] = Form.useForm()
     const defaultValues = () => {
@@ -275,7 +285,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <Option value="Subscription Lost">Subscription Lost</Option>
                                                 <Option value="DNP">DNP</Option>
                                                 <Option value="On Leave">On Leave</Option>
-                                                <Option value="other">other</Option>
+                                                <Option value="Other">Other</Option>
                                             </Select>
                                         </Form.Item>
 
@@ -291,22 +301,26 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             name="status"
                                             rules={[{ required: false, message: 'Please Enter Installment Status' }]}
                                         >
-                                            <Select>
+                                            <Select onChange={(value) => { setSelectStatus(value) }}>
                                                 <Option value="Installment Pending">Installment Pending</Option>
                                                 <Option value="Installment Paid">Installment Paid</Option>
                                             </Select>
                                         </Form.Item>
 
-                                        <Form.Item
-                                            label="Paid Date"
-                                            name="paidDate"
-                                        >
-                                            <DatePicker
-                                                format='YYYY-MM-DD'
-                                                onChange={(date, dateString) => {
-                                                    setSelectPaidDate(dateString);
-                                                }} />
-                                        </Form.Item>
+                                        {(selectStatus == "Installment Paid") ?
+
+                                            <Form.Item
+                                                label="Paid Date"
+                                                name="paidDate"
+                                            >
+                                                <DatePicker
+                                                    format='YYYY-MM-DD'
+                                                    onChange={(date, dateString) => {
+                                                        setSelectPaidDate(dateString);
+                                                    }}
+                                                />
+                                            </Form.Item> : ''
+                                        }
                                     </div>
 
                     }
