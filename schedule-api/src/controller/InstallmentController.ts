@@ -24,7 +24,7 @@ export class InstallmentController {
       ignored: 0,
       notFound: 0,
     };
-    logger.info("InstallmentController.updateTransctionPaymentStatus: Start.");
+    logger.debug("InstallmentController.updateTransctionPaymentStatus: Start.");
     try {
       const pendingPayments = await this.service.getPendingInstallments(
         request.query
@@ -47,14 +47,14 @@ export class InstallmentController {
             const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
               paymentId
             );
-            logger.info('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
+            logger.debug('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
             if (paymentLinkDetails.status === "paid") {
               var paidDate = moment().format("YYYY-MM-DD HH:mm:ss");
-              logger.info('Default paid date: ' + paidDate);
+              logger.debug('Default paid date: ' + paidDate);
               //get the paid date from payments
               if (!isNullOrUndefined(paymentLinkDetails.payments) && paymentLinkDetails.payments.length > 0 && paymentLinkDetails.payments[0].status == 'captured') {
                 paidDate = moment(paymentLinkDetails.payments[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
-                logger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
+                logger.debug('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
               }
   
               await this.service.updateInstallment(
@@ -83,12 +83,12 @@ export class InstallmentController {
         } catch (e) {
           if (e?.error?.description === "The id provided does not exist") {
             result.notFound++;
-            logger.info(
+            logger.error(
               `InstallmentController.updateTransctionPaymentStatus: Payment: ${payment.id} Not Found.`
             );
           } else {
             console.log(e);
-            logger.info(
+            logger.error(
               `InstallmentController.updateTransctionPaymentStatus: Payment: ${payment.id} Faced Error ${e.message}.`
             );
             result.error++;
@@ -96,7 +96,7 @@ export class InstallmentController {
         }
       }
     } catch (error) {
-      logger.info(
+      logger.error(
         `InstallmentController.updateTransctionPaymentStatus: End Error, ${error?.message}.`
       );
       console.log(error);

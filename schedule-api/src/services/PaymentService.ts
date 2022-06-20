@@ -102,7 +102,7 @@ export class PaymentService {
     try {
       const moment = require("moment");
       var paymentView: PaymentsView[] = [];
-      usersLogger.info("Student Service payment Details ::Start");
+      usersLogger.debug("Student Service payment Details ::Start");
       // let t;
       const offset = parameters.current ? parseInt(parameters.current) : 0;
       const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
@@ -265,7 +265,7 @@ export class PaymentService {
         paymentView.push(view);
       }
 
-      usersLogger.info("Fetching student payment details::End");
+      usersLogger.debug("Fetching student payment details::End");
 
       return {
         success: true,
@@ -289,7 +289,7 @@ export class PaymentService {
     const queryRunner = connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    usersLogger.info("Save payment Details::Start");
+    usersLogger.debug("Save payment Details::Start");
     usersLogger.info(`Request data ${JSON.stringify(data)}`);
 
     let response = [];
@@ -420,7 +420,7 @@ export class PaymentService {
         isNullOrUndefined(paymentResponse.id) ||
         isNullOrUndefined(paymentResponse.short_url)
       ) {
-        usersLogger.info(
+        usersLogger.debug(
           "Payment link generation failed for installment: " +
             installment.id +
             "payment response: " +
@@ -449,7 +449,7 @@ export class PaymentService {
   async regeneratePaymentLink(request: any) {
     this.installmentService.request = this.request;
     if (isNullOrUndefined(request.installmentId)) {
-      usersLogger.info(
+      usersLogger.debug(
         "No installment id available for regenerating payment link"
       );
       return {
@@ -461,7 +461,7 @@ export class PaymentService {
       id: request.installmentId,
     });
     if (isNullOrUndefined(installment)) {
-      usersLogger.info("No installment available for the given id");
+      usersLogger.debug("No installment available for the given id");
       return {
         status: "error",
         message: "No installment available for the given id",
@@ -541,7 +541,7 @@ export class PaymentService {
 
   createPaymentLink = async (installment: any) => {
     if (isNullOrUndefined(installment)) {
-      usersLogger.info("No installment available for generating payment link");
+      usersLogger.debug("No installment available for generating payment link");
       return {
         status: "error",
         message: "No installment available for generating payment link",
@@ -556,7 +556,7 @@ export class PaymentService {
       .where("user.id = :id", { id: installment.studentId })
       .getOne();
     if (isNullOrUndefined(user)) {
-      usersLogger.info(
+      usersLogger.debug(
         "No user available for the given id: {0}" + installment.studentId
       );
       return {
@@ -564,7 +564,7 @@ export class PaymentService {
         message: "No user available for the given id",
       };
     }
-    usersLogger.info("User: " + JSON.stringify(user));
+    usersLogger.debug("User: " + JSON.stringify(user));
 
     return await this.razorPayUtils.createRazorPayLink(installment, user);
   };
