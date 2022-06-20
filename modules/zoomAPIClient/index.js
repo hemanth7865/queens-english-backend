@@ -1,18 +1,21 @@
 const generateToken = require("./helpers/generateToken");
 const axios = require("./helpers/axios");
-const { listUsers, createUser } = require("./helpers/userMethods");
+const {
+  listUsers,
+  createUser,
+  checkUserEmail,
+} = require("./helpers/userMethods");
 
 class ZoomAPI {
   APIKey;
   APISecret;
   JWTToken;
   axios = axios;
+  method;
   constructor(APIKey, APISecret) {
     this.APIKey = APIKey;
     this.APISecret = APISecret;
   }
-
-  handleAPI = axios.handleAPI;
 
   generateToken = () => {
     this.JWTToken = generateToken(this.APIKey, this.APISecret);
@@ -30,9 +33,19 @@ class ZoomAPI {
     this.initAxios();
     return this;
   };
+
+  handleAPISuccess = async (data) => {
+    return data.data;
+  };
+
+  handleAPIError = async (data) => {
+    return data.response.data;
+  };
 }
 
 ZoomAPI.prototype.listUsers = listUsers;
 ZoomAPI.prototype.createUser = createUser;
+ZoomAPI.prototype.checkUserEmail = checkUserEmail;
+ZoomAPI.prototype.handleAPI = axios.handleAPI;
 
 exports.ZoomAPI = ZoomAPI;

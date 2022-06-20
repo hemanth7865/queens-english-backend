@@ -21,6 +21,7 @@ const sampleParams = {
 };
 
 async function listUsers(params = {}) {
+  this.method = "listUsers";
   return await this.handleAPI(
     async () => await this.axios.get(`/users`, { params })
   );

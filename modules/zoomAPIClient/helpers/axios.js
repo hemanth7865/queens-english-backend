@@ -3,21 +3,21 @@ const axios = require("axios");
 
 axios.defaults.baseURL = configs.API_URL;
 
-const handleAPI = async (callback, success = false, fail = false) => {
+async function handleAPI(callback, success = false, fail = false) {
   try {
     if (success) {
       return await success(await callback());
     } else {
-      return (await callback()).data;
+      return this.handleAPISuccess(await callback());
     }
   } catch (e) {
     if (fail) {
       await fail(e);
     }
 
-    return e;
+    return await this.handleAPIError(e);
   }
-};
+}
 
 module.exports = axios;
 
