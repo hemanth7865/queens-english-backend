@@ -1,8 +1,8 @@
-async function method(userId, body = {}) {
+async function method(body = {}) {
   this.method = "createUserMeeting";
-  console.log(body);
+  body.schedule_for = this.user.email;
   return await this.handleAPI(
-    async () => await this.axios.post(`/users/${userId}/meetings`, body)
+    async () => await this.axios.post(`/users/${this.user.id}/meetings`, body)
   );
 }
 
@@ -30,7 +30,7 @@ module.exports.createUserMeetingSample = {
   //   repeat_interval: 1,
   //   weekly_days: "1",
   // },
-  schedule_for: "bishoy@queensenglish.co",
+  schedule_for: "bishoy2@queensenglish.co",
   // settings: {
   //   additional_data_center_regions: ["TY", "TY"],
   //   allow_multiple_devices: true,

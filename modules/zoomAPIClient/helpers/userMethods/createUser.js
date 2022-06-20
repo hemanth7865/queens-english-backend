@@ -15,7 +15,7 @@ module.exports = createUser;
  */
 
 module.exports.createUserSample = {
-  action: "autoCreate",
+  action: "custCreate",
   user_info: {
     email: "bishoy2@queensenglish.co",
     type: 2,

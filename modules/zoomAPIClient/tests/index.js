@@ -10,12 +10,27 @@ const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
 const test = async () => {
   const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
   zoomClient.init();
+  zoomClient.setUser({
+    id: "uJP0VnmySUW553pEc6T0Aw",
+    first_name: "Bishoy",
+    last_name: "Romany",
+    email: "bishoy2@queensenglish.co",
+    type: 2,
+    pmi: 4838666361,
+    timezone: "",
+    verified: 1,
+    created_at: "2022-06-20T20:35:47Z",
+    language: "en-US",
+    status: "active",
+    role_id: "2",
+  });
   const users = await zoomClient.listUsers();
-  const createUserMeeting = await zoomClient.createUserMeeting(
-    "QgzHBdJpTtGF1XwqNJejsw",
-    createUserMeetingSample
-  );
-  console.log(createUserMeeting);
+  // const createdUser = await zoomClient.createUser(createUserSample);
+  // const createUserMeeting = await zoomClient.createUserMeeting(
+  //   createUserMeetingSample
+  // );
+  const meetings = await zoomClient.listUserMeetings();
+  console.log(meetings);
 };
 
 test();

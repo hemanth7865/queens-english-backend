@@ -12,10 +12,11 @@ const sampleParams = {
   next_page_token: "IAfJX3jsOLW7w3dokmFl84zOa0MAVGyMEB2",
 };
 
-async function method(userId, params = {}) {
+async function method(params = {}) {
   this.method = "listUserMeetings";
   return await this.handleAPI(
-    async () => await this.axios.get(`/users/${userId}/meetings`, { params })
+    async () =>
+      await this.axios.get(`/users/${this.user.id}/meetings`, { params })
   );
 }
 

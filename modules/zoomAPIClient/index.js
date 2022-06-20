@@ -14,6 +14,7 @@ class ZoomAPI {
   JWTToken;
   axios = axios;
   method;
+  user;
   constructor(APIKey, APISecret) {
     this.APIKey = APIKey;
     this.APISecret = APISecret;
@@ -42,6 +43,10 @@ class ZoomAPI {
 
   handleAPIError = async (data) => {
     return data.response.data;
+  };
+
+  setUser = (user) => {
+    this.user = user;
   };
 }
 
