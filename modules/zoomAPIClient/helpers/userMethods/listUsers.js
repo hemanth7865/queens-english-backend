@@ -10,12 +10,20 @@
  * } params
  * @returns
  */
+
+const sampleParams = {
+  status: "active",
+  page_size: 30,
+  role_id: 0,
+  page_number: 1,
+  include_fields: "custom_attributes",
+  next_page_token: "IAfJX3jsOLW7w3dokmFl84zOa0MAVGyMEB2",
+};
+
 async function listUsers(params = {}) {
   return await this.handleAPI(
     async () => await this.axios.get(`/users`, { params })
   );
 }
 
-module.exports = {
-  listUsers,
-};
+module.exports = listUsers;
