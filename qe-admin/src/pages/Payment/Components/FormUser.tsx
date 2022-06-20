@@ -285,7 +285,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <Option value="Subscription Lost">Subscription Lost</Option>
                                                 <Option value="DNP">DNP</Option>
                                                 <Option value="On Leave">On Leave</Option>
-                                                <Option value="other">other</Option>
+                                                <Option value="Other">Other</Option>
                                             </Select>
                                         </Form.Item>
 

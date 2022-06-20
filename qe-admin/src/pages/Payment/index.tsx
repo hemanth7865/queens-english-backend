@@ -40,6 +40,33 @@ const TableList: React.FC = () => {
 
     const intl = useIntl();
 
+    const whatsappLinkSentFilter = {
+        Yes: { text: 'Yes', whatsAppLinkSent: 'Yes' },
+        No: { text: 'No', whatsAppLinkSent: 'No' },
+    };
+
+    const callDispositionFilter = {
+        'Call back later': { text: 'Call back later', callDisposition: 'Call back later' },
+        'This Week': { text: 'This Week', callDisposition: 'This Week' },
+        'This Month': { text: 'This Month', callDisposition: 'This Month' },
+        'Want to Discontinue': { text: 'Want to Discontinue', callDisposition: 'Want to Discontinue' },
+        'Dormant': { text: 'Dormant', callDisposition: 'Dormant' },
+        'Payment after issue resolution': { text: 'Payment after issue resolution', callDisposition: 'Payment after issue resolution' },
+        'Demands Leaves': { text: 'Demands Leaves', callDisposition: 'Demands Leaves' },
+        'Exams in school': { text: 'Exams in school', callDisposition: 'Exams in school' },
+        'Paid': { text: 'Paid', callDisposition: 'Paid' },
+        'Fully Paid': { text: 'Fully Paid', callDisposition: 'Fully Paid' },
+        'Subscription Lost': { text: 'Subscription Lost', callDisposition: 'Subscription Lost' },
+        'DNP': { text: 'DNP', callDisposition: 'DNP' },
+        'On Leave': { text: 'On Leave', callDisposition: 'On Leave' },
+        'Other': { text: 'Other', callDisposition: 'Other' },
+    }
+
+    const installmentStatusFilter = {
+        'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
+        'Installment Paid': { text: 'Installment Paid', status: 'Installment Paid' },
+    }
+
     const closeModal = () => {
         setIsModalVisible(false);
         setIsWhatsappVisible(false);
@@ -199,32 +226,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'callDisposition',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        <Option value="No response">No response</Option>
-                        <Option value="Call back later">Call back later</Option>
-                        <Option value="This Week">This Week</Option>
-                        <Option value="This Month">This Month</Option>
-                        <Option value="Want to Discontinue">Want to Discontinue</Option>
-                        <Option value="Dormant">Dormant</Option>
-                        <Option value="Payment after issue resolution">Payment after issue resolution</Option>
-                        <Option value="Demands Leaves">Demands Leaves</Option>
-                        <Option value="Exams in school">Exams in school</Option>
-                        <Option value="Paid">Paid</Option>
-                        <Option value="Fully Paid">Fully Paid</Option>
-                        <Option value="Subscription Lost">Subscription Lost</Option>
-                        <Option value="DNP">DNP</Option>
-                        <Option value="On Leave">On Leave</Option>
-                        <Option value="other">other</Option>
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { callDisposition: value };
-                },
-            },
+            valueType: 'select',
+            valueEnum: callDispositionFilter,
         },
         {
             title: (
@@ -253,19 +256,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'status',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        <Option value="Installment Pending">Installment Pending</Option>
-                        <Option value="Installment Paid">Installment Paid</Option>
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { status: value };
-                },
-            },
+            valueType: 'select',
+            valueEnum: installmentStatusFilter,
         },
         {
             title: (
@@ -320,19 +312,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'whatsAppLinkSent',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        <Option value="Yes">Yes</Option>
-                        <Option value="No">No</Option>
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { whatsAppLinkSent: value };
-                },
-            },
+            valueType: 'select',
+            valueEnum: whatsappLinkSentFilter,
         },
         {
             title: (
