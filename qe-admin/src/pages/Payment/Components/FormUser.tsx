@@ -3,6 +3,7 @@ import { Form, Input, Button, Select, DatePicker, Spin } from 'antd';
 import { editPayment, editNetBanking } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import moment from 'moment';
+import callDispositionStatus from "../../../../data/call_disposition.json";
 
 export type FormUserProps = {
     data: {};
@@ -260,22 +261,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             name="callDisposition"
                                             rules={[{ required: true, message: 'Please Enter Call Disposition' }]}
                                         >
-                                            <Select >
-                                                <Option value="No response">No response</Option>
-                                                <Option value="Call back later">Call back later</Option>
-                                                <Option value="This Week">This Week</Option>
-                                                <Option value="This Month">This Month</Option>
-                                                <Option value="Want to Discontinue">Want to Discontinue</Option>
-                                                <Option value="Dormant">Dormant</Option>
-                                                <Option value="Payment after issue resolution">Payment after issue resolution</Option>
-                                                <Option value="Demands Leaves">Demands Leaves</Option>
-                                                <Option value="Exams in school">Exams in school</Option>
-                                                <Option value="Paid">Paid</Option>
-                                                <Option value="Fully Paid">Fully Paid</Option>
-                                                <Option value="Subscription Lost">Subscription Lost</Option>
-                                                <Option value="DNP">DNP</Option>
-                                                <Option value="On Leave">On Leave</Option>
-                                                <Option value="other">other</Option>
+                                            <Select>
+                                                {callDispositionStatus.map((i: any) => (<Option value={i.value} >{i.label}</Option>))}
                                             </Select>
                                         </Form.Item>
 
