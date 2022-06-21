@@ -215,6 +215,7 @@ const TableList: React.FC = () => {
                         <Option value="Call back later">Call back later</Option>
                         <Option value="This Week">This Week</Option>
                         <Option value="This Month">This Month</Option>
+                        <Option value="Next Month">Next Month</Option>
                         <Option value="Want to Discontinue">Want to Discontinue</Option>
                         <Option value="Dormant">Dormant</Option>
                         <Option value="Payment after issue resolution">Payment after issue resolution</Option>
