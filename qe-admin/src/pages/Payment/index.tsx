@@ -1,5 +1,5 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Button, Drawer, Modal, Popover, Typography, Spin, Select } from 'antd';
+import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -39,6 +39,8 @@ const TableList: React.FC = () => {
 
 
     const intl = useIntl();
+
+    const { RangePicker } = DatePicker;
 
     const closeModal = () => {
         setIsModalVisible(false);
@@ -180,6 +182,14 @@ const TableList: React.FC = () => {
             dataIndex: 'dueDate',
             width: 160,
             valueType: 'date',
+            renderFormItem: (value) => {
+                return <RangePicker format="YYYY-MM-DD" />;
+            },
+            search: {
+                transform: (value: any) => {
+                    return { dueDate: value };
+                },
+            },
         },
         {
             title: (
