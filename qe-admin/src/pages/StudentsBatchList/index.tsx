@@ -527,6 +527,15 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "InActive",
         },
+        'Error': {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.error"
+              defaultMessage="Error"
+            />
+          ),
+          status: "Error",
+        },
       },
     },
     {
@@ -2490,6 +2499,7 @@ const StudentsBatchList: React.FC = () => {
                               <Option value='active'>Active</Option>
                               <Option value='inactive'>InActive</Option>
                               <Option value='batching'>Re-Batch</Option>
+                              <Option value='Error'>Error</Option>
                             </Select>
                           </Form.Item>
                         </Col>

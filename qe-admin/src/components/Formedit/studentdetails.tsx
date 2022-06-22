@@ -84,7 +84,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       classType: value.classType,
       id: value.id,
       type: 'student',
-      status: props.salesAlert?'Enrolled':value.status,
+      status: props.salesAlert ? 'Enrolled' : value.status,
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
@@ -893,24 +893,26 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           </Form.Item>
         </Col>
 
-        <Col span={12}>
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[{
-              required: true,
-            }]}>
-            <Select
-              placeholder="Select Status"
-            >
-              <Option value="enrolled">Enrolled</Option>
-              <Option value="startclasslater">Start Class Later</Option>
-              <Option value="batching">Ready to batch</Option>
-              <Option value="onboarding">Onboarding</Option>
-              <Option value="active">Active</Option>
-            </Select >
-          </Form.Item >
-        </Col >
+        {!props.salesAlert ? (
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Status"
+              rules={[{
+                required: true,
+              }]}>
+              <Select
+                placeholder="Select Status"
+              >
+                <Option value="enrolled">Enrolled</Option>
+                <Option value="startclasslater">Start Class Later</Option>
+                <Option value="batching">Ready to batch</Option>
+                <Option value="onboarding">Onboarding</Option>
+                <Option value="active">Active</Option>
+              </Select >
+            </Form.Item >
+          </Col >
+        ) : ''}
       </Row >
 
       <Form.Item
