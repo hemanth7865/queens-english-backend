@@ -17,9 +17,9 @@ import { User } from "./user";
  * Student transaction information
  */
 
-@Entity("installments")
-export class Transactions extends BaseEntity {
-  Transactions() {}
+@Entity("zoom_users")
+export class ZoomUser extends BaseEntity {
+  ZoomUser() {}
   @PrimaryColumn("string")
   id: string;
   @Column({ type: "text" })
