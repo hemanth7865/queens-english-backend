@@ -1,6 +1,8 @@
 require("dotenv").config({ path: "./../../schedule-api/.env" });
 const { ZoomAPI } = require("./../index");
-const { createUserSample } = require("./../helpers/userMethods/createUser");
+const {
+  createCustUserSample,
+} = require("./../helpers/userMethods/createCustUser");
 const {
   createUserMeetingSample,
 } = require("./../helpers/userMethods/createUserMeeting");
@@ -25,12 +27,12 @@ const test = async () => {
     role_id: "2",
   });
   const users = await zoomClient.listUsers();
-  // const createdUser = await zoomClient.createUser(createUserSample);
+  const createdUser = await zoomClient.createCustUser(createCustUserSample);
   // const createUserMeeting = await zoomClient.createUserMeeting(
   //   createUserMeetingSample
   // );
   const meetings = await zoomClient.listUserMeetings();
-  console.log(meetings);
+  console.log(meetings, createdUser);
 };
 
 test();
