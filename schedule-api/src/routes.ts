@@ -7,6 +7,7 @@ import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
 import { AzureProxyController } from "./controller/AzureProxyController";
+import { ZoomUserController } from "./controller/ZoomUserController";
 
 export const Routes = [
   {
@@ -364,5 +365,20 @@ export const Routes = [
     controller: AzureProxyController,
     action: "serve",
     authenticate: true,
+  },
+
+  {
+    method: "get",
+    route: "/zoom-users/without-license",
+    controller: ZoomUserController,
+    action: "getTeachersWithoutLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/generate-license",
+    controller: ZoomUserController,
+    action: "generateTeachersLicense",
+    // authenticate: true,
   },
 ];

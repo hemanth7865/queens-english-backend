@@ -27,12 +27,12 @@ const test = async () => {
     role_id: "2",
   });
   const users = await zoomClient.listUsers();
-  const createdUser = await zoomClient.createCustUser(createCustUserSample);
+  // const createdUser = await zoomClient.createCustUser(createCustUserSample);
   // const createUserMeeting = await zoomClient.createUserMeeting(
   //   createUserMeetingSample
   // );
-  const meetings = await zoomClient.listUserMeetings();
-  console.log(meetings, createdUser);
+  // const meetings = await zoomClient.listUserMeetings();
+  console.log(users);
 };
 
 test();

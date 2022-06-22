@@ -20,7 +20,7 @@ import { User } from "./user";
 @Entity("zoom_users")
 export class ZoomUser extends BaseEntity {
   ZoomUser() {}
-  @PrimaryColumn("string")
+  @PrimaryColumn()
   id: string;
   @Column({ type: "text" })
   user_id: string;
@@ -30,13 +30,13 @@ export class ZoomUser extends BaseEntity {
   last_name: string;
   @Column({ type: "text" })
   email: string;
-  @Column({ type: "number" })
+  @Column({ type: "integer" })
   type: number;
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
-  @OneToOne((type) => User, (user) => user.id)
-  @JoinColumn({ name: "user_id" })
-  user: User;
+  // @OneToOne((type) => User, (user) => user.id)
+  // @JoinColumn({ name: "user_id" })
+  // user: User;
 }
