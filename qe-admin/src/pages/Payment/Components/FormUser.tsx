@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, DatePicker, Spin } from 'antd';
+import { WhatsAppOutlined, CopyOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Select, DatePicker, Spin, Row, Col, message } from 'antd';
 import { editPayment, editNetBanking } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import moment from 'moment';
@@ -24,14 +25,14 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp } = props.data ? props.data : '';
 
     const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
     const name = `${props.data.firstName} ${props.data.lastName}`
 
-    const teacherMessageTemplate = `    Dear Parent of ${name},
+    const whatsappTemplate = `    Dear Parent of ${name},
 
     Your next instalment of INR ${emiAmount} is due on or before ${moment(dueDate).format('YYYY-MM-DD')}. 
     
@@ -42,6 +43,11 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     Thanks & regards,
 
     Team Queen’s English`;
+
+    const copy = (text: any) => {
+        window.navigator.clipboard.writeText(text);
+        message.success('Message copied');
+    };
 
     const editPaymentDetails = async (data: any) => {
         try {
@@ -242,16 +248,42 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 props.isWhatsappVisible ?
 
                                     <div>
-                                        <Form.Item
-                                            label="WA Message Sent"
-                                            name="whatsAppLinkSent"
-                                        >
-                                            <Select style={{ width: 120 }} >
-                                                <Option value="Yes">Yes</Option>
-                                                <Option value="No">No</Option>
-                                            </Select>
-                                        </Form.Item>
-                                        <pre>{teacherMessageTemplate}</pre>
+                                        <Row>
+                                            <Col span={20}>
+                                                <Form.Item
+                                                    label="WA Message Sent"
+                                                    name="whatsAppLinkSent"
+                                                >
+                                                    <Select >
+                                                        <Option value="Yes">Yes</Option>
+                                                        <Option value="No">No</Option>
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={2}>
+                                                <WhatsAppOutlined
+                                                    title="Send Whatsapp Message"
+                                                    style={{ fontSize: "25px", color: "green" }}
+                                                    onClick={() => {
+                                                        window.open(
+                                                            `https://api.whatsapp.com/send?phone=${whatsapp.replace(
+                                                                "+",
+                                                                ""
+                                                            )}&text=${encodeURIComponent(whatsappTemplate)}`,
+                                                            "_blank"
+                                                        );
+                                                    }} />
+                                            </Col>
+                                            <Col span={2}>
+                                                <CopyOutlined
+                                                    title='Copy message'
+                                                    style={{ fontSize: "25px", color: "#00BFFF" }}
+                                                    onClick={() => {
+                                                        copy(whatsappTemplate);
+                                                    }} />
+                                            </Col>
+                                        </Row>
+                                        <pre>{whatsappTemplate}</pre>
                                     </div> :
 
                                     <div>
