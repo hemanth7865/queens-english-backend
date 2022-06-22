@@ -87,6 +87,7 @@ const TableList: React.FC = () => {
                 handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
             }
         }
+        actionRef.current?.reload();
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
