@@ -8,6 +8,7 @@ const {
   createUserMeeting,
   createCustUser,
   deleteUser,
+  deleteUsers,
 } = require("./helpers/userMethods");
 
 class ZoomAPI {
@@ -59,6 +60,6 @@ ZoomAPI.prototype.listUserMeetings = listUserMeetings;
 ZoomAPI.prototype.createUserMeeting = createUserMeeting;
 ZoomAPI.prototype.createCustUser = createCustUser;
 ZoomAPI.prototype.deleteUser = deleteUser;
+ZoomAPI.prototype.deleteUsers = deleteUsers;
 ZoomAPI.prototype.handleAPI = axios.handleAPI;
-
 exports.ZoomAPI = ZoomAPI;

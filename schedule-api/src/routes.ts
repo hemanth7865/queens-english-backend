@@ -7,7 +7,7 @@ import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
 import { AzureProxyController } from "./controller/AzureProxyController";
-import { ZoomUserController } from "./controller/ZoomUserController";
+import { ZoomController } from "./controller/ZoomController";
 
 export const Routes = [
   {
@@ -366,19 +366,62 @@ export const Routes = [
     action: "serve",
     authenticate: true,
   },
-
   {
     method: "get",
     route: "/zoom-users/without-license",
-    controller: ZoomUserController,
+    controller: ZoomController,
     action: "getTeachersWithoutLicense",
     // authenticate: true,
   },
   {
     method: "get",
+    route: "/zoom-users/active-without-license",
+    controller: ZoomController,
+    action: "getActiveTeachersWithoutLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-meetings/batches-without-meeting",
+    controller: ZoomController,
+    action: "getBatchesWithoutZoomLink",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-meetings/active-batches-without-meeting",
+    controller: ZoomController,
+    action: "getActiveBatchesWithoutZoomLink",
+    // authenticate: true,
+  },
+  // generate license for all teachers
+  {
+    method: "get",
     route: "/zoom-users/generate-license",
-    controller: ZoomUserController,
+    controller: ZoomController,
     action: "generateTeachersLicense",
+    // authenticate: true,
+  },
+  // generate license for teachers with active batches
+  {
+    method: "get",
+    route: "/zoom-users/generate-active-license",
+    controller: ZoomController,
+    action: "generateActiveTeachersLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/delete-license",
+    controller: ZoomController,
+    action: "deleteTeachersLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-meetings/active-batches-generate-meetings",
+    controller: ZoomController,
+    action: "generateActiveBatchesZoomLink",
     // authenticate: true,
   },
 ];
