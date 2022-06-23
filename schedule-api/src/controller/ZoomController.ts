@@ -57,6 +57,40 @@ export class ZoomController {
   }
 
   /**
+   * Delete Account On Zoom For Each Teacher
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async deleteTeachersLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return {
+      data: await this.zoomUserService.deleteTeachersLicense(),
+    };
+  }
+
+  /**
+   * Generate Account On Zoom For Each Active Teacher
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async generateActiveTeachersLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return { data: await this.zoomUserService.generateActiveTeachersLicense() };
+  }
+
+  /**
    * Get Batch That Don't Have Zoom Link
    * @param request
    * @param response

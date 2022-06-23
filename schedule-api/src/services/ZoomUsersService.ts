@@ -104,7 +104,7 @@ export class ZoomUserService {
     }
   }
 
-  async generateTeachersLicense(): Promise<{
+  async generateLicenses(teachers: User[]): Promise<{
     created: number;
     error: number;
     errors: any;
@@ -116,7 +116,6 @@ export class ZoomUserService {
       error: 0,
       errors: [],
     };
-    const teachers = await this.getTeachersWithoutLicense();
     for (let teacher of teachers) {
       try {
         logger.info("Start creating teacher zoom account ", teacher);
@@ -189,5 +188,105 @@ export class ZoomUserService {
       await setTimeout(() => {}, 100);
     }
     return result;
+  }
+
+  async generateTeachersLicense(): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const teachers = await this.getTeachersWithoutLicense();
+    return await this.generateLicenses(teachers);
+  }
+
+  async generateActiveTeachersLicense(): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const teachers = await this.getActiveTeachersWithoutLicense();
+    return await this.generateLicenses(teachers);
+  }
+
+  async deleteLicense(users: ZoomUser[]): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
+
+    const result = {
+      created: 0,
+      error: 0,
+      errors: [],
+    };
+    for (let user of users) {
+      try {
+        logger.info("Start delete user zoom account ", user);
+        await zoomClient.setUser(user);
+        const resultRemote = await zoomClient.deleteUser();
+        if (resultRemote.length < 1) {
+          logger.info(
+            "Success deleted teacher zoom account remotely ",
+            resultRemote
+          );
+          const deleteResult = await this.zoomUserRepository.remove(user);
+          logger.info(
+            "Success deleted teacher zoom account locally ",
+            deleteResult
+          );
+          result.created++;
+          await (
+            await this.logger.customZoom(
+              user.id,
+              "Delete Zoom User Account",
+              "SUCCESS_DELETED_USER_ZOOM_ACCOUNT",
+              { user, result, deleteResult, resultRemote },
+              this.request?.user
+            )
+          ).save();
+        } else {
+          logger.info("Failed to remove zoom account ", user);
+          result.error++;
+          result.errors.push(user);
+          await (
+            await this.logger.customZoom(
+              user.id,
+              "Failed To Delete Zoom User Account: " + resultRemote?.message,
+              "FAILED_DELETED_USER_ZOOM_ACCOUNT",
+              { user, result, resultRemote },
+              this.request?.user
+            )
+          ).save();
+
+          continue;
+        }
+      } catch (e) {
+        logger.error(e);
+        result.error++;
+        result.errors.push({ e, message: e?.message });
+        await (
+          await this.logger.customZoom(
+            user.id,
+            "Failed To Delete Zoom User Account: " + e.message,
+            "FAILED_DELETED_USER_ZOOM_ACCOUNT",
+            { user, result, e },
+            this.request?.user
+          )
+        ).save();
+      }
+
+      await setTimeout(() => {}, 100);
+    }
+    return result;
+  }
+
+  async deleteTeachersLicense(): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const users = await this.zoomUserRepository.find();
+    return await this.deleteLicense(users);
   }
 }

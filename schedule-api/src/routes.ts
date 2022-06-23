@@ -394,12 +394,27 @@ export const Routes = [
     action: "getActiveBatchesWithoutZoomLink",
     // authenticate: true,
   },
-
+  // generate license for all teachers
   {
     method: "get",
     route: "/zoom-users/generate-license",
     controller: ZoomController,
     action: "generateTeachersLicense",
+    // authenticate: true,
+  },
+  // generate license for teachers with active batches
+  {
+    method: "get",
+    route: "/zoom-users/generate-active-license",
+    controller: ZoomController,
+    action: "generateActiveTeachersLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/delete-license",
+    controller: ZoomController,
+    action: "deleteTeachersLicense",
     // authenticate: true,
   },
 ];
