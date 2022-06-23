@@ -43,6 +43,16 @@ const TableList: React.FC = () => {
 
     const { RangePicker } = DatePicker;
 
+    const whatsappLinkSentFilter = {
+        Yes: { text: 'Yes', whatsAppLinkSent: 'Yes' },
+        No: { text: 'No', whatsAppLinkSent: 'No' },
+    };
+
+    const installmentStatusFilter = {
+        'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
+        'Installment Paid': { text: 'Installment Paid', status: 'Installment Paid' },
+    }
+
     const closeModal = () => {
         setIsModalVisible(false);
         setIsWhatsappVisible(false);
@@ -162,18 +172,6 @@ const TableList: React.FC = () => {
             width: 160,
             hideInSearch: true,
         },
-        // {
-        //     title: (
-        //         <FormattedMessage
-        //             id="pages.searchTable.titleStudentStatus"
-        //             defaultMessage="Student status"
-        //         />
-        //     ),
-        //     render: (dom, entity) => {
-        //         return <p>{entity.status}</p>
-        //     },
-        //     hideInSearch: true,
-        // },
         {
             title: (
                 <FormattedMessage
@@ -210,18 +208,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'callDisposition',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        {callDispositionStatus.map(i => (<Option value={i.value} key={i.value}>{i.label}</Option>))}
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { callDisposition: value };
-                },
-            },
+            valueType: 'select',
+            request: async () => callDispositionStatus,
         },
         {
             title: (
@@ -250,19 +238,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'status',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        <Option value="Installment Pending">Installment Pending</Option>
-                        <Option value="Installment Paid">Installment Paid</Option>
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { status: value };
-                },
-            },
+            valueType: 'select',
+            valueEnum: installmentStatusFilter,
         },
         {
             title: (
@@ -295,18 +272,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'collectionAgent',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        {collectionAgents.map(i => (<Option value={i.id} key={i.id}>{i.firstName}</Option>))}
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { collectionAgent: value };
-                },
-            },
+            valueType: 'select',
+            request: async () => collectionAgents.map((i) => { return { value: i.id, label: i.firstName } })
         },
 
         {
@@ -317,19 +284,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'whatsAppLinkSent',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        <Option value="Yes">Yes</Option>
-                        <Option value="No">No</Option>
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { whatsAppLinkSent: value };
-                },
-            },
+            valueType: 'select',
+            valueEnum: whatsappLinkSentFilter,
         },
         {
             title: (
