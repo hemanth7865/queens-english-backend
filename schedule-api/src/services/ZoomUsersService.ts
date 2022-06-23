@@ -2,8 +2,9 @@ import { getRepository, getManager } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { Classes } from "../entity/Classes";
-const { usersLogger } = require("../Logger.js");
+const { logger } = require("../Logger.js");
 const { ZoomAPI } = require("zoomAPIClient");
+import LoggerService from "./LoggerService";
 
 const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
 const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
@@ -11,6 +12,8 @@ zoomClient.init();
 export class ZoomUserService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
+  public request: any = {};
+  private logger = new LoggerService();
 
   ZoomUserService() {}
 
@@ -22,7 +25,7 @@ export class ZoomUserService {
       });
       return teachers;
     } catch (e) {
-      usersLogger.error(e);
+      logger.error(e);
       return false;
     }
   }
@@ -34,7 +37,7 @@ export class ZoomUserService {
       });
       return users;
     } catch (e) {
-      usersLogger.error(e);
+      logger.error(e);
       return false;
     }
   }
@@ -48,16 +51,17 @@ export class ZoomUserService {
         .getMany();
       return teachers;
     } catch (e) {
-      usersLogger.error(e);
+      logger.error(e);
       return [];
     }
   }
 
   async updateCreateZoomUser(data: ZoomUser): Promise<any> {
     try {
+      logger.info("create zoom user ", data);
       return await this.zoomUserRepository.save(data);
     } catch (e) {
-      usersLogger.error(e);
+      logger.error(e);
       return false;
     }
   }
@@ -77,6 +81,7 @@ export class ZoomUserService {
     const teachers = await this.getTeachersWithoutLicense();
     for (let teacher of teachers) {
       try {
+        logger.info("Start creating teacher zoom account ", teacher);
         const zoomUser = new ZoomUser();
         zoomUser.user_id = teacher.id;
         const createdUser = await zoomClient.createCustUser({
@@ -86,6 +91,10 @@ export class ZoomUserService {
           last_name: teacher.lastName,
         });
         if (createdUser.id) {
+          logger.info(
+            "Success created teacher zoom account remotely ",
+            createdUser
+          );
           zoomUser.id = createdUser.id;
           zoomUser.first_name = createdUser.first_name;
           zoomUser.last_name = createdUser.last_name;
@@ -94,14 +103,19 @@ export class ZoomUserService {
           zoomUser.created_at = new Date();
           zoomUser.updated_at = new Date();
           await this.updateCreateZoomUser(zoomUser);
+          logger.info(
+            "Success created teacher zoom account locally ",
+            createdUser
+          );
           result.created++;
         } else {
+          logger.info("Failed to teacher zoom account ", createdUser);
           result.error++;
           result.errors.push(createdUser);
           continue;
         }
       } catch (e) {
-        usersLogger.error(e);
+        logger.error(e);
         result.error++;
         result.errors.push(e);
       }
