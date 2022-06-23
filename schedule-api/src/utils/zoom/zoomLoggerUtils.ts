@@ -2,11 +2,11 @@ import { ZoomUser } from "../../entity/ZoomUser";
 import { User } from "../../entity/User";
 const log = async (
   oldRecord: {
-    zoomUser: ZoomUser;
-    user: User;
+    zoomUser?: ZoomUser;
+    user?: User;
   },
   newRecord: {
-    zoomUser: ZoomUser;
+    zoomUser: ZoomUser | any;
     user: User;
   },
   user: any
@@ -39,6 +39,10 @@ const log = async (
     event = "UPDATE_ZOOM_USER_BOT";
   } else if (!create) {
     event = "UPDATE_ZOOM_USER";
+  }
+
+  if (newRecord.zoomUser?.message) {
+    title += newRecord.zoomUser?.message + ", ";
   }
 
   title = title.substring(0, title.length - 2) + ".";

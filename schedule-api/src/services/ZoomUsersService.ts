@@ -108,10 +108,24 @@ export class ZoomUserService {
             createdUser
           );
           result.created++;
+          await (
+            await this.logger.zoom(
+              { user: teacher },
+              { zoomUser: createdUser, user: teacher },
+              this.request.user || {}
+            )
+          ).save();
         } else {
           logger.info("Failed to teacher zoom account ", createdUser);
           result.error++;
           result.errors.push(createdUser);
+          await (
+            await this.logger.zoom(
+              { user: teacher },
+              { zoomUser: createdUser, user: teacher },
+              this.request.user || {}
+            )
+          ).save();
           continue;
         }
       } catch (e) {

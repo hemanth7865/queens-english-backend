@@ -72,8 +72,8 @@ export default class LoggerService {
 
   public async zoom(
     oldRecord: {
-      zoomUser: ZoomUser;
-      user: User;
+      zoomUser?: ZoomUser;
+      user?: User;
     },
     newRecord: {
       zoomUser: ZoomUser;

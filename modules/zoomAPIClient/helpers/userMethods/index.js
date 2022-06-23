@@ -5,6 +5,7 @@ const deleteUser = require("./deleteUser");
 const checkUserEmail = require("./checkUserEmail");
 const listUserMeetings = require("./listUserMeetings");
 const createUserMeeting = require("./createUserMeeting");
+const deleteUsers = require("./deleteUsers");
 
 module.exports = {
   listUsers,
@@ -14,4 +15,5 @@ module.exports = {
   createUserMeeting,
   createCustUser,
   deleteUser,
+  deleteUsers,
 };
