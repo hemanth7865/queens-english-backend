@@ -2,14 +2,11 @@ import { getRepository, getManager } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { Classes } from "../entity/Classes";
+import zoomClient from "./../utils/zoom/zoomClient";
 const { logger } = require("../Logger.js");
-const { ZoomAPI } = require("zoomAPIClient");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 
-const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
-const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
-zoomClient.init();
 export class ZoomUserService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
@@ -109,8 +106,6 @@ export class ZoomUserService {
     error: number;
     errors: any;
   }> {
-    const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
-
     const result = {
       created: 0,
       error: 0,
@@ -209,14 +204,12 @@ export class ZoomUserService {
   }
 
   async deleteLicense(users: ZoomUser[]): Promise<{
-    created: number;
+    deleted: number;
     error: number;
     errors: any;
   }> {
-    const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
-
     const result = {
-      created: 0,
+      deleted: 0,
       error: 0,
       errors: [],
     };
@@ -235,10 +228,10 @@ export class ZoomUserService {
             "Success deleted teacher zoom account locally ",
             deleteResult
           );
-          result.created++;
+          result.deleted++;
           await (
             await this.logger.customZoom(
-              user.id,
+              deleteResult.user_id,
               "Delete Zoom User Account",
               "SUCCESS_DELETED_USER_ZOOM_ACCOUNT",
               { user, result, deleteResult, resultRemote },
@@ -282,7 +275,7 @@ export class ZoomUserService {
   }
 
   async deleteTeachersLicense(): Promise<{
-    created: number;
+    deleted: number;
     error: number;
     errors: any;
   }> {

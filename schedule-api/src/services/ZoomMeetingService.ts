@@ -3,13 +3,10 @@ import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { Classes } from "../entity/Classes";
 const { logger } = require("../Logger.js");
-const { ZoomAPI } = require("zoomAPIClient");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
+import zoomClient from "./../utils/zoom/zoomClient";
 
-const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
-const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
-zoomClient.init();
 export class ZoomMeetingService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
@@ -116,5 +113,98 @@ export class ZoomMeetingService {
         batchesNeedsTeacherLicense: [],
       };
     }
+  }
+
+  async generateZoomLinks(batches: Classes[]): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const result = {
+      created: 0,
+      error: 0,
+      errors: [],
+    };
+    for (let batch of batches) {
+      try {
+        logger.info("Start creating zoom meeting ", batch);
+        // const zoomUser = new ZoomUser();
+        // zoomUser.user_id = teacher.id;
+        // const createdUser = await zoomClient.createCustUser({
+        //   email: `${zoomUser.user_id}@queensenglish.co`,
+        //   type: 2,
+        //   first_name: teacher.firstName,
+        //   last_name: teacher.lastName,
+        // });
+        // if (createdUser.id) {
+        //   logger.info(
+        //     "Success created teacher zoom account remotely ",
+        //     createdUser
+        //   );
+        //   zoomUser.id = createdUser.id;
+        //   zoomUser.first_name = createdUser.first_name;
+        //   zoomUser.last_name = createdUser.last_name;
+        //   zoomUser.email = createdUser.email;
+        //   zoomUser.type = createdUser.type;
+        //   zoomUser.created_at = new Date();
+        //   zoomUser.updated_at = new Date();
+        //   await this.updateCreateZoomUser(zoomUser);
+        //   logger.info(
+        //     "Success created teacher zoom account locally ",
+        //     createdUser
+        //   );
+        //   result.created++;
+        //   await (
+        //     await this.logger.zoom(
+        //       { user: teacher },
+        //       { zoomUser: createdUser, user: teacher },
+        //       this.request.user || {}
+        //     )
+        //   ).save();
+        // } else {
+        //   logger.info("Failed to teacher zoom account ", createdUser);
+        //   result.error++;
+        //   result.errors.push(createdUser);
+        //   if (createdUser.code == 3412) {
+        //     createdUser.message =
+        //       "Stopped creating teacher accounts on zoom job, since there's no available licenses";
+        //     await (
+        //       await this.logger.zoom(
+        //         { user: teacher },
+        //         { zoomUser: createdUser, user: teacher },
+        //         this.request.user || {}
+        //       )
+        //     ).save();
+        //     break;
+        //   } else {
+        //     await (
+        //       await this.logger.zoom(
+        //         { user: teacher },
+        //         { zoomUser: createdUser, user: teacher },
+        //         this.request.user || {}
+        //       )
+        //     ).save();
+        //   }
+
+        //   continue;
+        // }
+      } catch (e) {
+        logger.error(e);
+        result.error++;
+        result.errors.push(e);
+      }
+
+      await setTimeout(() => {}, 100);
+    }
+    return result;
+  }
+
+  async generateActiveBatchesZoomLink(): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const batches = await this.getActiveBatchesWithoutZoomLink();
+    return await this.generateZoomLinks(batches.batches);
   }
 }
