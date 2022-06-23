@@ -121,4 +121,20 @@ export class ZoomController {
     this.zoomMeetingService.request = request;
     return await this.zoomMeetingService.getActiveBatchesWithoutZoomLink();
   }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async generateActiveBatchesZoomLink(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomMeetingService.request = request;
+    return await this.zoomMeetingService.generateActiveBatchesZoomLink();
+  }
 }

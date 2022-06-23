@@ -2,6 +2,7 @@ import { Transactions } from "../entity/Transaction";
 import { TransactionDetails } from "../entity/TransactionDetails";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
+import { ZoomMeeting } from "../entity/ZoomMeeting";
 import PaymentLogGenerator from "../utils/payment/paymentLoggerUtils";
 import zoomLogGenerator from "../utils/zoom/zoomLoggerUtils";
 const axios = require("axios");
@@ -73,11 +74,13 @@ export default class LoggerService {
   public async zoom(
     oldRecord: {
       zoomUser?: ZoomUser;
-      user?: User;
+      zoomMeeting?: ZoomMeeting;
+      user?: User | any;
     },
     newRecord: {
       zoomUser: ZoomUser;
-      user: User;
+      zoomMeeting?: ZoomMeeting;
+      user?: User | any;
     },
     user: object | boolean
   ) {

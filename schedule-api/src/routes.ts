@@ -417,4 +417,11 @@ export const Routes = [
     action: "deleteTeachersLicense",
     // authenticate: true,
   },
+  {
+    method: "get",
+    route: "/zoom-meetings/active-batches-generate-meetings",
+    controller: ZoomController,
+    action: "generateActiveBatchesZoomLink",
+    // authenticate: true,
+  },
 ];
