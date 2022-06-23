@@ -38,10 +38,12 @@ export class UserController {
             }
         }
 
+
         try {
             if (request.body.type === 'student') {
                 const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
-                if (request.body.status == 'enrolled' || request.body.status == 'startclasslater' || request.body.status == 'Enrolled') {
+
+                if (request.body.status.toLowerCase() == 'enrolled' || request.body.status == 'startclasslater') {
                     const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
                     if (validatingStudent.status == 'Error') {
                         return { status: 400, errors: [validatingStudent.message] };
@@ -51,6 +53,7 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
+
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
             else {

@@ -2,6 +2,7 @@ import { StudentService } from "../services/StudentService";
 
 export class validations {
     async validateStudent(type, student, user, payment) {
+        student = JSON.parse(JSON.stringify(student));
         var total;
         if (type == 'LSQValidate') {
             total = {
@@ -18,7 +19,6 @@ export class validations {
                 ...payments
             }
         }
-        console.log('total', total)
         var status = "Enrolled";
         var message = "";
         var p = total;
