@@ -22,4 +22,6 @@ export class PRManager extends BaseEntity {
     alternativeMobile: string;
     @Column("text")
     email: string;
+    @Column("integer")
+    allocate: string;
 }
