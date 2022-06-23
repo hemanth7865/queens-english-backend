@@ -119,13 +119,27 @@ export class ZoomUserService {
           logger.info("Failed to teacher zoom account ", createdUser);
           result.error++;
           result.errors.push(createdUser);
-          await (
-            await this.logger.zoom(
-              { user: teacher },
-              { zoomUser: createdUser, user: teacher },
-              this.request.user || {}
-            )
-          ).save();
+          if (createdUser.code == 3412) {
+            createdUser.message =
+              "Stopped creating teacher accounts on zoom job, since there's no available licenses";
+            await (
+              await this.logger.zoom(
+                { user: teacher },
+                { zoomUser: createdUser, user: teacher },
+                this.request.user || {}
+              )
+            ).save();
+            break;
+          } else {
+            await (
+              await this.logger.zoom(
+                { user: teacher },
+                { zoomUser: createdUser, user: teacher },
+                this.request.user || {}
+              )
+            ).save();
+          }
+
           continue;
         }
       } catch (e) {
