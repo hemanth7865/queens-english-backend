@@ -5,6 +5,7 @@ import { Classes } from "../entity/Classes";
 const { logger } = require("../Logger.js");
 const { ZoomAPI } = require("zoomAPIClient");
 import LoggerService from "./LoggerService";
+const moment = require("moment");
 
 const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
 const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
