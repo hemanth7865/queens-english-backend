@@ -54,9 +54,18 @@ export default class LoggerService {
     title: string,
     event: string,
     debug: object,
-    user: object | boolean
+    user: any
   ) {
     this.page = "payments";
+    const bot = user?.email ? false : true;
+    if (bot) {
+      user = {
+        email: "System Bot."
+      }
+      title = "Bot Action, " + title;
+    } else {
+      title = "User Action, " + title;
+    }
     this.logData = {
       id: id,
       page: this.page,

@@ -353,7 +353,20 @@ export class PaymentService {
           transaction: transactions,
         };
 
-        await (await this.logger.payment(oldData, newData, {})).save();
+
+        if (oldData?.transaction?.id && oldData?.transactionDetails?.id) {
+          await (await this.logger.payment(oldData, newData, {})).save();
+        } else {
+          await (
+            await this.logger.customPayment(
+              newData?.transaction?.id || "UNKNOWN",
+              "Created Payment",
+              "PAYMENT_CREATED",
+              { requestData, newRecord: newData, oldRecord: newData },
+              {}
+            )
+          ).save();
+        }
 
         response.push({ ...transactions, ...tdeails });
       }
