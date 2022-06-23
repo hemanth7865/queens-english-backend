@@ -366,12 +366,18 @@ export const Routes = [
     action: "serve",
     authenticate: true,
   },
-
   {
     method: "get",
     route: "/zoom-users/without-license",
     controller: ZoomController,
     action: "getTeachersWithoutLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/active-without-license",
+    controller: ZoomController,
+    action: "getActiveTeachersWithoutLicense",
     // authenticate: true,
   },
   {
@@ -388,6 +394,7 @@ export const Routes = [
     action: "getActiveBatchesWithoutZoomLink",
     // authenticate: true,
   },
+
   {
     method: "get",
     route: "/zoom-users/generate-license",

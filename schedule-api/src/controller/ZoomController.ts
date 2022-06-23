@@ -7,7 +7,7 @@ export class ZoomController {
   private zoomMeetingService = new ZoomMeetingService();
 
   /**
-   * Get Teachers List That Doesn't Have License (Zoom User Yet)
+   * Get Teachers List That Don't Have License (Zoom User Yet)
    * @param request
    * @param response
    * @param next
@@ -20,6 +20,24 @@ export class ZoomController {
   ) {
     this.zoomUserService.request = request;
     return { data: await this.zoomUserService.getTeachersWithoutLicense() };
+  }
+
+  /**
+   * Get Active Teachers List That Don't Have License (Zoom User Yet)
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async getActiveTeachersWithoutLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return {
+      data: await this.zoomUserService.getActiveTeachersWithoutLicense(),
+    };
   }
 
   /**
@@ -39,7 +57,7 @@ export class ZoomController {
   }
 
   /**
-   * Get Batch That Doesn't Have Zoom Link
+   * Get Batch That Don't Have Zoom Link
    * @param request
    * @param response
    * @param next

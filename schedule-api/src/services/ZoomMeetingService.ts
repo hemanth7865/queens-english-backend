@@ -42,6 +42,15 @@ export class ZoomMeetingService {
           )}'`
         )
         .getMany();
+      await (
+        await this.logger.customZoom(
+          "BATCHES_WITHOUT_MEETING_URL",
+          `You have ${batches.length} Active Batches That Don't Have Meeting Link But Has Assigned Licensed Teacher, And ${batchesNeedsTeacherLicense.length} That Don't Have Meeting Link Nor Assigned Licensed Teacher`,
+          "ACTIVE_BATCHES_WITHOUT_MEETING_URL",
+          {},
+          this.request?.user
+        )
+      ).save();
       return { batches, batchesNeedsTeacherLicense };
     } catch (e) {
       logger.error(e);
@@ -78,6 +87,17 @@ export class ZoomMeetingService {
         .leftJoinAndSelect(ZoomUser, "user", "batch.teacherId = user.user_id")
         .where(`user.id IS NULL`)
         .getMany();
+
+      await (
+        await this.logger.customZoom(
+          "BATCHES_WITHOUT_MEETING_URL",
+          `You have ${batches.length} Batches That Don't Have Meeting Link But Has Assigned Licensed Teacher, And ${batchesNeedsTeacherLicense.length} That Don't Have Meeting Link Nor Assigned Licensed Teacher`,
+          "ALL_BATCHES_WITHOUT_MEETING_URL",
+          {},
+          this.request?.user
+        )
+      ).save();
+
       return { batches, batchesNeedsTeacherLicense };
     } catch (e) {
       logger.error(e);

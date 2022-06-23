@@ -50,6 +50,43 @@ export class ZoomUserService {
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
         .where("teacher.type = 'teacher' AND user.id IS NULL")
         .getMany();
+      await (
+        await this.logger.customZoom(
+          "TEACHERS_WITHOUT_LICENSE",
+          `You have ${teachers.length} Teachers That Don't Have Licensed Account On Zoom.`,
+          "ALL_TEACHERS_WITHOUT_LICENSE",
+          {},
+          this.request?.user
+        )
+      ).save();
+      return teachers;
+    } catch (e) {
+      logger.error(e);
+      return [];
+    }
+  }
+
+  async getActiveTeachersWithoutLicense(): Promise<User[]> {
+    try {
+      const teachers = await getManager()
+        .createQueryBuilder(User, "teacher")
+        .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
+        .leftJoinAndSelect(Classes, "batch", "teacher.id = batch.teacherId")
+        .where(
+          `teacher.type = 'teacher' AND user.id IS NULL AND batch.classEndDate >= '${moment().format(
+            "YYYY-MM-DD"
+          )}'`
+        )
+        .getMany();
+      await (
+        await this.logger.customZoom(
+          "TEACHERS_WITHOUT_LICENSE",
+          `You have ${teachers.length} Active Teachers That Don't Have Licensed Account On Zoom.`,
+          "ACTIVE_TEACHERS_WITHOUT_LICENSE",
+          {},
+          this.request?.user
+        )
+      ).save();
       return teachers;
     } catch (e) {
       logger.error(e);
