@@ -1148,19 +1148,9 @@ const StudentsBatchList: React.FC = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-
-                      <Input
-                        type="submit"
-                        value="Add Student Info "
-                        style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                      />
                     </Row>
-                  </Form>
-                </TabPane>
 
-                <TabPane tab="Learning journey" key="2">
-                  <Form onFinish={handleFormSubmit}>
-
+                    <Row align="center"><h2>Batch Details</h2></Row>
                     <Row gutter={16}>
                       <Col span={12}>
                         <Form.Item name="classesPurchase" label="Classes Purchased">
@@ -1263,17 +1253,17 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
 
+
                       <Input
                         type="submit"
-                        value="Add Student Learning journey"
+                        value="Add Student Info "
                         style={{ color: "white", backgroundColor: "DodgerBlue" }}
                       />
                     </Row>
                   </Form>
-
                 </TabPane>
 
-                <TabPane tab="Payment Details" key="5">
+                <TabPane tab="Payment Details" key="2">
                   <Form onFinish={handleFormSubmit}>
                     <Row gutter={16}>
                       <Col span={12}>
