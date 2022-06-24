@@ -29,7 +29,7 @@ export class InstallmentService {
       where["transactionId"] = params.reference_id;
     }
     else{
-      where["transacionId"] = Like("plink_%");
+      where["transactionId"] = Like("plink_%");
     }
 
     if (params?.limit) {
