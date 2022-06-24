@@ -1,4 +1,4 @@
-import { getRepository, LessThan, MoreThan } from "typeorm";
+import { getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
 import { Constants, PAYMENT_STATUS } from "./../helpers/Constants";
 import {
@@ -28,6 +28,9 @@ export class InstallmentService {
     if (params?.reference_id) {
       where["transactionId"] = params.reference_id;
     }
+    else{
+      where["transacionId"] = Like("plink_%");
+    }
 
     if (params?.limit) {
       limit = params.limit;
@@ -37,11 +40,15 @@ export class InstallmentService {
       const now = new Date();
       now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);  
       now.setSeconds(0);
-      console.log('Date for last checked: ' + now);
+      usersLogger.debug('Date for last checked: ' + now);
       where["lastCheckedAt"] = LessThanDate(now);
     }
 
-    console.log('where: ',where);
+    if (params?.dueMonth) {
+      where["dueDate"] = Like(params.dueMonth + '%');
+    }
+    usersLogger.debug('where: '+ JSON.stringify(where));
+
     return await this.query.find({
       where,
       take: limit,
@@ -65,12 +72,12 @@ export class InstallmentService {
   }
 
   async updateInstallmentStatus(paymentId) {
-    usersLogger.info("rzp status update api call");
+    usersLogger.debug("rzp status update api call");
     try {
       const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
         paymentId
       );
-      usersLogger.info("rzp resp: " + JSON.stringify(paymentStatus));
+      usersLogger.debug("rzp resp: " + JSON.stringify(paymentStatus));
       if (paymentStatus.status === "paid") {
         await this.updateInstallment(paymentId, {
           status: PAYMENT_STATUS.PAID,
