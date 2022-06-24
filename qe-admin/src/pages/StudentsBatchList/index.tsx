@@ -75,6 +75,7 @@ import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import Rebatching from "./components/Rebatching";
 import StudentBatchesHistory from "./components/StudentBatchesHistory";
 import access from "@/access";
+import { AlignType } from 'rc-table/lib/interface';
 
 const { TabPane } = Tabs;
 
@@ -538,30 +539,6 @@ const StudentsBatchList: React.FC = () => {
         },
       },
     },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.titleView"
-          defaultMessage="View"
-        />
-      ),
-      dataIndex: "view",
-      hideInSearch: true,
-      render: (dom, entity) => {
-        return (
-          <a
-            onClick={() => {
-              console.log('entity', entity);
-              handleOneView(entity.id);
-              // setCurrentRow(entity);
-              setShowDetail(true);
-            }}
-          >
-            <EyeOutlined />
-          </a>
-        );
-      },
-    },
 
     {
       title: (
@@ -586,28 +563,6 @@ const StudentsBatchList: React.FC = () => {
             }}
           >
             <EditOutlined />
-          </a>
-        );
-      },
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="pages.searchTable.updateForm.titledelete"
-          defaultMessage="Delete"
-        />
-      ),
-      dataIndex: "delete",
-      tip: "The rule name is the unique key",
-      hideInSearch: true,
-      render: (dom, entity) => {
-        return (
-          <a
-            onClick={() => {
-
-            }}
-          >
-            <DeleteOutlined />
           </a>
         );
       },
@@ -1218,46 +1173,6 @@ const StudentsBatchList: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="classesCompleted" label="Classes Completed">
-                          <Input
-                            placeholder="No of Classes Completed"
-                            name="classesCompleted"
-                            value={formData.classesCompleted}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="classesAttended" label="Classes Attended">
-                          <Input
-                            placeholder="No of Classes Attended"
-                            name="classesAttended"
-                            value={formData.classesAttended}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="classesMissed" label="Classes Missed">
-                          <Input
-                            placeholder="No of Classes Missed"
-                            name="classesMissed"
-                            value={formData.classesMissed}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="partner" label="Partner">
-                          <Input
-                            placeholder="Partner Name"
-                            name="partner"
-                            value={formData.partner}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
                         <Form.Item name="course" label="Course">
                           <Input
                             placeholder="Course"
@@ -1265,59 +1180,6 @@ const StudentsBatchList: React.FC = () => {
                             value={formData.course}
                             onChange={handleFormChange}
                           />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="assesmentComplete" label="Number of Assessments Completed">
-                          <Input
-                            placeholder="No. of Assessments Completed"
-                            name="assesmentComplete"
-                            value={formData.assesmentComplete}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="assesmentMissed" label="Number of Assessments Missed">
-                          <Input
-                            placeholder="No. of Assessments Missed"
-                            name="assesmentMissed"
-                            value={formData.assesmentMissed}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="averageScore" label="Avg Score of Assessments">
-                          <Input
-                            placeholder="Average Score across assessment"
-                            name="averageScore"
-                            value={formData.averageScore}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="assesmentDate" label="Next Assessment Date">
-                          {formData.assesmentDate === null ?
-                            <DatePicker
-                              format="YYYY/MM/DD"
-                              style={{ width: "368px" }}
-                              onChange={(date, dateString) => {
-                                setAssesmentDate(dateString);
-                              }}
-                              placeholder={"Next Assessment Date"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.assesmentDate}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "368px" }}
-                              onChange={(date, dateString) => {
-                                setAssesmentDate(dateString);
-                              }} />
-                          }
                         </Form.Item>
                       </Col>
                       <Col span={12}>
@@ -1409,115 +1271,6 @@ const StudentsBatchList: React.FC = () => {
                     </Row>
                   </Form>
 
-                </TabPane>
-                <TabPane tab="Referral" key="3">
-
-                  <Form onFinish={handleFormSubmit}>
-                    <Col span={12}>
-                      <Form.Item name="referralCode" label="Referral Code">
-                        <Input
-                          placeholder="Referral Code"
-                          name="referralCode"
-                          value={formData.referralCode}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="customersReferred" label="No. Of Customers Referred">
-                        <Input
-                          placeholder="Number of customers referred"
-                          name="customersReferred"
-                          value={formData.customersReferred}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="incentive" label="Incentives">
-                        <Input
-                          placeholder="Incentive Details"
-                          name="incentive"
-                          value={formData.incentive}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Input
-                      type="submit"
-                      value="Add Student Referral"
-                      style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                    />
-                  </Form>
-                </TabPane>
-
-                <TabPane tab="QE checklist" key="4">
-                  <Form onFinish={handleFormSubmit}>
-
-                    <Col span={12}>
-                      <Form.Item name="firstFeedback" label="First Feedback">
-                        <Input
-                          placeholder="First FeedBack"
-                          name="firstFeedback"
-                          value={formData.firstFeedback}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col span={12}>
-                      <Form.Item name="fifthFeedback" label="Fifth Feedback">
-                        <Input
-                          placeholder="Fifth FeedBack"
-                          name="fifthFeedback"
-                          value={formData.fifthFeedback}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="fifteenthFeedback" label="Fifteenth Feedback">
-                        <Input
-                          placeholder="Fifteenth Feedback"
-                          name="fifteenthFeedback"
-                          value={formData.fifteenthFeedback}
-                          onChange={handleFormChange}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col span={12}>
-                      <Form.Item name="wabatch">
-                        Batch on WA <Switch valuePropName='wabatch' onChange={(value) => {
-                          setWABatch(value)
-                        }} /> <br />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="logApp">
-                        Log into the app <Switch valuePropName='logApp' onChange={(value) => {
-                          setLogApp(value)
-                        }} /> <br />
-                      </Form.Item>
-                    </Col>
-
-
-                    <Col span={12}>
-                      <Form.Item name="bottleSend">
-                        Bottle Send  <Switch valuePropName='bottleSend' onChange={(value) => {
-                          setBottleSend(value)
-                        }} /> <br />
-
-                      </Form.Item>
-                    </Col>
-
-                    <Input
-                      type="submit"
-                      value="Add Student QE checklist "
-                      style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                    />
-                  </Form>
                 </TabPane>
 
                 <TabPane tab="Payment Details" key="5">
@@ -1646,55 +1399,6 @@ const StudentsBatchList: React.FC = () => {
                           }
                         </Form.Item>
                       </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="no_of_delayed_payments" label="No. of Delayed Payments">
-                          <Input
-                            placeholder="No. of delayed payments"
-                            name="no_of_delayed_payments"
-                            value={formData.no_of_delayed_payments}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="delay_date" label="Date of Delayed Payment">
-
-                          {formData.endDate === null ?
-                            <DatePicker
-
-                              format="YYYY/MM/DD"
-                              style={{ width: "350px" }}
-                              onChange={(date, dateString) => {
-                                setDelayDate(dateString);
-                              }}
-                              placeholder={"Date of delayed payment"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.delay_date}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "350px" }}
-                              onChange={(date, dateString) => {
-                                setDelayDate(dateString);
-                              }}
-                              placeholder={"Date of delayed payment"}
-                            />
-                          }
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="delay_status" label="Delay Status">
-                          <Input
-                            placeholder="Status of delayed payment"
-                            name="delay_status "
-                            value={formData.delay_status}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
                       <Col span={12}>
                         <Form.Item name="notes" label="Notes">
                           <Input
@@ -1721,1366 +1425,593 @@ const StudentsBatchList: React.FC = () => {
       />
 
       <Drawer
-        title="Student details"
-        width={1100}
-        visible={showDetail}
-        onClose={() => {
-          setCurrentRow(undefined);
-          setShowDetail(false);
-          seteditvisible(false);
-        }}
-        closable={true}
-      >
-        {!editvisible ? (
+        title="Edit Student"
+        placement="right"
+        onClose={onCloseEdit}
+        visible={visibleEdit}
+        width={1100}>
+        <Spin spinning={isLoading}>
+          <Tabs defaultActiveKey="1" onChange={callback} key={tempDataView?.id}>
+            <TabPane tab="Student Info" key="1">
+              <Form onFinish={handleFormSubmitEdit} form={formHook}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="firstName" label="First Name"
+                    >
+                      <Input
+                        placeholder="Student First Name"
+                        name="firstName"
+                        defaultValue={tempDataView.firstName}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="lastName" label="Last Name"
+                    >
+                      <Input
+                        placeholder="Student Last Name"
+                        name="lastName"
+                        defaultValue={tempDataView.lastName}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-          <>
-            <Row>
-              <Col
-                style={{
-                  fontWeight: 900,
-                  alignContent: "center",
-                  alignItems: "center",
-                }}
-                span={24}
-              >
-                <center>
-                  <h2 style={{ color: "blue" }}>View Student</h2>
-                </center>
-              </Col>
-            </Row>
+                  <Col span={12}>
+                    <Form.Item name="dob" label="Date of Birth">
+                      {tempDataView.dob === null ?
+                        <DatePicker
+                          format="YYYY/MM/DD"
+                          style={{ width: "418x" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }}
+                          placeholder={"Date of Birth"}
+                        />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
+                          format="YYYY/MM/DD"
+                          style={{ width: "418px" }}
+                          onChange={(date, dateString) => {
+                            setDob(dateString);
+                          }}
+                          placeholder={"Date of Birth"}
+                        />
+                      }
 
-            <Tabs defaultActiveKey="1" onChange={callback}>
-              <TabPane tab="Student Info" key="1">
+                    </Form.Item>
+                  </Col>
 
-                < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Student ID  </p>
+                  <Col span={12}>
+                    <Form.Item label="Age">
+                      {
+                        (tempDataView.age == null) ? (
+                          <Input
+                            placeholder="Age"
+                            value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0)}
+                            onChange={handleFormChange}
+                            disabled
+                          />
+
+                        ) : (tempDataView.age == "NaN") ? (
+                          <Input
+                            placeholder="Age"
+                            disabled
+                          />
+                        ) : (
+
+                          <Input
+                            placeholder="Age"
+                            value={tempDataView.age + " Years"}
+                            disabled
+                          />
+                        )
+                      }
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.studentID}</p>
+                  <Col span={12}>
+                    <Form.Item name="classType" label="Class Type">
+                      <Input
+                        placeholder="Kids/Adults"
+                        name="classType"
+                        defaultValue={tempDataView.classType}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Student First Name  </p>
+
+
+                  <Col span={12}>
+                    <Form.Item
+                      name="countryCode" label="Country">
+                      <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
+                        {allCountries.map((country) => {
+                          return <Option value={country.name} key={country.code}>{country.name}</Option>
+                        })}
+                      </Select>
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.firstName}</p>
+
+                  <Col span={12}>
+                    <Form.Item name="phoneNumber" label="Registered Contact No."
+                      rules={[{
+                        required: false,
+                        pattern: /^\+[0-9]{12}$/,
+                        message: "Enter Valid Phone Number"
+                      }]}>
+                      <Input
+                        placeholder="Registered Contact Number"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleMobileChange}
+                        defaultValue={tempDataView.phoneNumber}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Student Last Name  </p>
+
+                  <Col span={12}>
+                    <Form.Item name="alternativeMobile" label="Alternate Contact No."
+                      rules={[{
+                        required: false,
+                        pattern: /^\+[0-9]{12}$/,
+                        message: "Enter valid Alternate Number"
+                      }]}>
+                      <Input
+                        placeholder="Alternative Contact No"
+                        name="alternativeMobile"
+                        defaultValue={tempDataView.alternativeMobile}
+                        onChange={handleFormChange}
+                      // prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.lastName}</p>
+
+                  <Col span={12}>
+                    <Form.Item name="Whatsapp Number" label="Whatsapp Number"
+                      rules={[{
+                        required: false,
+                        pattern: /^\+[0-9]{12}$/,
+                        message: "Enter valid Whatsapp Number"
+                      }]}>
+                      <Input
+                        placeholder="Whatsapp Number"
+                        name="whatsapp"
+                        value={formData.whatsapp}
+                        onChange={handleFormChange}
+                        defaultValue={tempDataView.whatsapp}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Date of Birth </p>
+
+                  <Col span={12}>
+                    <Form.Item
+                      name="pfirstName" label="Parent First Name"
+                    >
+                      <Input
+                        placeholder="Parent First Name"
+                        name="pfirstName"
+                        defaultValue={tempDataView.pfirstName}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {dob == '' ? tempDataView.dob : dob}</p>
+                  <Col span={12}>
+                    <Form.Item
+                      name="plastName" label="Parent Last Name"
+                    >
+                      <Input
+                        placeholder="Parent Last Name"
+                        name="plastName"
+                        defaultValue={tempDataView.plastName}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={7}></Col>
-                  {tempDataView.age === 'NaN' ? (
-                    <><Col span={6}>
-                      <p>Age  </p>
+                  <Col span={12}>
+                    <Form.Item
+                      name="email" label="E-Mail"
+                    >
+                      <Input
+                        placeholder="Email"
+                        name="email"
+                        defaultValue={tempDataView.email}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item name="address" label="Address">
+                      <Input
+                        placeholder="Address"
+                        name="address"
+                        defaultValue={tempDataView.address}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  {<Col span={12}>
+                    <Form.Item name="gender" label="Gender">
+                      {console.log('tempDataView.gender')}
+                      {console.log(tempDataView.gender)}
+                      <Select
+                        defaultValue={tempDataView.gender == 'Male'
+                          ? "Male"
+                          : tempDataView.gender == 'Female'
+                            ? "Female"
+                            : ''}
+                        onChange={(value) => {
+                          setSelectGender(value);
+                        }}
+                      >
+                        <Option value="Male">Male</Option>
+                        <Option value="Female">Female</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>}
+
+                  <Col span={12}>
+                    <Form.Item name="poc" label="POC">
+                      <Input
+                        placeholder="poc"
+                        name="poc"
+                        defaultValue={tempDataView.poc}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="comments" label="BDA Comments">
+                      <Input
+                        placeholder="comments"
+                        name="comments"
+                        defaultValue={tempDataView.comments}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="studentID" label="Student ID">
+                      <Input
+                        placeholder="Lead ID"
+                        name="studentID"
+                        defaultValue={tempDataView.studentID}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item name="isSibling" label="Is Sibling ?">
+                      <Select
+                        placeholder="Is Sibling"
+                        onChange={(value) => {
+                          setIsSibling(value);
+                        }}
+                        defaultValue={tempDataView.isSibling ? 1 : 0}
+                        name="isSibling"
+                        style={{ width: 100 + "%" }}
+                      >
+                        <Option value={1}>Yes</Option>
+                        <Option value={0}>No</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+
+                  <Access
+                    accessible={access.canSuperAdmin}
+                    fallback={<div> </div>}
+                  >
+                    <Col span={12}>
+                      <Form.Item name="Status" label="Status">
+                        <Select
+                          placeholder="Select Status"
+                          name="status"
+                          defaultValue={tempDataView.status}
+                          onChange={(value) => {
+                            setStatus(value);
+                          }}
+                        >
+                          <Option value='active'>Active</Option>
+                          <Option value='inactive'>InActive</Option>
+                          <Option value='batching'>Re-Batch</Option>
+                          <Option value='Error'>Error</Option>
+                        </Select>
+                      </Form.Item>
                     </Col>
-                      <Col span={11}>
-                        <p>:  {""}</p>
-                      </Col> </>
-                  ) : (tempDataView.age) ? (
-                    <><Col span={6}>
-                      <p>Age  </p>
-                    </Col>
-                      <Col span={11}>
-                        <p>:  {tempDataView.age + " Years"}</p>
-                      </Col> </>
-                  ) : (
-                    <><Col span={6}>
-                      <p>Age  </p>
-                    </Col>
-                      <Col span={11}>
-                        <p>:  {""}</p>
-                      </Col> </>
-                  )
-                  }
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Kids/Adults </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classType}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Primary Mobile Number</p>
-                  </Col>
-                  <Col span={11} >
-                    <p>:  {tempDataView.phoneNumber}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Alternative Contact No</p>
-                  </Col>
-                  <Col span={11} >
-                    <p>:  {tempDataView.alternativeMobile}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Whatsapp No. </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.whatsapp}</p>
+                  </Access>
+                </Row>
+
+                <Row align="center" gutter={16}><h2>Batch Details</h2></Row>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item name="classesPurchase" label="Classes Purchased">
+                      <Input
+                        placeholder="No. of Classes purchased"
+                        name="classesPurchase"
+                        defaultValue={tempDataView.classesPurchase}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
 
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Parent First Name  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.pfirstName}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Parent Last Name  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.plastName}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Email </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.email}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Address </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.address}</p>
+                  <Col span={12}>
+                    <Form.Item name="course" label="Course">
+                      <Input
+                        placeholder="Course"
+                        name="course"
+                        defaultValue={tempDataView.course}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
 
-                  {/* <Col span={7}></Col>
-              <Col span={6}>
-                <p>Status  </p>
-              </Col>
-              <Col span={11}>
-                <p>:  {tempDataView.status }</p>
-              </Col> */}
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Point of contact</p>
+                  <Col span={12}>
+                    <Form.Item name="startDate" label="Expected Start Date">
+                      {tempDataView.startDate === null ?
+                        <DatePicker
+                          format="YYYY/MM/DD"
+                          style={{ width: "385px" }}
+                          onChange={(date, dateString) => {
+                            setStartDate(dateString);
+                          }}
+                          placeholder={"Expected Start Date"}
+                        />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD")}
+                          format="YYYY/MM/DD"
+                          style={{ width: "385px" }}
+                          onChange={(date, dateString) => {
+                            setStartDate(dateString);
+                          }} />
+                      }
+                    </Form.Item>
                   </Col>
 
-                  <Col span={11}>
-                    <p>:  {tempDataView.poc}</p>
+                  <Col span={12}>
+                    {tempDataView.classesStartDate === null ?
+                      <Form.Item name="classesStartDate" label="Actual Start Date">
+                        <DatePicker
+                          format="YYYY-MM-DD"
+                          style={{ width: "400px" }}
+                          onChange={(date, dateString) => {
+                            setClassesStartDate(dateString);
+                          }}
+                          placeholder={"Actual Start Date"}
+                        />
+                      </Form.Item>
+                      :
+                      <Form.Item name="classesStartDate" label="Actual Start Date">
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
+                          format="YYYY-MM-DD"
+                          style={{ width: "400px" }}
+                          onChange={(date, dateString) => {
+                            setClassesStartDate(dateString);
+                          }}
+                          placeholder={"Actual Start Date"}
+                        />
+                      </Form.Item>
+                    }
                   </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Comments</p>
+
+                  <Col span={12}>
+                    <Form.Item name="startLesson" label="Start Lesson">
+                      <Input
+                        placeholder="Start Lesson"
+                        name="startLesson"
+                        defaultValue={tempDataView.startLesson}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.comments}</p>
+
+                  <Col span={12}>
+                    <Form.Item name="batchCode" label="Starting Batch Code">
+                      <Input
+                        placeholder="Starting Batch Code"
+                        name="batchCode"
+                        defaultValue={tempDataView.batchCode}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item name="batchChange" label="No. Of Batch Changes">
+                      <Input
+                        placeholder="No. of Batch Changes"
+                        name="batchChange"
+                        defaultValue={tempDataView.batchChange}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
                 </Row>
-              </TabPane>
 
-              <TabPane tab="Learning Journey" key="2">
-                < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
-
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of Classes Purchased </p>
+                <Row>
+                  <Col span={12}>
+                    <Input
+                      type="submit"
+                      value="Save Changes"
+                      style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                    />
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classesPurchase}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of Classes Completed</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classesCompleted}</p>
-                  </Col>
-
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of Classes Attended</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classesAttended}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of Classes Missed</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classesMissed}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Partner Name</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.partner}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Course</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.course}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of Assessments Completed</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.assesmentComplete}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of Assessments Missed</p>
-                  </Col>
-
-                  <Col span={11}>
-                    <p>:  {tempDataView.assesmentMissed}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Average Score across assessment</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.averageScore}</p>
-                  </Col>
-
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Next Assessment Date</p>
-                  </Col>
-
-                  <Col span={11}>
-                    <p>:  {tempDataView.assesmentDate}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Expected Start Date  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.startDate}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Actual Start Date  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classesStartDate ? tempDataView.classesStartDate : classesStartDate}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Start Lesson  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.startLesson}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Starting Batch Code </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.batchCode}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Zoom Info  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>: {tempDataView.zoomInfo}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Zoom Link  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>: <a href={tempDataView.zoomLink} target="_blank">{tempDataView.zoomLink || "NA"}</a></p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Whatsapp Link </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>: <a href={tempDataView.whatsappLink} target="_blank">{tempDataView.whatsappLink || "NA"}</a></p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>No. of Batch changes </p>
-                  </Col>
-
-                  <Col span={11}>
-                    <p>:  {tempDataView.batchChange}</p>
-                  </Col>
-
-                  <Col span={24}>
-                    <StudentBatchesHistory data={tempDataView} />
+                  <Col span={12} >
+                    <Rebatching data={tempDataView} show={showRebatching} setShow={setShowRebatching} />
                   </Col>
                 </Row>
-              </TabPane>
+              </Form>
+            </TabPane>
 
-              <TabPane tab="Referral" key="3">
-                < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
-
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Referral Code </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.referralCode}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of customers referred </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.customersReferred}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Incentive Details</p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.incentive}</p>
+            <TabPane tab="Payment Details" key="2">
+              <Form onFinish={handleFormSubmitEdit}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item name="paymentid" label="Payment ID">
+                      <Input
+                        placeholder="payment ID"
+                        name="paymentid"
+                        defaultValue={tempDataView.paymentid}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
 
-                </Row>
-              </TabPane>
-
-
-              <TabPane tab="QE checklist" key="4">
-                < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> First FeedBack  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.firstFeedback}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Fifth FeedBack   </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.fifthFeedback}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Fifteenth FeedBack  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.fifteenthFeedback}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Bottle Send   </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.bottleSend ? "True" : "False"}</p>
+                  <Col span={12}>
+                    <Form.Item name="plantype" label="Plan Type">
+                      <Select
+                        placeholder="Plan type"
+                        defaultValue={tempDataView.plantype == 'Subscription'
+                          ? "Subscription" : "One Time"}
+                        onChange={(value) => {
+                          setSelectPlantype(value);
+                        }}
+                      >
+                        <Option value="Subscription"> Subscription </Option>
+                        <Option value="One Time"> One Time</Option>
+                      </Select>
+                    </Form.Item>
                   </Col>
 
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Batch on WA   </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.Wabatch ? "True" : "False"}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Log into the app  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.logApp ? "True" : "False"}</p>
+                  <Col span={12}>
+                    <Form.Item name="classtype" label="Class Type">
+                      <Select
+                        placeholder="Class Type"
+                        defaultValue={tempDataView.classtype == 'one to one'
+                          ? "one to one" : "Group"}
+                        onChange={(value) => {
+                          setSelectClasstype(value);
+                        }}
+                      >
+                        <Option value="one to one"> One to One </Option>
+                        <Option value="Group"> Group</Option>
+                      </Select>
+                    </Form.Item>
                   </Col>
 
+                  <Col span={12}>
+                    <Form.Item name="classessold" label="No. Of Classes Sold">
+                      <Input
+                        placeholder="No. of classes sold"
+                        name="classessold"
+                        defaultValue={tempDataView.classessold}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-                </Row>
-              </TabPane>
+                  <Col span={12}>
+                    <Form.Item name="saleamount" label="Sale Amount">
+                      <Input
+                        placeholder="Sale amount"
+                        name="saleamount"
+                        defaultValue={tempDataView.saleamount}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
+                  </Col>
 
-              <TabPane tab="Payment Details" key="5">
-                < Row style={{ fontWeight: 600 }} gutter={(40, 60)}>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> payment ID </p>
+                  <Col span={12}>
+                    <Form.Item name="dateofsale" label="Date of Sale">
+
+                      {tempDataView.dateofsale === null ?
+                        <DatePicker
+                          format="YYYY/MM/DD"
+                          style={{ width: "430px" }}
+                          onChange={(date, dateString) => {
+                            setSaleDate(dateString);
+                          }}
+                          placeholder={"Date of Sale"}
+                        />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.dateofsale}`, "YYYY/MM/DD")}
+                          format="YYYY/MM/DD"
+                          style={{ width: "430px" }}
+                          onChange={(date, dateString) => {
+                            setSaleDate(dateString);
+                          }}
+                          placeholder={"Date of Sale"}
+                        />
+                      }
+
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.paymentid}</p>
+
+                  <Col span={12}>
+                    <Form.Item name="downpayment" label="Down Payment">
+                      <Input
+                        placeholder="Downpayment"
+                        name="downpayment"
+                        defaultValue={tempDataView.downpayment}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Plan type   </p>
+
+                  <Col span={12}>
+                    <Form.Item name="duedate" label="Due Date">
+
+                      {tempDataView.duedate === null ?
+                        <DatePicker
+
+                          format="YYYY/MM/DD"
+                          style={{ width: "447px" }}
+                          onChange={(date, dateString) => {
+                            setDueDate(dateString);
+                          }}
+                          placeholder={"Due date of plan"}
+                        />
+                        :
+                        <DatePicker
+                          defaultValue={moment(`${tempDataView.duedate}`, "YYYY/MM/DD")}
+                          format="YYYY/MM/DD"
+                          style={{ width: "447px" }}
+                          onChange={(date, dateString) => {
+                            setDueDate(dateString);
+                          }}
+                          placeholder={"Due date of plan"}
+                        />
+                      }
+
+                    </Form.Item>
                   </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.plantype}</p>
+
+                  <Col span={12}>
+                    <Form.Item name="notes" label="Notes">
+                      <Input
+                        placeholder="Notes"
+                        name="notes "
+                        defaultValue={tempDataView.notes}
+                        onChange={handleFormChange}
+                      />
+                    </Form.Item>
                   </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Class Type    </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classtype}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> No. of classes sold  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.classessold}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Sale amount </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.saleamount}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Date of Sale </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.dateofsale}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p> Downpayment  </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.downpayment}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Due date of plan </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.duedate}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>No. of delayed payments     </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.no_of_delayed_payments}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Date of delayed payment </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.delay_date}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Status of delayed payment </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.delay_status}</p>
-                  </Col>
-                  <Col span={7}></Col>
-                  <Col span={6}>
-                    <p>Notes </p>
-                  </Col>
-                  <Col span={11}>
-                    <p>:  {tempDataView.notes}</p>
-                  </Col>
+
                 </Row>
                 <Row>
-                  <Col span={10}></Col>
-                  <Col span={12}>
-                    <Button type="primary" onClick={showDrawerEdit}>
-                      {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
-                      Edit Student
-                    </Button>
+                  <Col span={24}>
+                    <Input
+                      type="submit"
+                      value="Save Changes"
+                      style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                    />
                   </Col>
+                  <Col span={8}></Col>
                 </Row>
-              </TabPane>
-            </Tabs>
-          </>
-        ) : (
-          <>
-            <Spin spinning={isLoading}>
-              <Tabs defaultActiveKey="1" onChange={callback} key={tempDataView?.id}>
-                <TabPane tab="Student Info" key="1">
-                  <Form onFinish={handleFormSubmitEdit} form={formHook}>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item
-                          name="firstName" label="First Name"
-                        >
-                          <Input
-                            placeholder="Student First Name"
-                            name="firstName"
-                            defaultValue={tempDataView.firstName}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          name="lastName" label="Last Name"
-                        >
-                          <Input
-                            placeholder="Student Last Name"
-                            name="lastName"
-                            defaultValue={tempDataView.lastName}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="dob" label="Date of Birth">
-                          {tempDataView.dob === null ?
-                            <DatePicker
-                              format="YYYY/MM/DD"
-                              style={{ width: "418x" }}
-                              onChange={(date, dateString) => {
-                                setDob(dateString);
-                              }}
-                              placeholder={"Date of Birth"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.dob}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "418px" }}
-                              onChange={(date, dateString) => {
-                                setDob(dateString);
-                              }}
-                              placeholder={"Date of Birth"}
-                            />
-                          }
-
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item label="Age">
-                          {
-                            (tempDataView.age == null) ? (
-                              <Input
-                                placeholder="Age"
-                                value={moment(new Date()).diff(moment(tempDataView.dob, "YYYY-MM-DD"), 'years', true).toFixed(0)}
-                                onChange={handleFormChange}
-                                disabled
-                              />
-
-                            ) : (tempDataView.age == "NaN") ? (
-                              <Input
-                                placeholder="Age"
-                                disabled
-                              />
-                            ) : (
-
-                              <Input
-                                placeholder="Age"
-                                value={tempDataView.age + " Years"}
-                                disabled
-                              />
-                            )
-                          }
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="classType" label="Class Type">
-                          <Input
-                            placeholder="Kids/Adults"
-                            name="classType"
-                            defaultValue={tempDataView.classType}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-
-                      <Col span={12}>
-                        <Form.Item
-                          name="countryCode" label="Country">
-                          <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map(name => name.name)}>
-                            {allCountries.map((country) => {
-                              return <Option value={country.name} key={country.code}>{country.name}</Option>
-                            })}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="phoneNumber" label="Registered Contact No."
-                          rules={[{
-                            required: false,
-                            pattern: /^\+[0-9]{12}$/,
-                            message: "Enter Valid Phone Number"
-                          }]}>
-                          <Input
-                            placeholder="Registered Contact Number"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleMobileChange}
-                            defaultValue={tempDataView.phoneNumber}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="alternativeMobile" label="Alternate Contact No."
-                          rules={[{
-                            required: false,
-                            pattern: /^\+[0-9]{12}$/,
-                            message: "Enter valid Alternate Number"
-                          }]}>
-                          <Input
-                            placeholder="Alternative Contact No"
-                            name="alternativeMobile"
-                            defaultValue={tempDataView.alternativeMobile}
-                            onChange={handleFormChange}
-                          // prefix={selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="Whatsapp Number" label="Whatsapp Number"
-                          rules={[{
-                            required: false,
-                            pattern: /^\+[0-9]{12}$/,
-                            message: "Enter valid Whatsapp Number"
-                          }]}>
-                          <Input
-                            placeholder="Whatsapp Number"
-                            name="whatsapp"
-                            value={formData.whatsapp}
-                            onChange={handleFormChange}
-                            defaultValue={tempDataView.whatsapp}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item
-                          name="pfirstName" label="Parent First Name"
-                        >
-                          <Input
-                            placeholder="Parent First Name"
-                            name="pfirstName"
-                            defaultValue={tempDataView.pfirstName}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          name="plastName" label="Parent Last Name"
-                        >
-                          <Input
-                            placeholder="Parent Last Name"
-                            name="plastName"
-                            defaultValue={tempDataView.plastName}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          name="email" label="E-Mail"
-                        >
-                          <Input
-                            placeholder="Email"
-                            name="email"
-                            defaultValue={tempDataView.email}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="address" label="Address">
-                          <Input
-                            placeholder="Address"
-                            name="address"
-                            defaultValue={tempDataView.address}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      {<Col span={12}>
-                        <Form.Item name="gender" label="Gender">
-                          {console.log('tempDataView.gender')}
-                          {console.log(tempDataView.gender)}
-                          <Select
-                            defaultValue={tempDataView.gender == 'Male'
-                              ? "Male"
-                              : tempDataView.gender == 'Female'
-                                ? "Female"
-                                : ''}
-                            onChange={(value) => {
-                              setSelectGender(value);
-                            }}
-                          >
-                            <Option value="Male">Male</Option>
-                            <Option value="Female">Female</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>}
-
-                      <Col span={12}>
-                        <Form.Item name="poc" label="POC">
-                          <Input
-                            placeholder="poc"
-                            name="poc"
-                            defaultValue={tempDataView.poc}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="comments" label="BDA Comments">
-                          <Input
-                            placeholder="comments"
-                            name="comments"
-                            defaultValue={tempDataView.comments}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="studentID" label="Student ID">
-                          <Input
-                            placeholder="Lead ID"
-                            name="studentID"
-                            defaultValue={tempDataView.studentID}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="isSibling" label="Is Sibling ?">
-                          <Select
-                            placeholder="Is Sibling"
-                            onChange={(value) => {
-                              setIsSibling(value);
-                            }}
-                            defaultValue={tempDataView.isSibling ? 1 : 0}
-                            name="isSibling"
-                            style={{ width: 100 + "%" }}
-                          >
-                            <Option value={1}>Yes</Option>
-                            <Option value={0}>No</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-
-                      <Access
-                        accessible={access.canSuperAdmin}
-                        fallback={<div> </div>}
-                      >
-                        <Col span={12}>
-                          <Form.Item name="Status" label="Status">
-                            <Select
-                              placeholder="Select Status"
-                              name="status"
-                              defaultValue={tempDataView.status}
-                              onChange={(value) => {
-                                setStatus(value);
-                              }}
-                            >
-                              <Option value='active'>Active</Option>
-                              <Option value='inactive'>InActive</Option>
-                              <Option value='batching'>Re-Batch</Option>
-                              <Option value='Error'>Error</Option>
-                            </Select>
-                          </Form.Item>
-                        </Col>
-                      </Access>
-                    </Row>
-
-                    <Row>
-                      <Col span={8}>
-                        <Input
-                          type="submit"
-                          value="Save Changes"
-                          style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                        />
-                      </Col>
-                      <Col span={8}></Col>
-                    </Row>
-                  </Form>
-                </TabPane>
-
-                <TabPane tab="Learning journey" key="2">
-                  <Form onFinish={handleFormSubmitEdit}>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="classesPurchase" label="Classes Purchased">
-                          <Input
-                            placeholder="No. of Classes purchased"
-                            name="classesPurchase"
-                            defaultValue={tempDataView.classesPurchase}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="classesCompleted" label="Classes Completed">
-                          <Input
-                            placeholder="No of Classes Completed"
-                            name="classesCompleted"
-                            defaultValue={tempDataView.classesCompleted}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="classesAttended" label="Classes Attended">
-                          <Input
-                            placeholder="No of Classes Attended"
-                            name="classesAttended"
-                            defaultValue={tempDataView.classesAttended}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="classesMissed" label="Classes Missed">
-                          <Input
-                            placeholder="No of Classes Missed"
-                            name="classesMissed"
-                            defaultValue={tempDataView.classesMissed}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="partner" label="Partner Name">
-                          <Input
-                            placeholder="Partner Name"
-                            name="partner"
-                            defaultValue={tempDataView.partner}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="course" label="Course">
-                          <Input
-                            placeholder="Course"
-                            name="course"
-                            defaultValue={tempDataView.course}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="assesmentComplete" label="Assessments Completed">
-                          <Input
-                            placeholder="No. of Assessments Completed"
-                            name="assesmentComplete"
-                            defaultValue={tempDataView.assesmentComplete}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="assesmentMissed" label="Assessments Missed">
-                          <Input
-                            placeholder="No. of Assessments Missed"
-                            name="assesmentMissed"
-                            defaultValue={tempDataView.assesmentMissed}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="averageScore" label="Avg Assessment Score">
-                          <Input
-                            placeholder="Average Score across assessment"
-                            name="averageScore"
-                            defaultValue={tempDataView.averageScore}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="assesmentDate" label="Next Assessment Date">
-                          {tempDataView.assesmentDate === null ?
-                            <DatePicker
-                              format="YYYY/MM/DD"
-                              style={{ width: "368px" }}
-                              onChange={(date, dateString) => {
-                                setAssesmentDate(dateString);
-                              }}
-                              placeholder={"Next Assessment Date"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.assesmentDate}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "368px" }}
-                              onChange={(date, dateString) => {
-                                setAssesmentDate(dateString);
-                              }} />
-                          }
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="startDate" label="Expected Start Date">
-                          {tempDataView.startDate === null ?
-                            <DatePicker
-                              format="YYYY/MM/DD"
-                              style={{ width: "385px" }}
-                              onChange={(date, dateString) => {
-                                setStartDate(dateString);
-                              }}
-                              placeholder={"Expected Start Date"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.startDate}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "385px" }}
-                              onChange={(date, dateString) => {
-                                setStartDate(dateString);
-                              }} />
-                          }
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        {tempDataView.classesStartDate === null ?
-                          <Form.Item name="classesStartDate" label="Actual Start Date">
-                            <DatePicker
-                              format="YYYY-MM-DD"
-                              style={{ width: "400px" }}
-                              onChange={(date, dateString) => {
-                                setClassesStartDate(dateString);
-                              }}
-                              placeholder={"Actual Start Date"}
-                            />
-                          </Form.Item>
-                          :
-                          <Form.Item name="classesStartDate" label="Actual Start Date">
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.classesStartDate}`, "YYYY-MM-DD")}
-                              format="YYYY-MM-DD"
-                              style={{ width: "400px" }}
-                              onChange={(date, dateString) => {
-                                setClassesStartDate(dateString);
-                              }}
-                              placeholder={"Actual Start Date"}
-                            />
-                          </Form.Item>
-                        }
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="startLesson" label="Start Lesson">
-                          <Input
-                            placeholder="Start Lesson"
-                            name="startLesson"
-                            defaultValue={tempDataView.startLesson}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="batchCode" label="Starting Batch Code">
-                          <Input
-                            placeholder="Starting Batch Code"
-                            name="batchCode"
-                            defaultValue={tempDataView.batchCode}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="batchChange" label="No. Of Batch Changes">
-                          <Input
-                            placeholder="No. of Batch Changes"
-                            name="batchChange"
-                            defaultValue={tempDataView.batchChange}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                      <Col span={8}>
-                        <Input
-                          type="submit"
-                          value="Save Changes"
-                          style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                        />
-                      </Col>
-                      <Col span={8}>
-                        <Rebatching data={tempDataView} show={showRebatching} setShow={setShowRebatching} />
-                      </Col>
-                    </Row>
-                  </Form>
-                </TabPane>
-
-                <TabPane tab="Referral" key="3">
-                  <Form onFinish={handleFormSubmitEdit}>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="referralCode" label="Referral Code">
-                          <Input
-                            placeholder="Referral Code"
-                            name="referralCode"
-                            defaultValue={tempDataView.referralCode}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="customersReferred" label="Customers Referred">
-                          <Input
-                            placeholder="Number of customers referred"
-                            name="customersReferred"
-                            defaultValue={tempDataView.customersReferred}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="incentive" label="Incentives">
-                          <Input
-                            placeholder="Incentive Details"
-                            name="incentive"
-                            defaultValue={tempDataView.incentive}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-
-                    <Row>
-                      <Col span={8}>
-                        <Input
-                          type="submit"
-                          value="Save Changes"
-                          style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                        />
-                      </Col>
-
-                      <Col span={8}></Col>
-                    </Row>
-                  </Form>
-                </TabPane>
-                <TabPane tab="QE checklist" key="4">
-                  <Form onFinish={handleFormSubmitEdit}>
-                    <Row gutter={16}>
-
-                      <Col span={12}>
-                        <Form.Item name="firstFeedback" label="First Feedback">
-                          <Input
-                            placeholder="First Feedback"
-                            name="firstFeedback"
-                            defaultValue={tempDataView.firstFeedback}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="fifthFeedback" label="Fifth Feedback">
-                          <Input
-                            placeholder="Fifth Feedback"
-                            name="fifthFeedback"
-                            defaultValue={tempDataView.fifthFeedback}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="fifteenthFeedback" label="Fifteenth Feedback">
-                          <Input
-                            placeholder="Fifteenth Feedback"
-                            name="fifteenthFeedback"
-                            defaultValue={tempDataView.fifteenthFeedback}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={15}>
-                        <Form.Item name="bottleSend">
-                          Bottle Send <Switch defaultChecked={tempDataView.bottleSend} onChange={(value) => {
-                            setBottleSend(value)
-                          }} /> <br />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={15}>
-                        <Form.Item name="wabatch">
-                          Batch on WA <Switch defaultChecked={tempDataView.wabatch} onChange={(value) => {
-                            setWABatch(value)
-                          }} />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={15}>
-                        <Form.Item name="logApp">
-                          Log into the App<Switch defaultChecked={tempDataView.logApp} onChange={(value) => {
-                            setLogApp(value)
-                          }} />
-                        </Form.Item>
-                      </Col>
-
-                    </Row>
-                    <Row>
-                      <Col span={8}>
-                        <Input
-                          type="submit"
-                          value="Save Changes"
-                          style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                        />
-                      </Col>
-                      <Col span={8}></Col>
-                    </Row>
-                  </Form>
-                </TabPane>
-
-                <TabPane tab="Payment Details" key="5">
-                  <Form onFinish={handleFormSubmitEdit}>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="paymentid" label="Payment ID">
-                          <Input
-                            placeholder="payment ID"
-                            name="paymentid"
-                            defaultValue={tempDataView.paymentid}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="plantype" label="Plan Type">
-                          <Select
-                            placeholder="Plan type"
-                            defaultValue={tempDataView.plantype == 'Subscription'
-                              ? "Subscription" : "One Time"}
-                            onChange={(value) => {
-                              setSelectPlantype(value);
-                            }}
-                          >
-                            <Option value="Subscription"> Subscription </Option>
-                            <Option value="One Time"> One Time</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="classtype" label="Class Type">
-                          <Select
-                            placeholder="Class Type"
-                            defaultValue={tempDataView.classtype == 'one to one'
-                              ? "one to one" : "Group"}
-                            onChange={(value) => {
-                              setSelectClasstype(value);
-                            }}
-                          >
-                            <Option value="one to one"> One to One </Option>
-                            <Option value="Group"> Group</Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="classessold" label="No. Of Classes Sold">
-                          <Input
-                            placeholder="No. of classes sold"
-                            name="classessold"
-                            defaultValue={tempDataView.classessold}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="saleamount" label="Sale Amount">
-                          <Input
-                            placeholder="Sale amount"
-                            name="saleamount"
-                            defaultValue={tempDataView.saleamount}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="dateofsale" label="Date of Sale">
-
-                          {tempDataView.dateofsale === null ?
-                            <DatePicker
-                              format="YYYY/MM/DD"
-                              style={{ width: "430px" }}
-                              onChange={(date, dateString) => {
-                                setSaleDate(dateString);
-                              }}
-                              placeholder={"Date of Sale"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.dateofsale}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "430px" }}
-                              onChange={(date, dateString) => {
-                                setSaleDate(dateString);
-                              }}
-                              placeholder={"Date of Sale"}
-                            />
-                          }
-
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="downpayment" label="Down Payment">
-                          <Input
-                            placeholder="Downpayment"
-                            name="downpayment"
-                            defaultValue={tempDataView.downpayment}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="duedate" label="Due Date">
-
-                          {tempDataView.duedate === null ?
-                            <DatePicker
-
-                              format="YYYY/MM/DD"
-                              style={{ width: "447px" }}
-                              onChange={(date, dateString) => {
-                                setDueDate(dateString);
-                              }}
-                              placeholder={"Due date of plan"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.duedate}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "447px" }}
-                              onChange={(date, dateString) => {
-                                setDueDate(dateString);
-                              }}
-                              placeholder={"Due date of plan"}
-                            />
-                          }
-
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="no_of_delayed_payments" label="No. Of Delayed Payments">
-                          <Input
-                            placeholder="No. of delayed payments"
-                            name="no_of_delayed_payments"
-                            defaultValue={tempDataView.no_of_delayed_payments}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="delay_date" label="Date of Delayed Payment">
-
-                          {tempDataView.delay_date === null ?
-                            <DatePicker
-
-                              format="YYYY/MM/DD"
-                              style={{ width: "350px" }}
-                              onChange={(date, dateString) => {
-                                setDelayDate(dateString);
-                              }}
-                              placeholder={"Date of delayed payment"}
-                            />
-                            :
-                            <DatePicker
-                              defaultValue={moment(`${tempDataView.delay_date}`, "YYYY/MM/DD")}
-                              format="YYYY/MM/DD"
-                              style={{ width: "350px" }}
-                              onChange={(date, dateString) => {
-                                setDelayDate(dateString);
-                              }}
-                              placeholder={"Date of delayed payment"}
-                            />
-                          }
-
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="delay_status" label="Delay Status">
-                          <Input
-                            placeholder="Status of delayed payment"
-                            name="delay_status "
-                            defaultValue={tempDataView.delay_status}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col span={12}>
-                        <Form.Item name="notes" label="Notes">
-                          <Input
-                            placeholder="Notes"
-                            name="notes "
-                            defaultValue={tempDataView.notes}
-                            onChange={handleFormChange}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                    </Row>
-                    <Row>
-                      <Col span={8}>
-                        <Input
-                          type="submit"
-                          value="Save Changes"
-                          style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                        />
-                      </Col>
-                      <Col span={8}></Col>
-                    </Row>
-                  </Form>
-                </TabPane>
-              </Tabs>
-            </Spin>
-          </>)}
+              </Form>
+            </TabPane>
+          </Tabs>
+        </Spin>
       </Drawer>
-    </PageContainer>
+    </PageContainer >
   );
 };
 
