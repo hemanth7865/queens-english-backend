@@ -1,9 +1,4 @@
 import {
-  EditTwoTone,
-  WhatsAppOutlined,
-  LinkOutlined,
-  MoneyCollectTwoTone,
-  PlusSquareTwoTone,
   ReloadOutlined,
   EyeOutlined,
   DeleteOutlined
@@ -12,7 +7,11 @@ import type { ProColumns } from "@ant-design/pro-table";
 import { Typography } from 'antd';
 import moment from "moment";
 
-export const columns: (handleShow: (data: any) => any, handleDelete: (data: any) => any) => ProColumns<any>[] = (setShow, handleDelete) => [
+export const columns: (
+  handleShow: (data: any) => any,
+  handleDelete: (data: any) => any,
+  handleReassign: (data: any) => any
+) => ProColumns<any>[] = (setShow, handleDelete, handleReassign) => [
   {
     title: "First Name",
     dataIndex: "first_name",
@@ -86,6 +85,9 @@ export const columns: (handleShow: (data: any) => any, handleDelete: (data: any)
           </Typography.Link>
           <Typography.Link onClick={() => handleDelete(entity)}>
             <DeleteOutlined title="Delete" />
+          </Typography.Link>
+          <Typography.Link onClick={() => handleReassign(entity)}>
+            <ReloadOutlined title="Reassign" />
           </Typography.Link>
         </div>
       );

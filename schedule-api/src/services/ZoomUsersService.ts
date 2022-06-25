@@ -395,4 +395,86 @@ export class ZoomUserService {
     const users = await this.zoomUserRepository.find();
     return await this.deleteLicense(users);
   }
+
+  async reassignLicense(from: string, to: string): Promise<any> {
+    let error;
+    try {
+      const teachers = await this.getTeachersWithoutLicense(
+        ` And teacher.id = '${to}'`
+      );
+
+      if (teachers.length < 1) {
+        return {
+          status: 400,
+          message: "Teacher Already Has License",
+        };
+      }
+
+      const zoomUser = await this.zoomUserRepository.findOne({
+        user_id: from,
+      });
+
+      if (!zoomUser) {
+        return {
+          status: 400,
+          message: "Selected license not found",
+        };
+      }
+
+      const teacher = teachers[0];
+      const newUser = {
+        first_name: teacher.firstName,
+        last_name: teacher.lastName,
+        email: teacher.id + "@queensenglish.co",
+      };
+
+      zoomClient.setUser(zoomUser);
+
+      const updatedUser = await zoomClient.updateUser(newUser);
+
+      if (updatedUser.length < 1) {
+        const data: any = await this.zoomUserRepository.save({
+          id: zoomUser.id,
+          ...newUser,
+          user_id: to,
+        });
+
+        data.message = `Reassigned License: ${from} to: ${to}.`;
+        await (
+          await this.logger.zoom(
+            { user: teacher },
+            { zoomUser: { ...zoomUser, ...data }, user: teacher },
+            this.request.user || {}
+          )
+        ).save();
+
+        return {
+          status: true,
+          message: "Success Reassigned License",
+        };
+      }
+
+      error = {
+        message: "Failed to update user on zoom API",
+        teacher,
+        newUser,
+        zoomUser,
+        updatedUser,
+      };
+    } catch (e) {
+      error = e;
+    }
+
+    await (
+      await this.logger.customZoom(
+        to,
+        `Reassign Failed: ${error.message}`,
+        "FAILED_REASSIGNMENT",
+        { error, from, to },
+        this.request.user || {}
+      )
+    ).save();
+
+    return { status: 400, message: error.message };
+  }
 }

@@ -4,9 +4,10 @@ import { useIntl } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllZoomUsers, getZoomUser, deleteZoomUser, addZoomUser } from '@/services/ant-design-pro/api';
+import { getAllZoomUsers, getZoomUser, deleteZoomUser, addZoomUser, reassignZoomUserLicense } from '@/services/ant-design-pro/api';
 import Show from './Components/Show';
 import Add from './Components/Add';
+import Reassign from './Components/Reassign';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import { columns as columnsMethod } from "./columns";
 
@@ -19,6 +20,7 @@ const TableList: React.FC = () => {
     const actionRef = useRef<ActionType>();
     const [show, setShow] = useState<any>();
     const [addLicense, setAddLicense] = useState<boolean>(false);
+    const [reassign, setReassign] = useState<boolean>(false);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -41,6 +43,7 @@ const TableList: React.FC = () => {
     }
 
     const handleAddLicense = async (id: string) => {
+        setIsLoading(true);
         try {
             const msg: any = await addZoomUser(id);
             if (!(msg?.created > 0)) {
@@ -51,8 +54,23 @@ const TableList: React.FC = () => {
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Created Zoom User License Successfully", "Failed To Add User License", false);
         }
+        setIsLoading(false);
         actionRef.current?.reload();
     }
+
+    const handleReassignLicense = async (from: string, to: string) => {
+        setIsLoading(true);
+        try {
+            const msg: any = await reassignZoomUserLicense(from, to);
+            handleAPIResponse(msg, "Reassigned Zoom User License Successfully", "Failed To Reassign User License", false);
+            setReassign(false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Reassigned Zoom User License Successfully", "Failed To Reassign User License", false);
+        }
+        setIsLoading(false);
+        actionRef.current?.reload();
+    }
+
 
     const handleShow = async (data: any) => {
         setIsLoading(true);
@@ -65,7 +83,7 @@ const TableList: React.FC = () => {
         setIsLoading(false);
     }
 
-    const columns = columnsMethod(handleShow, handleDelete);
+    const columns = columnsMethod(handleShow, handleDelete, setReassign);
 
     return (
         <PageContainer>
@@ -115,28 +133,19 @@ const TableList: React.FC = () => {
                 <Add handleAddLicense={handleAddLicense} isLoading={isLoading} />
             </Modal>
 
-            {/* <Modal
-                title={isWhatsappVisible ? "WA Message" : "Edit"}
-                visible={isModalVisible}
+            <Modal
+                width={500}
+                visible={reassign}
+                title={`Reassign Zoom License`}
+                onCancel={() => {
+                    setReassign(false);
+                }}
                 footer={null}
                 centered
-                onCancel={closeModal}
-                width={700}
             >
-                <FormUser
-                    data={tempData}
-                    visible={visibleEdit}
-                    setVisible={setVisibleEdit}
-                    isAmountDisplay={isAmountDisplay}
-                    netbankingVisible={netbankingVisible}
-                    autodebitVisible={autodebitVisible}
-                    isWhatsappVisible={isWhatsappVisible}
-                    isModalVisible={setIsModalVisible}
-                    actionRef={actionRef}
-                    setIsAmountDisplay={setIsAmountDisplay}
-                    regenerateLink={regenerateLink}
-                />
-            </Modal> */}
+                <Reassign handleReassignLicense={handleReassignLicense} isLoading={isLoading} data={reassign} />
+            </Modal>
+
         </PageContainer>
     );
 };

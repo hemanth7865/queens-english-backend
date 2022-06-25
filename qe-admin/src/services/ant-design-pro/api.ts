@@ -656,7 +656,6 @@ export async function getAllZoomUsers(
     method: "GET",
     params: {
       ...params,
-      //studentId,
     },
     ...(options || {}),
   });
@@ -680,5 +679,21 @@ export async function deleteZoomUser(id: string) {
 export async function addZoomUser(id: string) {
   return request<API.Any>(`/be/zoom-user/${id}`, {
     method: "POST",
+  });
+}
+
+//delete zoom user
+export async function reassignZoomUserLicense(from: string, to: string) {
+  return request<API.Any>(`/be/zoom-user/reassign/${from}/${to}`, {
+    method: "POST",
+  });
+}
+
+//delete zoom user
+export async function dynamicAPI(url, method, params, options = {}) {
+  return request<API.Any>(`/be/${url}`, {
+    method,
+    params,
+    ...(options || {}),
   });
 }

@@ -195,4 +195,23 @@ export class ZoomController {
     this.zoomUserService.request = request;
     return await this.zoomUserService.addLicense(request.params.id);
   }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async reassignLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.reassignLicense(
+      request.params.from,
+      request.params.to
+    );
+  }
 }

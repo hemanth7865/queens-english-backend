@@ -460,4 +460,11 @@ export const Routes = [
     action: "addLicense",
     authenticate: true,
   },
+  {
+    method: "post",
+    route: "/zoom-user/reassign/:from/:to",
+    controller: ZoomController,
+    action: "reassignLicense",
+    authenticate: true,
+  },
 ];
