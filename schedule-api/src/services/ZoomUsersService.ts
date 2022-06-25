@@ -1,6 +1,7 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, createQueryBuilder } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
+import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import zoomClient from "./../utils/zoom/zoomClient";
 const { logger } = require("../Logger.js");
@@ -10,6 +11,8 @@ const moment = require("moment");
 export class ZoomUserService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
+  private zoomMeetingRepository = getRepository(ZoomMeeting);
+  private batchRepository = getRepository(Classes);
   public request: any = {};
   private logger = new LoggerService();
 
@@ -28,6 +31,84 @@ export class ZoomUserService {
     }
   }
 
+  async listZoomUsers(
+    parameters: { current?: string; pageSize?: string } = {}
+  ): Promise<any> {
+    try {
+      const current = parameters.current ? parseInt(parameters.current) : 0;
+      const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
+      const offsetRecords = (current - 1) * limit;
+
+      const whereCondition: string[] = [];
+      whereCondition.push(" 1 = 1 ");
+      for (let param in parameters) {
+        if (parameters[param].length < 1) {
+          continue;
+        }
+
+        if (["current", "pageSize"].includes(param)) {
+          continue;
+        }
+        if ([].includes(param)) {
+        } else {
+          whereCondition.push(`${param} LIKE '%${parameters[param]}%'`);
+        }
+      }
+
+      const condition =
+        whereCondition.length > 1
+          ? whereCondition.join(" and ")
+          : whereCondition.toString();
+
+      const query = await createQueryBuilder(ZoomUser, "zoom_user")
+        .leftJoinAndSelect("zoom_user.meetings", "meetings")
+        .leftJoinAndSelect("zoom_user.user", "user")
+        .where(condition);
+
+      const data = await query.offset(offsetRecords).limit(limit).getMany();
+      const total = await query.getCount();
+
+      return {
+        success: true,
+        pageSize: limit,
+        current,
+        total,
+        data,
+        status: 200,
+      };
+    } catch (e) {
+      logger.error(e);
+      return { error: e.message };
+    }
+  }
+
+  async showZoomUser(id: string): Promise<any> {
+    try {
+      const query = await createQueryBuilder(ZoomUser, "zoom_user")
+        .leftJoinAndSelect("zoom_user.meetings", "meetings")
+        .leftJoinAndSelect("zoom_user.user", "user")
+        .where(`zoom_user.id = "${id}"`);
+
+      const data = await query.getOne();
+
+      if (data?.meetings) {
+        for (let meetingIndex in data.meetings) {
+          const meetings = data.meetings[meetingIndex];
+          data.meetings[meetingIndex].batch =
+            await this.batchRepository.findOne(meetings.batch_id);
+        }
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (e) {
+      logger.error(e);
+      return { error: e.message };
+    }
+  }
+
   async zoomUsers(where = {}): Promise<any> {
     try {
       const users = await this.zoomUserRepository.find({
@@ -40,22 +121,25 @@ export class ZoomUserService {
     }
   }
 
-  async getTeachersWithoutLicense(): Promise<User[]> {
+  async getTeachersWithoutLicense(where: string = ""): Promise<User[]> {
     try {
       const teachers = await getManager()
         .createQueryBuilder(User, "teacher")
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
-        .where("teacher.type = 'teacher' AND user.id IS NULL")
+        .where(`teacher.type = 'teacher' AND user.id IS NULL${where}`)
         .getMany();
-      await (
-        await this.logger.customZoom(
-          "TEACHERS_WITHOUT_LICENSE",
-          `You have ${teachers.length} Teachers That Don't Have Licensed Account On Zoom.`,
-          "ALL_TEACHERS_WITHOUT_LICENSE",
-          {},
-          this.request?.user
-        )
-      ).save();
+      if (where.length < 1) {
+        await (
+          await this.logger.customZoom(
+            "TEACHERS_WITHOUT_LICENSE",
+            `You have ${teachers.length} Teachers That Don't Have Licensed Account On Zoom.`,
+            "ALL_TEACHERS_WITHOUT_LICENSE",
+            {},
+            this.request?.user
+          )
+        ).save();
+      }
+
       return teachers;
     } catch (e) {
       logger.error(e);
@@ -203,6 +287,17 @@ export class ZoomUserService {
     return await this.generateLicenses(teachers);
   }
 
+  async addLicense(id: string): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const teachers = await this.getTeachersWithoutLicense(
+      ` And teacher.id = '${id}'`
+    );
+    return await this.generateLicenses(teachers);
+  }
+
   async deleteLicense(users: ZoomUser[]): Promise<{
     deleted: number;
     error: number;
@@ -224,10 +319,19 @@ export class ZoomUserService {
             resultRemote
           );
           const deleteResult = await this.zoomUserRepository.remove(user);
+
           logger.info(
             "Success deleted teacher zoom account locally ",
             deleteResult
           );
+
+          // const deleteMeetingsResult = await this.zoomMeetingRepository.delete({
+          //   host_id: user.id,
+          // });
+          // logger.info(
+          //   "Success deleted zoom meeting locally ",
+          //   deleteMeetingsResult
+          // );
           result.deleted++;
           await (
             await this.logger.customZoom(
@@ -274,12 +378,103 @@ export class ZoomUserService {
     return result;
   }
 
-  async deleteTeachersLicense(): Promise<{
+  async deleteTeachersLicense(id: string): Promise<{
+    deleted: number;
+    error: number;
+    errors: any;
+  }> {
+    const users = await this.zoomUserRepository.findOne(id);
+    return await this.deleteLicense([users]);
+  }
+
+  async deleteAllTeachersLicense(): Promise<{
     deleted: number;
     error: number;
     errors: any;
   }> {
     const users = await this.zoomUserRepository.find();
     return await this.deleteLicense(users);
+  }
+
+  async reassignLicense(from: string, to: string): Promise<any> {
+    let error;
+    try {
+      const teachers = await this.getTeachersWithoutLicense(
+        ` And teacher.id = '${to}'`
+      );
+
+      if (teachers.length < 1) {
+        return {
+          status: 400,
+          message: "Teacher Already Has License",
+        };
+      }
+
+      const zoomUser = await this.zoomUserRepository.findOne({
+        user_id: from,
+      });
+
+      if (!zoomUser) {
+        return {
+          status: 400,
+          message: "Selected license not found",
+        };
+      }
+
+      const teacher = teachers[0];
+      const newUser = {
+        first_name: teacher.firstName,
+        last_name: teacher.lastName,
+        email: teacher.id + "@queensenglish.co",
+      };
+
+      zoomClient.setUser(zoomUser);
+
+      const updatedUser = await zoomClient.updateUser(newUser);
+
+      if (updatedUser.length < 1) {
+        const data: any = await this.zoomUserRepository.save({
+          id: zoomUser.id,
+          ...newUser,
+          user_id: to,
+        });
+
+        data.message = `Reassigned License: ${from} to: ${to}.`;
+        await (
+          await this.logger.zoom(
+            { user: teacher },
+            { zoomUser: { ...zoomUser, ...data }, user: teacher },
+            this.request.user || {}
+          )
+        ).save();
+
+        return {
+          status: true,
+          message: "Success Reassigned License",
+        };
+      }
+
+      error = {
+        message: "Failed to update user on zoom API",
+        teacher,
+        newUser,
+        zoomUser,
+        updatedUser,
+      };
+    } catch (e) {
+      error = e;
+    }
+
+    await (
+      await this.logger.customZoom(
+        to,
+        `Reassign Failed: ${error.message}`,
+        "FAILED_REASSIGNMENT",
+        { error, from, to },
+        this.request.user || {}
+      )
+    ).save();
+
+    return { status: 400, message: error.message };
   }
 }

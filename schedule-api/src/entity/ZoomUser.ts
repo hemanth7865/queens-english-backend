@@ -11,7 +11,8 @@ import {
   OneToMany,
   PrimaryColumn,
 } from "typeorm";
-import { User } from "./user";
+import { User } from "./User";
+import { ZoomMeeting } from "./ZoomMeeting";
 
 /**
  * Student transaction information
@@ -36,7 +37,12 @@ export class ZoomUser extends BaseEntity {
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
-  // @OneToOne((type) => User, (user) => user.id)
-  // @JoinColumn({ name: "user_id" })
-  // user: User;
+
+  @OneToOne((type) => User, (user) => user.zoom_user)
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
+  @OneToMany((type) => ZoomMeeting, (ZoomMeeting) => ZoomMeeting.zoom_user)
+  @JoinColumn({ name: "host_id" })
+  meetings: ZoomMeeting[];
 }

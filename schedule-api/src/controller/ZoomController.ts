@@ -70,7 +70,25 @@ export class ZoomController {
   ) {
     this.zoomUserService.request = request;
     return {
-      data: await this.zoomUserService.deleteTeachersLicense(),
+      data: await this.zoomUserService.deleteTeachersLicense(request.params.id),
+    };
+  }
+
+  /**
+   * Delete Account On Zoom For Each Teacher
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async deleteAllTeachersLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return {
+      data: await this.zoomUserService.deleteAllTeachersLicense(),
     };
   }
 
@@ -136,5 +154,64 @@ export class ZoomController {
   ) {
     this.zoomMeetingService.request = request;
     return await this.zoomMeetingService.generateActiveBatchesZoomLink();
+  }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async listZoomUsers(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.listZoomUsers(request.query);
+  }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async showZoomUser(request: Request, response: Response, next: NextFunction) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.showZoomUser(request.params.id);
+  }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async addLicense(request: Request, response: Response, next: NextFunction) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.addLicense(request.params.id);
+  }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async reassignLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.reassignLicense(
+      request.params.from,
+      request.params.to
+    );
   }
 }

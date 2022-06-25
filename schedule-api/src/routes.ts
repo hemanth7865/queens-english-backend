@@ -366,6 +366,10 @@ export const Routes = [
     action: "serve",
     authenticate: true,
   },
+
+  /**
+   * Start API/Tests For Zoom
+   */
   {
     method: "get",
     route: "/zoom-users/without-license",
@@ -382,21 +386,25 @@ export const Routes = [
   },
   {
     method: "get",
-    route: "/zoom-meetings/batches-without-meeting",
-    controller: ZoomController,
-    action: "getBatchesWithoutZoomLink",
-    // authenticate: true,
-  },
-  {
-    method: "get",
     route: "/zoom-meetings/active-batches-without-meeting",
     controller: ZoomController,
     action: "getActiveBatchesWithoutZoomLink",
     // authenticate: true,
   },
-  // generate license for all teachers
   {
     method: "get",
+    route: "/zoom-meetings/batches-without-meeting",
+    controller: ZoomController,
+    action: "getBatchesWithoutZoomLink",
+    // authenticate: true,
+  },
+
+  /**
+   * Generators
+   */
+  // generate license for all teachers
+  {
+    method: "post",
     route: "/zoom-users/generate-license",
     controller: ZoomController,
     action: "generateTeachersLicense",
@@ -404,24 +412,64 @@ export const Routes = [
   },
   // generate license for teachers with active batches
   {
-    method: "get",
+    method: "post",
     route: "/zoom-users/generate-active-license",
     controller: ZoomController,
     action: "generateActiveTeachersLicense",
     // authenticate: true,
   },
   {
-    method: "get",
-    route: "/zoom-users/delete-license",
-    controller: ZoomController,
-    action: "deleteTeachersLicense",
-    // authenticate: true,
-  },
-  {
-    method: "get",
+    method: "post",
     route: "/zoom-meetings/active-batches-generate-meetings",
     controller: ZoomController,
     action: "generateActiveBatchesZoomLink",
     // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/delete-all-license",
+    controller: ZoomController,
+    action: "deleteAllTeachersLicense",
+    // authenticate: true,
+  },
+
+  /**
+   * End API/TESTS For Zoom
+   */
+
+  {
+    method: "get",
+    route: "/zoom-users",
+    controller: ZoomController,
+    action: "listZoomUsers",
+    authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "showZoomUser",
+    authenticate: true,
+  },
+  {
+    method: "delete",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "deleteTeachersLicense",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "addLicense",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/zoom-user/reassign/:from/:to",
+    controller: ZoomController,
+    action: "reassignLicense",
+    authenticate: true,
   },
 ];
