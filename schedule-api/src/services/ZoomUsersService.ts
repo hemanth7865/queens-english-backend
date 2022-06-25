@@ -13,6 +13,20 @@ export class ZoomUserService {
   private zoomUserRepository = getRepository(ZoomUser);
   private zoomMeetingRepository = getRepository(ZoomMeeting);
   private batchRepository = getRepository(Classes);
+  public defaultUserSettings = {
+    in_meeting: {
+      allow_host_to_enable_focus_mode: true,
+      breakout_room: true,
+      breakout_room_schedule: true,
+      co_host: true,
+      disable_screen_sharing_for_in_meeting_guests: true,
+      waiting_room: false,
+    },
+    schedule_meeting: {
+      audio_type: "both",
+      join_before_host: true,
+    },
+  };
   public request: any = {};
   private logger = new LoggerService();
 
@@ -207,9 +221,18 @@ export class ZoomUserService {
           last_name: teacher.lastName,
         });
         if (createdUser.id) {
+          zoomClient.setUser(createdUser);
           logger.info(
             "Success created teacher zoom account remotely ",
             createdUser
+          );
+
+          const updatedUserSettings = await zoomClient.updateUserSettings(
+            this.defaultUserSettings
+          );
+          logger.info(
+            "Success updated teacher user settings ",
+            updatedUserSettings
           );
           zoomUser.id = createdUser.id;
           zoomUser.first_name = createdUser.first_name;

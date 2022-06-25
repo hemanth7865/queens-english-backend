@@ -7,7 +7,7 @@ const listUserMeetings = require("./listUserMeetings");
 const createUserMeeting = require("./createUserMeeting");
 const deleteUsers = require("./deleteUsers");
 const updateUser = require("./updateUser");
-
+const updateUserSettings = require("./updateUserSettings");
 module.exports = {
   listUsers,
   createUser,
@@ -18,4 +18,5 @@ module.exports = {
   deleteUser,
   deleteUsers,
   updateUser,
+  updateUserSettings,
 };
