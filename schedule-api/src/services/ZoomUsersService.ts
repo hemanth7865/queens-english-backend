@@ -63,6 +63,7 @@ export class ZoomUserService {
           continue;
         }
         if ([].includes(param)) {
+          // custom operators
         } else {
           whereCondition.push(`${param} LIKE '%${parameters[param]}%'`);
         }
