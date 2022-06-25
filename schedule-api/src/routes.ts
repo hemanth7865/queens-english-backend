@@ -366,6 +366,10 @@ export const Routes = [
     action: "serve",
     authenticate: true,
   },
+
+  /**
+   * Start API/Tests For Zoom
+   */
   {
     method: "get",
     route: "/zoom-users/without-license",
@@ -412,9 +416,9 @@ export const Routes = [
   },
   {
     method: "get",
-    route: "/zoom-users/delete-license",
+    route: "/zoom-users/delete-all-license",
     controller: ZoomController,
-    action: "deleteTeachersLicense",
+    action: "deleteAllTeachersLicense",
     // authenticate: true,
   },
   {
@@ -424,6 +428,10 @@ export const Routes = [
     action: "generateActiveBatchesZoomLink",
     // authenticate: true,
   },
+  /**
+   * End API/TESTS For Zoom
+   */
+
   {
     method: "get",
     route: "/zoom-users",
@@ -436,6 +444,13 @@ export const Routes = [
     route: "/zoom-user/:id",
     controller: ZoomController,
     action: "showZoomUser",
+    authenticate: true,
+  },
+  {
+    method: "delete",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "deleteTeachersLicense",
     authenticate: true,
   },
 ];

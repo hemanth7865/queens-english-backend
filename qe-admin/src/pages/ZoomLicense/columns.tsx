@@ -5,13 +5,14 @@ import {
   MoneyCollectTwoTone,
   PlusSquareTwoTone,
   ReloadOutlined,
-  EyeOutlined
+  EyeOutlined,
+  DeleteOutlined
 } from "@ant-design/icons";
 import type { ProColumns } from "@ant-design/pro-table";
 import { Typography } from 'antd';
 import moment from "moment";
 
-export const columns: (handleShow: (data: any) => any) => ProColumns<any>[] = (setShow) => [
+export const columns: (handleShow: (data: any) => any, handleDelete: (data: any) => any) => ProColumns<any>[] = (setShow, handleDelete) => [
   {
     title: "First Name",
     dataIndex: "first_name",
@@ -79,9 +80,12 @@ export const columns: (handleShow: (data: any) => any) => ProColumns<any>[] = (s
     width: 240,
     render: (dom, entity) => {
       return (
-        <div>
+        <div style={{ display: "flex", gap: 10 }}>
           <Typography.Link onClick={() => setShow(entity)}>
             <EyeOutlined title="Show" />
+          </Typography.Link>
+          <Typography.Link onClick={() => handleDelete(entity)}>
+            <DeleteOutlined title="Delete" />
           </Typography.Link>
         </div>
       );

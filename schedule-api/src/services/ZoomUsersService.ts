@@ -364,7 +364,16 @@ export class ZoomUserService {
     return result;
   }
 
-  async deleteTeachersLicense(): Promise<{
+  async deleteTeachersLicense(id: string): Promise<{
+    deleted: number;
+    error: number;
+    errors: any;
+  }> {
+    const users = await this.zoomUserRepository.findOne(id);
+    return await this.deleteLicense([users]);
+  }
+
+  async deleteAllTeachersLicense(): Promise<{
     deleted: number;
     error: number;
     errors: any;

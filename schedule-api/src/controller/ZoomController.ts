@@ -70,7 +70,25 @@ export class ZoomController {
   ) {
     this.zoomUserService.request = request;
     return {
-      data: await this.zoomUserService.deleteTeachersLicense(),
+      data: await this.zoomUserService.deleteTeachersLicense(request.params.id),
+    };
+  }
+
+  /**
+   * Delete Account On Zoom For Each Teacher
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async deleteAllTeachersLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return {
+      data: await this.zoomUserService.deleteAllTeachersLicense(),
     };
   }
 
