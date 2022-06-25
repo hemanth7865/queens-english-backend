@@ -1,4 +1,3 @@
-import React from "react";
 import { Col, Row, Table, Space } from "antd";
 
 interface Props {
@@ -94,9 +93,7 @@ const Show = ({ data }: Props) => {
                 </Row>
             </Space>
             <h3 style={{ marginTop: 20, marginBottom: 20, textAlign: "center" }}>Zoom Links Details</h3>
-            <Table dataSource={data?.meetings || []} columns={columns}>
-
-            </Table>
+            <Table dataSource={data?.meetings || []} columns={columns}></Table>
         </div>
     ) : <></>;
 };

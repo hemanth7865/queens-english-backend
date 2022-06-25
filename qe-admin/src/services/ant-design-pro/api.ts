@@ -668,3 +668,10 @@ export async function getZoomUser(id: string) {
     method: "GET",
   });
 }
+
+//delete zoom user
+export async function deleteZoomUser(id: string) {
+  return request<API.Any>(`/be/zoom-user/${id}`, {
+    method: "DELETE",
+  });
+}

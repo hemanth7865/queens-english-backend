@@ -11,6 +11,7 @@ const moment = require("moment");
 export class ZoomUserService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
+  private zoomMeetingRepository = getRepository(ZoomMeeting);
   private batchRepository = getRepository(Classes);
   public request: any = {};
   private logger = new LoggerService();
@@ -304,10 +305,19 @@ export class ZoomUserService {
             resultRemote
           );
           const deleteResult = await this.zoomUserRepository.remove(user);
+
           logger.info(
             "Success deleted teacher zoom account locally ",
             deleteResult
           );
+
+          // const deleteMeetingsResult = await this.zoomMeetingRepository.delete({
+          //   host_id: user.id,
+          // });
+          // logger.info(
+          //   "Success deleted zoom meeting locally ",
+          //   deleteMeetingsResult
+          // );
           result.deleted++;
           await (
             await this.logger.customZoom(

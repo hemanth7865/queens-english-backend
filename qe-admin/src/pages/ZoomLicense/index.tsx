@@ -4,7 +4,7 @@ import { useIntl } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllZoomUsers, getZoomUser, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
+import { getAllZoomUsers, getZoomUser, deleteZoomUser, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import Show from './Components/Show';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
@@ -82,6 +82,18 @@ const TableList: React.FC = () => {
         actionRef.current?.reload();
     }
 
+    const handleDelete = async (data: any) => {
+        if (confirm("Are you sure delete zoom user license ?")) {
+            try {
+                const msg = await deleteZoomUser(data.id);
+                handleAPIResponse(msg, "Deleted Zoom User License Successfully", "Failed To Delete User License", false);
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Deleted Zoom User License Successfully", "Failed To Delete User License", false);
+            }
+        }
+        actionRef.current?.reload();
+    }
+
     const handleShow = async (data: any) => {
         setIsLoading(true);
         try {
@@ -90,11 +102,10 @@ const TableList: React.FC = () => {
         } catch (e) {
             handleAPIResponse({ status: 400 }, "", "Failed To Show Zoom License Info", false);
         }
-
         setIsLoading(false);
     }
 
-    const columns = columnsMethod(handleShow);
+    const columns = columnsMethod(handleShow, handleDelete);
 
     return (
         <PageContainer>
