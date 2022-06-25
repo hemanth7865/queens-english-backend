@@ -91,7 +91,7 @@ export class ZoomUserService {
       };
     } catch (e) {
       logger.error(e);
-      return { error: e.message };
+      return { status: 400, message: e.message };
     }
   }
 
@@ -118,7 +118,7 @@ export class ZoomUserService {
       };
     } catch (e) {
       logger.error(e);
-      return { error: e.message };
+      return { status: 400, message: e.message };
     }
   }
 
