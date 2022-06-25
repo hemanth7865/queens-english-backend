@@ -8,6 +8,7 @@ import { getAllZoomUsers, getZoomUser, deleteZoomUser, addZoomUser, reassignZoom
 import Show from './Components/Show';
 import Add from './Components/Add';
 import Reassign from './Components/Reassign';
+import Generate from './Components/Generate';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import { columns as columnsMethod } from "./columns";
 
@@ -21,6 +22,7 @@ const TableList: React.FC = () => {
     const [show, setShow] = useState<any>();
     const [addLicense, setAddLicense] = useState<boolean>(false);
     const [reassign, setReassign] = useState<boolean>(false);
+    const [generate, setGenerate] = useState<boolean>(false);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -31,7 +33,7 @@ const TableList: React.FC = () => {
         if (confirm("Are you sure delete zoom user license ?")) {
             try {
                 const msg = await deleteZoomUser(data.id);
-                if (!(msg?.deleted > 0)) {
+                if (!(msg?.data.deleted > 0)) {
                     throw new Error("Failed To Deleted");
                 }
                 handleAPIResponse(msg, "Deleted Zoom User License Successfully", "Failed To Delete User License", false);
@@ -71,7 +73,6 @@ const TableList: React.FC = () => {
         actionRef.current?.reload();
     }
 
-
     const handleShow = async (data: any) => {
         setIsLoading(true);
         try {
@@ -103,7 +104,10 @@ const TableList: React.FC = () => {
                     toolBarRender={() => [
                         <Button type="primary" key="primary" onClick={() => setAddLicense(true)}>
                             Add License
-                        </Button>
+                        </Button>,
+                        <Button type="primary" key="primary1" onClick={() => setGenerate(true)}>
+                            Advanced Generates
+                        </Button>,
                     ]
                     }
                 />
@@ -144,6 +148,20 @@ const TableList: React.FC = () => {
                 centered
             >
                 <Reassign handleReassignLicense={handleReassignLicense} isLoading={isLoading} data={reassign} />
+            </Modal>
+
+
+            <Modal
+                width={700}
+                visible={generate}
+                title={`Generate APIs`}
+                onCancel={() => {
+                    setGenerate(false);
+                }}
+                footer={null}
+                centered
+            >
+                <Generate />
             </Modal>
 
         </PageContainer>
