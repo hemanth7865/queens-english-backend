@@ -151,6 +151,6 @@ export class ZoomController {
     next: NextFunction
   ) {
     this.zoomUserService.request = request;
-    return await this.zoomUserService.listZoomUsers();
+    return await this.zoomUserService.listZoomUsers(request.query);
   }
 }

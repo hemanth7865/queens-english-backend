@@ -1,4 +1,4 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, createQueryBuilder } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
@@ -54,17 +54,14 @@ export class ZoomUserService {
           ? whereCondition.join(" and ")
           : whereCondition.toString();
 
-      const query = await getManager()
-        .createQueryBuilder(ZoomUser, "zoom_user")
-        .leftJoinAndSelect(User, "user", "zoom_user.user_id = user.id")
-        .leftJoinAndSelect(
-          ZoomMeeting,
-          "zoom_meeting",
-          "zoom_meeting.user_id = user.id"
-        )
+      const query = await createQueryBuilder(ZoomUser, "zoom_user")
+        .leftJoinAndSelect("zoom_user.meetings", "meetings")
+        .leftJoinAndSelect("zoom_user.user", "user")
         .where(condition);
 
-      const data = await query.offset(offsetRecords).limit(limit).getRawMany();
+      console.log(condition);
+      
+      const data = await query.offset(offsetRecords).limit(limit).getMany();
       const total = await query.getCount();
 
       return {
