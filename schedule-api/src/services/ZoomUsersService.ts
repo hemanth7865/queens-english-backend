@@ -40,12 +40,16 @@ export class ZoomUserService {
       const whereCondition: string[] = [];
       whereCondition.push(" 1 = 1 ");
       for (let param in parameters) {
+        if (parameters[param].length < 1) {
+          continue;
+        }
+
         if (["current", "pageSize"].includes(param)) {
           continue;
         }
         if ([].includes(param)) {
         } else {
-          whereCondition.push(`${param} = '${parameters[param]}'`);
+          whereCondition.push(`${param} LIKE '%${parameters[param]}%'`);
         }
       }
 
