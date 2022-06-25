@@ -175,11 +175,6 @@ export class ZoomMeetingService {
           // duration: duration,
           password: "QE",
           // pre_schedule: true,
-          recurrence: {
-            end_date_time: batch.classEndDate,
-            type: 2,
-            weekly_days: "1,2,4",
-          },
           settings: {
             approval_type: 2,
             join_before_host: true,
@@ -193,7 +188,7 @@ export class ZoomMeetingService {
             "Batch: " +
             batch.batchNumber +
             `, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
-          type: 8,
+          type: 2,
         };
         const createdMeeting = await zoomClient.createUserMeeting(meeting);
         if (createdMeeting.id) {
