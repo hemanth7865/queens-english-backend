@@ -11,6 +11,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from "typeorm";
+import { Classes } from "./Classes";
 import { User } from "./User";
 import { ZoomUser } from "./ZoomUser";
 
@@ -47,4 +48,8 @@ export class ZoomMeeting extends BaseEntity {
   @ManyToOne((type) => ZoomUser, (zoom_user) => zoom_user.meetings)
   @JoinColumn({ name: "host_id" })
   zoom_user: ZoomUser;
+
+  @OneToOne((type) => Classes, (batch) => batch.meeting)
+  @JoinColumn({ name: "batch_id" })
+  batch: Classes;
 }

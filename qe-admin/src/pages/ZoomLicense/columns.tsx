@@ -5,12 +5,13 @@ import {
   MoneyCollectTwoTone,
   PlusSquareTwoTone,
   ReloadOutlined,
+  EyeOutlined
 } from "@ant-design/icons";
-import type { ProColumns, ActionType } from "@ant-design/pro-table";
+import type { ProColumns } from "@ant-design/pro-table";
 import { Typography } from 'antd';
 import moment from "moment";
 
-export const columns: (handleShow: (data: any) => any) => ProColumns<any>[] = (handleShow) => [
+export const columns: (handleShow: (data: any) => any) => ProColumns<any>[] = (setShow) => [
   {
     title: "First Name",
     dataIndex: "first_name",
@@ -55,11 +56,20 @@ export const columns: (handleShow: (data: any) => any) => ProColumns<any>[] = (h
     hideInTable: true,
   },
   {
-    title: "Creation Date",
+    title: "Updated Date",
+    render: (dom, entity) => {
+      return moment(entity.updated_at).format("MM/DD/YYYY HH:mm:ss");
+    },
+    hideInSearch: true,
+    valueType: 'date',
+  },
+  {
+    title: "Created Date",
     render: (dom, entity) => {
       return moment(entity.created_at).format("MM/DD/YYYY HH:mm:ss");
     },
     hideInSearch: true,
+    valueType: 'date',
   },
   {
     title: "Operations",
@@ -70,8 +80,8 @@ export const columns: (handleShow: (data: any) => any) => ProColumns<any>[] = (h
     render: (dom, entity) => {
       return (
         <div>
-          <Typography.Link onClick={() => handleShow(entity)}>
-            <LinkOutlined title="Regenerate Link" />
+          <Typography.Link onClick={() => setShow(entity)}>
+            <EyeOutlined title="Show" />
           </Typography.Link>
         </div>
       );

@@ -1,14 +1,12 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select } from 'antd';
 import React, { useState, useRef } from 'react';
-import { useIntl, FormattedMessage } from 'umi';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
-import type { ProColumns, ActionType } from '@ant-design/pro-table';
+import { useIntl } from 'umi';
+import { PageContainer } from '@ant-design/pro-layout';
+import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllZoomUsers, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
+import { getAllZoomUsers, getZoomUser, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
-import RazorpayDetails from './Components/RazorpayDetails';
-import moment from 'moment';
+import Show from './Components/Show';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import { columns as columnsMethod } from "./columns";
 
@@ -21,7 +19,7 @@ const { Option } = Select
 
 const TableList: React.FC = () => {
     const actionRef = useRef<ActionType>();
-    const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+    const [show, setShow] = useState<any>();
 
     const [visible, setVisible] = useState<boolean>(false);
     const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
@@ -30,8 +28,6 @@ const TableList: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isWhatsappVisible, setIsWhatsappVisible] = useState(false);
     const [isAmountDisplay, setIsAmountDisplay] = useState(false);
-    const [displayRazorpay, setDisplayRazorpay] = useState(false);
-    const [otherPayment, setOtherPayment] = useState(false);
     const [netbankingVisible, setNetbankingVisible] = useState(false);
     const [autodebitVisible, setAutodebitVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -86,7 +82,19 @@ const TableList: React.FC = () => {
         actionRef.current?.reload();
     }
 
-    const columns = columnsMethod(handleRefreshStatus);
+    const handleShow = async (data: any) => {
+        setIsLoading(true);
+        try {
+            const response = await getZoomUser(data.id);
+            setShow(response.data);
+        } catch (e) {
+            handleAPIResponse({ status: 400 }, "", "Failed To Show Zoom License Info", false);
+        }
+
+        setIsLoading(false);
+    }
+
+    const columns = columnsMethod(handleShow);
 
     return (
         <PageContainer>
@@ -106,16 +114,15 @@ const TableList: React.FC = () => {
                 />
             </Spin>
             <Drawer
-                width={600}
-                visible={displayRazorpay}
-                title="Razorpay details"
+                width={800}
+                visible={show}
+                title={`Zoom License ${show?.first_name} Details`}
                 onClose={() => {
-                    setCurrentRow('');
-                    setDisplayRazorpay(false);
+                    setShow(undefined);
                 }}
                 closable={true}
             >
-                <RazorpayDetails data={currentRow} />
+                <Show data={show} />
             </Drawer>
 
             <Modal

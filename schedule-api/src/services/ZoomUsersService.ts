@@ -11,6 +11,7 @@ const moment = require("moment");
 export class ZoomUserService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
+  private batchRepository = getRepository(Classes);
   public request: any = {};
   private logger = new LoggerService();
 
@@ -88,6 +89,14 @@ export class ZoomUserService {
         .where(`zoom_user.id = "${id}"`);
 
       const data = await query.getOne();
+
+      if (data?.meetings) {
+        for (let meetingIndex in data.meetings) {
+          const meetings = data.meetings[meetingIndex];
+          data.meetings[meetingIndex].batch =
+            await this.batchRepository.findOne(meetings.batch_id);
+        }
+      }
 
       return {
         success: true,

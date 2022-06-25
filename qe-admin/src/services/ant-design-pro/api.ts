@@ -643,7 +643,7 @@ export async function refreshRazorpayStatus(
   );
 }
 
-//get all zoom users
+//get all zoom
 export async function getAllZoomUsers(
   //studentId: string,
   params: {
@@ -656,7 +656,15 @@ export async function getAllZoomUsers(
     method: "GET",
     params: {
       ...params,
+      //studentId,
     },
     ...(options || {}),
+  });
+}
+
+//get zoom user details
+export async function getZoomUser(id: string) {
+  return request<API.Any>(`/be/zoom-user/${id}`, {
+    method: "GET",
   });
 }
