@@ -453,4 +453,11 @@ export const Routes = [
     action: "deleteTeachersLicense",
     authenticate: true,
   },
+  {
+    method: "post",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "addLicense",
+    authenticate: true,
+  },
 ];

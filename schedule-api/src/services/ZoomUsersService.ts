@@ -121,22 +121,25 @@ export class ZoomUserService {
     }
   }
 
-  async getTeachersWithoutLicense(): Promise<User[]> {
+  async getTeachersWithoutLicense(where: string = ""): Promise<User[]> {
     try {
       const teachers = await getManager()
         .createQueryBuilder(User, "teacher")
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
-        .where("teacher.type = 'teacher' AND user.id IS NULL")
+        .where(`teacher.type = 'teacher' AND user.id IS NULL${where}`)
         .getMany();
-      await (
-        await this.logger.customZoom(
-          "TEACHERS_WITHOUT_LICENSE",
-          `You have ${teachers.length} Teachers That Don't Have Licensed Account On Zoom.`,
-          "ALL_TEACHERS_WITHOUT_LICENSE",
-          {},
-          this.request?.user
-        )
-      ).save();
+      if (where.length < 1) {
+        await (
+          await this.logger.customZoom(
+            "TEACHERS_WITHOUT_LICENSE",
+            `You have ${teachers.length} Teachers That Don't Have Licensed Account On Zoom.`,
+            "ALL_TEACHERS_WITHOUT_LICENSE",
+            {},
+            this.request?.user
+          )
+        ).save();
+      }
+
       return teachers;
     } catch (e) {
       logger.error(e);
@@ -281,6 +284,17 @@ export class ZoomUserService {
     errors: any;
   }> {
     const teachers = await this.getActiveTeachersWithoutLicense();
+    return await this.generateLicenses(teachers);
+  }
+
+  async addLicense(id: string): Promise<{
+    created: number;
+    error: number;
+    errors: any;
+  }> {
+    const teachers = await this.getTeachersWithoutLicense(
+      ` And teacher.id = '${id}'`
+    );
     return await this.generateLicenses(teachers);
   }
 

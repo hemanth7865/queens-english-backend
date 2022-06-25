@@ -1,12 +1,12 @@
-import { Button, Drawer, Modal, Popover, Typography, Spin, Select } from 'antd';
+import { Button, Drawer, Spin, Modal } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllZoomUsers, getZoomUser, deleteZoomUser, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
-import FormUser from './Components/FormUser';
+import { getAllZoomUsers, getZoomUser, deleteZoomUser, addZoomUser } from '@/services/ant-design-pro/api';
 import Show from './Components/Show';
+import Add from './Components/Add';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import { columns as columnsMethod } from "./columns";
 
@@ -15,81 +15,41 @@ import { columns as columnsMethod } from "./columns";
  * @zh-CN 添加节点
  * @param fields
  */
-const { Option } = Select
-
 const TableList: React.FC = () => {
     const actionRef = useRef<ActionType>();
     const [show, setShow] = useState<any>();
+    const [addLicense, setAddLicense] = useState<boolean>(false);
 
-    const [visible, setVisible] = useState<boolean>(false);
-    const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
-    const [tempData, setTempData] = useState();
-
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isWhatsappVisible, setIsWhatsappVisible] = useState(false);
-    const [isAmountDisplay, setIsAmountDisplay] = useState(false);
-    const [netbankingVisible, setNetbankingVisible] = useState(false);
-    const [autodebitVisible, setAutodebitVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
 
     const intl = useIntl();
 
-    const closeModal = () => {
-        setIsModalVisible(false);
-        setIsWhatsappVisible(false);
-        setVisible(false);
-        setIsAmountDisplay(false);
-        setAutodebitVisible(false);
-        setNetbankingVisible(false);
-    }
-
-    const regenerateLink = async (data: any) => {
-        try {
-            const msg = await regeneratePaymentLink({
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ installmentId: data.transactionId }),
-            });
-            handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-        } catch (error) {
-            handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-        }
-    }
-
-    const handleRegenerateLink = async (data: any) => {
-        if (confirm("Are you sure to regenerate new razorpay link ?")) {
-            setIsLoading(true);
-            await regenerateLink(data);
-            setIsLoading(false);
-        }
-        actionRef.current?.reload();
-    }
-
-    const handleRefreshStatus = async (data: any) => {
-        if (confirm("Are you sure to refresh the installment status ?")) {
-            try {
-                const msg = await refreshRazorpayStatus(
-                    data.transactionId,
-                    data.referenceId,
-                );
-                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
-            } catch (error) {
-                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
-            }
-        }
-        actionRef.current?.reload();
-    }
-
     const handleDelete = async (data: any) => {
         if (confirm("Are you sure delete zoom user license ?")) {
             try {
                 const msg = await deleteZoomUser(data.id);
+                if (!(msg?.deleted > 0)) {
+                    throw new Error("Failed To Deleted");
+                }
                 handleAPIResponse(msg, "Deleted Zoom User License Successfully", "Failed To Delete User License", false);
             } catch (error) {
                 handleAPIResponse({ status: 400 }, "Deleted Zoom User License Successfully", "Failed To Delete User License", false);
             }
+        }
+        actionRef.current?.reload();
+    }
+
+    const handleAddLicense = async (id: string) => {
+        try {
+            const msg: any = await addZoomUser(id);
+            if (!(msg?.created > 0)) {
+                throw new Error("Failed To Add");
+            }
+            handleAPIResponse(msg, "Created Zoom User License Successfully", "Failed To Add User License", false);
+            setAddLicense(false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Created Zoom User License Successfully", "Failed To Add User License", false);
         }
         actionRef.current?.reload();
     }
@@ -122,6 +82,12 @@ const TableList: React.FC = () => {
                     }}
                     request={getAllZoomUsers}
                     columns={columns}
+                    toolBarRender={() => [
+                        <Button type="primary" key="primary" onClick={() => setAddLicense(true)}>
+                            Add License
+                        </Button>
+                    ]
+                    }
                 />
             </Spin>
             <Drawer
@@ -137,6 +103,19 @@ const TableList: React.FC = () => {
             </Drawer>
 
             <Modal
+                width={500}
+                visible={addLicense}
+                title={`Add New Zoom License`}
+                onCancel={() => {
+                    setAddLicense(false);
+                }}
+                footer={null}
+                centered
+            >
+                <Add handleAddLicense={handleAddLicense} isLoading={isLoading} />
+            </Modal>
+
+            {/* <Modal
                 title={isWhatsappVisible ? "WA Message" : "Edit"}
                 visible={isModalVisible}
                 footer={null}
@@ -157,7 +136,7 @@ const TableList: React.FC = () => {
                     setIsAmountDisplay={setIsAmountDisplay}
                     regenerateLink={regenerateLink}
                 />
-            </Modal>
+            </Modal> */}
         </PageContainer>
     );
 };
