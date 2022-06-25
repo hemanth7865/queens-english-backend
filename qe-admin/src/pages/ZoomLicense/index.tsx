@@ -30,6 +30,7 @@ const TableList: React.FC = () => {
     const intl = useIntl();
 
     const handleDelete = async (data: any) => {
+        setIsLoading(true);
         if (confirm("Are you sure delete zoom user license ?")) {
             try {
                 const msg = await deleteZoomUser(data.id);
@@ -41,6 +42,7 @@ const TableList: React.FC = () => {
                 handleAPIResponse({ status: 400 }, "Deleted Zoom User License Successfully", "Failed To Delete User License", false);
             }
         }
+        setIsLoading(false);
         actionRef.current?.reload();
     }
 

@@ -12,6 +12,12 @@ export class ZoomMeetingService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
   private zoomMeetingRepository = getRepository(ZoomMeeting);
+  public zoomMeetingTypes = {
+    RESCHEDULED_MEETING: 2,
+  };
+  public zoomMeetingApproveType = {
+    NO_REGISTRATION_REQUIRED: 2,
+  };
 
   public request: any = {};
   private logger = new LoggerService();
@@ -176,7 +182,7 @@ export class ZoomMeetingService {
           password: "QE",
           // pre_schedule: true,
           settings: {
-            approval_type: 2,
+            approval_type: this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
             join_before_host: true,
             meeting_authentication: false,
             waiting_room: false,
@@ -184,11 +190,15 @@ export class ZoomMeetingService {
           },
           waiting_room: false,
           start_time: batch.lessonStartTime,
+          breakout_room: {
+            enable: true,
+          },
+          co_host: true,
           topic:
             "Batch: " +
             batch.batchNumber +
             `, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
-          type: 2,
+          type: this.zoomMeetingTypes.RESCHEDULED_MEETING,
         };
         const createdMeeting = await zoomClient.createUserMeeting(meeting);
         if (createdMeeting.id) {

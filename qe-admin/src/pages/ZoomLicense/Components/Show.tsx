@@ -45,6 +45,14 @@ const Show = ({ data }: Props) => {
             <Space>
                 <Row gutter={[16, 15]}>
                     <Col span={8}>
+                        <div>ID</div>
+                    </Col>
+                    <Col span={16}>
+                        <div>
+                            {data.id}
+                        </div>
+                    </Col>
+                    <Col span={8}>
                         <div>License Owner Name</div>
                     </Col>
                     <Col span={16}>
