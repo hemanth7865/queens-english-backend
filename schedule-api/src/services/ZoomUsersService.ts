@@ -59,8 +59,6 @@ export class ZoomUserService {
         .leftJoinAndSelect("zoom_user.user", "user")
         .where(condition);
 
-      console.log(condition);
-      
       const data = await query.offset(offsetRecords).limit(limit).getMany();
       const total = await query.getCount();
 
@@ -71,6 +69,25 @@ export class ZoomUserService {
         total,
         data,
         status: 200,
+      };
+    } catch (e) {
+      logger.error(e);
+      return { error: e.message };
+    }
+  }
+
+  async showZoomUser(id: string): Promise<any> {
+    try {
+      const query = await createQueryBuilder(ZoomUser, "zoom_user")
+        .leftJoinAndSelect("zoom_user.meetings", "meetings")
+        .leftJoinAndSelect("zoom_user.user", "user")
+        .where(`zoom_user.id = "${id}"`);
+
+      const data = await query.getOne();
+
+      return {
+        success: true,
+        data,
       };
     } catch (e) {
       logger.error(e);

@@ -431,4 +431,11 @@ export const Routes = [
     action: "listZoomUsers",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "showZoomUser",
+    authenticate: true,
+  },
 ];
