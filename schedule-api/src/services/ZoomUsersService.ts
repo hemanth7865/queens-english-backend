@@ -19,7 +19,6 @@ export class ZoomUserService {
       breakout_room: true,
       breakout_room_schedule: true,
       co_host: true,
-      disable_screen_sharing_for_in_meeting_guests: true,
       waiting_room: false,
     },
     schedule_meeting: {
