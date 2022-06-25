@@ -1,6 +1,7 @@
 import { getRepository, getManager } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
+import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import zoomClient from "./../utils/zoom/zoomClient";
 const { logger } = require("../Logger.js");
@@ -25,6 +26,58 @@ export class ZoomUserService {
     } catch (e) {
       logger.error(e);
       return false;
+    }
+  }
+
+  async listZoomUsers(
+    parameters: { current?: string; pageSize?: string } = {}
+  ): Promise<any> {
+    try {
+      const current = parameters.current ? parseInt(parameters.current) : 0;
+      const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
+      const offsetRecords = (current - 1) * limit;
+
+      const whereCondition: string[] = [];
+      whereCondition.push(" 1 = 1 ");
+      for (let param in parameters) {
+        if (["current", "pageSize"].includes(param)) {
+          continue;
+        }
+        if ([].includes(param)) {
+        } else {
+          whereCondition.push(`${param} = '${parameters[param]}'`);
+        }
+      }
+
+      const condition =
+        whereCondition.length > 1
+          ? whereCondition.join(" and ")
+          : whereCondition.toString();
+
+      const query = await getManager()
+        .createQueryBuilder(ZoomUser, "zoom_user")
+        .leftJoinAndSelect(User, "user", "zoom_user.user_id = user.id")
+        .leftJoinAndSelect(
+          ZoomMeeting,
+          "zoom_meeting",
+          "zoom_meeting.user_id = user.id"
+        )
+        .where(condition);
+
+      const data = await query.offset(offsetRecords).limit(limit).getRawMany();
+      const total = await query.getCount();
+
+      return {
+        success: true,
+        pageSize: limit,
+        current,
+        total,
+        data,
+        status: 200,
+      };
+    } catch (e) {
+      logger.error(e);
+      return { error: e.message };
     }
   }
 

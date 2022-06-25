@@ -424,4 +424,11 @@ export const Routes = [
     action: "generateActiveBatchesZoomLink",
     // authenticate: true,
   },
+  {
+    method: "get",
+    route: "/zoom-users",
+    controller: ZoomController,
+    action: "listZoomUsers",
+    authenticate: true,
+  },
 ];

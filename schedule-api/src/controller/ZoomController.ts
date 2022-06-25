@@ -137,4 +137,20 @@ export class ZoomController {
     this.zoomMeetingService.request = request;
     return await this.zoomMeetingService.generateActiveBatchesZoomLink();
   }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async listZoomUsers(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.listZoomUsers();
+  }
 }
