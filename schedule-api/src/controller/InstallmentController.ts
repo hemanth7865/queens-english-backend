@@ -35,7 +35,7 @@ export class InstallmentController {
             const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
               paymentId
             );
-            logger.debug('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
+            logger.info('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
             if (paymentLinkDetails.status === "paid") {
               var paidDate = moment().format("YYYY-MM-DD HH:mm:ss");
               logger.debug('Default paid date: ' + paidDate);
@@ -45,21 +45,35 @@ export class InstallmentController {
                 logger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
               }
   
-              await this.service.updateInstallment(payment.id, {
+              let data:any = {
                 status: this.COMPLETED_STATUS,
                 paidAmount: paymentLinkDetails.amount / 100,
                 paidDate: paidDate,
                 lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
-              });
+              };
+              logger.info('refresh link: '+request.query?.refreshLink);
+              if(request.query?.refreshLink == true){
+                logger.info('refresh link url: '+paymentLinkDetails.short_url);
+                data['paymentLink'] = paymentLinkDetails.short_url;
+              }
+              logger.info('data for update: '+JSON.stringify(data));
+              await this.service.updateInstallment(payment.id, data);
               result.paid++;
               logger.info(
                 `InstallmentController.updateTransctionPaymentStatus: Mark Payment: ${paymentId} As Paid.`
               );
             } else {
               result.ignored++;
-              await this.service.updateInstallment(payment.id, {
+              let data:any = {
                 lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-              });
+              };
+              logger.info('refresh link: '+request.query?.refreshLink);
+              if(request.query?.refreshLink == true){
+                logger.info('refresh link url: '+paymentLinkDetails.short_url);
+                data['paymentLink'] = paymentLinkDetails.short_url;
+              }
+              logger.info('data for update: '+JSON.stringify(data));
+              await this.service.updateInstallment(payment.id, data);
             }  
         } catch (e) {
           if (e?.error?.description === "The id provided does not exist") {

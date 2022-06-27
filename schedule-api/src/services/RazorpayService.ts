@@ -13,6 +13,7 @@ export interface Payment {
   id: string;
   status: string;
   amount: number;
+  short_url: number;
   payments: any[];
 }
 
