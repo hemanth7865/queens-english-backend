@@ -25,6 +25,11 @@ export class ZoomUserService {
       audio_type: "both",
       join_before_host: true,
     },
+    recording: {
+      auto_recording: "cloud",
+      cloud_recording: true,
+      host_pause_stop_recording: false,
+    },
   };
   public request: any = {};
   private logger = new LoggerService();
