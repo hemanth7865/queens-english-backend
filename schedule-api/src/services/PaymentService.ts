@@ -322,7 +322,7 @@ export class PaymentService {
         transaction.paidAmount = data.paidAmount;
         transaction.status = data.status;
         //payment details from razor pay
-        transaction.transactionId = data.paymentId;
+        transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
 
         var transactions = await this.transactionRepository.save(transaction);
