@@ -633,9 +633,13 @@ export async function editNetBanking(options?: { [key: string]: any }) {
 }
 
 //Refresh the installment status
-export async function refreshRazorpayStatus(transactionId: string, reference_id: string, options?: { [key: string]: any }) {
+export async function refreshRazorpayStatus(
+  transactionId: string,
+  reference_id: string,
+  refreshLink?: any,
+  options?: { [key: string]: any }) {
   console.log('option', options)
-  return request<any>(`/be/update-installment-status?installment_id=${transactionId}&reference_id=${reference_id}`, {
+  return request<any>(`/be/update-installment-status?installment_id=${transactionId}&reference_id=${reference_id}&refreshLink=${refreshLink}`, {
     method: 'POST',
     ...(options || {}),
   });

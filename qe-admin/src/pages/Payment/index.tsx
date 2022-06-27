@@ -87,12 +87,12 @@ const TableList: React.FC = () => {
         }
     }
 
-    const refreshStatus = async (data: any) => {
-
+    const refreshStatus = async (data: any, refreshLink: boolean) => {
         try {
             const msg = await refreshRazorpayStatus(
                 data.transactionId,
                 data.referenceId,
+                refreshLink
             );
             handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
         } catch (error) {
@@ -118,12 +118,13 @@ const TableList: React.FC = () => {
     const handleRefreshStatus = async (data: any) => {
         if (data.status == "Installment Pending") {
             if (confirm("Are you sure to refresh the installment status ?")) {
-                await refreshStatus(data);
-                actionRef.current?.reload();
+                await refreshStatus(data, false);
             }
+            actionRef.current?.reload();
         } else {
             messageForPaidStatus();
         }
+
     }
 
     const handleVisibleChange = (newVisible: boolean) => {

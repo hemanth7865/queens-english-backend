@@ -112,7 +112,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 await props.regenerateLink({ transactionId });
             } else if (values.referenceId != referenceId) {
                 await editPaymentDetails(dataForm);
-                await props.refreshStatus({ transactionId, referenceId: values.referenceId });
+                await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else {
                 await editPaymentDetails(dataForm);
             }
