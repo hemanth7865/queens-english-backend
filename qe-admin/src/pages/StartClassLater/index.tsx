@@ -1015,7 +1015,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
         >
-          <Tabsedit tmpData={tmpData} startclasslaterpage={setstartclasslaterpage} />
+          <Tabsedit tmpData={tmpData} startclasslaterpage={startclasslaterpage} />
         </Drawer>
       </Spin>
     </>

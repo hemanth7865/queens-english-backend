@@ -533,7 +533,7 @@ const StudentOnboard: React.FC = () => {
         prm: prmName
       }
       );
-      setwelcomepage; (true);
+      setwelcomepage(true);
       setData(msg.data.map((item) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
         return item
