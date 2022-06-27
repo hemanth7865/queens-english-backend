@@ -1,5 +1,5 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker } from 'antd';
+import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -12,6 +12,7 @@ import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
+import "./payment.css"
 
 
 /**
@@ -62,6 +63,16 @@ const TableList: React.FC = () => {
         setNetbankingVisible(false);
     }
 
+    const messageForPaidStatus = () => {
+        message.error({
+            content: "Can't update a paid case",
+            duration: 2,
+            style: {
+                fontSize: 'large'
+            }
+        })
+    };
+
     const regenerateLink = async (data: any) => {
         try {
             const msg = await regeneratePaymentLink({
@@ -76,28 +87,44 @@ const TableList: React.FC = () => {
         }
     }
 
-    const handleRegenerateLink = async (data: any) => {
-        if (confirm("Are you sure to regenerate new razorpay link ?")) {
-            setIsLoading(true);
-            await regenerateLink(data);
-            setIsLoading(false);
+    const refreshStatus = async (data: any, refreshLink: boolean) => {
+        try {
+            const msg = await refreshRazorpayStatus(
+                data.transactionId,
+                data.referenceId,
+                refreshLink
+            );
+            handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
         }
-        actionRef.current.reload();
+    }
+
+
+    const handleRegenerateLink = async (data: any) => {
+        if (data.status == "Installment Pending") {
+            if (confirm("Are you sure to regenerate new razorpay link ?")) {
+                setIsLoading(true);
+                await regenerateLink(data);
+                setIsLoading(false);
+            }
+            actionRef.current?.reload();
+        } else {
+            messageForPaidStatus();
+        }
+
     }
 
     const handleRefreshStatus = async (data: any) => {
-        if (confirm("Are you sure to refresh the installment status ?")) {
-            try {
-                const msg = await refreshRazorpayStatus(
-                    data.transactionId,
-                    data.referenceId,
-                );
-                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
-            } catch (error) {
-                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+        if (data.status == "Installment Pending") {
+            if (confirm("Are you sure to refresh the installment status ?")) {
+                await refreshStatus(data, false);
             }
+            actionRef.current?.reload();
+        } else {
+            messageForPaidStatus();
         }
-        actionRef.current?.reload();
+
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -214,6 +241,15 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titletReferenceID"
+                    defaultMessage="Reference Id"
+                />
+            ),
+            dataIndex: 'referenceId',
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleRazorpayLink"
                     defaultMessage="Razorpay Link"
                 />
@@ -309,9 +345,10 @@ const TableList: React.FC = () => {
             hideInSearch: true,
             fixed: 'right',
             width: 240,
+            tip: 'Paid cases are not editable',
             render: (dom, entity) => {
                 return (
-                    <div>
+                    <div className={entity?.status === "Installment Pending" ? "" : "newStyle"}>
                         <a
                             onClick={() => {
                                 setTempData(entity);
@@ -400,7 +437,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 2000,
+                        x: 2100,
                     }}
                 />
             </Spin>
@@ -420,7 +457,7 @@ const TableList: React.FC = () => {
 
             <Modal
                 title={isWhatsappVisible ? "WA Message" : "Edit"}
-                visible={isModalVisible}
+                visible={tempData?.status === "Installment Pending" ? isModalVisible : false}
                 footer={null}
                 centered
                 onCancel={closeModal}
@@ -438,6 +475,7 @@ const TableList: React.FC = () => {
                     actionRef={actionRef}
                     setIsAmountDisplay={setIsAmountDisplay}
                     regenerateLink={regenerateLink}
+                    refreshStatus={refreshStatus}
                 />
             </Modal>
         </PageContainer>

@@ -94,7 +94,7 @@ export class LoginController {
     console.log("token", token);
     const decodedToken = new JWSTokenHandler().decode(token);
     console.log("decodedToken", decodedToken);
-    const tokenPayload = JSON.parse(decodedToken.payload || "{}");
+    const tokenPayload = JSON.parse(decodedToken?.payload || "{}");
     const foundUser = await this.adminRepository.findOne({
       select: ["firstname", "lastname", "email", "phone", "role"],
       where: { email: tokenPayload.email },

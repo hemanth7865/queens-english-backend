@@ -1,4 +1,4 @@
-import { getRepository, LessThan, MoreThan } from "typeorm";
+import { getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
 import { Constants, PAYMENT_STATUS } from "./../helpers/Constants";
 import {
@@ -28,6 +28,9 @@ export class InstallmentService {
     if (params?.reference_id) {
       where["transactionId"] = params.reference_id;
     }
+    else{
+      where["transactionId"] = Like("plink_%");
+    }
 
     if (params?.limit) {
       limit = params.limit;
@@ -37,11 +40,15 @@ export class InstallmentService {
       const now = new Date();
       now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);  
       now.setSeconds(0);
-      console.log('Date for last checked: ' + now);
+      usersLogger.debug('Date for last checked: ' + now);
       where["lastCheckedAt"] = LessThanDate(now);
     }
 
-    console.log('where: ',where);
+    if (params?.dueMonth) {
+      where["dueDate"] = Like(params.dueMonth + '%');
+    }
+    usersLogger.debug('where: '+ JSON.stringify(where));
+
     return await this.query.find({
       where,
       take: limit,
@@ -52,7 +59,7 @@ export class InstallmentService {
     const oldTransaction = await this.query.findOne({ where: { id } });
     const updated = await this.query.update(id, data);
     //ignore logs for only updating last_checked_at which is considered in batch job
-    if (isNullOrUndefined(data.last_checked_at)) {
+    if (isNullOrUndefined(data.lastCheckedAt) || !isNullOrUndefined(data.paidDate)) {
       await (
         await this.logger.payment(
           { transaction: oldTransaction },
@@ -65,17 +72,24 @@ export class InstallmentService {
   }
 
   async updateInstallmentStatus(paymentId) {
-    usersLogger.info("rzp status update api call");
+    usersLogger.debug("rzp status update api call");
     try {
-      const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
+      const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
         paymentId
       );
-      usersLogger.info("rzp resp: " + JSON.stringify(paymentStatus));
-      if (paymentStatus.status === "paid") {
+      usersLogger.debug("rzp resp: " + JSON.stringify(paymentLinkDetails));
+      if (paymentLinkDetails.status === "paid") {
+        var paidDate = moment().format("YYYY-MM-DD HH:mm:ss");
+        usersLogger.debug('Default paid date: ' + paidDate);
+        //get the paid date from payments
+        if (!isNullOrUndefined(paymentLinkDetails.payments) && paymentLinkDetails.payments.length > 0 && paymentLinkDetails.payments[0].status == 'captured') {
+          paidDate = moment(paymentLinkDetails.payments[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
+          usersLogger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
+        }
         await this.updateInstallment(paymentId, {
           status: PAYMENT_STATUS.PAID,
-          paidAmount: paymentStatus.amount / 100,
-          paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+          paidAmount: paymentLinkDetails.amount / 100,
+          paidDate: paidDate,
         });
         return PAYMENT_STATUS.PAID;
       } else {
