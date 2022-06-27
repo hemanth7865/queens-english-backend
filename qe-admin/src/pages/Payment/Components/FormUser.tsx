@@ -7,7 +7,7 @@ import moment from 'moment';
 import callDispositionStatus from "../../../../data/call_disposition.json";
 
 export type FormUserProps = {
-    data: {};
+    data: any;
     visible: {};
     setVisible: () => void;
     onUpdate: () => void;
@@ -19,6 +19,7 @@ export type FormUserProps = {
     actionRef: any;
     setIsAmountDisplay: any;
     regenerateLink: any;
+    refreshStatus: any;
 };
 
 const { Option } = Select;
@@ -26,11 +27,10 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId } = props.data ? props.data : '';
 
-    const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
-    const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
+
     const name = `${props.data.firstName} ${props.data.lastName}`
 
     const whatsappTemplate = `    Dear Parent of ${name},
@@ -92,9 +92,10 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             const dataForm = [{
                 id: id,
                 studentId: studentId,
+                referenceId: values.referenceId ? values.referenceId : referenceId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
-                status: values.status ? values.status : status,
+                status: status,
                 transaction_details_id: transaction_details_id,
                 razorpayLink: razorpayLink,
                 whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
@@ -103,16 +104,15 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
                 notes: values.notes ? values.notes : notes,
                 paymentMode: paymentMode,
-                paidDate: selectPaidDate ? selectPaidDate : paidDate,
+                paidDate: paidDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
             }]
             if (values.emiAmount) {
-                if (status === "Installment Pending") {
-                    await editPaymentDetails(dataForm);
-                    await props.regenerateLink({ transactionId });
-                } else {
-                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
-                }
+                await editPaymentDetails(dataForm);
+                await props.regenerateLink({ transactionId });
+            } else if (values.referenceId != referenceId) {
+                await editPaymentDetails(dataForm);
+                await props.refreshStatus({ transactionId, referenceId: values.referenceId });
             } else {
                 await editPaymentDetails(dataForm);
             }
@@ -123,7 +123,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         props.setIsAmountDisplay(false);
         props.actionRef.current.reload();
         form.resetFields();
-        setSelectPaidDate(INITITALPAIDDATE);
     }
 
 
@@ -137,12 +136,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             whatsAppLinkSent: whatsAppLinkSent,
             status: status,
             reasonAmountChange: reasonAmountChange,
-            paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
+            referenceId: referenceId
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, paidDate])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, referenceId])
 
     return (
         <div>
@@ -306,25 +305,11 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         </Form.Item>
 
                                         <Form.Item
-                                            label="Installment status"
-                                            name="status"
-                                            rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                            label="Reference ID"
+                                            name="referenceId"
+                                            rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
                                         >
-                                            <Select>
-                                                <Option value="Installment Pending">Installment Pending</Option>
-                                                <Option value="Installment Paid">Installment Paid</Option>
-                                            </Select>
-                                        </Form.Item>
-
-                                        <Form.Item
-                                            label="Paid Date"
-                                            name="paidDate"
-                                        >
-                                            <DatePicker
-                                                format='YYYY-MM-DD'
-                                                onChange={(date, dateString) => {
-                                                    setSelectPaidDate(dateString);
-                                                }} />
+                                            <Input />
                                         </Form.Item>
                                     </div>
 
