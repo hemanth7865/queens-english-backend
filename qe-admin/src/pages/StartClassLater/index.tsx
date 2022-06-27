@@ -384,6 +384,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  const [startclasslaterpage, setstartclasslaterpage] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -531,7 +532,7 @@ const StudentOnboard: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-
+      setstartclasslaterpage(true);
       setData(msg.data.map((item) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
         return item
@@ -1014,7 +1015,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
         >
-          <Tabsedit tmpData={tmpData} />
+          <Tabsedit tmpData={tmpData} startclasslaterpage={setstartclasslaterpage} />
         </Drawer>
       </Spin>
     </>
