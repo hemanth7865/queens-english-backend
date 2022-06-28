@@ -52,7 +52,7 @@ export class InstallmentController {
                 lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
               };
               logger.info('refresh link: '+request.query?.refreshLink);
-              if(request.query?.refreshLink == true){
+              if(request.query?.refreshLink){
                 logger.info('refresh link url: '+paymentLinkDetails.short_url);
                 data['paymentLink'] = paymentLinkDetails.short_url;
               }
@@ -68,7 +68,7 @@ export class InstallmentController {
                 lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
               };
               logger.info('refresh link: '+request.query?.refreshLink);
-              if(request.query?.refreshLink == true){
+              if(request.query?.refreshLink){
                 logger.info('refresh link url: '+paymentLinkDetails.short_url);
                 data['paymentLink'] = paymentLinkDetails.short_url;
               }
