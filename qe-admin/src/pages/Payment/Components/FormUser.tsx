@@ -108,9 +108,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
             }]
             if (values.emiAmount) {
-                await editPaymentDetails(dataForm);
-                await props.regenerateLink({ transactionId });
-            } else if (values.referenceId != referenceId) {
+                if (status === "Installment Pending") {
+                    await editPaymentDetails(dataForm);
+                    await props.regenerateLink({ transactionId });
+                } else {
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Unable to regenerate for paid case", false);
+                }
+            } else if (values.referenceId && values.referenceId != referenceId) {
                 await editPaymentDetails(dataForm);
                 await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else {
@@ -304,13 +308,18 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             <TextArea rows={3} />
                                         </Form.Item>
 
-                                        <Form.Item
-                                            label="Reference ID"
-                                            name="referenceId"
-                                            rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
-                                        >
-                                            <Input />
-                                        </Form.Item>
+                                        {status == "Installment Pending" ?
+                                            <Form.Item
+                                                label="Reference ID"
+                                                name="referenceId"
+                                                rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
+                                            >
+                                                <Input />
+                                            </Form.Item> :
+                                            ''
+
+                                        }
+
                                     </div>
 
                     }
