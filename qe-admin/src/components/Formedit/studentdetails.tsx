@@ -93,7 +93,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       dob: props.studentManageradd ? null : value.dob ? moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD") : null,
       whatsapp: value.whatsapp,
       comments: value.comments,
-      customerEmail: value.customerEmail ? value.customerEmail : value.email,
       email: value.email ? value.email : value.customerEmail,
       classType: value.classType,
       type: 'student',
@@ -118,7 +117,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
-      age: moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
+      age: value.dob ? moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) : null,
       gender: value.gender,
       payment: !props.studentManageradd ? [{
         id: value.id,
@@ -220,10 +219,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         lastName: props.tempData.lastName,
         pfirstName: props.tempData.pfirstName,
         plastName: props.tempData.plastName,
-        customerEmail: props.tempData.customerEmail ? props.tempData.customerEmail : props.tempData.email,
         email: props.tempData.email ? props.tempData.email : props.tempData.customerEmail,
         studentID: props.tempData.studentID,
-        studentId: props.tempData.studentId,
         phoneNumber: props.tempData.phoneNumber,
         whatsapp: props.tempData.whatsapp,
         alternativeMobile: props.tempData.alternativeMobile,
@@ -278,7 +275,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       !props.studentManageradd ? props.tempData.lastName : '',
       !props.studentManageradd ? props.tempData.pfirstName : '',
       !props.studentManageradd ? props.tempData.plastName : '',
-      props.studentManageradd ? '' : props.tempData.customerEmail ? props.tempData.customerEmail : props.tempData.email,
       props.studentManageradd ? '' : props.tempData.email ? props.tempData.email : props.tempData.customerEmail,
       !props.studentManageradd ? props.tempData.studentID : '',
       !props.studentManageradd ? props.tempData.phoneNumber : '',
@@ -423,34 +419,18 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             ) : ('')
             }
 
-            {!props.studentManageradd && !props.studentManageredit ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Email"
-                  name="customerEmail"
-                  rules={[{
-                    required: true,
-                    type: 'email'
-                  }]}
-                >
-                  <Input onChange={onChange} />
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col span={12}>
-                <Form.Item
-                  label="Email"
-                  name="email"
-                  rules={[{
-                    required: true,
-                    type: 'email'
-                  }]}
-                >
-                  <Input onChange={onChange} />
-                </Form.Item>
-              </Col>
-            )}
-
+            <Col span={12}>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[{
+                  required: true,
+                  type: 'email'
+                }]}
+              >
+                <Input onChange={onChange} />
+              </Form.Item>
+            </Col>
 
             {props.studentManageradd || props.studentManageredit ? (
               <Col span={12}>
@@ -492,7 +472,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               </Form.Item>
             </Col>
 
-            {props.tempData.status == 'onboarding' ? (
+            {props.onboardpage ? (
               <Col span={12}>
                 <Form.Item
                   label="Student ID"
@@ -700,7 +680,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             )
             }
 
-            {props.studentManageredit && props.studentManageradd ? (
+            {props.studentManageredit || props.studentManageradd ? (
               <Col span={12}>
                 <Form.Item name="classesStartDate"
                   label="Actual Start Date"
@@ -708,7 +688,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   <Input type="date" onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : !props.salesAlert ? (
+            ) : props.salesAlert ? (
+              ''
+            ) : (
               <Col span={12}>
                 <Form.Item name="classesStartDate"
                   label="Actual Start Date"
@@ -719,8 +701,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   <Input type="date" onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : ('')
-            }
+            )}
 
             {props.studentManageradd || props.studentManageredit ? (
               <Col span={12}>
@@ -749,7 +730,24 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             )}
 
 
-            {!props.studentManageredit && props.studentManageradd ? (
+            {props.studentManageredit || props.studentManageradd ? (
+              <Col span={12}>
+                <Form.Item
+                  name="callStatus"
+                  label="Call Status">
+                  <Select
+                    placeholder="Select Call Status"
+                  >
+                    <Option value="Answered">Answered</Option>
+                    <Option value="DNP">DNP</Option>
+                    <Option value="Call Back Later">Call Back Later</Option>
+                    <Option value="Placement test pending">Placement test pending</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            ) : props.salesAlert ? (
+              ''
+            ) : (
               <Col span={12}>
                 <Form.Item
                   name="callStatus"
@@ -767,26 +765,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   </Select>
                 </Form.Item>
               </Col>
-            ) : !props.salesAlert ? (
-              <Col span={12}>
-                <Form.Item
-                  name="callStatus"
-                  label="Call Status"
-                  rules={[{
-                    required: true,
-                  }]}>
-                  <Select
-                    placeholder="Select Call Status"
-                  >
-                    <Option value="Answered">Answered</Option>
-                    <Option value="DNP">DNP</Option>
-                    <Option value="Call Back Later">Call Back Later</Option>
-                    <Option value="Placement test pending">Placement test pending</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            ) : ('')
-            }
+            )}
 
             {props.studentManageredit || props.studentManageradd ? (
               <Col span={12}>
