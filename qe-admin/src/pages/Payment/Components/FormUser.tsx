@@ -95,7 +95,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 referenceId: values.referenceId ? values.referenceId : referenceId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
-                status: status,
+                status: values.status ? values.status : status,
                 transaction_details_id: transaction_details_id,
                 razorpayLink: razorpayLink,
                 whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
@@ -301,6 +301,21 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             </Select>
                                         </Form.Item>
 
+                                        {
+                                            status == "Installment Paid" ?
+                                                <Form.Item
+                                                    label="Installment status"
+                                                    name="status"
+                                                    rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                                >
+                                                    <Select>
+                                                        <Option value="Installment Pending">Installment Pending</Option>
+                                                    </Select>
+                                                </Form.Item> :
+                                                ''
+                                        }
+
+
                                         <Form.Item
                                             label="Notes"
                                             name="notes"
@@ -308,17 +323,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             <TextArea rows={3} />
                                         </Form.Item>
 
-                                        {status == "Installment Pending" ?
-                                            <Form.Item
-                                                label="Reference ID"
-                                                name="referenceId"
-                                                rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
-                                            >
-                                                <Input />
-                                            </Form.Item> :
-                                            ''
-
-                                        }
+                                        <Form.Item
+                                            label="Reference ID"
+                                            name="referenceId"
+                                            rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
+                                        >
+                                            <Input />
+                                        </Form.Item>
 
                                     </div>
 
