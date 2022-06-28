@@ -95,7 +95,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 referenceId: values.referenceId ? values.referenceId : referenceId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
-                status: status,
+                status: values.status ? values.status : status,
                 transaction_details_id: transaction_details_id,
                 razorpayLink: razorpayLink,
                 whatsAppLinkSent: values.whatsAppLinkSent ? values.whatsAppLinkSent : whatsAppLinkSent,
@@ -108,9 +108,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
             }]
             if (values.emiAmount) {
-                await editPaymentDetails(dataForm);
-                await props.regenerateLink({ transactionId });
-            } else if (values.referenceId != referenceId) {
+                if (status === "Installment Pending") {
+                    await editPaymentDetails(dataForm);
+                    await props.regenerateLink({ transactionId });
+                } else {
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Unable to regenerate for paid case", false);
+                }
+            } else if (values.referenceId && values.referenceId != referenceId) {
                 await editPaymentDetails(dataForm);
                 await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else {
@@ -297,6 +301,21 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             </Select>
                                         </Form.Item>
 
+                                        {
+                                            status == "Installment Paid" ?
+                                                <Form.Item
+                                                    label="Installment status"
+                                                    name="status"
+                                                    rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                                >
+                                                    <Select>
+                                                        <Option value="Installment Pending">Installment Pending</Option>
+                                                    </Select>
+                                                </Form.Item> :
+                                                ''
+                                        }
+
+
                                         <Form.Item
                                             label="Notes"
                                             name="notes"
@@ -311,6 +330,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         >
                                             <Input />
                                         </Form.Item>
+
                                     </div>
 
                     }

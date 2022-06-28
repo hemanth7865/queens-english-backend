@@ -116,15 +116,10 @@ const TableList: React.FC = () => {
     }
 
     const handleRefreshStatus = async (data: any) => {
-        if (data.status == "Installment Pending") {
-            if (confirm("Are you sure to refresh the installment status ?")) {
-                await refreshStatus(data, false);
-            }
-            actionRef.current?.reload();
-        } else {
-            messageForPaidStatus();
+        if (confirm("Are you sure to refresh the installment status ?")) {
+            await refreshStatus(data, false);
         }
-
+        actionRef.current?.reload();
     }
 
     const handleVisibleChange = (newVisible: boolean) => {
@@ -348,7 +343,7 @@ const TableList: React.FC = () => {
             tip: 'Paid cases are not editable',
             render: (dom, entity) => {
                 return (
-                    <div className={entity?.status === "Installment Pending" ? "" : "newStyle"}>
+                    <div>
                         <a
                             onClick={() => {
                                 setTempData(entity);
@@ -457,7 +452,7 @@ const TableList: React.FC = () => {
 
             <Modal
                 title={isWhatsappVisible ? "WA Message" : "Edit"}
-                visible={tempData?.status === "Installment Pending" ? isModalVisible : false}
+                visible={isModalVisible}
                 footer={null}
                 centered
                 onCancel={closeModal}
