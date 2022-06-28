@@ -20,7 +20,7 @@ export class InstallmentService {
 
   async getPendingInstallments(params) {
     var limit = 100;
-    const where = { status: this.installmentStatus };
+    const where = { };
     if (params?.installment_id) {
       where["id"] = params.installment_id;
     }
@@ -30,6 +30,7 @@ export class InstallmentService {
     }
     else{
       where["transactionId"] = Like("plink_%");
+      where["status"] = this.installmentStatus;
     }
 
     if (params?.limit) {
