@@ -94,6 +94,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       whatsapp: value.whatsapp,
       comments: value.comments,
       email: value.email ? value.email : value.customerEmail,
+      customerEmail: value.customerEmail ? value.customerEmail : value.email,
       classType: value.classType,
       type: 'student',
       status: props.studentManageradd ? "active" : props.salesAlert ? "Enrolled" : value.status === undefined ? props.tempData.status : value.status,
@@ -117,7 +118,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
-      age: !value.dob || value.age === NaN ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
+      age: !value.dob || value.age == "NaN" ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
       payment: !props.studentManageradd ? [{
         id: value.id,
