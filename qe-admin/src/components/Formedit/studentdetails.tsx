@@ -117,7 +117,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
-      age: value.dob ? moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0) : null,
+      age: !value.dob || value.dob === NaN ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
       payment: !props.studentManageradd ? [{
         id: value.id,
