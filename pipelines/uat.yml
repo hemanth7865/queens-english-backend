@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
-  - feature-release
+  - dev/vedant/DEV-814
 
 pool:
   vmImage: ubuntu-latest
