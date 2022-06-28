@@ -1176,7 +1176,61 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     <Input />
                   </Form.Item>
                 </Col></>
-            ) : ('')
+            ) : (
+              <><Col span={12}>
+                <Form.Item
+                  name="lsq_user_name"
+                  label="Sales Owner"
+                >
+                  <Select style={{ width: 100 + "%" }} onChange={onChange}>
+                    {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
+                  </Select>
+                </Form.Item>
+              </Col><Col span={12}>
+                  <Form.Item
+                    name="paymentMode"
+                    label="Plan Mode"
+                  >
+                    <Select placeholder="Select Plan Mode" onChange={onChange}>
+                      <Option value="razorpay">Razorpay</Option>
+                      <Option value="banktransfer">Bank Transfer</Option>
+                      <Option value="cashfree">Cashfree</Option>
+                    </Select>
+                  </Form.Item>
+                </Col><Col span={12}>
+                  <Form.Item
+                    name="subscription"
+                    label="Subscription Type">
+                    <Select placeholder="Select Subscription Type">
+                      <Option value="Manual">Manual</Option>
+                      <Option value="Auto-Debit">Auto-Debit</Option>
+                    </Select>
+                  </Form.Item>
+                </Col><Col span={12}>
+                  <Form.Item
+                    label="Subscription Number"
+                    name="subscriptionNo"
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col><Col span={12}>
+                  <Form.Item
+                    label="Subscription Amount"
+                    name="emi"
+                    rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col><Col span={12}>
+                  <Form.Item
+                    label="Months Of Subscription"
+                    name="emiMonths"
+                    rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col></>
+            )
             }
           </Row >
 
