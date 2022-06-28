@@ -97,7 +97,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       email: value.email ? value.email : value.customerEmail,
       classType: value.classType,
       type: 'student',
-      status: props.studentManageradd ? "active" : props.salesAlert ? "Enrolled" : value.status,
+      status: props.studentManageradd ? "active" : props.salesAlert ? "Enrolled" : value.status === undefined ? props.tempData.status : value.status,
       alternativeMobile: !props.studentManageradd ? value.alternativeMobile : '',
       course: !props.studentManageradd ? value.course : '',
       startLesson: !props.studentManageradd ? value.startLesson : null,
