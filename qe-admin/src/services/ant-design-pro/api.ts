@@ -697,3 +697,25 @@ export async function dynamicAPI(url, method, params, options = {}) {
     ...(options || {}),
   });
 }
+
+/**
+ * Collection Agents
+ */
+
+//get all zoom
+export async function getAllCollectionAgents(
+  //studentId: string,
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.Any>(`/be/collection-agents`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

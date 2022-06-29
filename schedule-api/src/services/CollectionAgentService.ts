@@ -1,6 +1,7 @@
 import { getManager, createQueryBuilder } from "typeorm";
 import { CollectionAgent } from "../entity/CollectionAgent";
 const { logger } = require("../Logger.js");
+import { generatePagiantionAndConditions } from "./../utils/helpers";
 
 export class CollectionAgentService {
   public request: any = {};
@@ -17,31 +18,8 @@ export class CollectionAgentService {
     parameters: { current?: string; pageSize?: string } = {}
   ): Promise<any> {
     try {
-      const current = parameters.current ? parseInt(parameters.current) : 0;
-      const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
-      const offsetRecords = (current - 1) * limit;
-
-      const whereCondition: string[] = [];
-      whereCondition.push(" 1 = 1 ");
-      for (let param in parameters) {
-        if (parameters[param].length < 1) {
-          continue;
-        }
-
-        if (["current", "pageSize"].includes(param)) {
-          continue;
-        }
-        if ([].includes(param)) {
-          // custom operators
-        } else {
-          whereCondition.push(`${param} LIKE '%${parameters[param]}%'`);
-        }
-      }
-
-      const condition =
-        whereCondition.length > 1
-          ? whereCondition.join(" and ")
-          : whereCondition.toString();
+      const { current, limit, offsetRecords, condition } =
+        generatePagiantionAndConditions(parameters);
 
       const query = await createQueryBuilder(
         CollectionAgent,
