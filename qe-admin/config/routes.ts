@@ -121,10 +121,6 @@
     redirect: "/manage/StudentBatch",
   },
   {
-    path: "/",
-    redirect: "/teacher/my-batches",
-  },
-  {
     component: "./404",
   },
 ];
