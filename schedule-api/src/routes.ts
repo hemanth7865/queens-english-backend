@@ -8,6 +8,7 @@ import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
 import { AzureProxyController } from "./controller/AzureProxyController";
 import { ZoomController } from "./controller/ZoomController";
+import { CollectionAgentController } from "./controller/CollectionAgentController";
 
 export const Routes = [
   {
@@ -470,6 +471,13 @@ export const Routes = [
     route: "/zoom-user/reassign/:from/:to",
     controller: ZoomController,
     action: "reassignLicense",
+    authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/collection-agents",
+    controller: CollectionAgentController,
+    action: "listCollectionAgents",
     authenticate: true,
   },
 ];
