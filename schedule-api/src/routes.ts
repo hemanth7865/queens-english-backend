@@ -480,4 +480,11 @@ export const Routes = [
     action: "listCollectionAgents",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/zoom-meetings",
+    controller: ZoomController,
+    action: "listZoomMeetings",
+    authenticate: true,
+  },
 ];

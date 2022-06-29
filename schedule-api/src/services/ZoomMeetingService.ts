@@ -1,4 +1,4 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, createQueryBuilder } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
@@ -7,6 +7,7 @@ const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 import zoomClient from "./../utils/zoom/zoomClient";
+import { generatePagiantionAndConditions } from "../utils/helpers";
 
 export class ZoomMeetingService {
   private usersRepository = getRepository(User);
@@ -267,5 +268,34 @@ export class ZoomMeetingService {
   }> {
     const batches = await this.getActiveBatchesWithoutZoomLink();
     return await this.generateZoomLinks(batches.batches);
+  }
+
+  async listZoomMeetings(
+    parameters: { current?: string; pageSize?: string } = {}
+  ): Promise<any> {
+    try {
+      const { current, limit, offsetRecords, condition } =
+        generatePagiantionAndConditions(parameters);
+
+      const query = await createQueryBuilder(ZoomMeeting, "meeting")
+        .leftJoinAndSelect("meeting.batch", "batch")
+        .leftJoinAndSelect("meeting.zoom_user", "zoom_user")
+        .where(condition);
+
+      const data = await query.offset(offsetRecords).limit(limit).getMany();
+      const total = await query.getCount();
+
+      return {
+        success: true,
+        pageSize: limit,
+        current,
+        total,
+        data,
+        status: 200,
+      };
+    } catch (e) {
+      logger.error(e);
+      return { status: 400, message: e.message };
+    }
   }
 }

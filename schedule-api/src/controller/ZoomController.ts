@@ -179,6 +179,22 @@ export class ZoomController {
    * @param next
    * @returns
    */
+  async listZoomMeetings(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomMeetingService.listZoomMeetings(request.query);
+  }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
   async showZoomUser(request: Request, response: Response, next: NextFunction) {
     this.zoomUserService.request = request;
     return await this.zoomUserService.showZoomUser(request.params.id);

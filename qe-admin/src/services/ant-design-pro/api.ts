@@ -661,6 +661,24 @@ export async function getAllZoomUsers(
   });
 }
 
+//get all zoom
+export async function getAllZoomMeetings(
+  //studentId: string,
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.Any>(`/be/zoom-meetings`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 //get zoom user details
 export async function getZoomUser(id: string) {
   return request<API.Any>(`/be/zoom-user/${id}`, {
