@@ -44,6 +44,7 @@ export class PaymentsView {
   phoneNumber?: string;
   startDate?: string;
   whatsapp?: string;
+  netbankRefLink?: string;
   classtype?: string;
 
   PaymentsView(
