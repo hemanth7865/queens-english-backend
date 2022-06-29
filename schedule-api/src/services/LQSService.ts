@@ -125,9 +125,9 @@ export class LQSService {
       var payment = new Payment();
       var student = new Student();
       usersLogger.info(`Fetch and update LSQ information:${element.id}`);
-      user.id = element.id;
-      student.id = element.id;
-      payment.id = element.id;
+      user.id = (element.id).replace(" ","");
+      student.id = (element.id).replace(" ","");
+      payment.id = (element.id).replace(" ","");
       user.firstName = element.firstName ? element.firstName : '-';
       user.lastName = element.lastName ? element.lastName : '-';
       if (element.phoneNumber) {
@@ -156,7 +156,7 @@ export class LQSService {
       user.updated_at = new Date();
       user.state = element.customerAddressState;
 
-      student.studentID = element.studentID;
+      student.studentID = (element.studentID).replace(" ","");
       student.course = element.course;
       student.courseFrequency = element.courseFrequency;
       student.status = element.status == 'Won' ? 'enrolled' : element.status;
