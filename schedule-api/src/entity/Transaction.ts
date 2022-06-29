@@ -50,6 +50,10 @@ export class Transactions extends BaseEntity {
   updated_at: Date;
   @Column({ 'nullable': true, type: "date", name: "last_checked_at" })
   lastCheckedAt: Date;
+  @Column({ type: "text", name: "early_bird" })
+  discount: number;
+  @Column({ type: "date", name: "expire_by" })
+  expireBy: Date;
   @OneToOne((type) => Student, (student) => student.id)
   @JoinColumn({ name: "student_id" })
   student: Student;
