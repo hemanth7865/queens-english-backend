@@ -46,12 +46,20 @@ export class CollectionAgentService {
       const query = await createQueryBuilder(
         CollectionAgent,
         "collection_agent"
-      )
-        .loadRelationCountAndMap("collection_agent.studentsCount", "students")
-        .where(condition);
+      ).where(condition);
 
-      const data = await query.offset(offsetRecords).limit(limit).getMany();
+      const data: any = await query
+        .offset(offsetRecords)
+        .limit(limit)
+        .getMany();
       const total = await query.getCount();
+
+      for (const d in data) {
+        data[d].studentsCount = await createQueryBuilder("student", "student")
+          .where("student.collection_agent_id = :id", { id: data[d].id })
+          .andWhere("student.status = 'active'")
+          .getCount();
+      }
 
       return {
         success: true,
