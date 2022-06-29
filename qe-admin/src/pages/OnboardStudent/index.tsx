@@ -248,6 +248,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  const [onboardpage, setonboardpage] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -374,7 +375,7 @@ const StudentOnboard: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-
+      setonboardpage(true);
       setData(msg.data.map((item: any) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
         return item
@@ -850,7 +851,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
         >
-          <Tabsedit tmpData={tmpData} />
+          <Tabsedit tmpData={tmpData} onboardpage={onboardpage} />
         </Drawer>
       </Spin>
     </>

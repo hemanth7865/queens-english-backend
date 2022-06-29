@@ -380,7 +380,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
-  const [salesAlert, setSalesAlert] = useState(false);
+  const [salesAlert, setSalesAlert] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -431,7 +431,7 @@ const StudentOnboard: React.FC = () => {
       alternativeMobile: value.alternativeMobile,
       course: value.course,
       startLesson: value.startLesson,
-      startDate: moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      startDate: value.startDate ? moment(value.startDate, "YYYY-MM-DD").format("YYYY-MM-DD") : '',
       pfirstName: value.pfirstName,
       plastName: value.plastName,
       courseFrequency: value.courseFrequency,
@@ -440,6 +440,7 @@ const StudentOnboard: React.FC = () => {
       isSibling: Number(value.isSibling),
       lsq_users_ID: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
+      gender: value.gender,
       payment: [{
         paymentid: value.paymentid,
         studentId: value.id,
@@ -560,13 +561,13 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
-      title: 'Student Id',
+      title: 'ID',
       dataIndex: 'id',
       width: 300,
       editable: false,
     },
     {
-      title: 'Lead Id',
+      title: 'Student ID',
       dataIndex: 'studentID',
       width: 300,
       editable: true,
