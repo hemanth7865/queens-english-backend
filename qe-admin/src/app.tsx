@@ -52,7 +52,7 @@ export async function getInitialState(): Promise<{
 export const layout: RunTimeLayoutConfig = ({ initialState }: { initialState: any }) => {
   const { currentUser } = initialState;
   if (currentUser?.role === "teacher") {
-    if (window.location.pathname !== "/teacher/my-batches") {
+    if (!window.location.pathname.split("/").includes("my-batches")) {
       window.location.pathname = "/teacher/my-batches";
     }
   }
