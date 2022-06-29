@@ -1,4 +1,4 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
@@ -137,6 +137,17 @@ const TableList: React.FC = () => {
             dataIndex: 'leadId',
             fixed: 'left',
             width: 250,
+            render: (value: any, entity: any) => {
+                let highlight: any = "";
+                if (entity.paymentMode === "Netbanking") {
+                    highlight =
+                        <InfoCircleTwoTone title='Payment Mode - Netbanking' />
+                        ;
+                }
+                return <>
+                    {value} {" "} {highlight}
+                </>;
+            }
         },
         {
             title: (
@@ -251,11 +262,7 @@ const TableList: React.FC = () => {
             ),
             render: (dom, entity) => {
                 return (
-                    <a
-                        onClick={() => {
-                            setCurrentRow(entity);
-                            setDisplayRazorpay(true);
-                        }}>
+                    <a href={entity.razorpayLink} target="_blank">
                         {entity.razorpayLink}
                     </a>
                 )
@@ -378,7 +385,7 @@ const TableList: React.FC = () => {
                                 <div>
                                     <Button
                                         onClick={() => {
-                                            setNetbankingVisible(true);
+                                            setAutodebitVisible(true);
                                             setOtherPayment(false);
                                             setTempData(entity);
                                             setIsModalVisible(true);
@@ -389,7 +396,7 @@ const TableList: React.FC = () => {
                                     </Button>
                                     <Button
                                         onClick={() => {
-                                            setAutodebitVisible(true);
+                                            setNetbankingVisible(true);
                                             setOtherPayment(false);
                                             setTempData(entity);
                                             setIsModalVisible(true);
@@ -410,6 +417,14 @@ const TableList: React.FC = () => {
                         <Typography.Link onClick={() => handleRefreshStatus(entity)} style={{ marginLeft: 10 }}>
                             <ReloadOutlined title='Refresh Installment status' />
                         </Typography.Link>
+                        <a
+                            onClick={() => {
+                                setDisplayRazorpay(true);
+                                setCurrentRow(entity);
+                            }}
+                            style={{ marginLeft: 10 }}>
+                            <EyeOutlined title='View details' />
+                        </a>
                     </div>
                 );
             },
@@ -432,14 +447,14 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 2100,
+                        x: 2200,
                     }}
                 />
             </Spin>
             <Drawer
                 width={600}
                 visible={displayRazorpay}
-                title="Razorpay details"
+                title="Payment details"
                 onClose={() => {
                     setCurrentRow('');
                     setDisplayRazorpay(false);
@@ -469,6 +484,7 @@ const TableList: React.FC = () => {
                     isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
                     setIsAmountDisplay={setIsAmountDisplay}
+                    setNetbankingVisible={setNetbankingVisible}
                     regenerateLink={regenerateLink}
                     refreshStatus={refreshStatus}
                 />

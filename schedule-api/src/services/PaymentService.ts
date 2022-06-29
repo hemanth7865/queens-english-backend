@@ -247,6 +247,7 @@ export class PaymentService {
         view.reasonAmountChange = record.transactions_reason_amount_change;
         view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
+        view.netbankRefLink = record.transactions_netbank_ref_link;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -599,13 +600,24 @@ export class PaymentService {
       const installment = await this.transactionRepository.findOne({
         id: body.id,
       });
+      const transactionDetail = await this.transaDetailsRepository.findOne({
+        transactionId: body.id,
+      });
       installment.netbankRefLink = body.netbankRefLink;
+      installment.paidDate = body.paidDate;
+      installment.status = body.status;
+      installment.paidAmount = body.paidAmount;
+      transactionDetail.paymentMode = body.paymentMode;
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
       await this.transactionRepository.update(
         { id: installment.id },
-        installment
+        installment,
+      );
+      await this.transaDetailsRepository.update(
+        { transactionId: installment.id },
+        transactionDetail,
       );
       return {
         success: true,
