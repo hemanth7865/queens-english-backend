@@ -31,6 +31,9 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink } = props.data ? props.data : '';
 
     const INITITALPAIDDATE = null;
+    const STATUSPAID = "Installment Paid";
+    const PAYMENTMODE = "Netbanking";
+
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
 
@@ -91,8 +94,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 netbankRefLink: values.netbankRefLink,
                 paidDate: selectPaidDate ? selectPaidDate : paidDate,
                 paidAmount: values.paidAmount ? values.paidAmount : paidAmount,
-                status: "Installment Paid",
-                paymentMode: "Netbanking"
+                status: STATUSPAID,
+                paymentMode: PAYMENTMODE
             }
             await editNetBankingDetails(netBankingForm);
         }
