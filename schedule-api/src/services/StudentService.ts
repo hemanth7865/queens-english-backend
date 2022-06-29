@@ -328,12 +328,6 @@ export class StudentService {
       cosmosUserBody.cacheTime = data.cacheTime
     }
 
-    if (data.status == 'inactive') {
-      cosmosUserBody.batchCode = null,
-      cosmosUserBody.batchId = null,
-      cosmosUserBody.batchNumber = null
-    }
-
     const options = {
       url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
       json: true,
