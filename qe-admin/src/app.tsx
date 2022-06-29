@@ -49,7 +49,13 @@ export async function getInitialState(): Promise<{
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({ initialState }) => {
+export const layout: RunTimeLayoutConfig = ({ initialState }: { initialState: any }) => {
+  const { currentUser } = initialState;
+  if (currentUser?.role === "teacher") {
+    if (!window.location.pathname.split("/").includes("my-batches")) {
+      window.location.pathname = "/teacher/my-batches";
+    }
+  }
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
