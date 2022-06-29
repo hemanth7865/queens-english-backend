@@ -53,6 +53,11 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
+                if (request.body.status == "inactive") {
+                    let removequery: any[] = [];
+                    var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
+                    removequery = await getManager().query(removebatchquery)
+                }
 
                 resp = await this.studentService.saveStudentDetails(request.body);
             }

@@ -653,9 +653,9 @@ export class StudentService {
         );
       }
 
-      if (data.status == 'inactive') {
-          removebatchquery = await getManager().query(removequery)
-      }
+      // if (data.status == 'inactive') {
+      //     removebatchquery = await getManager().query(removequery)
+      // }
 
       student = await this.studentRepository.save(student);
 
