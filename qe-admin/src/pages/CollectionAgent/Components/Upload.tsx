@@ -39,15 +39,15 @@ const Upload = ({ isLoading, setIsLoading }: { isLoading: boolean, setIsLoading:
             <code>
                 File must be CSV and in this format:
                 <pre>
-                    Student ID,Collection Support <br />
-                    STUDENT_ID,COLLECTION_AGENT_NAME
+                    installment_id,collection_agent_name <br />
+                    INSTALLMENT_ID,COLLECTION_AGENT_NAME
                 </pre>
             </code>
 
             {success && <div className="alert alert-success">{success}</div>}
 
-            <form id="uploadForm" action="/be/leads/csv/CE" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}>
-                <input type="file" name="students" required id="file" />
+            <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}>
+                <input type="file" name="agents" required id="file" />
                 <button className="ant-btn ant-btn-primary">
                     Upload File
                 </button>

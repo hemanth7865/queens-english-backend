@@ -1,10 +1,12 @@
-import { getManager, createQueryBuilder } from "typeorm";
+import { getManager, createQueryBuilder, getRepository } from "typeorm";
 import { CollectionAgent } from "../entity/CollectionAgent";
 const { logger } = require("../Logger.js");
 import { generatePagiantionAndConditions } from "./../utils/helpers";
+import { Transactions } from "./../entity/Transaction";
 
 export class CollectionAgentService {
   public request: any = {};
+  private installmentRepositroy = getRepository(Transactions);
 
   async getAvailabileCollectionAgents() {
     var prmsData = await getManager().query(
@@ -33,9 +35,11 @@ export class CollectionAgentService {
       const total = await query.getCount();
 
       for (const d in data) {
-        data[d].studentsCount = await createQueryBuilder("student", "student")
-          .where("student.collection_agent_id = :id", { id: data[d].id })
-          .andWhere("student.status = 'active'")
+        data[d].installmentsCount = await createQueryBuilder(
+          Transactions,
+          "installment"
+        )
+          .where("installment.collection_agent = :id", { id: data[d].id })
           .getCount();
       }
 
@@ -51,5 +55,63 @@ export class CollectionAgentService {
       logger.error(e);
       return { status: 400, message: e.message };
     }
+  }
+
+  async updateCollectionExpertsCSV(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
+    const primaryColumn = "installment_id";
+    const agentName = "collection_agent_name";
+    let result: any = {
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      notFoundCEs: [],
+    };
+
+    try {
+      for (let d of data) {
+        try {
+          if (!d[primaryColumn] || d[primaryColumn].length < 4) {
+            continue;
+          }
+
+          const condition = { where: { id: d[primaryColumn] } };
+          let installment = await this.installmentRepositroy.findOne(condition);
+
+          if (!installment?.id) {
+            result.notFound++;
+            continue;
+          }
+
+          let ceQuery = `SELECT * from collection_agent where firstName='${d[agentName]}'`;
+
+          let ce = await getManager().query(ceQuery);
+          const CE = ce[0];
+
+          if (CE?.id) {
+            result.updated++;
+            if (!query.test) {
+              await this.installmentRepositroy.update(
+                { id: installment.id },
+                { collectionAgent: CE.id }
+              );
+            }
+          } else {
+            result.notFoundCEs.push({
+              id: d[primaryColumn],
+            });
+          }
+        } catch (e) {
+          console.log(e);
+          result.errors++;
+        }
+      }
+    } catch (e) {
+      console.log(e, data);
+    }
+
+    return result;
   }
 }

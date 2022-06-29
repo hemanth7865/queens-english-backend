@@ -21,8 +21,8 @@ export const columns: () => ProColumns<any>[] = () => [
     hideInSearch: false,
   },
   {
-    title: "Assigned Active Students",
-    dataIndex: "studentsCount",
+    title: "Assigned Installments",
+    dataIndex: "installmentsCount",
     hideInSearch: true,
   },
   {

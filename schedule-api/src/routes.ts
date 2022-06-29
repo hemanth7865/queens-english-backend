@@ -480,4 +480,11 @@ export const Routes = [
     action: "listCollectionAgents",
     authenticate: true,
   },
+  {
+    method: "post",
+    route: "/csv/collection-agents/bulk-assignment",
+    controller: CollectionAgentController,
+    action: "updateCollectionExpertsCSV",
+    authenticate: true,
+  },
 ];
