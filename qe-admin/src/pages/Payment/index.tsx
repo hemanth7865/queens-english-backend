@@ -12,6 +12,7 @@ import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
+import { PaymentConstantValues } from '@/components/Constants/constants';
 import "./payment.css"
 
 
@@ -102,7 +103,7 @@ const TableList: React.FC = () => {
 
 
     const handleRegenerateLink = async (data: any) => {
-        if (data.status == "Installment Pending") {
+        if (data.status == PaymentConstantValues.STATUSPENDING) {
             if (confirm("Are you sure to regenerate new razorpay link ?")) {
                 setIsLoading(true);
                 await regenerateLink(data);
@@ -139,7 +140,7 @@ const TableList: React.FC = () => {
             width: 250,
             render: (value: any, entity: any) => {
                 let highlight: any = "";
-                if (entity.paymentMode === "Netbanking") {
+                if (entity.paymentMode === PaymentConstantValues.PAYMENTMODE) {
                     highlight =
                         <InfoCircleTwoTone title='Payment Mode - Netbanking' />
                         ;

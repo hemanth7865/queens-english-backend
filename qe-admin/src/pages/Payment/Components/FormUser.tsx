@@ -116,7 +116,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
             }]
             if (values.emiAmount) {
-                if (status === "Installment Pending") {
+                if (status === PaymentConstantValues.STATUSPENDING) {
                     await editPaymentDetails(dataForm);
                     await props.regenerateLink({ transactionId });
                 } else {
@@ -154,7 +154,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
             paidAmount: paidAmount,
             netbankRefLink: netbankRefLink,
-            transactionId: paymentMode === "Netbanking" ? referenceId : '',
+            transactionId: paymentMode === PaymentConstantValues.PAYMENTMODE ? referenceId : '',
         });
     }
     useEffect(() => {
@@ -336,7 +336,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         </Form.Item>
 
                                         {
-                                            status == "Installment Paid" ?
+                                            status == PaymentConstantValues.STATUSPAID ?
                                                 <Form.Item
                                                     label="Installment status"
                                                     name="status"
