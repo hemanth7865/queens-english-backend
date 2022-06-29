@@ -20,7 +20,7 @@ export class RazorPayUtils {
       var discountedAmount = originalAmount - ((originalAmount * installment.discount) / 100);
       usersLogger.info('discounted emi: '+ discountedAmount);
       var payload = {
-        "amount": discountedAmount * 100,
+        "amount": Math.floor(discountedAmount * 100),
         "currency": "INR",
         "accept_partial": false,
         // "first_min_partial_amount": 100,
