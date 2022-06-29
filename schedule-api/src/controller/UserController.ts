@@ -6,11 +6,13 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
+import { BatchService } from "../services/BatchService";
 import { UserService } from "../services/UserService";
 import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 import { validations } from "../helpers/validations";
+
 
 export class UserController {
 
@@ -20,6 +22,7 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
+    private batchService = new BatchService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -57,7 +60,9 @@ export class UserController {
                     let removequery: any[] = [];
                     var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                     removequery = await getManager().query(removebatchquery)
-                }
+
+                    resp = await this.batchService.removeStudents(request.body, request.body.batchId);
+                } else {''}
 
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
