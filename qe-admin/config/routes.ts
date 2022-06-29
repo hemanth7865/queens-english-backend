@@ -56,6 +56,11 @@
         component: "./Payment",
       },
       {
+        name: "Collection Agents",
+        path: "/manage/collection-agents",
+        component: "./CollectionAgent",
+      },
+      {
         name: "Zoom License",
         path: "/manage/zoom/license",
         component: "./ZoomLicense",

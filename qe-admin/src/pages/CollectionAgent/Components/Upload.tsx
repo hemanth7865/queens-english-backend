@@ -1,0 +1,60 @@
+import { Button, Spin } from "antd";
+import { dynamicAPI } from '@/services/ant-design-pro/api';
+import { useState } from "react";
+
+const Upload = ({ isLoading, setIsLoading }: { isLoading: boolean, setIsLoading: (isLoading: boolean) => any }) => {
+    const [response, setResponse] = useState({});
+    const [success, setSuccess] = useState("");
+
+    const handleUpload = async (e: any) => {
+        setSuccess("Assigning Collection Experts In Progress...")
+        // e.preventDefault();
+        // setIsLoading(true)
+        // try {
+        //     const file: any = document.getElementById("file");
+        //     const formData = new FormData();
+        //     formData.append("students", file.files[0]);
+        //     console.log(formData, file.files[0]);
+        //     const res = await dynamicAPI("leads/csv/CE", "post", {}, {
+        //         data: formData,
+        //         headers: {
+        //             'Content-Type': 'multipart/form-data'
+        //         }
+        //     });
+        //     setResponse(res)
+        // } catch (e: any) {
+        //     setResponse({ error: e?.message })
+        // }
+        // setIsLoading(false)
+    }
+
+    return (<>
+        <Spin spinning={isLoading}>
+            {/* <code>
+                <pre>
+                    {JSON.stringify(response, null, 4)}
+                </pre>
+            </code> */}
+
+            <code>
+                File must be CSV and in this format:
+                <pre>
+                    Student ID,Collection Support <br />
+                    STUDENT_ID,COLLECTION_AGENT_NAME
+                </pre>
+            </code>
+
+            {success && <div className="alert alert-success">{success}</div>}
+
+            <form id="uploadForm" action="/be/leads/csv/CE" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}>
+                <input type="file" name="students" required id="file" />
+                <button className="ant-btn ant-btn-primary">
+                    Upload File
+                </button>
+            </form>
+        </Spin>
+    </>)
+
+}
+
+export default Upload;
