@@ -66,11 +66,6 @@
         component: "./ZoomLicense",
       },
       {
-        name: "My Batches",
-        path: "/manage/my-batches",
-        component: "./MyBatches",
-      },
-      {
         name: "Onboard",
         path: "/manage/dashboard",
         routes: [
@@ -109,8 +104,25 @@
     ],
   },
   {
+    path: "/teacher",
+    name: "Teacher",
+    icon: "table",
+    access: "canTeacher",
+    routes: [
+      {
+        name: "My Batches",
+        path: "/teacher/my-batches",
+        component: "./MyBatches",
+      },
+    ],
+  },
+  {
     path: "/",
     redirect: "/manage/StudentBatch",
+  },
+  {
+    path: "/",
+    redirect: "/teacher/my-batches",
   },
   {
     component: "./404",
