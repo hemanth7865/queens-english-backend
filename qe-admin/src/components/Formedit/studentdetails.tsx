@@ -118,7 +118,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
-      age: value.dob == null || value.age === NaN ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
+      age: value.dob == null || value.age == 'NaN' ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
       payment: !props.studentManageradd ? [{
         id: value.id,
@@ -317,7 +317,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       !props.studentManageradd ? props.tempData.zoomInfo : '',
       !props.studentManageradd ? props.tempData.whatsappLink : '',
       !props.studentManageradd ? props.tempData.id : null,
-      !props.studentManageradd ? props.tempData.age : null,
+      !props.studentManageradd ? props.tempData.age + "Years" : null,
       !props.studentManageradd ? props.tempData.dateofsale : null,
       !props.studentManageradd ? props.tempData.plantype : '',
       !props.studentManageradd ? props.tempData.dueDate : null,
