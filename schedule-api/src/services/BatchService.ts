@@ -66,12 +66,6 @@ export class BatchService {
         data.id = uuidv4();
         create = true;
       }      
-      if (data.status == "inactive") {
-        let i = 0;
-            console.log("++i ran")
-            batchStudent[++i] = batchStud;
-            studnets.push({ id: data.id, type: "studentProfile" });
-      }
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
@@ -86,10 +80,6 @@ export class BatchService {
             studnets.push({ id: batchStud.studentId, type: batchStud.type });
           }
         }
-      }
-
-      if (data.batchId == null) {
-       studnets.push({ id: data.id, type: "studentProfile" });
       }
 
       data.students = batchStudent;
@@ -139,11 +129,16 @@ export class BatchService {
         }
       }
 
+      function removeid(id) {
+        console.log("Function")
+        return id != data.id;
+      }
+
       const options = {
         url: cosomos_url,
         json: true,
         body: {
-          id: data.id,
+          id: data.status == "inactive" ? data.batchId : data.id,
           type: data.type,
           batchNumber: data.batchNumber,
           teacherId: data.teacherId,
@@ -159,7 +154,7 @@ export class BatchService {
           maxAttemptsAllowed: data.maxAttemptsAllowed,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
-          students: studnets,
+          students: data.status == "inactive" ? studnets.filter(removeid) : studnets,
           activeLessonId: data.activeLessonId,
           frequency: data.frequency,
           zoomLink: data.zoomLink,
