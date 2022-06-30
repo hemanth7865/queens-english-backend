@@ -64,6 +64,7 @@ export class CollectionAgentService {
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
   ) {
     const primaryColumn = "installment_id";
+    const subPrimaryColumn = "student_id";
     const agentName = "collection_agent_name";
     let result: any = {
       updated: 0,
@@ -75,11 +76,19 @@ export class CollectionAgentService {
     try {
       for (let d of data) {
         try {
-          if (!d[primaryColumn] || d[primaryColumn].length < 4) {
+          const primaryColumnExists = d[primaryColumn] || d[primaryColumn].length > 4;
+          const subPrimaryColumnExists = d[subPrimaryColumn] || d[subPrimaryColumn].length > 4;
+          if (!primaryColumnExists && !subPrimaryColumnExists) {
             continue;
           }
 
-          const condition = { where: { id: d[primaryColumn] } };
+          let condition: {where: any} = {where: {}}
+
+          if (primaryColumnExists) {
+            condition = { where: { id: d[primaryColumn] } };
+          } else {
+            condition = { where: { studentId: d[subPrimaryColumn] } };
+          }
           let installment = await this.installmentRepositroy.findOne(condition);
 
           if (!installment?.id) {
@@ -103,6 +112,7 @@ export class CollectionAgentService {
           } else {
             result.notFoundCEs.push({
               id: d[primaryColumn],
+              subId: d[subPrimaryColumn],
             });
           }
         } catch (e) {

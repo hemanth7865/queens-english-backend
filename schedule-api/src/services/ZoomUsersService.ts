@@ -13,6 +13,7 @@ export class ZoomUserService {
   private zoomUserRepository = getRepository(ZoomUser);
   private zoomMeetingRepository = getRepository(ZoomMeeting);
   private batchRepository = getRepository(Classes);
+  private emailFormat = "@ISV.queensenglish.co.com";
   public defaultUserSettings = {
     in_meeting: {
       allow_host_to_enable_focus_mode: true,
@@ -220,7 +221,7 @@ export class ZoomUserService {
         const zoomUser = new ZoomUser();
         zoomUser.user_id = teacher.id;
         const createdUser = await zoomClient.createCustUser({
-          email: `${zoomUser.user_id}@queensenglish.co`,
+          email: `${zoomUser.user_id}${this.emailFormat}`,
           type: 2,
           first_name: teacher.firstName,
           last_name: teacher.lastName,
@@ -453,7 +454,7 @@ export class ZoomUserService {
       const newUser = {
         first_name: teacher.firstName,
         last_name: teacher.lastName,
-        email: teacher.id + "@queensenglish.co",
+        email: teacher.id + this.emailFormat,
       };
 
       zoomClient.setUser(zoomUser);
