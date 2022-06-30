@@ -334,6 +334,41 @@ export class StudentService {
       body: cosmosUserBody,
     };
 
+    var cosomos_url = "/api/classProfile/" + data.batchId;
+    var studnets: { id: string, type: string }[] = [];
+    var filteredstudents = studnets.filter(function(value, index, arr){ 
+      return value.id != data.id, value.type = "";
+    });
+
+    const options2 = {
+      url: cosomos_url,
+      json: true,
+      body: {
+          id: data.batchId,
+          type: data.type,
+          batchNumber: data.batchNumber,
+          teacherId: data.teacherId,
+          classStartDate: data.classStartDate,
+          classEndDate: data.classEndDate,
+          lessonStartTime: data.lessonStartTime,
+          lessonEndTime: data.lessonEndTime,
+          ageGroup: data.ageGroup,
+          startingLessonId: data.startingLessonId,
+          endingLessonId: data.endingLessonId,
+          version: data.version,
+          followupVersion: data.followupVersion,
+          maxAttemptsAllowed: data.maxAttemptsAllowed,
+          partitionKey: data.partitionKey,
+          classCode: data.classCode,
+          students: filteredstudents,
+          activeLessonId: data.activeLessonId,
+          frequency: data.frequency,
+          zoomLink: data.zoomLink,
+          zoomInfo: data.zoomInfo,
+          whatsappLink: data.whatsappLink
+        },
+      };
+
     usersLogger.info(
       `Start - Reqeust to cosmos DB : ${JSON.stringify(options)}`
     );
@@ -354,7 +389,7 @@ export class StudentService {
       let response;
       if (!data.id) {
         response = await axios
-          .post(options.url, options.body)
+          .post(cosomos_url, options.body)
           .then(async (res) => {
             usersLogger.info(
               `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
@@ -380,6 +415,21 @@ export class StudentService {
             return { status: 400, data: error.response.data };
           });
       } else {
+        if (data.status == "inactive") {
+          usersLogger.info(`Update Request`);
+        response = await axios
+          .put(options.url, options2.body)
+          .then(async (res) => {
+            usersLogger.info("Successfully updated user record in cosomos DB");
+            // console.log("Posted to cosmos and response is ", res);
+            usersLogger.info("Id created in cosmos is ", res.data.id);
+            usersLogger.info("Creating data in sql database ", res.data.id);
+            usersLogger.info("Response: ", res.data);
+            var user = await this.saveStudentSQL(data, data.id);
+            //Promise.resolve(res);
+            return user;
+          })
+        }
         usersLogger.info(`Update Request`);
         response = await axios
           .put(options.url, options.body)
