@@ -1,4 +1,4 @@
-import { Any, getConnection, getRepository } from "typeorm";
+import { Any, getConnection, getRepository, ValueTransformer } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
@@ -114,13 +114,6 @@ export class BatchService {
 
       let alreadyExists;
 
-      if (data.status == "inactive") {
-        console.log("Function1")
-        var filteredstudents = studnets.filter(removeid)
-        function removeid(studnets: { id: string, type: string }) {
-        return studnets.id != data.id, studnets.type = "studentProfile";
-      }
-      }
 
       let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data) : false;
 
@@ -141,12 +134,20 @@ export class BatchService {
         }
       }
 
+      if (data.status == "inactive") {
+        console.log("Inactivestdentreachedbatchservice")
+        var filteredstudents = studnets.filter(removeid)
+        function removeid(studnets: { id: string, type: string }) {
+        return studnets.id != data.id, studnets.type = "studentProfile";
+        }
+      } else {console.log("Inactivestudentdidntgothrubatchservice")}
+
 
       const options = {
         url: cosomos_url,
         json: true,
         body: {
-          id: data.status == "inactive" ? data.batchId : data.id,
+          id: data.id,
           type: data.type,
           batchNumber: data.batchNumber,
           teacherId: data.teacherId,
@@ -162,7 +163,36 @@ export class BatchService {
           maxAttemptsAllowed: data.maxAttemptsAllowed,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
-          students: data.status == "inactive" ? filteredstudents : studnets,
+          students: studnets,
+          activeLessonId: data.activeLessonId,
+          frequency: data.frequency,
+          zoomLink: data.zoomLink,
+          zoomInfo: data.zoomInfo,
+          whatsappLink: data.whatsappLink
+        },
+      };
+
+      const options2 = {
+        url: cosomos_url,
+        json: true,
+        body: {
+          id: data.batchId,
+          type: data.type,
+          batchNumber: data.batchNumber,
+          teacherId: data.teacherId,
+          classStartDate: data.classStartDate,
+          classEndDate: data.classEndDate,
+          lessonStartTime: data.lessonStartTime,
+          lessonEndTime: data.lessonEndTime,
+          ageGroup: data.ageGroup,
+          startingLessonId: data.startingLessonId,
+          endingLessonId: data.endingLessonId,
+          version: data.version,
+          followupVersion: data.followupVersion,
+          maxAttemptsAllowed: data.maxAttemptsAllowed,
+          partitionKey: data.partitionKey,
+          classCode: data.classCode,
+          students: filteredstudents,
           activeLessonId: data.activeLessonId,
           frequency: data.frequency,
           zoomLink: data.zoomLink,
@@ -200,8 +230,24 @@ export class BatchService {
         */
         await this.removeStudents(studentsChange.remove, data.id);
 
+        if (data.status == "inactive") {
+            await this.removeStudentsBatch(studentsChange.remove, data.id, data.batchId);
+        }
+
         await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
+        if (data.status == "inactive") {
+          res1 = await axios
+          .put(options2.url, options2.body)
+          .then(async (res) => {
+
+            var batch = await this.updateBatchSql(data);
+            return batch;
+          })
+          .catch((error) => {
+            return Promise.reject(error);
+          });
+        }
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
@@ -585,6 +631,17 @@ export class BatchService {
           return Promise.reject(error);
         });
     }
+  }
+
+    async removeStudentsBatch(id: string, batchId: string) {
+      let res1 = await axios
+        .delete("/api/classProfile/" + batchId + "/students/" + id)
+        .then(async (res) => {
+          return await this.batchStudentRepository.delete({ studentId: id, batchId });
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
   }
 
   async listBatch(request: Request, parameters) {
