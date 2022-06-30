@@ -59,6 +59,7 @@
         name: "Collection Agents",
         path: "/manage/collection-agents",
         component: "./CollectionAgent",
+        access: "canSuperAdmin",
       },
       {
         name: "Zoom License",

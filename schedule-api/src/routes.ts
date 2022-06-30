@@ -481,6 +481,12 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "post",
+    route: "/csv/collection-agents/bulk-assignment",
+    controller: CollectionAgentController,
+    action: "updateCollectionExpertsCSV",
+  },
+  {
     method: "get",
     route: "/zoom-meetings",
     controller: ZoomController,
