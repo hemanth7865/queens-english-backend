@@ -51,6 +51,7 @@ export class BatchService {
   }
 
   async createBatch(data: any, force: boolean = false) {
+    console.log("create batch ran")
     const moment = require("moment");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();

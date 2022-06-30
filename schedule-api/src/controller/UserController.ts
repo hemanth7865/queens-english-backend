@@ -62,9 +62,11 @@ export class UserController {
                         var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                         removequery = await getManager().query(removebatchquery)
 
-                        resp = await this.studentService.saveStudentDetails(request.body);
                         resp = await this.batchService.createBatch(request.body);
+                        resp = await this.studentService.saveStudentDetails(request.body);                       
+                        console.log("Trying to remove Inactive Student")
                     } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
+                    console.log("Trying to remove Student")
                 } catch { console.log('Cannot Remove Student From Batch due to error') }
 
                 resp = await this.studentService.saveStudentDetails(request.body);
