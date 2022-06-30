@@ -67,6 +67,14 @@ export class BatchService {
         create = true;
       }
 
+      if (data.status == "inactive") {
+          console.log("ifstateran")
+          var batchstuds = new BatchStudent();
+          batchstuds.studentId = null;
+          batchstuds.type = null;
+          studnets.push({ id: batchstuds.studentId, type: batchstuds.type });
+      } else { console.log("ifstatedidntrun") }
+      
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
