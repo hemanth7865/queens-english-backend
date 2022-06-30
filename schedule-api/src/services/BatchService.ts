@@ -65,16 +65,13 @@ export class BatchService {
       if (!data.id) {
         data.id = uuidv4();
         create = true;
-      }
-
+      }      
       if (data.status == "inactive") {
-          console.log("ifstateran")
-          var batchstuds = new BatchStudent();
-          batchstuds.studentId = null;
-          batchstuds.type = null;
-          studnets.push({ id: batchstuds.studentId, type: batchstuds.type });
-      } else { console.log("ifstatedidntrun") }
-      
+        let i = 0;
+            console.log("++i ran")
+            batchStudent[++i] = batchStud;
+            studnets.push({ id: data.id, type: "studentProfile" });
+      }
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
@@ -89,6 +86,10 @@ export class BatchService {
             studnets.push({ id: batchStud.studentId, type: batchStud.type });
           }
         }
+      }
+
+      if (data.batchId == null) {
+       studnets.push({ id: data.id, type: "studentProfile" });
       }
 
       data.students = batchStudent;
