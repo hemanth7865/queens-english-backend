@@ -3,10 +3,12 @@ import { CollectionAgent } from "../entity/CollectionAgent";
 const { logger } = require("../Logger.js");
 import { generatePagiantionAndConditions } from "./../utils/helpers";
 import { Transactions } from "./../entity/Transaction";
+import { Student } from "./../entity/Student";
 
 export class CollectionAgentService {
   public request: any = {};
   private installmentRepositroy = getRepository(Transactions);
+  private studentRepository = getRepository(Student);
 
   async getAvailabileCollectionAgents() {
     var prmsData = await getManager().query(
