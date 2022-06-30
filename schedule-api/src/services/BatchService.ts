@@ -84,7 +84,11 @@ export class BatchService {
 
       data.students = batchStudent;
 
-      var cosomos_url = "/api/classProfile/" + data.id;
+      if (data.status == "inactive") {
+        var cosomos_url = "/api/classProfile/" + data.batchId;
+      } else {
+        var cosomos_url = "/api/classProfile/" + data.id;
+      }
 
       data.type = data.type || "classProfile";
       data.followupVersion = data.followupVersion || "v2";
@@ -112,7 +116,10 @@ export class BatchService {
 
       if (data.status == "inactive") {
         console.log("Function1")
-        var filteredstudents = [studnets.filter(removeid)]
+        var filteredstudents = studnets.filter(removeid)
+        function removeid(studnets: { id: string, type: string }) {
+        return studnets.id != data.id, studnets.type = "studentProfile";
+      }
       }
 
       let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data) : false;
@@ -134,10 +141,6 @@ export class BatchService {
         }
       }
 
-      function removeid(id) {
-        console.log("Function")
-        return id != data.id;
-      }
 
       const options = {
         url: cosomos_url,
