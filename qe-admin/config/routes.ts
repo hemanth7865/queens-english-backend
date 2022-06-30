@@ -118,6 +118,19 @@
     ],
   },
   {
+    path: "/zoom",
+    name: "Zoom Management",
+    icon: "table",
+    access: "canZoomManage",
+    routes: [
+      {
+        name: "Zoom License",
+        path: "/zoom/zoom-license",
+        component: "./ZoomLicense",
+      },
+    ],
+  },
+  {
     path: "/",
     redirect: "/manage/StudentBatch",
   },

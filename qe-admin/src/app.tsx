@@ -55,7 +55,12 @@ export const layout: RunTimeLayoutConfig = ({ initialState }: { initialState: an
     if (!window.location.pathname.split("/").includes("my-batches")) {
       window.location.pathname = "/teacher/my-batches";
     }
+  } else if (currentUser?.role === "zoom") {
+    if (!window.location.pathname.split("/").includes("zoom-license")) {
+      window.location.pathname = "/zoom/zoom-license";
+    }
   }
+
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
