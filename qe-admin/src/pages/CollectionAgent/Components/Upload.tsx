@@ -42,6 +42,11 @@ const Upload = ({ isLoading, setIsLoading }: { isLoading: boolean, setIsLoading:
                     installment_id,collection_agent_name <br />
                     INSTALLMENT_ID,COLLECTION_AGENT_NAME
                 </pre>
+                Or in this format
+                <pre>
+                    student_id,collection_agent_name,due_date <br />
+                    STUDENT_ID,COLLECTION_AGENT_NAME,2022-06
+                </pre>
             </code>
 
             {success && <div className="alert alert-success">{success}</div>}
