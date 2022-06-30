@@ -18,7 +18,7 @@ export class BatchController {
     private batchService = new BatchService();
 
 
-    async createBatch(request: Request, response: Response, next: NextFunction) {
+    async createBatch(request: Request) {
         console.log("saving batch");
         var batch;
         try {

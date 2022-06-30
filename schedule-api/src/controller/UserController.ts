@@ -12,6 +12,7 @@ import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 import { validations } from "../helpers/validations";
+import { BatchController } from "./BatchController";
 
 
 export class UserController {
@@ -23,6 +24,7 @@ export class UserController {
     private studentService = new StudentService();
     private teacherService = new TeacherService();
     private batchService = new BatchService();
+    private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -62,7 +64,7 @@ export class UserController {
                         var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                         removequery = await getManager().query(removebatchquery)
 
-                        resp = await this.batchService.createBatch(request.body);
+                        resp = await this.batchController.createBatch(request.body);
                         resp = await this.studentService.saveStudentDetails(request.body);                       
                         console.log("Trying to remove Inactive Student")
                     } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }

@@ -112,7 +112,7 @@ export class BatchService {
 
       if (data.status == "inactive") {
         console.log("Function1")
-        var filteredstudents = studnets.filter(removeid)
+        var filteredstudents = [studnets.filter(removeid)]
       }
 
       let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data) : false;
@@ -136,7 +136,7 @@ export class BatchService {
 
       function removeid(id) {
         console.log("Function")
-        return id != data.studentId;
+        return id != data.id;
       }
 
       const options = {
