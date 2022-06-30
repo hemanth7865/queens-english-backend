@@ -15,6 +15,7 @@ const { Option } = Select;
 export type StudentdetailseditProps = {
   tempData: {
     id?: any;
+    studentId: any;
     studentID?: string;
     email?: string;
     firstName?: string;
@@ -85,6 +86,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   const onFinish = (value: any) => {
     const dataForm = {
       id: value.id ? value.id : undefined,
+      studentId: value.id ? value.id : undefined,
       studentID: value.studentID,
       firstName: value.firstName,
       lastName: value.lastName ? value.lastName : '-',

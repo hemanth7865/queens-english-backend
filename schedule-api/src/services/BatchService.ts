@@ -110,6 +110,11 @@ export class BatchService {
 
       let alreadyExists;
 
+      if (data.status == "inactive") {
+        console.log("Function1")
+        var filteredstudents = studnets.filter(removeid)
+      }
+
       let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data) : false;
 
       if (studentHasBatch) {
@@ -131,7 +136,7 @@ export class BatchService {
 
       function removeid(id) {
         console.log("Function")
-        return id != data.id;
+        return id != data.studentId;
       }
 
       const options = {
@@ -154,7 +159,7 @@ export class BatchService {
           maxAttemptsAllowed: data.maxAttemptsAllowed,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
-          students: data.status == "inactive" ? studnets.filter(removeid) : studnets,
+          students: data.status == "inactive" ? filteredstudents : studnets,
           activeLessonId: data.activeLessonId,
           frequency: data.frequency,
           zoomLink: data.zoomLink,
