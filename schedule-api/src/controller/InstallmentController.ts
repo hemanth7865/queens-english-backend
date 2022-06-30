@@ -33,17 +33,6 @@ export class InstallmentController {
       for (const payment of pendingPayments) {
         try {
           const paymentId = payment.transactionId;
-          if(isNullOrUndefined(paymentId)){
-            logger.error('Payment id missing for installment: ' + payment.id);
-            result.ignored++;
-            await this.service.updateInstallment(
-              payment.id,
-              {
-                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-              }
-            );
-          }
-          else{
             const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
               paymentId
             );
@@ -57,29 +46,36 @@ export class InstallmentController {
                 logger.debug('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
               }
   
-              await this.service.updateInstallment(
-                payment.id,
-                {
-                  status: this.COMPLETED_STATUS,
-                  paidAmount: paymentLinkDetails.amount / 100,
-                  paidDate: paidDate,
-                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-                }
-              );
+              let data:any = {
+                status: this.COMPLETED_STATUS,
+                paidAmount: paymentLinkDetails.amount / 100,
+                paidDate: paidDate,
+                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+              };
+              logger.info('refresh link: '+request.query?.refreshLink);
+              if(request.query?.refreshLink){
+                logger.info('refresh link url: '+paymentLinkDetails.short_url);
+                data['paymentLink'] = paymentLinkDetails.short_url;
+              }
+              logger.info('data for update: '+JSON.stringify(data));
+              await this.service.updateInstallment(payment.id, data);
               result.paid++;
               logger.info(
                 `InstallmentController.updateTransctionPaymentStatus: Mark Payment: ${paymentId} As Paid.`
               );
             } else {
               result.ignored++;
-              await this.service.updateInstallment(
-                payment.id,
-                {
-                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-                }
-              );
+              let data:any = {
+                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+              };
+              logger.info('refresh link: '+request.query?.refreshLink);
+              if(request.query?.refreshLink){
+                logger.info('refresh link url: '+paymentLinkDetails.short_url);
+                data['paymentLink'] = paymentLinkDetails.short_url;
+              }
+              logger.info('data for update: '+JSON.stringify(data));
+              await this.service.updateInstallment(payment.id, data);
             }  
-          }
         } catch (e) {
           if (e?.error?.description === "The id provided does not exist") {
             result.notFound++;

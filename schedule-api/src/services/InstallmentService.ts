@@ -20,13 +20,17 @@ export class InstallmentService {
 
   async getPendingInstallments(params) {
     var limit = 100;
-    const where = { status: this.installmentStatus };
+    const where = { };
     if (params?.installment_id) {
       where["id"] = params.installment_id;
     }
 
     if (params?.reference_id) {
       where["transactionId"] = params.reference_id;
+    }
+    else{
+      where["transactionId"] = Like("plink_%");
+      where["status"] = this.installmentStatus;
     }
 
     if (params?.limit) {
@@ -44,8 +48,8 @@ export class InstallmentService {
     if (params?.dueMonth) {
       where["dueDate"] = Like(params.dueMonth + '%');
     }
-
     usersLogger.debug('where: '+ JSON.stringify(where));
+
     return await this.query.find({
       where,
       take: limit,
@@ -56,7 +60,7 @@ export class InstallmentService {
     const oldTransaction = await this.query.findOne({ where: { id } });
     const updated = await this.query.update(id, data);
     //ignore logs for only updating last_checked_at which is considered in batch job
-    if (isNullOrUndefined(data.last_checked_at)) {
+    if (isNullOrUndefined(data.lastCheckedAt) || !isNullOrUndefined(data.paidDate)) {
       await (
         await this.logger.payment(
           { transaction: oldTransaction },
@@ -71,15 +75,22 @@ export class InstallmentService {
   async updateInstallmentStatus(paymentId) {
     usersLogger.debug("rzp status update api call");
     try {
-      const paymentStatus: RazorpayPayment = await getRazorpayPaymentById(
+      const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
         paymentId
       );
-      usersLogger.debug("rzp resp: " + JSON.stringify(paymentStatus));
-      if (paymentStatus.status === "paid") {
+      usersLogger.debug("rzp resp: " + JSON.stringify(paymentLinkDetails));
+      if (paymentLinkDetails.status === "paid") {
+        var paidDate = moment().format("YYYY-MM-DD HH:mm:ss");
+        usersLogger.debug('Default paid date: ' + paidDate);
+        //get the paid date from payments
+        if (!isNullOrUndefined(paymentLinkDetails.payments) && paymentLinkDetails.payments.length > 0 && paymentLinkDetails.payments[0].status == 'captured') {
+          paidDate = moment(paymentLinkDetails.payments[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
+          usersLogger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
+        }
         await this.updateInstallment(paymentId, {
           status: PAYMENT_STATUS.PAID,
-          paidAmount: paymentStatus.amount / 100,
-          paidDate: moment().format("YYYY-MM-DD HH:mm:ss"),
+          paidAmount: paymentLinkDetails.amount / 100,
+          paidDate: paidDate,
         });
         return PAYMENT_STATUS.PAID;
       } else {
