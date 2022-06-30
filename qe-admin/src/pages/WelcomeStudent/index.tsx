@@ -387,6 +387,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  const [welcomepage, setwelcomepage] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -532,6 +533,7 @@ const StudentOnboard: React.FC = () => {
         prm: prmName
       }
       );
+      setwelcomepage(true);
       setData(msg.data.map((item) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
         return item
@@ -1026,7 +1028,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
         >
-          <Tabsedit tmpData={tmpData} />
+          <Tabsedit tmpData={tmpData} welcomepage={welcomepage} />
         </Drawer>
       </Spin>
     </>

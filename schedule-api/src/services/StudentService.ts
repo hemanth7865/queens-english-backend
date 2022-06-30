@@ -33,7 +33,7 @@ export class StudentService {
   private COSMOS_CODE = process.env.COSMOS_CODE;
 
   private BATCHES_HISTORY_QUERY = `
-    SELECT c.batchNumber, c.id, sbh.created_at, u.phoneNumber FROM student_batches_history as sbh 
+    SELECT concat(u.firstName , "  ", u.lastName) as name, c.batchNumber, c.id, sbh.created_at, u.phoneNumber FROM student_batches_history as sbh 
     INNER JOIN classes c ON c.id = sbh.batchId 
     INNER JOIN user u ON u.id = c.teacherId 
     WHERE sbh.studentId = ':studentId' ORDER BY sbh.created_at DESC`;
@@ -152,7 +152,7 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${
       limit >= 0 ? limit : 20
     } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
@@ -293,6 +293,7 @@ export class StudentService {
           ? `${lsq_user_info.FirstName} ${lsq_user_info.LastName}`
           : "",
         whatsappLinkBatch.join(","),
+        element.gender,
       );
       l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;
@@ -358,7 +359,7 @@ export class StudentService {
             usersLogger.info(
               `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
             );
-            usersLogger.info(`Update oracle DB:  data.phoneNumber`);
+            usersLogger.info(`Update oracle DB:  ${data.phoneNumber}`);
             data.id = res.data.id;
             if (res.status == 400) {
               usersLogger.error(`Error while updating student : ${res.data}`);
@@ -661,7 +662,7 @@ export class StudentService {
         }
       }
 
-      console.log("leadAvailability", teacherAvailability);
+      console.log("leadAvailability", studentAvailability);
 
       user.teacherAvailability = teacherAvailability;
       user.studentAvailability = studentAvailability;

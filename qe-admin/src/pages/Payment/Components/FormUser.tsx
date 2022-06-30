@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, DatePicker, Spin } from 'antd';
+import { WhatsAppOutlined, CopyOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Select, DatePicker, Spin, Row, Col, message } from 'antd';
 import { editPayment, editNetBanking } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import moment from 'moment';
+import callDispositionStatus from "../../../../data/call_disposition.json";
+import { PaymentConstantValues } from "../../../components/Constants/constants"
 
 export type FormUserProps = {
-    data: {};
+    data: any;
     visible: {};
     setVisible: () => void;
     onUpdate: () => void;
@@ -17,6 +20,8 @@ export type FormUserProps = {
     actionRef: any;
     setIsAmountDisplay: any;
     regenerateLink: any;
+    refreshStatus: any;
+    setNetbankingVisible?: any;
 };
 
 const { Option } = Select;
@@ -24,16 +29,16 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink } = props.data ? props.data : '';
 
-    const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
-    const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
     const [selectStatus, setSelectStatus] = useState(status);
 
-    const name = `${props.data.firstName} ${props.data.lastName}`;
+    const [selectPaidDate, setSelectPaidDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
 
-    const teacherMessageTemplate = `    Dear Parent of ${name},
+    const name = `${props.data.firstName} ${props.data.lastName}`
+
+    const whatsappTemplate = `    Dear Parent of ${name},
 
     Your next instalment of INR ${emiAmount} is due on or before ${moment(dueDate).format('YYYY-MM-DD')}. 
     
@@ -44,6 +49,11 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     Thanks & regards,
 
     Team Queen’s English`;
+
+    const copy = (text: any) => {
+        window.navigator.clipboard.writeText(text);
+        message.success('Message copied');
+    };
 
     const editPaymentDetails = async (data: any) => {
         try {
@@ -68,6 +78,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 body: JSON.stringify(data),
             });
             handleAPIResponse(msg, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+            form.resetFields();
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
         }
@@ -75,12 +86,15 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
-        console.log('values', values)
-        if (values.transactionId && values.netbankRefLink) {
+        if (props.netbankingVisible) {
             const netBankingForm = {
                 id: id,
                 transactionId: values.transactionId,
-                netbankRefLink: values.netbankRefLink
+                netbankRefLink: values.netbankRefLink,
+                paidDate: selectPaidDate ? selectPaidDate : paidDate,
+                paidAmount: values.paidAmount ? values.paidAmount : paidAmount,
+                status: PaymentConstantValues.STATUSPAID,
+                paymentMode: PaymentConstantValues.PAYMENTMODE
             }
             await editNetBankingDetails(netBankingForm);
         }
@@ -88,6 +102,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             const dataForm = [{
                 id: id,
                 studentId: studentId,
+                referenceId: values.referenceId ? values.referenceId : referenceId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
                 status: values.status ? values.status : status,
@@ -99,27 +114,31 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
                 notes: values.notes ? values.notes : notes,
                 paymentMode: paymentMode,
-                paidDate: selectPaidDate ? selectPaidDate : paidDate,
+                paidDate: paidDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
             }]
             if (values.emiAmount) {
-                if (status === "Installment Pending") {
+                if (status === PaymentConstantValues.STATUSPENDING) {
                     await editPaymentDetails(dataForm);
                     await props.regenerateLink({ transactionId });
                 } else {
-                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Unable to regenerate for paid case", false);
                 }
+            } else if (values.referenceId && values.referenceId != referenceId) {
+                await editPaymentDetails(dataForm);
+                await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else {
                 await editPaymentDetails(dataForm);
             }
+            //form.resetFields();
         }
+        setSelectPaidDate(PaymentConstantValues.INITITALPAIDDATE);
         props.setVisible(false);
         props.isModalVisible(false);
-        setIsLoading(false);
         props.setIsAmountDisplay(false);
+        props.setNetbankingVisible(false);
+        setIsLoading(false);
         props.actionRef.current.reload();
-        setSelectPaidDate(INITITALPAIDDATE);
-        form.resetFields();
     }
 
     useEffect(() => {
@@ -140,12 +159,16 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             whatsAppLinkSent: whatsAppLinkSent,
             status: status,
             reasonAmountChange: reasonAmountChange,
+            referenceId: referenceId,
             paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
+            paidAmount: paidAmount,
+            netbankRefLink: netbankRefLink,
+            transactionId: paymentMode === PaymentConstantValues.PAYMENTMODE ? referenceId : '',
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, paidDate])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, referenceId, paidDate, paidAmount])
 
     return (
         <div>
@@ -198,7 +221,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                             </Form.Item>
                         </div> :
 
-                        props.netbankingVisible ?
+                        props.autodebitVisible ?
 
                             <div>
                                 <Form.Item
@@ -229,7 +252,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 </Form.Item>
                             </div> :
 
-                            props.autodebitVisible ?
+                            props.netbankingVisible ?
 
                                 <div>
                                     <Form.Item
@@ -247,21 +270,67 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     >
                                         <Input />
                                     </Form.Item>
+
+                                    <Form.Item
+                                        label="Paid Date"
+                                        name="paidDate"
+                                        rules={[{ required: true, message: 'Please Add Paid Date' }]}
+                                    >
+                                        <DatePicker
+                                            format='YYYY-MM-DD'
+                                            onChange={(date, dateString) => {
+                                                setSelectPaidDate(dateString);
+                                            }} />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        label="Paid Amount"
+                                        name="paidAmount"
+                                        rules={[{ required: true, message: 'Please Enter Paid Amount' }]}
+                                    >
+                                        <Input />
+                                    </Form.Item>
                                 </div> :
 
                                 props.isWhatsappVisible ?
 
                                     <div>
-                                        <Form.Item
-                                            label="WA Message Sent"
-                                            name="whatsAppLinkSent"
-                                        >
-                                            <Select style={{ width: 120 }} >
-                                                <Option value="Yes">Yes</Option>
-                                                <Option value="No">No</Option>
-                                            </Select>
-                                        </Form.Item>
-                                        <pre>{teacherMessageTemplate}</pre>
+                                        <Row>
+                                            <Col span={20}>
+                                                <Form.Item
+                                                    label="WA Message Sent"
+                                                    name="whatsAppLinkSent"
+                                                >
+                                                    <Select >
+                                                        <Option value="Yes">Yes</Option>
+                                                        <Option value="No">No</Option>
+                                                    </Select>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={2}>
+                                                <WhatsAppOutlined
+                                                    title="Send Whatsapp Message"
+                                                    style={{ fontSize: "25px", color: "green" }}
+                                                    onClick={() => {
+                                                        window.open(
+                                                            `https://api.whatsapp.com/send?phone=${whatsapp.replace(
+                                                                "+",
+                                                                ""
+                                                            )}&text=${encodeURIComponent(whatsappTemplate)}`,
+                                                            "_blank"
+                                                        );
+                                                    }} />
+                                            </Col>
+                                            <Col span={2}>
+                                                <CopyOutlined
+                                                    title='Copy message'
+                                                    style={{ fontSize: "25px", color: "#00BFFF" }}
+                                                    onClick={() => {
+                                                        copy(whatsappTemplate);
+                                                    }} />
+                                            </Col>
+                                        </Row>
+                                        <pre>{whatsappTemplate}</pre>
                                     </div> :
 
                                     <div>
@@ -270,24 +339,25 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             name="callDisposition"
                                             rules={[{ required: true, message: 'Please Enter Call Disposition' }]}
                                         >
-                                            <Select >
-                                                <Option value="No response">No response</Option>
-                                                <Option value="Call back later">Call back later</Option>
-                                                <Option value="This Week">This Week</Option>
-                                                <Option value="This Month">This Month</Option>
-                                                <Option value="Want to Discontinue">Want to Discontinue</Option>
-                                                <Option value="Dormant">Dormant</Option>
-                                                <Option value="Payment after issue resolution">Payment after issue resolution</Option>
-                                                <Option value="Demands Leaves">Demands Leaves</Option>
-                                                <Option value="Exams in school">Exams in school</Option>
-                                                <Option value="Paid">Paid</Option>
-                                                <Option value="Fully Paid">Fully Paid</Option>
-                                                <Option value="Subscription Lost">Subscription Lost</Option>
-                                                <Option value="DNP">DNP</Option>
-                                                <Option value="On Leave">On Leave</Option>
-                                                <Option value="Other">Other</Option>
+                                            <Select>
+                                                {callDispositionStatus.map((i: any) => (<Option value={i.value} >{i.label}</Option>))}
                                             </Select>
                                         </Form.Item>
+
+                                        {
+                                            status == PaymentConstantValues.STATUSPAID ?
+                                                <Form.Item
+                                                    label="Installment status"
+                                                    name="status"
+                                                    rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                                >
+                                                    <Select>
+                                                        <Option value="Installment Pending">Installment Pending</Option>
+                                                    </Select>
+                                                </Form.Item> :
+                                                ''
+                                        }
+
 
                                         <Form.Item
                                             label="Notes"
@@ -297,30 +367,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         </Form.Item>
 
                                         <Form.Item
-                                            label="Installment status"
-                                            name="status"
-                                            rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                            label="Reference ID"
+                                            name="referenceId"
+                                            rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
                                         >
-                                            <Select onChange={(value) => { setSelectStatus(value) }}>
-                                                <Option value="Installment Pending">Installment Pending</Option>
-                                                <Option value="Installment Paid">Installment Paid</Option>
-                                            </Select>
+                                            <Input />
                                         </Form.Item>
 
-                                        {(selectStatus == "Installment Paid") ?
-
-                                            <Form.Item
-                                                label="Paid Date"
-                                                name="paidDate"
-                                            >
-                                                <DatePicker
-                                                    format='YYYY-MM-DD'
-                                                    onChange={(date, dateString) => {
-                                                        setSelectPaidDate(dateString);
-                                                    }}
-                                                />
-                                            </Form.Item> : ''
-                                        }
                                     </div>
 
                     }

@@ -1,5 +1,5 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Button, Drawer, Modal, Popover, Typography, Spin, Select } from 'antd';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone } from '@ant-design/icons';
+import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -11,6 +11,9 @@ import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
+import callDispositionStatus from "./../../../data/call_disposition.json";
+import { PaymentConstantValues } from '@/components/Constants/constants';
+import "./payment.css"
 
 
 /**
@@ -40,27 +43,12 @@ const TableList: React.FC = () => {
 
     const intl = useIntl();
 
+    const { RangePicker } = DatePicker;
+
     const whatsappLinkSentFilter = {
         Yes: { text: 'Yes', whatsAppLinkSent: 'Yes' },
         No: { text: 'No', whatsAppLinkSent: 'No' },
     };
-
-    const callDispositionFilter = {
-        'Call back later': { text: 'Call back later', callDisposition: 'Call back later' },
-        'This Week': { text: 'This Week', callDisposition: 'This Week' },
-        'This Month': { text: 'This Month', callDisposition: 'This Month' },
-        'Want to Discontinue': { text: 'Want to Discontinue', callDisposition: 'Want to Discontinue' },
-        'Dormant': { text: 'Dormant', callDisposition: 'Dormant' },
-        'Payment after issue resolution': { text: 'Payment after issue resolution', callDisposition: 'Payment after issue resolution' },
-        'Demands Leaves': { text: 'Demands Leaves', callDisposition: 'Demands Leaves' },
-        'Exams in school': { text: 'Exams in school', callDisposition: 'Exams in school' },
-        'Paid': { text: 'Paid', callDisposition: 'Paid' },
-        'Fully Paid': { text: 'Fully Paid', callDisposition: 'Fully Paid' },
-        'Subscription Lost': { text: 'Subscription Lost', callDisposition: 'Subscription Lost' },
-        'DNP': { text: 'DNP', callDisposition: 'DNP' },
-        'On Leave': { text: 'On Leave', callDisposition: 'On Leave' },
-        'Other': { text: 'Other', callDisposition: 'Other' },
-    }
 
     const installmentStatusFilter = {
         'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
@@ -76,6 +64,16 @@ const TableList: React.FC = () => {
         setNetbankingVisible(false);
     }
 
+    const messageForPaidStatus = () => {
+        message.error({
+            content: "Can't update a paid case",
+            duration: 2,
+            style: {
+                fontSize: 'large'
+            }
+        })
+    };
+
     const regenerateLink = async (data: any) => {
         try {
             const msg = await regeneratePaymentLink({
@@ -90,26 +88,37 @@ const TableList: React.FC = () => {
         }
     }
 
-    const handleRegenerateLink = async (data: any) => {
-        if (confirm("Are you sure to regenerate new razorpay link ?")) {
-            setIsLoading(true);
-            await regenerateLink(data);
-            setIsLoading(false);
+    const refreshStatus = async (data: any, refreshLink: boolean) => {
+        try {
+            const msg = await refreshRazorpayStatus(
+                data.transactionId,
+                data.referenceId,
+                refreshLink
+            );
+            handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
         }
-        actionRef.current?.reload();
+    }
+
+
+    const handleRegenerateLink = async (data: any) => {
+        if (data.status == PaymentConstantValues.STATUSPENDING) {
+            if (confirm("Are you sure to regenerate new razorpay link ?")) {
+                setIsLoading(true);
+                await regenerateLink(data);
+                setIsLoading(false);
+            }
+            actionRef.current?.reload();
+        } else {
+            messageForPaidStatus();
+        }
+
     }
 
     const handleRefreshStatus = async (data: any) => {
         if (confirm("Are you sure to refresh the installment status ?")) {
-            try {
-                const msg = await refreshRazorpayStatus(
-                    data.transactionId,
-                    data.referenceId,
-                );
-                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
-            } catch (error) {
-                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
-            }
+            await refreshStatus(data, false);
         }
         actionRef.current?.reload();
     }
@@ -129,6 +138,17 @@ const TableList: React.FC = () => {
             dataIndex: 'leadId',
             fixed: 'left',
             width: 250,
+            render: (value: any, entity: any) => {
+                let highlight: any = "";
+                if (entity.paymentMode === PaymentConstantValues.PAYMENTMODE) {
+                    highlight =
+                        <InfoCircleTwoTone title='Payment Mode - Netbanking' />
+                        ;
+                }
+                return <>
+                    {value} {" "} {highlight}
+                </>;
+            }
         },
         {
             title: (
@@ -186,18 +206,6 @@ const TableList: React.FC = () => {
             width: 160,
             hideInSearch: true,
         },
-        // {
-        //     title: (
-        //         <FormattedMessage
-        //             id="pages.searchTable.titleStudentStatus"
-        //             defaultMessage="Student status"
-        //         />
-        //     ),
-        //     render: (dom, entity) => {
-        //         return <p>{entity.status}</p>
-        //     },
-        //     hideInSearch: true,
-        // },
         {
             title: (
                 <FormattedMessage
@@ -208,6 +216,14 @@ const TableList: React.FC = () => {
             dataIndex: 'dueDate',
             width: 160,
             valueType: 'date',
+            renderFormItem: (value) => {
+                return <RangePicker format="YYYY-MM-DD" />;
+            },
+            search: {
+                transform: (value: any) => {
+                    return { dueDate: value };
+                },
+            },
         },
         {
             title: (
@@ -227,7 +243,16 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'callDisposition',
             valueType: 'select',
-            valueEnum: callDispositionFilter,
+            request: async () => callDispositionStatus,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titletReferenceID"
+                    defaultMessage="Reference Id"
+                />
+            ),
+            dataIndex: 'referenceId',
         },
         {
             title: (
@@ -238,11 +263,7 @@ const TableList: React.FC = () => {
             ),
             render: (dom, entity) => {
                 return (
-                    <a
-                        onClick={() => {
-                            setCurrentRow(entity);
-                            setDisplayRazorpay(true);
-                        }}>
+                    <a href={entity.razorpayLink} target="_blank">
                         {entity.razorpayLink}
                     </a>
                 )
@@ -290,18 +311,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'collectionAgent',
-            renderFormItem: (value) => {
-                return (
-                    <Select>
-                        {collectionAgents.map(i => (<Option value={i.id} key={i.id}>{i.firstName}</Option>))}
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { collectionAgent: value };
-                },
-            },
+            valueType: 'select',
+            request: async () => collectionAgents.map((i) => { return { value: i.id, label: i.firstName } })
         },
 
         {
@@ -337,6 +348,7 @@ const TableList: React.FC = () => {
             hideInSearch: true,
             fixed: 'right',
             width: 240,
+            tip: 'Paid cases are not editable',
             render: (dom, entity) => {
                 return (
                     <div>
@@ -374,7 +386,7 @@ const TableList: React.FC = () => {
                                 <div>
                                     <Button
                                         onClick={() => {
-                                            setNetbankingVisible(true);
+                                            setAutodebitVisible(true);
                                             setOtherPayment(false);
                                             setTempData(entity);
                                             setIsModalVisible(true);
@@ -385,7 +397,7 @@ const TableList: React.FC = () => {
                                     </Button>
                                     <Button
                                         onClick={() => {
-                                            setAutodebitVisible(true);
+                                            setNetbankingVisible(true);
                                             setOtherPayment(false);
                                             setTempData(entity);
                                             setIsModalVisible(true);
@@ -406,6 +418,14 @@ const TableList: React.FC = () => {
                         <Typography.Link onClick={() => handleRefreshStatus(entity)} style={{ marginLeft: 10 }}>
                             <ReloadOutlined title='Refresh Installment status' />
                         </Typography.Link>
+                        <a
+                            onClick={() => {
+                                setDisplayRazorpay(true);
+                                setCurrentRow(entity);
+                            }}
+                            style={{ marginLeft: 10 }}>
+                            <EyeOutlined title='View details' />
+                        </a>
                     </div>
                 );
             },
@@ -428,14 +448,14 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 2000,
+                        x: 2200,
                     }}
                 />
             </Spin>
             <Drawer
                 width={600}
                 visible={displayRazorpay}
-                title="Razorpay details"
+                title="Payment details"
                 onClose={() => {
                     setCurrentRow('');
                     setDisplayRazorpay(false);
@@ -465,7 +485,9 @@ const TableList: React.FC = () => {
                     isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
                     setIsAmountDisplay={setIsAmountDisplay}
+                    setNetbankingVisible={setNetbankingVisible}
                     regenerateLink={regenerateLink}
+                    refreshStatus={refreshStatus}
                 />
             </Modal>
         </PageContainer>

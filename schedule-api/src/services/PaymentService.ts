@@ -112,12 +112,14 @@ export class PaymentService {
       // console.log(whereCondition.join(" and "));
       whereCondition.push(" 1 = 1 ");
       for (let param in parameters) {
-        // console.log("param");
-        // console.log(param);
+        console.log("param");
+
         switch (param) {
           case "dueDate":
+            var startDate = parameters[param][0];
+            var endDate = parameters[param][1];
             whereCondition.push(
-              `transactions.due_date <= '${parameters[param]}'`
+              `transactions.due_date between '${startDate}' and '${endDate}'`
             );
             break;
           case "paidDate":
@@ -246,6 +248,7 @@ export class PaymentService {
         view.reasonAmountChange = record.transactions_reason_amount_change;
         view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
+        view.netbankRefLink = record.transactions_netbank_ref_link;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -321,7 +324,7 @@ export class PaymentService {
         transaction.paidAmount = data.paidAmount;
         transaction.status = data.status;
         //payment details from razor pay
-        transaction.transactionId = data.paymentId;
+        transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
 
         var transactions = await this.transactionRepository.save(transaction);
@@ -384,22 +387,14 @@ export class PaymentService {
 
   async createBulkPaymentsLink(limit: any, dueMonth: string) {
     // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
-    usersLogger.info("due month: " + dueMonth + " limit: " + limit);
+    usersLogger.info('due month: ' + dueMonth + ' limit: ' + limit);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
-      .where(
-        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status",
-        { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
-      )
-      .limit(limit)
-      .getMany();
-    usersLogger.info(
-      "installments without links: " + installmentsWithoutLinks.length
-    );
+      .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status", { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING })
+      .limit(limit).getMany();
+    usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
 
-    await this.createPaymentLinkForSpecificInstallments(
-      installmentsWithoutLinks
-    );
+    await this.createPaymentLinkForSpecificInstallments(installmentsWithoutLinks);
     return {
       status: "success",
       message:
@@ -420,11 +415,11 @@ export class PaymentService {
         isNullOrUndefined(paymentResponse.id) ||
         isNullOrUndefined(paymentResponse.short_url)
       ) {
-        usersLogger.debug(
+        usersLogger.error(
           "Payment link generation failed for installment: " +
-            installment.id +
-            "payment response: " +
-            JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
         );
         failureCount++;
       } else {
@@ -439,9 +434,9 @@ export class PaymentService {
     }
     usersLogger.info(
       "Payment link generation success count: " +
-        successCount +
-        "failure count: " +
-        failureCount
+      successCount +
+      "failure count: " +
+      failureCount
     );
     return await this.updateInstallmentData(installmentsForUpdate);
   }
@@ -499,9 +494,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Existing payment link cancelled for id: " +
-          installment.transactionId +
-          " link: " +
-          installment.paymentLink
+        installment.transactionId +
+        " link: " +
+        installment.paymentLink
       );
     }
 
@@ -512,7 +507,7 @@ export class PaymentService {
       isNullOrUndefined(paymentResponse.id) ||
       isNullOrUndefined(paymentResponse.short_url)
     ) {
-      usersLogger.info(
+      usersLogger.error(
         "Payment link generation failed for installment: " +
           installment.id +
           "payment response: " +
@@ -572,7 +567,7 @@ export class PaymentService {
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info(
       "installments without links for update: " +
-        installmentsWithoutLinks.length
+      installmentsWithoutLinks.length
     );
     try {
       for (let installment of installmentsWithoutLinks) {
@@ -608,18 +603,29 @@ export class PaymentService {
       const installment = await this.transactionRepository.findOne({
         id: body.id,
       });
+      const transactionDetail = await this.transaDetailsRepository.findOne({
+        transactionId: body.id,
+      });
       installment.netbankRefLink = body.netbankRefLink;
+      installment.paidDate = body.paidDate;
+      installment.status = body.status;
+      installment.paidAmount = body.paidAmount;
+      transactionDetail.paymentMode = body.paymentMode;
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
       await this.transactionRepository.update(
         { id: installment.id },
-        installment
+        installment,
+      );
+      await this.transaDetailsRepository.update(
+        { transactionId: installment.id },
+        transactionDetail,
       );
       return {
         success: true,
         msg: "successfully updated link",
       };
-    } catch (error) {}
+    } catch (error) { }
   }
 }

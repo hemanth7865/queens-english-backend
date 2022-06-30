@@ -248,6 +248,7 @@ const StudentOnboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+  const [onboardpage, setonboardpage] = useState<boolean>(false);
 
   const isEditing = (record: Item) => record.id === editingKey;
 
@@ -374,7 +375,7 @@ const StudentOnboard: React.FC = () => {
       if (msg.status === "ok") {
         console.log("API call sucessfull", msg);
       }
-
+      setonboardpage(true);
       setData(msg.data.map((item: any) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
         return item
@@ -552,7 +553,20 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'New Teacher',
+      title: 'New Teacher Name',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any) => {
+        let result = "NA";
+        if (value[0]) {
+          return value[0].name;
+        }
+        return result;
+      }
+    },
+    {
+      title: 'New Teacher No.',
       dataIndex: 'batchesHistory',
       width: 200,
       editable: false,
@@ -565,7 +579,20 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'Old Teacher',
+      title: 'Old Teacher Name',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any) => {
+        let result = "NA";
+        if (value[1]) {
+          return value[1].name;
+        }
+        return result;
+      }
+    },
+    {
+      title: 'Old Teacher No.',
       dataIndex: 'batchesHistory',
       width: 200,
       editable: false,
@@ -824,7 +851,7 @@ const StudentOnboard: React.FC = () => {
             setVisibleEdit(false)
           }}
         >
-          <Tabsedit tmpData={tmpData} />
+          <Tabsedit tmpData={tmpData} onboardpage={onboardpage} />
         </Drawer>
       </Spin>
     </>

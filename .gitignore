@@ -12,6 +12,7 @@ qe-admin/config/config.dev.ts
 qe-admin/data/lsq_users.json
 qe-admin/data/prms.json
 qe-admin/data/collection_agent.json
+qe-admin/data/call_disposition.json
 .vscode/settings.json
 package-lock.json
 .sample
