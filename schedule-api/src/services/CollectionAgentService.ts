@@ -1,4 +1,4 @@
-import { getManager, createQueryBuilder, getRepository } from "typeorm";
+import { getManager, createQueryBuilder, getRepository, Like } from "typeorm";
 import { CollectionAgent } from "../entity/CollectionAgent";
 const { logger } = require("../Logger.js");
 import { generatePagiantionAndConditions } from "./../utils/helpers";
@@ -76,8 +76,8 @@ export class CollectionAgentService {
     try {
       for (let d of data) {
         try {
-          const primaryColumnExists = d[primaryColumn] || d[primaryColumn].length > 4;
-          const subPrimaryColumnExists = d[subPrimaryColumn] || d[subPrimaryColumn].length > 4;
+          const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
+          const subPrimaryColumnExists = d[subPrimaryColumn] && d[subPrimaryColumn].length > 4;
           if (!primaryColumnExists && !subPrimaryColumnExists) {
             continue;
           }
@@ -88,6 +88,9 @@ export class CollectionAgentService {
             condition = { where: { id: d[primaryColumn] } };
           } else {
             condition = { where: { studentId: d[subPrimaryColumn] } };
+            if (d["due_date"]) {
+              condition.where.dueDate = Like(`%${d["due_date"]}%`);
+            }
           }
           let installment = await this.installmentRepositroy.findOne(condition);
 
