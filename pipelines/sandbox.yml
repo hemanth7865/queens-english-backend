@@ -30,7 +30,6 @@ steps:
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
         cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
         pm2 restart all
-        pm2 logs
       readyTimeout: "20000"
       # Don't Show Error Message If Command Fail
       # failOnStdErr: false
