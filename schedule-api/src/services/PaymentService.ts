@@ -26,6 +26,7 @@ export class PaymentService {
   private razorPayUtils = new RazorPayUtils();
   private installmentService = new InstallmentService();
   private logger = new LoggerService();
+  public request: any = {};
 
   /**
    *
@@ -354,7 +355,7 @@ export class PaymentService {
           transaction: transactions,
         };
 
-        await (await this.logger.payment(oldData, newData, {})).save();
+        await (await this.logger.payment(oldData, newData, this.request.user || {})).save();
 
         response.push({ ...transactions, ...tdeails });
       }
@@ -369,7 +370,7 @@ export class PaymentService {
           "Failed To Create/Update Payment",
           data?.id ? "PAYMENT_UPDATE_ERROR" : "PAMYNET_CREATE_ERROR",
           { requestData, error, message: error.message },
-          {}
+          this.request.user || {}
         )
       ).save();
       return {
@@ -383,7 +384,6 @@ export class PaymentService {
       data: response,
     };
   }
-
 
   async createBulkPaymentsLink(limit: any, dueMonth: string) {
     // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
@@ -442,6 +442,7 @@ export class PaymentService {
   }
 
   async regeneratePaymentLink(request: any) {
+    this.installmentService.request = this.request;
     if (isNullOrUndefined(request.installmentId)) {
       usersLogger.debug(
         "No installment id available for regenerating payment link"
@@ -464,7 +465,7 @@ export class PaymentService {
 
     // update payment status of current transaction for real time data, if the current status is PENDING
     let paymentStatus = installment.status;
-    usersLogger.debug("current payment status: " + paymentStatus);
+    usersLogger.info("current payment status: " + paymentStatus);
     if (
       paymentStatus == PAYMENT_STATUS.PENDING &&
       !isNullOrUndefined(installment.transactionId)
@@ -473,7 +474,7 @@ export class PaymentService {
         installment.transactionId
       );
     }
-    usersLogger.debug("updated payment status: " + paymentStatus);
+    usersLogger.info("updated payment status: " + paymentStatus);
 
     if (paymentStatus == PAYMENT_STATUS.PAID) {
       usersLogger.info("Installment status is paid for the given id");
@@ -508,9 +509,9 @@ export class PaymentService {
     ) {
       usersLogger.error(
         "Payment link generation failed for installment: " +
-        installment.id +
-        "payment response: " +
-        JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
       );
       return {
         status: "error",
@@ -542,7 +543,7 @@ export class PaymentService {
       };
     }
 
-    usersLogger.debug(
+    usersLogger.info(
       "Generating payment link for installment id: " + installment.id
     );
     var user = await getManager()
@@ -585,7 +586,9 @@ export class PaymentService {
           transaction: oldTransaction,
         };
 
-        await (await this.logger.payment(oldData, newData, {})).save();
+        await(
+          await this.logger.payment(oldData, newData, this.request.user || {})
+        ).save();
       }
     } catch (error) {
       usersLogger.error(
