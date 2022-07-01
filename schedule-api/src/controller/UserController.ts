@@ -58,19 +58,13 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
-                try {
-                    if (request.body.status == "inactive") {
+                if (request.body.status == "inactive") {
                         let removequery: any[] = [];
-                        var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
-                        removequery = await getManager().query(removebatchquery)
-
-                        resp = await this.batchService.createBatch(request.body);
-                        resp = await this.studentService.saveStudentDetails(request.body);                       
-                        console.log("Trying to remove Inactive Student")
-                    } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
-                    console.log("Trying to remove Student")
-                } catch { console.log('Cannot Remove Student From Batch due to error') }
-
+                        var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;     
+                    resp = await this.batchService.createBatch(request.body);
+                    removequery = await getManager().query(removebatchquery)
+                    console.log("Trying to remove Inactive Student")
+                } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
             else {

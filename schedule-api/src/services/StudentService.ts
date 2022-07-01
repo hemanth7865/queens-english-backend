@@ -177,7 +177,6 @@ export class StudentService {
       var zoomInfoBatch = [];
       var batchesHistory = [];
       var whatsappLinkBatch = [];
-      var batchCode = "";
 
       if (type == "student") {
         var quer =
