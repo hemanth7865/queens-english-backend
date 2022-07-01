@@ -1,11 +1,10 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class studentsPayments1654670507123 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        if (!await queryRunner.hasTable('transactions')) {
-            await queryRunner.query(`
-            CREATE TABLE transactions (
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    if (!(await queryRunner.hasTable("installments"))) {
+      await queryRunner.query(`
+            CREATE TABLE installments (
                 id varchar(36) NOT NULL,
                 student_id varchar(36) DEFAULT NULL,
                 transaction_id varchar(45) DEFAULT NULL,
@@ -22,9 +21,9 @@ export class studentsPayments1654670507123 implements MigrationInterface {
                 PRIMARY KEY (id)
               );
             `);
-        }
-        if (!await queryRunner.hasTable('transaction_details')) {
-            await queryRunner.query(`
+    }
+    if (!(await queryRunner.hasTable("transaction_details"))) {
+      await queryRunner.query(`
               CREATE TABLE transaction_details (
                 id varchar(36) NOT NULL,
                 transaction_id varchar(45) DEFAULT NULL,
@@ -40,16 +39,15 @@ export class studentsPayments1654670507123 implements MigrationInterface {
                 PRIMARY KEY (id)
               );
             `);
-        }
     }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        if (await queryRunner.hasTable('transactions')) {
-            await queryRunner.query(`DROP TABLE transactions`);
-        }
-        if (await queryRunner.hasTable('transactions')) {
-            await queryRunner.query(`DROP TABLE transaction_details`);
-        }
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    if (await queryRunner.hasTable("installments")) {
+      await queryRunner.query(`DROP TABLE installments`);
     }
-
+    if (await queryRunner.hasTable("transaction_details")) {
+      await queryRunner.query(`DROP TABLE transaction_details`);
+    }
+  }
 }
