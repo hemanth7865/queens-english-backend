@@ -7,6 +7,8 @@ import { InstallmentController } from "./controller/InstallmentController";
 import { LQSController } from "./controller/LQSController";
 import { PaymentController } from "./controller/PaymentController";
 import { AzureProxyController } from "./controller/AzureProxyController";
+import { ZoomController } from "./controller/ZoomController";
+import { CollectionAgentController } from "./controller/CollectionAgentController";
 
 export const Routes = [
   {
@@ -26,19 +28,21 @@ export const Routes = [
     route: "/lessons",
     controller: UserController,
     action: "lessons",
-    // authenticate:true
+    authenticate: true,
   },
   {
     method: "get",
     route: "/currentUser",
     controller: LoginController,
     action: "currentUser",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/leads",
     controller: UserController,
     action: "allLeads",
+    authenticate: true,
   },
   {
     method: "post",
@@ -63,30 +67,35 @@ export const Routes = [
     route: "/leadsView",
     controller: UserController,
     action: "listLeadDetails",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/leadsFullView/:id",
     controller: UserController,
     action: "leadFullDetails",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/student/active/batches/:id",
     controller: UserController,
     action: "getStudentActiveBatches",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/leads",
     controller: UserController,
     action: "saveLeads",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/leads/update/status",
     controller: UserController,
     action: "updateLeadsStatus",
+    authenticate: true,
   },
   {
     method: "post",
@@ -105,30 +114,35 @@ export const Routes = [
     route: "/filterLead",
     controller: UserController,
     action: "filterLeadDetails",
+    authenticate: true,
   },
   {
     method: "delete",
     route: "/users/:id",
     controller: UserController,
     action: "remove",
+    authenticate: true,
   },
   {
     method: "delete",
     route: "/batch/:id",
     controller: BatchController,
     action: "remove",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/re-batch",
     controller: BatchController,
     action: "reBatch",
+    authenticate: true,
   },
   {
     method: "post",
@@ -141,18 +155,21 @@ export const Routes = [
     route: "/deleteBatch/:id",
     controller: BatchController,
     action: "deleteBatch",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/listBatch",
     controller: BatchController,
     action: "listBatch",
+    authenticate: true,
   },
   {
     method: "get",
     route: "/listclass",
     controller: BatchController,
     action: "getClasses",
+    authenticate: true,
   },
   {
     method: "get",
@@ -165,18 +182,21 @@ export const Routes = [
     route: "/listBatch/:id",
     controller: BatchController,
     action: "getBatchDetails",
+    authenticate: true,
   },
   {
     method: "delete",
     route: "/batch/:id",
     controller: BatchController,
     action: "remove",
+    authenticate: true,
   },
   {
     method: "post",
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
+    authenticate: true,
   },
   {
     method: "post",
@@ -189,6 +209,7 @@ export const Routes = [
     route: "/listBatch",
     controller: BatchController,
     action: "listBatch",
+    authenticate: true,
   },
   {
     method: "get",
@@ -273,6 +294,7 @@ export const Routes = [
     route: "/loadTeacherAvailability",
     controller: UserController,
     action: "loadTeacherAvailability",
+    authenticate: true,
   },
   {
     method: "post",
@@ -287,6 +309,7 @@ export const Routes = [
     route: "/studentPaymentDetails",
     controller: PaymentController,
     action: "studentPaymentDetails",
+    authenticate: true,
   },
 
   {
@@ -294,6 +317,7 @@ export const Routes = [
     route: "/paymentDetails",
     controller: PaymentController,
     action: "paymentDetails",
+    authenticate: true,
   },
 
   {
@@ -309,6 +333,7 @@ export const Routes = [
     route: "/fetchPaymentsDetails",
     controller: PaymentController,
     action: "loadTeacherAvailability",
+    authenticate: true,
   },
 
   {
@@ -316,6 +341,7 @@ export const Routes = [
     route: "/fetchCollectionAgent",
     controller: PaymentController,
     action: "fetchCollectionAgent",
+    authenticate: true,
   },
 
   {
@@ -323,7 +349,7 @@ export const Routes = [
     route: "/regeneratePaymentLink",
     controller: PaymentController,
     action: "regeneratePaymentLink",
-    // authenticate: true
+    authenticate: true,
   },
 
   {
@@ -339,6 +365,132 @@ export const Routes = [
     route: "/azure",
     controller: AzureProxyController,
     action: "serve",
-    // authenticate: true
+    authenticate: true,
+  },
+
+  /**
+   * Start API/Tests For Zoom
+   */
+  {
+    method: "get",
+    route: "/zoom-users/without-license",
+    controller: ZoomController,
+    action: "getTeachersWithoutLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/active-without-license",
+    controller: ZoomController,
+    action: "getActiveTeachersWithoutLicense",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-meetings/active-batches-without-meeting",
+    controller: ZoomController,
+    action: "getActiveBatchesWithoutZoomLink",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-meetings/batches-without-meeting",
+    controller: ZoomController,
+    action: "getBatchesWithoutZoomLink",
+    // authenticate: true,
+  },
+
+  /**
+   * Generators
+   */
+  // generate license for all teachers
+  {
+    method: "post",
+    route: "/zoom-users/generate-license",
+    controller: ZoomController,
+    action: "generateTeachersLicense",
+    // authenticate: true,
+  },
+  // generate license for teachers with active batches
+  {
+    method: "post",
+    route: "/zoom-users/generate-active-license",
+    controller: ZoomController,
+    action: "generateActiveTeachersLicense",
+    // authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/zoom-meetings/active-batches-generate-meetings",
+    controller: ZoomController,
+    action: "generateActiveBatchesZoomLink",
+    // authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-users/delete-all-license",
+    controller: ZoomController,
+    action: "deleteAllTeachersLicense",
+    // authenticate: true,
+  },
+
+  /**
+   * End API/TESTS For Zoom
+   */
+
+  {
+    method: "get",
+    route: "/zoom-users",
+    controller: ZoomController,
+    action: "listZoomUsers",
+    authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "showZoomUser",
+    authenticate: true,
+  },
+  {
+    method: "delete",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "deleteTeachersLicense",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/zoom-user/:id",
+    controller: ZoomController,
+    action: "addLicense",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/zoom-user/reassign/:from/:to",
+    controller: ZoomController,
+    action: "reassignLicense",
+    authenticate: true,
+  },
+  {
+    method: "get",
+    route: "/collection-agents",
+    controller: CollectionAgentController,
+    action: "listCollectionAgents",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/csv/collection-agents/bulk-assignment",
+    controller: CollectionAgentController,
+    action: "updateCollectionExpertsCSV",
+  },
+  {
+    method: "get",
+    route: "/zoom-meetings",
+    controller: ZoomController,
+    action: "listZoomMeetings",
+    authenticate: true,
   },
 ];

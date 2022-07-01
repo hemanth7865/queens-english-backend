@@ -17,6 +17,7 @@ export class InstallmentController {
     response: Response,
     next: NextFunction
   ) {
+    this.service.request = request;
     const result = {
       error: 0,
       paid: 0,
@@ -35,14 +36,14 @@ export class InstallmentController {
             const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
               paymentId
             );
-            logger.info('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
+            logger.debug('Fetch payment link id: ' + paymentId + ' response: ' + JSON.stringify(paymentLinkDetails));
             if (paymentLinkDetails.status === "paid") {
               var paidDate = moment().format("YYYY-MM-DD HH:mm:ss");
               logger.debug('Default paid date: ' + paidDate);
               //get the paid date from payments
               if (!isNullOrUndefined(paymentLinkDetails.payments) && paymentLinkDetails.payments.length > 0 && paymentLinkDetails.payments[0].status == 'captured') {
                 paidDate = moment(paymentLinkDetails.payments[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
-                logger.info('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
+                logger.debug('Actual paid date: ' + paidDate + ' ,for payment record: ' + JSON.stringify(paymentLinkDetails.payments[0]));
               }
   
               let data:any = {

@@ -14,7 +14,7 @@ const date = require('date-and-time')
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
-
+  public request: any = {};
   private logger = new LoggerService();
   private query = getRepository(Transactions);
 
@@ -65,7 +65,7 @@ export class InstallmentService {
         await this.logger.payment(
           { transaction: oldTransaction },
           { transaction: { ...data, id } },
-          {}
+          this.request.user || {}
         )
       ).save();
     }
@@ -106,7 +106,7 @@ export class InstallmentService {
           "Failed Update Installemnt Status",
           "PAYMENT_UPDATE_STATUS_ERROR",
           { paymentId, error, message: error.message },
-          {}
+          this.request.user || {}
         )
       ).save();
       return PAYMENT_STATUS.PENDING;

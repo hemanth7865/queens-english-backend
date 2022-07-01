@@ -9,14 +9,17 @@ const log = async (
     transaction: Transactions;
     transactionDetails?: TransactionDetails;
   },
-  user: object | boolean
+  user: any
 ): Promise<object> => {
   let title = "";
   let event = "";
-  const bot = user ? false : true;
+  const bot = user?.email ? false : true;
   const create = oldRecord.transaction.id ? false : true;
 
   if (bot) {
+    user = {
+      email: "System Bot."
+    }
     title = "Bot Action, ";
   } else {
     title = "User Action, ";
