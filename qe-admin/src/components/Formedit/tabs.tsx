@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Tabs, notification, Spin } from 'antd';
+import { notification, Spin } from 'antd';
 import Studentdetailsedit from './studentdetails';
-import { addTeacherSchedule } from "@/services/ant-design-pro/api";
+import { addTeacherSchedule, } from "@/services/ant-design-pro/api";
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
-const { TabPane } = Tabs;
-
-function callback(key: any) {
-  console.log(key);
-}
 
 export type TabseditProps = {
   tmpData: {};
   salesAlert: '';
+  studentManageredit: '';
+  studentManageradd: '';
+  welcomepage: '';
+  onboardpage: '',
+  startclasslaterpage: '',
 };
 
 const Tabsedit: React.FC<TabseditProps> = (props) => {
@@ -24,7 +25,7 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
     });
     setTimeout(() => {
       window.location.reload()
-    }, 100);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -40,14 +41,14 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
         },
         body: JSON.stringify(data),
       });
-      if (msg.status === 500) {
-        openNotificationWithIcon('error', 'Student', msg.error);
-      } else if (msg.status === 400) {
-        openNotificationWithIcon('error', 'Student', msg.errors[0]);
-      } else {
-        setIsLoading(false);
-        openNotificationWithIcon('success', 'Student', '');
+
+      if (!data.id) {
+        handleAPIResponse(msg, "Student Added Successfully", "Failed To Add Student");
       }
+      if (data.id) {
+        handleAPIResponse(msg, `Data for student ${data.firstName} ${data.lastName} updated Successfully`, `Failed To update data of student ${data.firstName} ${data.lastName}`);
+      }
+      setIsLoading(false);
     } catch (error) {
       openNotificationWithIcon('error', 'Student', 'Unable to process request !!!')
     }
@@ -61,11 +62,7 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
   return (
     <div>
       <Spin spinning={isLoading}>
-        <Tabs defaultActiveKey="1" onChange={callback}>
-          <TabPane tab="Student Details" key="1">
-            <Studentdetailsedit tempData={tmpData} submit={submit} updateTempData={updateTempData} salesAlert={props.salesAlert} />
-          </TabPane>
-        </Tabs>
+        <Studentdetailsedit tempData={tmpData} submit={submit} updateTempData={updateTempData} salesAlert={props.salesAlert} studentManageredit={props.studentManageredit} studentManageradd={props.studentManageradd} welcomepage={props.welcomepage} onboardpage={props.onboardpage} startclasslaterpage={props.startclasslaterpage} />
       </Spin>
     </div>
   );
