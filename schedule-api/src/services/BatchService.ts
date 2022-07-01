@@ -51,35 +51,23 @@ export class BatchService {
   }
 
   async createBatch(data: any, force: boolean = false) {
-    
-    if (!data.status) {
-      console.log("databatch",data,)
-    }
-    var query1 = "select id, type, batchNumber, teacherId, classStartDate, classEndDate, lessonStartTime, lessonEndTime, ageGroup, startingLessonId, endingLessonId, version, followupVersion, maxAttemptsAllowed, classCode, activeLessonId, frequency, zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='"+ data.id +"');";
-    var query2 = "select id, batchId, studentId, type, created_at, updated_at, studentId as value, id as 'key' from batch_students where batchId IN (select batchId from batch_students where studentId='" + data.id + "')";
-    var classdetails = await getManager().query(query1);
-    var studentslist = await getManager().query(query2);
-    console.log("class details",classdetails)
-    console.log("students list", studentslist)
-    var removeByAttr = function(arr, attr, value){
-    var i = arr.length;
-    while(i--){
-       if( arr[i] 
-           && arr[i].hasOwnProperty(attr) 
-           && (arguments.length > 2 && arr[i][attr] === value ) ){ 
-
-           arr.splice(i,1);
-
-       }
-    }
-    return arr;
-}
-    const filteredstudentslist = removeByAttr(studentslist, 'studentId', data.id); 
-    console.log("filtered students",filteredstudentslist)
     const moment = require("moment");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
+    // var query2 = "select id, batchId, studentId, type, created_at, updated_at, studentId as value, id as 'key' from batch_students where batchId IN (select batchId from batch_students where studentId='" + request.body.id + "')";                   
+    // var studentslist = await getManager().query(query2);
+    console.log("Data Received in Batch Service", data);
+    // var removeByAttr = function(arr, attr, value){
+    // var i = arr.length;
+    //   while(i--){
+    //      if( arr[i] 
+    //          && arr[i].hasOwnProperty(attr) 
+    //          && (arguments.length > 2 && arr[i][attr] === value ) ){                 
+    //          arr.splice(i,1);
+    //      }}
+    //   return arr;}
+    //   const filteredstudentslist = removeByAttr(studentslist, 'studentId', data); 
     var studnets: { id: string, type: string }[] = [];
     let create: boolean = false;
     try {
@@ -134,7 +122,7 @@ export class BatchService {
 
       let alreadyExists;
 
-      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(data.status == "inactive" ? studentslist : studnets, data) : false;
+      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data) : false;
 
       if (studentHasBatch) {
         return { status: false, message: studentHasBatch };
@@ -157,30 +145,32 @@ export class BatchService {
         url: cosomos_url,
         json: true,
         body: {
-          id: data.status == "inactive" ? classdetails.id : data.id,
-          type: data.status == "inactive" ? classdetails.type :data.type,
-          batchNumber: data.status == "inactive" ? classdetails.batchNumber :data.batchNumber,
-          teacherId: data.status == "inactive" ? classdetails.teacherId :data.teacherId,
-          classStartDate: data.status == "inactive" ? classdetails.classStartDate :data.classStartDate,
-          classEndDate: data.status == "inactive" ? classdetails.classEndDate :data.classEndDate,
-          lessonStartTime: data.status == "inactive" ? classdetails.lessonStartTime :data.lessonStartTime,
-          lessonEndTime: data.status == "inactive" ? classdetails.lessonEndTime :data.lessonEndTime,
-          ageGroup: data.status == "inactive" ? classdetails.ageGroup :data.ageGroup,
-          startingLessonId: data.status == "inactive" ? classdetails.startingLessonId :data.startingLessonId,
-          endingLessonId: data.status == "inactive" ? classdetails.endingLessonId :data.endingLessonId,
-          version: data.status == "inactive" ? classdetails.id :data.version,
-          followupVersion: data.status == "inactive" ? classdetails.followupVersion :data.followupVersion,
-          maxAttemptsAllowed: data.status == "inactive" ? classdetails.maxAttemptsAllowed :data.maxAttemptsAllowed,
-          partitionKey: data.status == "inactive" ? classdetails.partitionKey :data.partitionKey,
-          classCode: data.status == "inactive" ? classdetails.classCode :data.classCode,
-          students: data.status == "inactive" ? filteredstudentslist:studnets,
-          activeLessonId: data.status == "inactive" ? classdetails.activeLessonId :data.activeLessonId,
-          frequency: data.status == "inactive" ? classdetails.frequency :data.frequency,
-          zoomLink: data.status == "inactive" ? classdetails.zoomLink :data.zoomLink,
-          zoomInfo: data.status == "inactive" ? classdetails.zoomInfo :data.zoomInfo,
-          whatsappLink: data.status == "inactive" ? classdetails.whatsappLink :data.whatsappLink
+          id: data.id,
+          type: data.type,
+          batchNumber: data.batchNumber,
+          teacherId: data.teacherId,
+          classStartDate: data.classStartDate,
+          classEndDate: data.classEndDate,
+          lessonStartTime: data.lessonStartTime,
+          lessonEndTime: data.lessonEndTime,
+          ageGroup: data.ageGroup,
+          startingLessonId: data.startingLessonId,
+          endingLessonId: data.endingLessonId,
+          version: data.version,
+          followupVersion: data.followupVersion,
+          maxAttemptsAllowed: data.maxAttemptsAllowed,
+          partitionKey: data.partitionKey,
+          classCode: data.classCode,
+          students: studnets,
+          activeLessonId: data.activeLessonId,
+          frequency: data.frequency,
+          zoomLink: data.zoomLink,
+          zoomInfo: data.zoomInfo,
+          whatsappLink: data.whatsappLink
         },
       };
+
+      console.log("options",options)
 
       var res1 = {};
       if (!data.id || create) {
@@ -200,25 +190,25 @@ export class BatchService {
           });
         console.log ("Res 1")
       } else {
-        const studentsChange = await this.getBatchStudentsChange(data.status == "inactive" ? classdetails : data, alreadyExists);
+        const studentsChange = await this.getBatchStudentsChange(data, alreadyExists);
 
         /**
          * Add Students To Batch
          */
-        await this.addStudents(studentsChange.add, data.status == "inactive" ? data.id = classdetails.id : data.id);
+        await this.addStudents(studentsChange.add, data.id);
 
         /**
         * Remove Students From Batch
         */
-        await this.removeStudents(studentsChange.remove, data.status == "inactive" ? data.id = classdetails.id : data.id);
+        await this.removeStudents(studentsChange.remove, data.id);
 
-        await this.addStudentsBatchesHistory(studentsChange.add, data.status == "inactive" ? data.id = classdetails.id : data.id);
+        await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
 
-            var batch = await this.updateBatchSql(data.status == "inactive" ? data = classdetails : data);
+            var batch = await this.updateBatchSql(data);
             return batch;
           })
           .catch((error) => {

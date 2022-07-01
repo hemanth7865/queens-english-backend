@@ -13,6 +13,7 @@ const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 import { validations } from "../helpers/validations";
 import { BatchController } from "./BatchController";
+import { stringify } from "querystring";
 
 
 export class UserController {
@@ -59,9 +60,15 @@ export class UserController {
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
                 if (request.body.status == "inactive") {
-                        let removequery: any[] = [];
-                        var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;     
-                    resp = await this.batchService.createBatch(request.body);
+                    var query2 = "select id, batchId, studentId, type, created_at, updated_at, studentId as value, id as 'key' from batch_students where batchId IN (select batchId from batch_students where studentId='" + request.body.id + "')";
+                    var data2 = await getManager().query(query2);
+                    const students = data2;
+                    var query1 = "select id, type, batchNumber, teacherId, classStartDate, classEndDate, lessonStartTime, lessonEndTime, ageGroup, startingLessonId, endingLessonId, version, followupVersion, maxAttemptsAllowed, classCode, activeLessonId, frequency, zoomLink, zoomInfo, whatsappLink, '"+ [{students}]  +"' as 'students' from classes where id IN (select batchId from batch_students where studentId='" + request.body.id + "')";
+                    var data1 = await getManager().query(query1);                  
+                    let data = [...data1 , students];
+                    resp = await this.batchService.createBatch(data);
+                    let removequery: any[] = [];
+                    var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;                        
                     removequery = await getManager().query(removebatchquery)
                     console.log("Trying to remove Inactive Student")
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
