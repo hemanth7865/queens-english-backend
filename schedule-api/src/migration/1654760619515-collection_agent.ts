@@ -18,11 +18,13 @@ export class collectionAgent1654760619515 implements MigrationInterface {
 
             `);
         }
-        if (await queryRunner.hasColumn('transactions', 'transaction_id')) {
-            await queryRunner.query(`ALTER TABLE transactions rename column transaction_id to reference_id`);
+        if (await queryRunner.hasColumn('installments', 'transaction_id')) {
+            await queryRunner.query(`ALTER TABLE installments rename column transaction_id to reference_id`);
         }
-        if (!await queryRunner.hasColumn('transactions', 'payment_link')) {
-            await queryRunner.query(`ALTER TABLE transactions ADD payment_link varchar(255)`);
+        if (!(await queryRunner.hasColumn("installments", "payment_link"))) {
+          await queryRunner.query(
+            `ALTER TABLE installments ADD payment_link varchar(255)`
+          );
         }
         if (await queryRunner.hasColumn('transaction_details', 'status')) {
             await queryRunner.query(`ALTER TABLE transaction_details DROP COLUMN status`);
@@ -33,8 +35,10 @@ export class collectionAgent1654760619515 implements MigrationInterface {
         if (await queryRunner.hasColumn('transaction_details', 'razorpay_link')) {
             await queryRunner.query(`ALTER TABLE  transaction_details DROP column razorpay_link`);
         }
-        if (await queryRunner.hasTable('transactions')) {
-            await queryRunner.query(`ALTER TABLE transactions RENAME TO installments`);
+        if (await queryRunner.hasTable("installments")) {
+          await queryRunner.query(
+            `ALTER TABLE installments RENAME TO installments`
+          );
         }
     }
 
