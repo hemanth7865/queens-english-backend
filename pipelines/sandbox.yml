@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
+    BRANCH_NAME: $[ replace(variables['Build.SourceBranch'], 'refs/heads/', '') ]
+
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+    BRANCH_NAME: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
+
+steps:
+  - task: SSH@0
+    displayName: "Connect SANDBOX Server, And Run Deployment Scripts"
+    inputs:
+      sshEndpoint: "QE_PORTAL SANDBOX"
+      runOptions: "commands"
+      commands: |
+        echo "Download Updates"
+        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
+        echo "Checkout Branch $(BRANCH_NAME)"
+        cd /home/qeuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/qeuser/git-checkout.txt && cat /home/qeuser/git-checkout.txt
+        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
+        cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
+        pm2 restart all
+      readyTimeout: "20000"
+      # Don't Show Error Message If Command Fail
+      # failOnStdErr: false
