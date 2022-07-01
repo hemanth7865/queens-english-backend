@@ -156,7 +156,7 @@ export class LQSService {
       user.updated_at = new Date();
       user.state = element.customerAddressState;
 
-      student.studentID = (element.studentID).replace(" ","");
+      student.studentID = (element.studentID).replace(/\s/g,"");
       student.course = element.course;
       student.courseFrequency = element.courseFrequency;
       student.status = element.status == 'Won' ? 'enrolled' : element.status;
@@ -472,7 +472,7 @@ export class LQSService {
                 element.bdaComments = item.Value;
                 break;
               case "mx_Custom_32":
-                element.studentID = (item.Value).replace(" ","");
+                element.studentID = (item.Value).replace(/\s/g,"");
                 break;
               default:
                 usersLogger.info(`Not valid schema name ${item.SchemaName}`);
