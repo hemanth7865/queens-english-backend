@@ -43,7 +43,7 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
       });
 
       if (!data.id) {
-        handleAPIResponse(msg, "Student Added Successfully", "Failed To Add Student");
+        handleAPIResponse(msg, `Student ${data.firstName} ${data.lastName} Added Successfully`, `Failed To Add Student ${data.firstName} ${data.lastName}`);
       }
       if (data.id) {
         handleAPIResponse(msg, `Data for student ${data.firstName} ${data.lastName} updated Successfully`, `Failed To update data of student ${data.firstName} ${data.lastName}`);
