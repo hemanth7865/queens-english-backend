@@ -341,7 +341,6 @@ export class StudentService {
       body: cosmosUserBody,
     };
 
-
     usersLogger.info(
       `Start - Reqeust to cosmos DB : ${JSON.stringify(options)}`
     );
@@ -642,8 +641,6 @@ export class StudentService {
     try {
       var studentAvailabilityList: StudentAvailability[] = [];
       var teacherAvailability: TeacherAvailability[] = [];
-      let removebatchquery: any[] = []
-      var removequery = `DELETE FROM batch_students where studentId='${data.id}'`;
 
       const UserData = await this.mapStudentData(data, id, create);
 
@@ -660,10 +657,6 @@ export class StudentService {
           `Successfully updated payment  ${JSON.stringify(payment)}`
         );
       }
-
-      // if (data.status == 'inactive') {
-      //     removebatchquery = await getManager().query(removequery)
-      // }
 
       student = await this.studentRepository.save(student);
 

@@ -30,6 +30,7 @@ export class BatchController {
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
+        console.log("rebatch batch")
         if (!request.body.studentId || !request.body.batchId) {
             return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
         }

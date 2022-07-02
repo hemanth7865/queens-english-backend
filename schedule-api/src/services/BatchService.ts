@@ -1,4 +1,4 @@
-import { Any, getConnection, getRepository, ValueTransformer } from "typeorm";
+import { Any, getConnection, getRepository } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
@@ -83,7 +83,7 @@ export class BatchService {
 
       data.students = batchStudent;
 
-      var cosomos_url = "/api/classProfile/" + data.batchId;
+      var cosomos_url = "/api/classProfile/" + data.id;
 
       data.type = data.type || "classProfile";
       data.followupVersion = data.followupVersion || "v2";
@@ -175,7 +175,6 @@ export class BatchService {
             console.log(error);
             return Promise.reject(error);
           });
-        console.log ("Res 1")
       } else {
         const studentsChange = await this.getBatchStudentsChange(data, alreadyExists);
 
@@ -201,14 +200,12 @@ export class BatchService {
           .catch((error) => {
             return Promise.reject(error);
           });
-              console.log("Res2")
       }
 
       await queryRunner.commitTransaction();
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.log("")
       return { status: false, message: error?.response?.data || "Service Error" };
     } finally {
       await queryRunner.release();

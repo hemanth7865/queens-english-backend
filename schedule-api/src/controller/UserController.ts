@@ -6,14 +6,12 @@ import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAva
 import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
-import { BatchService } from "../services/BatchService";
 import { UserService } from "../services/UserService";
 import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 import { validations } from "../helpers/validations";
 import { BatchController } from "./BatchController";
-import { stringify } from "querystring";
 
 
 export class UserController {
@@ -24,7 +22,6 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
-    private batchService = new BatchService();
     private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
