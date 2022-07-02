@@ -55,19 +55,6 @@ export class BatchService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
-    // var query2 = "select id, batchId, studentId, type, created_at, updated_at, studentId as value, id as 'key' from batch_students where batchId IN (select batchId from batch_students where studentId='" + request.body.id + "')";                   
-    // var studentslist = await getManager().query(query2);
-    console.log("Data Received in Batch Service", data);
-    // var removeByAttr = function(arr, attr, value){
-    // var i = arr.length;
-    //   while(i--){
-    //      if( arr[i] 
-    //          && arr[i].hasOwnProperty(attr) 
-    //          && (arguments.length > 2 && arr[i][attr] === value ) ){                 
-    //          arr.splice(i,1);
-    //      }}
-    //   return arr;}
-    //   const filteredstudentslist = removeByAttr(studentslist, 'studentId', data); 
     var studnets: { id: string, type: string }[] = [];
     let create: boolean = false;
     try {
@@ -221,6 +208,7 @@ export class BatchService {
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      console.log("")
       return { status: false, message: error?.response?.data || "Service Error" };
     } finally {
       await queryRunner.release();

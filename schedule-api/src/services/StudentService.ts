@@ -168,6 +168,7 @@ export class StudentService {
     for (const element of results) {
       let slotsResult: any[] = [];
       let batchCodes: any[] = [];
+      let batchIds: any[] = [];
       let payment: string;
       var prm_info = new PRManager();
       var lsq_user_info = new LSQUser();
@@ -177,12 +178,16 @@ export class StudentService {
       var zoomInfoBatch = [];
       var batchesHistory = [];
       var whatsappLinkBatch = [];
+      var batchId: string;
 
       if (type == "student") {
         var quer =
           "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
+        var quer2 = "select batchId from batch_students where studentId='" +
+          element.id +
+          "';";
 
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
@@ -192,6 +197,8 @@ export class StudentService {
           zoomInfoBatch.push(element.zoomInfo);
           whatsappLinkBatch.push(element.whatsappLink);
         });
+        batchId = await getManager().query(quer2);
+        batchIds = batchIds;
 
         batchesHistory = await getManager().query(
           this.BATCHES_HISTORY_QUERY.replace(":studentId", element.id)
@@ -294,6 +301,7 @@ export class StudentService {
         whatsappLinkBatch.join(","),
         element.gender,
       );
+      l.batchId = batchId,
       l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;
       leadView.push(l);
