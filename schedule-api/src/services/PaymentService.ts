@@ -548,12 +548,12 @@ export class PaymentService {
     const where = { };
     var limit = 100;
     if (request?.fromDate) {
-      var fromDate = moment(request.fromDate,"YYYY-MM-DD HH:mm:ss").set({hour:0,minute:0,second:0,millisecond:0}).toDate();
+      var fromDate = moment(request.fromDate,"YYYY-MM-DD").set({hour:0,minute:0,second:0,millisecond:0}).toDate();
       usersLogger.info('from date: ' + fromDate);
       where["dueDate"] = MoreThanDate(fromDate);
     }
     if (request?.toDate) {
-      var toDate = moment(request.fromDate,"YYYY-MM-DD HH:mm:ss").set({hour:23,minute:59,second:59,millisecond:0}).toDate();
+      var toDate = moment(request.toDate,"YYYY-MM-DD").set({hour:23,minute:59,second:59,millisecond:0}).toDate();
       usersLogger.info('to date: ' + toDate);
       where["dueDate"] = LessThanDate(toDate);
     }
