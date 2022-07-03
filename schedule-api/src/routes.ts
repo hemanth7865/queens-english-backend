@@ -354,6 +354,14 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/resetExpiredPayments",
+    controller: PaymentController,
+    action: "resetExpiredPayments",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
     route: "/uploadNetBankingResource",
     controller: PaymentController,
     action: "uploadNetBankingResource",

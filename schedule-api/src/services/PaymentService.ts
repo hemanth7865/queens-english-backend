@@ -1,4 +1,4 @@
-import { getConnection, getManager, getRepository } from "typeorm";
+import { getConnection, getManager, getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { isNull, isNullOrUndefined } from "util";
 import { Payment } from "../entity/Payment";
 import { PaymentModeDetails } from "../entity/PaymentModeDetails";
@@ -16,6 +16,12 @@ import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
 import { fail } from "assert";
 import LoggerService from "./LoggerService";
+import { format } from "date-and-time";
+const moment = require("moment");
+import {
+  getPaymentById as getRazorpayPaymentById,
+  Payment as RazorpayPayment,
+} from "../services/RazorpayService";
 
 export class PaymentService {
   private transactionRepository = getRepository(Transactions);
@@ -534,6 +540,74 @@ export class PaymentService {
     }
   }
 
+  async resetExpiredPayments(request: any) {
+    const result = {
+      error: 0,
+      expired: 0,
+    };
+    const where = { };
+    var limit = 100;
+    if (request?.fromDate) {
+      var fromDate = moment(request.fromDate,"YYYY-MM-DD HH:mm:ss").set({hour:0,minute:0,second:0,millisecond:0}).toDate();
+      usersLogger.info('from date: ' + fromDate);
+      where["dueDate"] = MoreThanDate(fromDate);
+    }
+    if (request?.toDate) {
+      var toDate = moment(request.fromDate,"YYYY-MM-DD HH:mm:ss").set({hour:23,minute:59,second:59,millisecond:0}).toDate();
+      usersLogger.info('to date: ' + toDate);
+      where["dueDate"] = LessThanDate(toDate);
+    }
+    if(request?.limit){
+      limit = request.limit;
+    }
+    var now = moment().toDate();
+    usersLogger.info('now: ' + now);
+    where["expireBy"] = LessThanDate(now);
+    where["status"] = PAYMENT_STATUS.PENDING;
+    where["transactionId"] = Like("plink_%");
+
+    usersLogger.info("where: "+JSON.stringify(where));
+    var expiryInstallments = await this.transactionRepository.find({
+      where,
+      take: limit,
+    });
+    if (isNullOrUndefined(expiryInstallments)) {
+      usersLogger.info("No installment available for the given conditions");
+      return {
+        status: "success",
+        message: "No installment available for the given conditions",
+      };
+    }
+
+    usersLogger.info("expiry installments: " + expiryInstallments.length);
+    for (const installment of expiryInstallments) {
+      try {
+        // check if the given link is expired or not
+        usersLogger.info("current payment id: " + installment.transactionId);
+        const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
+          installment.transactionId
+        );
+        usersLogger.info('Fetch payment link id: ' + installment.transactionId + ' response: ' + JSON.stringify(paymentLinkDetails));
+        if (paymentLinkDetails.status === "expired") {
+          usersLogger.info("expired payment id: " + installment.id);
+          let data:any = {
+            // status: EXPIRED,
+            transactionId: null,
+            paymentLink: null,
+            lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+          };
+          await this.installmentService.updateInstallment(installment.id, data);
+          result.expired++;
+        }
+      }
+      catch (error) {
+        usersLogger.error('Error in fetching payment record: ' + JSON.stringify(error));
+        result.error++;
+      }
+    }
+    return result;
+  }
+
   createPaymentLink = async (installment: any) => {
     if (isNullOrUndefined(installment)) {
       usersLogger.debug("No installment available for generating payment link");
@@ -628,4 +702,9 @@ export class PaymentService {
       };
     } catch (error) { }
   }
+
 }
+
+export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
+export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
+

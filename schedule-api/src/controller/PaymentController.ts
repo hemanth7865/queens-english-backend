@@ -93,6 +93,20 @@ export class PaymentController {
         }
     }
 
+    async resetExpiredPayments(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        console.log("reset expired installments");
+        try {
+            return await this.paymentService.resetExpiredPayments(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception during resetting expired installments"
+            }
+        }
+    }
+
     async uploadNetBankingResource(request: Request, response: Response, next: NextFunction) {
         this.paymentService.request = request;
         console.log("Read netbanking payment receipt.....");
