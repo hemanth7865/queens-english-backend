@@ -996,7 +996,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   label="Classes Sold"
                   name="classessold">
                   <Select placeholder="classessold" onChange={onChange}>
+                    <Option value="30">30</Option>
+                    <Option value="40">40</Option>
+                    <Option value="50">50</Option>
                     <Option value="60">60</Option>
+                    <Option value="80">80</Option>
                     <Option value="100">100</Option>
                     <Option value="200">200</Option>
                     <Option value="300">300</Option>
