@@ -432,6 +432,7 @@ export class PaymentService {
         //update installment data
         installment.transactionId = paymentResponse.id;
         installment.paymentLink = paymentResponse.short_url;
+        installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
         // paid date is set to null since installment status is pending
         installment.paidDate = null;
         installmentsForUpdate.push(installment);
@@ -529,6 +530,7 @@ export class PaymentService {
       installment.paymentLink = paymentResponse.short_url;
       // paid date is set to null since installment status is pending
       installment.paidDate = null;
+      installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
       installmentsForUpdate.push(installment);
       await this.updateInstallmentData(installmentsForUpdate);
       return {
@@ -591,7 +593,8 @@ export class PaymentService {
             // status: EXPIRED,
             transactionId: null,
             paymentLink: null,
-            lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+            lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+            updated_at: moment().format("YYYY-MM-DD HH:mm:ss")
           };
           await this.installmentService.updateInstallment(installment.id, data);
           result.expired++;
