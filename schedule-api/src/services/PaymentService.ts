@@ -546,7 +546,7 @@ export class PaymentService {
       expired: 0,
     };
     const where = { };
-    var limit = 100;
+    const limit = request?.limit || 100;
     if (request?.fromDate) {
       var fromDate = moment(request.fromDate,"YYYY-MM-DD").set({hour:0,minute:0,second:0,millisecond:0}).toDate();
       usersLogger.info('from date: ' + fromDate);
@@ -556,9 +556,6 @@ export class PaymentService {
       var toDate = moment(request.toDate,"YYYY-MM-DD").set({hour:23,minute:59,second:59,millisecond:0}).toDate();
       usersLogger.info('to date: ' + toDate);
       where["dueDate"] = LessThanDate(toDate);
-    }
-    if(request?.limit){
-      limit = request.limit;
     }
     var now = moment().toDate();
     usersLogger.info('now: ' + now);
@@ -579,11 +576,11 @@ export class PaymentService {
       };
     }
 
-    usersLogger.info("expiry installments: " + expiryInstallments.length);
+    usersLogger.info("expiry installments: " + expiryInstallments?.length);
     for (const installment of expiryInstallments) {
       try {
         // check if the given link is expired or not
-        usersLogger.info("current payment id: " + installment.transactionId);
+        usersLogger.debug("current payment id: " + installment.transactionId);
         const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
           installment.transactionId
         );
