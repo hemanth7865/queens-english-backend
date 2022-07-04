@@ -605,6 +605,7 @@ export class PaymentService {
         result.error++;
       }
     }
+    usersLogger.info("Result of expiry installments processing: " + JSON.stringify(result));
     return result;
   }
 
