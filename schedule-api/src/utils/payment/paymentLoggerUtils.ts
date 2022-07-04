@@ -105,6 +105,14 @@ const log = async (
     title += `Payment Link Changed To: ${transaction.paymentLink}, `;
   }
 
+  if (
+    transaction.paymentLink !== oldTransaction.paymentLink &&
+    transaction.transactionId !== oldTransaction.transactionId &&
+    transaction.paymentLink == null && transaction.transactionId == null
+  ) {
+    title += `Link expired & reset payment values`;
+  }
+
   /**
    * Check Transaction Details Updates
    */

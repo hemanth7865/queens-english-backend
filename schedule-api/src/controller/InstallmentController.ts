@@ -57,7 +57,7 @@ export class InstallmentController {
                 logger.info('refresh link url: '+paymentLinkDetails.short_url);
                 data['paymentLink'] = paymentLinkDetails.short_url;
               }
-              logger.info('data for update: '+JSON.stringify(data));
+              logger.debug('data for update: '+JSON.stringify(data));
               await this.service.updateInstallment(payment.id, data);
               result.paid++;
               logger.info(
@@ -73,7 +73,7 @@ export class InstallmentController {
                 logger.info('refresh link url: '+paymentLinkDetails.short_url);
                 data['paymentLink'] = paymentLinkDetails.short_url;
               }
-              logger.info('data for update: '+JSON.stringify(data));
+              logger.debug('data for update: '+JSON.stringify(data));
               await this.service.updateInstallment(payment.id, data);
             }  
         } catch (e) {
