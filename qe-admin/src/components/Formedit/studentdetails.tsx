@@ -912,7 +912,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       <Option value="inactive">InActive</Option>
                       <Option value="active">Active</Option>
                       <Option value="startclasslater">Start Class Later</Option>
-                      <Option value="batching">Re-Batch</Option>
+                      <Option value="batching">Batching</Option>
                       <Option value='Error'>Error</Option>
                     </Select >
                   </Form.Item >
