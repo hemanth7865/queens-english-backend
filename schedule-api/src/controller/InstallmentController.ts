@@ -50,12 +50,15 @@ export class InstallmentController {
                 status: this.COMPLETED_STATUS,
                 paidAmount: paymentLinkDetails.amount / 100,
                 paidDate: paidDate,
+                updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                 lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
               };
               logger.info('refresh link: '+request.query?.refreshLink);
               if(request.query?.refreshLink){
                 logger.info('refresh link url: '+paymentLinkDetails.short_url);
                 data['paymentLink'] = paymentLinkDetails.short_url;
+                data['discount'] = 0;
+                data['expireBy'] = null;
               }
               logger.debug('data for update: '+JSON.stringify(data));
               await this.service.updateInstallment(payment.id, data);
@@ -72,6 +75,8 @@ export class InstallmentController {
               if(request.query?.refreshLink){
                 logger.info('refresh link url: '+paymentLinkDetails.short_url);
                 data['paymentLink'] = paymentLinkDetails.short_url;
+                data['discount'] = 0;
+                data['expireBy'] = null;
               }
               logger.debug('data for update: '+JSON.stringify(data));
               await this.service.updateInstallment(payment.id, data);
