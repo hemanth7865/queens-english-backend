@@ -11,3 +11,12 @@ export class Constants {
     public static PARTNER_CODE_QE = "QE";
     public static AUTO_UPDATE_INSTALLMENT_STATUS = "Installment Pending";
 }
+
+export const Status = {
+    INACTIVE: "inactive",
+    ACTIVE: "active",
+    ENROLLED: "enrolled",
+    STARTCLASSLATER: "startclasslater",
+    ERROR: "error",
+    ONBOARDING: "onboarding",
+}
