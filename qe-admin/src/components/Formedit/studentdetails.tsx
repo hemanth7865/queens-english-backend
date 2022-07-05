@@ -11,6 +11,12 @@ import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentB
 
 const { TabPane } = Tabs;
 const { Option } = Select;
+const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
+  notification[type]({
+    message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
+    description: '',
+  });
+};
 
 export type StudentdetailseditProps = {
   tempData: {
@@ -38,14 +44,14 @@ export type StudentdetailseditProps = {
     startDate?: string;
     lsq_user_name?: string;
     classessold?: string;
-    saleamount?: string;
+    saleamount?: number;
     downpayment?: number;
     paymentMode?: string;
     paymentid?: string;
     subscription?: string;
     subscriptionNo?: string;
-    emi?: string;
-    emiMonths?: string;
+    emi?: number;
+    emiMonths?: number;
     prm?: string;
     callStatus?: string;
     comments?: string;
@@ -67,6 +73,7 @@ export type StudentdetailseditProps = {
     dueDate?: Date;
     classtype?: string;
     gender?: string;
+    notes?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -85,6 +92,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   }
 
   const onFinish = (value: any) => {
+    var paymentTally = (Number(value.saleamount) - (Number(value.emi * value.emiMonths) + Number(value.downpayment)));
     const dataForm = {
       id: value.id,
       studentId: value.id,
@@ -130,22 +138,25 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         studentId: value.id,
         plantype: value.plantype,
         classessold: value.classessold,
-        saleamount: value.saleamount,
+        saleamount: Number(value.saleamount),
         dateofsale: !value.dateofsale || value.dateofsale == "Invalid date" ? null : (moment(value.dateofsale).toISOString(true).split('T')[0]),
         dueDate: !value.duedate || value.duedate == "Invalid date" ? null : (moment(value.duedate).toISOString(true).split('T')[0]),
-        downpayment: value.downpayment,
+        downpayment: Number(value.downpayment),
         classtype: value.classtype,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
-        emi: value.emi,
-        emiMonths: value.emiMonths,
+        emi: Number(value.emi),
+        emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
+        notes: value.notes,
       }] : null
-
     }
-    props.submit(dataForm);
-    console.log('Data', dataForm)
-
+    if (paymentTally == 0) {
+      props.submit(dataForm);
+      console.log('Data', dataForm);
+    } else {
+      openNotificationWithIcon('error', 'Student', 'Enter Correct Payment Details !')
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -270,6 +281,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         plantype: props.tempData.plantype,
         dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
         gender: props.tempData.gender,
+        notes: props.tempData.notes,
       })) : ('')
     };
   }
@@ -330,6 +342,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       !props.studentManageradd ? props.tempData.dueDate : null,
       !props.studentManageradd ? props.tempData.comments : '',
       !props.studentManageradd ? props.tempData.gender : '',
+      !props.studentManageradd ? props.tempData.notes : '',
     ]
   )
 
@@ -925,305 +938,312 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
             </Access>
           </Row>
 
-          <Row align="center"><h2>Payment Info</h2></Row>
-          <Row gutter={16}>
-
-            {props.studentManageredit || props.studentManageradd ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Transaction ID"
-                  name="paymentid"
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col span={12}>
-                <Form.Item
-                  label="Transaction ID"
-                  name="paymentid"
-                  rules={[{
-                    required: true,
-                  }]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-            )}
-
-            <Col span={12}>
-              <Form.Item name="plantype" label="Plan Type">
-                <Select
-                  placeholder="Plan type"
-                  onChange={onChange}
-                >
-                  <Option value="Subscription">Subscription</Option>
-                  <Option value="One Time">One Time</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-
-            {props.studentManageredit || props.studentManageradd ? (
-              <Col span={12}>
-                <Form.Item
-                  name="classtype"
-                  label="Class Type">
-                  <Select
-                    placeholder="Select Class Type"
-                    onChange={onChange}
-                  >
-                    <Option value="Group">Group</Option>
-                    <Option value="One to One">One to One</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col span={12}>
-                <Form.Item
-                  name="classtype"
-                  label="Class Type"
-                  rules={[{
-                    required: true,
-                  }]}>
-                  <Select
-                    placeholder="Select Class Type"
-                    onChange={onChange}
-                  >
-                    <Option value="Group">Group</Option>
-                    <Option value="One to One">One to One</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            )}
-
-            {props.studentManageredit || props.studentManageradd ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Classes Sold"
-                  name="classessold">
-                  <Select placeholder="classessold" onChange={onChange}>
-                    <Option value="30">30</Option>
-                    <Option value="40">40</Option>
-                    <Option value="50">50</Option>
-                    <Option value="60">60</Option>
-                    <Option value="80">80</Option>
-                    <Option value="100">100</Option>
-                    <Option value="200">200</Option>
-                    <Option value="300">300</Option>
-                    <Option value="400">400</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col span={12}>
-                <Form.Item
-                  label="Classes Sold"
-                  name="classessold"
-                  rules={[{
-                    required: true,
-                  }]}>
-                  <Select placeholder="classessold" onChange={onChange}>
-                    <Option value="60">60</Option>
-                    <Option value="100">100</Option>
-                    <Option value="200">200</Option>
-                    <Option value="300">300</Option>
-                    <Option value="400">400</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            )}
-
-            {props.studentManageredit || props.studentManageradd ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Total Sale Amount"
-                  name="saleamount"
-                  rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                >
-                  <Input onChange={onChange} />
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col span={12}>
-                <Form.Item
-                  label="Total Sale Amount"
-                  name="saleamount"
-                  rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                >
-                  <Input onChange={onChange} />
-                </Form.Item>
-              </Col>
-            )}
-
-            <Col span={12}>
-              <Form.Item name="dateofsale"
-                label="Date Of Sale"
-              >
-                <Input type="date" />
-              </Form.Item>
-            </Col>
-
-            {props.studentManageredit || props.studentManageradd ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Down Payment"
-                  name="downpayment"
-                  rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                >
-                  <Input onChange={onChange} />
-                </Form.Item>
-              </Col>
-            ) : (
-              <Col span={12}>
-                <Form.Item
-                  label="Down Payment"
-                  name="downpayment"
-                  rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                >
-                  <Input onChange={onChange} />
-                </Form.Item>
-              </Col>
-            )}
-
-            <Col span={12}>
-              <Form.Item name="dueDate"
-                label="Due Date"
-              >
-                <Input type="date" onChange={onChange} />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item name="comments" label="Notes">
-                <Input
-                  placeholder="Notes" onChange={onChange}
-                />
-              </Form.Item>
-            </Col>
-
-            {!props.studentManageradd && !props.studentManageredit ? (
-              <><Col span={12}>
-                <Form.Item
-                  name="lsq_user_name"
-                  label="Sales Owner"
-                  rules={[{
-                    required: true,
-                  }]}
-                >
-                  <Select style={{ width: 100 + "%" }} onChange={onChange}>
-                    {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
-                  </Select>
-                </Form.Item>
-              </Col><Col span={12}>
+          {!props.studentManageradd ? (
+            <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>
+              {props.studentManageredit ? (
+                <Col span={12}>
                   <Form.Item
-                    name="paymentMode"
-                    label="Plan Mode"
+                    label="Transaction ID"
+                    name="paymentid"
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+              ) : (
+                <Col span={12}>
+                  <Form.Item
+                    label="Transaction ID"
+                    name="paymentid"
                     rules={[{
                       required: true,
                     }]}
                   >
-                    <Select placeholder="Select Plan Mode" onChange={onChange}>
-                      <Option value="razorpay">Razorpay</Option>
-                      <Option value="banktransfer">Bank Transfer</Option>
-                      <Option value="cashfree">Cashfree</Option>
+                    <Input />
+                  </Form.Item>
+                </Col>
+              )}
+
+              <Col span={12}>
+                <Form.Item name="plantype" label="Plan Type">
+                  <Select
+                    placeholder="Plan type"
+                    onChange={onChange}
+                  >
+                    <Option value="Subscription">Subscription</Option>
+                    <Option value="One Time">One Time</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+
+              {props.studentManageredit ? (
+                <Col span={12}>
+                  <Form.Item
+                    name="classtype"
+                    label="Class Type">
+                    <Select
+                      placeholder="Select Class Type"
+                      onChange={onChange}
+                    >
+                      <Option value="Group">Group</Option>
+                      <Option value="One to One">One to One</Option>
                     </Select>
                   </Form.Item>
-                </Col><Col span={12}>
+                </Col>
+              ) : (
+                <Col span={12}>
                   <Form.Item
-                    name="subscription"
-                    label="Subscription Type"
+                    name="classtype"
+                    label="Class Type"
                     rules={[{
                       required: true,
                     }]}>
-                    <Select placeholder="Select Subscription Type">
-                      <Option value="Manual">Manual</Option>
-                      <Option value="Auto-Debit">Auto-Debit</Option>
+                    <Select
+                      placeholder="Select Class Type"
+                      onChange={onChange}
+                    >
+                      <Option value="Group">Group</Option>
+                      <Option value="One to One">One to One</Option>
                     </Select>
                   </Form.Item>
-                </Col><Col span={12}>
+                </Col>
+              )}
+
+              {props.studentManageredit ? (
+                <Col span={12}>
                   <Form.Item
-                    label="Subscription Number"
-                    name="subscriptionNo"
+                    label="Classes Sold"
+                    name="classessold">
+                    <Select placeholder="classessold" onChange={onChange}>
+                      <Option value="30">30</Option>
+                      <Option value="40">40</Option>
+                      <Option value="50">50</Option>
+                      <Option value="60">60</Option>
+                      <Option value="80">80</Option>
+                      <Option value="100">100</Option>
+                      <Option value="200">200</Option>
+                      <Option value="300">300</Option>
+                      <Option value="400">400</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              ) : (
+                <Col span={12}>
+                  <Form.Item
+                    label="Classes Sold"
+                    name="classessold"
+                    rules={[{
+                      required: true,
+                    }]}>
+                    <Select placeholder="classessold" onChange={onChange}>
+                      <Option value="60">60</Option>
+                      <Option value="100">100</Option>
+                      <Option value="200">200</Option>
+                      <Option value="300">300</Option>
+                      <Option value="400">400</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
+
+              {props.studentManageredit ? (
+                <Col span={12}>
+                  <Form.Item
+                    label="Total Sale Amount"
+                    name="saleamount"
+                    rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                  >
+                    <Input onChange={onChange} type="number" />
+                  </Form.Item>
+                </Col>
+              ) : (
+                <Col span={12}>
+                  <Form.Item
+                    label="Total Sale Amount"
+                    name="saleamount"
+                    rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                  >
+                    <Input onChange={onChange} type="number" />
+                  </Form.Item>
+                </Col>
+              )}
+
+              <Col span={12}>
+                <Form.Item name="dateofsale"
+                  label="Date Of Sale"
+                >
+                  <Input type="date" />
+                </Form.Item>
+              </Col>
+
+              {props.studentManageredit ? (
+                <Col span={12}>
+                  <Form.Item
+                    label="Down Payment"
+                    name="downpayment"
+                    rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                  >
+                    <Input onChange={onChange} type="number" />
+                  </Form.Item>
+                </Col>
+              ) : (
+                <Col span={12}>
+                  <Form.Item
+                    label="Down Payment"
+                    name="downpayment"
+                    rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                  >
+                    <Input onChange={onChange} type="number" />
+                  </Form.Item>
+                </Col>
+              )}
+
+              <Col span={12}>
+                <Form.Item name="dueDate"
+                  label="Due Date"
+                >
+                  <Input type="date" onChange={onChange} />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item name="comments" label="BDA Comments">
+                  <Input
+                    placeholder="BDA Comments" onChange={onChange} />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item name="notes" label="Notes">
+                  <Input
+                    placeholder="Notes" onChange={onChange} />
+                </Form.Item>
+              </Col>
+
+              {!props.studentManageredit ? (
+                <><Col span={12}>
+                  <Form.Item
+                    name="lsq_user_name"
+                    label="Sales Owner"
                     rules={[{
                       required: true,
                     }]}
                   >
-                    <Input />
-                  </Form.Item>
-                </Col><Col span={12}>
-                  <Form.Item
-                    label="Subscription Amount"
-                    name="emi"
-                    rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col><Col span={12}>
-                  <Form.Item
-                    label="Months Of Subscription"
-                    name="emiMonths"
-                    rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col></>
-            ) : (
-              <><Col span={12}>
-                <Form.Item
-                  name="lsq_user_name"
-                  label="Sales Owner"
-                >
-                  <Select style={{ width: 100 + "%" }} onChange={onChange}>
-                    {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
-                  </Select>
-                </Form.Item>
-              </Col><Col span={12}>
-                  <Form.Item
-                    name="paymentMode"
-                    label="Plan Mode"
-                  >
-                    <Select placeholder="Select Plan Mode" onChange={onChange}>
-                      <Option value="razorpay">Razorpay</Option>
-                      <Option value="banktransfer">Bank Transfer</Option>
-                      <Option value="cashfree">Cashfree</Option>
+                    <Select style={{ width: 100 + "%" }} onChange={onChange}>
+                      {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
                     </Select>
                   </Form.Item>
                 </Col><Col span={12}>
+                    <Form.Item
+                      name="paymentMode"
+                      label="Plan Mode"
+                      rules={[{
+                        required: true,
+                      }]}
+                    >
+                      <Select placeholder="Select Plan Mode" onChange={onChange}>
+                        <Option value="razorpay">Razorpay</Option>
+                        <Option value="banktransfer">Bank Transfer</Option>
+                        <Option value="cashfree">Cashfree</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      name="subscription"
+                      label="Subscription Type"
+                      rules={[{
+                        required: true,
+                      }]}>
+                      <Select placeholder="Select Subscription Type">
+                        <Option value="Manual">Manual</Option>
+                        <Option value="Auto-Debit">Auto-Debit</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      label="Subscription Number"
+                      name="subscriptionNo"
+                      rules={[{
+                        required: true,
+                      }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      label="Subscription Amount"
+                      name="emi"
+                      rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                    >
+                      <Input type="number" />
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      label="Months Of Subscription"
+                      name="emiMonths"
+                      rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                    >
+                      <Input type="number" />
+                    </Form.Item>
+                  </Col></>
+              ) : (
+                <><Col span={12}>
                   <Form.Item
-                    name="subscription"
-                    label="Subscription Type">
-                    <Select placeholder="Select Subscription Type">
-                      <Option value="Manual">Manual</Option>
-                      <Option value="Auto-Debit">Auto-Debit</Option>
+                    name="lsq_user_name"
+                    label="Sales Owner"
+                  >
+                    <Select style={{ width: 100 + "%" }} onChange={onChange}>
+                      {lsqUsersData.map(user => <Option value={user.ID} key={user.ID}>{user.FirstName} {user.LastName}</Option>)}
                     </Select>
                   </Form.Item>
                 </Col><Col span={12}>
-                  <Form.Item
-                    label="Subscription Number"
-                    name="subscriptionNo"
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col><Col span={12}>
-                  <Form.Item
-                    label="Subscription Amount"
-                    name="emi"
-                    rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col><Col span={12}>
-                  <Form.Item
-                    label="Months Of Subscription"
-                    name="emiMonths"
-                    rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col></>
-            )
-            }
-          </Row >
+                    <Form.Item
+                      name="paymentMode"
+                      label="Plan Mode"
+                    >
+                      <Select placeholder="Select Plan Mode" onChange={onChange}>
+                        <Option value="razorpay">Razorpay</Option>
+                        <Option value="banktransfer">Bank Transfer</Option>
+                        <Option value="cashfree">Cashfree</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      name="subscription"
+                      label="Subscription Type">
+                      <Select placeholder="Select Subscription Type">
+                        <Option value="Manual">Manual</Option>
+                        <Option value="Auto-Debit">Auto-Debit</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      label="Subscription Number"
+                      name="subscriptionNo"
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      label="Subscription Amount"
+                      name="emi"
+                      rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                    >
+                      <Input onChange={onChange} type="number" />
+                    </Form.Item>
+                  </Col><Col span={12}>
+                    <Form.Item
+                      label="Months Of Subscription"
+                      name="emiMonths"
+                      rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
+                    >
+                      <Input onChange={onChange} type="number" />
+                    </Form.Item>
+                  </Col></>
+              )}
+            </Row></>
+          ) : ('')
+          }
+
 
           <Row>
             <Col span={24}>
