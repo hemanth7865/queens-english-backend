@@ -526,6 +526,7 @@ export class StudentService {
         payment.no_of_delayed_payments = element.no_of_delayed_payments
           ? element.no_of_delayed_payments
           : 0;
+        payment.notes = element.notes;
         payments.push(payment);
       }
     }
@@ -1035,6 +1036,7 @@ export class StudentService {
         student.payment.plantype = d["Type of Sale"];
         student.payment.subscription = d["Subscription"];
         student.payment.subscriptionNo = d["Sub Reference ID (if autodebit)"];
+        student.payment.notes = d["Notes"]
 
         student.payment = [student.payment];
 

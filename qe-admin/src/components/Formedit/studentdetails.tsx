@@ -11,6 +11,12 @@ import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentB
 
 const { TabPane } = Tabs;
 const { Option } = Select;
+const openNotificationWithIcon = (type: any, userType = 'Student', messageError: any) => {
+  notification[type]({
+    message: type === 'error' ? messageError : 'Successfully Updated  ' + userType + ' !!!! ',
+    description: '',
+  });
+};
 
 export type StudentdetailseditProps = {
   tempData: {
@@ -36,14 +42,14 @@ export type StudentdetailseditProps = {
     startDate?: string;
     lsq_user_name?: string;
     classessold?: string;
-    saleamount?: Number;
-    downpayment?: Number;
+    saleamount?: number;
+    downpayment?: number;
     paymentMode?: string;
     paymentid?: string;
     subscription?: string;
     subscriptionNo?: string;
-    emi?: Number;
-    emiMonths?: Number;
+    emi?: number;
+    emiMonths?: number;
     prm?: string;
     callStatus?: string;
     comments?: string;
@@ -65,6 +71,7 @@ export type StudentdetailseditProps = {
     dueDate?: Date;
     classtype?: string;
     gender?: string;
+    notes?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -83,6 +90,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   }
 
   const onFinish = (value: any) => {
+    var paymentTally = (Number(value.saleamount) - (Number(value.emi * value.emiMonths) + Number(value.downpayment)));
     const dataForm = {
       id: value.id ? value.id : undefined,
       studentID: value.studentID,
@@ -126,21 +134,25 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         studentId: value.id,
         plantype: value.plantype,
         classessold: value.classessold,
-        saleamount: value.saleamount,
+        saleamount: Number(value.saleamount),
         dateofsale: !value.dateofsale || value.dateofsale == "Invalid date" ? null : (moment(value.dateofsale).toISOString(true).split('T')[0]),
         dueDate: !value.duedate || value.duedate == "Invalid date" ? null : (moment(value.duedate).toISOString(true).split('T')[0]),
-        downpayment: value.downpayment,
+        downpayment: Number(value.downpayment),
         classtype: value.classtype,
         subscription: value.subscription,
         subscriptionNo: value.subscriptionNo,
-        emi: value.emi,
-        emiMonths: value.emiMonths,
+        emi: Number(value.emi),
+        emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
+        notes: value.notes,
       }] : null
-
     }
-    props.submit(dataForm);
-    console.log('Data', dataForm)
+    if (paymentTally == 0) {
+      props.submit(dataForm);
+      console.log('Data', dataForm);
+    } else {
+      openNotificationWithIcon('error', 'Student', 'Enter Correct Payment Details !')
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -264,6 +276,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         plantype: props.tempData.plantype,
         dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
         gender: props.tempData.gender,
+        notes: props.tempData.notes,
       })) : ('')
     };
   }
@@ -323,6 +336,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       !props.studentManageradd ? props.tempData.dueDate : null,
       !props.studentManageradd ? props.tempData.comments : '',
       !props.studentManageradd ? props.tempData.gender : '',
+      !props.studentManageradd ? props.tempData.notes : '',
     ]
   )
 
@@ -1032,7 +1046,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     name="saleamount"
                     rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
                   >
-                    <Input onChange={onChange} />
+                    <Input onChange={onChange} type="number" />
                   </Form.Item>
                 </Col>
               ) : (
@@ -1042,7 +1056,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     name="saleamount"
                     rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
                   >
-                    <Input onChange={onChange} />
+                    <Input onChange={onChange} type="number" />
                   </Form.Item>
                 </Col>
               )}
@@ -1062,7 +1076,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     name="downpayment"
                     rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
                   >
-                    <Input onChange={onChange} />
+                    <Input onChange={onChange} type="number" />
                   </Form.Item>
                 </Col>
               ) : (
@@ -1072,7 +1086,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     name="downpayment"
                     rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
                   >
-                    <Input onChange={onChange} />
+                    <Input onChange={onChange} type="number" />
                   </Form.Item>
                 </Col>
               )}
@@ -1086,7 +1100,14 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               </Col>
 
               <Col span={12}>
-                <Form.Item name="comments" label="Notes">
+                <Form.Item name="comments" label="BDA Comments">
+                  <Input
+                    placeholder="BDA Comments" onChange={onChange} />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item name="notes" label="Notes">
                   <Input
                     placeholder="Notes" onChange={onChange} />
                 </Form.Item>
@@ -1147,7 +1168,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       name="emi"
                       rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
                     >
-                      <Input />
+                      <Input type="number" />
                     </Form.Item>
                   </Col><Col span={12}>
                     <Form.Item
@@ -1155,7 +1176,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       name="emiMonths"
                       rules={[{ required: true, pattern: /^[0-9]*$/, message: "Enter number only" }]}
                     >
-                      <Input />
+                      <Input type="number" />
                     </Form.Item>
                   </Col></>
               ) : (
@@ -1201,7 +1222,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       name="emi"
                       rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
                     >
-                      <Input onChange={onChange} />
+                      <Input onChange={onChange} type="number" />
                     </Form.Item>
                   </Col><Col span={12}>
                     <Form.Item
@@ -1209,7 +1230,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       name="emiMonths"
                       rules={[{ pattern: /^[0-9]*$/, message: "Enter number only" }]}
                     >
-                      <Input onChange={onChange} />
+                      <Input onChange={onChange} type="number" />
                     </Form.Item>
                   </Col></>
               )}
