@@ -473,21 +473,9 @@ const TableList: React.FC = () => {
                 width={500}
             >
                 <FormUser
-                    data={tempData}
-                    visible={visibleEdit}
                     visibleAdd={visibleAdd}
                     setVisibleAdd={setVisibleAdd}
-                    setVisible={setVisibleEdit}
-                    isAmountDisplay={isAmountDisplay}
-                    netbankingVisible={netbankingVisible}
-                    autodebitVisible={autodebitVisible}
-                    isWhatsappVisible={isWhatsappVisible}
-                    isModalVisible={setIsModalVisible}
                     actionRef={actionRef}
-                    setIsAmountDisplay={setIsAmountDisplay}
-                    setNetbankingVisible={setNetbankingVisible}
-                    regenerateLink={regenerateLink}
-                    refreshStatus={refreshStatus}
                 />
             </Drawer>
 

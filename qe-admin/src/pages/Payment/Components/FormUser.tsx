@@ -10,21 +10,21 @@ import StudentDetails from "../Components/StudentDetails";
 import { PaymentConstantValues } from "../../../components/Constants/constants"
 
 export type FormUserProps = {
-    data: any;
-    visible: {};
-    setVisible: () => void;
-    onUpdate: () => void;
-    isAmountDisplay: {};
-    netbankingVisible: {};
-    autodebitVisible: {};
-    isWhatsappVisible: {};
-    isModalVisible: () => void;
-    actionRef: any;
-    setIsAmountDisplay: any;
-    regenerateLink: any;
+    data?: any;
+    visible?: {};
+    setVisible?: () => void;
+    onUpdate?: () => void;
+    isAmountDisplay?: {};
+    netbankingVisible?: {};
+    autodebitVisible?: {};
+    isWhatsappVisible?: {};
+    isModalVisible?: () => void;
+    actionRef?: any;
+    setIsAmountDisplay?: any;
+    regenerateLink?: any;
     visibleAdd?: any;
-    setVisibleAdd: any;
-    refreshStatus: any;
+    setVisibleAdd?: any;
+    refreshStatus?: any;
     setNetbankingVisible?: any;
 };
 
@@ -95,8 +95,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         }
     }
 
-    console.log('props', props.isAmountDisplay)
-
     const editNetBankingDetails = async (data: any) => {
         try {
             const msg = await editNetBanking({
@@ -163,27 +161,29 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         }
         setSelectPaidDate(PaymentConstantValues.INITITALPAIDDATE);
         setSelectDueDate(PaymentConstantValues.INITITALPAIDDATE);
-        props.setVisible(false);
-        props.isModalVisible(false);
+        if (props.data) {
+            props.setVisible(false);
+            props.isModalVisible(false);
+            props.setVisibleAdd(false);
+            props.setIsAmountDisplay(false);
+            props.setIsAmountDisplay(false);
+            props.setNetbankingVisible(false);
+        }
         props.setVisibleAdd(false);
-        props.setIsAmountDisplay(false);
-        props.setIsAmountDisplay(false);
-        props.setNetbankingVisible(false);
         setStudentList([]);
         setIsLoading(false);
         props.actionRef.current.reload();
     }
 
-
     const [form] = Form.useForm()
     const defaultValues = () => {
         form.setFieldsValue({
             leadId: leadId,
-            emiAmount: props.isAmountDisplay ? emiAmount : '',
+            emiAmount: emiAmount,
             callDisposition: callDisposition,
             notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
-            status: !props.visibleAdd ? status : '',
+            status: status,
             reasonAmountChange: reasonAmountChange,
             referenceId: referenceId,
             paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
