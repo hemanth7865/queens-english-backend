@@ -7,9 +7,10 @@ import moment from 'moment';
 import callDispositionStatus from "../../../../data/call_disposition.json";
 import DebounceSelect from "@/components/DebounceSelect";
 import StudentDetails from "../Components/StudentDetails";
+import { PaymentConstantValues } from "../../../components/Constants/constants"
 
 export type FormUserProps = {
-    data: {};
+    data: any;
     visible: {};
     setVisible: () => void;
     onUpdate: () => void;
@@ -23,6 +24,8 @@ export type FormUserProps = {
     regenerateLink: any;
     visibleAdd?: any;
     setVisibleAdd: any;
+    refreshStatus: any;
+    setNetbankingVisible?: any;
 };
 
 const { Option } = Select;
@@ -30,12 +33,13 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink } = props.data ? props.data : '';
 
-    const INITITALPAIDDATE = null;
     const [isLoading, setIsLoading] = useState(false);
-    const [selectPaidDate, setSelectPaidDate] = useState(INITITALPAIDDATE);
-    const [selectDueDate, setSelectDueDate] = useState(INITITALPAIDDATE);
+    const [selectStatus, setSelectStatus] = useState(status);
+
+    const [selectPaidDate, setSelectPaidDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
+    const [selectDueDate, setSelectDueDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
     const [studentList, setStudentList] = useState([]);
 
     const name = `${props.data?.firstName} ${props.data?.lastName}`
@@ -91,6 +95,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         }
     }
 
+    console.log('props', props.isAmountDisplay)
+
     const editNetBankingDetails = async (data: any) => {
         try {
             const msg = await editNetBanking({
@@ -100,6 +106,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 body: JSON.stringify(data),
             });
             handleAPIResponse(msg, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
+            form.resetFields();
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Net Banking details Updated Successfully", "Failed To Update Net Banking details", false);
         }
@@ -107,11 +114,15 @@ const FormUser: React.FC<FormUserProps> = (props) => {
 
     const onFinish = async (values: any) => {
         setIsLoading(true);
-        if (values.transactionId && values.netbankRefLink) {
+        if (props.netbankingVisible) {
             const netBankingForm = {
                 id: id,
                 transactionId: values.transactionId,
-                netbankRefLink: values.netbankRefLink
+                netbankRefLink: values.netbankRefLink,
+                paidDate: selectPaidDate ? selectPaidDate : paidDate,
+                paidAmount: values.paidAmount ? values.paidAmount : paidAmount,
+                status: PaymentConstantValues.STATUSPAID,
+                paymentMode: PaymentConstantValues.PAYMENTMODE
             }
             await editNetBankingDetails(netBankingForm);
         }
@@ -119,6 +130,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             const dataForm = [{
                 id: id,
                 studentId: studentList.value ? studentList.value : studentId,
+                referenceId: values.referenceId ? values.referenceId : referenceId,
                 emiAmount: values.emiAmount ? values.emiAmount : emiAmount,
                 paidAmount: paidAmount,
                 status: values.status ? values.status : status,
@@ -134,27 +146,29 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 dueDate: selectDueDate ? selectDueDate : dueDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
             }]
-            if (values.emiAmount) {
-                if (status === "Installment Pending") {
+            if (!props.visibleAdd && values.emiAmount) {
+                if (status === PaymentConstantValues.STATUSPENDING) {
                     await editPaymentDetails(dataForm);
                     await props.regenerateLink({ transactionId });
-                } else if (status === "Installment Paid") {
-                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
                 } else {
-                    await editPaymentDetails(dataForm);
-                    form.resetFields();
+                    handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Unable to regenerate for paid case", false);
                 }
+            } else if (values.referenceId && values.referenceId != referenceId) {
+                await editPaymentDetails(dataForm);
+                await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else {
                 await editPaymentDetails(dataForm);
             }
+            //form.resetFields();
         }
+        setSelectPaidDate(PaymentConstantValues.INITITALPAIDDATE);
+        setSelectDueDate(PaymentConstantValues.INITITALPAIDDATE);
         props.setVisible(false);
         props.isModalVisible(false);
         props.setVisibleAdd(false);
         props.setIsAmountDisplay(false);
-        form.resetFields();
-        setSelectPaidDate(INITITALPAIDDATE);
-        setSelectDueDate(INITITALPAIDDATE);
+        props.setIsAmountDisplay(false);
+        props.setNetbankingVisible(false);
         setStudentList([]);
         setIsLoading(false);
         props.actionRef.current.reload();
@@ -165,18 +179,22 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     const defaultValues = () => {
         form.setFieldsValue({
             leadId: leadId,
-            emiAmount: emiAmount,
+            emiAmount: props.isAmountDisplay ? emiAmount : '',
             callDisposition: callDisposition,
             notes: notes,
             whatsAppLinkSent: whatsAppLinkSent,
-            status: status,
+            status: !props.visibleAdd ? status : '',
             reasonAmountChange: reasonAmountChange,
+            referenceId: referenceId,
             paidDate: paidDate != null ? moment(paidDate, "YYYY-MM-DD") : '',
+            paidAmount: paidAmount,
+            netbankRefLink: netbankRefLink,
+            transactionId: paymentMode === PaymentConstantValues.PAYMENTMODE ? referenceId : '',
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, paidDate])
+    }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, referenceId, paidDate, paidAmount])
 
     return (
         <div>
@@ -253,6 +271,17 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 />
                             </Form.Item>
 
+                            <Form.Item
+                                label="Installment status"
+                                name="status"
+                                rules={[{ required: true, message: 'Please Enter Installment Status' }]}
+                            >
+                                <Select>
+                                    <Option value="Installment Pending">Installment Pending</Option>
+                                    <Option value="Installment Paid">Installment Paid</Option>
+                                </Select>
+                            </Form.Item>
+
                         </div> :
 
                         props.isAmountDisplay ?
@@ -287,7 +316,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 </Form.Item>
                             </div> :
 
-                            props.netbankingVisible ?
+                            props.autodebitVisible ?
 
                                 <div>
                                     <Form.Item
@@ -318,7 +347,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     </Form.Item>
                                 </div> :
 
-                                props.autodebitVisible ?
+                                props.netbankingVisible ?
 
                                     <div>
                                         <Form.Item
@@ -333,6 +362,26 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             label="Upload google drive link"
                                             name="netbankRefLink"
                                             rules={[{ required: true, message: 'Please Enter the Link!' }]}
+                                        >
+                                            <Input />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Paid Date"
+                                            name="paidDate"
+                                            rules={[{ required: true, message: 'Please Add Paid Date' }]}
+                                        >
+                                            <DatePicker
+                                                format='YYYY-MM-DD'
+                                                onChange={(date, dateString) => {
+                                                    setSelectPaidDate(dateString);
+                                                }} />
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Paid Amount"
+                                            name="paidAmount"
+                                            rules={[{ required: true, message: 'Please Enter Paid Amount' }]}
                                         >
                                             <Input />
                                         </Form.Item>
@@ -390,6 +439,21 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 </Select>
                                             </Form.Item>
 
+                                            {
+                                                status == PaymentConstantValues.STATUSPAID ?
+                                                    <Form.Item
+                                                        label="Installment status"
+                                                        name="status"
+                                                        rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                                    >
+                                                        <Select>
+                                                            <Option value="Installment Pending">Installment Pending</Option>
+                                                        </Select>
+                                                    </Form.Item> :
+                                                    ''
+                                            }
+
+
                                             <Form.Item
                                                 label="Notes"
                                                 name="notes"
@@ -398,26 +462,13 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             </Form.Item>
 
                                             <Form.Item
-                                                label="Installment status"
-                                                name="status"
-                                                rules={[{ required: false, message: 'Please Enter Installment Status' }]}
+                                                label="Reference ID"
+                                                name="referenceId"
+                                                rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
                                             >
-                                                <Select>
-                                                    <Option value="Installment Pending">Installment Pending</Option>
-                                                    <Option value="Installment Paid">Installment Paid</Option>
-                                                </Select>
+                                                <Input />
                                             </Form.Item>
 
-                                            <Form.Item
-                                                label="Paid Date"
-                                                name="paidDate"
-                                            >
-                                                <DatePicker
-                                                    format='YYYY-MM-DD'
-                                                    onChange={(date, dateString) => {
-                                                        setSelectPaidDate(dateString);
-                                                    }} />
-                                            </Form.Item>
                                         </div>
 
                     }

@@ -9,14 +9,17 @@ const log = async (
     transaction: Transactions;
     transactionDetails?: TransactionDetails;
   },
-  user: object | boolean
+  user: any
 ): Promise<object> => {
   let title = "";
   let event = "";
-  const bot = user ? false : true;
+  const bot = user?.email ? false : true;
   const create = oldRecord.transaction.id ? false : true;
 
   if (bot) {
+    user = {
+      email: "System Bot."
+    }
     title = "Bot Action, ";
   } else {
     title = "User Action, ";
@@ -100,6 +103,30 @@ const log = async (
   ) {
     console.log(transaction.paymentLink, oldTransaction.paymentLink);
     title += `Payment Link Changed To: ${transaction.paymentLink}, `;
+  }
+
+  if (
+    transaction.paymentLink !== oldTransaction.paymentLink &&
+    transaction.transactionId !== oldTransaction.transactionId &&
+    transaction.paymentLink == null && transaction.transactionId == null
+  ) {
+    title += `Link expired & reset payment values`;
+  }
+
+  if (
+    transaction.discount !== oldTransaction.discount &&
+    transaction.discount
+  ) {
+    console.log(transaction.discount, oldTransaction.discount);
+    title += `Discount Changed To: ${transaction.discount}, `;
+  }
+
+  if (
+    transaction.expireBy !== oldTransaction.expireBy &&
+    transaction.expireBy
+  ) {
+    console.log(transaction.expireBy, oldTransaction.expireBy);
+    title += `ExpireBy Changed To: ${transaction.expireBy}, `;
   }
 
   /**

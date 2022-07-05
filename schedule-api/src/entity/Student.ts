@@ -11,7 +11,7 @@ import {
   BaseEntity,
   OneToMany,
 } from "typeorm";
-import { StudentAvailability } from "./StudentAvailability";
+import { CollectionAgent } from "./CollectionAgent";
 
 
 @Entity("student")
@@ -132,4 +132,11 @@ export class Student extends BaseEntity {
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToOne(
+    (type) => CollectionAgent,
+    (collection_agent) => collection_agent.students
+  )
+  @JoinColumn({ name: "id" })
+  collection_agent: CollectionAgent;
 }

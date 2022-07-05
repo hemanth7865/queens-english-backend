@@ -1,6 +1,10 @@
 import { Transactions } from "../entity/Transaction";
 import { TransactionDetails } from "../entity/TransactionDetails";
+import { User } from "../entity/User";
+import { ZoomUser } from "../entity/ZoomUser";
+import { ZoomMeeting } from "../entity/ZoomMeeting";
 import PaymentLogGenerator from "../utils/payment/paymentLoggerUtils";
+import zoomLogGenerator from "../utils/zoom/zoomLoggerUtils";
 const axios = require("axios");
 
 const LOGS_API = process.env.LOGS_API;
@@ -66,6 +70,50 @@ export default class LoggerService {
     } else {
       title = "User Action, " + title;
     }
+    this.logData = {
+      id: id,
+      page: this.page,
+      title,
+      event,
+      debug: { ...debug, user },
+    };
+    return this;
+  }
+
+  public async zoom(
+    oldRecord: {
+      zoomUser?: ZoomUser;
+      zoomMeeting?: ZoomMeeting;
+      user?: User | any;
+    },
+    newRecord: {
+      zoomUser: ZoomUser;
+      zoomMeeting?: ZoomMeeting;
+      user?: User | any;
+    },
+    user: object | boolean
+  ) {
+    this.page = "zoom";
+    const logData = await zoomLogGenerator(oldRecord, newRecord, user);
+    this.logData = {
+      id: newRecord?.user?.id,
+      page: this.page,
+      title: this.page,
+      event: this.page,
+      debug: {},
+      ...logData,
+    };
+    return this;
+  }
+
+  public async customZoom(
+    id: string,
+    title: string,
+    event: string,
+    debug: object,
+    user: object | boolean
+  ) {
+    this.page = "zoom";
     this.logData = {
       id: id,
       page: this.page,

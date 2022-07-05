@@ -44,6 +44,8 @@ export class PaymentsView {
   phoneNumber?: string;
   startDate?: string;
   whatsapp?: string;
+  netbankRefLink?: string;
+  classtype?: string;
 
   PaymentsView(
     id: String,
@@ -75,7 +77,8 @@ export class PaymentsView {
     student?: string,
     actualStartDate?: string,
     notes?: string,
-    reasonAmountChange?: string
+    reasonAmountChange?: string,
+    classtype?: string,
   ) {
     this.id = id;
     this.studentId = studentId;
@@ -107,5 +110,6 @@ export class PaymentsView {
     this.actualStartDate = actualStartDate;
     this.notes = notes;
     this.reasonAmountChange = reasonAmountChange;
+    this.classtype = classtype;
   }
 }

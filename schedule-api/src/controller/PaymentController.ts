@@ -8,7 +8,7 @@ export class PaymentController {
     private ENABLE_ACTIVITY_API = process.env.ENABLE_ACTIVITY_API;
 
     async fetchCollectionAgent(request: Request, response: Response, next: NextFunction) {
-
+        this.paymentService.request = request;
         var parameters = {
             current: parseInt(request.query['current']),
             pageSize: parseInt(request.query['pageSize']),
@@ -22,6 +22,7 @@ export class PaymentController {
     }
 
     async studentPaymentDetails(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
 
         var parameters = {
             current: parseInt(request.query['current']),
@@ -43,7 +44,8 @@ export class PaymentController {
      * @returns 
      */
     async paymentDetails(request: Request, response: Response, next: NextFunction) {
-        usersLogger.info('Persist payment details::Start');
+        this.paymentService.request = request;
+        usersLogger.info("Persist payment details::Start");
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         return await this.paymentService.paymentDetails(request.body);
     }
@@ -58,6 +60,7 @@ export class PaymentController {
     }
 
     async generateBulkPaymentLinks(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
         console.log("generating bulk payment links");
         try {
             if (isNullOrUndefined(request.body) || isNullOrUndefined(request.body.limit) || isNullOrUndefined(request.body.dueMonth)) {
@@ -77,6 +80,7 @@ export class PaymentController {
     }
 
     async regeneratePaymentLink(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
         console.log("regenerating payment link");
         try {
             return await this.paymentService.regeneratePaymentLink(request.body);
@@ -89,7 +93,22 @@ export class PaymentController {
         }
     }
 
+    async resetExpiredPayments(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        console.log("reset expired installments");
+        try {
+            return await this.paymentService.resetExpiredPayments(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception during resetting expired installments"
+            }
+        }
+    }
+
     async uploadNetBankingResource(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
         console.log("Read netbanking payment receipt.....");
         return await this.paymentService.uploadNetBankingResource(request.body);
 

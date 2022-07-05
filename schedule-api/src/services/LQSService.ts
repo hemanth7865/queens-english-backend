@@ -55,7 +55,7 @@ export class LQSService {
 
   async getPRMsAvailability() {
     var prmsData = await getManager().query(
-      `SELECT SQL_NO_CACHE prm.id, prm.firstName, prm.lastName, COUNT(student.id) as students FROM prm LEFT JOIN student ON prm.id = student.prm_id AND student.status = 'active' WHERE prm.allocate = 1 group by prm.id order by count(student.id) asc limit 1`
+      `SELECT SQL_NO_CACHE prm.id, prm.firstName, prm.lastName, COUNT(user.id) as students FROM user LEFT JOIN student ON user.id = student.id LEFT JOIN prm ON prm.id = student.prm_id AND user.status IN ('enrolled', 'startclasslater', 'onboarding', 'error', 'batching') WHERE user.type='student' AND prm.allocate = 1 group by prm.id order by count(user.id) asc limit 1`
     );
 
     return prmsData;
@@ -156,7 +156,7 @@ export class LQSService {
       user.updated_at = new Date();
       user.state = element.customerAddressState;
 
-      student.studentID = element.studentID;
+      student.studentID = (element.studentID).replace(/\s/g,"");
       student.course = element.course;
       student.courseFrequency = element.courseFrequency;
       student.status = element.status == 'Won' ? 'enrolled' : element.status;
@@ -472,7 +472,7 @@ export class LQSService {
                 element.bdaComments = item.Value;
                 break;
               case "mx_Custom_32":
-                element.studentID = item.Value;
+                element.studentID = (item.Value).replace(/\s/g,"");
                 break;
               default:
                 usersLogger.info(`Not valid schema name ${item.SchemaName}`);

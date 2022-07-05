@@ -1,4 +1,4 @@
-import { getConnection, getManager, getRepository } from "typeorm";
+import { getConnection, getManager, getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { isNull, isNullOrUndefined } from "util";
 import { Payment } from "../entity/Payment";
 import { PaymentModeDetails } from "../entity/PaymentModeDetails";
@@ -16,6 +16,12 @@ import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
 import { fail } from "assert";
 import LoggerService from "./LoggerService";
+import { format } from "date-and-time";
+const moment = require("moment");
+import {
+  getPaymentById as getRazorpayPaymentById,
+  Payment as RazorpayPayment,
+} from "../services/RazorpayService";
 
 export class PaymentService {
   private transactionRepository = getRepository(Transactions);
@@ -26,6 +32,7 @@ export class PaymentService {
   private razorPayUtils = new RazorPayUtils();
   private installmentService = new InstallmentService();
   private logger = new LoggerService();
+  public request: any = {};
 
   /**
    *
@@ -101,7 +108,7 @@ export class PaymentService {
     try {
       const moment = require("moment");
       var paymentView: PaymentsView[] = [];
-      usersLogger.info("Student Service payment Details ::Start");
+      usersLogger.debug("Student Service payment Details ::Start");
       // let t;
       const offset = parameters.current ? parseInt(parameters.current) : 0;
       const limit = parameters.pageSize ? parseInt(parameters.pageSize) : 0;
@@ -247,6 +254,7 @@ export class PaymentService {
         view.reasonAmountChange = record.transactions_reason_amount_change;
         view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
+        view.netbankRefLink = record.transactions_netbank_ref_link;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -266,7 +274,7 @@ export class PaymentService {
         paymentView.push(view);
       }
 
-      usersLogger.info("Fetching student payment details::End");
+      usersLogger.debug("Fetching student payment details::End");
 
       return {
         success: true,
@@ -290,7 +298,7 @@ export class PaymentService {
     const queryRunner = connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    usersLogger.info("Save payment Details::Start");
+    usersLogger.debug("Save payment Details::Start");
     usersLogger.info(`Request data ${JSON.stringify(data)}`);
 
     let response = [];
@@ -322,7 +330,7 @@ export class PaymentService {
         transaction.paidAmount = data.paidAmount;
         transaction.status = data.status;
         //payment details from razor pay
-        transaction.transactionId = data.paymentId;
+        transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
 
         var transactions = await this.transactionRepository.save(transaction);
@@ -381,7 +389,7 @@ export class PaymentService {
           "Failed To Create/Update Payment",
           data?.id ? "PAYMENT_UPDATE_ERROR" : "PAMYNET_CREATE_ERROR",
           { requestData, error, message: error.message },
-          {}
+          this.request.user || {}
         )
       ).save();
       return {
@@ -395,7 +403,6 @@ export class PaymentService {
       data: response,
     };
   }
-
 
   async createBulkPaymentsLink(limit: any, dueMonth: string) {
     // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
@@ -427,7 +434,7 @@ export class PaymentService {
         isNullOrUndefined(paymentResponse.id) ||
         isNullOrUndefined(paymentResponse.short_url)
       ) {
-        usersLogger.info(
+        usersLogger.error(
           "Payment link generation failed for installment: " +
           installment.id +
           "payment response: " +
@@ -438,6 +445,7 @@ export class PaymentService {
         //update installment data
         installment.transactionId = paymentResponse.id;
         installment.paymentLink = paymentResponse.short_url;
+        installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
         // paid date is set to null since installment status is pending
         installment.paidDate = null;
         installmentsForUpdate.push(installment);
@@ -454,8 +462,9 @@ export class PaymentService {
   }
 
   async regeneratePaymentLink(request: any) {
+    this.installmentService.request = this.request;
     if (isNullOrUndefined(request.installmentId)) {
-      usersLogger.info(
+      usersLogger.debug(
         "No installment id available for regenerating payment link"
       );
       return {
@@ -467,7 +476,7 @@ export class PaymentService {
       id: request.installmentId,
     });
     if (isNullOrUndefined(installment)) {
-      usersLogger.info("No installment available for the given id");
+      usersLogger.debug("No installment available for the given id");
       return {
         status: "error",
         message: "No installment available for the given id",
@@ -518,7 +527,7 @@ export class PaymentService {
       isNullOrUndefined(paymentResponse.id) ||
       isNullOrUndefined(paymentResponse.short_url)
     ) {
-      usersLogger.info(
+      usersLogger.error(
         "Payment link generation failed for installment: " +
         installment.id +
         "payment response: " +
@@ -534,6 +543,7 @@ export class PaymentService {
       installment.paymentLink = paymentResponse.short_url;
       // paid date is set to null since installment status is pending
       installment.paidDate = null;
+      installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
       installmentsForUpdate.push(installment);
       await this.updateInstallmentData(installmentsForUpdate);
       return {
@@ -545,9 +555,76 @@ export class PaymentService {
     }
   }
 
+  async resetExpiredPayments(request: any) {
+    const result = {
+      error: 0,
+      expired: 0,
+    };
+    const where = {};
+    const limit = request?.limit || 100;
+    if (request?.fromDate) {
+      var fromDate = moment(request.fromDate, "YYYY-MM-DD").set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toDate();
+      usersLogger.info('from date: ' + fromDate);
+      where["dueDate"] = MoreThanDate(fromDate);
+    }
+    if (request?.toDate) {
+      var toDate = moment(request.toDate, "YYYY-MM-DD").set({ hour: 23, minute: 59, second: 59, millisecond: 0 }).toDate();
+      usersLogger.info('to date: ' + toDate);
+      where["dueDate"] = LessThanDate(toDate);
+    }
+    var now = moment().toDate();
+    usersLogger.info('now: ' + now);
+    where["expireBy"] = LessThanDate(now);
+    where["status"] = PAYMENT_STATUS.PENDING;
+    where["transactionId"] = Like("plink_%");
+
+    usersLogger.info("where: " + JSON.stringify(where));
+    var expiryInstallments = await this.transactionRepository.find({
+      where,
+      take: limit,
+    });
+    if (isNullOrUndefined(expiryInstallments)) {
+      usersLogger.info("No installment available for the given conditions");
+      return {
+        status: "success",
+        message: "No installment available for the given conditions",
+      };
+    }
+
+    usersLogger.info("expiry installments: " + expiryInstallments?.length);
+    for (const installment of expiryInstallments) {
+      try {
+        // check if the given link is expired or not
+        usersLogger.debug("current payment id: " + installment.transactionId);
+        const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
+          installment.transactionId
+        );
+        usersLogger.info('Fetch payment link id: ' + installment.transactionId + ' response: ' + JSON.stringify(paymentLinkDetails));
+        if (paymentLinkDetails.status === "expired") {
+          usersLogger.info("expired payment id: " + installment.id);
+          let data: any = {
+            // status: EXPIRED,
+            transactionId: null,
+            paymentLink: null,
+            lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+            updated_at: moment().format("YYYY-MM-DD HH:mm:ss")
+          };
+          await this.installmentService.updateInstallment(installment.id, data);
+          result.expired++;
+        }
+      }
+      catch (error) {
+        usersLogger.error('Error in fetching payment record: ' + JSON.stringify(error));
+        result.error++;
+      }
+    }
+    usersLogger.info("Result of expiry installments processing: " + JSON.stringify(result));
+    return result;
+  }
+
   createPaymentLink = async (installment: any) => {
     if (isNullOrUndefined(installment)) {
-      usersLogger.info("No installment available for generating payment link");
+      usersLogger.debug("No installment available for generating payment link");
       return {
         status: "error",
         message: "No installment available for generating payment link",
@@ -562,7 +639,7 @@ export class PaymentService {
       .where("user.id = :id", { id: installment.studentId })
       .getOne();
     if (isNullOrUndefined(user)) {
-      usersLogger.info(
+      usersLogger.debug(
         "No user available for the given id: {0}" + installment.studentId
       );
       return {
@@ -570,7 +647,7 @@ export class PaymentService {
         message: "No user available for the given id",
       };
     }
-    usersLogger.info("User: " + JSON.stringify(user));
+    usersLogger.debug("User: " + JSON.stringify(user));
 
     return await this.razorPayUtils.createRazorPayLink(installment, user);
   };
@@ -597,7 +674,9 @@ export class PaymentService {
           transaction: oldTransaction,
         };
 
-        await (await this.logger.payment(oldData, newData, {})).save();
+        await (
+          await this.logger.payment(oldData, newData, this.request.user || {})
+        ).save();
       }
     } catch (error) {
       usersLogger.error(
@@ -612,13 +691,24 @@ export class PaymentService {
       const installment = await this.transactionRepository.findOne({
         id: body.id,
       });
+      const transactionDetail = await this.transaDetailsRepository.findOne({
+        transactionId: body.id,
+      });
       installment.netbankRefLink = body.netbankRefLink;
+      installment.paidDate = body.paidDate;
+      installment.status = body.status;
+      installment.paidAmount = body.paidAmount;
+      transactionDetail.paymentMode = body.paymentMode;
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
       await this.transactionRepository.update(
         { id: installment.id },
-        installment
+        installment,
+      );
+      await this.transaDetailsRepository.update(
+        { transactionId: installment.id },
+        transactionDetail,
       );
       return {
         success: true,
@@ -626,4 +716,9 @@ export class PaymentService {
       };
     } catch (error) { }
   }
+
 }
+
+export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
+export const MoreThanDate = (date: Date) => MoreThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
+
