@@ -79,6 +79,7 @@ export class LeadView {
   whatsappLink: string;
   gender?: string;
   classtype?: string;
+  batchId?: any;
   notes?: string;
 
   public constructor(id:string, leadId:string, date:string,name:string,experience:string, mobile:string, email:string,status:string,classestaken:number,
@@ -88,7 +89,7 @@ export class LeadView {
       comments?: string, alternativeMobile?: string, paymentid?: string,  firstName?:string, lastName?:string, teacherName?: string, days?: string, 
       studentType?: string, firstFeedback?: string, classesStartDate?: string | Date, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?: 
       string, poc?: string, courseFrequency?: string, timings?: string, customerEmail?: string, state?: string, zoomLink?: string, zoomInfo?: string,
-    prm_id?: string, prm_firstName?: string, prm_lastName?: string, salestatus?: string, salesowner?: string, prm?: string, waMessageSent?: string, salesDataFilled?: string, lsq_user_id?: string, lsq_user_name?: string, whatsappLink?: string, gender?: string) {
+    prm_id?: string, prm_firstName?: string, prm_lastName?: string, salestatus?: string, salesowner?: string, prm?: string, waMessageSent?: string, salesDataFilled?: string, lsq_user_id?: string, lsq_user_name?: string, whatsappLink?: string, gender?: string, batchId?: any) {
     this.id = id;
     this.leadId = leadId;
     this.date = date;
@@ -166,5 +167,6 @@ export class LeadView {
     this.lsq_user_name = lsq_user_name;
     this.whatsappLink = whatsappLink;
     this.gender = gender;
+    this.batchId = batchId;
   }
 }

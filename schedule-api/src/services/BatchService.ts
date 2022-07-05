@@ -64,8 +64,7 @@ export class BatchService {
       if (!data.id) {
         data.id = uuidv4();
         create = true;
-      }
-
+      }      
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
@@ -157,6 +156,8 @@ export class BatchService {
           whatsappLink: data.whatsappLink
         },
       };
+
+      console.log("options",options)
 
       var res1 = {};
       if (!data.id || create) {

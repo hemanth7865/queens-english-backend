@@ -21,6 +21,8 @@ const openNotificationWithIcon = (type: any, userType = 'Student', messageError:
 export type StudentdetailseditProps = {
   tempData: {
     id?: any;
+    studentId: any;
+    batchId?: string;
     studentID?: string;
     email?: string;
     firstName?: string;
@@ -92,7 +94,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   const onFinish = (value: any) => {
     var paymentTally = (Number(value.saleamount) - (Number(value.emi * value.emiMonths) + Number(value.downpayment)));
     const dataForm = {
-      id: value.id ? value.id : undefined,
+      id: value.id,
+      studentId: value.id,
+      batchId: props.tempData.batchId ? props.tempData.batchId : value.batchId,
       studentID: value.studentID,
       firstName: value.firstName,
       lastName: value.lastName ? value.lastName : '-',
@@ -227,6 +231,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     {
       !props.studentManageradd ? (form.setFieldsValue({
         id: props.tempData.id,
+        batchId: props.tempData.batchId,
         firstName: props.tempData.firstName,
         lastName: props.tempData.lastName,
         pfirstName: props.tempData.pfirstName,
@@ -285,6 +290,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   },
     [
       !props.studentManageradd ? props.tempData.firstName : '',
+      !props.studentManageradd ? props.tempData.batchId : '',
       !props.studentManageradd ? props.tempData.lastName : '',
       !props.studentManageradd ? props.tempData.pfirstName : '',
       !props.studentManageradd ? props.tempData.plastName : '',
