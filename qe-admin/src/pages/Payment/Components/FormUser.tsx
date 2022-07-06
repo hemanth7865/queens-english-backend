@@ -168,9 +168,11 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             props.setIsAmountDisplay(false);
             props.setIsAmountDisplay(false);
             props.setNetbankingVisible(false);
+        } else {
+            props.setVisibleAdd(false);
+            setStudentList([]);
+            form.resetFields();
         }
-        props.setVisibleAdd(false);
-        setStudentList([]);
         setIsLoading(false);
         props.actionRef.current.reload();
     }
