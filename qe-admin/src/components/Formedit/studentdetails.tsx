@@ -971,8 +971,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     placeholder="Plan type"
                     onChange={onChange}
                   >
-                    <Option value="Subscription">Subscription</Option>
-                    <Option value="One Time">One Time</Option>
+                    <Option value="New Sale">New Sale</Option>
+                    <Option value="Renewal">Renewal</Option>
                   </Select>
                 </Form.Item>
               </Col>
@@ -1035,7 +1035,11 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       required: true,
                     }]}>
                     <Select placeholder="classessold" onChange={onChange}>
+                      <Option value="30">30</Option>
+                      <Option value="40">40</Option>
+                      <Option value="50">50</Option>
                       <Option value="60">60</Option>
+                      <Option value="80">80</Option>
                       <Option value="100">100</Option>
                       <Option value="200">200</Option>
                       <Option value="300">300</Option>
@@ -1156,6 +1160,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       <Select placeholder="Select Subscription Type">
                         <Option value="Manual">Manual</Option>
                         <Option value="Auto-Debit">Auto-Debit</Option>
+                        <Option value="One-Time">One-Time</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>
