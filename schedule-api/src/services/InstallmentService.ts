@@ -91,6 +91,7 @@ export class InstallmentService {
           status: PAYMENT_STATUS.PAID,
           paidAmount: paymentLinkDetails.amount / 100,
           paidDate: paidDate,
+          updated_at: moment().format("YYYY-MM-DD HH:mm:ss")
         });
         return PAYMENT_STATUS.PAID;
       } else {

@@ -357,7 +357,7 @@ export const Routes = [
     route: "/resetExpiredPayments",
     controller: PaymentController,
     action: "resetExpiredPayments",
-    authenticate: true,
+    //authenticate: true,
   },
 
   {

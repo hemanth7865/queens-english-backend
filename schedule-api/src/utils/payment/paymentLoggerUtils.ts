@@ -113,6 +113,22 @@ const log = async (
     title += `Link expired & reset payment values`;
   }
 
+  if (
+    transaction.discount !== oldTransaction.discount &&
+    transaction.discount
+  ) {
+    console.log(transaction.discount, oldTransaction.discount);
+    title += `Discount Changed To: ${transaction.discount}, `;
+  }
+
+  if (
+    transaction.expireBy !== oldTransaction.expireBy &&
+    transaction.expireBy
+  ) {
+    console.log(transaction.expireBy, oldTransaction.expireBy);
+    title += `ExpireBy Changed To: ${transaction.expireBy}, `;
+  }
+
   /**
    * Check Transaction Details Updates
    */
