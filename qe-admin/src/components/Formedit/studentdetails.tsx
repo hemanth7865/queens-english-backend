@@ -999,10 +999,12 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     rules={[{
                       required: true,
                     }]}>
-                    <Select placeholder="Select Subscription Type">
-                      <Option value="Manual">Manual</Option>
-                      <Option value="Auto-Debit">Auto-Debit</Option>
-                      <Option value="One-Time">One-Time</Option>
+                    <Select
+                      placeholder="Select Class Type"
+                      onChange={onChange}
+                    >
+                      <Option value="Group">Group</Option>
+                      <Option value="One to One">One to One</Option>
                     </Select>
                   </Form.Item>
                 </Col>
