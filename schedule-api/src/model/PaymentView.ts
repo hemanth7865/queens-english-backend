@@ -46,6 +46,7 @@ export class PaymentsView {
   whatsapp?: string;
   netbankRefLink?: string;
   classtype?: string;
+  subscriptionType?: string;
 
   PaymentsView(
     id: String,
@@ -79,6 +80,7 @@ export class PaymentsView {
     notes?: string,
     reasonAmountChange?: string,
     classtype?: string,
+    subscriptionType?: string,
   ) {
     this.id = id;
     this.studentId = studentId;
@@ -111,5 +113,6 @@ export class PaymentsView {
     this.notes = notes;
     this.reasonAmountChange = reasonAmountChange;
     this.classtype = classtype;
+    this.subscriptionType = subscriptionType;
   }
 }

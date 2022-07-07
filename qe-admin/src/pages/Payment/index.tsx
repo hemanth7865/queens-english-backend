@@ -257,6 +257,38 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleSubscriptionId"
+                    defaultMessage="Subscription Id"
+                />
+            ),
+            dataIndex: 'subscriptionId',
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleSubscriptionType"
+                    defaultMessage="Subscription Type"
+                />
+            ),
+            dataIndex: 'subscriptionType',
+            renderFormItem: (value) => {
+                return (
+                    <Select >
+                        <Option value="Monthly">Monthly</Option>
+                        <Option value="Quarterly">Quarterly</Option>
+                        <Option value="Auto Debit">Auto Debit</Option>
+                    </Select>
+                );
+            },
+            search: {
+                transform: (value) => {
+                    return { subscriptionType: value };
+                },
+            },
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleRazorpayLink"
                     defaultMessage="Razorpay Link"
                 />
@@ -448,7 +480,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 2200,
+                        x: 2500,
                     }}
                 />
             </Spin>

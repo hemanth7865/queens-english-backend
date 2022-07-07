@@ -163,7 +163,7 @@ export class PaymentService {
             break;
           case "subscriptionId":
             whereCondition.push(
-              `tDetails.subscription_id = '${parameters[param]}'`
+              `transactions.subscription_id = '${parameters[param]}'`
             );
             break;
           case "tdstatus":
@@ -197,6 +197,11 @@ export class PaymentService {
           case "transaction_details_id":
             whereCondition.push(
               `tDetails.transaction_details_id = '${parameters[param]}'`
+            );
+            break;
+          case "subscriptionType":
+            whereCondition.push(
+              `transactions.subscription_type = '${parameters[param]}'`
             );
             break;
           case "leadId":
@@ -255,6 +260,7 @@ export class PaymentService {
         view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
         view.netbankRefLink = record.transactions_netbank_ref_link;
+        view.subscriptionType = record.transactions_subscription_type;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -516,9 +522,9 @@ export class PaymentService {
     ) {
       usersLogger.error(
         "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
+        installment.id +
+        "payment response: " +
+        JSON.stringify(paymentResponse)
       );
       return {
         status: "error",
@@ -547,15 +553,15 @@ export class PaymentService {
       error: 0,
       expired: 0,
     };
-    const where = { };
+    const where = {};
     const limit = request?.limit || 100;
     if (request?.fromDate) {
-      var fromDate = moment(request.fromDate,"YYYY-MM-DD").set({hour:0,minute:0,second:0,millisecond:0}).toDate();
+      var fromDate = moment(request.fromDate, "YYYY-MM-DD").set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toDate();
       usersLogger.info('from date: ' + fromDate);
       where["dueDate"] = MoreThanDate(fromDate);
     }
     if (request?.toDate) {
-      var toDate = moment(request.toDate,"YYYY-MM-DD").set({hour:23,minute:59,second:59,millisecond:0}).toDate();
+      var toDate = moment(request.toDate, "YYYY-MM-DD").set({ hour: 23, minute: 59, second: 59, millisecond: 0 }).toDate();
       usersLogger.info('to date: ' + toDate);
       where["dueDate"] = LessThanDate(toDate);
     }
@@ -565,7 +571,7 @@ export class PaymentService {
     where["status"] = PAYMENT_STATUS.PENDING;
     where["transactionId"] = Like("plink_%");
 
-    usersLogger.info("where: "+JSON.stringify(where));
+    usersLogger.info("where: " + JSON.stringify(where));
     var expiryInstallments = await this.transactionRepository.find({
       where,
       take: limit,
@@ -589,7 +595,7 @@ export class PaymentService {
         usersLogger.info('Fetch payment link id: ' + installment.transactionId + ' response: ' + JSON.stringify(paymentLinkDetails));
         if (paymentLinkDetails.status === "expired") {
           usersLogger.info("expired payment id: " + installment.id);
-          let data:any = {
+          let data: any = {
             // status: EXPIRED,
             transactionId: null,
             paymentLink: null,
@@ -661,7 +667,7 @@ export class PaymentService {
           transaction: oldTransaction,
         };
 
-        await(
+        await (
           await this.logger.payment(oldData, newData, this.request.user || {})
         ).save();
       }
