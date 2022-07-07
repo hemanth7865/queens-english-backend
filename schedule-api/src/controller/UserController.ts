@@ -11,6 +11,9 @@ import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
 import { validations } from "../helpers/validations";
+import { BatchController } from "./BatchController";
+import { Status } from "../helpers/Constants";
+
 
 export class UserController {
 
@@ -20,6 +23,7 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
+    private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -53,7 +57,14 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
-
+                if (request.body.status == Status.INACTIVE ) {
+                    resp = await this.batchController.reBatch(request, response, next);
+                    await response;
+                    let removequery: any[] = [];
+                    var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;                        
+                    removequery = await getManager().query(removebatchquery)
+                    console.log("Trying to remove Inactive Student")
+                } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
             else {
