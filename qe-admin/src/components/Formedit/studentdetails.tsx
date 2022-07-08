@@ -30,7 +30,7 @@ export type StudentdetailseditProps = {
     pfirstName?: string;
     plastName?: string;
     customerEmail?: string;
-    phoneNumber?: string;
+    phoneNumber?: any;
     whatsapp?: string;
     state?: string;
     alternativeMobile?: string;
@@ -169,24 +169,30 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
     const waMessage = (
       <div>
-        <p>Hello <br />
-          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
-          classes:<br />
-          Zoom Link: {zoomLink} <br />
-          Whatsapp Group Link: {whatsappLink} <br />
-          Topic: {batchCode}<br />
-          Time: {timings} India<br />
-          <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br /> <br />
-          (The details above are recurring and hence you can use the same details to join the class everyday)<br />
+        <p>Hello,<br />
+          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on date, you can use the below details to join your classes:<br />
+          <b>Batch:</b> {batchCode}<br />
+          <b>Time:</b> {timings} India<br />
+          <b>Frequency:</b> {days}<br />
+          <b>Zoom Link:</b> {zoomLink}<br />
+          (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
+          (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
+          (If unable to join through the link then use Meeting ID and Passcode : {zoomInfo})<br />
+          (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : {zoomInfo}<br />
+          <b>Whatsapp Group Link:</b> {whatsappLink}<br />
+          (Join the Whatsapp group from the link so that you won't miss out on the important notifications regarding the class)<br />
+          (लिंक से व्हाट्सएप ग्रुप में शामिल हों ताकि आप कक्षा से संबंधित महत्वपूर्ण सूचनाओं से न चूकें)<br />
           Please send “OK” or a “:+1:” to activate the link above.<br />
-          For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
-          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।
-          We are really excited to see you soon in class! Happy Learning!_<br /></p>
+          कृपया उपरोक्त लिंक को सक्रिय करने के लिए "ओके" या ": 1:" भेजें।<br />
+          <a href="https://drive.google.com/file/d/17Yx9W4EMT2yZ5VJDh6HfQAj4yBZz4VOo/view">Click here to know how to start a Zoom Meeting</a><br />
+          <a href="https://drive.google.com/file/d/1PVj-GJpzrOJanQ_Cq4zlfjgA_E_JP4B1/view">ज़ूम मीटिंग कैसे शुरू करें, यह जानने के लिए यहां क्लिक करें</a><br />
+          For any support please feel free to reach out to us on our customer support number: +91 81435 13850
+          अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।</p><br />
       </div>
     )
 
     notification[type]({
-      message: 'Welcome Message',
+      message: 'Onboard Message',
       description: waMessage,
       style: {
         width: 720,
@@ -215,7 +221,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     )
 
     notification[type]({
-      message: 'Onboard message',
+      message: 'Welcome message',
       description: waMessage,
       style: {
         width: 720,
@@ -1268,7 +1274,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         </Form>
       </TabPane>
 
-      {props.studentManageradd || props.salesAlert || props.welcomepage || props.startclasslaterpage ? ('') : (
+      {props.studentManageradd || props.salesAlert || props.startclasslaterpage ? ('') : (
         <TabPane tab="Batch Details" key="2">
           <Form
             name="batchdetails"
@@ -1354,6 +1360,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                     <Select
                       placeholder="Select Starting Lesson"
                     >
+                      <Option value="Placement Pending">Placement Pending</Option>
                       <Option value="Lesson 1">Lesson 1</Option>
                       <Option value="Lesson 31">Lesson 31</Option>
                       <Option value="Lesson 61">Lesson 61</Option>
