@@ -177,8 +177,10 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <b>Zoom Link:</b> {zoomLink}<br />
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
-          (If unable to join through the link then use Meeting ID and Passcode : {zoomInfo})<br />
-          (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : {zoomInfo}<br />
+          (If unable to join through the link then use Meeting ID and Passcode :<br />
+          {zoomInfo})<br />
+          (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : <br />
+          {zoomInfo})<br />
           <b>Whatsapp Group Link:</b> {whatsappLink}<br />
           (Join the Whatsapp group from the link so that you won't miss out on the important notifications regarding the class)<br />
           (लिंक से व्हाट्सएप ग्रुप में शामिल हों ताकि आप कक्षा से संबंधित महत्वपूर्ण सूचनाओं से न चूकें)<br />
