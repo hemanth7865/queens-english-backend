@@ -29,7 +29,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectStatus, setSelectStatus] = useState(status);
@@ -116,6 +116,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 paymentMode: paymentMode,
                 paidDate: paidDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
+                subscriptionId: values.subscriptionId ? values.subscriptionId : subscriptionId,
             }]
             if (values.emiAmount) {
                 if (status === PaymentConstantValues.STATUSPENDING) {
@@ -164,6 +165,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             paidAmount: paidAmount,
             netbankRefLink: netbankRefLink,
             transactionId: paymentMode === PaymentConstantValues.PAYMENTMODE ? referenceId : '',
+            subscriptionId: subscriptionId,
         });
     }
     useEffect(() => {
@@ -259,7 +261,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     >
                                         <DatePicker
                                             format='YYYY-MM-DD'
-                                            onChange={(date, dateString) => {
+                                            onChange={(date, dateString: any) => {
                                                 setSelectPaidDate(dateString);
                                             }} />
                                     </Form.Item>

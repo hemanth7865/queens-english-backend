@@ -381,7 +381,7 @@ const TableList: React.FC = () => {
             fixed: 'right',
             width: 240,
             tip: 'Paid cases are not editable',
-            render: (dom, entity) => {
+            render: (dom, entity: any) => {
                 return (
                     <div>
                         <a

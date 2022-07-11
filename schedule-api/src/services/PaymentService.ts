@@ -338,6 +338,8 @@ export class PaymentService {
         //payment details from razor pay
         transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
+        //subscription id for auto debit
+        transaction.subscriptionId = data.subscriptionId;
 
         var transactions = await this.transactionRepository.save(transaction);
 
