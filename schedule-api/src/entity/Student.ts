@@ -139,4 +139,7 @@ export class Student extends BaseEntity {
   )
   @JoinColumn({ name: "id" })
   collection_agent: CollectionAgent;
+
+  @Column({ nullable: false })
+  prevBatchStudent: boolean;
 }
