@@ -29,6 +29,7 @@ const TableList: React.FC = () => {
 
     const [visible, setVisible] = useState<boolean>(false);
     const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
+    const [visibleAdd, setVisibleAdd] = useState<boolean>(false);
     const [tempData, setTempData] = useState();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -450,8 +451,34 @@ const TableList: React.FC = () => {
                     scroll={{
                         x: 2200,
                     }}
+                    toolBarRender={() => [
+                        <Button
+                            type="primary"
+                            key="primary"
+                            onClick={() => { setVisibleAdd(true) }}
+                        >
+                            Add Payment
+                        </Button>,
+
+                    ]}
                 />
             </Spin>
+
+            <Drawer
+                title="Add Payment"
+                placement="right"
+                visible={visibleAdd}
+                onClose={() => { setVisibleAdd(false) }}
+                closable={true}
+                width={500}
+            >
+                <FormUser
+                    visibleAdd={visibleAdd}
+                    setVisibleAdd={setVisibleAdd}
+                    actionRef={actionRef}
+                />
+            </Drawer>
+
             <Drawer
                 width={600}
                 visible={displayRazorpay}
@@ -477,6 +504,8 @@ const TableList: React.FC = () => {
                 <FormUser
                     data={tempData}
                     visible={visibleEdit}
+                    visibleAdd={visibleAdd}
+                    setVisibleAdd={setVisibleAdd}
                     setVisible={setVisibleEdit}
                     isAmountDisplay={isAmountDisplay}
                     netbankingVisible={netbankingVisible}
