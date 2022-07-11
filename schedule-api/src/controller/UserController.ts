@@ -149,13 +149,11 @@ export class UserController {
 
         try {
             if (request.query['type'] === 'student') {
-                if (request.query['status'] === 'active') {
-                    let existingStudentquery: any[] = [];
-                    var existstudentquery = `UPDATE 'student' SET 'existingStudent' = CASE WHEN 'existingStudent' = '1' THEN '1' ELSE '0' END`;
-                    existingStudentquery = await getManager().query(existstudentquery);
-                }
-                resp = await studentService.listStudentDetails(request.body, parameters);
-
+            resp = await studentService.listStudentDetails(request.body, parameters);
+            let existingStudentquery: any[] = [];
+            var existstudentquery = `UPDATE student SET existingStudent = CASE WHEN existingStudent = true THEN true WHEN status = 'active' THEN true ELSE false END`;
+            existingStudentquery = await getManager().query(existstudentquery);
+            console.log("Trying to update existingStudent");
             } else {
                 resp = await this.teacherService.listLeadDetails(request.body, parameters);
             }
@@ -175,7 +173,8 @@ export class UserController {
 
         let resp;
         const teacherId = request.params.id;
-        var type = request.query['type']
+        var type = request.query['type'];
+        var status = request.query['status'];
         try {
             if (type == 'student') {
                 usersLogger.info("Fetching student full details");
