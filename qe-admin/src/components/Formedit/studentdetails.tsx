@@ -1469,24 +1469,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   </Form.Item>
                 </Col>
               )}
-
-              <Col span={12}>
-                <Form.Item
-                  name="batchingStatus"
-                  label="Batching Status"
-                  rules={[{
-                    required: true,
-                  }]}>
-                  <Select
-                    placeholder="Select Class Timings"
-                  >
-                    <Option value="Batched Once">15:00</Option>
-                    <Option value="Never Batched">16:30</Option>
-                    <Option value="Batched Multiple Times">18:00</Option>
-                    <Option value="Removed from Batch">19:30</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
             </Row >
 
             <Row>
