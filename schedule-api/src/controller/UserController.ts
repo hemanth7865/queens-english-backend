@@ -149,6 +149,11 @@ export class UserController {
 
         try {
             if (request.query['type'] === 'student') {
+                if (request.query['status'] === 'active') {
+                    let existingStudentquery: any[] = [];
+                    var existstudentquery = `UPDATE 'student' SET 'existingStudent' = CASE WHEN 'existingStudent' = '1' THEN '1' ELSE '0' END`;
+                    existingStudentquery = await getManager().query(existstudentquery);
+                }
                 resp = await studentService.listStudentDetails(request.body, parameters);
 
             } else {
