@@ -154,6 +154,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     if (paymentTally == 0) {
       props.submit(dataForm);
       console.log('Data', dataForm);
+    } else if (value.id == undefined) {
+      props.submit(dataForm);
+      console.log('Data', dataForm);
     } else {
       openNotificationWithIcon('error', 'Student', 'Enter Correct Payment Details !')
     }
@@ -166,30 +169,43 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   //Role Based Access
   const access = useAccess();
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
     const waMessage = (
       <div>
         <p>Hello,<br />
-          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on date, you can use the below details to join your classes:<br />
-          <b>Batch:</b> {batchCode}<br />
-          <b>Time:</b> {timings} India<br />
-          <b>Frequency:</b> {days}<br />
-          <b>Zoom Link:</b> {zoomLink}<br />
+          I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {classesStartDate}, you can use the below details to join your classes:<br />
+          <br></br>
+          <b>*Batch:*</b> {batchCode}<br />
+          <b>*Time:*</b> {timings} India<br />
+          <b>*Frequency:*</b> {days}<br />
+          <b>*Zoom Link:*</b> {zoomLink}<br />
+          <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
+          <br></br>
           (If unable to join through the link then use Meeting ID and Passcode :<br />
           {zoomInfo})<br />
+          <br></br>
           (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : <br />
           {zoomInfo})<br />
-          <b>Whatsapp Group Link:</b> {whatsappLink}<br />
+          <br></br>
+          <b>*Whatsapp Group Link:*</b> {whatsappLink}<br />
+          <br></br>
           (Join the Whatsapp group from the link so that you won't miss out on the important notifications regarding the class)<br />
           (लिंक से व्हाट्सएप ग्रुप में शामिल हों ताकि आप कक्षा से संबंधित महत्वपूर्ण सूचनाओं से न चूकें)<br />
+          <br></br>
           Please send “OK” or a “:+1:” to activate the link above.<br />
           कृपया उपरोक्त लिंक को सक्रिय करने के लिए "ओके" या ": 1:" भेजें।<br />
-          <a href="https://drive.google.com/file/d/17Yx9W4EMT2yZ5VJDh6HfQAj4yBZz4VOo/view">Click here to know how to start a Zoom Meeting</a><br />
-          <a href="https://drive.google.com/file/d/1PVj-GJpzrOJanQ_Cq4zlfjgA_E_JP4B1/view">ज़ूम मीटिंग कैसे शुरू करें, यह जानने के लिए यहां क्लिक करें</a><br />
-          For any support please feel free to reach out to us on our customer support number: +91 81435 13850
-          अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।</p><br />
+          <br></br>
+          <a >Click here to know how to start a Zoom Meeting:</a><br />
+          <a>https://drive.google.com/file/d/17Yx9W4EMT2yZ5VJDh6HfQAj4yBZz4VOo/view</a><br />
+          <br></br>
+          <a>ज़ूम मीटिंग कैसे शुरू करें, यह जानने के लिए यहां क्लिक करें:</a><br />
+          <a >https://drive.google.com/file/d/1PVj-GJpzrOJanQ_Cq4zlfjgA_E_JP4B1/view</a><br />
+          <br></br>
+          For any support please feel free to reach out to us on our customer support number: +918143513850
+          <br></br>
+          अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर +918143513850 पर कॉल कर सकते हैं।</p><br />
       </div>
     )
 
