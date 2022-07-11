@@ -57,14 +57,17 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
-                if (request.body.status == Status.INACTIVE ) {
+                if (request.body.status == Status.INACTIVE) {
                     resp = await this.batchController.reBatch(request, response, next);
                     await response;
                     let removequery: any[] = [];
-                    var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;                        
+                    var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                     removequery = await getManager().query(removebatchquery)
                     console.log("Trying to remove Inactive Student")
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
+                let prevBatchedStudent: any[] = [];
+                var prevBatchedStudentquery = `UPDATE student SET existingStudent = CASE WHEN existingStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
+                prevBatchedStudent = await getManager().query(prevBatchedStudentquery);
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
             else {
@@ -150,10 +153,6 @@ export class UserController {
         try {
             if (request.query['type'] === 'student') {
             resp = await studentService.listStudentDetails(request.body, parameters);
-            let existingStudentquery: any[] = [];
-            var existstudentquery = `UPDATE student SET existingStudent = CASE WHEN existingStudent = true THEN true WHEN status = 'active' THEN true ELSE false END`;
-            existingStudentquery = await getManager().query(existstudentquery);
-            console.log("Trying to update existingStudent");
             } else {
                 resp = await this.teacherService.listLeadDetails(request.body, parameters);
             }
