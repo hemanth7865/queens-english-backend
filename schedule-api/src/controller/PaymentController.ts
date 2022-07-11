@@ -111,7 +111,34 @@ export class PaymentController {
         this.paymentService.request = request;
         console.log("Read netbanking payment receipt.....");
         return await this.paymentService.uploadNetBankingResource(request.body);
-
-
     }
+
+    async fetchAutoDebitDetails(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        console.log("Fetch Auto debit details");
+        try {
+            return await this.paymentService.fetchAutoDebitDetails(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception while fetching Auto debit details"
+            }
+        }
+    }
+
+    async updateAutoDebitStatus(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        console.log("Update Auto debit status");
+        try {
+            return await this.paymentService.updateAutoDebitStatus(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception while updating Auto debit current status"
+            }
+        }
+    }
+
 }
