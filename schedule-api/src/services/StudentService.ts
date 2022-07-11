@@ -188,12 +188,7 @@ export class StudentService {
         var quer2 = "select batchId from batch_students where studentId='" +
           element.id +
           "';";
-        var quer3 = `SELECT count(studentId) as batches FROM student_batches_history WHERE studentId='${element.id}';`
 
-        var numberofbatchesarr = await getManager().query(quer3);
-        const lastKey = Object.keys(numberofbatchesarr).pop();
-        const numberofbatchesarr2 = numberofbatchesarr[lastKey];
-        var numberofbatches = numberofbatchesarr2;
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
           console.log("batchCode", element);
@@ -306,7 +301,6 @@ export class StudentService {
         whatsappLinkBatch.join(","),
         element.gender,
       );
-      l.numberofbatches = numberofbatches,
       l.batchId = batchId,
       l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;

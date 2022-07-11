@@ -74,7 +74,6 @@ export type StudentdetailseditProps = {
     classtype?: string;
     gender?: string;
     notes?: string;
-    numberofbatches?: any;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -291,8 +290,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
         gender: props.tempData.gender,
         notes: props.tempData.notes,
-        numberofbatches: props.tempData.numberofbatches,
-        batchingStatus: props.tempData.numberofbatches > 1 ? "1" : "2",
       })) : ('')
     };
   }
@@ -354,7 +351,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       !props.studentManageradd ? props.tempData.comments : '',
       !props.studentManageradd ? props.tempData.gender : '',
       !props.studentManageradd ? props.tempData.notes : '',
-      !props.studentManageradd ? props.tempData.numberofbatches : '',
     ]
   )
 
@@ -1473,15 +1469,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   </Form.Item>
                 </Col>
               )}
-
-              <Col span={12}>
-                <Form.Item
-                  label="Number Of Batches"
-                  name="numberofbatches"
-                >
-                  <Input disabled />
-                </Form.Item>
-              </Col>
 
               <Col span={12}>
                 <Form.Item
