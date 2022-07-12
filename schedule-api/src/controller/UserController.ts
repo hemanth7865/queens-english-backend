@@ -66,7 +66,7 @@ export class UserController {
                     console.log("Trying to remove Inactive Student")
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 let prevBatchedStudent: any[] = [];
-                var prevBatchedStudentquery = `UPDATE student SET prevBatchStudent = CASE WHEN prevBatchStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
+                var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
                 prevBatchedStudent = await getManager().query(prevBatchedStudentquery);
                 resp = await this.studentService.saveStudentDetails(request.body);
             }
