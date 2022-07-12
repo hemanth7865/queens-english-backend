@@ -28,7 +28,7 @@ export class Transactions extends BaseEntity {
   transactionId: string;
   @Column({ type: "text", name: "collection_agent" })
   collectionAgent: number;
-  @Column({ nullable: true, type: "date", name: "due_date" })
+  @Column({ nullable: true, type: "datetime", name: "due_date" })
   dueDate: Date;
   @Column({ nullable: true, type: "datetime", name: "paid_date" })
   paidDate: Date;
