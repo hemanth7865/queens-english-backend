@@ -643,6 +643,32 @@ export async function refreshRazorpayStatus(
   );
 }
 
+//Refresh status - autodebit
+export async function refreshAutoDebitStatus(
+  options?: { [key: string]: any }
+) {
+  console.log("option", options);
+  return request<any>(`/be/updateAutoDebitStatus`,
+    {
+      method: "POST",
+      ...(options || {}),
+    }
+  );
+}
+
+//Get details of all payment - autodebit
+export async function getAllAutoDebitStatus(
+  options?: { [key: string]: any }
+) {
+  console.log("option", options);
+  return request<any>(`/be/fetchAutoDebitDetails`,
+    {
+      method: "POST",
+      ...(options || {}),
+    }
+  );
+}
+
 //get all zoom
 export async function getAllZoomUsers(
   //studentId: string,

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Col, Row, Table, Space, Spin } from "antd";
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { getAllAutoDebitStatus } from '@/services/ant-design-pro/api';
+import { PaymentConstantValues } from "@/components/Constants/constants";
 
 interface Props {
     data: any;
@@ -12,20 +14,33 @@ const RazorpayDetails = ({ data }: Props) => {
     const [isLoading, setIsLoading] = useState(false);
     const [show, setShow] = useState<any>();
 
-    const handleShow = async (data: any) => {
+    const handleShow = async () => {
         setIsLoading(true);
         try {
-            const response = await getZoomUser(data.id);
-            setShow(response.data);
-        } catch (e) {
-            handleAPIResponse({ status: 400 }, "", "Failed To Show Zoom License Info", false);
+            const msg = await getAllAutoDebitStatus({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ installmentId: data.transactionId }),
+            });
+            if (msg.status != PaymentConstantValues.STATUSERROR) {
+                setShow(msg.message);
+            } else {
+                handleAPIResponse(msg, " ", "Failed To Display Details", false);
+            }
+
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, " ", "Failed To Display Details", false);
         }
         setIsLoading(false);
     }
 
+    console.log(show)
+
     useEffect(() => {
         if (data.subscriptionId != null) {
-            console.log('Call the api here')
+            setShow('');
+            handleShow()
         }
     }, [data.subscriptionId])
 
@@ -103,7 +118,7 @@ const RazorpayDetails = ({ data }: Props) => {
                     <div>
                         <div style={{ fontSize: 20 }}>Mode of Payment: Auto Debit (Cash Free)</div>
                         <Spin spinning={isLoading}>
-                            <Table style={{ width: "100%" }} dataSource={''} columns={[
+                            <Table style={{ width: "100%" }} dataSource={show ? show : ''} columns={[
                                 {
                                     title: "Subscription Id",
                                     dataIndex: "subReferenceId",
@@ -115,9 +130,19 @@ const RazorpayDetails = ({ data }: Props) => {
                                     key: "paymentId"
                                 },
                                 {
+                                    title: "Amount",
+                                    dataIndex: "amount",
+                                    key: "amount"
+                                },
+                                {
                                     title: "Date",
                                     dataIndex: "addedOn",
-                                    key: "addedOn"
+                                    key: "addedOn",
+                                    render: (value: any) => {
+                                        if (value) {
+                                            return moment(value, "YYYY-MM-DD").format("DD-MM-YYYY");
+                                        }
+                                    }
                                 },
                                 {
                                     title: "Status",
@@ -128,7 +153,6 @@ const RazorpayDetails = ({ data }: Props) => {
                         </Spin>
                     </div>
             }
-
 
         </div >
     );

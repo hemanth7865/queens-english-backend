@@ -5,13 +5,14 @@ import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
+import subscriptionType from "./../../../data/subscription_type.json"
 import { PaymentConstantValues } from '@/components/Constants/constants';
 import "./payment.css"
 
@@ -90,16 +91,31 @@ const TableList: React.FC = () => {
     }
 
     const refreshStatus = async (data: any, refreshLink: boolean) => {
-        try {
-            const msg = await refreshRazorpayStatus(
-                data.transactionId,
-                data.referenceId,
-                refreshLink
-            );
-            handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
-        } catch (error) {
-            handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+        if (data.subscriptionId) {
+            try {
+                const msg = await refreshAutoDebitStatus({
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ installmentId: data.transactionId }),
+                });
+                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            }
+        } else {
+            try {
+                const msg = await refreshRazorpayStatus(
+                    data.transactionId,
+                    data.referenceId,
+                    refreshLink
+                );
+                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            }
         }
+
     }
 
 
@@ -272,20 +288,8 @@ const TableList: React.FC = () => {
                 />
             ),
             dataIndex: 'subscriptionType',
-            renderFormItem: (value) => {
-                return (
-                    <Select >
-                        <Option value="Monthly">Monthly</Option>
-                        <Option value="Quarterly">Quarterly</Option>
-                        <Option value="Auto Debit">Auto Debit</Option>
-                    </Select>
-                );
-            },
-            search: {
-                transform: (value) => {
-                    return { subscriptionType: value };
-                },
-            },
+            valueType: 'select',
+            request: async () => subscriptionType,
         },
         {
             title: (

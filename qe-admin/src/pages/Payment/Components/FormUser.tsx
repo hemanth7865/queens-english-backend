@@ -330,25 +330,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     >
                                         <Input />
                                     </Form.Item>
-
-                                    <Form.Item
-                                        label="First Instalment Payment ID"
-                                        name="referenceId"
-                                        rules={[{ required: true, message: 'Please Enter  First Instalment Payment ID!' }]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        label="Installment status"
-                                        name="status"
-                                        rules={[{ required: true, message: 'Please Enter Installment Status' }]}
-                                    >
-                                        <Select>
-                                            <Option value="Installment Pending">Installment Pending</Option>
-                                            <Option value="Installment Paid">Installment Paid</Option>
-                                        </Select>
-                                    </Form.Item>
                                 </div> :
 
                                 props.netbankingVisible ?
