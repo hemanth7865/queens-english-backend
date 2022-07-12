@@ -141,5 +141,5 @@ export class Student extends BaseEntity {
   collection_agent: CollectionAgent;
 
   @Column({ nullable: false })
-  prevBatchStudent: boolean;
+  prevBatchedStudent: boolean;
 }
