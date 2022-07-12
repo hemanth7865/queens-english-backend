@@ -136,6 +136,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         id: value.id,
         paymentid: value.paymentid,
         studentId: value.id,
+        studentID: value.studentID,
         plantype: value.plantype,
         classessold: value.classessold,
         saleamount: Number(value.saleamount),
