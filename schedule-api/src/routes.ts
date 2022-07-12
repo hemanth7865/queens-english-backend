@@ -362,6 +362,22 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/fetchAutoDebitDetails",
+    controller: PaymentController,
+    action: "fetchAutoDebitDetails",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
+    route: "/updateAutoDebitStatus",
+    controller: PaymentController,
+    action: "updateAutoDebitStatus",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
     route: "/uploadNetBankingResource",
     controller: PaymentController,
     action: "uploadNetBankingResource",

@@ -54,7 +54,7 @@ export class Transactions extends BaseEntity {
   discount: number;
   @Column({ type: "date", name: "expire_by" })
   expireBy: Date;
-  @Column({ nullable: true, type: "text", name: "subscription_type" })
+  @Column({ nullable: false, type: "text", name: "subscription_type" })
   subscriptionType: string;
   @OneToOne((type) => Student, (student) => student.id)
   @JoinColumn({ name: "student_id" })

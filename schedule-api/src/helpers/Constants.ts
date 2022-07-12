@@ -20,3 +20,14 @@ export const Status = {
     ERROR: "error",
     ONBOARDING: "onboarding",
 }
+
+export const SUBSCRIPTION_TYPE = {
+    MANUAL: 'Manual',
+    AUTO_DEBIT: 'Auto-Debit'
+}
+
+export const CASHFREE_PAYMENT_STATUS = {
+    SUCCESS: 'SUCCESS',
+    PENDING: 'PENDING',
+    FAILED: 'FAILED'
+}
