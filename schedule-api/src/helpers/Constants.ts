@@ -1,6 +1,7 @@
 export const PAYMENT_STATUS = {
     PENDING: 'Installment Pending',
     PAID: 'Installment Paid',
+    FAILED: 'Installment Failed'
 }
 
 export const PAYMENT_MODE = {

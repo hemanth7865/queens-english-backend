@@ -772,14 +772,15 @@ export class PaymentService {
         let paymentResponse = await this.fetchAutoDebitDetails(request);
         if(paymentResponse.status == 'success'){
           if(!isNullOrUndefined(paymentResponse.message)){
-            const currentMonth = moment().format("YYYY-MM");
             const installment = await this.transactionRepository.findOne({
               where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
             });    
+            const dueMonth = moment(installment.dueDate).format("YYYY-MM");
+            console.log('dueMonth: '+ dueMonth);
             var payments : any = paymentResponse.message;
             for (const payment of payments) {
               usersLogger.debug('pay: '+ JSON.stringify(payment));
-              if(payment['addedOn'].includes(currentMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.SUCCESS && payment['amount'] == installment.emiAmount){
+              if(payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.SUCCESS && payment['amount'] == installment.emiAmount){
                 let data:any = {
                   status: PAYMENT_STATUS.PAID,
                   paidAmount: payment['amount'],
@@ -788,7 +789,17 @@ export class PaymentService {
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
                 };
 
-                usersLogger.info('data for update: '+ JSON.stringify(data));
+                usersLogger.debug('data for update: '+ JSON.stringify(data));
+                await this.installmentService.updateInstallment(installment.id, data);  
+                break;
+              }
+              else if(payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.FAILED){
+                let data:any = {
+                  status: PAYMENT_STATUS.FAILED,
+                  updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                };
+                usersLogger.debug('data for update: '+ JSON.stringify(data));
                 await this.installmentService.updateInstallment(installment.id, data);  
                 break;
               }
