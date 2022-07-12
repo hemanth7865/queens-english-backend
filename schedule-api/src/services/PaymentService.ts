@@ -11,7 +11,7 @@ import { CollectionAgent } from "../entity/CollectionAgent";
 import { totalmem } from "os";
 const { usersLogger } = require("../Logger.js");
 const date = require("date-and-time");
-import { PAYMENT_MODE, PAYMENT_STATUS } from "../helpers/Constants";
+import { CASHFREE_PAYMENT_STATUS, PAYMENT_MODE, PAYMENT_STATUS, SUBSCRIPTION_TYPE } from "../helpers/Constants";
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
 import { fail } from "assert";
@@ -22,6 +22,7 @@ import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
 } from "../services/RazorpayService";
+import { CashFreeUtils } from "../utils/payment/CashFreeUtils";
 
 export class PaymentService {
   private transactionRepository = getRepository(Transactions);
@@ -30,6 +31,7 @@ export class PaymentService {
   private collectionAgent = getRepository(CollectionAgent);
   private studentRepository = getRepository(Student);
   private razorPayUtils = new RazorPayUtils();
+  private cashFreeUtils = new CashFreeUtils();
   private installmentService = new InstallmentService();
   private logger = new LoggerService();
   public request: any = {};
@@ -163,7 +165,7 @@ export class PaymentService {
             break;
           case "subscriptionId":
             whereCondition.push(
-              `tDetails.subscription_id = '${parameters[param]}'`
+              `transactions.subscription_id = '${parameters[param]}'`
             );
             break;
           case "tdstatus":
@@ -197,6 +199,11 @@ export class PaymentService {
           case "transaction_details_id":
             whereCondition.push(
               `tDetails.transaction_details_id = '${parameters[param]}'`
+            );
+            break;
+          case "subscriptionType":
+            whereCondition.push(
+              `transactions.subscription_type = '${parameters[param]}'`
             );
             break;
           case "leadId":
@@ -255,6 +262,7 @@ export class PaymentService {
         view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
         view.netbankRefLink = record.transactions_netbank_ref_link;
+        view.subscriptionType = record.transactions_subscription_type;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -332,6 +340,8 @@ export class PaymentService {
         //payment details from razor pay
         transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
+        //subscription id for auto debit
+        transaction.subscriptionId = data.subscriptionId;
 
         var transactions = await this.transactionRepository.save(transaction);
 
@@ -715,6 +725,110 @@ export class PaymentService {
         msg: "successfully updated link",
       };
     } catch (error) { }
+  }
+
+  async fetchAutoDebitDetails(request: any) {
+    try {
+        // pre validations
+        usersLogger.debug("installment id: " + request.installmentId);
+        if(isNullOrUndefined(request.installmentId)){
+          usersLogger.info("Installment id is missing for fetching subscription details");
+          return {
+            status: "error",
+            message: "Installment id is missing for fetching subscription details",
+          };    
+        }
+        const installment = await this.transactionRepository.findOne({
+          where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
+        });
+        if(isNullOrUndefined(installment)){
+          usersLogger.info("Auto-Debit installment not found for given id: " + request.installmentId);
+          return {
+            status: "error",
+            message: "Auto-Debit installment not found for given id: " + request.installmentId
+          };    
+        }
+
+        const cashFreeResponse: any = await this.cashFreeUtils.fetchSubscriptionDetails(installment.subscriptionId);
+        if(isNullOrUndefined(cashFreeResponse)){
+          usersLogger.error("Error in fetching subscription details for id : " + request.installmentId);
+          return {
+            status: "error",
+            message: null
+          };    
+        }
+        else{
+          // usersLogger.info('Fetch subscription record for id: ' + installment.subscriptionId + ' response: ' + JSON.stringify(cashFreeResponse));
+          return {
+            status: "success",
+            message: cashFreeResponse.payments
+          };      
+        }
+    }
+    catch (error) {
+        usersLogger.error('Error in fetching subscription details: ' + JSON.stringify(error));
+        return {
+          status: "error",
+          message: "Error in fetching subscription details"
+        };    
+    }
+  }
+
+  async updateAutoDebitStatus(request: any) {
+    try {
+        // fetch payments for the given id
+        let paymentResponse = await this.fetchAutoDebitDetails(request);
+        if(paymentResponse.status == 'success'){
+          if(!isNullOrUndefined(paymentResponse.message)){
+            const installment = await this.transactionRepository.findOne({
+              where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
+            });    
+            const dueMonth = moment(installment.dueDate).format("YYYY-MM");
+            console.log('dueMonth: '+ dueMonth);
+            var payments : any = paymentResponse.message;
+            for (const payment of payments) {
+              usersLogger.debug('pay: '+ JSON.stringify(payment));
+              if(payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.SUCCESS && payment['amount'] == installment.emiAmount){
+                let data:any = {
+                  status: PAYMENT_STATUS.PAID,
+                  paidAmount: payment['amount'],
+                  paidDate: payment['addedOn'],
+                  updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                };
+
+                usersLogger.debug('data for update: '+ JSON.stringify(data));
+                await this.installmentService.updateInstallment(installment.id, data);  
+                break;
+              }
+              else if(payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.FAILED){
+                let data:any = {
+                  status: PAYMENT_STATUS.FAILED,
+                  updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                };
+                usersLogger.debug('data for update: '+ JSON.stringify(data));
+                await this.installmentService.updateInstallment(installment.id, data);  
+                break;
+              }
+            }
+          }
+          return {
+            status: "success",
+            message: "Updated auto debit status"
+          };                
+        }
+        else{
+          return paymentResponse;
+        }
+    }
+    catch(error){
+      usersLogger.error('Error in fetching subscription details: ' + error);
+      return {
+        status: "error",
+        message: "Error in updating auto debit status"
+      };    
+    }
   }
 
 }

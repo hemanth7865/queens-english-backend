@@ -1,6 +1,7 @@
 export const PAYMENT_STATUS = {
     PENDING: 'Installment Pending',
     PAID: 'Installment Paid',
+    FAILED: 'Installment Failed'
 }
 
 export const PAYMENT_MODE = {
@@ -19,4 +20,15 @@ export const Status = {
     STARTCLASSLATER: "startclasslater",
     ERROR: "error",
     ONBOARDING: "onboarding",
+}
+
+export const SUBSCRIPTION_TYPE = {
+    MANUAL: 'Manual',
+    AUTO_DEBIT: 'Auto-Debit'
+}
+
+export const CASHFREE_PAYMENT_STATUS = {
+    SUCCESS: 'SUCCESS',
+    PENDING: 'PENDING',
+    FAILED: 'FAILED'
 }
