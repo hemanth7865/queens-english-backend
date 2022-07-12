@@ -55,6 +55,7 @@ const TableList: React.FC = () => {
     const installmentStatusFilter = {
         'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
         'Installment Paid': { text: 'Installment Paid', status: 'Installment Paid' },
+        'Installment Failed': { text: 'Installment Failed', status: 'Installment Failed' },
     }
 
     const closeModal = () => {
