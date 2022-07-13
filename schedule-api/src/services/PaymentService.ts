@@ -120,7 +120,6 @@ export class PaymentService {
       // console.log(whereCondition.join(" and "));
       whereCondition.push(" 1 = 1 ");
       for (let param in parameters) {
-        console.log("param");
 
         switch (param) {
           case "dueDate":
@@ -216,7 +215,6 @@ export class PaymentService {
         whereCondition.length > 1
           ? whereCondition.join(" and ")
           : whereCondition.toString();
-      console.log(condition);
 
       var tdetailsQuery = await getManager()
         .createQueryBuilder(Transactions, "transactions")
@@ -346,11 +344,11 @@ export class PaymentService {
         if (!data.id) {
           const dueDateFormatYear = moment(data.dueDate).format("YYYY");
           const dueDateFormatMonth = moment(data.dueDate).format("MM");
-          var user = await getManager()
+          var validateDueDate = await getManager()
             .createQueryBuilder(Transactions, "installments")
             .where(` installments.studentId= :id and (MONTH(installments.due_date) = ${dueDateFormatMonth}  and YEAR(installments.due_date) = ${dueDateFormatYear})`, { id: data.studentId })
             .getCount();
-          if (user >= 1) {
+          if (validateDueDate >= 1) {
             return {
               status: "error",
               message: "Duplicate entry for choosen student",
@@ -800,7 +798,6 @@ export class PaymentService {
             where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
           });
           const dueMonth = moment(installment.dueDate).format("YYYY-MM");
-          console.log('dueMonth: ' + dueMonth);
           var payments: any = paymentResponse.message;
           for (const payment of payments) {
             usersLogger.debug('pay: ' + JSON.stringify(payment));
