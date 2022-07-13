@@ -135,7 +135,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       payment: !props.studentManageradd ? [{
         id: value.id,
         paymentid: value.paymentid,
-        studentId: value.studentID,
+        studentId: value.id,
         plantype: value.plantype,
         classessold: value.classessold,
         saleamount: Number(value.saleamount),
