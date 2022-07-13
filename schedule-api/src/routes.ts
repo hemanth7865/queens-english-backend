@@ -317,7 +317,7 @@ export const Routes = [
     route: "/paymentDetails",
     controller: PaymentController,
     action: "paymentDetails",
-    authenticate: true,
+    //authenticate: true,
   },
 
   {
