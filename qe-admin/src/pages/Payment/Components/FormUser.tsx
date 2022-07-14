@@ -7,7 +7,7 @@ import moment from 'moment';
 import callDispositionStatus from "../../../../data/call_disposition.json";
 import DebounceSelect from "@/components/DebounceSelect";
 import StudentDetails from "../Components/StudentDetails";
-import { PaymentConstantValues } from "../../../components/Constants/constants"
+import { PaymentConstantValues, PaymentModevalues } from "../../../components/Constants/constants"
 
 export type FormUserProps = {
     data?: any;
@@ -33,11 +33,9 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
-    const [selectStatus, setSelectStatus] = useState(status);
-
     const [selectPaidDate, setSelectPaidDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
     const [selectDueDate, setSelectDueDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
     const [studentList, setStudentList] = useState([]);
@@ -139,11 +137,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
                 feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
                 notes: values.notes ? values.notes : notes,
-                paymentMode: paymentMode,
+                paymentMode: values.subscriptionId ? PaymentModevalues.CASHFREE : paymentMode,
                 paidDate: selectPaidDate ? selectPaidDate : paidDate,
                 dueDate: selectDueDate ? selectDueDate : dueDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
                 subscriptionId: values.subscriptionId ? values.subscriptionId : subscriptionId,
+                subscriptionType: values.subscriptionId ? PaymentConstantValues.AUTODEBIT : subscriptionType
             }]
             if (!props.visibleAdd && values.emiAmount) {
                 if (status === PaymentConstantValues.STATUSPENDING) {

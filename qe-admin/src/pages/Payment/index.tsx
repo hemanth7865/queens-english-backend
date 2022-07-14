@@ -12,8 +12,9 @@ import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
-import subscriptionType from "./../../../data/subscription_type.json"
-import { PaymentConstantValues } from '@/components/Constants/constants';
+import subscriptionType from "./../../../data/subscription_type.json";
+import paymentMode from "./../../../data/payment_mode.json"
+import { PaymentConstantValues, PaymentModevalues } from '@/components/Constants/constants';
 import "./payment.css"
 
 
@@ -92,7 +93,7 @@ const TableList: React.FC = () => {
     }
 
     const refreshStatus = async (data: any, refreshLink: boolean) => {
-        if (data.subscriptionId) {
+        if (data.paymentMode === PaymentModevalues.CASHFREE) {
             try {
                 const msg = await refreshAutoDebitStatus({
                     headers: {
@@ -306,6 +307,17 @@ const TableList: React.FC = () => {
                     </a>
                 )
             },
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titlePaymentMode"
+                    defaultMessage="Payment Mode"
+                />
+            ),
+            dataIndex: 'paymentMode',
+            valueType: 'select',
+            request: async () => paymentMode,
         },
         {
             title: (
