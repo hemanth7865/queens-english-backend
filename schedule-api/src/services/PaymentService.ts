@@ -552,6 +552,7 @@ export class PaymentService {
       var installmentsForUpdate: Transactions[] = [];
       installment.transactionId = paymentResponse.id;
       installment.paymentLink = paymentResponse.short_url;
+      installment.subscriptionType = SUBSCRIPTION_TYPE.MANUAL;
       // paid date is set to null since installment status is pending
       installment.paidDate = null;
       installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -673,6 +674,16 @@ export class PaymentService {
         const oldTransaction = await this.transactionRepository.findOne({
           id: installment.id,
         });
+        const transactionDetail = await this.transaDetailsRepository.findOne({
+          transactionId: installment.id,
+        });
+        if (transactionDetail.paymentMode != PAYMENT_MODE.RAZORPAY) {
+          transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
+          await this.transaDetailsRepository.update(
+            { transactionId: installment.id },
+            transactionDetail,
+          );
+        }
         await this.transactionRepository.update(
           { id: installment.id },
           installment
