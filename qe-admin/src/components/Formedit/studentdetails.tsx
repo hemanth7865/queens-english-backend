@@ -1171,9 +1171,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       }]}
                     >
                       <Select placeholder="Select Plan Mode" onChange={onChange}>
-                        <Option value="razorpay">Razorpay</Option>
-                        <Option value="banktransfer">Bank Transfer</Option>
-                        <Option value="cashfree">Cashfree</Option>
+                        <Option value="Razorpay">Razorpay</Option>
+                        <Option value="Netbanking">Bank Transfer</Option>
+                        <Option value="Cashfree">Cashfree</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>
@@ -1232,9 +1232,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                       label="Plan Mode"
                     >
                       <Select placeholder="Select Plan Mode" onChange={onChange}>
-                        <Option value="razorpay">Razorpay</Option>
-                        <Option value="banktransfer">Bank Transfer</Option>
-                        <Option value="cashfree">Cashfree</Option>
+                        <Option value="Razorpay">Razorpay</Option>
+                        <Option value="Netbanking">Bank Transfer</Option>
+                        <Option value="Cashfree">Cashfree</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>

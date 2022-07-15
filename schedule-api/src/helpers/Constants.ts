@@ -6,6 +6,7 @@ export const PAYMENT_STATUS = {
 
 export const PAYMENT_MODE = {
     RAZORPAY: 'RazorPay',
+    CASHFREE: 'Cashfree'
 }
 
 export class Constants {
@@ -30,5 +31,6 @@ export const SUBSCRIPTION_TYPE = {
 export const CASHFREE_PAYMENT_STATUS = {
     SUCCESS: 'SUCCESS',
     PENDING: 'PENDING',
-    FAILED: 'FAILED'
+    FAILED: 'FAILED',
+    ACTIVE: 'ACTIVE'
 }
