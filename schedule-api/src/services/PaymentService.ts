@@ -741,6 +741,53 @@ export class PaymentService {
     } catch (error) { }
   }
 
+  async fetchAutoDebitDetails(request: any) {
+    try {
+        // pre validations
+        usersLogger.debug("installment id: " + request.installmentId);
+        if(isNullOrUndefined(request.installmentId)){
+          usersLogger.info("Installment id is missing for fetching subscription details");
+          return {
+            status: "error",
+            message: "Installment id is missing for fetching subscription details",
+          };    
+        }
+        const installment = await this.transactionRepository.findOne({
+          where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
+        });
+        if(isNullOrUndefined(installment)){
+          usersLogger.info("Auto-Debit installment not found for given id: " + request.installmentId);
+          return {
+            status: "error",
+            message: "Auto-Debit installment not found for given id: " + request.installmentId
+          };    
+        }
+
+        const cashFreeResponse: any = await this.cashFreeUtils.fetchSubscriptionDetails(installment.subscriptionId);
+        if(isNullOrUndefined(cashFreeResponse)){
+          usersLogger.error("Error in fetching subscription details for id : " + request.installmentId);
+          return {
+            status: "error",
+            message: null
+          };    
+        }
+        else{
+          // usersLogger.info('Fetch subscription record for id: ' + installment.subscriptionId + ' response: ' + JSON.stringify(cashFreeResponse));
+          return {
+            status: "success",
+            message: cashFreeResponse.payments
+          };      
+        }
+    }
+    catch (error) {
+        usersLogger.error('Error in fetching subscription details: ' + JSON.stringify(error));
+        return {
+          status: "error",
+          message: "Error in fetching subscription details"
+        };    
+    }
+  }
+
   async fetchAutoDebitInstallments(params: any) {
     try {
         var limit = 100;
