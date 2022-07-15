@@ -120,7 +120,6 @@ export class PaymentService {
       // console.log(whereCondition.join(" and "));
       whereCondition.push(" 1 = 1 ");
       for (let param in parameters) {
-        console.log("param");
 
         switch (param) {
           case "dueDate":
@@ -165,7 +164,7 @@ export class PaymentService {
             break;
           case "subscriptionId":
             whereCondition.push(
-              `tDetails.subscription_id = '${parameters[param]}'`
+              `transactions.subscription_id = '${parameters[param]}'`
             );
             break;
           case "tdstatus":
@@ -201,6 +200,11 @@ export class PaymentService {
               `tDetails.transaction_details_id = '${parameters[param]}'`
             );
             break;
+          case "subscriptionType":
+            whereCondition.push(
+              `transactions.subscription_type = '${parameters[param]}'`
+            );
+            break;
           case "leadId":
             whereCondition.push(`student.studentID = '${parameters[param]}'`);
             break;
@@ -211,7 +215,6 @@ export class PaymentService {
         whereCondition.length > 1
           ? whereCondition.join(" and ")
           : whereCondition.toString();
-      console.log(condition);
 
       var tdetailsQuery = await getManager()
         .createQueryBuilder(Transactions, "transactions")
@@ -257,6 +260,7 @@ export class PaymentService {
         view.transactionId = record.transactions_id;
         view.razorpayLink = record.transactions_payment_link;
         view.netbankRefLink = record.transactions_netbank_ref_link;
+        view.subscriptionType = record.transactions_subscription_type;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -334,6 +338,24 @@ export class PaymentService {
         //payment details from razor pay
         transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
+        //subscription id for auto debit
+        transaction.subscriptionId = data.subscriptionId;
+
+        if (!data.id) {
+          const dueDateFormatYear = moment(data.dueDate).format("YYYY");
+          const dueDateFormatMonth = moment(data.dueDate).format("MM");
+          var validateDueDate = await getManager()
+            .createQueryBuilder(Transactions, "installments")
+            .where(` installments.studentId= :id and (MONTH(installments.due_date) = ${dueDateFormatMonth}  and YEAR(installments.due_date) = ${dueDateFormatYear})`, { id: data.studentId })
+            .getCount();
+          if (validateDueDate >= 1) {
+            return {
+              status: "error",
+              message: "Duplicate entry for choosen student",
+            };
+          }
+        }
+
 
         var transactions = await this.transactionRepository.save(transaction);
 
@@ -814,12 +836,12 @@ export class PaymentService {
           message: result
         };                  
     }
-    catch(error){
+    catch (error) {
       usersLogger.error('Error in fetching subscription details: ' + error);
       return {
         status: "error",
         message: "Error in updating auto debit status"
-      };    
+      };
     }
   }
 

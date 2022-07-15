@@ -6,6 +6,7 @@ export const BatchValues = {
 export const PaymentConstantValues = {
     STATUSPAID: "Installment Paid",
     STATUSPENDING: "Installment Pending",
+    STATUSERROR: "error",
     PAYMENTMODE: "Netbanking",
-    INITITALPAIDDATE: null
+    INITITALPAIDDATE: null,
 }

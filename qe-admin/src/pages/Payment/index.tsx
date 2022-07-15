@@ -5,13 +5,14 @@ import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
+import subscriptionType from "./../../../data/subscription_type.json"
 import { PaymentConstantValues } from '@/components/Constants/constants';
 import "./payment.css"
 
@@ -54,6 +55,7 @@ const TableList: React.FC = () => {
     const installmentStatusFilter = {
         'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
         'Installment Paid': { text: 'Installment Paid', status: 'Installment Paid' },
+        'Installment Failed': { text: 'Installment Failed', status: 'Installment Failed' },
     }
 
     const closeModal = () => {
@@ -90,16 +92,31 @@ const TableList: React.FC = () => {
     }
 
     const refreshStatus = async (data: any, refreshLink: boolean) => {
-        try {
-            const msg = await refreshRazorpayStatus(
-                data.transactionId,
-                data.referenceId,
-                refreshLink
-            );
-            handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
-        } catch (error) {
-            handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+        if (data.subscriptionId) {
+            try {
+                const msg = await refreshAutoDebitStatus({
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ installmentId: data.transactionId }),
+                });
+                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            }
+        } else {
+            try {
+                const msg = await refreshRazorpayStatus(
+                    data.transactionId,
+                    data.referenceId,
+                    refreshLink
+                );
+                handleAPIResponse(msg, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            } catch (error) {
+                handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
+            }
         }
+
     }
 
 
@@ -258,6 +275,26 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleSubscriptionId"
+                    defaultMessage="Subscription Id"
+                />
+            ),
+            dataIndex: 'subscriptionId',
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleSubscriptionType"
+                    defaultMessage="Subscription Type"
+                />
+            ),
+            dataIndex: 'subscriptionType',
+            valueType: 'select',
+            request: async () => subscriptionType,
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleRazorpayLink"
                     defaultMessage="Razorpay Link"
                 />
@@ -350,7 +387,7 @@ const TableList: React.FC = () => {
             fixed: 'right',
             width: 240,
             tip: 'Paid cases are not editable',
-            render: (dom, entity) => {
+            render: (dom, entity: any) => {
                 return (
                     <div>
                         <a
@@ -449,7 +486,7 @@ const TableList: React.FC = () => {
                     request={getAllPayment}
                     columns={columns}
                     scroll={{
-                        x: 2200,
+                        x: 2500,
                     }}
                     toolBarRender={() => [
                         <Button
