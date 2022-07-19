@@ -12,8 +12,6 @@ import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
-import subscriptionType from "./../../../data/subscription_type.json";
-import paymentMode from "./../../../data/payment_mode.json"
 import { PaymentConstantValues, PaymentModevalues } from '@/components/Constants/constants';
 import "./payment.css"
 
@@ -57,6 +55,17 @@ const TableList: React.FC = () => {
         'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
         'Installment Paid': { text: 'Installment Paid', status: 'Installment Paid' },
         'Installment Failed': { text: 'Installment Failed', status: 'Installment Failed' },
+    }
+
+    const paymentModeFilter = {
+        'Razorpay': { text: 'Razorpay', status: 'Razorpay' },
+        'Netbanking': { text: 'Netbanking', status: 'Netbanking' },
+        'Cashfree': { text: 'Cashfree', status: 'Cashfree' },
+    }
+
+    const subscriptionTypeFilter = {
+        'Manual': { text: 'Manual', status: 'Manual' },
+        'Auto-Debit': { text: 'Auto-Debit', status: 'Auto-Debit' }
     }
 
     const closeModal = () => {
@@ -291,7 +300,7 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'subscriptionType',
             valueType: 'select',
-            request: async () => subscriptionType,
+            valueEnum: subscriptionTypeFilter,
         },
         {
             title: (
@@ -317,7 +326,7 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'paymentMode',
             valueType: 'select',
-            request: async () => paymentMode,
+            valueEnum: paymentModeFilter
         },
         {
             title: (
