@@ -36,6 +36,6 @@ export const CASHFREE_PAYMENT_STATUS = {
 /**
  * TODO: Add all used cosmos API links here
  */
-export const COMOS_API = {
+export const COSMOS_API = {
   GET_BATCH: (id: string): string => `/api/classProfile/${id}`,
 };
