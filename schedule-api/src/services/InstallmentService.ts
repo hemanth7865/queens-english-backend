@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_STATUS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -10,6 +10,7 @@ const { usersLogger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 import { isNullOrUndefined } from "util";
 import { format } from "date-and-time";
+import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
 
 export class InstallmentService {
@@ -17,10 +18,11 @@ export class InstallmentService {
   public request: any = {};
   private logger = new LoggerService();
   private query = getRepository(Transactions);
+  private transaDetailsRepository = getRepository(TransactionDetails);
 
   async getPendingInstallments(params) {
     var limit = 100;
-    const where = { };
+    const where = {};
     if (params?.installment_id) {
       where["id"] = params.installment_id;
     }
@@ -28,7 +30,7 @@ export class InstallmentService {
     if (params?.reference_id) {
       where["transactionId"] = params.reference_id;
     }
-    else{
+    else {
       where["transactionId"] = Like("plink_%");
       where["status"] = this.installmentStatus;
     }
@@ -39,7 +41,7 @@ export class InstallmentService {
 
     if (params?.lastCheckedMinutesDifference) {
       const now = new Date();
-      now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);  
+      now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);
       now.setSeconds(0);
       usersLogger.debug('Date for last checked: ' + now);
       where["lastCheckedAt"] = LessThanDate(now);
@@ -48,7 +50,7 @@ export class InstallmentService {
     if (params?.dueMonth) {
       where["dueDate"] = Like(params.dueMonth + '%');
     }
-    usersLogger.debug('where: '+ JSON.stringify(where));
+    usersLogger.debug('where: ' + JSON.stringify(where));
 
     return await this.query.find({
       where,
@@ -59,6 +61,14 @@ export class InstallmentService {
   async updateInstallment(id, data) {
     const oldTransaction = await this.query.findOne({ where: { id } });
     const updated = await this.query.update(id, data);
+    const transactionDetail = await this.transaDetailsRepository.findOne({
+      transactionId: id,
+    });
+    transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
+    await this.transaDetailsRepository.update(
+      { transactionId: id },
+      transactionDetail,
+    );
     //ignore logs for only updating last_checked_at which is considered in batch job
     if (isNullOrUndefined(data.lastCheckedAt) || !isNullOrUndefined(data.paidDate)) {
       await (

@@ -3,7 +3,7 @@ import { Col, Row, Table, Space, Spin } from "antd";
 import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import { getAllAutoDebitStatus } from '@/services/ant-design-pro/api';
-import { PaymentConstantValues } from "@/components/Constants/constants";
+import { PaymentConstantValues, PaymentModevalues } from "@/components/Constants/constants";
 
 interface Props {
     data: any;
@@ -38,7 +38,7 @@ const RazorpayDetails = ({ data }: Props) => {
     console.log(show)
 
     useEffect(() => {
-        if (data.subscriptionId != null) {
+        if (data.paymentMode === PaymentModevalues.CASHFREE) {
             setShow('');
             handleShow()
         }
@@ -47,7 +47,7 @@ const RazorpayDetails = ({ data }: Props) => {
     return (
         <div>
             {
-                !data.subscriptionId ?
+                data.paymentMode != PaymentModevalues.CASHFREE ?
                     <Space>
                         <Row gutter={[16, 15]}>
                             <Col span={8}>

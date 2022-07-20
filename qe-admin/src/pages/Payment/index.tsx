@@ -12,8 +12,7 @@ import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
-import subscriptionType from "./../../../data/subscription_type.json"
-import { PaymentConstantValues } from '@/components/Constants/constants';
+import { PaymentConstantValues, PaymentModevalues } from '@/components/Constants/constants';
 import "./payment.css"
 
 
@@ -58,6 +57,17 @@ const TableList: React.FC = () => {
         'Installment Failed': { text: 'Installment Failed', status: 'Installment Failed' },
     }
 
+    const paymentModeFilter = {
+        'Razorpay': { text: 'Razorpay', status: 'Razorpay' },
+        'Netbanking': { text: 'Netbanking', status: 'Netbanking' },
+        'Cashfree': { text: 'Cashfree', status: 'Cashfree' },
+    }
+
+    const subscriptionTypeFilter = {
+        'Manual': { text: 'Manual', status: 'Manual' },
+        'Auto-Debit': { text: 'Auto-Debit', status: 'Auto-Debit' }
+    }
+
     const closeModal = () => {
         setIsModalVisible(false);
         setIsWhatsappVisible(false);
@@ -92,7 +102,7 @@ const TableList: React.FC = () => {
     }
 
     const refreshStatus = async (data: any, refreshLink: boolean) => {
-        if (data.subscriptionId) {
+        if (data.paymentMode === PaymentModevalues.CASHFREE) {
             try {
                 const msg = await refreshAutoDebitStatus({
                     headers: {
@@ -290,7 +300,7 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'subscriptionType',
             valueType: 'select',
-            request: async () => subscriptionType,
+            valueEnum: subscriptionTypeFilter,
         },
         {
             title: (
@@ -306,6 +316,17 @@ const TableList: React.FC = () => {
                     </a>
                 )
             },
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titlePaymentMode"
+                    defaultMessage="Payment Mode"
+                />
+            ),
+            dataIndex: 'paymentMode',
+            valueType: 'select',
+            valueEnum: paymentModeFilter
         },
         {
             title: (
