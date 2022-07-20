@@ -18,16 +18,32 @@ const params = {
 export class CashFreeUtils {
 
   async fetchSubscriptionDetails(subscriptionId: string) {
-    let response : any = null;
+    let response: any = null;
     usersLogger.info('inside cash free utils fetch details');
-    await axios.get(`${cashfreeUrl}${subscriptionId}${paymentsUrl}`, { headers : params }).then((resp) => {
-      if(!isNullOrUndefined(resp.data)){
+    await axios.get(`${cashfreeUrl}${subscriptionId}${paymentsUrl}`, { headers: params }).then((resp) => {
+      if (!isNullOrUndefined(resp.data)) {
         usersLogger.info('Cashfree response for fetch details: ' + JSON.stringify(resp.data));
         response = resp.data;
       }
       return resp.data;
     }).catch((error) => {
       usersLogger.error('Error in fetching subscription details: ' + JSON.stringify(error));
+      return error;
+    });
+    return response;
+  }
+
+  async fetchCashfreeAccountDetail(subscriptionId: string) {
+    let response: any = null;
+    usersLogger.info('inside cash free utils fetch details of the customer');
+    await axios.get(`${cashfreeUrl}${subscriptionId}`, { headers: params }).then((resp) => {
+      if (!isNullOrUndefined(resp.data)) {
+        usersLogger.info('Cashfree response for fetch details of the customer: ' + JSON.stringify(resp.data));
+        response = resp.data;
+      }
+      return resp.data;
+    }).catch((error) => {
+      usersLogger.error('Error in fetching subscription details of the customer: ' + JSON.stringify(error));
       return error;
     });
     return response;
