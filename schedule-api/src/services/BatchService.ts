@@ -14,6 +14,7 @@ import { TeacherView } from "../model/TeacherView";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
 import { getListOfLessonsIDs, getLessonByID } from "./../data/lessons";
+import { COMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 
 const generateRandomCode = (): string => {
@@ -220,7 +221,7 @@ export class BatchService {
   }
 
   async getComosBatch(id: string): Promise<any> { 
-    const cosomos_url = "/api/classProfile/" + id;
+    const cosomos_url = COMOS_API.GET_BATCH(id);
 
     const data: any = await axios.get(cosomos_url);
 
