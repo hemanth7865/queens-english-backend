@@ -9,4 +9,9 @@ export const PaymentConstantValues = {
     STATUSERROR: "error",
     PAYMENTMODE: "Netbanking",
     INITITALPAIDDATE: null,
+    AUTODEBIT: "Auto-Debit"
+}
+
+export const PaymentModevalues = {
+    CASHFREE: "Cashfree"
 }

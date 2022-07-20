@@ -192,7 +192,7 @@ export class PaymentService {
             break;
           case "paymentMode":
             whereCondition.push(
-              `transactions.paymentMode = '${parameters[param]}'`
+              `tDetails.paymentMode = '${parameters[param]}'`
             );
             break;
           case "transaction_details_id":
@@ -340,6 +340,7 @@ export class PaymentService {
         transaction.paymentLink = data.paymentLink;
         //subscription id for auto debit
         transaction.subscriptionId = data.subscriptionId;
+        transaction.subscriptionType = data.subscriptionType
 
         if (!data.id) {
           const dueDateFormatYear = moment(data.dueDate).format("YYYY");
@@ -565,6 +566,7 @@ export class PaymentService {
       var installmentsForUpdate: Transactions[] = [];
       installment.transactionId = paymentResponse.id;
       installment.paymentLink = paymentResponse.short_url;
+      installment.subscriptionType = SUBSCRIPTION_TYPE.MANUAL;
       // paid date is set to null since installment status is pending
       installment.paidDate = null;
       installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -686,6 +688,16 @@ export class PaymentService {
         const oldTransaction = await this.transactionRepository.findOne({
           id: installment.id,
         });
+        const transactionDetail = await this.transaDetailsRepository.findOne({
+          transactionId: installment.id,
+        });
+        if (transactionDetail.paymentMode != PAYMENT_MODE.RAZORPAY) {
+          transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
+          await this.transaDetailsRepository.update(
+            { transactionId: installment.id },
+            transactionDetail,
+          );
+        }
         await this.transactionRepository.update(
           { id: installment.id },
           installment
@@ -788,52 +800,100 @@ export class PaymentService {
     }
   }
 
+  async fetchAutoDebitInstallments(params: any) {
+    try {
+      var limit = 100;
+      const where = {};
+      if (params?.installmentId) {
+        where["id"] = params.installmentId;
+      }
+      else {
+        where["subscriptionType"] = Like(SUBSCRIPTION_TYPE.AUTO_DEBIT);
+        where["status"] != PAYMENT_STATUS.PAID;
+      }
+
+      if (params?.limit) {
+        limit = params.limit;
+      }
+
+      if (params?.lastCheckedMinutesDifference) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);
+        now.setSeconds(0);
+        usersLogger.debug('Date for last checked: ' + now);
+        where["lastCheckedAt"] = LessThanDate(now);
+      }
+
+      if (params?.dueMonth) {
+        where["dueDate"] = Like(params.dueMonth + '%');
+      }
+      usersLogger.info('where: ' + JSON.stringify(where));
+
+      return await this.transactionRepository.find({
+        where,
+        take: limit,
+      });
+    }
+    catch (error) {
+      usersLogger.error('Error in fetching subscription details: ' + JSON.stringify(error));
+      return [];
+    }
+  }
+
   async updateAutoDebitStatus(request: any) {
     try {
-      // fetch payments for the given id
-      let paymentResponse = await this.fetchAutoDebitDetails(request);
-      if (paymentResponse.status == 'success') {
-        if (!isNullOrUndefined(paymentResponse.message)) {
-          const installment = await this.transactionRepository.findOne({
-            where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
-          });
-          const dueMonth = moment(installment.dueDate).format("YYYY-MM");
-          var payments: any = paymentResponse.message;
-          for (const payment of payments) {
-            usersLogger.debug('pay: ' + JSON.stringify(payment));
-            if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.SUCCESS && payment['amount'] == installment.emiAmount) {
-              let data: any = {
-                status: PAYMENT_STATUS.PAID,
-                paidAmount: payment['amount'],
-                paidDate: payment['addedOn'],
-                updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
-              };
+      const result = {
+        error: 0,
+        paid: 0,
+        failed: 0
+      };
+      // fetch auto debit payments
+      let autoDebitInstallments = await this.fetchAutoDebitInstallments(request);
+      for (let installment of autoDebitInstallments) {
+        const cashFreeResponse: any = await this.cashFreeUtils.fetchSubscriptionDetails(installment.subscriptionId);
+        if (isNullOrUndefined(cashFreeResponse)) {
+          usersLogger.error("Error in fetching subscription details for id : " + request.installmentId);
+          result.error++;
+        }
+        else {
+          if (!isNullOrUndefined(cashFreeResponse.payments)) {
+            const dueMonth = moment(installment.dueDate).format("YYYY-MM");
+            var payments: any = cashFreeResponse.payments;
+            for (const payment of payments) {
+              usersLogger.debug('pay: ' + JSON.stringify(payment));
+              if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.SUCCESS && payment['amount'] == installment.emiAmount) {
+                let data: any = {
+                  status: PAYMENT_STATUS.PAID,
+                  paidAmount: payment['amount'],
+                  paidDate: payment['addedOn'],
+                  updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                };
 
-              usersLogger.debug('data for update: ' + JSON.stringify(data));
-              await this.installmentService.updateInstallment(installment.id, data);
-              break;
-            }
-            else if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.FAILED) {
-              let data: any = {
-                status: PAYMENT_STATUS.FAILED,
-                updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
-              };
-              usersLogger.debug('data for update: ' + JSON.stringify(data));
-              await this.installmentService.updateInstallment(installment.id, data);
-              break;
+                usersLogger.info('data for update: ' + JSON.stringify(data));
+                await this.installmentService.updateInstallment(installment.id, data);
+                result.paid++;
+                break;
+              }
+              else if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.FAILED) {
+                let data: any = {
+                  status: PAYMENT_STATUS.FAILED,
+                  updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                };
+                usersLogger.info('data for update: ' + JSON.stringify(data));
+                await this.installmentService.updateInstallment(installment.id, data);
+                result.failed++;
+                break;
+              }
             }
           }
         }
-        return {
-          status: "success",
-          message: "Updated auto debit status"
-        };
       }
-      else {
-        return paymentResponse;
-      }
+      return {
+        status: "success",
+        message: result
+      };
     }
     catch (error) {
       usersLogger.error('Error in fetching subscription details: ' + error);

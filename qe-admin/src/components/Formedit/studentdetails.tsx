@@ -1292,7 +1292,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         </Form>
       </TabPane>
 
-      {props.studentManageradd || props.salesAlert || props.startclasslaterpage ? ('') : (
+      {props.studentManageradd ? ('') : (
         <TabPane tab="Batch Details" key="2">
           <Form
             name="batchdetails"

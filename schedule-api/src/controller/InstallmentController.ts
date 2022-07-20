@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { isNullOrUndefined } from "util";
+import { SUBSCRIPTION_TYPE } from "../helpers/Constants";
 import { InstallmentService } from "../services/InstallmentService";
 import {
   getPaymentById as getRazorpayPaymentById,
@@ -50,6 +51,7 @@ export class InstallmentController {
                 status: this.COMPLETED_STATUS,
                 paidAmount: paymentLinkDetails.amount / 100,
                 paidDate: paidDate,
+                subscriptionType: SUBSCRIPTION_TYPE.MANUAL,
                 updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                 lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
               };
