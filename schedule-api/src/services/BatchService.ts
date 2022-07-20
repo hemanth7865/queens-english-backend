@@ -130,7 +130,6 @@ export class BatchService {
             data.activeLessonId = cosmosBatch.activeLessonId;
           }
         }
-        console.log(cosmosBatch, data, "cosmosBatch");
         if (!alreadyExists?.id) {
           return { status: false, message: "Batch Not Found" };
         }
