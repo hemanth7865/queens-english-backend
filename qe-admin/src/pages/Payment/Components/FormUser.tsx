@@ -143,7 +143,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 dueDate: selectDueDate ? selectDueDate : dueDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
                 subscriptionId: values.subscriptionId ? values.subscriptionId : subscriptionId,
-                subscriptionType: values.subscriptionId ? PaymentConstantValues.AUTODEBIT : subscriptionType,
+                subscriptionType: subscriptionType,
                 discount: values.discount,
                 expireBy: expireDate,
             }]
