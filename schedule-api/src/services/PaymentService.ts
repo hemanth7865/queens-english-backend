@@ -904,6 +904,38 @@ export class PaymentService {
     }
   }
 
+  async fetchDownPayments(params: any) {
+    let result = [];
+    return result;
+  }
+
+  async verifyDownPayment(request: any) {
+    try {
+
+      const result = {
+        error: 0,
+        paid: 0,
+        failed: 0
+      };
+
+      // fetch dwon payment payments
+      let downPayments = await this.fetchDownPayments(request);
+      for (let downPayment of downPayments) {
+
+      }
+      return {
+        status: "success",
+        message: result
+      };
+
+    }catch (error) {
+      usersLogger.error('Error in fetching down payments: ' + error);
+      return {
+        status: "error",
+        message: "Error in updating down payment status"
+      };
+    }
+  }
 }
 
 export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss'))
