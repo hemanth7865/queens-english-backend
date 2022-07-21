@@ -34,3 +34,10 @@ export const CASHFREE_PAYMENT_STATUS = {
     FAILED: 'FAILED',
     ACTIVE: 'ACTIVE'
 }
+
+/**
+ * TODO: Add all used cosmos API links here
+ */
+export const COSMOS_API = {
+  GET_BATCH: (id: string): string => `/api/classProfile/${id}`,
+};

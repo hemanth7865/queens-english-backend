@@ -14,6 +14,7 @@ import { TeacherView } from "../model/TeacherView";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
 import { getListOfLessonsIDs, getLessonByID } from "./../data/lessons";
+import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 
 const generateRandomCode = (): string => {
@@ -64,7 +65,8 @@ export class BatchService {
       if (!data.id) {
         data.id = uuidv4();
         create = true;
-      }      
+      }   
+        
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
@@ -123,6 +125,12 @@ export class BatchService {
         }
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
+        const cosmosBatch = await this.getComosBatch(data.id);
+        if (cosmosBatch) {
+          if (cosmosBatch.activeLessonId) {
+            data.activeLessonId = cosmosBatch.activeLessonId;
+          }
+        }
         if (!alreadyExists?.id) {
           return { status: false, message: "Batch Not Found" };
         }
@@ -148,12 +156,12 @@ export class BatchService {
           maxAttemptsAllowed: data.maxAttemptsAllowed,
           partitionKey: data.partitionKey,
           classCode: data.classCode,
-          students: studnets,
           activeLessonId: data.activeLessonId,
+          students: studnets,
           frequency: data.frequency,
           zoomLink: data.zoomLink,
           zoomInfo: data.zoomInfo,
-          whatsappLink: data.whatsappLink
+          whatsappLink: data.whatsappLink,
         },
       };
 
@@ -210,6 +218,14 @@ export class BatchService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getComosBatch(id: string): Promise<any> { 
+    const cosomos_url = COSMOS_API.GET_BATCH(id);
+
+    const data: any = await axios.get(cosomos_url);
+
+    return data?.data?.result ? data?.data?.result[0]: null;
   }
 
   async deleteBatch(data: any) {
@@ -515,6 +531,7 @@ export class BatchService {
       classes.ageGroup = data.ageGroup;
       classes.type = data.type;
       classes.frequency = data.frequency;
+      classes.activeLessonId = data.activeLessonId;
       classes.zoomLink = data.zoomLink;
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
