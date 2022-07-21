@@ -47,6 +47,8 @@ export class PaymentsView {
   netbankRefLink?: string;
   classtype?: string;
   subscriptionType?: string;
+  discount?: number;
+  expireBy?: Date;
 
   PaymentsView(
     id: String,
@@ -81,6 +83,8 @@ export class PaymentsView {
     reasonAmountChange?: string,
     classtype?: string,
     subscriptionType?: string,
+    discount?: number,
+    expireBy?: Date,
   ) {
     this.id = id;
     this.studentId = studentId;
@@ -114,5 +118,7 @@ export class PaymentsView {
     this.reasonAmountChange = reasonAmountChange;
     this.classtype = classtype;
     this.subscriptionType = subscriptionType;
+    this.discount = discount;
+    this.expireBy = expireBy;
   }
 }
