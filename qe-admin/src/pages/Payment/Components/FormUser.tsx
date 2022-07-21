@@ -33,11 +33,12 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType, discount } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType, discount, expireBy } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
     const [selectDueDate, setSelectDueDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
+    const [expireDate, setExpireDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
     const [studentList, setStudentList] = useState([]);
 
     const name = `${props.data?.firstName} ${props.data?.lastName}`
@@ -144,6 +145,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 subscriptionId: values.subscriptionId ? values.subscriptionId : subscriptionId,
                 subscriptionType: values.subscriptionId ? PaymentConstantValues.AUTODEBIT : subscriptionType,
                 discount: values.discount,
+                expireBy: expireDate,
             }]
             if (!props.visibleAdd && values.emiAmount) {
                 if (status === PaymentConstantValues.STATUSPENDING) {
@@ -162,6 +164,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         }
         setSelectPaidDate(PaymentConstantValues.INITITALPAIDDATE);
         setSelectDueDate(PaymentConstantValues.INITITALPAIDDATE);
+        setExpireDate(PaymentConstantValues.INITITALPAIDDATE);
         if (props.data) {
             props.setVisible(false);
             props.isModalVisible(false);
@@ -195,6 +198,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             transactionId: paymentMode === PaymentConstantValues.PAYMENTMODE ? referenceId : '',
             subscriptionId: subscriptionId,
             discount: discount,
+            expireBy: expireBy != null ? moment(expireBy, "YYYY-MM-DD") : '',
         });
     }
     useEffect(() => {
@@ -301,7 +305,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                 </Form.Item>
 
                                 <Form.Item
-                                    label="Discount"
+                                    label="Discount (Optional)"
                                     name="discount"
                                     rules={[{ required: false, message: 'Please Enter Discount Number', pattern: /^[+-]?\d+(\.\d+)?$/ }]}
                                 >
@@ -319,6 +323,18 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         <Option value="Change in Notes">Change in Notes</Option>
                                         <Option value="Other">Other</Option>
                                     </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="Expire Date (Optional)"
+                                    name="expireBy"
+                                >
+                                    <DatePicker
+                                        format='YYYY-MM-DD'
+                                        onChange={(date, dateString: any) => {
+                                            setExpireDate(dateString);
+                                        }}
+                                    />
                                 </Form.Item>
 
                                 <Form.Item
