@@ -570,7 +570,6 @@ export class PaymentService {
       var installmentsForUpdate: Transactions[] = [];
       installment.transactionId = paymentResponse.id;
       installment.paymentLink = paymentResponse.short_url;
-      installment.subscriptionType = SUBSCRIPTION_TYPE.MANUAL;
       // paid date is set to null since installment status is pending
       installment.paidDate = null;
       installment.updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
