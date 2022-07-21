@@ -33,7 +33,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType, discount } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
@@ -142,7 +142,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 dueDate: selectDueDate ? selectDueDate : dueDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
                 subscriptionId: values.subscriptionId ? values.subscriptionId : subscriptionId,
-                subscriptionType: values.subscriptionId ? PaymentConstantValues.AUTODEBIT : subscriptionType
+                subscriptionType: values.subscriptionId ? PaymentConstantValues.AUTODEBIT : subscriptionType,
+                discount: values.discount,
             }]
             if (!props.visibleAdd && values.emiAmount) {
                 if (status === PaymentConstantValues.STATUSPENDING) {
@@ -193,6 +194,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             netbankRefLink: netbankRefLink,
             transactionId: paymentMode === PaymentConstantValues.PAYMENTMODE ? referenceId : '',
             subscriptionId: subscriptionId,
+            discount: discount,
         });
     }
     useEffect(() => {
@@ -294,6 +296,14 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                     label="Installment Rs"
                                     name="emiAmount"
                                     rules={[{ required: true, message: 'Please Enter Installment Rs' }]}
+                                >
+                                    <Input />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="Discount"
+                                    name="discount"
+                                    rules={[{ required: false, message: 'Please Enter Discount Number', pattern: /^[+-]?\d+(\.\d+)?$/ }]}
                                 >
                                     <Input />
                                 </Form.Item>

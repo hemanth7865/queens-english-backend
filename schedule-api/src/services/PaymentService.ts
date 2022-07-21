@@ -261,6 +261,7 @@ export class PaymentService {
         view.razorpayLink = record.transactions_payment_link;
         view.netbankRefLink = record.transactions_netbank_ref_link;
         view.subscriptionType = record.transactions_subscription_type;
+        view.discount = record.transactions_early_bird;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -338,9 +339,10 @@ export class PaymentService {
         //payment details from razor pay
         transaction.transactionId = data.referenceId;
         transaction.paymentLink = data.paymentLink;
+        transaction.discount = data.discount;
         //subscription id for auto debit
         transaction.subscriptionId = data.subscriptionId;
-        transaction.subscriptionType = data.subscriptionType
+        transaction.subscriptionType = data.subscriptionType;
 
         if (!data.id) {
           const dueDateFormatYear = moment(data.dueDate).format("YYYY");
