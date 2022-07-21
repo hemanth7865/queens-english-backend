@@ -9,6 +9,10 @@ export const getPaymentById = async (id: string) => {
   return await client.paymentLink.fetch(id);
 };
 
+export const getInstallmentPaymentById = async (id: string) => {
+  return await client.payment.fetch(id);
+};
+
 export interface Payment {
   id: string;
   status: string;
