@@ -1,12 +1,13 @@
-import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer } from "antd";
+import { Button, Input, Table, Popconfirm, Form, Typography, Row, Col, Select, notification, Divider, Space, Spin, Drawer, Tooltip } from "antd";
 import React, { useState, useEffect } from "react";
 import { useIntl } from "umi";
 import { addTeacherSchedule, studentsDashboard, studentsDashboardFilter } from "@/services/ant-design-pro/api";
 import moment from "moment";
-import { EditTwoTone, PlusOutlined } from '@ant-design/icons';
+import { EditTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import lsqUsersData from "../../../data/lsq_users.json";
 import statesData from "../../../data/stateCustomer.json";
 import Tabsedit from "@/components/Formedit/tabs";
+import PaymentVerify from "./components/PaymentVerify";
 
 const { Option } = Select;
 interface Item {
@@ -379,6 +380,7 @@ const StudentOnboard: React.FC = () => {
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
+  const [downPayment, setDownPayment] = useState<any>();
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [salesAlert, setSalesAlert] = useState<boolean>(false);
 
@@ -499,8 +501,15 @@ const StudentOnboard: React.FC = () => {
         pageSize
       }
       );
-      setData(msg.data.map((item) => {
+      setData(msg.data.map((item: any) => {
         item.isSibling = parseInt(item.isSibling) ? "1" : "0";
+        /**
+         * make down payment verifiaction string instead of integer for drop-down
+         */
+        if (item.payments[0]) {
+          item.payments[0].is_down_paymnet_verified = parseInt(item.payments[0].is_down_paymnet_verified) ? "1" : "0";
+          item.payments[0].is_down_paymnet_auto_verified = parseInt(item.payments[0].is_down_paymnet_auto_verified) ? "1" : "0";
+        }
         return item
       }));
       setSalesAlert(true);
@@ -740,6 +749,19 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
+      title: 'Is down payment verified',
+      dataIndex: 'is_down_paymnet_verified',
+      width: 150,
+      editable: true,
+      render: (value: any, entity: any) => {
+        if (!entity.payments || !entity.payments[0] || !entity.payments[0].is_down_paymnet_verified || !parseInt(entity.payments[0].is_down_paymnet_verified)) {
+          return "No";
+        }
+        
+        return 'Yes'
+      }
+    },
+    {
       title: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
@@ -756,9 +778,16 @@ const StudentOnboard: React.FC = () => {
             </Popconfirm>
           </span>
         ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            Edit
-          </Typography.Link>
+            <div style={{gap: 10, display: "flex"}}>
+              <Typography.Link disabled={editingKey !== '' || downPayment} onClick={() => edit(record)}>
+                Edit
+              </Typography.Link>
+              <Tooltip title="Verify Down Payment">
+                <Typography.Link disabled={editingKey !== '' || downPayment} onClick={() => setDownPayment(record)}>
+                  <ReloadOutlined />
+                </Typography.Link>
+              </Tooltip>
+            </div>
         );
       },
     },
@@ -907,6 +936,17 @@ const StudentOnboard: React.FC = () => {
           }}
         >
           <Tabsedit tmpData={tmpData} salesAlert={salesAlert} />
+        </Drawer>
+        <Drawer
+          title="Verify Down Payment"
+          placement="right"
+          visible={downPayment}
+          width={600}
+          onClose={() => {
+            setDownPayment(undefined)
+          }}
+        >
+          <PaymentVerify downPayment={downPayment} setDownPayment={setDownPayment} />
         </Drawer>
       </Spin>
     </>
