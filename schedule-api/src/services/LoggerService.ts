@@ -57,8 +57,9 @@ export default class LoggerService {
     id: string,
     title: string,
     event: string,
-    debug: object,
-    user: any
+    debug: any,
+    user: any,
+    studentId?: string
   ) {
     this.page = "payments";
     const bot = user?.email ? false : true;
@@ -70,6 +71,19 @@ export default class LoggerService {
     } else {
       title = "User Action, " + title;
     }
+
+    if (studentId) {
+      if (!debug.oldRecord) {
+        debug.oldRecord = {};
+      }
+
+      if (!debug.oldRecord.transaction) {
+        debug.oldRecord.transaction = {};
+      }
+
+      debug.oldRecord.transaction.studentId = studentId;
+    }
+
     this.logData = {
       id: id,
       page: this.page,

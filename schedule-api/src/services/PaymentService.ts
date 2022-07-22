@@ -11,7 +11,7 @@ import { CollectionAgent } from "../entity/CollectionAgent";
 import { totalmem } from "os";
 const { usersLogger } = require("../Logger.js");
 const date = require("date-and-time");
-import { CASHFREE_PAYMENT_STATUS, PAYMENT_MODE, PAYMENT_STATUS, SUBSCRIPTION_TYPE } from "../helpers/Constants";
+import { CASHFREE_PAYMENT_STATUS, PAYMENT_MODE, PAYMENT_STATUS, SUBSCRIPTION_TYPE, RAZORPAY_PAYMENT_STATUS } from "../helpers/Constants";
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
 import { fail } from "assert";
@@ -20,6 +20,7 @@ import { format } from "date-and-time";
 const moment = require("moment");
 import {
   getPaymentById as getRazorpayPaymentById,
+  getInstallmentPaymentById as getRazorpayInstallmentPaymentById,
   Payment as RazorpayPayment,
 } from "../services/RazorpayService";
 import { CashFreeUtils } from "../utils/payment/CashFreeUtils";
@@ -983,6 +984,56 @@ export class PaymentService {
       const downPayments = await this.fetchNotVerifiedDownPayments(request);
       result.lengthall = downPayments.length;
       for (let downPayment of downPayments) {
+        /**
+         * wait 100 millisecond between each attempt
+         */
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
+          let paymentId = downPayment.paymentid;
+          if (!paymentId.split("_")[1]) {
+            paymentId = `pay_${paymentId}`;
+          }
+          try {
+            const paymentDetails = await getRazorpayInstallmentPaymentById(paymentId);
+            
+            if (paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS) {
+              let data: any = {
+                is_down_paymnet_verified: 1,
+                is_down_paymnet_auto_verified: 1,
+                id: downPayment.id
+              };
+              usersLogger.info("update down payment to paid: " + JSON.stringify(data));
+              result.paid++;
+            }
+              
+            result.paymentDetails = paymentDetails;
+
+          } catch (e) {
+            console.log(e);
+            await(
+              await this.logger.customPayment(
+                "UNKNOWN",
+                "Failed To Update Down Payment Status",
+                "PAYMENT_CREATED",
+                {
+                  requestData: request,
+                  error: e,
+                  message: e.message,
+                  oldRecord: {},
+                },
+                this.request?.user,
+                downPayment.studentId
+              )
+            ).save();
+            usersLogger.error(
+              "Error in updating down payments: " + e
+            );
+            continue;
+          }
+
+          break;
+        }
       }
       return {
         status: "success",

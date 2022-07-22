@@ -10,7 +10,7 @@ export const getPaymentById = async (id: string) => {
 };
 
 export const getInstallmentPaymentById = async (id: string) => {
-  return await client.payment.fetch(id);
+  return await client.payments.fetch(id);
 };
 
 export interface Payment {

@@ -33,3 +33,7 @@ export const CASHFREE_PAYMENT_STATUS = {
     PENDING: 'PENDING',
     FAILED: 'FAILED'
 }
+
+export const RAZORPAY_PAYMENT_STATUS = {
+    SUCCESS: "captured",
+};
