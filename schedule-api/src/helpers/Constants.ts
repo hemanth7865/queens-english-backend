@@ -5,8 +5,9 @@ export const PAYMENT_STATUS = {
 }
 
 export const PAYMENT_MODE = {
-    RAZORPAY: "RazorPay",
-    DOWNPAYMENT_RAZORPAY: "Razorpay",
+  RAZORPAY: "RazorPay",
+  DOWNPAYMENT_RAZORPAY: "Razorpay",
+  DOWNPAYMENT_CASHFREE: "Cashfree",
 };
 
 export class Constants {

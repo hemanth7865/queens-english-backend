@@ -1,4 +1,4 @@
-import { getConnection, getManager, getRepository, LessThan, Like, MoreThan, Not, IsNull as typeormIsNull } from "typeorm";
+import { getConnection, getManager, getRepository, LessThan, Like, MoreThan, Not, IsNull as typeormIsNull, In } from "typeorm";
 import { isNull, isNullOrUndefined } from "util";
 import { Payment } from "../entity/Payment";
 import { PaymentModeDetails } from "../entity/PaymentModeDetails";
@@ -1007,7 +1007,7 @@ export class PaymentService {
   async fetchNotVerifiedDownPayments(params: any) {
     const where: any = {
       is_down_paymnet_verified: Not(1),
-      paymentMode: PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
+      paymentMode: In([PAYMENT_MODE.DOWNPAYMENT_RAZORPAY, PAYMENT_MODE.DOWNPAYMENT_CASHFREE]),
       paymentid: Not(typeormIsNull()),
       downpayment: MoreThan(0),
     };
@@ -1058,7 +1058,60 @@ export class PaymentService {
               };
               const updatedPayment = await this.updatePayment(
                 data,
-                "Verified down payment",
+                "Verified razorpay down payment",
+                SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+              );
+              if (!updatedPayment) {
+                throw new Error("Error in updating payment");
+              }
+              usersLogger.info(
+                "update down payment to paid: " + JSON.stringify(data)
+              );
+              result.paid++;
+            }
+          } catch (e) {
+            console.log(e);
+            await(
+              await this.logger.customPayment(
+                downPayment.id,
+                "Failed To Update Down Payment Status",
+                ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
+                {
+                  requestData: request,
+                  error: e,
+                  message: e.message,
+                },
+                this.request?.user,
+                downPayment.studentId
+              )
+            ).save();
+            usersLogger.error("Error in updating down payments: " + e);
+            result.error++;
+            continue;
+          }
+        } else if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+          try {
+            const paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
+              downPayment.paymentid
+            );
+            
+            const downPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[1] : null;
+
+            if (!downPaymentDetails) {
+              throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
+            }
+
+            if (downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS) {
+              let data: any = {
+                studentId: downPayment.studentId,
+                is_down_paymnet_verified: 1,
+                is_down_paymnet_auto_verified: request.id !== downPayment.id,
+                downpayment: downPaymentDetails.amount,
+                id: downPayment.id,
+              };
+              const updatedPayment = await this.updatePayment(
+                data,
+                "Verified cashfree down payment",
                 SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
               );
               if (!updatedPayment) {
