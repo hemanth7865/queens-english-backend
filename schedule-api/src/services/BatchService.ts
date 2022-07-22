@@ -809,7 +809,7 @@ export class BatchService {
       } else {
         status = "Active";
       }
-
+      let lessonNumber: string | number = getLessonByID(classes.activeLessonId)?.number;
       let view = new BatchView(
         element.id,
         classes.created_at,
@@ -830,7 +830,8 @@ export class BatchService {
         classes.frequency,
         classes.whatsappLink,
         classes.minAge,
-        classes.maxAge
+        classes.maxAge,
+        lessonNumber
       );
       view.activeLessonId = classes.activeLessonId;
       view.teacherId = classes.teacherId;
