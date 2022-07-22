@@ -1,4 +1,4 @@
-import { getConnection, getManager, getRepository, LessThan, Like, MoreThan } from "typeorm";
+import { getConnection, getManager, getRepository, LessThan, Like, MoreThan, Not, IsNull as typeormIsNull } from "typeorm";
 import { isNull, isNullOrUndefined } from "util";
 import { Payment } from "../entity/Payment";
 import { PaymentModeDetails } from "../entity/PaymentModeDetails";
@@ -30,6 +30,7 @@ export class PaymentService {
   private paymentModeDetails = getRepository(PaymentModeDetails);
   private collectionAgent = getRepository(CollectionAgent);
   private studentRepository = getRepository(Student);
+  private paymentRepository = getRepository(Payment);
   private razorPayUtils = new RazorPayUtils();
   private cashFreeUtils = new CashFreeUtils();
   private installmentService = new InstallmentService();
@@ -120,7 +121,6 @@ export class PaymentService {
       // console.log(whereCondition.join(" and "));
       whereCondition.push(" 1 = 1 ");
       for (let param in parameters) {
-
         switch (param) {
           case "dueDate":
             var startDate = parameters[param][0];
@@ -340,14 +340,17 @@ export class PaymentService {
         transaction.paymentLink = data.paymentLink;
         //subscription id for auto debit
         transaction.subscriptionId = data.subscriptionId;
-        transaction.subscriptionType = data.subscriptionType
+        transaction.subscriptionType = data.subscriptionType;
 
         if (!data.id) {
           const dueDateFormatYear = moment(data.dueDate).format("YYYY");
           const dueDateFormatMonth = moment(data.dueDate).format("MM");
           var validateDueDate = await getManager()
             .createQueryBuilder(Transactions, "installments")
-            .where(` installments.studentId= :id and (MONTH(installments.due_date) = ${dueDateFormatMonth}  and YEAR(installments.due_date) = ${dueDateFormatYear})`, { id: data.studentId })
+            .where(
+              ` installments.studentId= :id and (MONTH(installments.due_date) = ${dueDateFormatMonth}  and YEAR(installments.due_date) = ${dueDateFormatYear})`,
+              { id: data.studentId }
+            )
             .getCount();
           if (validateDueDate >= 1) {
             return {
@@ -356,7 +359,6 @@ export class PaymentService {
             };
           }
         }
-
 
         var transactions = await this.transactionRepository.save(transaction);
 
@@ -385,7 +387,6 @@ export class PaymentService {
           transactionDetails: tdeails,
           transaction: transactions,
         };
-
 
         if (oldData?.transaction?.id && oldData?.transactionDetails?.id) {
           await (await this.logger.payment(oldData, newData, {})).save();
@@ -431,14 +432,22 @@ export class PaymentService {
 
   async createBulkPaymentsLink(limit: any, dueMonth: string) {
     // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
-    usersLogger.info('due month: ' + dueMonth + ' limit: ' + limit);
+    usersLogger.info("due month: " + dueMonth + " limit: " + limit);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
-      .where("((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status", { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING })
-      .limit(limit).getMany();
-    usersLogger.info('installments without links: ' + installmentsWithoutLinks.length);
+      .where(
+        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status",
+        { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
+      )
+      .limit(limit)
+      .getMany();
+    usersLogger.info(
+      "installments without links: " + installmentsWithoutLinks.length
+    );
 
-    await this.createPaymentLinkForSpecificInstallments(installmentsWithoutLinks);
+    await this.createPaymentLinkForSpecificInstallments(
+      installmentsWithoutLinks
+    );
     return {
       status: "success",
       message:
@@ -461,9 +470,9 @@ export class PaymentService {
       ) {
         usersLogger.error(
           "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
+            installment.id +
+            "payment response: " +
+            JSON.stringify(paymentResponse)
         );
         failureCount++;
       } else {
@@ -479,9 +488,9 @@ export class PaymentService {
     }
     usersLogger.info(
       "Payment link generation success count: " +
-      successCount +
-      "failure count: " +
-      failureCount
+        successCount +
+        "failure count: " +
+        failureCount
     );
     return await this.updateInstallmentData(installmentsForUpdate);
   }
@@ -539,9 +548,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Existing payment link cancelled for id: " +
-        installment.transactionId +
-        " link: " +
-        installment.paymentLink
+          installment.transactionId +
+          " link: " +
+          installment.paymentLink
       );
     }
 
@@ -554,9 +563,9 @@ export class PaymentService {
     ) {
       usersLogger.error(
         "Payment link generation failed for installment: " +
-        installment.id +
-        "payment response: " +
-        JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
       );
       return {
         status: "error",
@@ -589,17 +598,21 @@ export class PaymentService {
     const where = {};
     const limit = request?.limit || 100;
     if (request?.fromDate) {
-      var fromDate = moment(request.fromDate, "YYYY-MM-DD").set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toDate();
-      usersLogger.info('from date: ' + fromDate);
+      var fromDate = moment(request.fromDate, "YYYY-MM-DD")
+        .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        .toDate();
+      usersLogger.info("from date: " + fromDate);
       where["dueDate"] = MoreThanDate(fromDate);
     }
     if (request?.toDate) {
-      var toDate = moment(request.toDate, "YYYY-MM-DD").set({ hour: 23, minute: 59, second: 59, millisecond: 0 }).toDate();
-      usersLogger.info('to date: ' + toDate);
+      var toDate = moment(request.toDate, "YYYY-MM-DD")
+        .set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
+        .toDate();
+      usersLogger.info("to date: " + toDate);
       where["dueDate"] = LessThanDate(toDate);
     }
     var now = moment().toDate();
-    usersLogger.info('now: ' + now);
+    usersLogger.info("now: " + now);
     where["expireBy"] = LessThanDate(now);
     where["status"] = PAYMENT_STATUS.PENDING;
     where["transactionId"] = Like("plink_%");
@@ -622,10 +635,14 @@ export class PaymentService {
       try {
         // check if the given link is expired or not
         usersLogger.debug("current payment id: " + installment.transactionId);
-        const paymentLinkDetails: RazorpayPayment = await getRazorpayPaymentById(
-          installment.transactionId
+        const paymentLinkDetails: RazorpayPayment =
+          await getRazorpayPaymentById(installment.transactionId);
+        usersLogger.info(
+          "Fetch payment link id: " +
+            installment.transactionId +
+            " response: " +
+            JSON.stringify(paymentLinkDetails)
         );
-        usersLogger.info('Fetch payment link id: ' + installment.transactionId + ' response: ' + JSON.stringify(paymentLinkDetails));
         if (paymentLinkDetails.status === "expired") {
           usersLogger.info("expired payment id: " + installment.id);
           let data: any = {
@@ -633,18 +650,21 @@ export class PaymentService {
             transactionId: null,
             paymentLink: null,
             lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-            updated_at: moment().format("YYYY-MM-DD HH:mm:ss")
+            updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
           };
           await this.installmentService.updateInstallment(installment.id, data);
           result.expired++;
         }
-      }
-      catch (error) {
-        usersLogger.error('Error in fetching payment record: ' + JSON.stringify(error));
+      } catch (error) {
+        usersLogger.error(
+          "Error in fetching payment record: " + JSON.stringify(error)
+        );
         result.error++;
       }
     }
-    usersLogger.info("Result of expiry installments processing: " + JSON.stringify(result));
+    usersLogger.info(
+      "Result of expiry installments processing: " + JSON.stringify(result)
+    );
     return result;
   }
 
@@ -681,7 +701,7 @@ export class PaymentService {
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info(
       "installments without links for update: " +
-      installmentsWithoutLinks.length
+        installmentsWithoutLinks.length
     );
     try {
       for (let installment of installmentsWithoutLinks) {
@@ -695,7 +715,7 @@ export class PaymentService {
           transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
           await this.transaDetailsRepository.update(
             { transactionId: installment.id },
-            transactionDetail,
+            transactionDetail
           );
         }
         await this.transactionRepository.update(
@@ -740,17 +760,17 @@ export class PaymentService {
       }
       await this.transactionRepository.update(
         { id: installment.id },
-        installment,
+        installment
       );
       await this.transaDetailsRepository.update(
         { transactionId: installment.id },
-        transactionDetail,
+        transactionDetail
       );
       return {
         success: true,
         msg: "successfully updated link",
       };
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async fetchAutoDebitDetails(request: any) {
@@ -758,44 +778,61 @@ export class PaymentService {
       // pre validations
       usersLogger.debug("installment id: " + request.installmentId);
       if (isNullOrUndefined(request.installmentId)) {
-        usersLogger.info("Installment id is missing for fetching subscription details");
+        usersLogger.info(
+          "Installment id is missing for fetching subscription details"
+        );
         return {
           status: "error",
-          message: "Installment id is missing for fetching subscription details",
+          message:
+            "Installment id is missing for fetching subscription details",
         };
       }
       const installment = await this.transactionRepository.findOne({
-        where: { id: request.installmentId, subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT },
+        where: {
+          id: request.installmentId,
+          subscriptionType: SUBSCRIPTION_TYPE.AUTO_DEBIT,
+        },
       });
       if (isNullOrUndefined(installment)) {
-        usersLogger.info("Auto-Debit installment not found for given id: " + request.installmentId);
+        usersLogger.info(
+          "Auto-Debit installment not found for given id: " +
+            request.installmentId
+        );
         return {
           status: "error",
-          message: "Auto-Debit installment not found for given id: " + request.installmentId
+          message:
+            "Auto-Debit installment not found for given id: " +
+            request.installmentId,
         };
       }
 
-      const cashFreeResponse: any = await this.cashFreeUtils.fetchSubscriptionDetails(installment.subscriptionId);
+      const cashFreeResponse: any =
+        await this.cashFreeUtils.fetchSubscriptionDetails(
+          installment.subscriptionId
+        );
       if (isNullOrUndefined(cashFreeResponse)) {
-        usersLogger.error("Error in fetching subscription details for id : " + request.installmentId);
+        usersLogger.error(
+          "Error in fetching subscription details for id : " +
+            request.installmentId
+        );
         return {
           status: "error",
-          message: null
+          message: null,
         };
-      }
-      else {
+      } else {
         // usersLogger.info('Fetch subscription record for id: ' + installment.subscriptionId + ' response: ' + JSON.stringify(cashFreeResponse));
         return {
           status: "success",
-          message: cashFreeResponse.payments
+          message: cashFreeResponse.payments,
         };
       }
-    }
-    catch (error) {
-      usersLogger.error('Error in fetching subscription details: ' + JSON.stringify(error));
+    } catch (error) {
+      usersLogger.error(
+        "Error in fetching subscription details: " + JSON.stringify(error)
+      );
       return {
         status: "error",
-        message: "Error in fetching subscription details"
+        message: "Error in fetching subscription details",
       };
     }
   }
@@ -806,8 +843,7 @@ export class PaymentService {
       const where = {};
       if (params?.installmentId) {
         where["id"] = params.installmentId;
-      }
-      else {
+      } else {
         where["subscriptionType"] = Like(SUBSCRIPTION_TYPE.AUTO_DEBIT);
         where["status"] != PAYMENT_STATUS.PAID;
       }
@@ -820,22 +856,23 @@ export class PaymentService {
         const now = new Date();
         now.setMinutes(now.getMinutes() - params.lastCheckedMinutesDifference);
         now.setSeconds(0);
-        usersLogger.debug('Date for last checked: ' + now);
+        usersLogger.debug("Date for last checked: " + now);
         where["lastCheckedAt"] = LessThanDate(now);
       }
 
       if (params?.dueMonth) {
-        where["dueDate"] = Like(params.dueMonth + '%');
+        where["dueDate"] = Like(params.dueMonth + "%");
       }
-      usersLogger.info('where: ' + JSON.stringify(where));
+      usersLogger.info("where: " + JSON.stringify(where));
 
       return await this.transactionRepository.find({
         where,
         take: limit,
       });
-    }
-    catch (error) {
-      usersLogger.error('Error in fetching subscription details: ' + JSON.stringify(error));
+    } catch (error) {
+      usersLogger.error(
+        "Error in fetching subscription details: " + JSON.stringify(error)
+      );
       return [];
     }
   }
@@ -845,44 +882,63 @@ export class PaymentService {
       const result = {
         error: 0,
         paid: 0,
-        failed: 0
+        failed: 0,
       };
       // fetch auto debit payments
-      let autoDebitInstallments = await this.fetchAutoDebitInstallments(request);
+      let autoDebitInstallments = await this.fetchAutoDebitInstallments(
+        request
+      );
       for (let installment of autoDebitInstallments) {
-        const cashFreeResponse: any = await this.cashFreeUtils.fetchSubscriptionDetails(installment.subscriptionId);
+        const cashFreeResponse: any =
+          await this.cashFreeUtils.fetchSubscriptionDetails(
+            installment.subscriptionId
+          );
         if (isNullOrUndefined(cashFreeResponse)) {
-          usersLogger.error("Error in fetching subscription details for id : " + request.installmentId);
+          usersLogger.error(
+            "Error in fetching subscription details for id : " +
+              request.installmentId
+          );
           result.error++;
-        }
-        else {
+        } else {
           if (!isNullOrUndefined(cashFreeResponse.payments)) {
             const dueMonth = moment(installment.dueDate).format("YYYY-MM");
             var payments: any = cashFreeResponse.payments;
             for (const payment of payments) {
-              usersLogger.debug('pay: ' + JSON.stringify(payment));
-              if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.SUCCESS && payment['amount'] == installment.emiAmount) {
+              usersLogger.debug("pay: " + JSON.stringify(payment));
+              if (
+                payment["addedOn"].includes(dueMonth) &&
+                payment["status"] == CASHFREE_PAYMENT_STATUS.SUCCESS &&
+                payment["amount"] == installment.emiAmount
+              ) {
                 let data: any = {
                   status: PAYMENT_STATUS.PAID,
-                  paidAmount: payment['amount'],
-                  paidDate: payment['addedOn'],
+                  paidAmount: payment["amount"],
+                  paidDate: payment["addedOn"],
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
 
-                usersLogger.info('data for update: ' + JSON.stringify(data));
-                await this.installmentService.updateInstallment(installment.id, data);
+                usersLogger.info("data for update: " + JSON.stringify(data));
+                await this.installmentService.updateInstallment(
+                  installment.id,
+                  data
+                );
                 result.paid++;
                 break;
-              }
-              else if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.FAILED) {
+              } else if (
+                payment["addedOn"].includes(dueMonth) &&
+                payment["status"] == CASHFREE_PAYMENT_STATUS.FAILED
+              ) {
                 let data: any = {
                   status: PAYMENT_STATUS.FAILED,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
-                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+                  lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
-                usersLogger.info('data for update: ' + JSON.stringify(data));
-                await this.installmentService.updateInstallment(installment.id, data);
+                usersLogger.info("data for update: " + JSON.stringify(data));
+                await this.installmentService.updateInstallment(
+                  installment.id,
+                  data
+                );
                 result.failed++;
                 break;
               }
@@ -892,47 +948,61 @@ export class PaymentService {
       }
       return {
         status: "success",
-        message: result
+        message: result,
       };
-    }
-    catch (error) {
-      usersLogger.error('Error in fetching subscription details: ' + error);
+    } catch (error) {
+      usersLogger.error("Error in fetching subscription details: " + error);
       return {
         status: "error",
-        message: "Error in updating auto debit status"
+        message: "Error in updating auto debit status",
       };
     }
   }
 
-  async fetchDownPayments(params: any) {
-    let result = [];
+  async fetchNotVerifiedDownPayments(params: any) {
+    let result = await this.paymentRepository.find({
+      where: {
+        is_down_paymnet_verified: Not(1),
+        paymentMode: PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
+        paymentid: Not(typeormIsNull()),
+        downpayment: MoreThan(0),
+      },
+    });
     return result;
   }
 
   async verifyDownPayment(request: any) {
     try {
-
-      const result = {
+      const result: any = {
         error: 0,
         paid: 0,
-        failed: 0
+        failed: 0,
       };
 
       // fetch dwon payment payments
-      let downPayments = await this.fetchDownPayments(request);
+      const downPayments = await this.fetchNotVerifiedDownPayments(request);
+      result.lengthall = downPayments.length;
       for (let downPayment of downPayments) {
-
       }
       return {
         status: "success",
-        message: result
+        message: result,
       };
-
-    }catch (error) {
-      usersLogger.error('Error in fetching down payments: ' + error);
+    } catch (error) {
+      console.log(error);
+      await(
+        await this.logger.customPayment(
+          "UNKNOWN",
+          "Failed To Update Down Payment Status",
+          "PAYMENT_CREATED",
+          { requestData: request, error, message: error.message },
+          this.request?.user
+        )
+      ).save();
+      usersLogger.error("Error in fetching down payments: " + error);
       return {
         status: "error",
-        message: "Error in updating down payment status"
+        message: "Error in updating down payment status",
       };
     }
   }

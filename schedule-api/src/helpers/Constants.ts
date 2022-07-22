@@ -5,8 +5,9 @@ export const PAYMENT_STATUS = {
 }
 
 export const PAYMENT_MODE = {
-    RAZORPAY: 'RazorPay',
-}
+    RAZORPAY: "RazorPay",
+    DOWNPAYMENT_RAZORPAY: "Razorpay",
+};
 
 export class Constants {
     public static PARTNER_CODE_QE = "QE";

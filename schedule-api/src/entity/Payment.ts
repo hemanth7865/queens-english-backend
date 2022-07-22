@@ -49,7 +49,9 @@ export class Payment extends BaseEntity {
   subscriptionNo: string;
   @Column({ nullable: true })
   is_down_paymnet_auto_verified: number;
+  @Column({ nullable: true })
   is_down_paymnet_verified: number;
+  @Column({ nullable: true })
   notes: string;
   @CreateDateColumn()
   created_at: Date;
