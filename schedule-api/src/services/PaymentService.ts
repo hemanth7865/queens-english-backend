@@ -1089,8 +1089,6 @@ export class PaymentService {
             result.error++;
             continue;
           }
-
-          break;
         }
       }
       return {
