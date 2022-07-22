@@ -981,7 +981,7 @@ export class PaymentService {
             requestData: data,
           },
           this.request?.user,
-          data.studentId
+          data.id
         )
       ).save();
       return result;
@@ -1037,7 +1037,6 @@ export class PaymentService {
          */
         if (request.force) {
           let data: any = {
-            studentId: downPayment.studentId,
             is_down_paymnet_verified: 1,
             is_down_paymnet_auto_verified: request.id !== downPayment.id,
             id: downPayment.id,
@@ -1078,7 +1077,6 @@ export class PaymentService {
 
             if (paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS) {
               let data: any = {
-                studentId: downPayment.studentId,
                 is_down_paymnet_verified: 1,
                 is_down_paymnet_auto_verified: request.id !== downPayment.id,
                 downpayment: paymentDetails.amount / 100,
@@ -1110,7 +1108,7 @@ export class PaymentService {
                   message: e.message,
                 },
                 this.request?.user,
-                downPayment.studentId
+                downPayment.id
               )
             ).save();
             usersLogger.error("Error in updating down payments: " + e);
@@ -1138,7 +1136,6 @@ export class PaymentService {
 
             if (downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS) {
               let data: any = {
-                studentId: downPayment.studentId,
                 is_down_paymnet_verified: 1,
                 is_down_paymnet_auto_verified: request.id !== downPayment.id,
                 downpayment: downPaymentDetails.amount,
@@ -1170,7 +1167,7 @@ export class PaymentService {
                   message: e.message,
                 },
                 this.request?.user,
-                downPayment.studentId
+                downPayment.id
               )
             ).save();
             usersLogger.error("Error in updating down payments: " + e);

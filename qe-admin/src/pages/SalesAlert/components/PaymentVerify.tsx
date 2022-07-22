@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Spin, notification, Col } from "antd";
 import { verifyDownPayment } from "@/services/ant-design-pro/api";
 
@@ -19,7 +19,7 @@ const PaymentVerify = ({ downPayment, setDownPayment }: Props) => {
         if (data.message.error == 0 && data.message.paid == 0) {
             not = {
                 message: 'Paymend Verified',
-                description: "Selected Payment Is Verified Or Not Found",
+                description: "Selected Payment Is Already Verified Or Not Found",
                 error: true,
             };
             return not;
@@ -46,9 +46,11 @@ const PaymentVerify = ({ downPayment, setDownPayment }: Props) => {
             const data = await verifyDownPayment({ data: { id: downPayment.id, force } });
             let not = handleVerifyResponse(data);
             notification[not.error ? "error" : "success"](not);
-            setTimeout(() => {
-                window.location.reload()
-            }, 2000);
+            if (!not.error) {
+                setTimeout(() => {
+                    window.location.reload()
+                }, 2000);
+            }
         } catch (e: any) {
             notification.open({
                 message: 'Failed To Verify Down Payment',
