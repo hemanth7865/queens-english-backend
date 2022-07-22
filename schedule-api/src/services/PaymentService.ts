@@ -11,7 +11,15 @@ import { CollectionAgent } from "../entity/CollectionAgent";
 import { totalmem } from "os";
 const { usersLogger } = require("../Logger.js");
 const date = require("date-and-time");
-import { CASHFREE_PAYMENT_STATUS, PAYMENT_MODE, PAYMENT_STATUS, SUBSCRIPTION_TYPE, RAZORPAY_PAYMENT_STATUS } from "../helpers/Constants";
+import {
+  CASHFREE_PAYMENT_STATUS,
+  PAYMENT_MODE,
+  PAYMENT_STATUS,
+  SUBSCRIPTION_TYPE,
+  RAZORPAY_PAYMENT_STATUS,
+  ERROR_CODES,
+  SUCCESS_CODES,
+} from "../helpers/Constants";
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
 import { fail } from "assert";
@@ -960,14 +968,56 @@ export class PaymentService {
     }
   }
 
+  async updatePayment(data: any, message?: string, code?: string) {
+    let result = null
+    try {
+      result = await this.paymentRepository.save(data);
+      await(
+        await this.logger.customPayment(
+          data.id,
+          "SUCCESS: " + (message || "Update User Payment"),
+          code || SUCCESS_CODES.SUCCESS_UPDATED_PAYMENT,
+          {
+            requestData: data,
+          },
+          this.request?.user,
+          data.studentId
+        )
+      ).save();
+      return result;
+    } catch (e) {
+      console.log(e);
+      await(
+        await this.logger.customPayment(
+          data.id,
+          "ERROR: " + (message || "Update User Payment"),
+          code.replace("SUCCESS", "ERROR") || ERROR_CODES.ERROR_UPDATED_PAYMENT,
+          {
+            requestData: data,
+          },
+          this.request?.user,
+          data.studentId
+        )
+      ).save();
+    }
+
+    return result
+  }
+
   async fetchNotVerifiedDownPayments(params: any) {
+    const where: any = {
+      is_down_paymnet_verified: Not(1),
+      paymentMode: PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
+      paymentid: Not(typeormIsNull()),
+      downpayment: MoreThan(0),
+    };
+
+    if (params.id) {
+      where.id = params.id;
+    }
+
     let result = await this.paymentRepository.find({
-      where: {
-        is_down_paymnet_verified: Not(1),
-        paymentMode: PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
-        paymentid: Not(typeormIsNull()),
-        downpayment: MoreThan(0),
-      },
+      where,
     });
     return result;
   }
@@ -977,13 +1027,11 @@ export class PaymentService {
       const result: any = {
         error: 0,
         paid: 0,
-        failed: 0,
       };
 
       // fetch dwon payment payments
       const downPayments = await this.fetchNotVerifiedDownPayments(request);
-      result.lengthall = downPayments.length;
-      for (let downPayment of downPayments) {
+      for (const downPayment of downPayments) {
         /**
          * wait 100 millisecond between each attempt
          */
@@ -994,41 +1042,51 @@ export class PaymentService {
           if (!paymentId.split("_")[1]) {
             paymentId = `pay_${paymentId}`;
           }
+
           try {
-            const paymentDetails = await getRazorpayInstallmentPaymentById(paymentId);
-            
+            const paymentDetails = await getRazorpayInstallmentPaymentById(
+              paymentId
+            );
+
             if (paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS) {
               let data: any = {
+                studentId: downPayment.studentId,
                 is_down_paymnet_verified: 1,
-                is_down_paymnet_auto_verified: 1,
-                id: downPayment.id
+                is_down_paymnet_auto_verified: request.id !== downPayment.id,
+                downpayment: paymentDetails.amount / 100,
+                id: downPayment.id,
               };
-              usersLogger.info("update down payment to paid: " + JSON.stringify(data));
+              const updatedPayment = await this.updatePayment(
+                data,
+                "Verified down payment",
+                SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+              );
+              if (!updatedPayment) {
+                throw new Error("Error in updating payment");
+              }
+              usersLogger.info(
+                "update down payment to paid: " + JSON.stringify(data)
+              );
               result.paid++;
             }
-              
-            result.paymentDetails = paymentDetails;
-
           } catch (e) {
             console.log(e);
             await(
               await this.logger.customPayment(
-                "UNKNOWN",
+                downPayment.id,
                 "Failed To Update Down Payment Status",
-                "PAYMENT_CREATED",
+                ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
                 {
                   requestData: request,
                   error: e,
                   message: e.message,
-                  oldRecord: {},
                 },
                 this.request?.user,
                 downPayment.studentId
               )
             ).save();
-            usersLogger.error(
-              "Error in updating down payments: " + e
-            );
+            usersLogger.error("Error in updating down payments: " + e);
+            result.error++;
             continue;
           }
 
@@ -1045,7 +1103,7 @@ export class PaymentService {
         await this.logger.customPayment(
           "UNKNOWN",
           "Failed To Update Down Payment Status",
-          "PAYMENT_CREATED",
+          ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
           { requestData: request, error, message: error.message },
           this.request?.user
         )

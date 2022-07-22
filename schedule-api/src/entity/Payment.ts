@@ -12,7 +12,7 @@ import { Status } from "./Status";
 export class Payment extends BaseEntity {
   Payment() {}
   @PrimaryGeneratedColumn("uuid")
-  id: String;
+  id: string;
   @Column("text")
   studentId: string;
   @Column("text")
