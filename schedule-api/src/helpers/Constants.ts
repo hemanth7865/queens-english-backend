@@ -5,10 +5,12 @@ export const PAYMENT_STATUS = {
 }
 
 export const PAYMENT_MODE = {
-  RAZORPAY: "RazorPay",
-  DOWNPAYMENT_RAZORPAY: "Razorpay",
-  DOWNPAYMENT_CASHFREE: "Cashfree",
+    RAZORPAY: "RazorPay",
+    CASHFREE: 'Cashfree',
+    DOWNPAYMENT_RAZORPAY: "Razorpay",
+    DOWNPAYMENT_CASHFREE: "Cashfree",
 };
+
 
 export class Constants {
     public static PARTNER_CODE_QE = "QE";
@@ -32,7 +34,8 @@ export const SUBSCRIPTION_TYPE = {
 export const CASHFREE_PAYMENT_STATUS = {
     SUCCESS: 'SUCCESS',
     PENDING: 'PENDING',
-    FAILED: 'FAILED'
+    FAILED: 'FAILED',
+    ACTIVE: 'ACTIVE'
 }
 
 export const RAZORPAY_PAYMENT_STATUS = {
@@ -47,4 +50,11 @@ export const ERROR_CODES = {
 export const SUCCESS_CODES = {
     SUCCESS_UPDATED_PAYMENT: "SUCCESS_UPDATED_PAYMENT",
     SUCCESS_DOWN_PAYMENT_VERIFICATION: "SUCCESS_DOWN_PAYMENT_VERIFICATION",
+}
+
+/**
+ * TODO: Add all used cosmos API links here
+ */
+export const COSMOS_API = {
+  GET_BATCH: (id: string): string => `/api/classProfile/${id}`,
 };

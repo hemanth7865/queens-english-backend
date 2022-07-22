@@ -1,4 +1,7 @@
 import { StudentService } from "../services/StudentService";
+import { PAYMENT_MODE, CASHFREE_PAYMENT_STATUS, SUBSCRIPTION_TYPE } from "../helpers/Constants";
+import { CashFreeUtils } from "../utils/payment/CashFreeUtils";
+import { isNullOrUndefined } from "util";
 
 export class validations {
     async validateStudent(type, student, user, payment) {
@@ -47,6 +50,24 @@ export class validations {
         }
 
         const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", student.studentID, student.id);
+
+        //Validate for Cashfree payment Mode
+        if (total.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT) {
+            if (total.paymentMode === PAYMENT_MODE.CASHFREE) {
+                const cashFreeResponse: any = await (new CashFreeUtils()).fetchCashfreeAccountDetail(total.subscriptionNo);
+                if (!isNullOrUndefined(cashFreeResponse)) {
+                    if (cashFreeResponse.subscription.status != CASHFREE_PAYMENT_STATUS.ACTIVE) {
+                        status = "Error";
+                        message = "This Payment account is not active";
+                    }
+                } else {
+                    status = "Error";
+                    message = "This Payment account is not available. Please check subscription Number";
+                }
+            }
+        }
+
+
         if (!isEntryStatus) {
             status = "Error";
             message = "Fill all the student details";
