@@ -1033,10 +1033,38 @@ export class PaymentService {
       const downPayments = await this.fetchNotVerifiedDownPayments(request);
       for (const downPayment of downPayments) {
         /**
+         * force mark payment as payed
+         */
+        if (request.force) {
+          let data: any = {
+            studentId: downPayment.studentId,
+            is_down_paymnet_verified: 1,
+            is_down_paymnet_auto_verified: request.id !== downPayment.id,
+            id: downPayment.id,
+          };
+          const updatedPayment = await this.updatePayment(
+            data,
+            "Verified razorpay down payment",
+            SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+          );
+          if (!updatedPayment) {
+            throw new Error("Error in updating payment");
+          }
+          usersLogger.info(
+            "update down payment to paid: " + JSON.stringify(data)
+          );
+          result.paid++;
+          continue
+        }
+
+        /**
          * wait 100 millisecond between each attempt
          */
         await new Promise((resolve) => setTimeout(resolve, 100));
 
+        /**
+         * handle razorpay payments
+         */
         if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
           let paymentId = downPayment.paymentid;
           if (!paymentId.split("_")[1]) {
@@ -1089,7 +1117,14 @@ export class PaymentService {
             result.error++;
             continue;
           }
-        } else if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+
+          continue;
+        }
+        
+        /**
+         * handle cashfree payments
+         */
+        if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
           try {
             const paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
               downPayment.paymentid
@@ -1142,6 +1177,8 @@ export class PaymentService {
             result.error++;
             continue;
           }
+
+          continue;
         }
       }
       return {
