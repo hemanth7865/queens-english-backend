@@ -440,6 +440,17 @@ const BatchList: React.FC = () => {
         return "-";
       }
     },
+    //Active Lessons
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titlelessonNumber"
+          defaultMessage="Active Lesson"
+        />
+      ),
+      dataIndex: "lessonNumber",
+      valueType: "textarea",
+    },
     //button
     {
       title: (
