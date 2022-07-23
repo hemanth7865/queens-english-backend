@@ -13,7 +13,7 @@ const test = async () => {
   const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
   zoomClient.init();
   zoomClient.setUser({
-    id: "NOLipS4PRXG-Rx7AxRtGSw",
+    id: "QB4Hz2XiSSy8Ro0ILD2CaA",
     first_name: "Bishoy",
     last_name: "Romany",
     email: "bishoy2@queensenglish.co",
@@ -33,7 +33,6 @@ const test = async () => {
   // const createUserMeeting = await zoomClient.createUserMeeting(
   //   createUserMeetingSample
   // );
-  // const meetings = await zoomClient.listUserMeetings();
   console.log(user);
 };
 
