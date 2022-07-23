@@ -13,6 +13,7 @@ export class ZoomMeetingService {
   private usersRepository = getRepository(User);
   private zoomUserRepository = getRepository(ZoomUser);
   private zoomMeetingRepository = getRepository(ZoomMeeting);
+  private classesRepository = getRepository(Classes);
   public zoomMeetingTypes = {
     RESCHEDULED_MEETING: 2,
   };
@@ -155,6 +156,34 @@ export class ZoomMeetingService {
     }
   }
 
+  getCreateMeetingDetails(batch: Classes, zoomUser: ZoomUser) {
+    return {
+      agenda: batch.batchNumber,
+      default_password: false,
+      // duration: duration,
+      password: "QE",
+      // pre_schedule: true,
+      settings: {
+        approval_type: this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
+        join_before_host: true,
+        meeting_authentication: false,
+        waiting_room: false,
+        auto_recording: "cloud",
+      },
+      waiting_room: false,
+      start_time: batch.lessonStartTime,
+      breakout_room: {
+        enable: true,
+      },
+      co_host: true,
+      topic:
+        "Batch: " +
+        batch.batchNumber +
+        `, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
+      type: this.zoomMeetingTypes.RESCHEDULED_MEETING,
+    };
+  }
+
   async generateZoomLinks(batches: Classes[]): Promise<{
     created: number;
     error: number;
@@ -176,31 +205,7 @@ export class ZoomMeetingService {
         // const endLessonTime = moment(batch.lessonEndTime);
         // const duration = startLessonTime.diff(endLessonTime, "minutes");
 
-        const meeting = {
-          agenda: batch.batchNumber,
-          default_password: false,
-          // duration: duration,
-          password: "QE",
-          // pre_schedule: true,
-          settings: {
-            approval_type: this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
-            join_before_host: true,
-            meeting_authentication: false,
-            waiting_room: false,
-            auto_recording: "cloud",
-          },
-          waiting_room: false,
-          start_time: batch.lessonStartTime,
-          breakout_room: {
-            enable: true,
-          },
-          co_host: true,
-          topic:
-            "Batch: " +
-            batch.batchNumber +
-            `, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
-          type: this.zoomMeetingTypes.RESCHEDULED_MEETING,
-        };
+        const meeting = this.getCreateMeetingDetails(batch, zoomUser);
         const createdMeeting = await zoomClient.createUserMeeting(meeting);
         if (createdMeeting.id) {
           logger.info("Success created meeting remotely ", createdMeeting);
@@ -259,6 +264,70 @@ export class ZoomMeetingService {
       await setTimeout(() => {}, 100);
     }
     return result;
+  }
+
+  async reassignZoomMeeting(meetingId: string, userId: string): Promise<any> {
+    let error;
+    try {
+      const meeting = await this.zoomMeetingRepository.findOne({
+        id: meetingId,
+      });
+
+      if (!meeting) {
+        throw new Error("Meeting Not Found");
+      }
+
+      const zoomUser = await this.zoomUserRepository.findOne({
+        user_id: userId,
+      });
+
+      if (!zoomUser) {
+        throw new Error("Selected User Not Found, Or Doesn't Have License");
+      }
+
+      const batch = await this.classesRepository.findOne(meeting.batch_id);
+
+      if (!batch) {
+        throw new Error("Selected Meeting Batch Not Found");
+      }
+
+      const updated = {
+        topic: `Batch: ${batch.batchNumber}, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
+        settings: {
+          alternative_hosts: zoomUser.email,
+        },
+      };
+
+      meeting.user_id = userId;
+      meeting.host_id = zoomUser.id;
+
+      const updatedMeeting = await zoomClient.updateMeeting(
+        meeting.id,
+        updated
+      );
+
+      console.log(updated, updatedMeeting, zoomUser.id);
+
+      error = {
+        message: "Failed to update meeting on zoom API",
+        meeting,
+        zoomUser,
+      };
+    } catch (e) {
+      error = e;
+    }
+
+    await (
+      await this.logger.customZoom(
+        userId,
+        `Reassign Failed: ${error.message}`,
+        "FAILED_MEETING_REASSIGNMENT",
+        { error, meetingId, to: userId },
+        this.request.user || {}
+      )
+    ).save();
+
+    return { status: 400, message: error.message };
   }
 
   async generateActiveBatchesZoomLink(): Promise<{

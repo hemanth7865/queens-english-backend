@@ -230,4 +230,23 @@ export class ZoomController {
       request.params.to
     );
   }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async reassignZoomMeeting(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomMeetingService.request = request;
+    return await this.zoomMeetingService.reassignZoomMeeting(
+      request.params.meetingId,
+      request.params.userId
+    );
+  }
 }

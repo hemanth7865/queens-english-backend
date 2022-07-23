@@ -239,8 +239,6 @@ export class ZoomUserService {
           );
         }
 
-        console.log(createdUser, `${zoomUser.user_id}${this.emailFormat}`);
-
         if (createdUser.id) {
           zoomClient.setUser(createdUser);
           logger.info(
