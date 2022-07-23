@@ -8,5 +8,13 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "googleusercontent",
+    "mkui",
+    "showlogin",
+    "showlogout",
+    "signin",
+    "Signout"
+  ]
 }

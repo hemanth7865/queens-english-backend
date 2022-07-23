@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
 
 import styles from './index.less';
+import GoogleSignin from './components/GoogleSignin';
 
 const LoginMessage: React.FC<{
   content: string;
@@ -182,12 +183,15 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
+            <div className="g-signin" >
+              <GoogleSignin />
+            </div>
           </LoginForm>
         </div>
 
       </div>
       <Footer />
-    </div>
+    </div >
   );
 };
 
