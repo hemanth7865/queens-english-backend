@@ -1009,8 +1009,11 @@ export class PaymentService {
 
   async fetchNotVerifiedDownPayments(params: any) {
     const where: any = {
-      is_down_paymnet_verified: Not(1),
-      paymentMode: In([PAYMENT_MODE.DOWNPAYMENT_RAZORPAY, PAYMENT_MODE.DOWNPAYMENT_CASHFREE]),
+      is_down_payment_verified: Not(1),
+      paymentMode: In([
+        PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
+        PAYMENT_MODE.DOWNPAYMENT_CASHFREE,
+      ]),
       paymentid: Not(typeormIsNull()),
       downpayment: MoreThan(0),
     };
@@ -1040,8 +1043,8 @@ export class PaymentService {
          */
         if (request.force) {
           let data: any = {
-            is_down_paymnet_verified: 1,
-            is_down_paymnet_auto_verified: request.id !== downPayment.id,
+            is_down_payment_verified: 1,
+            is_down_payment_auto_verified: request.id !== downPayment.id,
             id: downPayment.id,
           };
           const updatedPayment = await this.updatePayment(
@@ -1080,8 +1083,8 @@ export class PaymentService {
 
             if (paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS) {
               let data: any = {
-                is_down_paymnet_verified: 1,
-                is_down_paymnet_auto_verified: request.id !== downPayment.id,
+                is_down_payment_verified: 1,
+                is_down_payment_auto_verified: request.id !== downPayment.id,
                 downpayment: paymentDetails.amount / 100,
                 id: downPayment.id,
               };
@@ -1139,8 +1142,8 @@ export class PaymentService {
 
             if (downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS) {
               let data: any = {
-                is_down_paymnet_verified: 1,
-                is_down_paymnet_auto_verified: request.id !== downPayment.id,
+                is_down_payment_verified: 1,
+                is_down_payment_auto_verified: request.id !== downPayment.id,
                 downpayment: downPaymentDetails.amount,
                 id: downPayment.id,
               };

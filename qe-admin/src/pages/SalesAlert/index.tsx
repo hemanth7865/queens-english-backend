@@ -507,8 +507,8 @@ const StudentOnboard: React.FC = () => {
          * make down payment verifiaction string instead of integer for drop-down
          */
         if (item.payments[0]) {
-          item.payments[0].is_down_paymnet_verified = parseInt(item.payments[0].is_down_paymnet_verified) ? "1" : "0";
-          item.payments[0].is_down_paymnet_auto_verified = parseInt(item.payments[0].is_down_paymnet_auto_verified) ? "1" : "0";
+          item.payments[0].is_down_payment_verified = parseInt(item.payments[0].is_down_payment_verified) ? "1" : "0";
+          item.payments[0].is_down_payment_auto_verified = parseInt(item.payments[0].is_down_payment_auto_verified) ? "1" : "0";
         }
         return item
       }));
@@ -750,11 +750,11 @@ const StudentOnboard: React.FC = () => {
     },
     {
       title: 'Is down payment verified',
-      dataIndex: 'is_down_paymnet_verified',
+      dataIndex: 'is_down_payment_verified',
       width: 150,
       editable: true,
       render: (value: any, entity: any) => {
-        if (!entity.payments || !entity.payments[0] || !entity.payments[0].is_down_paymnet_verified || !parseInt(entity.payments[0].is_down_paymnet_verified)) {
+        if (!entity.payments || !entity.payments[0] || !entity.payments[0].is_down_payment_verified || !parseInt(entity.payments[0].is_down_payment_verified)) {
           return "No";
         }
         

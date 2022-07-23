@@ -5,20 +5,20 @@ export class addDownPaymentAutoVerifiedToPaymentsTable1658412144460
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     if (
-      !(await queryRunner.hasColumn("payment", "is_down_paymnet_auto_verified"))
+      !(await queryRunner.hasColumn("payment", "is_down_payment_auto_verified"))
     ) {
       await queryRunner.query(
-        `ALTER table payment add is_down_paymnet_auto_verified TinyInt(1) DEFAULT 0`
+        `ALTER table payment add is_down_payment_auto_verified TinyInt(1) DEFAULT 0`
       );
     }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     if (
-      await queryRunner.hasColumn("payment", "is_down_paymnet_auto_verified")
+      await queryRunner.hasColumn("payment", "is_down_payment_auto_verified")
     ) {
       await queryRunner.query(
-        `ALTER TABLE payment DROP COLUMN is_down_paymnet_auto_verified`
+        `ALTER TABLE payment DROP COLUMN is_down_payment_auto_verified`
       );
     }
   }

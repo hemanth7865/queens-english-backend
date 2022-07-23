@@ -18,7 +18,7 @@ const PaymentVerify = ({ downPayment, setDownPayment }: Props) => {
 
         if (data.message.error == 0 && data.message.paid == 0) {
             not = {
-                message: 'Paymend Verified',
+                message: 'Payment Verified',
                 description: "Selected Payment Is Already Verified Or Not Found",
                 error: true,
             };
