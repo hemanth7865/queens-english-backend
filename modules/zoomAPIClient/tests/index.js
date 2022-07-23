@@ -28,7 +28,7 @@ const test = async () => {
   });
 
   const user = await zoomClient.getUserByEmail(
-    "731aa5c1-bf88-4118-9730-2dc0853710ca@isv.queensenglish.co.com"
+    "b4509afc-1afa-4068-8297-a127480256b1@ISV.queensenglish.co.com"
   );
   // const deleted = await zoomClient.deleteUsers(users.users);
   // const createdUser = await zoomClient.createCustUser(createCustUserSample);

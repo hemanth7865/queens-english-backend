@@ -15,13 +15,13 @@ async function getUserByEmail(email) {
     );
 
     for (let u of data.users) {
-      if (u.email == email) {
+      if (u.email.split("@")[0] == email.split("@")[0]) {
         user = u;
         break;
       }
     }
 
-    if (data.page_number == data.page_count) {
+    if (data.page_number == data.page_count || user.id) {
       done = true;
     }
     params.page_number += 1;
