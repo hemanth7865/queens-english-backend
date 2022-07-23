@@ -277,7 +277,7 @@ export class ZoomMeetingService {
         throw new Error("Meeting Not Found");
       }
 
-      const zoomUser = await this.zoomUserRepository.findOne({
+      const zoomUser: any = await this.zoomUserRepository.findOne({
         user_id: userId,
       });
 
@@ -299,17 +299,31 @@ export class ZoomMeetingService {
       };
 
       meeting.user_id = userId;
-      meeting.host_id = zoomUser.id;
 
       const updatedMeeting = await zoomClient.updateMeeting(
         meeting.id,
         updated
       );
+      if (updatedMeeting.length < 1) {
+        const data = await this.updateCreateZoomMeeting(meeting);
 
-      console.log(updated, updatedMeeting, zoomUser.id);
+        zoomUser.message = `Reassigned Zoom Linkto: ${userId}.`;
+        await (
+          await this.logger.zoom(
+            { user: zoomUser },
+            { zoomUser: zoomUser, zoomMeeting: data, user: zoomUser },
+            this.request.user || {}
+          )
+        ).save();
+
+        return {
+          status: true,
+          message: "Success Reassigned License",
+        };
+      }
 
       error = {
-        message: "Failed to update meeting on zoom API",
+        message: "Failed to update zoom eeting on zoom API",
         meeting,
         zoomUser,
       };
