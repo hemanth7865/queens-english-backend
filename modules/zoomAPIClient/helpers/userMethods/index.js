@@ -1,4 +1,5 @@
 const listUsers = require("./listUsers");
+const getUserByEmail = require("./getUserByEmail");
 const createUser = require("./createUser");
 const createCustUser = require("./createCustUser");
 const deleteUser = require("./deleteUser");
@@ -19,4 +20,5 @@ module.exports = {
   deleteUsers,
   updateUser,
   updateUserSettings,
+  getUserByEmail,
 };

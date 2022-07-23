@@ -26,14 +26,17 @@ const test = async () => {
     status: "active",
     role_id: "2",
   });
-  const users = await zoomClient.listUsers();
-  const deleted = await zoomClient.deleteUsers(users.users);
+
+  const user = await zoomClient.getUserByEmail(
+    "731aa5c1-bf88-4118-9730-2dc0853710ca@isv.queensenglish.co.com"
+  );
+  // const deleted = await zoomClient.deleteUsers(users.users);
   // const createdUser = await zoomClient.createCustUser(createCustUserSample);
   // const createUserMeeting = await zoomClient.createUserMeeting(
   //   createUserMeetingSample
   // );
   // const meetings = await zoomClient.listUserMeetings();
-  console.log(users, deleted);
+  console.log(user);
 };
 
 test();

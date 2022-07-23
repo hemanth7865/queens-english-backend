@@ -11,6 +11,7 @@ const {
   deleteUsers,
   updateUser,
   updateUserSettings,
+  getUserByEmail,
 } = require("./helpers/userMethods");
 
 class ZoomAPI {
@@ -64,6 +65,7 @@ ZoomAPI.prototype.createCustUser = createCustUser;
 ZoomAPI.prototype.deleteUser = deleteUser;
 ZoomAPI.prototype.deleteUsers = deleteUsers;
 ZoomAPI.prototype.updateUser = updateUser;
+ZoomAPI.prototype.getUserByEmail = getUserByEmail;
 ZoomAPI.prototype.updateUserSettings = updateUserSettings;
 ZoomAPI.prototype.handleAPI = axios.handleAPI;
 exports.ZoomAPI = ZoomAPI;
