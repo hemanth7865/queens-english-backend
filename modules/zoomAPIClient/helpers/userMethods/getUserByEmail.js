@@ -2,6 +2,7 @@ async function getUserByEmail(email) {
   const params = {
     page_size: 300,
     page_number: 1,
+    status: "active",
   };
 
   this.method = "getUserByEmail";
