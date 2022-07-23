@@ -241,6 +241,10 @@ export class ZoomUserService {
 
         if (createdUser.id) {
           zoomClient.setUser(createdUser);
+          const zak = await zoomClient.getZakToken();
+          if (!zak?.token) {
+            throw new Error("Failed to get zak token");
+          }
           logger.info(
             "Success created teacher zoom account remotely ",
             createdUser
@@ -258,6 +262,7 @@ export class ZoomUserService {
           zoomUser.last_name = createdUser.last_name;
           zoomUser.email = createdUser.email;
           zoomUser.type = createdUser.type;
+          zoomUser.zak_token = zak.token;
           zoomUser.created_at = new Date();
           zoomUser.updated_at = new Date();
           await this.updateCreateZoomUser(zoomUser);
