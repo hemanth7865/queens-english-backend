@@ -378,6 +378,14 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/verifyDownPayment",
+    controller: PaymentController,
+    action: "verifyDownPayment",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
     route: "/uploadNetBankingResource",
     controller: PaymentController,
     action: "uploadNetBankingResource",

@@ -764,3 +764,13 @@ export async function getAllCollectionAgents(
     ...(options || {}),
   });
 }
+
+//verify down payment
+export async function verifyDownPayment(
+  options?: { [key: string]: any }
+) {
+  return request<any>(`/be/verifyDownPayment`, {
+    method: "POST",
+    ...(options || {}),
+  });
+}
