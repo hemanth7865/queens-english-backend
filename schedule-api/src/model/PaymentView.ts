@@ -49,7 +49,8 @@ export class PaymentsView {
   subscriptionType?: string;
   discount?: number;
   expireBy?: Date;
-
+  subscriptionStatus?: string;
+  cycles?: number;
   PaymentsView(
     id: String,
     studentId: string,
@@ -85,6 +86,9 @@ export class PaymentsView {
     subscriptionType?: string,
     discount?: number,
     expireBy?: Date,
+    subscriptionStatus?: string,
+    cycles?: number,
+
   ) {
     this.id = id;
     this.studentId = studentId;
@@ -120,5 +124,7 @@ export class PaymentsView {
     this.subscriptionType = subscriptionType;
     this.discount = discount;
     this.expireBy = expireBy;
+    this.subscriptionStatus = subscriptionStatus;
+    this.cycles = cycles;
   }
 }

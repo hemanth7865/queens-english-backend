@@ -205,6 +205,16 @@ export class PaymentService {
               `transactions.subscription_type = '${parameters[param]}'`
             );
             break;
+          case "subscriptionStatus":
+            whereCondition.push(
+              `transactions.subscription_status = '${parameters[param]}'`
+            );
+            break;
+          case "cycles":
+            whereCondition.push(
+              `transactions.cycles = '${parameters[param]}'`
+            );
+            break;
           case "leadId":
             whereCondition.push(`student.studentID = '${parameters[param]}'`);
             break;
@@ -263,6 +273,8 @@ export class PaymentService {
         view.subscriptionType = record.transactions_subscription_type;
         view.discount = record.transactions_early_bird;
         view.expireBy = record.transactions_expire_by;
+        view.cycles = record.transactions_cycles;
+        view.subscriptionStatus = record.transactions_subscription_status;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -869,6 +881,8 @@ export class PaymentService {
                   status: PAYMENT_STATUS.PAID,
                   paidAmount: payment['amount'],
                   paidDate: payment['addedOn'],
+                  subscriptionStatus: payment['status'],
+                  cycles: payment['cycle'],
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
                 };
@@ -881,6 +895,8 @@ export class PaymentService {
               else if (payment['addedOn'].includes(dueMonth) && payment['status'] == CASHFREE_PAYMENT_STATUS.FAILED) {
                 let data: any = {
                   status: PAYMENT_STATUS.FAILED,
+                  subscriptionStatus: payment['status'],
+                  cycles: payment['cycle'],
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
                 };
