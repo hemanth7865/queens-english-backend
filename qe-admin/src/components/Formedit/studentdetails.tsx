@@ -381,6 +381,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
     console.log(key);
   }
 
+  const countrycode = (props.tempData.phoneNumber).substring(0, 3);
+  console.log("country code", countrycode);
+
   if (access.canSuperAdmin) {
     // User is Super Admin
   }
@@ -577,7 +580,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               </Form.Item>
             </Col>
 
-            {props.studentManageradd ? (
+            {props.studentManageradd && countrycode == "+91" ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
@@ -588,12 +591,34 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
                 </Form.Item>
               </Col>
-            ) : (
+            ) : props.studentManageradd && countrycode != "+91" ? (
+              <Col span={12}>
+                <Form.Item
+                  label="Registered Mobile Number"
+                  name="phoneNumber"
+                  rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
+                >
+                  <Input onChange={onChange} />
+
+                </Form.Item>
+              </Col>
+            ) : countrycode == "+91" ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
                   name="phoneNumber"
                   rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+                >
+                  <Input onChange={onChange} />
+
+                </Form.Item>
+              </Col>
+            ) : (
+              <Col span={12}>
+                <Form.Item
+                  label="Registered Mobile Number"
+                  name="phoneNumber"
+                  rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
                 >
                   <Input onChange={onChange} />
 
