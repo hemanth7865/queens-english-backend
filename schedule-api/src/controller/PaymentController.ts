@@ -141,4 +141,16 @@ export class PaymentController {
         }
     }
 
+    async verifyDownPayment(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        try {
+            return await this.paymentService.verifyDownPayment(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception while verifying down payment"
+            }
+        }
+    }
 }

@@ -5,9 +5,12 @@ export const PAYMENT_STATUS = {
 }
 
 export const PAYMENT_MODE = {
-    RAZORPAY: 'RazorPay',
-    CASHFREE: 'Cashfree'
-}
+    RAZORPAY: "RazorPay",
+    CASHFREE: 'Cashfree',
+    DOWNPAYMENT_RAZORPAY: "Razorpay",
+    DOWNPAYMENT_CASHFREE: "Cashfree",
+};
+
 
 export class Constants {
     public static PARTNER_CODE_QE = "QE";
@@ -33,6 +36,20 @@ export const CASHFREE_PAYMENT_STATUS = {
     PENDING: 'PENDING',
     FAILED: 'FAILED',
     ACTIVE: 'ACTIVE'
+}
+
+export const RAZORPAY_PAYMENT_STATUS = {
+    SUCCESS: "captured",
+};
+
+export const ERROR_CODES = {
+    ERROR_UPDATED_PAYMENT: "ERROR_UPDATED_PAYMENT",
+    ERROR_DOWN_PAYMENT_VERIFICATION: "ERROR_DOWN_PAYMENT_VERIFICATION",
+};
+
+export const SUCCESS_CODES = {
+    SUCCESS_UPDATED_PAYMENT: "SUCCESS_UPDATED_PAYMENT",
+    SUCCESS_DOWN_PAYMENT_VERIFICATION: "SUCCESS_DOWN_PAYMENT_VERIFICATION",
 }
 
 /**
