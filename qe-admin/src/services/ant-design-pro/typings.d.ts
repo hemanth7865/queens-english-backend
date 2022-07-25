@@ -7,6 +7,7 @@ declare namespace API {
     lastname?: string;
     name?: string;
     avatar?: string;
+    imageUrl?: string;
     roles?: string;
     role?: string;
     org?: string;
@@ -86,6 +87,9 @@ declare namespace API {
     password?: string;
     autoLogin?: boolean;
     type?: string;
+    email?: string;
+    imageUrl?: string;
+    name?: string;
   };
 
   type ErrorResponse = {

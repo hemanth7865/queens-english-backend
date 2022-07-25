@@ -59,6 +59,7 @@
     "antd-button-color": "^1.0.4",
     "classnames": "^2.2.6",
     "country-list": "^2.2.0",
+    "gapi-script": "^1.2.0",
     "google-libphonenumber": "^3.2.25",
     "install": "^0.13.0",
     "libphonenumber-js": "^1.9.44",

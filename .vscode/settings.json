@@ -10,11 +10,17 @@
   },
   "editor.formatOnSave": true,
   "cSpell.words": [
+    "antd",
+    "anticon",
+    "firstname",
+    "gapi",
     "googleusercontent",
+    "lastname",
     "mkui",
     "showlogin",
     "showlogout",
     "signin",
-    "Signout"
+    "Signout",
+    "typeorm"
   ]
 }
