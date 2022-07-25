@@ -522,6 +522,6 @@ export const Routes = [
     route: "/zoom-meeting/reassign/:meetingId/:userId",
     controller: ZoomController,
     action: "reassignZoomMeeting",
-    // authenticate: true,
+    authenticate: true,
   },
 ];

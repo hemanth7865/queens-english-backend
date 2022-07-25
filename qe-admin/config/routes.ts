@@ -62,6 +62,12 @@
         access: "canSuperAdmin",
       },
       {
+        name: "Zoom License",
+        path: "/manage/zoom-license",
+        component: "./ZoomLicense",
+        access: "canSuperAdmin",
+      },
+      {
         name: "Onboard",
         path: "/manage/dashboard",
         routes: [

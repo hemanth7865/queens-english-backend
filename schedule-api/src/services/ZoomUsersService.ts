@@ -365,6 +365,9 @@ export class ZoomUserService {
             "Success deleted teacher zoom account remotely ",
             resultRemote
           );
+          const deleteMeetings = await this.zoomMeetingRepository.delete({
+            host_id: user.id,
+          });
           const deleteResult = await this.zoomUserRepository.remove(user);
 
           logger.info(
@@ -431,6 +434,7 @@ export class ZoomUserService {
     errors: any;
   }> {
     const users = await this.zoomUserRepository.findOne(id);
+    users.id = id;
     return await this.deleteLicense([users]);
   }
 
