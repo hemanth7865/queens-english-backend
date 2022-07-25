@@ -525,4 +525,11 @@ export const Routes = [
     action: "listZoomMeetings",
     authenticate: true,
   },
+  {
+    method: "post",
+    route: "/zoom-meeting/reassign/:meetingId/:userId",
+    controller: ZoomController,
+    action: "reassignZoomMeeting",
+    // authenticate: true,
+  },
 ];

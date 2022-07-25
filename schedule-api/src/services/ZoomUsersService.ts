@@ -14,6 +14,7 @@ export class ZoomUserService {
   private zoomMeetingRepository = getRepository(ZoomMeeting);
   private batchRepository = getRepository(Classes);
   private emailFormat = "@ISV.queensenglish.co.com";
+  private debug: boolean = true;
   public defaultUserSettings = {
     in_meeting: {
       allow_host_to_enable_focus_mode: true,
@@ -210,7 +211,7 @@ export class ZoomUserService {
     error: number;
     errors: any;
   }> {
-    const result = {
+    const result: any = {
       created: 0,
       error: 0,
       errors: [],
@@ -220,14 +221,30 @@ export class ZoomUserService {
         logger.info("Start creating teacher zoom account ", teacher);
         const zoomUser = new ZoomUser();
         zoomUser.user_id = teacher.id;
-        const createdUser = await zoomClient.createCustUser({
+        if (this.debug) {
+          result.token = zoomClient.JWTToken;
+        }
+
+        let createdUser: any = {};
+        createdUser = await zoomClient.createCustUser({
           email: `${zoomUser.user_id}${this.emailFormat}`,
           type: 2,
           first_name: teacher.firstName,
           last_name: teacher.lastName,
         });
+
+        if (!createdUser.id) {
+          createdUser = await zoomClient.getUserByEmail(
+            `${zoomUser.user_id}${this.emailFormat}`
+          );
+        }
+
         if (createdUser.id) {
           zoomClient.setUser(createdUser);
+          const zak = await zoomClient.getZakToken();
+          if (!zak?.token) {
+            throw new Error("Failed to get zak token");
+          }
           logger.info(
             "Success created teacher zoom account remotely ",
             createdUser
@@ -245,6 +262,7 @@ export class ZoomUserService {
           zoomUser.last_name = createdUser.last_name;
           zoomUser.email = createdUser.email;
           zoomUser.type = createdUser.type;
+          zoomUser.zak_token = zak.token;
           zoomUser.created_at = new Date();
           zoomUser.updated_at = new Date();
           await this.updateCreateZoomUser(zoomUser);
@@ -261,7 +279,7 @@ export class ZoomUserService {
             )
           ).save();
         } else {
-          logger.info("Failed to teacher zoom account ", createdUser);
+          logger.info("Failed to generate teacher zoom account ", createdUser);
           result.error++;
           result.errors.push(createdUser);
           if (createdUser.code == 3412) {

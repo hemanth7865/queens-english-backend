@@ -13,7 +13,7 @@ const test = async () => {
   const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
   zoomClient.init();
   zoomClient.setUser({
-    id: "uJP0VnmySUW553pEc6T0Aw",
+    id: "QB4Hz2XiSSy8Ro0ILD2CaA",
     first_name: "Bishoy",
     last_name: "Romany",
     email: "bishoy2@queensenglish.co",
@@ -26,14 +26,14 @@ const test = async () => {
     status: "active",
     role_id: "2",
   });
-  const users = await zoomClient.listUsers();
-  const deleted = await zoomClient.deleteUsers(users.users);
+
+  const user = await zoomClient.getZakToken();
+  // const deleted = await zoomClient.deleteUsers(users.users);
   // const createdUser = await zoomClient.createCustUser(createCustUserSample);
   // const createUserMeeting = await zoomClient.createUserMeeting(
   //   createUserMeetingSample
   // );
-  // const meetings = await zoomClient.listUserMeetings();
-  console.log(users, deleted);
+  console.log(user);
 };
 
 test();

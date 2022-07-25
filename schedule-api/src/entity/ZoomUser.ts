@@ -31,6 +31,8 @@ export class ZoomUser extends BaseEntity {
   last_name: string;
   @Column({ type: "text" })
   email: string;
+  @Column({ type: "text" })
+  zak_token: string;
   @Column({ type: "integer" })
   type: number;
   @CreateDateColumn()
@@ -43,6 +45,6 @@ export class ZoomUser extends BaseEntity {
   user: User;
 
   @OneToMany((type) => ZoomMeeting, (ZoomMeeting) => ZoomMeeting.zoom_user)
-  @JoinColumn({ name: "host_id" })
+  @JoinColumn({ name: "user_id", referencedColumnName: "user_id" })
   meetings: ZoomMeeting[];
 }
