@@ -2,6 +2,7 @@ import { getRepository, getManager, createQueryBuilder } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
+import { ZoomUserService } from "./ZoomUsersService";
 import { Classes } from "../entity/Classes";
 const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
@@ -380,5 +381,73 @@ export class ZoomMeetingService {
       logger.error(e);
       return { status: 400, message: e.message };
     }
+  }
+
+  async generateUpdateZoomMeetingLicenseForBatch(batchData): Promise<any> {
+    const batch = await this.classesRepository.findOne({
+      batchNumber: batchData.batchNumber,
+    });
+
+    const teacher = batch.teacherId;
+    const user = await this.usersRepository.findOne({ id: teacher });
+    const batchId = batch.id;
+    const zoomUserService = new ZoomUserService();
+    let license = await this.zoomUserRepository.findOne({ user_id: teacher });
+    let meeting = await this.zoomMeetingRepository.findOne({
+      batch_id: batchId,
+    });
+
+    /**
+     * Batch already has meeting and same teacher
+     */
+    if (meeting && meeting.user_id === teacher) {
+      return {
+        success: true,
+        message: "Batch Already Has Zoom Meeting And Teacher",
+      };
+    }
+
+    /**
+     * selected teacher doesn't have a license
+     */
+    if (!license) {
+      const result = await zoomUserService.generateLicenses([user]);
+      if (result.created < 1) {
+        throw new Error("Failed to generate license");
+      }
+      license = await this.zoomUserRepository.findOne({
+        user_id: teacher,
+      });
+    }
+
+    /**
+     * generate the meeting
+     */
+    if (!meeting) {
+      const result = await this.generateZoomLinks([batch]);
+      if (result.created < 1) {
+        throw new Error("Failed to generate meeting");
+      }
+      meeting = await this.zoomMeetingRepository.findOne({ batch_id: batchId });
+    }
+
+    /**
+     * reassign the meeting to other teacher
+     */
+    if (meeting.user_id !== teacher) {
+      const result = await this.reassignZoomMeeting(meeting.id, teacher);
+      if (result.status === 400) {
+        throw new Error("Failed to reassing zoom meeting");
+      }
+    }
+
+    const result = {
+      success: true,
+      meeting,
+      license,
+      user,
+    };
+
+    return result;
   }
 }

@@ -8,6 +8,7 @@ import { getManager } from "typeorm";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
 import { StudentService } from "./StudentService";
+import { ZoomMeetingService } from "./ZoomMeetingService";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
@@ -209,6 +210,10 @@ export class BatchService {
             return Promise.reject(error);
           });
       }
+
+      const meetingService = new ZoomMeetingService();
+
+      await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
 
       await queryRunner.commitTransaction();
       return res1;
