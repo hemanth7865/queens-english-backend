@@ -7,7 +7,6 @@ declare namespace API {
     lastname?: string;
     name?: string;
     avatar?: string;
-    imageUrl?: string;
     roles?: string;
     role?: string;
     org?: string;
@@ -27,6 +26,7 @@ declare namespace API {
     };
     address?: string;
     phone?: string;
+    googleId?: string;
   };
 
   type LoginResult = {

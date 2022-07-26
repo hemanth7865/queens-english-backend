@@ -164,6 +164,7 @@ export class LoginController {
         ...foundUser,
         token,
         avatar: tokenPayload.imageUrl,
+        googleId: tokenPayload.googleId,
       })
       .end();
   }
