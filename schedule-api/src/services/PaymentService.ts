@@ -1140,33 +1140,41 @@ export class PaymentService {
               downPayment.paymentid
             );
             
-            const downPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[1] : null;
+            const checkPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[0] : null;
 
-            if (!downPaymentDetails) {
+            if (!checkPaymentDetails) {
               throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
             }
 
-            if (
-              downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
-              downPaymentDetails.amount == downPayment.downpayment
-            ) {
-              let data: any = {
-                is_down_payment_verified: 1,
-                is_down_payment_auto_verified: !request.force,
-                id: downPayment.id,
-              };
-              const updatedPayment = await this.updatePayment(
-                data,
-                "Verified cashfree down payment",
-                SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
-              );
-              if (!updatedPayment) {
-                throw new Error("Error in updating payment");
+            let updatedPayment = false;
+
+            for (const downPaymentDetails of paymentDetails) {
+              if (
+                downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
+                downPaymentDetails.amount == downPayment.downpayment
+              ) {
+                let data: any = {
+                  is_down_payment_verified: 1,
+                  is_down_payment_auto_verified: !request.force,
+                  id: downPayment.id,
+                };
+
+                updatedPayment = await this.updatePayment(
+                  data,
+                  "Verified cashfree down payment",
+                  SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+                );
+
+                usersLogger.info(
+                  "update down payment to paid: " +
+                    JSON.stringify(data)
+                );
+                result.paid++;
               }
-              usersLogger.info(
-                "update down payment to paid: " + JSON.stringify(data)
-              );
-              result.paid++;
+            }
+
+            if (!updatedPayment) {
+              throw new Error("Error in updating payment");
             }
           } catch (e) {
             console.log(e);
