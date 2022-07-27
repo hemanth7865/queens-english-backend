@@ -971,8 +971,11 @@ export class PaymentService {
     }
   }
 
-  async updatePayment(data: any, message?: string, code?: string) {
-    let result = null
+  async updatePayment(data: any, message?: string, code?: string, debug?: any) {
+    let result = null;
+    if(!debug){
+      debug = {};
+    }
     try {
       result = await this.paymentRepository.save(data);
       await(
@@ -982,6 +985,7 @@ export class PaymentService {
           code || SUCCESS_CODES.SUCCESS_UPDATED_PAYMENT,
           {
             requestData: data,
+            ...debug,
           },
           this.request?.user,
           data.id
@@ -1010,16 +1014,19 @@ export class PaymentService {
   async fetchNotVerifiedDownPayments(params: any) {
     const where: any = {
       is_down_payment_verified: Not(1),
-      paymentMode: In([
-        PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
-        PAYMENT_MODE.DOWNPAYMENT_CASHFREE,
-      ]),
       paymentid: Not(typeormIsNull()),
-      downpayment: MoreThan(0),
     };
 
     if (params.id) {
       where.id = params.id;
+    }
+
+    if (!params.force) {
+      where.paymentMode = In([
+        PAYMENT_MODE.DOWNPAYMENT_RAZORPAY,
+        PAYMENT_MODE.DOWNPAYMENT_CASHFREE,
+      ]);
+      where.downpayment = MoreThan(0);
     }
 
     let result = await this.paymentRepository.find({
@@ -1050,7 +1057,8 @@ export class PaymentService {
           const updatedPayment = await this.updatePayment(
             data,
             "Verified razorpay down payment",
-            SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+            SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
+            { data }
           );
           if (!updatedPayment) {
             throw new Error("Error in updating payment");
@@ -1095,7 +1103,8 @@ export class PaymentService {
               const updatedPayment = await this.updatePayment(
                 data,
                 "Verified razorpay down payment",
-                SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+                SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
+                { paymentDetails }
               );
               if (!updatedPayment) {
                 throw new Error("Error in updating payment");
@@ -1148,7 +1157,7 @@ export class PaymentService {
 
             let updatedPayment = false;
 
-            for (const downPaymentDetails of paymentDetails) {
+            for (const downPaymentDetails of paymentDetails.payments) {
               if (
                 downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
                 downPaymentDetails.amount == downPayment.downpayment
@@ -1162,14 +1171,15 @@ export class PaymentService {
                 updatedPayment = await this.updatePayment(
                   data,
                   "Verified cashfree down payment",
-                  SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION
+                  SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
+                  { downPaymentDetails }
                 );
 
                 usersLogger.info(
-                  "update down payment to paid: " +
-                    JSON.stringify(data)
+                  "update down payment to paid: " + JSON.stringify(data)
                 );
                 result.paid++;
+                break;
               }
             }
 
