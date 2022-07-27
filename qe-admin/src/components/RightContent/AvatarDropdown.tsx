@@ -34,7 +34,6 @@ const loginOut = async () => {
 
 const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
   const { initialState, setInitialState } = useModel('@@initialState');
-  const clientId = "256122092519-15mkui0a16ogm66i078j98h8fb85t0vl.apps.googleusercontent.com";
 
   const onMenuClick = useCallback(
     (event: MenuInfo) => {
@@ -73,10 +72,10 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {currentUser.avatar ? (
+      {currentUser.avatar && process.env.GOOGLE_CLIENT_ID ? (
         <Menu.Item key="logout">
           <GoogleLogout
-            clientId={clientId}
+            clientId={process.env.GOOGLE_CLIENT_ID}
             buttonText="Logout"
           />
         </Menu.Item>

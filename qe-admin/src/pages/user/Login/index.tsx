@@ -13,8 +13,6 @@ import { useEffect } from 'react';
 import { gapi } from 'gapi-script';
 import GoogleLogin from 'react-google-login';
 
-const clientId = "256122092519-15mkui0a16ogm66i078j98h8fb85t0vl.apps.googleusercontent.com";
-
 const LoginMessage: React.FC<{
   content: string;
 }> = ({ content }) => (
@@ -82,7 +80,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     function start() {
       gapi.client.init({
-        clientId: clientId,
+        clientId: process.env.GOOGLE_CLIENT_ID,
         scope: ""
       })
     };
@@ -205,16 +203,20 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
-            <div id="signInButton">
-              <GoogleLogin
-                clientId={clientId}
-                buttonText="Sign in with Google"
-                onSuccess={onLoginSuccess}
-                onFailure={onLoginFailure}
-                cookiePolicy={'single_host_origin'}
-                isSignedIn={true}
-              />
-            </div>
+            {process.env.GOOGLE_CLIENT_ID ? (
+              <div id="signInButton">
+                <GoogleLogin
+                  clientId={process.env.GOOGLE_CLIENT_ID}
+                  buttonText="Sign in with Google"
+                  onSuccess={onLoginSuccess}
+                  onFailure={onLoginFailure}
+                  cookiePolicy={'single_host_origin'}
+                  isSignedIn={true}
+                />
+              </div>
+            ) : (
+              null
+            )}
           </LoginForm>
         </div>
 

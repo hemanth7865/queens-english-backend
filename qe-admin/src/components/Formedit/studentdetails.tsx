@@ -8,6 +8,7 @@ import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
+import { CountryCode } from "../Constants/constants";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -382,7 +383,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   }
 
   const countrycode = (props.tempData.phoneNumber).substring(0, 3);
-  console.log("country code", countrycode);
 
   if (access.canSuperAdmin) {
     // User is Super Admin
@@ -580,7 +580,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
               </Form.Item>
             </Col>
 
-            {props.studentManageradd && countrycode == "+91" ? (
+            {props.studentManageradd && countrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
@@ -591,7 +591,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
                 </Form.Item>
               </Col>
-            ) : props.studentManageradd && countrycode != "+91" ? (
+            ) : props.studentManageradd && countrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
@@ -602,7 +602,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
                 </Form.Item>
               </Col>
-            ) : countrycode == "+91" ? (
+            ) : countrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
@@ -613,12 +613,23 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
                 </Form.Item>
               </Col>
-            ) : (
+            ) : countrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
                   name="phoneNumber"
                   rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
+                >
+                  <Input onChange={onChange} />
+
+                </Form.Item>
+              </Col>
+            ) : (
+              <Col span={12}>
+                <Form.Item
+                  label="Registered Mobile Number"
+                  name="phoneNumber"
+                  rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Country Code not registered in portal please contact Product Team" }]}
                 >
                   <Input onChange={onChange} />
 
