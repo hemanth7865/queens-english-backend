@@ -295,9 +295,11 @@ export class ZoomUserService {
             break;
           } else {
             await (
-              await this.logger.zoom(
-                { user: teacher },
-                { zoomUser: createdUser, user: teacher },
+              await this.logger.customZoom(
+                teacher?.id,
+                "Failed generate a license for teacher, mostly no more avaialble licenses",
+                "FAILED_TO_GENERATE_A_LICENSE",
+                { createdUser, teacher },
                 this.request.user || {}
               )
             ).save();
@@ -309,6 +311,15 @@ export class ZoomUserService {
         logger.error(e);
         result.error++;
         result.errors.push(e);
+        await (
+          await this.logger.customZoom(
+            teacher?.id,
+            "Failed generate a license: " + e.message,
+            "FAILED_TO_GENERATE_A_LICENSE",
+            { error: e, message: e.message, teacher },
+            this.request.user || {}
+          )
+        ).save();
       }
 
       await setTimeout(() => {}, 100);
