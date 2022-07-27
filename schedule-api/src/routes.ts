@@ -537,6 +537,5 @@ export const Routes = [
     route: "/class/:batchCode",
     controller: ZoomController,
     action: "genericLink",
-    authenticate: true,
   },
 ];
