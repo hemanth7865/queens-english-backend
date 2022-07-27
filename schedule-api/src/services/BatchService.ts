@@ -211,9 +211,9 @@ export class BatchService {
           });
       }
 
-      const meetingService = new ZoomMeetingService();
+      // const meetingService = new ZoomMeetingService();
 
-      await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+      // await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
 
       await queryRunner.commitTransaction();
       return res1;
