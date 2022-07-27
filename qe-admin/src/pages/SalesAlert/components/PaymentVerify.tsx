@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Spin, notification, Col } from "antd";
 import { verifyDownPayment } from "@/services/ant-design-pro/api";
+import { ALLOWED_AUTO_VERIFY_PAYMENTS } from "./../../../../config/constants";
 
 interface Props {
     downPayment: any;
@@ -62,13 +63,21 @@ const PaymentVerify = ({ downPayment, setDownPayment }: Props) => {
 
     return (
         <Spin spinning={loading}>
-            <Col flex="auto" style={{ display: "flex", justifyContent: "space-between" }}>
-                <Col>
-                    <Button onClick={() => verifyPayment(false)} type="primary">Verify Payment Automatically</Button>
-                </Col>
-                <Col>
-                    <Button onClick={() => verifyPayment(true)}>Mark Payment As Verified</Button>
-                </Col>
+            <Col flex="auto" style={{ display: "flex", justifyContent: "center" }}>
+                {
+                    ALLOWED_AUTO_VERIFY_PAYMENTS.includes(downPayment?.paymentMode) && (
+                        <Col>
+                            <Button onClick={() => verifyPayment(false)} type="primary">Verify Payment Automatically</Button>
+                        </Col>
+                    )
+                }
+                {
+                    !ALLOWED_AUTO_VERIFY_PAYMENTS.includes(downPayment?.paymentMode) && (
+                        <Col>
+                            <Button onClick={() => verifyPayment(true)}>Mark Payment As Verified</Button>
+                        </Col>
+                    )
+                }
             </Col>
         </Spin>
 

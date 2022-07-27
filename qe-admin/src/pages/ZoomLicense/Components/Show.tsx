@@ -5,6 +5,7 @@ interface Props {
 }
 
 const Show = ({ data }: Props) => {
+    console.log(data);
     const columns = [
         {
             title: 'Meeting ID',
@@ -21,7 +22,8 @@ const Show = ({ data }: Props) => {
             dataIndex: 'start_url',
             key: 'start_url',
             render: (dom: any, entity: any) => {
-                return <a href={entity.start_url} target="_blank">Host URL</a>
+                const pureLink = entity.start_url.split("?")[0];
+                return <a href={pureLink + `?zak=${data.zak_token}`} target="_blank">Host URL</a>
             }
         },
         {
