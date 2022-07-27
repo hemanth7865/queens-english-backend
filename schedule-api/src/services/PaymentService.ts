@@ -1014,7 +1014,6 @@ export class PaymentService {
   async fetchNotVerifiedDownPayments(params: any) {
     const where: any = {
       is_down_payment_verified: Not(1),
-      paymentid: Not(typeormIsNull()),
     };
 
     if (params.id) {
@@ -1027,6 +1026,7 @@ export class PaymentService {
         PAYMENT_MODE.DOWNPAYMENT_CASHFREE,
       ]);
       where.downpayment = MoreThan(0);
+      where.paymentid = Not(typeormIsNull());
     }
 
     let result = await this.paymentRepository.find({
