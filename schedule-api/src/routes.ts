@@ -378,6 +378,14 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/verifyDownPayment",
+    controller: PaymentController,
+    action: "verifyDownPayment",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
     route: "/uploadNetBankingResource",
     controller: PaymentController,
     action: "uploadNetBankingResource",
@@ -515,6 +523,13 @@ export const Routes = [
     route: "/zoom-meetings",
     controller: ZoomController,
     action: "listZoomMeetings",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/zoom-meeting/reassign/:meetingId/:userId",
+    controller: ZoomController,
+    action: "reassignZoomMeeting",
     authenticate: true,
   },
 ];

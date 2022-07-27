@@ -11,7 +11,11 @@ const {
   deleteUsers,
   updateUser,
   updateUserSettings,
+  getUserByEmail,
+  getZakToken,
 } = require("./helpers/userMethods");
+
+const { updateMeeting } = require("./helpers/meetingMethods");
 
 class ZoomAPI {
   APIKey;
@@ -43,6 +47,7 @@ class ZoomAPI {
   };
 
   handleAPISuccess = async (data) => {
+    console.log(data);
     return data.data;
   };
 
@@ -64,6 +69,14 @@ ZoomAPI.prototype.createCustUser = createCustUser;
 ZoomAPI.prototype.deleteUser = deleteUser;
 ZoomAPI.prototype.deleteUsers = deleteUsers;
 ZoomAPI.prototype.updateUser = updateUser;
+ZoomAPI.prototype.getUserByEmail = getUserByEmail;
 ZoomAPI.prototype.updateUserSettings = updateUserSettings;
+ZoomAPI.prototype.getZakToken = getZakToken;
+
+/**
+ * meeting methods
+ */
+ZoomAPI.prototype.updateMeeting = updateMeeting;
+
 ZoomAPI.prototype.handleAPI = axios.handleAPI;
 exports.ZoomAPI = ZoomAPI;

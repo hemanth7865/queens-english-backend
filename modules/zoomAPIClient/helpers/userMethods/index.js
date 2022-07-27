@@ -1,4 +1,5 @@
 const listUsers = require("./listUsers");
+const getUserByEmail = require("./getUserByEmail");
 const createUser = require("./createUser");
 const createCustUser = require("./createCustUser");
 const deleteUser = require("./deleteUser");
@@ -8,6 +9,7 @@ const createUserMeeting = require("./createUserMeeting");
 const deleteUsers = require("./deleteUsers");
 const updateUser = require("./updateUser");
 const updateUserSettings = require("./updateUserSettings");
+const getZakToken = require("./getZakToken");
 module.exports = {
   listUsers,
   createUser,
@@ -19,4 +21,6 @@ module.exports = {
   deleteUsers,
   updateUser,
   updateUserSettings,
+  getUserByEmail,
+  getZakToken,
 };
