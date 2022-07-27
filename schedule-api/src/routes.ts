@@ -532,4 +532,11 @@ export const Routes = [
     action: "reassignZoomMeeting",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/class/:batchCode",
+    controller: ZoomController,
+    action: "genericLink",
+    authenticate: true,
+  },
 ];

@@ -384,69 +384,149 @@ export class ZoomMeetingService {
   }
 
   async generateUpdateZoomMeetingLicenseForBatch(batchData): Promise<any> {
-    const batch = await this.classesRepository.findOne({
-      batchNumber: batchData.batchNumber,
-    });
+    try {
+      const batch = await this.classesRepository.findOne({
+        batchNumber: batchData.batchNumber,
+      });
 
-    const teacher = batch.teacherId;
-    const user = await this.usersRepository.findOne({ id: teacher });
-    const batchId = batch.id;
-    const zoomUserService = new ZoomUserService();
-    let license = await this.zoomUserRepository.findOne({ user_id: teacher });
-    let meeting = await this.zoomMeetingRepository.findOne({
-      batch_id: batchId,
-    });
-
-    /**
-     * Batch already has meeting and same teacher
-     */
-    if (meeting && meeting.user_id === teacher) {
-      return {
-        success: true,
-        message: "Batch Already Has Zoom Meeting And Teacher",
-      };
-    }
-
-    /**
-     * selected teacher doesn't have a license
-     */
-    if (!license) {
-      const result = await zoomUserService.generateLicenses([user]);
-      if (result.created < 1) {
-        throw new Error("Failed to generate license");
-      }
-      license = await this.zoomUserRepository.findOne({
+      const teacher = batch.teacherId;
+      const user = await this.usersRepository.findOne({ id: teacher });
+      const batchId = batch.id;
+      const zoomUserService = new ZoomUserService();
+      let license = await this.zoomUserRepository.findOne({
         user_id: teacher,
       });
-    }
+      let meeting = await this.zoomMeetingRepository.findOne({
+        batch_id: batchId,
+      });
 
-    /**
-     * generate the meeting
-     */
-    if (!meeting) {
-      const result = await this.generateZoomLinks([batch]);
-      if (result.created < 1) {
-        throw new Error("Failed to generate meeting");
+      /**
+       * Batch already has meeting and same teacher
+       */
+      if (meeting && meeting.user_id === teacher) {
+        return {
+          success: true,
+          message: "Batch Already Has Zoom Meeting And Teacher",
+        };
       }
-      meeting = await this.zoomMeetingRepository.findOne({ batch_id: batchId });
-    }
 
-    /**
-     * reassign the meeting to other teacher
-     */
-    if (meeting.user_id !== teacher) {
-      const result = await this.reassignZoomMeeting(meeting.id, teacher);
-      if (result.status === 400) {
-        throw new Error("Failed to reassing zoom meeting");
+      /**
+       * selected teacher doesn't have a license
+       */
+      if (!license) {
+        const result = await zoomUserService.generateLicenses([user]);
+        if (result.created < 1) {
+          throw new Error("Failed to generate license");
+        }
+        license = await this.zoomUserRepository.findOne({
+          user_id: teacher,
+        });
       }
-    }
 
-    const result = {
-      success: true,
-      meeting,
-      license,
-      user,
-    };
+      /**
+       * generate the meeting
+       */
+      if (!meeting) {
+        const result = await this.generateZoomLinks([batch]);
+        if (result.created < 1) {
+          throw new Error("Failed to generate meeting");
+        }
+        meeting = await this.zoomMeetingRepository.findOne({
+          batch_id: batchId,
+        });
+      }
+
+      /**
+       * reassign the meeting to other teacher
+       */
+      if (meeting.user_id !== teacher) {
+        const result = await this.reassignZoomMeeting(meeting.id, teacher);
+        if (result.status === 400) {
+          throw new Error("Failed to reassing zoom meeting");
+        }
+      }
+
+      const result = {
+        success: true,
+        meeting,
+        license,
+        user,
+      };
+
+      return result;
+    } catch (e) {
+      logger.error(`Failed to assign zoom link to batch: ${e.message}`);
+      await (
+        await this.logger.customZoom(
+          batchData.batchNumber,
+          "Failed to assign zoom meeting to batch: " + e.message,
+          "FAILED_TO_ASSIGN_ZOOM_MEETING_TO_BATCH",
+          { error: e, message: e.message, batch: batchData },
+          this.request.user || {}
+        )
+      ).save();
+      return {
+        success: false,
+        message: e.message,
+        e,
+      };
+    }
+  }
+
+  async genericLink(classCode: string, teacherId: string = ""): Promise<any> {
+    let result: { link?: string; error?: boolean } = {};
+
+    try {
+      const batch = await this.classesRepository.findOne({
+        classCode,
+      });
+
+      if (!batch) {
+        throw new Error(`Batch ${classCode} Not Found.`);
+      }
+
+      if (batch.useNewZoomLink) {
+        const meeting = await this.zoomMeetingRepository.findOne({
+          batch_id: batch.id,
+        });
+
+        if (!meeting) {
+          throw new Error(`Batch ${classCode} Doesn't Have A Meeting.`);
+        }
+
+        if (teacherId == meeting.user_id) {
+          const user = await this.zoomUserRepository.findOne({
+            user_id: teacherId,
+          });
+          if (!user) {
+            throw new Error(`Teacher ${teacherId} Doesn't Have A License.`);
+          }
+          result.link =
+            meeting.start_url.split("?")[0] + "?zak=" + user.zak_token;
+        } else {
+          result.link = meeting.join_url;
+        }
+      } else {
+        result.link = batch.zoomLink;
+      }
+
+      if (!result.link) {
+        throw new Error(`Batch ${classCode} Doesn't Have A Link.`);
+      }
+    } catch (e) {
+      console.log(e);
+      logger.error("Failed to redirect to zoom meeting: " + e.message);
+      await (
+        await this.logger.customZoom(
+          classCode,
+          "Failed to redirect to zoom meeting: " + e.message,
+          "FAILED_TO_REDIRECT_TO_ZOOM_MEETING",
+          { error: e, message: e.message },
+          this.request.user || {}
+        )
+      ).save();
+      result.error = true;
+    }
 
     return result;
   }

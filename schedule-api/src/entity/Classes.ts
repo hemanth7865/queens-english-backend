@@ -103,6 +103,9 @@ export class Classes extends BaseEntity {
   activeLessonId: string;
 
   @Column({ nullable: true })
+  useNewZoomLink: number;
+
+  @Column({ nullable: true })
   created_at: Date;
 
   @Column({ nullable: true })

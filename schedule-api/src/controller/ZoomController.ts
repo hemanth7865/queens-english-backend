@@ -249,4 +249,30 @@ export class ZoomController {
       request.params.userId
     );
   }
+
+  /**
+   * Get Active Batches That Has No Batch
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async genericLink(request: Request, response: Response, next: NextFunction) {
+    this.zoomMeetingService.request = request;
+    const result = await this.zoomMeetingService.genericLink(
+      request.params.batchCode,
+      request.query.teacher
+    );
+
+    if (result.error) {
+      response.status(404).send("Not found");
+      return;
+    }
+
+    if (result.link) {
+      response.redirect(result.link);
+    }
+
+    return result;
+  }
 }
