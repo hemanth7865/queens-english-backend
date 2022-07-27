@@ -1044,7 +1044,7 @@ export class PaymentService {
         if (request.force) {
           let data: any = {
             is_down_payment_verified: 1,
-            is_down_payment_auto_verified: request.id !== downPayment.id,
+            is_down_payment_auto_verified: !request.force,
             id: downPayment.id,
           };
           const updatedPayment = await this.updatePayment(
@@ -1076,16 +1076,20 @@ export class PaymentService {
             paymentId = `pay_${paymentId}`;
           }
 
+          let paymentDetails;
+
           try {
-            const paymentDetails = await getRazorpayInstallmentPaymentById(
+            paymentDetails = await getRazorpayInstallmentPaymentById(
               paymentId
             );
 
-            if (paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS) {
+            if (
+              paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS &&
+              paymentDetails.amount / 100 == downPayment.downpayment
+            ) {
               let data: any = {
                 is_down_payment_verified: 1,
-                is_down_payment_auto_verified: request.id !== downPayment.id,
-                downpayment: paymentDetails.amount / 100,
+                is_down_payment_auto_verified: !request.force,
                 id: downPayment.id,
               };
               const updatedPayment = await this.updatePayment(
@@ -1112,6 +1116,7 @@ export class PaymentService {
                   requestData: request,
                   error: e,
                   message: e.message,
+                  razorpayPaymentDetails: paymentDetails,
                 },
                 this.request?.user,
                 downPayment.id
@@ -1129,8 +1134,9 @@ export class PaymentService {
          * handle cashfree payments
          */
         if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+          let paymentDetails;
           try {
-            const paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
+            paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
               downPayment.paymentid
             );
             
@@ -1140,11 +1146,13 @@ export class PaymentService {
               throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
             }
 
-            if (downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS) {
+            if (
+              downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
+              downPaymentDetails.amount == downPayment.downpayment
+            ) {
               let data: any = {
                 is_down_payment_verified: 1,
-                is_down_payment_auto_verified: request.id !== downPayment.id,
-                downpayment: downPaymentDetails.amount,
+                is_down_payment_auto_verified: !request.force,
                 id: downPayment.id,
               };
               const updatedPayment = await this.updatePayment(
@@ -1171,6 +1179,8 @@ export class PaymentService {
                   requestData: request,
                   error: e,
                   message: e.message,
+                  cashfreePayments: paymentDetails,
+                  downPayment,
                 },
                 this.request?.user,
                 downPayment.id
