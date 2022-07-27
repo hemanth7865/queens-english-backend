@@ -211,11 +211,13 @@ export class BatchService {
           });
       }
 
-      // const meetingService = new ZoomMeetingService();
-
-      // await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
-
       await queryRunner.commitTransaction();
+
+      if (process?.env?.ENABLE_ZOOM && parseInt(process?.env?.ENABLE_ZOOM) === 1) {
+        const meetingService = new ZoomMeetingService();
+        await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+      }
+
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
