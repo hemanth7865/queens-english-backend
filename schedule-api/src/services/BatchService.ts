@@ -53,6 +53,8 @@ export class BatchService {
   }
 
   async createBatch(data: any, force: boolean = false) {
+    const ENABLE_ZOOM =
+      process?.env?.ENABLE_ZOOM && parseInt(process?.env?.ENABLE_ZOOM) === 1;
     const moment = require("moment");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
@@ -65,6 +67,9 @@ export class BatchService {
 
       if (!data.id) {
         data.id = uuidv4();
+        if (ENABLE_ZOOM) {
+          data.useNewZoomLink = 1;
+        }
         create = true;
       }   
         
@@ -213,7 +218,7 @@ export class BatchService {
 
       await queryRunner.commitTransaction();
 
-      if (process?.env?.ENABLE_ZOOM && parseInt(process?.env?.ENABLE_ZOOM) === 1) {
+      if (ENABLE_ZOOM) {
         const meetingService = new ZoomMeetingService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
       }
@@ -436,6 +441,9 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
+      if (data.useNewZoomLink) {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
       classes.created_at = new Date();
       classes.updated_at = new Date();
 

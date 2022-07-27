@@ -251,7 +251,7 @@ export class ZoomController {
   }
 
   /**
-   * Get Active Batches That Has No Batch
+   * Redirect To Zoom Meeting Based On Selected Batch Code.
    * @param request
    * @param response
    * @param next
