@@ -373,7 +373,6 @@ const BatchList: React.FC = () => {
     setIsLoading(true);
     setShowDetail(true);
     getIndividualBatch(id).then((data: any) => {
-      console.log(data.data);
       setCurrentRow(data.data);
       setTempData(data.data);
       setAddTeacher(false);
