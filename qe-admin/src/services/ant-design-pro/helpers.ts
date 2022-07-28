@@ -167,3 +167,8 @@ export const timeUTCToISTTimezone = (time?: string): string | undefined => {
     }
     return moment(result).add(5, "hours").add(30, "minutes").format("HH:mm")
 }
+
+
+export const getZoomURL = (type: "GENERIC_STUDENT" | "GENERIC_TEACHER" | "PUBLIC_STUDENT" | "PUBLIC_TEACHER", zoomMeeting: any, zoomUser: any) => {
+
+}
