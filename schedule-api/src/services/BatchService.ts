@@ -17,6 +17,8 @@ import axios from "./../helpers/axios";
 import { getListOfLessonsIDs, getLessonByID } from "./../data/lessons";
 import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
+import { ZoomMeeting } from "../entity/ZoomMeeting";
+import { ZoomUser } from "../entity/ZoomUser";
 
 const generateRandomCode = (): string => {
   var length = 5;
@@ -33,6 +35,9 @@ export class BatchService {
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
   private studentBatchesHistory = getRepository(StudentBatchesHistory);
+  private zoomMeetingRepository = getRepository(ZoomMeeting);
+  private zoomUserRepository = getRepository(ZoomUser);
+
 
   BatchService() { }
 
@@ -438,7 +443,7 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
-      if (data.useNewZoomLink) {
+      if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
       classes.created_at = new Date();
@@ -548,6 +553,9 @@ export class BatchService {
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
+      if (typeof data.useNewZoomLink != "undefined") {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
 
       if (data.id) {
         classes.id = data.id;
@@ -882,9 +890,13 @@ export class BatchService {
       .addSelect(["student.firstName", "student.lastName", "student.phoneNumber"])
       .where("batchStudent.batchId = :id", { id: batchId })
       .getMany();
+    const zoomMeeting = await this.zoomMeetingRepository.findOne({ batch_id: classes?.id });
+    const zoomUser = await this.zoomUserRepository.findOne({ user_id: classes?.teacherId });
     teacherView.classes = classes;
     teacherView.batchAvailability = [batchavail];
     teacherView.students = students;
+    teacherView.zoomMeeting = zoomMeeting;
+    teacherView.zoomUser = zoomUser;
     return {
       success: true,
       data: teacherView,

@@ -97,6 +97,7 @@ const BatchList: React.FC = () => {
   const [startLesson, setStartLesson] = useState(getParam('startLesson') || undefined);
   const [endLesson, setEndLesson] = useState(undefined);
   const [selectedFrequency, setSelectedFrequency] = useState(getParam('frequency') || undefined);
+  const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(getParam('useNewZoomLink') || 0);
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -231,6 +232,7 @@ const BatchList: React.FC = () => {
         lessonEndTime: timeRange[1].utc().format("YYYY-MM-DDTHH:mm:ss") + ".000Z",
         ageGroup: selectedAgeGroup,
         frequency: selectedFrequency,
+        useNewZoomLink: selectedUseNewZoomLink,
         followupVersion: followupVersion,
 
         id: createBatch ? null : currentRow?.id,
@@ -366,6 +368,25 @@ const BatchList: React.FC = () => {
         setEdit(true)
       });
   };
+
+  const viewBatch = (id: string) => {
+    setIsLoading(true);
+    setShowDetail(true);
+    getIndividualBatch(id).then((data: any) => {
+      console.log(data.data);
+      setCurrentRow(data.data);
+      setTempData(data.data);
+      setAddTeacher(false);
+    }).catch((error) => {
+      setShowDetail(false);
+      alert("Failed To Fetch The Batch")
+      console.log(error);
+    })
+      .finally(() => {
+        setIsLoading(false);
+    });
+  }
+
   const columns: ProColumns<API.batchItem>[] = [
     {
       title: (
@@ -523,10 +544,7 @@ const BatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              setCurrentRow(entity);
-              setShowDetail(true);
-              setTempData(entity);
-              setAddTeacher(false);
+              viewBatch(entity.id)
             }}
           >
             <EyeOutlined />
@@ -843,6 +861,28 @@ const BatchList: React.FC = () => {
                           </Form.Item>
                         </Col>
 
+
+                        <Col span={24}>
+                          <Form.Item
+                              name="useNewZoomLink"
+                          >
+                            <Select
+                              placeholder="Use The New Zoom Link."
+                              maxTagCount={1}
+                              onChange={(v) => setUseNewZoomLink(v)}
+                              value={selectedUseNewZoomLink}
+                              options={
+                                [
+                                  { label: "Use New Zoom Meeting", value: 1 },
+                                  { label: "Don't Use The New Zoom Meeting", value: 0 },
+                                ]
+                              }
+                              defaultValue={!createBatch ? prePop?.batchData?.classes?.useNewZoomLink : selectedUseNewZoomLink}
+                            />
+                          </Form.Item>
+                        </Col>
+
+
                         <Col span={24}>
                           <Form.Item
                             name="zoomLink"
@@ -953,7 +993,7 @@ const BatchList: React.FC = () => {
                     }
                   />
                 )}
-                <View batchData={tempData} />
+                <View batchData={tempData} isLoading={isLoading} />
               </>
             )}
           </>
