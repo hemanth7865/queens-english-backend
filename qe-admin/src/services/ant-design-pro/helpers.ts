@@ -2,6 +2,7 @@ import { notification } from 'antd';
 import { LESSONS, Lesson } from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
 import moment from "moment";
+import type ZoomTypes from "./types/zoom";
 
 export const openNotificationWithIcon = (type: string, message: string, reload = true) => {
     notification[type]({
@@ -169,6 +170,10 @@ export const timeUTCToISTTimezone = (time?: string): string | undefined => {
 }
 
 
-export const getZoomURL = (type: "GENERIC_STUDENT" | "GENERIC_TEACHER" | "PUBLIC_STUDENT" | "PUBLIC_TEACHER", zoomMeeting: any, zoomUser: any) => {
-
-}
+export const getZoomURL = (
+  type: ZoomTypes.LinkType,
+  zoomMeeting?: ZoomTypes.ZoomMeeting,
+  zoomUser?: ZoomTypes.ZoomUser
+) => {
+    return "Get Zoom URL"
+};

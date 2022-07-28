@@ -34,4 +34,12 @@ declare namespace Zoom {
     zoom_user?: ZoomUser;
     batch: any;
   };
+
+  type LinkType =
+    | "GENERIC_STUDENT"
+    | "GENERIC_TEACHER"
+    | "PUBLIC_STUDENT"
+    | "PUBLIC_TEACHER";
 }
+
+export default Zoom;
