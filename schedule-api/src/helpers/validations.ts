@@ -1,4 +1,5 @@
 import { StudentService } from "../services/StudentService";
+import { PaymentService } from "../services/PaymentService";
 import { PAYMENT_MODE, CASHFREE_PAYMENT_STATUS, SUBSCRIPTION_TYPE } from "../helpers/Constants";
 import { CashFreeUtils } from "../utils/payment/CashFreeUtils";
 import { isNullOrUndefined } from "util";
@@ -23,7 +24,7 @@ export class validations {
             }
         }
         var status = "Enrolled";
-        var message = "";
+        var message;
         var p = total;
         var paymentTally = (Number(total.saleamount) - (Number(total.emi * total.emiMonths) + Number(total.downpayment)))
         var isEntryStatus = false;
@@ -48,8 +49,21 @@ export class validations {
                 }
             }
         }
+        if (!isEntryStatus) {
+            status = "Error";
+            message = "Mandatory student details are missing";
+        }
+        if (!isValidation) {
+            status = "Error";
+            message = "payment details are incorrect";
+        }
 
+        //validate for duplicate leadid
         const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", student.studentID, student.id);
+        if (leadIDExists) {
+            status = "Error";
+            message = "Student ID already exists";
+        }
 
         //Validate for Cashfree payment Mode
         if (total.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT) {
@@ -67,19 +81,19 @@ export class validations {
             }
         }
 
+        //validate the downpayment for razorpay and cashfree
+        if (status != "Error") {
+            const verifyDownpayment = await (new PaymentService()).verifyDownPayment({ force: false, id: total.id, payment: [total] });
+            if (verifyDownpayment.message.error == 0 && verifyDownpayment.message.paid == 0) {
+                status = "Error";
+                message = `Selected Payment is Not Found`;
+            }
+            if (verifyDownpayment.message.error == 1 && verifyDownpayment.message.paid == 0) {
+                status = "Error";
+                message = "Failed To Verify Down Payment"
+            }
+        }
 
-        if (!isEntryStatus) {
-            status = "Error";
-            message = "Fill all the student details";
-        }
-        if (!isValidation) {
-            status = "Error";
-            message = "Enter correct payment details";
-        }
-        if (leadIDExists) {
-            status = "Error";
-            message = "Student ID already exists";
-        }
         return { status, message };
     }
 }
