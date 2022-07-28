@@ -522,54 +522,50 @@ export class ZoomMeetingService {
     return result;
   }
 
-  async redirectTeacher(classCode: string, teacherId: string): Promise<any> {
+  async redirectTeacher(teacherCode: string): Promise<any> {
     let result: { link?: string; error?: boolean } = {};
 
     try {
       const batch = await this.classesRepository.findOne({
-        classCode,
-        teacherId,
+        teacherCode,
       });
 
       if (!batch) {
-        throw new Error(`Batch ${classCode} Not Found.`);
+        throw new Error(`Batch ${teacherCode} Not Found.`);
       }
 
       if (batch.useNewZoomLink) {
         const meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batch.id,
-          user_id: teacherId,
         });
 
         if (!meeting) {
-          throw new Error(`Batch ${classCode} Doesn't Have A Meeting.`);
+          throw new Error(`Batch ${teacherCode} Doesn't Have A Meeting.`);
         }
 
-        if (teacherId == meeting.user_id) {
-          const user = await this.zoomUserRepository.findOne({
-            user_id: teacherId,
-          });
-          if (!user) {
-            throw new Error(`Teacher ${teacherId} Doesn't Have A License.`);
-          }
-          result.link =
-            meeting.start_url.split("?")[0] + "?zak=" + user.zak_token;
+        const user = await this.zoomUserRepository.findOne({
+          user_id: meeting.user_id,
+        });
+        if (!user) {
+          throw new Error(`Teacher ${meeting.user_id} Doesn't Have A License.`);
         }
+        result.link =
+          meeting.start_url.split("?")[0] + "?zak=" + user.zak_token;
       } else {
         result.link = batch.zoomLink;
       }
 
       if (!result.link) {
-        throw new Error(`Batch ${classCode} Doesn't Have A Link.`);
+        throw new Error(`Batch ${teacherCode} Doesn't Have A Link.`);
       }
     } catch (e) {
       console.log(e);
       logger.error(
         "Failed to redirect to zoom meeting for teacher: " + e.message
       );
-      await (
+      await(
         await this.logger.customZoom(
-          classCode,
+          teacherCode,
           "Failed to redirect to zoom meeting for teacher: " + e.message,
           "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_TEACHER",
           { error: e, message: e.message },

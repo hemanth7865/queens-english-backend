@@ -309,8 +309,7 @@ export class ZoomController {
   ) {
     this.zoomMeetingService.request = request;
     const result = await this.zoomMeetingService.redirectTeacher(
-      request.params.batchCode,
-      request.params.teacherId
+      request.params.teacherCode
     );
 
     if (result.error) {

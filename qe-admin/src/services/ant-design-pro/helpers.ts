@@ -179,14 +179,12 @@ export const getZoomURL = (
     // @ts-expect-error
     const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
 
-    console.log(GENERIC_ZOOM, "dasd");
-
     if (!zoomMeeting || !zoomUser) {
         return "NA";
     }
 
     if (type === "GENERIC_TEACHER") {
-        return `${GENERIC_ZOOM}c/t/${batch.classCode}/${batch.teacherId}`;
+        return `${GENERIC_ZOOM}c/t/${batch.teacherCode}`;
     }
 
     if (type === "PUBLIC_TEACHER") {
