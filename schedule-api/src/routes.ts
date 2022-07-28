@@ -533,6 +533,13 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "post",
+    route: "/zoom-user/update/zak",
+    controller: ZoomController,
+    action: "updateZakToken",
+    authenticate: true,
+  },
+  {
     method: "get",
     route: "/c/s/:batchCode",
     controller: ZoomController,

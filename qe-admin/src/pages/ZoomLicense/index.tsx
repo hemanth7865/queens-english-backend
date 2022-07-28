@@ -4,7 +4,7 @@ import { useIntl } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllZoomUsers, getZoomUser, deleteZoomUser, addZoomUser, reassignZoomUserLicense } from '@/services/ant-design-pro/api';
+import { getAllZoomUsers, getZoomUser, deleteZoomUser, addZoomUser, reassignZoomUserLicense, updateZoomUserZAKToken } from '@/services/ant-design-pro/api';
 import Show from './Components/Show';
 import Add from './Components/Add';
 import Reassign from './Components/Reassign';
@@ -62,6 +62,23 @@ const TableList: React.FC = () => {
         actionRef.current?.reload();
     }
 
+    const handleRegenerateToken = async (data: any) => {
+        setIsLoading(true);
+        const notificationParams: [string, string, boolean] = ["Update User ZAK Token Successfully", "Failed To Update User ZAK Token", false]
+        try {
+            const msg: any = await updateZoomUserZAKToken(data.user_id);
+            if (!(msg?.updated > 0)) {
+                throw new Error("Failed To Update ZAK Token");
+            }
+            handleAPIResponse(msg, ...notificationParams);
+            setAddLicense(false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, ...notificationParams);
+        }
+        setIsLoading(false);
+        actionRef.current?.reload();
+    }
+
     const handleReassignLicense = async (from: string, to: string) => {
         setIsLoading(true);
         try {
@@ -86,7 +103,7 @@ const TableList: React.FC = () => {
         setIsLoading(false);
     }
 
-    const columns = columnsMethod(handleShow, handleDelete, setReassign);
+    const columns = columnsMethod(handleShow, handleDelete, setReassign, handleRegenerateToken);
 
     return (
         <PageContainer>
