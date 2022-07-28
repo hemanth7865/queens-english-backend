@@ -19,16 +19,16 @@ import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
+import {
+  updateBatchesTeacherCode,
+  generateRandomCode,
+  getUniqueCode,
+} from "./../utils/batch/getUniqueTeacherCode";
 
-const generateRandomCode = (): string => {
-  var length = 5;
-  var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
-  var retVal = "";
-  for (var i = 0, n = charset.length; i < length; ++i) {
-    retVal += charset.charAt(Math.floor(Math.random() * n));
-  }
-  return retVal;
-}
+const { usersLogger } = require("../Logger.js");
+
+
+
 export class BatchService {
   private classesRepository = getRepository(Classes);
   private userRepository = getRepository(User);
@@ -126,7 +126,7 @@ export class BatchService {
       }
 
       if (create) {
-        data.classCode = generateRandomCode();
+        data.classCode = await getUniqueCode("classCode");
         alreadyExists = await this.batchExists(data);
         if (alreadyExists?.id) {
           return { status: false, message: "Batch Number Already Exists" };
@@ -224,6 +224,11 @@ export class BatchService {
         const meetingService = new ZoomMeetingService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
       }
+
+      /**
+       * Ensure the each batch gets a unique teacher code
+       */
+      await updateBatchesTeacherCode();
 
       return res1;
     } catch (error) {
