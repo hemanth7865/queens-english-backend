@@ -873,7 +873,7 @@ const BatchList: React.FC = () => {
                               options={
                                 [
                                   { label: "Use New Zoom Meeting", value: 1 },
-                                  { label: "Don't Use The New Zoom Meeting", value: 0 },
+                                  { label: "Use Old Zoom Meeting", value: 0 },
                                 ]
                               }
                               defaultValue={!createBatch ? prePop?.batchData?.classes?.useNewZoomLink : selectedUseNewZoomLink}
