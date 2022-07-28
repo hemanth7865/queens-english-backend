@@ -555,6 +555,10 @@ export class ZoomUserService {
         if (!user) {
           throw new Error("User not found");
         }
+
+        // wait 100 millisecond between each request
+        await new Promise((resolve, reject) => setTimeout(resolve, 100));
+
         zoomClient.setUser(user);
         const zak = await zoomClient.getZakToken();
         if (!zak?.token) {
