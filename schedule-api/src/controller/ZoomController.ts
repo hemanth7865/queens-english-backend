@@ -251,6 +251,22 @@ export class ZoomController {
   }
 
   /**
+   * Update zak token for one user or all licenses
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async updateZakToken(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.updateZakToken(request.query.userId);
+  }
+
+  /**
    * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
    * @param request
    * @param response

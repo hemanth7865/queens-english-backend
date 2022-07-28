@@ -734,6 +734,13 @@ export async function reassignZoomUserLicense(from: string, to: string) {
   });
 }
 
+//update zak token
+export async function updateZoomUserZAKToken(id?: string) {
+  return request<API.Any>(`/be/zoom-user/update/zak?userId=${id ? id: ''}`, {
+    method: "POST",
+  });
+}
+
 //delete zoom user
 export async function dynamicAPI(url, method, params, options = {}) {
   return request<API.Any>(`/be/${url}`, {
