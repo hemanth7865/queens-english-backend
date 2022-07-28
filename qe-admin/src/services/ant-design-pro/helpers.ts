@@ -171,9 +171,35 @@ export const timeUTCToISTTimezone = (time?: string): string | undefined => {
 
 
 export const getZoomURL = (
-  type: ZoomTypes.LinkType,
-  zoomMeeting?: ZoomTypes.ZoomMeeting,
-  zoomUser?: ZoomTypes.ZoomUser
+    type: ZoomTypes.LinkType,
+    zoomMeeting?: ZoomTypes.ZoomMeeting,
+    zoomUser?: ZoomTypes.ZoomUser,
+    batch?: any
 ) => {
-    return "Get Zoom URL"
+    // @ts-expect-error
+    const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
+
+    console.log(GENERIC_ZOOM, "dasd");
+
+    if (!zoomMeeting || !zoomUser) {
+        return "NA";
+    }
+
+    if (type === "GENERIC_TEACHER") {
+        return `${GENERIC_ZOOM}c/t/${batch.classCode}/${batch.teacherId}`;
+    }
+
+    if (type === "PUBLIC_TEACHER") {
+        return zoomMeeting.start_url.split("?")[0] + "?zak=" + zoomUser.zak_token;
+    }
+
+    if (type === "PUBLIC_STUDENT") {
+        return zoomMeeting.join_url;
+    }
+
+    if (type === "GENERIC_STUDENT") {
+        return `${GENERIC_ZOOM}c/s/${batch.classCode}`;
+    }
+
+    return "NA";
 };
