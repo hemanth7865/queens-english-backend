@@ -161,7 +161,7 @@ export class ZoomMeetingService {
     return {
       agenda: batch.batchNumber,
       default_password: false,
-      // duration: duration,
+      duration: 24 * 60 * 60,
       password: "QE",
       // pre_schedule: true,
       settings: {
