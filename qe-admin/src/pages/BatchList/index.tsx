@@ -366,6 +366,25 @@ const BatchList: React.FC = () => {
         setEdit(true)
       });
   };
+
+  const viewBatch = (id: string) => {
+    setIsLoading(true);
+    setShowDetail(true);
+    getIndividualBatch(id).then((data: any) => {
+      console.log(data.data);
+      setCurrentRow(data.data);
+      setTempData(data.data);
+      setAddTeacher(false);
+    }).catch((error) => {
+      setShowDetail(false);
+      alert("Failed To Fetch The Batch")
+      console.log(error);
+    })
+      .finally(() => {
+        setIsLoading(false);
+    });
+  }
+
   const columns: ProColumns<API.batchItem>[] = [
     {
       title: (
@@ -523,10 +542,7 @@ const BatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              setCurrentRow(entity);
-              setShowDetail(true);
-              setTempData(entity);
-              setAddTeacher(false);
+              viewBatch(entity.id)
             }}
           >
             <EyeOutlined />
@@ -953,7 +969,7 @@ const BatchList: React.FC = () => {
                     }
                   />
                 )}
-                <View batchData={tempData} />
+                <View batchData={tempData} isLoading={isLoading} />
               </>
             )}
           </>

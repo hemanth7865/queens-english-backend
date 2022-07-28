@@ -1,13 +1,14 @@
 import React from "react";
-import { Col, Row, Table, Space } from "antd";
+import { Col, Row, Table, Space, Spin } from "antd";
 import { LESSONS } from "../../../../config/lessons";
 import { parseISO, format } from "date-fns";
 
 interface Props {
-  batchData: API.batchItem;
+  batchData: any;
+  isLoading: boolean
 }
 
-const View = ({ batchData }: Props) => {
+const View = ({ batchData, isLoading }: Props) => {
   const timeSlotHandler = (entity: any): string => {
     try {
       return format(parseISO(entity.lessonStartTime!), "hh:mm a") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm a")
@@ -17,9 +18,11 @@ const View = ({ batchData }: Props) => {
     return " - ";
   }
 
+  const classes = batchData?.classes;
+
   return (
-    <div>
-      <div className="title" style={{ marginBottom: 20 }}>{batchData?.batchId}</div>
+    <Spin spinning={isLoading}>
+      <div className="title" style={{ marginBottom: 20 }}>{classes?.batchNumber}</div>
       <Space>
         <Row gutter={[16, 15]}>
           <Col span={8}>
@@ -27,7 +30,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.date ? batchData.date.split("T")[0] : "NA"}
+              {classes?.created_at ? classes.created_at.split("T")[0] : "NA"}
             </div>
           </Col>
 
@@ -36,7 +39,8 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.dateSlot}
+              {classes?.classStartDate && classes?.classEndDate ? classes.classStartDate.split("T")[0] + " To " + classes.classEndDate.split("T")[0] : "NA"}
+              {batchData?.classes?.dateSlot}
             </div>
           </Col>
 
@@ -45,7 +49,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.createdBy ? batchData.createdBy : "NA"}
+              {"Admin"}
             </div>
           </Col>
 
@@ -54,7 +58,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.teacher ? batchData?.teacher : "NA"}
+              {classes?.teacher?.firstName ? classes?.teacher.firstName + " " + classes?.teacher.lastName : "NA"}
             </div>
           </Col>
 
@@ -63,7 +67,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.startingLessonId ? "Lesson " + LESSONS.filter(i => batchData?.startingLessonId === i.id)[0]?.number : "NA"}
+              {classes?.startingLessonId ? "Lesson " + LESSONS.filter(i => classes?.startingLessonId === i.id)[0]?.number : "NA"}
             </div>
           </Col>
 
@@ -72,7 +76,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.endingLessonId ? "Lesson " + LESSONS.filter(i => batchData?.endingLessonId === i.id)[0]?.number : "NA"}
+              {classes?.endingLessonId ? "Lesson " + LESSONS.filter(i => classes?.endingLessonId === i.id)[0]?.number : "NA"}
             </div>
           </Col>
 
@@ -81,7 +85,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.activeLessonId ? "Lesson " + LESSONS.filter(i => batchData?.activeLessonId === i.id)[0]?.number : "NA"}
+              {classes?.activeLessonId ? "Lesson " + LESSONS.filter(i => classes?.activeLessonId === i.id)[0]?.number : "NA"}
             </div>
           </Col>
 
@@ -90,7 +94,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {batchData?.students ? batchData?.students : "NA"}
+              {batchData?.students ? batchData?.students.length : "NA"}
             </div>
           </Col>
 
@@ -99,7 +103,7 @@ const View = ({ batchData }: Props) => {
           </Col>
           <Col span={16}>
             <div>
-              {timeSlotHandler(batchData)}
+              {timeSlotHandler(classes)}
             </div>
           </Col>
 
@@ -107,33 +111,33 @@ const View = ({ batchData }: Props) => {
             <div>Status</div>
           </Col>
           <Col span={16}>
-            <div> {batchData?.status}</div>
+            <div> {classes?.status == 4 ? "In Active" : "Active"}</div>
           </Col>
 
           <Col span={8}>
             <div>Zoom Link</div>
           </Col>
           <Col span={16}>
-            <div><a href={batchData?.zoomLink} target="_blank">{batchData?.zoomLink || "NA"}</a></div>
+            <div><a href={classes?.zoomLink} target="_blank">{classes?.zoomLink || "NA"}</a></div>
           </Col>
 
           <Col span={8}>
             <div>Zoom Info</div>
           </Col>
           <Col span={16}>
-            <div> {batchData?.zoomInfo || "NA"}</div>
+            <div> {classes?.zoomInfo || "NA"}</div>
           </Col>
 
           <Col span={8}>
             <div>Whatsapp Link</div>
           </Col>
           <Col span={16}>
-            <div><a href={batchData?.whatsappLink} target="_blank">{batchData?.whatsappLink || "NA"}</a></div>
+            <div><a href={classes?.whatsappLink} target="_blank">{classes?.whatsappLink || "NA"}</a></div>
           </Col>
 
           <Col span={24}>
             <div className="title">Students</div>
-            <Table style={{ width: "100%" }} dataSource={batchData?.studentsList} columns={[
+            <Table style={{ width: "100%" }} dataSource={batchData?.students?.map((i: any) => i.student)} columns={[
               {
                 title: "First Name",
                 dataIndex: "firstName",
@@ -153,8 +157,7 @@ const View = ({ batchData }: Props) => {
           </Col>
         </Row>
       </Space>
-
-    </div>
+    </Spin>
   );
 };
 
