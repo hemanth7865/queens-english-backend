@@ -532,4 +532,16 @@ export const Routes = [
     action: "reassignZoomMeeting",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/c/s/:batchCode",
+    controller: ZoomController,
+    action: "redirectStudent",
+  },
+  {
+    method: "get",
+    route: "/c/t/:batchCode/:teacherId",
+    controller: ZoomController,
+    action: "redirectTeacher",
+  },
 ];
