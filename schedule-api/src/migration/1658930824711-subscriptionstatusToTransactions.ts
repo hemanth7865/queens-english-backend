@@ -5,7 +5,7 @@ export class subscriptionstatusToTransactions1658930824711 implements MigrationI
     public async up(queryRunner: QueryRunner): Promise<void> {
         if (!(await queryRunner.hasColumn("installments", "subscription_status"))) {
             await queryRunner.query(
-                `ALTER table installments add subscription_status varchar(100) NOT NULL`
+                `ALTER table installments add subscription_status varchar(100) NULL`
             );
         }
     }
@@ -13,7 +13,7 @@ export class subscriptionstatusToTransactions1658930824711 implements MigrationI
     public async down(queryRunner: QueryRunner): Promise<void> {
         if (await queryRunner.hasColumn("installments", "subscription_status")) {
             await queryRunner.query(
-                `ALTER table installments add subscription_status varchar(100) NOT NULL`
+                `ALTER table installments add subscription_status varchar(100) NULL`
             );
         }
     }
