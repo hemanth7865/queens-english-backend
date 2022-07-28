@@ -534,8 +534,14 @@ export const Routes = [
   },
   {
     method: "get",
-    route: "/class/:batchCode",
+    route: "/c/s/:batchCode",
     controller: ZoomController,
-    action: "genericLink",
+    action: "redirectStudent",
+  },
+  {
+    method: "get",
+    route: "/c/t/:batchCode/:teacherId",
+    controller: ZoomController,
+    action: "redirectTeacher",
   },
 ];

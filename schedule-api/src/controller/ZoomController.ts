@@ -251,17 +251,50 @@ export class ZoomController {
   }
 
   /**
-   * Redirect To Zoom Meeting Based On Selected Batch Code.
+   * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
    * @param request
    * @param response
    * @param next
    * @returns
    */
-  async genericLink(request: Request, response: Response, next: NextFunction) {
+  async redirectStudent(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
     this.zoomMeetingService.request = request;
-    const result = await this.zoomMeetingService.genericLink(
+    const result = await this.zoomMeetingService.redirectStudent(
+      request.params.batchCode
+    );
+
+    if (result.error) {
+      response.status(404).send("Not found");
+      return;
+    }
+
+    if (result.link) {
+      response.redirect(result.link);
+    }
+
+    return result;
+  }
+
+  /**
+   * Redirect To Zoom Meeting Based On Selected Batch Code For Teacher.
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async redirectTeacher(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomMeetingService.request = request;
+    const result = await this.zoomMeetingService.redirectTeacher(
       request.params.batchCode,
-      request.query.teacher
+      request.params.teacherId
     );
 
     if (result.error) {

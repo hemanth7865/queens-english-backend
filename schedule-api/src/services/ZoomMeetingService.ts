@@ -473,7 +473,7 @@ export class ZoomMeetingService {
     }
   }
 
-  async genericLink(classCode: string, teacherId: string = ""): Promise<any> {
+  async redirectStudent(classCode: string): Promise<any> {
     let result: { link?: string; error?: boolean } = {};
 
     try {
@@ -494,6 +494,57 @@ export class ZoomMeetingService {
           throw new Error(`Batch ${classCode} Doesn't Have A Meeting.`);
         }
 
+        result.link = meeting.join_url;
+      } else {
+        result.link = batch.zoomLink;
+      }
+
+      if (!result.link) {
+        throw new Error(`Batch ${classCode} Doesn't Have A Link.`);
+      }
+    } catch (e) {
+      console.log(e);
+      logger.error(
+        "Failed to redirect to zoom meeting for student: " + e.message
+      );
+      await (
+        await this.logger.customZoom(
+          classCode,
+          "Failed to redirect to zoom meeting for student: " + e.message,
+          "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_STUDENT",
+          { error: e, message: e.message },
+          this.request.user || {}
+        )
+      ).save();
+      result.error = true;
+    }
+
+    return result;
+  }
+
+  async redirectTeacher(classCode: string, teacherId: string): Promise<any> {
+    let result: { link?: string; error?: boolean } = {};
+
+    try {
+      const batch = await this.classesRepository.findOne({
+        classCode,
+        teacherId,
+      });
+
+      if (!batch) {
+        throw new Error(`Batch ${classCode} Not Found.`);
+      }
+
+      if (batch.useNewZoomLink) {
+        const meeting = await this.zoomMeetingRepository.findOne({
+          batch_id: batch.id,
+          user_id: teacherId,
+        });
+
+        if (!meeting) {
+          throw new Error(`Batch ${classCode} Doesn't Have A Meeting.`);
+        }
+
         if (teacherId == meeting.user_id) {
           const user = await this.zoomUserRepository.findOne({
             user_id: teacherId,
@@ -503,8 +554,6 @@ export class ZoomMeetingService {
           }
           result.link =
             meeting.start_url.split("?")[0] + "?zak=" + user.zak_token;
-        } else {
-          result.link = meeting.join_url;
         }
       } else {
         result.link = batch.zoomLink;
@@ -515,12 +564,14 @@ export class ZoomMeetingService {
       }
     } catch (e) {
       console.log(e);
-      logger.error("Failed to redirect to zoom meeting: " + e.message);
+      logger.error(
+        "Failed to redirect to zoom meeting for teacher: " + e.message
+      );
       await (
         await this.logger.customZoom(
           classCode,
-          "Failed to redirect to zoom meeting: " + e.message,
-          "FAILED_TO_REDIRECT_TO_ZOOM_MEETING",
+          "Failed to redirect to zoom meeting for teacher: " + e.message,
+          "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_TEACHER",
           { error: e, message: e.message },
           this.request.user || {}
         )
