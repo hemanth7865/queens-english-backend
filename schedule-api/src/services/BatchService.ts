@@ -67,9 +67,6 @@ export class BatchService {
 
       if (!data.id) {
         data.id = uuidv4();
-        if (ENABLE_ZOOM) {
-          data.useNewZoomLink = 1;
-        }
         create = true;
       }   
         
