@@ -443,7 +443,7 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
-      if (data.useNewZoomLink) {
+      if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
       classes.created_at = new Date();
@@ -553,6 +553,9 @@ export class BatchService {
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
+      if (typeof data.useNewZoomLink != "undefined") {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
 
       if (data.id) {
         classes.id = data.id;
