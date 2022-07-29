@@ -483,9 +483,9 @@ export class PaymentService {
       ) {
         usersLogger.error(
           "Payment link generation failed for installment: " +
-            installment.id +
-            "payment response: " +
-            JSON.stringify(paymentResponse)
+          installment.id +
+          "payment response: " +
+          JSON.stringify(paymentResponse)
         );
         failureCount++;
       } else {
@@ -501,9 +501,9 @@ export class PaymentService {
     }
     usersLogger.info(
       "Payment link generation success count: " +
-        successCount +
-        "failure count: " +
-        failureCount
+      successCount +
+      "failure count: " +
+      failureCount
     );
     return await this.updateInstallmentData(installmentsForUpdate);
   }
@@ -561,9 +561,9 @@ export class PaymentService {
     ) {
       usersLogger.info(
         "Existing payment link cancelled for id: " +
-          installment.transactionId +
-          " link: " +
-          installment.paymentLink
+        installment.transactionId +
+        " link: " +
+        installment.paymentLink
       );
     }
 
@@ -576,9 +576,9 @@ export class PaymentService {
     ) {
       usersLogger.error(
         "Payment link generation failed for installment: " +
-          installment.id +
-          "payment response: " +
-          JSON.stringify(paymentResponse)
+        installment.id +
+        "payment response: " +
+        JSON.stringify(paymentResponse)
       );
       return {
         status: "error",
@@ -651,9 +651,9 @@ export class PaymentService {
           await getRazorpayPaymentById(installment.transactionId);
         usersLogger.info(
           "Fetch payment link id: " +
-            installment.transactionId +
-            " response: " +
-            JSON.stringify(paymentLinkDetails)
+          installment.transactionId +
+          " response: " +
+          JSON.stringify(paymentLinkDetails)
         );
         if (paymentLinkDetails.status === "expired") {
           usersLogger.info("expired payment id: " + installment.id);
@@ -713,7 +713,7 @@ export class PaymentService {
   async updateInstallmentData(installmentsWithoutLinks: Transactions[]) {
     usersLogger.info(
       "installments without links for update: " +
-        installmentsWithoutLinks.length
+      installmentsWithoutLinks.length
     );
     try {
       for (let installment of installmentsWithoutLinks) {
@@ -782,7 +782,7 @@ export class PaymentService {
         success: true,
         msg: "successfully updated link",
       };
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async fetchAutoDebitDetails(request: any) {
@@ -808,7 +808,7 @@ export class PaymentService {
       if (isNullOrUndefined(installment)) {
         usersLogger.info(
           "Auto-Debit installment not found for given id: " +
-            request.installmentId
+          request.installmentId
         );
         return {
           status: "error",
@@ -825,7 +825,7 @@ export class PaymentService {
       if (isNullOrUndefined(cashFreeResponse)) {
         usersLogger.error(
           "Error in fetching subscription details for id : " +
-            request.installmentId
+          request.installmentId
         );
         return {
           status: "error",
@@ -908,7 +908,7 @@ export class PaymentService {
         if (isNullOrUndefined(cashFreeResponse)) {
           usersLogger.error(
             "Error in fetching subscription details for id : " +
-              request.installmentId
+            request.installmentId
           );
           result.error++;
         } else {
@@ -973,12 +973,12 @@ export class PaymentService {
 
   async updatePayment(data: any, message?: string, code?: string, debug?: any) {
     let result = null;
-    if(!debug){
+    if (!debug) {
       debug = {};
     }
     try {
       result = await this.paymentRepository.save(data);
-      await(
+      await (
         await this.logger.customPayment(
           data.id,
           "SUCCESS: " + (message || "Update User Payment"),
@@ -994,7 +994,7 @@ export class PaymentService {
       return result;
     } catch (e) {
       console.log(e);
-      await(
+      await (
         await this.logger.customPayment(
           data.id,
           "ERROR: " + (message || "Update User Payment"),
@@ -1043,7 +1043,17 @@ export class PaymentService {
       };
 
       // fetch dwon payment payments
-      const downPayments = await this.fetchNotVerifiedDownPayments(request);
+      let downPayments = await this.fetchNotVerifiedDownPayments(request);
+      if (downPayments.length < 1 && request.id) {
+        let downpayment = await this.paymentRepository.findOne(request.id);
+        if (downpayment?.is_down_payment_verified) {
+          result.paid++;
+        }
+      }
+
+      if (request.payment && request.payment.length > 0) {
+        downPayments = request.payment;
+      }
       for (const downPayment of downPayments) {
         /**
          * force mark payment as payed
@@ -1083,7 +1093,6 @@ export class PaymentService {
           if (!paymentId.split("_")[1]) {
             paymentId = `pay_${paymentId}`;
           }
-
           let paymentDetails;
 
           try {
@@ -1093,7 +1102,7 @@ export class PaymentService {
 
             if (
               paymentDetails.status === RAZORPAY_PAYMENT_STATUS.SUCCESS &&
-              paymentDetails.amount / 100 == downPayment.downpayment
+              paymentDetails.amount / 100 >= downPayment.downpayment
             ) {
               let data: any = {
                 is_down_payment_verified: 1,
@@ -1116,7 +1125,7 @@ export class PaymentService {
             }
           } catch (e) {
             console.log(e);
-            await(
+            await (
               await this.logger.customPayment(
                 downPayment.id,
                 "Failed To Update Down Payment Status",
@@ -1138,7 +1147,7 @@ export class PaymentService {
 
           continue;
         }
-        
+
         /**
          * handle cashfree payments
          */
@@ -1146,9 +1155,9 @@ export class PaymentService {
           let paymentDetails;
           try {
             paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
-              downPayment.paymentid
+              downPayment.subscriptionNo
             );
-            
+
             const checkPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[0] : null;
 
             if (!checkPaymentDetails) {
@@ -1188,7 +1197,7 @@ export class PaymentService {
             }
           } catch (e) {
             console.log(e);
-            await(
+            await (
               await this.logger.customPayment(
                 downPayment.id,
                 "Failed To Update Down Payment Status",
@@ -1218,7 +1227,7 @@ export class PaymentService {
       };
     } catch (error) {
       console.log(error);
-      await(
+      await (
         await this.logger.customPayment(
           "UNKNOWN",
           "Failed To Update Down Payment Status",

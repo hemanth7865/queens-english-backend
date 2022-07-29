@@ -757,9 +757,15 @@ const StudentOnboard: React.FC = () => {
         if (!entity.payments || !entity.payments[0] || !entity.payments[0].is_down_payment_verified || !parseInt(entity.payments[0].is_down_payment_verified)) {
           return "No";
         }
-        
+
         return 'Yes'
       }
+    },
+    {
+      title: 'Reason the record in SAV',
+      dataIndex: 'reasonInSAV',
+      width: 150,
+      editable: false,
     },
     {
       title: 'operation',
@@ -778,16 +784,16 @@ const StudentOnboard: React.FC = () => {
             </Popconfirm>
           </span>
         ) : (
-            <div style={{gap: 10, display: "flex"}}>
-              <Typography.Link disabled={editingKey !== '' || downPayment} onClick={() => edit(record)}>
-                Edit
+          <div style={{ gap: 10, display: "flex" }}>
+            <Typography.Link disabled={editingKey !== '' || downPayment} onClick={() => edit(record)}>
+              Edit
+            </Typography.Link>
+            {/* <Tooltip title="Verify Down Payment">
+              <Typography.Link disabled={editingKey !== '' || downPayment} onClick={() => setDownPayment(record)}>
+                <ReloadOutlined />
               </Typography.Link>
-              <Tooltip title="Verify Down Payment">
-                <Typography.Link disabled={editingKey !== '' || downPayment} onClick={() => setDownPayment(record)}>
-                  <ReloadOutlined />
-                </Typography.Link>
-              </Tooltip>
-            </div>
+            </Tooltip> */}
+          </div>
         );
       },
     },

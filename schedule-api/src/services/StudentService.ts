@@ -66,8 +66,7 @@ export class StudentService {
     const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
       query_list.push(
-        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${
-          parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ""
+        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ""
         }) `
       );
     }
@@ -152,9 +151,8 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${
-      limit >= 0 ? limit : 20
-    } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
+      } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
 
     console.log(`query string ${query_list}`);
@@ -300,9 +298,11 @@ export class StudentService {
           : "",
         whatsappLinkBatch.join(","),
         element.gender,
+        element.batchId,
+        element.reasonInSAV,
       );
       l.batchId = batchId,
-      l.isSibling = element.isSibling;
+        l.isSibling = element.isSibling;
       l.batchesHistory = batchesHistory;
       leadView.push(l);
     }
@@ -331,7 +331,7 @@ export class StudentService {
       phoneNumber: data.phoneNumber,
     }
 
-    if(data.cacheTime){
+    if (data.cacheTime) {
       cosmosUserBody.cacheTime = data.cacheTime
     }
 
@@ -758,7 +758,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element.status == 'Won' ? 'enrolled' : element.status ;
+    student.status = element.status == 'Won' ? 'enrolled' : element.status;
     student.timings = element.timings;
     student.wabatch = element.wabatch;
     student.salesDataFilled = element.salesDataFilled;
@@ -802,9 +802,9 @@ export class StudentService {
     });
 
     var querZoom =
-          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
-          id +
-          "');";
+      "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
+      id +
+      "');";
     var zoomInfoDetails = [];
     var zoomLinkDetails = [];
     var whatsappLinkDetails = [];
@@ -1325,9 +1325,9 @@ export class StudentService {
           student.startLesson =
             d["Start Lesson"] && d["Start Lesson"].length > 0
               ? "lesson " +
-                d["Start Lesson"].split(" ")[
-                  d["Start Lesson"].split(" ").length - 1
-                ]
+              d["Start Lesson"].split(" ")[
+              d["Start Lesson"].split(" ").length - 1
+              ]
               : undefined;
           user.status = allowedStatuses[d["Status"]];
 
@@ -1396,11 +1396,11 @@ export class StudentService {
           if (!d[primaryColumn] || d[primaryColumn].length < 4) {
             continue;
           }
-          
-          const condition = {where: {studentID: d[primaryColumn]}}
+
+          const condition = { where: { studentID: d[primaryColumn] } }
           let student = await this.studentRepository.findOne(condition);
-          
-          if(!student?.id){
+
+          if (!student?.id) {
             result.notFound++;
             continue;
           }
@@ -1413,12 +1413,12 @@ export class StudentService {
           if (CE?.id) {
             result.updated++;
             if (!query.test) {
-              await this.studentRepository.update({id: student.id}, {collection_agent_id: CE.id})
+              await this.studentRepository.update({ id: student.id }, { collection_agent_id: CE.id })
             }
           } else {
-              result.notFoundCEs.push({
-                id: d["Student ID"],
-              });
+            result.notFoundCEs.push({
+              id: d["Student ID"],
+            });
           }
 
         } catch (e) {
