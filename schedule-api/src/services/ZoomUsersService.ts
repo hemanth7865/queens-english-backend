@@ -295,9 +295,11 @@ export class ZoomUserService {
             break;
           } else {
             await (
-              await this.logger.zoom(
-                { user: teacher },
-                { zoomUser: createdUser, user: teacher },
+              await this.logger.customZoom(
+                teacher?.id,
+                "Failed generate a license for teacher, mostly no more avaialble licenses",
+                "FAILED_TO_GENERATE_A_LICENSE",
+                { createdUser, teacher },
                 this.request.user || {}
               )
             ).save();
@@ -309,6 +311,15 @@ export class ZoomUserService {
         logger.error(e);
         result.error++;
         result.errors.push(e);
+        await (
+          await this.logger.customZoom(
+            teacher?.id,
+            "Failed generate a license: " + e.message,
+            "FAILED_TO_GENERATE_A_LICENSE",
+            { error: e, message: e.message, teacher },
+            this.request.user || {}
+          )
+        ).save();
       }
 
       await setTimeout(() => {}, 100);
@@ -527,5 +538,53 @@ export class ZoomUserService {
     ).save();
 
     return { status: 400, message: error.message };
+  }
+
+  async updateZakToken(id?: string): Promise<any> {
+    let result = {
+      errors: 0,
+      updated: 0,
+    };
+    const users =
+      id && id.length > 2
+        ? [await this.zoomUserRepository.findOne({user_id: id})]
+        : await this.zoomUserRepository.find();
+
+    for (const user of users) {
+      try {
+        if (!user) {
+          throw new Error("User not found");
+        }
+
+        // wait 100 millisecond between each request
+        await new Promise((resolve, reject) => setTimeout(resolve, 100));
+
+        zoomClient.setUser(user);
+        const zak = await zoomClient.getZakToken();
+        if (!zak?.token) {
+          throw new Error("Failed to get zak token");
+        }
+
+        user.zak_token = zak.token;
+        user.updated_at = new Date();
+        await this.updateCreateZoomUser(user);
+
+        logger.info(`Success updated user zak token: ${user.id}`);
+        result.updated += 1;
+      } catch (e) {
+        result.errors += 1;
+        await (
+          await this.logger.customZoom(
+            user?.id || "NOT_FOUND",
+            `Failed To Update ZAK Token: ${e.message}`,
+            "FAILED_TO_UPDATE_ZAK_TOKEN",
+            { error: e, message: e.message, user },
+            this.request.user || {}
+          )
+        ).save();
+      }
+    }
+
+    return result;
   }
 }

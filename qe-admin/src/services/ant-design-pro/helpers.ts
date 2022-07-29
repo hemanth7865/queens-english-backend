@@ -2,6 +2,7 @@ import { notification } from 'antd';
 import { LESSONS, Lesson } from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
 import moment from "moment";
+import type ZoomTypes from "./types/zoom";
 
 export const openNotificationWithIcon = (type: string, message: string, reload = true) => {
     notification[type]({
@@ -167,3 +168,36 @@ export const timeUTCToISTTimezone = (time?: string): string | undefined => {
     }
     return moment(result).add(5, "hours").add(30, "minutes").format("HH:mm")
 }
+
+
+export const getZoomURL = (
+    type: ZoomTypes.LinkType,
+    zoomMeeting?: ZoomTypes.ZoomMeeting,
+    zoomUser?: ZoomTypes.ZoomUser,
+    batch?: any
+) => {
+    // @ts-expect-error
+    const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
+
+    if (!zoomMeeting || !zoomUser) {
+        return "NA";
+    }
+
+    if (type === "GENERIC_TEACHER") {
+        return `${GENERIC_ZOOM}c/t/${batch.teacherCode}`;
+    }
+
+    if (type === "PUBLIC_TEACHER") {
+        return zoomMeeting.start_url.split("?")[0] + "?zak=" + zoomUser.zak_token;
+    }
+
+    if (type === "PUBLIC_STUDENT") {
+        return zoomMeeting.join_url;
+    }
+
+    if (type === "GENERIC_STUDENT") {
+        return `${GENERIC_ZOOM}c/s/${batch.classCode}`;
+    }
+
+    return "NA";
+};

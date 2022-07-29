@@ -1,7 +1,8 @@
 import {
   ReloadOutlined,
   EyeOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  LockOutlined
 } from "@ant-design/icons";
 import type { ProColumns } from "@ant-design/pro-table";
 import { Typography } from 'antd';
@@ -10,8 +11,9 @@ import moment from "moment";
 export const columns: (
   handleShow: (data: any) => any,
   handleDelete: (data: any) => any,
-  handleReassign: (data: any) => any
-) => ProColumns<any>[] = (setShow, handleDelete, handleReassign) => [
+  handleReassign: (data: any) => any,
+  handleRegenerateToken: (data: any) => any
+) => ProColumns<any>[] = (setShow, handleDelete, handleReassign, handleRegenerateToken) => [
   {
     title: "First Name",
     dataIndex: "first_name",
@@ -88,6 +90,9 @@ export const columns: (
           </Typography.Link>
           <Typography.Link onClick={() => handleReassign(entity)}>
             <ReloadOutlined title="Reassign" />
+          </Typography.Link>
+          <Typography.Link onClick={() => handleRegenerateToken(entity)}>
+            <LockOutlined title="Regenerate ZAK Token" />
           </Typography.Link>
         </div>
       );

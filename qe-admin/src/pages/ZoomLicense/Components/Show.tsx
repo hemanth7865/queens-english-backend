@@ -59,8 +59,7 @@ const Show = ({ data }: Props) => {
                     </Col>
                     <Col span={16}>
                         <div>
-                            {data.first_name}
-                            {data.last_name}
+                            {data.first_name} {" "} {data.last_name}
                         </div>
                     </Col>
 
