@@ -129,7 +129,7 @@ export class BatchService {
         }
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
-        const cosmosBatch = await this.getComosBatch(data.id);
+        const cosmosBatch = await this.getCosmosBatch(data.id);
         if (cosmosBatch) {
           if (cosmosBatch.activeLessonId) {
             data.activeLessonId = cosmosBatch.activeLessonId;
@@ -235,7 +235,7 @@ export class BatchService {
     }
   }
 
-  async getComosBatch(id: string): Promise<any> { 
+  async getCosmosBatch(id: string): Promise<any> { 
     const cosomos_url = COSMOS_API.GET_BATCH(id);
 
     const data: any = await axios.get(cosomos_url);
