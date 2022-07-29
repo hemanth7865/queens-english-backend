@@ -156,7 +156,8 @@ export class LQSService {
       user.updated_at = new Date();
       user.state = element.customerAddressState;
 
-      student.studentID = (element.studentID).replace(/\s/g,"");
+      // student.studentID = (element.studentID).replace(/\s/g,"");
+      student.studentID = element.id;
       student.course = element.course;
       student.courseFrequency = element.courseFrequency;
       student.status = element.status == 'Won' ? 'enrolled' : element.status;
@@ -472,7 +473,9 @@ export class LQSService {
                 element.bdaComments = item.Value;
                 break;
               case "mx_Custom_32":
-                element.studentID = (item.Value).replace(/\s/g,"");
+                // to remove student id from sales activity
+                // element.studentID = (item.Value).replace(/\s/g,"");
+                element.studentID = element.id;
                 break;
               default:
                 usersLogger.info(`Not valid schema name ${item.SchemaName}`);
@@ -655,7 +658,9 @@ async processRecords(lqsRecords:any,data:any) {
       element.pfirstName = item.pfirstName;
       element.dateofsale = item.mx_Custom_1;
       element.teacherName = item.mx_Custom_2;
-      element.studentID = item.mx_Custom_3;
+      // to remove student id from lsq
+      // element.studentID = item.mx_Custom_3;
+      element.studentID = element.id;
       element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
       element.alternativeMobile = item.mx_Custom_5;
       element.customerEmail = item.mx_Custom_6;
