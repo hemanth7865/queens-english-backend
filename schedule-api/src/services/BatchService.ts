@@ -222,7 +222,7 @@ export class BatchService {
       }
 
       /**
-       * Ensure the each batch gets a unique teacher code
+       * Ensure that each batch gets a unique teacher code
        */
       await updateBatchesTeacherCode();
 
