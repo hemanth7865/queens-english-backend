@@ -13,5 +13,10 @@ export const PaymentConstantValues = {
 };
 
 export const PaymentModevalues = {
-  CASHFREE: "Cashfree",
+    CASHFREE: "Cashfree",
+};
+
+export const CountryCode = {
+    COUNTRYCODE_INDIA: "+91",
+    COUNTRYCODE_AFGHANISTAN: "+93",
 };
