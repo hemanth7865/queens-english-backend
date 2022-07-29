@@ -21,12 +21,8 @@ import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
 import {
   updateBatchesTeacherCode,
-  generateRandomCode,
   getUniqueCode,
 } from "./../utils/batch/getUniqueTeacherCode";
-
-const { usersLogger } = require("../Logger.js");
-
 
 
 export class BatchService {
