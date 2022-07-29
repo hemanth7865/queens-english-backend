@@ -17,22 +17,23 @@ import axios from "./../helpers/axios";
 import { getListOfLessonsIDs, getLessonByID } from "./../data/lessons";
 import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
+import { ZoomMeeting } from "../entity/ZoomMeeting";
+import { ZoomUser } from "../entity/ZoomUser";
+import {
+  updateBatchesTeacherCode,
+  getUniqueCode,
+} from "./../utils/batch/getUniqueTeacherCode";
 
-const generateRandomCode = (): string => {
-  var length = 5;
-  var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
-  var retVal = "";
-  for (var i = 0, n = charset.length; i < length; ++i) {
-    retVal += charset.charAt(Math.floor(Math.random() * n));
-  }
-  return retVal;
-}
+
 export class BatchService {
   private classesRepository = getRepository(Classes);
   private userRepository = getRepository(User);
   private batchAvailabilityRepository = getRepository(BatchAvailability);
   private batchStudentRepository = getRepository(BatchStudent);
   private studentBatchesHistory = getRepository(StudentBatchesHistory);
+  private zoomMeetingRepository = getRepository(ZoomMeeting);
+  private zoomUserRepository = getRepository(ZoomUser);
+
 
   BatchService() { }
 
@@ -53,6 +54,8 @@ export class BatchService {
   }
 
   async createBatch(data: any, force: boolean = false) {
+    const ENABLE_ZOOM =
+      process?.env?.ENABLE_ZOOM && parseInt(process?.env?.ENABLE_ZOOM) === 1;
     const moment = require("moment");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
@@ -119,14 +122,14 @@ export class BatchService {
       }
 
       if (create) {
-        data.classCode = generateRandomCode();
+        data.classCode = await getUniqueCode("classCode");
         alreadyExists = await this.batchExists(data);
         if (alreadyExists?.id) {
           return { status: false, message: "Batch Number Already Exists" };
         }
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
-        const cosmosBatch = await this.getComosBatch(data.id);
+        const cosmosBatch = await this.getCosmosBatch(data.id);
         if (cosmosBatch) {
           if (cosmosBatch.activeLessonId) {
             data.activeLessonId = cosmosBatch.activeLessonId;
@@ -211,11 +214,18 @@ export class BatchService {
           });
       }
 
-      // const meetingService = new ZoomMeetingService();
-
-      // await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
-
       await queryRunner.commitTransaction();
+
+      if (ENABLE_ZOOM) {
+        const meetingService = new ZoomMeetingService();
+        await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+      }
+
+      /**
+       * Ensure that each batch gets a unique teacher code
+       */
+      await updateBatchesTeacherCode();
+
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -225,7 +235,7 @@ export class BatchService {
     }
   }
 
-  async getComosBatch(id: string): Promise<any> { 
+  async getCosmosBatch(id: string): Promise<any> { 
     const cosomos_url = COSMOS_API.GET_BATCH(id);
 
     const data: any = await axios.get(cosomos_url);
@@ -434,6 +444,9 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
+      if (typeof data.useNewZoomLink != "undefined") {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -541,6 +554,9 @@ export class BatchService {
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
+      if (typeof data.useNewZoomLink != "undefined") {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
 
       if (data.id) {
         classes.id = data.id;
@@ -875,9 +891,13 @@ export class BatchService {
       .addSelect(["student.firstName", "student.lastName", "student.phoneNumber"])
       .where("batchStudent.batchId = :id", { id: batchId })
       .getMany();
+    const zoomMeeting = await this.zoomMeetingRepository.findOne({ batch_id: classes?.id });
+    const zoomUser = await this.zoomUserRepository.findOne({ user_id: classes?.teacherId });
     teacherView.classes = classes;
     teacherView.batchAvailability = [batchavail];
     teacherView.students = students;
+    teacherView.zoomMeeting = zoomMeeting;
+    teacherView.zoomUser = zoomUser;
     return {
       success: true,
       data: teacherView,

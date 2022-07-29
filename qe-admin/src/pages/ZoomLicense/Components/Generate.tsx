@@ -29,9 +29,10 @@ const Reassign = () => {
                 </pre>
             </code>
 
-            <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
                 <Button type="primary" onClick={() => handleCall("zoom-users/generate-active-license", "post", {}, {})}>Generate Licenes For Active Teachers</Button>
                 <Button type="primary" onClick={() => handleCall("zoom-meetings/active-batches-generate-meetings", "post", {}, {})}>Generate Zoom Meeting Links For Active Batches</Button>
+                <Button type="primary" onClick={() => handleCall("zoom-user/update/zak", "post", {}, {})}>Update Users ZAK Token</Button>
             </div>
         </Spin>
     </>)

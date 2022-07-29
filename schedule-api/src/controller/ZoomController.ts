@@ -249,4 +249,78 @@ export class ZoomController {
       request.params.userId
     );
   }
+
+  /**
+   * Update zak token for one user or all licenses
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async updateZakToken(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.updateZakToken(request.query.userId);
+  }
+
+  /**
+   * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async redirectStudent(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomMeetingService.request = request;
+    const result = await this.zoomMeetingService.redirectStudent(
+      request.params.batchCode
+    );
+
+    if (result.error) {
+      response.status(404).send("Not found");
+      return;
+    }
+
+    if (result.link) {
+      response.redirect(result.link);
+    }
+
+    return result;
+  }
+
+  /**
+   * Redirect To Zoom Meeting Based On Selected Batch Code For Teacher.
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async redirectTeacher(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomMeetingService.request = request;
+    const result = await this.zoomMeetingService.redirectTeacher(
+      request.params.teacherCode
+    );
+
+    if (result.error) {
+      response.status(404).send("Not found");
+      return;
+    }
+
+    if (result.link) {
+      response.redirect(result.link);
+    }
+
+    return result;
+  }
 }
