@@ -1,4 +1,4 @@
-import { getRepository } from "typeorm";
+import { getRepository, IsNull } from "typeorm";
 import { Classes } from "../../entity/Classes";
 
 export const generateRandomCode = (): string => {
@@ -30,7 +30,7 @@ export const getUniqueCode = async (column: string) => {
 
 export const updateBatchesTeacherCode = async () => {
   const classesRepository = getRepository(Classes);
-  const batches = await classesRepository.find({ teacherCode: "" });
+  const batches = await classesRepository.find({ teacherCode: IsNull() });
   for (const batch of batches) {
     try {
       const teacherCode = await getUniqueCode("teacherCode");
