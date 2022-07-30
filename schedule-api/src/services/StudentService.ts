@@ -180,7 +180,7 @@ export class StudentService {
 
       if (type == "student") {
         var quer =
-          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, classCode, teacherCode from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
         var quer2 = "select batchId from batch_students where studentId='" +
@@ -301,8 +301,11 @@ export class StudentService {
         element.batchId,
         element.reasonInSAV,
       );
+      console.log(batchCodes); 
       l.batchId = batchId,
-        l.isSibling = element.isSibling;
+      l.isSibling = element.isSibling;
+      l.classCode = batchCodes[0]?.classCode;
+      l.teacherCode = batchCodes[0]?.teacherCode;
       l.batchesHistory = batchesHistory;
       leadView.push(l);
     }
