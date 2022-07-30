@@ -8,14 +8,13 @@ async function getUserByEmail(email) {
   this.method = "getUserByEmail";
   let done = false;
   let user = {};
-
   while (!done) {
     const data = await this.handleAPI(
       async () => await this.axios.get(`/users`, { params })
     );
 
     for (let u of data.users) {
-      if (u.email.split("@")[0] == email.split("@")[0]) {
+      if (u.email.toLowerCase() == email.toLowerCase()) {
         user = u;
         break;
       }

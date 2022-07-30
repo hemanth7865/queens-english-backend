@@ -27,7 +27,7 @@ const test = async () => {
     role_id: "2",
   });
 
-  const user = await zoomClient.getZakToken();
+  const user = await zoomClient.getUserByEmail("E18CA9A5-E2A6-4372-9C91-644CC1FE8C60@ISV.queensenglish.co.com");
   // const deleted = await zoomClient.deleteUsers(users.users);
   // const createdUser = await zoomClient.createCustUser(createCustUserSample);
   // const createUserMeeting = await zoomClient.createUserMeeting(
