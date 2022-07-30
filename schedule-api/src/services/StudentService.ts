@@ -301,7 +301,6 @@ export class StudentService {
         element.batchId,
         element.reasonInSAV,
       );
-      console.log(batchCodes); 
       l.batchId = batchId,
       l.isSibling = element.isSibling;
       l.classCode = batchCodes[0]?.classCode;
