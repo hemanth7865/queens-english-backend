@@ -899,9 +899,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                   label="Onboarding Message"
                   name="onboardmessage"
                 >
-                  {
-                    console.log(props.tempData)
-                  }
                   <a
                     onClick={() => {
                       openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink, props.tempData.classCode)
