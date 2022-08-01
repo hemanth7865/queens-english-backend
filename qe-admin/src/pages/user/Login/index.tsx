@@ -11,7 +11,7 @@ import { login } from '@/services/ant-design-pro/api';
 import styles from './index.less';
 import { useEffect } from 'react';
 import { gapi } from 'gapi-script';
-import GoogleLogin from 'react-google-login';
+// import GoogleLogin from 'react-google-login';
 
 const LoginMessage: React.FC<{
   content: string;
