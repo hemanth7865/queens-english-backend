@@ -590,7 +590,7 @@ export class ZoomMeetingService {
           {
             title: "Batch",
             callBack(e) {
-              return e.batch.batchNumber;
+              return e.batch?.batchNumber || "Not Found";
             },
           },
           {
@@ -602,19 +602,23 @@ export class ZoomMeetingService {
           {
             title: "Old Zoom Link",
             callBack(e) {
-              return e.batch.zoomLink;
+              return e.batch?.zoomLink || "Not Found";
             },
           },
           {
             title: "Teacher Generic Link",
             callBack(e) {
-              return `${process.env.ZOOM_GENERIC_LINK}c/t/${e.batch.teacherCode}`;
+              return `${process.env.ZOOM_GENERIC_LINK}c/t/${
+                e.batch?.teacherCode || "NOT_FOUND"
+              }`;
             },
           },
           {
             title: "Student Generic Link",
             callBack(e) {
-              return `${process.env.ZOOM_GENERIC_LINK}c/t/${e.batch.classCode}`;
+              return `${process.env.ZOOM_GENERIC_LINK}c/t/${
+                e.batch?.classCode || "NOT_FOUND"
+              }`;
             },
           },
           {
@@ -629,6 +633,18 @@ export class ZoomMeetingService {
             title: "New Zoom Student Link",
             callBack(e) {
               return e.join_url;
+            },
+          },
+          {
+            title: "Batch ID",
+            callBack(e) {
+              return e.batch_id;
+            },
+          },
+          {
+            title: "Teacher ID",
+            callBack(e) {
+              return e.user_id;
             },
           },
         ];
