@@ -96,6 +96,9 @@ const Login: React.FC = () => {
     console.log('Login Failed:', res);
   };
 
+  // @ts-expect-error
+  console.log("GoogleClientId", GOOGLE_CLIENT_ID);
+
   return (
     <div className={styles.container}>
       <div className={styles.lang} data-lang>
@@ -206,20 +209,19 @@ const Login: React.FC = () => {
             {
               // @ts-expect-error
               GOOGLE_CLIENT_ID ? (
-              <div id="signInButton">
-                <GoogleLogin
-                  // @ts-expect-error
-                  clientId={GOOGLE_CLIENT_ID}
-                  buttonText="Sign in with Google"
-                  onSuccess={onLoginSuccess}
-                  onFailure={onLoginFailure}
-                  cookiePolicy={'single_host_origin'}
-                  isSignedIn={true}
-                />
-              </div>
-            ) : (
-              null
-            )}
+                <div >
+                  <GoogleLogin
+                    // @ts-expect-error
+                    clientId={GOOGLE_CLIENT_ID}
+                    buttonText="Sign in with Google"
+                    onSuccess={onLoginSuccess}
+                    onFailure={onLoginFailure}
+                    cookiePolicy={'single_host_origin'}
+                  />
+                </div>
+              ) : (
+                null
+              )}
           </LoginForm>
         </div>
 
