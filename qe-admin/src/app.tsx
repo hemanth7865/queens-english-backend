@@ -61,6 +61,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState }: { initialState: an
     }
   }
 
+  // @ts-expect-error
+  console.log("GoogleClientId App", GOOGLE_CLIENT_ID);
+
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,

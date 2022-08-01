@@ -77,17 +77,6 @@ const Login: React.FC = () => {
   };
   const { status, type: loginType } = userLoginState;
 
-  useEffect(() => {
-    function start() {
-      gapi.client.init({
-        // @ts-expect-error
-        clientId: GOOGLE_CLIENT_ID,
-        scope: ""
-      })
-    };
-    gapi.load('client:auth2', start);
-  });
-
   const onLoginSuccess = async (res: any) => {
     console.log('Login Success:', res.profileObj);
     handleSubmit(res.profileObj as API.LoginParams);
