@@ -563,7 +563,7 @@ export class ZoomMeetingService {
       logger.error(
         "Failed to redirect to zoom meeting for teacher: " + e.message
       );
-      await(
+      await (
         await this.logger.customZoom(
           teacherCode,
           "Failed to redirect to zoom meeting for teacher: " + e.message,
@@ -576,5 +576,88 @@ export class ZoomMeetingService {
     }
 
     return result;
+  }
+
+  async getZoomMeetingsCSV(): Promise<any> {
+    try {
+      const meetings = await createQueryBuilder(ZoomMeeting, "zoom_meeting")
+        .leftJoinAndSelect("zoom_meeting.batch", "batch")
+        .leftJoinAndSelect("zoom_meeting.user", "user")
+        .leftJoinAndSelect("zoom_meeting.zoom_user", "zoom_user")
+        .getMany();
+
+      console.log(meetings[0]);
+      
+      if (meetings.length > 0) {
+        const headers: { title: string; callBack?: any; key?: string }[] = [
+          {
+            title: "Batch",
+            callBack(e) {
+              return e.batch.batchNumber;
+            },
+          },
+          {
+            title: "Teacher",
+            callBack(e) {
+              return e.user?.firstName + " " + e.user?.lastName;
+            },
+          },
+          {
+            title: "Old Zoom Link",
+            callBack(e) {
+              return e.batch.zoomLink;
+            },
+          },
+          {
+            title: "New Zoom Link",
+            callBack(e) {
+              return (
+                e.start_url.split("?")[0] + `?zak=${e.zoom_user.zak_token}`
+              );
+            },
+          },
+          {
+            title: "New Zoom Start Link",
+            callBack(e) {
+              return e.zoom_meeting.join_url;
+            },
+          },
+        ];
+
+        let csv = [];
+        csv.push('"' + headers.map((i) => i.title).join('","') + '"');
+        for (let k of meetings) {
+          let row = [];
+          for (let head of headers) {
+            if (head.callBack) {
+              row.push(head.callBack(k));
+            } else if(head.key){
+              row.push(k[head.key]);
+            }
+          }
+          csv.push('"' + row.join('","') + '"');
+        }
+
+        console.log(csv.join("\n"));
+
+        return csv.join("\n");
+      }
+    } catch (e) {
+      logger.error(`Failed to get zoom meetings csv: ${e.message}`);
+      await (
+        await this.logger.customZoom(
+          "",
+          "Failed to get zoom meetings csv: " + e.message,
+          "FAILED_TO_GET_ZOOM_MEETINGS_CSV",
+          { error: e, message: e.message },
+          this.request.user || {}
+        )
+      ).save();
+      return {
+        success: false,
+        message: e.message,
+        e,
+      };
+    }
   }
 }
