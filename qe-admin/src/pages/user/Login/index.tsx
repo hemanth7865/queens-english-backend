@@ -9,8 +9,6 @@ import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
 import styles from './index.less';
-import { useEffect } from 'react';
-import { gapi } from 'gapi-script';
 import GoogleLogin from 'react-google-login';
 
 const LoginMessage: React.FC<{
@@ -86,8 +84,6 @@ const Login: React.FC = () => {
     console.log('Login Failed:', res);
   };
 
-  // @ts-expect-error
-  console.log("GoogleClientId", GOOGLE_CLIENT_ID);
 
   return (
     <div className={styles.container}>
