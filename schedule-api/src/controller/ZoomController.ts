@@ -279,7 +279,10 @@ export class ZoomController {
     next: NextFunction
   ) {
     this.zoomMeetingService.request = request;
-    return await this.zoomMeetingService.getZoomMeetingsCSV();
+    const data = await this.zoomMeetingService.getZoomMeetingsCSV();
+    response.attachment("teachers.csv");
+    response.status(200).send(data);
+    return;
   }
 
   /**

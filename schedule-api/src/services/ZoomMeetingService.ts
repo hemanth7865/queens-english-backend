@@ -582,12 +582,9 @@ export class ZoomMeetingService {
     try {
       const meetings = await createQueryBuilder(ZoomMeeting, "zoom_meeting")
         .leftJoinAndSelect("zoom_meeting.batch", "batch")
-        .leftJoinAndSelect("zoom_meeting.user", "user")
         .leftJoinAndSelect("zoom_meeting.zoom_user", "zoom_user")
         .getMany();
 
-      console.log(meetings[0]);
-      
       if (meetings.length > 0) {
         const headers: { title: string; callBack?: any; key?: string }[] = [
           {
@@ -599,7 +596,7 @@ export class ZoomMeetingService {
           {
             title: "Teacher",
             callBack(e) {
-              return e.user?.firstName + " " + e.user?.lastName;
+              return e.zoom_user?.first_name + " " + e.zoom_user?.last_name;
             },
           },
           {
@@ -609,7 +606,19 @@ export class ZoomMeetingService {
             },
           },
           {
-            title: "New Zoom Link",
+            title: "Teacher Generic Link",
+            callBack(e) {
+              return `${process.env.ZOOM_GENERIC_LINK}c/t/${e.batch.teacherCode}`;
+            },
+          },
+          {
+            title: "Student Generic Link",
+            callBack(e) {
+              return `${process.env.ZOOM_GENERIC_LINK}c/t/${e.batch.classCode}`;
+            },
+          },
+          {
+            title: "New Zoom Teacher Link",
             callBack(e) {
               return (
                 e.start_url.split("?")[0] + `?zak=${e.zoom_user.zak_token}`
@@ -617,9 +626,9 @@ export class ZoomMeetingService {
             },
           },
           {
-            title: "New Zoom Start Link",
+            title: "New Zoom Student Link",
             callBack(e) {
-              return e.zoom_meeting.join_url;
+              return e.join_url;
             },
           },
         ];
@@ -631,7 +640,7 @@ export class ZoomMeetingService {
           for (let head of headers) {
             if (head.callBack) {
               row.push(head.callBack(k));
-            } else if(head.key){
+            } else if (head.key) {
               row.push(k[head.key]);
             }
           }

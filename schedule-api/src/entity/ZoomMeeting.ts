@@ -49,10 +49,6 @@ export class ZoomMeeting extends BaseEntity {
   @JoinColumn({ name: "user_id", referencedColumnName: "user_id" })
   zoom_user: ZoomUser;
 
-  @ManyToOne((type) => User, (user) => user.meetings)
-  @JoinColumn({ name: "user_id", referencedColumnName: "id" })
-  user: User;
-
   @OneToOne((type) => Classes, (batch) => batch.meeting)
   @JoinColumn({ name: "batch_id" })
   batch: Classes;
