@@ -647,8 +647,6 @@ export class ZoomMeetingService {
           csv.push('"' + row.join('","') + '"');
         }
 
-        console.log(csv.join("\n"));
-
         return csv.join("\n");
       }
     } catch (e) {

@@ -33,6 +33,7 @@ const Reassign = () => {
                 <Button type="primary" onClick={() => handleCall("zoom-users/generate-active-license", "post", {}, {})}>Generate Licenes For Active Teachers</Button>
                 <Button type="primary" onClick={() => handleCall("zoom-meetings/active-batches-generate-meetings", "post", {}, {})}>Generate Zoom Meeting Links For Active Batches</Button>
                 <Button type="primary" onClick={() => handleCall("zoom-user/update/zak", "post", {}, {})}>Update Users ZAK Token</Button>
+                <Button type="primary" onClick={() => window.open("/be/zoom/csv/meetings")}>Download Zoom Links</Button>
             </div>
         </Spin>
     </>)

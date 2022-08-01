@@ -280,7 +280,7 @@ export class ZoomController {
   ) {
     this.zoomMeetingService.request = request;
     const data = await this.zoomMeetingService.getZoomMeetingsCSV();
-    response.attachment("teachers.csv");
+    response.attachment("zoom-backup.csv");
     response.status(200).send(data);
     return;
   }
