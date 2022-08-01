@@ -203,9 +203,12 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
-            {GOOGLE_CLIENT_ID ? (
+            {
+              // @ts-expect-error
+              GOOGLE_CLIENT_ID ? (
               <div id="signInButton">
                 <GoogleLogin
+                  // @ts-expect-error
                   clientId={GOOGLE_CLIENT_ID}
                   buttonText="Sign in with Google"
                   onSuccess={onLoginSuccess}

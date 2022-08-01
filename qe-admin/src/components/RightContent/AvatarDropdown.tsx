@@ -72,9 +72,12 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {currentUser.avatar && GOOGLE_CLIENT_ID ? (
+      {
+        // @ts-expect-error
+        currentUser.avatar && GOOGLE_CLIENT_ID ? (
         <Menu.Item key="logout">
           <GoogleLogout
+            // @ts-expect-error
             clientId={GOOGLE_CLIENT_ID}
             buttonText="Logout"
           />
