@@ -203,7 +203,7 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
-            {
+            {/* {
               // @ts-expect-error
               GOOGLE_CLIENT_ID ? (
               <div id="signInButton">
@@ -219,7 +219,7 @@ const Login: React.FC = () => {
               </div>
             ) : (
               null
-            )}
+            )} */}
           </LoginForm>
         </div>
 

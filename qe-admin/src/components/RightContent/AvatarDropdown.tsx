@@ -72,7 +72,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {
+      {/* {
         // @ts-expect-error
         currentUser.avatar && GOOGLE_CLIENT_ID ? (
         <Menu.Item key="logout">
@@ -87,7 +87,11 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
           <LogoutOutlined />
           Logout
         </Menu.Item>
-      )}
+      )} */}
+      <Menu.Item key="logout">
+        <LogoutOutlined />
+        Logout
+      </Menu.Item>
     </Menu>
   );
   return (
