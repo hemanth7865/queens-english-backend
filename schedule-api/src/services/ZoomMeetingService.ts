@@ -653,6 +653,9 @@ export class ZoomMeetingService {
         csv.push('"' + headers.map((i) => i.title).join('","') + '"');
         for (let k of meetings) {
           let row = [];
+          if (!k.batch) {
+            continue;
+          }
           for (let head of headers) {
             if (head.callBack) {
               row.push(head.callBack(k));
