@@ -23,12 +23,18 @@ steps:
       sshEndpoint: "QE_PORTAL SANDBOX"
       runOptions: "commands"
       commands: |
+        echo "Clean Local Changes"
+        cd /home/qeuser/qe-backend && git add . && git stash
         echo "Download Updates"
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
         cd /home/qeuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/qeuser/git-checkout.txt && cat /home/qeuser/git-checkout.txt
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
+        echo "Install dependencies"
+        cd /home/qeuser/qe-backend/schedule-api && npm install &> /home/qeuser/be-install.txt && cat /home/qeuser/be-install.txt
         cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
+        echo "Install dependencies"
+        cd /home/qeuser/qe-backend/qe-admin && npm install &> /home/qeuser/fe-install.txt && cat /home/qeuser/fe-install.txt
         pm2 restart all
       readyTimeout: "20000"
       # Don't Show Error Message If Command Fail
