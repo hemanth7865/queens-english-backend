@@ -203,10 +203,10 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
-            {process.env.GOOGLE_CLIENT_ID ? (
+            {GOOGLE_CLIENT_ID ? (
               <div id="signInButton">
                 <GoogleLogin
-                  clientId={process.env.GOOGLE_CLIENT_ID}
+                  clientId={GOOGLE_CLIENT_ID}
                   buttonText="Sign in with Google"
                   onSuccess={onLoginSuccess}
                   onFailure={onLoginFailure}
