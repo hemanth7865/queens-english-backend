@@ -80,7 +80,8 @@ const Login: React.FC = () => {
   useEffect(() => {
     function start() {
       gapi.client.init({
-        clientId: process.env.GOOGLE_CLIENT_ID,
+        // @ts-expect-error
+        clientId: GOOGLE_CLIENT_ID,
         scope: ""
       })
     };
