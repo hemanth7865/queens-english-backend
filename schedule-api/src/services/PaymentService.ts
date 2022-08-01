@@ -461,8 +461,8 @@ export class PaymentService {
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
       .where(
-        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status",
-        { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
+        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.subscriptionType = :subscriptionType and transactions.dueDate like :dueMonth and transactions.status = :status",
+        { subscriptionType: SUBSCRIPTION_TYPE.MANUAL, dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
       )
       .limit(limit)
       .getMany();
