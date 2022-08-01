@@ -9,6 +9,7 @@ const clientId = process.env.CASHFREE_CLIENTID;
 const secret = process.env.CASHFREE_SECRET;
 const cashfreeUrl = process.env.CASHFREE_URL;
 const paymentsUrl = process.env.CASHFREE_PAYMENTS_URL;
+const retryUrl = process.env.CASHFREE_RETRY_URL;
 
 const params = {
   'X-Client-Id': clientId,
@@ -46,6 +47,27 @@ export class CashFreeUtils {
       usersLogger.error('Error in fetching subscription details of the customer: ' + JSON.stringify(error));
       return error;
     });
+    return response;
+  }
+
+  async autoRetryCashfreePayment(subscriptionId: string) {
+    console.log('subscriptionId', subscriptionId)
+    let response: any = null;
+    usersLogger.info('Inside the cashfree auto retry payment');
+    await axios.post(`https://test.cashfree.com/api/v2/subscriptions/77311/charge-retry`, {}, { headers: params })
+      .then((resp) => {
+        console.log('response', resp)
+        // if (!isNullOrUndefined(resp.data)) {
+        //   usersLogger.info('Cashfree response for fetch details of the customer: ' + JSON.stringify(resp.data));
+        //   response = resp.data;
+        // }
+
+        return resp.data;
+      }).catch((error) => {
+        usersLogger.error('Error in auto retry: ' + JSON.stringify(error));
+        console.log('error', error.response.data)
+        return error;
+      });
     return response;
   }
 

@@ -1,11 +1,11 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus, retryAutodebitPayment } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
@@ -129,6 +129,20 @@ const TableList: React.FC = () => {
 
     }
 
+    const retryCashfreePayment = async (data: any) => {
+        try {
+            const msg = await retryAutodebitPayment({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ subscriptionId: data.subscriptionId }),
+            });
+            handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+        }
+    }
+
 
     const handleRegenerateLink = async (data: any) => {
         if (data.status == PaymentConstantValues.STATUSPENDING) {
@@ -147,6 +161,14 @@ const TableList: React.FC = () => {
     const handleRefreshStatus = async (data: any) => {
         if (confirm("Are you sure to refresh the installment status ?")) {
             await refreshStatus(data, false);
+        }
+        actionRef.current?.reload();
+    }
+
+    const handleRetryCashfree = async (data: any) => {
+        if (confirm("Are you sure to retry the payment ?")) {
+            console.log('auto retry', data)
+            await retryCashfreePayment(data);
         }
         actionRef.current?.reload();
     }
@@ -485,6 +507,9 @@ const TableList: React.FC = () => {
                             style={{ marginLeft: 10 }}>
                             <EyeOutlined title='View details' />
                         </a>
+                        <Typography.Link onClick={() => handleRetryCashfree(entity)} style={{ marginLeft: 10 }}>
+                            <SyncOutlined title='Auto Retry payment' />
+                        </Typography.Link>
                     </div>
                 );
             },

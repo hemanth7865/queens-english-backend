@@ -971,6 +971,32 @@ export class PaymentService {
     }
   }
 
+  async retryAutoDebitPayment(request: any) {
+    console.log('request', request)
+    try {
+      const result = {
+        error: 0,
+        paid: 0,
+        failed: 0,
+      };
+      // fetch auto debit payments
+      let retryPayment = await this.cashFreeUtils.autoRetryCashfreePayment(
+        request.subscriptionId
+      );
+      console.log('retry paymnet', retryPayment)
+      return {
+        status: "success",
+        message: result,
+      };
+    } catch (error) {
+      usersLogger.error("Error in retrying the payment: " + error);
+      return {
+        status: "error",
+        message: "Error in retrying the payment",
+      };
+    }
+  }
+
   async updatePayment(data: any, message?: string, code?: string, debug?: any) {
     let result = null;
     if (!debug) {

@@ -378,6 +378,14 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/retryAutoDebitPayment",
+    controller: PaymentController,
+    action: "retryAutoDebitPayment",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
     route: "/verifyDownPayment",
     controller: PaymentController,
     action: "verifyDownPayment",

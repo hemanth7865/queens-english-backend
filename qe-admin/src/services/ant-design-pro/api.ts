@@ -670,6 +670,15 @@ export async function getAllAutoDebitStatus(
   );
 }
 
+//retry auto-debit payment
+export async function retryAutodebitPayment(options?: { [key: string]: any }) {
+  console.log("option", options);
+  return request<any>("/be/retryAutoDebitPayment", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
 //get all zoom
 export async function getAllZoomUsers(
   //studentId: string,
@@ -736,7 +745,7 @@ export async function reassignZoomUserLicense(from: string, to: string) {
 
 //update zak token
 export async function updateZoomUserZAKToken(id?: string) {
-  return request<API.Any>(`/be/zoom-user/update/zak?userId=${id ? id: ''}`, {
+  return request<API.Any>(`/be/zoom-user/update/zak?userId=${id ? id : ''}`, {
     method: "POST",
   });
 }
