@@ -8,8 +8,10 @@ import { ProFormCheckbox, ProFormText, LoginForm } from '@ant-design/pro-form';
 import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
-
 import styles from './index.less';
+import { useEffect } from 'react';
+import { gapi } from 'gapi-script';
+import GoogleLogin from 'react-google-login';
 
 const LoginMessage: React.FC<{
   content: string;
@@ -75,6 +77,25 @@ const Login: React.FC = () => {
   };
   const { status, type: loginType } = userLoginState;
 
+  useEffect(() => {
+    function start() {
+      gapi.client.init({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        scope: ""
+      })
+    };
+    gapi.load('client:auth2', start);
+  });
+
+  const onLoginSuccess = async (res: any) => {
+    console.log('Login Success:', res.profileObj);
+    handleSubmit(res.profileObj as API.LoginParams);
+  };
+
+  const onLoginFailure = (res: any) => {
+    console.log('Login Failed:', res);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.lang} data-lang>
@@ -91,7 +112,7 @@ const Login: React.FC = () => {
             }}
             submitter={{
               searchConfig: {
-                submitText: "Login"
+                submitText: "Login",
               },
               render: (_, dom) => dom.pop(),
               submitButtonProps: {
@@ -182,12 +203,26 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
+            {process.env.GOOGLE_CLIENT_ID ? (
+              <div id="signInButton">
+                <GoogleLogin
+                  clientId={process.env.GOOGLE_CLIENT_ID}
+                  buttonText="Sign in with Google"
+                  onSuccess={onLoginSuccess}
+                  onFailure={onLoginFailure}
+                  cookiePolicy={'single_host_origin'}
+                  isSignedIn={true}
+                />
+              </div>
+            ) : (
+              null
+            )}
           </LoginForm>
         </div>
 
       </div>
       <Footer />
-    </div>
+    </div >
   );
 };
 

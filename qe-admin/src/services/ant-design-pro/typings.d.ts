@@ -26,6 +26,7 @@ declare namespace API {
     };
     address?: string;
     phone?: string;
+    googleId?: string;
   };
 
   type LoginResult = {
@@ -86,6 +87,9 @@ declare namespace API {
     password?: string;
     autoLogin?: boolean;
     type?: string;
+    email?: string;
+    imageUrl?: string;
+    name?: string;
   };
 
   type ErrorResponse = {
