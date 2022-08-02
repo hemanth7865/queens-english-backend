@@ -61,6 +61,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }: { initialState: an
     }
   }
 
+
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
