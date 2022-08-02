@@ -143,9 +143,9 @@ const TableList: React.FC = () => {
                 },
                 body: JSON.stringify({ subscriptionId: data.subscriptionId }),
             });
-            handleAPIResponse(msg, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+            handleAPIResponse(msg, "Retry Auto-Debit Payment success", "Failed To Auto retry the payment", false);
         } catch (error) {
-            handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Failed To regenerate Razorpay link generated", false);
+            handleAPIResponse({ status: 400 }, "Retry Auto-Debit Payment success", "Failed To Auto retry the payment", false);
         }
     }
 

@@ -54,13 +54,13 @@ export class CashFreeUtils {
     console.log('subscriptionId', subscriptionId)
     let response: any = null;
     usersLogger.info('Inside the cashfree auto retry payment');
-    await axios.post(`https://test.cashfree.com/api/v2/subscriptions/77311/charge-retry`, {}, { headers: params })
+    await axios.post(`${cashfreeUrl}${subscriptionId}${retryUrl}`, {}, { headers: params })
       .then((resp) => {
         console.log('response', resp)
-        // if (!isNullOrUndefined(resp.data)) {
-        //   usersLogger.info('Cashfree response for fetch details of the customer: ' + JSON.stringify(resp.data));
-        //   response = resp.data;
-        // }
+        if (!isNullOrUndefined(resp.data)) {
+          usersLogger.info('Cashfree response for fetch details of the customer: ' + JSON.stringify(resp.data));
+          response = resp.data;
+        }
 
         return resp.data;
       }).catch((error) => {
