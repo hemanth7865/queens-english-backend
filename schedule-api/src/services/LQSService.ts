@@ -187,7 +187,7 @@ export class LQSService {
         user.status = LQSService.LSQ_STATUS_Error;
         usersLogger.info(`Validate failed ${user.id}`);
       }
-
+      student.reasonInSAV = validateStudent.message;
 
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
@@ -501,11 +501,11 @@ export class LQSService {
       }
     );
 
-    await this.processRecords(lqsRecords,{
-      PageIndex:1,
-      PageSize:100
+    await this.processRecords(lqsRecords, {
+      PageIndex: 1,
+      PageSize: 100
     });
-    return {status:400}
+    return { status: 400 }
   }
 
 
@@ -553,14 +553,14 @@ export class LQSService {
               }
             );
             usersLogger.info("*******");
-            usersLogger.info(element.ProspectStage.toUpperCase() );
+            usersLogger.info(element.ProspectStage.toUpperCase());
             if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
-               !lqsEntry) {
+              !lqsEntry) {
               if (!lqsEntry) {
                 lqsEntry = new LQSEntry();
                 lqsEntry.id = element.ProspectID;
               }
-            
+
               usersLogger.info(element.ProspectID);
               lqsEntry.firstName = element.FirstName;
               lqsEntry.lastName = element.LastName;
@@ -595,59 +595,59 @@ export class LQSService {
       }
     );
     usersLogger.info('Updating... Sales fields in LSQ Records ');
-    await this.processRecords(lqsRecords,data);
+    await this.processRecords(lqsRecords, data);
     usersLogger.info("fetchLQSData :: END");
     return res1;
   }
 
-  
-async processRecords(lqsRecords:any,data:any) {
-  usersLogger.info(`Total no of records ... ${lqsRecords?.length}`);
-  for (let element of lqsRecords) { 
-    payment: Payment;
-    // var url = `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
 
-    const options = {
-      url: `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
-      json: true,
-      body: {
-        "Parameter": {
-          "ActivityEvent": 210
+  async processRecords(lqsRecords: any, data: any) {
+    usersLogger.info(`Total no of records ... ${lqsRecords?.length}`);
+    for (let element of lqsRecords) {
+      payment: Payment;
+      // var url = `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
+
+      const options = {
+        url: `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
+        json: true,
+        body: {
+          "Parameter": {
+            "ActivityEvent": 210
+          },
+          "Paging": {
+            "PageIndex": data.PageIndex,
+            "PageSize": data.PageSize
+          }
         },
-        "Paging": {
-          "PageIndex": data.PageIndex,
-          "PageSize": data.PageSize
-        }
-      },
-    };
+      };
 
 
-    let user = await this.userRepository.findOne({
-      where: { id: element.id },
-    });
-    user == null ? new User() : user;
-    let payment = await this.paymentRepository.findOne({
-      where: { id: element.id },
-    });
-    payment == null ? new Payment() : payment;
+      let user = await this.userRepository.findOne({
+        where: { id: element.id },
+      });
+      user == null ? new User() : user;
+      let payment = await this.paymentRepository.findOne({
+        where: { id: element.id },
+      });
+      payment == null ? new Payment() : payment;
 
-    const details = await axios
-      .post(options.url, options.body)
-      .then(async (response) => {
-        element.retry = element.retry - 1;
-        if (response.data) {
-          element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+      const details = await axios
+        .post(options.url, options.body)
+        .then(async (response) => {
+          element.retry = element.retry - 1;
+          if (response.data) {
+            element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+            element.updated_at = new Date();
+            this.lQSRepository.save(element);
+          }
+          return response.data;
+        })
+        .catch(error => {
+          element.lsqstatus = LQSService.LSQ_STATUS_FAILED
           element.updated_at = new Date();
           this.lQSRepository.save(element);
-        }
-        return response.data;
-      })
-      .catch(error => {
-        element.lsqstatus = LQSService.LSQ_STATUS_FAILED
-        element.updated_at = new Date();
-        this.lQSRepository.save(element);
-        console.log(error);
-      })
+          console.log(error);
+        })
 
     if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
       usersLogger.info("Updating ProspectActivities...");
@@ -685,10 +685,10 @@ async processRecords(lqsRecords:any,data:any) {
       element.whatsapp = item.mx_Custom_30;
     }
 
-    await this.lQSRepository.save(element);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      await this.lQSRepository.save(element);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   }
-}
 
 
 }

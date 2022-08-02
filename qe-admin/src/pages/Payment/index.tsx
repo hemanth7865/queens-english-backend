@@ -68,6 +68,12 @@ const TableList: React.FC = () => {
         'Auto-Debit': { text: 'Auto-Debit', status: 'Auto-Debit' }
     }
 
+    const subscriptionStatusFilter = {
+        'SUCCESS': { text: 'SUCCESS', status: 'SUCCESS' },
+        'PENDING': { text: 'PENDING', status: 'PENDING' },
+        'FAILED': { text: 'FAILED', status: 'FAILED' }
+    }
+
     const closeModal = () => {
         setIsModalVisible(false);
         setIsWhatsappVisible(false);
@@ -301,6 +307,26 @@ const TableList: React.FC = () => {
             dataIndex: 'subscriptionType',
             valueType: 'select',
             valueEnum: subscriptionTypeFilter,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleSubscriptionStatus"
+                    defaultMessage="Subscription Status"
+                />
+            ),
+            dataIndex: 'subscriptionStatus',
+            valueType: 'select',
+            valueEnum: subscriptionStatusFilter,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleCycles"
+                    defaultMessage="Cycles (Cashfree)"
+                />
+            ),
+            dataIndex: 'cycles',
         },
         {
             title: (

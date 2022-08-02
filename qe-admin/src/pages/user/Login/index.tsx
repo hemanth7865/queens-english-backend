@@ -9,8 +9,6 @@ import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
 import styles from './index.less';
-import { useEffect } from 'react';
-import { gapi } from 'gapi-script';
 import GoogleLogin from 'react-google-login';
 
 const LoginMessage: React.FC<{
@@ -77,16 +75,6 @@ const Login: React.FC = () => {
   };
   const { status, type: loginType } = userLoginState;
 
-  useEffect(() => {
-    function start() {
-      gapi.client.init({
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        scope: ""
-      })
-    };
-    gapi.load('client:auth2', start);
-  });
-
   const onLoginSuccess = async (res: any) => {
     console.log('Login Success:', res.profileObj);
     handleSubmit(res.profileObj as API.LoginParams);
@@ -95,6 +83,7 @@ const Login: React.FC = () => {
   const onLoginFailure = (res: any) => {
     console.log('Login Failed:', res);
   };
+
 
   return (
     <div className={styles.container}>
@@ -203,20 +192,22 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
-            {process.env.GOOGLE_CLIENT_ID ? (
-              <div id="signInButton">
-                <GoogleLogin
-                  clientId={process.env.GOOGLE_CLIENT_ID}
-                  buttonText="Sign in with Google"
-                  onSuccess={onLoginSuccess}
-                  onFailure={onLoginFailure}
-                  cookiePolicy={'single_host_origin'}
-                  isSignedIn={true}
-                />
-              </div>
-            ) : (
-              null
-            )}
+            {
+              // @ts-expect-error
+              GOOGLE_CLIENT_ID ? (
+                <div >
+                  <GoogleLogin
+                    // @ts-expect-error
+                    clientId={GOOGLE_CLIENT_ID}
+                    buttonText="Sign in with Google"
+                    onSuccess={onLoginSuccess}
+                    onFailure={onLoginFailure}
+                    cookiePolicy={'single_host_origin'}
+                  />
+                </div>
+              ) : (
+                null
+              )}
           </LoginForm>
         </div>
 

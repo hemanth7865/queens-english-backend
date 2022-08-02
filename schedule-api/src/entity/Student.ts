@@ -16,7 +16,7 @@ import { CollectionAgent } from "./CollectionAgent";
 
 @Entity("student")
 export class Student extends BaseEntity {
-  Student() {}
+  Student() { }
   @PrimaryGeneratedColumn("uuid")
   id: string;
   @Column({ nullable: true })
@@ -123,6 +123,8 @@ export class Student extends BaseEntity {
   waMessageSent: string;
   @Column({ nullable: true })
   salesDataFilled: string;
+  @Column({ nullable: true })
+  reasonInSAV: string;
   @Column({ nullable: true, type: "date" })
   assesmentDate: Date;
 

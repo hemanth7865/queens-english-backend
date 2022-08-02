@@ -157,6 +157,9 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             } else if (values.referenceId && values.referenceId != referenceId) {
                 await editPaymentDetails(dataForm);
                 await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
+            } else if (values.subscriptionId) {
+                await editPaymentDetails(dataForm);
+                await props.refreshStatus({ transactionId, paymentMode: PaymentModevalues.CASHFREE }, true);
             } else {
                 await editPaymentDetails(dataForm);
             }
