@@ -53,6 +53,7 @@ export class CashFreeUtils {
   async autoRetryCashfreePayment(subscriptionId: string) {
     console.log('subscriptionId', subscriptionId)
     let response: any = null;
+    let errorResponse: any = null;
     usersLogger.info('Inside the cashfree auto retry payment');
     await axios.post(`${cashfreeUrl}${subscriptionId}${retryUrl}`, {}, { headers: params })
       .then((resp) => {
@@ -61,14 +62,14 @@ export class CashFreeUtils {
           usersLogger.info('Cashfree response for fetch details of the customer: ' + JSON.stringify(resp.data));
           response = resp.data;
         }
-
         return resp.data;
       }).catch((error) => {
         usersLogger.error('Error in auto retry: ' + JSON.stringify(error));
         console.log('error', error.response.data)
-        return error;
+        errorResponse = error.response.data
+        return error.response.data;
       });
-    return response;
+    return { response, errorResponse };
   }
 
 }

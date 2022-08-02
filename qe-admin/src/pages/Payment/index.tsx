@@ -74,6 +74,10 @@ const TableList: React.FC = () => {
         'FAILED': { text: 'FAILED', status: 'FAILED' }
     }
 
+    const autoRetryFailedFilter = {
+        1: { text: 'Auto Retry Failed', status: 1 },
+    }
+
     const closeModal = () => {
         setIsModalVisible(false);
         setIsWhatsappVisible(false);
@@ -141,7 +145,7 @@ const TableList: React.FC = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ subscriptionId: data.subscriptionId }),
+                body: JSON.stringify({ installmentId: data.transactionId }),
             });
             handleAPIResponse(msg, "Retry Auto-Debit Payment success", "Failed To Auto retry the payment", false);
         } catch (error) {
@@ -421,7 +425,6 @@ const TableList: React.FC = () => {
             valueType: 'select',
             request: async () => collectionAgents.map((i) => { return { value: i.id, label: i.firstName } })
         },
-
         {
             title: (
                 <FormattedMessage
@@ -432,6 +435,18 @@ const TableList: React.FC = () => {
             dataIndex: 'whatsAppLinkSent',
             valueType: 'select',
             valueEnum: whatsappLinkSentFilter,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleAutoRetryFailed"
+                    defaultMessage="Auto Retry Failed ?"
+                />
+            ),
+            dataIndex: 'autoRetryFailed',
+            valueType: 'select',
+            valueEnum: autoRetryFailedFilter,
+            hideInTable: true,
         },
         {
             title: (
