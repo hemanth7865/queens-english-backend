@@ -551,4 +551,10 @@ export const Routes = [
     controller: ZoomController,
     action: "redirectTeacher",
   },
+  {
+    method: "get",
+    route: "/zoom/csv/meetings",
+    controller: ZoomController,
+    action: "getZoomMeetingsCSV",
+  },
 ];
