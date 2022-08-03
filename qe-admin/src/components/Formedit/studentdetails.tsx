@@ -9,9 +9,6 @@ import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
 import { CountryCode } from "../Constants/constants";
-import {
-  getZoomURL
-} from "@/services/ant-design-pro/helpers";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -173,7 +170,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   //Role Based Access
   const access = useAccess();
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string) => {
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
     const waMessage = (
       <div>
         <p>Hello,<br />
@@ -182,7 +179,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           <b>*Batch:*</b> {batchCode}<br />
           <b>*Time:*</b> {timings} India<br />
           <b>*Frequency:*</b> {days}<br />
-          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_STUDENT", undefined, undefined, { classCode })}<br />
+          <b>*Zoom Link:*</b> {zoomLink}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
@@ -901,7 +898,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
                 >
                   <a
                     onClick={() => {
-                      openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink, props.tempData.classCode)
+                      openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink)
                     }}
                   >
                     <EyeOutlined />
