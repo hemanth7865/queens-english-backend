@@ -8,6 +8,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import prmData from "../../../data/prms.json";
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import Tabsedit from "@/components/Formedit/tabs";
+import {
+  getZoomURL
+} from "@/services/ant-design-pro/helpers";
 
 const { Option } = Select;
 
@@ -274,13 +277,13 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string) => {
     const waMessage = (
       <div>
         <p>Hello <br />
           I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
           classes:<br />
-          Zoom Link: {zoomLink} <br />
+          Zoom Link: {getZoomURL("GENERIC_STUDENT", undefined, undefined, { classCode })} <br />
           Whatsapp Group Link: {whatsappLink} <br />
           Topic: {batchCode}<br />
           Time: {timings} India<br />
@@ -638,7 +641,7 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink)
+              openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink, value.classCode)
             }}
           >
             <EyeOutlined />
