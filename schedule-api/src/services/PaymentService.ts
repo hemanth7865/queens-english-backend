@@ -995,7 +995,7 @@ export class PaymentService {
   }
 
   async retryAutoDebitPayment(request: any) {
-    console.log('request', request)
+    let retryPaymentResponse;
     try {
       const result = {
         error: 0,
@@ -1008,7 +1008,7 @@ export class PaymentService {
         request
       );
       for (let installment of autoDebitInstallments) {
-        let retryPaymentResponse = await this.cashFreeUtils.autoRetryCashfreePayment(
+        retryPaymentResponse = await this.cashFreeUtils.autoRetryCashfreePayment(
           installment.subscriptionId
         );
         usersLogger.error(
@@ -1023,6 +1023,19 @@ export class PaymentService {
           );
           result.error++;
           result.message = retryPaymentResponse.errorResponse!.message;
+          await (
+            await this.logger.customPayment(
+              request.installmentId,
+              "Failed To Auto retry payment",
+              ERROR_CODES.ERROR_AUTO_RETRY_PAYMENT,
+              {
+                requestData: request,
+                errorMessage: retryPaymentResponse,
+              },
+              this.request?.user,
+              installment.studentId
+            )
+          ).save();
         } else {
           if (!isNullOrUndefined(retryPaymentResponse.response)) {
             if (!isNullOrUndefined(retryPaymentResponse.response.payment)) {
@@ -1048,6 +1061,20 @@ export class PaymentService {
                     data
                   );
                   result.paid++;
+                  await (
+                    await this.logger.customPayment(
+                      request.installmentId,
+                      "Auto retry success",
+                      SUCCESS_CODES.SUCCESS_AUTO_RETRY_PAYMENT,
+                      {
+                        requestData: request,
+                        cashfreePaymentDetails: payments,
+                        successMessage: retryPaymentResponse,
+                      },
+                      this.request?.user,
+                      installment.studentId
+                    )
+                  ).save();
                   break;
                 } else if (
                   payment["status"] == CASHFREE_PAYMENT_STATUS.FAILED
@@ -1065,6 +1092,20 @@ export class PaymentService {
                     data
                   );
                   result.failed++;
+                  await (
+                    await this.logger.customPayment(
+                      request.installmentId,
+                      "Failed To Auto retry payment for on_hold status",
+                      ERROR_CODES.ERROR_AUTO_RETRY_PAYMENT,
+                      {
+                        requestData: request,
+                        cashfreePaymentDetails: payments,
+                        errorMessage: retryPaymentResponse,
+                      },
+                      this.request?.user,
+                      installment.studentId
+                    )
+                  ).save();
                   break;
                 }
               }
@@ -1087,6 +1128,20 @@ export class PaymentService {
 
     } catch (error) {
       usersLogger.error("Error in retrying the payment: " + error);
+      await (
+        await this.logger.customPayment(
+          request.installmentId,
+          "Failed To Auto retry payment",
+          ERROR_CODES.ERROR_AUTO_RETRY_PAYMENT,
+          {
+            requestData: request,
+            error: error,
+            message: error.message,
+            cashfreePaymentDetails: retryPaymentResponse,
+          },
+          this.request?.user
+        )
+      ).save();
       return {
         status: "error",
         message: "Error in retrying the payment",
