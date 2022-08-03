@@ -601,4 +601,113 @@ export class ZoomMeetingService {
 
     return result;
   }
+
+  async getZoomMeetingsCSV(): Promise<any> {
+    try {
+      const meetings = await createQueryBuilder(ZoomMeeting, "zoom_meeting")
+        .leftJoinAndSelect("zoom_meeting.batch", "batch")
+        .leftJoinAndSelect("zoom_meeting.zoom_user", "zoom_user")
+        .getMany();
+
+      if (meetings.length > 0) {
+        const headers: { title: string; callBack?: any; key?: string }[] = [
+          {
+            title: "Batch",
+            callBack(e) {
+              return e.batch?.batchNumber || "Not Found";
+            },
+          },
+          {
+            title: "Teacher",
+            callBack(e) {
+              return e.zoom_user?.first_name + " " + e.zoom_user?.last_name;
+            },
+          },
+          {
+            title: "Old Zoom Link",
+            callBack(e) {
+              return e.batch?.zoomLink || "Not Found";
+            },
+          },
+          {
+            title: "Teacher Generic Link",
+            callBack(e) {
+              return `${process.env.ZOOM_GENERIC_LINK}c/t/${
+                e.batch?.teacherCode || "NOT_FOUND"
+              }`;
+            },
+          },
+          {
+            title: "Student Generic Link",
+            callBack(e) {
+              return `${process.env.ZOOM_GENERIC_LINK}c/s/${
+                e.batch?.classCode || "NOT_FOUND"
+              }`;
+            },
+          },
+          {
+            title: "New Zoom Teacher Link",
+            callBack(e) {
+              return (
+                e.start_url.split("?")[0] + `?zak=${e.zoom_user.zak_token}`
+              );
+            },
+          },
+          {
+            title: "New Zoom Student Link",
+            callBack(e) {
+              return e.join_url;
+            },
+          },
+          {
+            title: "Batch ID",
+            callBack(e) {
+              return e.batch_id;
+            },
+          },
+          {
+            title: "Teacher ID",
+            callBack(e) {
+              return e.user_id;
+            },
+          },
+        ];
+
+        let csv = [];
+        csv.push('"' + headers.map((i) => i.title).join('","') + '"');
+        for (let k of meetings) {
+          let row = [];
+          if (!k.batch) {
+            continue;
+          }
+          for (let head of headers) {
+            if (head.callBack) {
+              row.push(head.callBack(k));
+            } else if (head.key) {
+              row.push(k[head.key]);
+            }
+          }
+          csv.push('"' + row.join('","') + '"');
+        }
+
+        return csv.join("\n");
+      }
+    } catch (e) {
+      logger.error(`Failed to get zoom meetings csv: ${e.message}`);
+      await (
+        await this.logger.customZoom(
+          "",
+          "Failed to get zoom meetings csv: " + e.message,
+          "FAILED_TO_GET_ZOOM_MEETINGS_CSV",
+          { error: e, message: e.message },
+          this.request.user || {}
+        )
+      ).save();
+      return {
+        success: false,
+        message: e.message,
+        e,
+      };
+    }
+  }
 }
