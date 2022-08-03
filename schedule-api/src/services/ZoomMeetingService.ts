@@ -481,12 +481,14 @@ export class ZoomMeetingService {
         classCode,
       });
 
+      let meeting: any;
+
       if (!batch) {
         throw new Error(`Batch ${classCode} Not Found.`);
       }
 
       if (batch.useNewZoomLink) {
-        const meeting = await this.zoomMeetingRepository.findOne({
+        meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batch.id,
         });
 
@@ -502,6 +504,16 @@ export class ZoomMeetingService {
       if (!result.link) {
         throw new Error(`Batch ${classCode} Doesn't Have A Link.`);
       }
+
+      await (
+        await this.logger.customZoom(
+          classCode,
+          "Success redirect to zoom meeting for student: " + classCode,
+          "SUCCESS_REDIRECT_TO_ZOOM_MEETING_STUDENT",
+          { meeting, batch },
+          this.request.user || {}
+        )
+      ).save();
     } catch (e) {
       console.log(e);
       logger.error(
@@ -530,12 +542,14 @@ export class ZoomMeetingService {
         teacherCode,
       });
 
+      let meeting: any;
+
       if (!batch) {
         throw new Error(`Batch ${teacherCode} Not Found.`);
       }
 
       if (batch.useNewZoomLink) {
-        const meeting = await this.zoomMeetingRepository.findOne({
+        meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batch.id,
         });
 
@@ -558,6 +572,16 @@ export class ZoomMeetingService {
       if (!result.link) {
         throw new Error(`Batch ${teacherCode} Doesn't Have A Link.`);
       }
+
+      await (
+        await this.logger.customZoom(
+          teacherCode,
+          "Success redirect to zoom meeting for teacher: " + teacherCode,
+          "SUCCESS_REDIRECT_TO_ZOOM_MEETING_TEACHER",
+          { meeting, batch },
+          this.request.user || {}
+        )
+      ).save();
     } catch (e) {
       console.log(e);
       logger.error(
