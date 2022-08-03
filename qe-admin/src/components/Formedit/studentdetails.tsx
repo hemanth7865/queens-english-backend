@@ -1,6 +1,6 @@
 import { Access, useAccess } from "umi";
-import { EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Col, Row, notification, Tabs, Button } from 'antd';
+import { CopyOutlined, EyeOutlined, WhatsAppOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Col, Row, notification, Tabs, Button, message } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -170,16 +170,76 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   //Role Based Access
   const access = useAccess();
 
+  const whatsappOnboard = `    Hello,
+I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on ${props.tempData.classesStartDate}, you can use the below details to join your classes:
+
+*Batch:* ${props.tempData.batchCode}
+*Time:* ${props.tempData.timings} India
+*Frequency:* ${props.tempData.courseFrequency}
+*Zoom Link:* ${props.tempData.zoomLink}
+
+(Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
+(जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
+
+(If unable to join through the link then use Meeting ID and Passcode :
+${props.tempData.zoomInfo})
+
+(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें :
+${props.tempData.zoomInfo})
+
+*Whatsapp Group Link:* ${props.tempData.whatsappLink}
+
+(Join the Whatsapp group from the link so that you won't miss out on the important notifications regarding the class)
+(लिंक से व्हाट्सएप ग्रुप में शामिल हों ताकि आप कक्षा से संबंधित महत्वपूर्ण सूचनाओं से न चूकें)
+
+Please send “OK” or a “:+1:” to activate the link above.
+कृपया उपरोक्त लिंक को सक्रिय करने के लिए "ओके" या ": 1:" भेजें।
+
+Click here to know how to start a Zoom Meeting:
+https://drive.google.com/file/d/17Yx9W4EMT2yZ5VJDh6HfQAj4yBZz4VOo/view
+
+ज़ूम मीटिंग कैसे शुरू करें, यह जानने के लिए यहां क्लिक करें:
+https://drive.google.com/file/d/1PVj-GJpzrOJanQ_Cq4zlfjgA_E_JP4B1/view
+
+For any support please feel free to reach out to us on our customer support number: +918143513850
+अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर +918143513850 पर कॉल कर सकते हैं।`;
+
+  const whatsappWelcome = `    Hello
+We're delighted to welcome you aboard The Queen's English.
+I'll be your academic counsellor, and my name is ${props.tempData.prm_firstName} ${props.tempData.prm_lastName}.
+We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.
+Step 1: Go to the Google Play Store and download the app using the following link: https://queensenglish.co/app
+User information:
+Registered Phone Number:  ${props.tempData.phoneNumber}
+Please use your registered phone number to log in (once your classes have started).
+We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850
+Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।`;
+
+  const copy = (text: any) => {
+    window.navigator.clipboard.writeText(text);
+    message.success('Message copied');
+  };
+
   const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
     const waMessage = (
-      <div>
+      <div >
+        <div onClick={() => copy(whatsappOnboard)} align="center">
+          <CopyOutlined
+            title='Copy message'
+            label='Copy message'
+            style={{ fontSize: "25px", color: "#00BFFF" }}
+            onClick={() => {
+              copy(whatsappOnboard);
+            }} />
+          <b> Copy Message </b>
+        </div>
         <p>Hello,<br />
           I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {classesStartDate}, you can use the below details to join your classes:<br />
           <br></br>
-          <b>*Batch:*</b> {batchCode}<br />
-          <b>*Time:*</b> {timings} India<br />
-          <b>*Frequency:*</b> {days}<br />
-          <b>*Zoom Link:*</b> {zoomLink}<br />
+          <b>Batch:</b> {batchCode}<br />
+          <b>Time:</b> {timings} India<br />
+          <b>Frequency:</b> {days}<br />
+          <b>Zoom Link:</b> {zoomLink}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
@@ -190,7 +250,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : <br />
           {zoomInfo})<br />
           <br></br>
-          <b>*Whatsapp Group Link:*</b> {whatsappLink}<br />
+          <b>Whatsapp Group Link:</b> {whatsappLink}<br />
           <br></br>
           (Join the Whatsapp group from the link so that you won't miss out on the important notifications regarding the class)<br />
           (लिंक से व्हाट्सएप ग्रुप में शामिल हों ताकि आप कक्षा से संबंधित महत्वपूर्ण सूचनाओं से न चूकें)<br />
@@ -226,6 +286,16 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   const openNotification = (type: string, phoneNumber: string, prm_firstName: string, prm_lastName: string) => {
     const waMessage = (
       <div>
+        <div onClick={() => copy(whatsappWelcome)} align="center">
+          <CopyOutlined
+            title='Copy message'
+            label='Copy message'
+            style={{ fontSize: "25px", color: "#00BFFF" }}
+            onClick={() => {
+              copy(whatsappWelcome);
+            }} />
+          <b> Copy Message </b>
+        </div>
         <p>Hello <br />
           We're delighted to welcome you aboard The Queen's English.<br />
           I'll be your academic counsellor, and my name is {prm_firstName} {prm_lastName}.<br />
@@ -235,7 +305,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
           Registered Phone Number: {phoneNumber}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
           We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br />
-          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।</p>
       </div>
     )
 
