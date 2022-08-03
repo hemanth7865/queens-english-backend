@@ -616,7 +616,7 @@ export class ZoomMeetingService {
           {
             title: "Student Generic Link",
             callBack(e) {
-              return `${process.env.ZOOM_GENERIC_LINK}c/t/${
+              return `${process.env.ZOOM_GENERIC_LINK}c/s/${
                 e.batch?.classCode || "NOT_FOUND"
               }`;
             },
