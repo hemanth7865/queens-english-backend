@@ -23,13 +23,21 @@ steps:
       sshEndpoint: "QE_PORTAL UAT"
       runOptions: "commands"
       commands: |
+        echo "Clean Local Changes"
+        cd /home/qeuser/qe-backend && git add . && git stash
         echo "Download Updates"
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
         cd /home/qeuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/qeuser/git-checkout.txt && cat /home/qeuser/git-checkout.txt
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
-        cd /home/qeuser/qe-backend/schedule-api && npm run typeorm migration:run
-        cd /home/qeuser/qe-backend/qe-admin && npm run build &> /home/qeuser/build.txt && cat /home/qeuser/build.txt 
+        echo "Install dependencies"
+        cd /home/qeuser/qe-backend/schedule-api && yarn install &> /home/qeuser/be-install.txt && cat /home/qeuser/be-install.txt
+        echo "Run Migrations"
+        cd /home/qeuser/qe-backend/schedule-api && yarn migrate
+        echo "Install dependencies"
+        cd /home/qeuser/qe-backend/qe-admin && yarn install &> /home/qeuser/fe-install.txt && cat /home/qeuser/fe-install.txt
+        echo "Build UI"
+        cd /home/qeuser/qe-backend/qe-admin && yarn build &> /home/qeuser/build.txt && cat /home/qeuser/build.txt 
         rm -rf /var/www/html/qe-admin
         cd /home/qeuser/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
         pm2 restart all

@@ -179,16 +179,12 @@ export const getZoomURL = (
     // @ts-expect-error
     const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
 
-    if (type === "GENERIC_TEACHER") {
-      return `${GENERIC_ZOOM}c/t/${batch?.teacherCode}`;
-    }
-
-    if (type === "GENERIC_STUDENT") {
-      return `${GENERIC_ZOOM}c/s/${batch?.classCode}`;
-    }
-
     if (!zoomMeeting || !zoomUser) {
         return "NA";
+    }
+
+    if (type === "GENERIC_TEACHER") {
+        return `${GENERIC_ZOOM}c/t/${batch.teacherCode}`;
     }
 
     if (type === "PUBLIC_TEACHER") {
@@ -197,6 +193,10 @@ export const getZoomURL = (
 
     if (type === "PUBLIC_STUDENT") {
         return zoomMeeting.join_url;
+    }
+
+    if (type === "GENERIC_STUDENT") {
+        return `${GENERIC_ZOOM}c/s/${batch.classCode}`;
     }
 
     return "NA";
