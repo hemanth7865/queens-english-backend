@@ -487,6 +487,8 @@ export class ZoomMeetingService {
         throw new Error(`Batch ${classCode} Not Found.`);
       }
 
+      const teacher = await this.usersRepository.findOne(batch.teacherId);
+
       if (batch.useNewZoomLink) {
         meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batch.id,
@@ -505,15 +507,18 @@ export class ZoomMeetingService {
         throw new Error(`Batch ${classCode} Doesn't Have A Link.`);
       }
 
-      await (
+      await(
         await this.logger.customZoom(
           classCode,
-          "Success redirect to zoom meeting for student: " + classCode,
+          `Success redirect to zoom meeting for student: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
           "SUCCESS_REDIRECT_TO_ZOOM_MEETING_STUDENT",
-          { meeting, batch },
-          this.request.user || {}
+          { meeting, batch, teacher },
+          this.request.user || {
+            email: batch.batchNumber,
+          }
         )
       ).save();
+ 
     } catch (e) {
       console.log(e);
       logger.error(
@@ -548,6 +553,8 @@ export class ZoomMeetingService {
         throw new Error(`Batch ${teacherCode} Not Found.`);
       }
 
+      const teacher = await this.usersRepository.findOne(batch.teacherId);
+
       if (batch.useNewZoomLink) {
         meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batch.id,
@@ -573,13 +580,15 @@ export class ZoomMeetingService {
         throw new Error(`Batch ${teacherCode} Doesn't Have A Link.`);
       }
 
-      await (
+      await(
         await this.logger.customZoom(
           teacherCode,
-          "Success redirect to zoom meeting for teacher: " + teacherCode,
+          `Success redirect to zoom meeting for teacher: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
           "SUCCESS_REDIRECT_TO_ZOOM_MEETING_TEACHER",
-          { meeting, batch },
-          this.request.user || {}
+          { meeting, batch, teacher },
+          this.request.user || {
+            email: teacher?.email,
+          }
         )
       ).save();
     } catch (e) {
