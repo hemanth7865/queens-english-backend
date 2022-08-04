@@ -81,17 +81,18 @@ export class validations {
             }
         }
 
-        //validate the downpayment for razorpay and cashfree
-        if (status != "Error") {
-            const verifyDownpayment = await (new PaymentService()).verifyDownPayment({ force: false, id: total.id, payment: [total] });
-            if (verifyDownpayment.message.error == 0 && verifyDownpayment.message.paid == 0) {
+        //validate the downpayment for razorpay
+        //TODO - needs clarity on downpayment using cashfree
+        if (status != "Error" && total.paymentMode != PAYMENT_MODE.CASHFREE) {
+                const verifyDownpayment = await (new PaymentService()).verifyDownPayment({ force: false, id: total.id, payment: [total] });
+                if (verifyDownpayment.message.error == 0 && verifyDownpayment.message.paid == 0) {
                 status = "Error";
                 message = `Selected Payment is Not Found`;
-            }
-            if (verifyDownpayment.message.error == 1 && verifyDownpayment.message.paid == 0) {
+                }
+                if (verifyDownpayment.message.error == 1 && verifyDownpayment.message.paid == 0) {
                 status = "Error";
                 message = "Failed To Verify Down Payment"
-            }
+                }
         }
 
         return { status, message };

@@ -1167,75 +1167,75 @@ export class PaymentService {
         /**
          * handle cashfree payments
          */
-        if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
-          let paymentDetails;
-          try {
-            paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
-              downPayment.subscriptionNo
-            );
+        // if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+        //   let paymentDetails;
+        //   try {
+        //     paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
+        //       downPayment.subscriptionNo
+        //     );
 
-            const checkPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[0] : null;
+        //     const checkPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[0] : null;
 
-            if (!checkPaymentDetails) {
-              throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
-            }
+        //     if (!checkPaymentDetails) {
+        //       throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
+        //     }
 
-            let updatedPayment = false;
+        //     let updatedPayment = false;
 
-            for (const downPaymentDetails of paymentDetails.payments) {
-              if (
-                downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
-                downPaymentDetails.amount == downPayment.downpayment
-              ) {
-                let data: any = {
-                  is_down_payment_verified: 1,
-                  is_down_payment_auto_verified: !request.force,
-                  id: downPayment.id,
-                };
+        //     for (const downPaymentDetails of paymentDetails.payments) {
+        //       if (
+        //         downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
+        //         downPaymentDetails.amount == downPayment.downpayment
+        //       ) {
+        //         let data: any = {
+        //           is_down_payment_verified: 1,
+        //           is_down_payment_auto_verified: !request.force,
+        //           id: downPayment.id,
+        //         };
 
-                updatedPayment = await this.updatePayment(
-                  data,
-                  "Verified cashfree down payment",
-                  SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
-                  { downPaymentDetails }
-                );
+        //         updatedPayment = await this.updatePayment(
+        //           data,
+        //           "Verified cashfree down payment",
+        //           SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
+        //           { downPaymentDetails }
+        //         );
 
-                usersLogger.info(
-                  "update down payment to paid: " + JSON.stringify(data)
-                );
-                result.paid++;
-                break;
-              }
-            }
+        //         usersLogger.info(
+        //           "update down payment to paid: " + JSON.stringify(data)
+        //         );
+        //         result.paid++;
+        //         break;
+        //       }
+        //     }
 
-            if (!updatedPayment) {
-              throw new Error("Error in updating payment");
-            }
-          } catch (e) {
-            console.log(e);
-            await (
-              await this.logger.customPayment(
-                downPayment.id,
-                "Failed To Update Down Payment Status",
-                ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
-                {
-                  requestData: request,
-                  error: e,
-                  message: e.message,
-                  cashfreePayments: paymentDetails,
-                  downPayment,
-                },
-                this.request?.user,
-                downPayment.id
-              )
-            ).save();
-            usersLogger.error("Error in updating down payments: " + e);
-            result.error++;
-            continue;
-          }
+        //     if (!updatedPayment) {
+        //       throw new Error("Error in updating payment");
+        //     }
+        //   } catch (e) {
+        //     console.log(e);
+        //     await (
+        //       await this.logger.customPayment(
+        //         downPayment.id,
+        //         "Failed To Update Down Payment Status",
+        //         ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
+        //         {
+        //           requestData: request,
+        //           error: e,
+        //           message: e.message,
+        //           cashfreePayments: paymentDetails,
+        //           downPayment,
+        //         },
+        //         this.request?.user,
+        //         downPayment.id
+        //       )
+        //     ).save();
+        //     usersLogger.error("Error in updating down payments: " + e);
+        //     result.error++;
+        //     continue;
+        //   }
 
-          continue;
-        }
+        //   continue;
+        // }
       }
       return {
         status: "success",
