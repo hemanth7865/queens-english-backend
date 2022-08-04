@@ -453,6 +453,9 @@ Queen's English मे अगर आपको किसी तरह की स�
   }
 
   const countrycode = (props.tempData.phoneNumber).substring(0, 3);
+  const altcountrycode = (props.tempData.alternativeMobile).substring(0, 3);
+  const whatsappcountrycode = (props.tempData.whatsapp).substring(0, 3);
+
 
   if (access.canSuperAdmin) {
     // User is Super Admin
@@ -707,7 +710,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>
             )}
 
-            {(props.studentManageradd || props.studentManageredit) && countrycode == CountryCode.COUNTRYCODE_INDIA ? (
+            {(props.studentManageradd || props.studentManageredit) && whatsappcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Whatsapp Number"
@@ -717,7 +720,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                   <Input onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : (props.studentManageradd || props.studentManageredit) && countrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
+            ) : (props.studentManageradd || props.studentManageredit) && whatsappcountrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
               <Col span={12}>
                 <Form.Item
                   label="Whatsapp Number"
@@ -739,7 +742,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>
             )}
 
-            {(props.studentManageradd || props.studentManageredit) && countrycode == CountryCode.COUNTRYCODE_INDIA ? (
+            {(props.studentManageradd || props.studentManageredit) && altcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Alternate Mobile Number"
@@ -749,7 +752,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                   <Input onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : (props.studentManageradd || props.studentManageredit) && countrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
+            ) : (props.studentManageradd || props.studentManageredit) && altcountrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
               <Col span={12}>
                 <Form.Item
                   label="Alternate Mobile Number"
