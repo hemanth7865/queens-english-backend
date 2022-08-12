@@ -156,7 +156,8 @@ export class LQSService {
       user.updated_at = new Date();
       user.state = element.customerAddressState;
 
-      student.studentID = (element.studentID).replace(/\s/g, "");
+      // student.studentID = (element.studentID).replace(/\s/g,"");
+      student.studentID = element.id;
       student.course = element.course;
       student.courseFrequency = element.courseFrequency;
       student.status = element.status == 'Won' ? 'enrolled' : element.status;
@@ -472,7 +473,9 @@ export class LQSService {
                 element.bdaComments = item.Value;
                 break;
               case "mx_Custom_32":
-                element.studentID = (item.Value).replace(/\s/g, "");
+                // to remove student id from sales activity
+                // element.studentID = (item.Value).replace(/\s/g,"");
+                element.studentID = element.id;
                 break;
               default:
                 usersLogger.info(`Not valid schema name ${item.SchemaName}`);
@@ -646,39 +649,41 @@ export class LQSService {
           console.log(error);
         })
 
-      if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
-        usersLogger.info("Updating ProspectActivities...");
-        var item = details?.ProspectActivities[0].ActivityFields;
-        usersLogger.info(JSON.stringify(item));
-        element.status = item.Status;
-        element.salesowner = item.Owner;
-        element.pfirstName = item.pfirstName;
-        element.dateofsale = item.mx_Custom_1;
-        element.teacherName = item.mx_Custom_2;
-        element.studentID = item.mx_Custom_3;
-        element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
-        element.alternativeMobile = item.mx_Custom_5;
-        element.customerEmail = item.mx_Custom_6;
-        element.address = item.mx_Custom_7;
-        element.customerAddressState = item.mx_Custom_8;
-        element.course = item.mx_Custom_9;
-        element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
-        element.timings = item.mx_Custom_12;
-        element.startingLevel = item.mx_Custom_13;
-        element.startDate = item.mx_Custom_14;
-        element.saleType = item.mx_Custom_15;
-        element.saleamount = item.mx_Custom_16;
-        element.classessold = item.mx_Custom_17;
-        element.subscription = item.mx_Custom_18;
-        element.subscriptionNo = item.mx_Custom_19;
-        element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
-        element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
-        element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
-        element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
-        element.transactionID = item.mx_Custom_28;
-        element.bdaComments = item.mx_Custom_29;
-        element.whatsapp = item.mx_Custom_30;
-      }
+    if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
+      usersLogger.info("Updating ProspectActivities...");
+      var item = details?.ProspectActivities[0].ActivityFields;
+      usersLogger.info(JSON.stringify(item));
+      element.status = item.Status;
+      element.salesowner = item.Owner;
+      element.pfirstName = item.pfirstName;
+      element.dateofsale = item.mx_Custom_1;
+      element.teacherName = item.mx_Custom_2;
+      // to remove student id from lsq
+      // element.studentID = item.mx_Custom_3;
+      element.studentID = element.id;
+      element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
+      element.alternativeMobile = item.mx_Custom_5;
+      element.customerEmail = item.mx_Custom_6;
+      element.address = item.mx_Custom_7;
+      element.customerAddressState = item.mx_Custom_8;
+      element.course = item.mx_Custom_9;
+      element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
+      element.timings = item.mx_Custom_12;
+      element.startingLevel = item.mx_Custom_13;
+      element.startDate = item.mx_Custom_14;
+      element.saleType = item.mx_Custom_15;
+      element.saleamount = item.mx_Custom_16;
+      element.classessold = item.mx_Custom_17;
+      element.subscription = item.mx_Custom_18;
+      element.subscriptionNo = item.mx_Custom_19;
+      element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
+      element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
+      element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
+      element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
+      element.transactionID = item.mx_Custom_28;
+      element.bdaComments = item.mx_Custom_29;
+      element.whatsapp = item.mx_Custom_30;
+    }
 
       await this.lQSRepository.save(element);
       await new Promise((resolve) => setTimeout(resolve, 1000));

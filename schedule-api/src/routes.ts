@@ -378,6 +378,14 @@ export const Routes = [
 
   {
     method: "post",
+    route: "/retryAutoDebitPayment",
+    controller: PaymentController,
+    action: "retryAutoDebitPayment",
+    // authenticate: true,
+  },
+
+  {
+    method: "post",
     route: "/verifyDownPayment",
     controller: PaymentController,
     action: "verifyDownPayment",
@@ -550,5 +558,11 @@ export const Routes = [
     route: "/c/t/:teacherCode",
     controller: ZoomController,
     action: "redirectTeacher",
+  },
+  {
+    method: "get",
+    route: "/zoom/csv/meetings",
+    controller: ZoomController,
+    action: "getZoomMeetingsCSV",
   },
 ];

@@ -60,6 +60,8 @@ export class Transactions extends BaseEntity {
   subscriptionStatus: string;
   @Column({ nullable: true, type: "text", name: "cycles" })
   cycles: number;
+  @Column({ nullable: true, type: "text", name: "auto_retry_failed" })
+  autoRetryFailed: number;
   @OneToOne((type) => Student, (student) => student.id)
   @JoinColumn({ name: "student_id" })
   student: Student;

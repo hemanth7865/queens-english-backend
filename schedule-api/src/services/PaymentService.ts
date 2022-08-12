@@ -224,9 +224,15 @@ export class PaymentService {
               `transactions.cycles = '${parameters[param]}'`
             );
             break;
+          case "autoRetryFailed":
+            whereCondition.push(
+              `transactions.auto_retry_failed = '${parameters[param]}'`
+            );
+            break;
           case "leadId":
             whereCondition.push(`student.studentID = '${parameters[param]}'`);
             break;
+
         }
       }
 
@@ -284,6 +290,7 @@ export class PaymentService {
         view.expireBy = record.transactions_expire_by;
         view.cycles = record.transactions_cycles;
         view.subscriptionStatus = record.transactions_subscription_status;
+        view.autoRetryFailed = record.transactions_auto_retry_failed;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -461,8 +468,8 @@ export class PaymentService {
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
       .where(
-        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.dueDate like :dueMonth and transactions.status = :status",
-        { dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
+        "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.subscriptionType = :subscriptionType and transactions.dueDate like :dueMonth and transactions.status = :status",
+        { subscriptionType: SUBSCRIPTION_TYPE.MANUAL, dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
       )
       .limit(limit)
       .getMany();
@@ -987,6 +994,161 @@ export class PaymentService {
     }
   }
 
+  async retryAutoDebitPayment(request: any) {
+    let retryPaymentResponse;
+    try {
+      const result = {
+        error: 0,
+        paid: 0,
+        failed: 0,
+        message: ''
+      };
+      // fetch auto debit payments
+      let autoDebitInstallments = await this.fetchAutoDebitInstallments(
+        request
+      );
+      for (let installment of autoDebitInstallments) {
+        retryPaymentResponse = await this.cashFreeUtils.autoRetryCashfreePayment(
+          installment.subscriptionId
+        );
+        usersLogger.error(
+          "Error response : " +
+          retryPaymentResponse,
+          retryPaymentResponse.errorResponse!.message
+        );
+        if (!isNullOrUndefined(retryPaymentResponse.errorResponse)) {
+          usersLogger.error(
+            "Error in retrying the payment : " +
+            request.installmentId
+          );
+          result.error++;
+          result.message = retryPaymentResponse.errorResponse!.message;
+          await (
+            await this.logger.customPayment(
+              request.installmentId,
+              "Failed To Auto retry payment",
+              ERROR_CODES.ERROR_AUTO_RETRY_PAYMENT,
+              {
+                requestData: request,
+                errorMessage: retryPaymentResponse,
+              },
+              this.request?.user,
+              installment.studentId
+            )
+          ).save();
+        } else {
+          if (!isNullOrUndefined(retryPaymentResponse.response)) {
+            if (!isNullOrUndefined(retryPaymentResponse.response.payment)) {
+              var payments: any = retryPaymentResponse.response.payment;
+              for (const payment of payments) {
+                usersLogger.debug("pay: " + JSON.stringify(payment));
+                if (
+                  payment["status"] == CASHFREE_PAYMENT_STATUS.SUCCESS &&
+                  payment["amount"] == installment.emiAmount
+                ) {
+                  let data: any = {
+                    status: PAYMENT_STATUS.PAID,
+                    paidAmount: payment['amount'],
+                    paidDate: payment['addedOn'],
+                    subscriptionStatus: payment['status'],
+                    updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  };
+
+                  usersLogger.info("data for update: " + JSON.stringify(data));
+                  await this.installmentService.updateInstallment(
+                    installment.id,
+                    data
+                  );
+                  result.paid++;
+                  await (
+                    await this.logger.customPayment(
+                      request.installmentId,
+                      "Auto retry success",
+                      SUCCESS_CODES.SUCCESS_AUTO_RETRY_PAYMENT,
+                      {
+                        requestData: request,
+                        cashfreePaymentDetails: payments,
+                        successMessage: retryPaymentResponse,
+                      },
+                      this.request?.user,
+                      installment.studentId
+                    )
+                  ).save();
+                  break;
+                } else if (
+                  payment["status"] == CASHFREE_PAYMENT_STATUS.FAILED
+                ) {
+                  let data: any = {
+                    status: PAYMENT_STATUS.FAILED,
+                    subscriptionStatus: payment['status'],
+                    autoRetryFailed: 1,
+                    updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+                  };
+                  usersLogger.info("data for update: " + JSON.stringify(data));
+                  await this.installmentService.updateInstallment(
+                    installment.id,
+                    data
+                  );
+                  result.failed++;
+                  await (
+                    await this.logger.customPayment(
+                      request.installmentId,
+                      "Failed To Auto retry payment for on_hold status",
+                      ERROR_CODES.ERROR_AUTO_RETRY_PAYMENT,
+                      {
+                        requestData: request,
+                        cashfreePaymentDetails: payments,
+                        errorMessage: retryPaymentResponse,
+                      },
+                      this.request?.user,
+                      installment.studentId
+                    )
+                  ).save();
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (result.error || result.failed) {
+        return {
+          status: "error",
+          message: result,
+        };
+      }
+
+      return {
+        status: "success",
+        message: result,
+      };
+
+    } catch (error) {
+      usersLogger.error("Error in retrying the payment: " + error);
+      await (
+        await this.logger.customPayment(
+          request.installmentId,
+          "Failed To Auto retry payment",
+          ERROR_CODES.ERROR_AUTO_RETRY_PAYMENT,
+          {
+            requestData: request,
+            error: error,
+            message: error.message,
+            cashfreePaymentDetails: retryPaymentResponse,
+          },
+          this.request?.user
+        )
+      ).save();
+      return {
+        status: "error",
+        message: "Error in retrying the payment",
+      };
+    }
+  }
+
   async updatePayment(data: any, message?: string, code?: string, debug?: any) {
     let result = null;
     if (!debug) {
@@ -1167,75 +1329,75 @@ export class PaymentService {
         /**
          * handle cashfree payments
          */
-        if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
-          let paymentDetails;
-          try {
-            paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
-              downPayment.subscriptionNo
-            );
+        // if (downPayment.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+        //   let paymentDetails;
+        //   try {
+        //     paymentDetails = await this.cashFreeUtils.fetchSubscriptionDetails(
+        //       downPayment.subscriptionNo
+        //     );
 
-            const checkPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[0] : null;
+        //     const checkPaymentDetails = paymentDetails?.payments ? paymentDetails?.payments[0] : null;
 
-            if (!checkPaymentDetails) {
-              throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
-            }
+        //     if (!checkPaymentDetails) {
+        //       throw new Error(`Payment Not Found: ${downPayment.paymentid}`);
+        //     }
 
-            let updatedPayment = false;
+        //     let updatedPayment = false;
 
-            for (const downPaymentDetails of paymentDetails.payments) {
-              if (
-                downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
-                downPaymentDetails.amount == downPayment.downpayment
-              ) {
-                let data: any = {
-                  is_down_payment_verified: 1,
-                  is_down_payment_auto_verified: !request.force,
-                  id: downPayment.id,
-                };
+        //     for (const downPaymentDetails of paymentDetails.payments) {
+        //       if (
+        //         downPaymentDetails.status === CASHFREE_PAYMENT_STATUS.SUCCESS &&
+        //         downPaymentDetails.amount == downPayment.downpayment
+        //       ) {
+        //         let data: any = {
+        //           is_down_payment_verified: 1,
+        //           is_down_payment_auto_verified: !request.force,
+        //           id: downPayment.id,
+        //         };
 
-                updatedPayment = await this.updatePayment(
-                  data,
-                  "Verified cashfree down payment",
-                  SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
-                  { downPaymentDetails }
-                );
+        //         updatedPayment = await this.updatePayment(
+        //           data,
+        //           "Verified cashfree down payment",
+        //           SUCCESS_CODES.SUCCESS_DOWN_PAYMENT_VERIFICATION,
+        //           { downPaymentDetails }
+        //         );
 
-                usersLogger.info(
-                  "update down payment to paid: " + JSON.stringify(data)
-                );
-                result.paid++;
-                break;
-              }
-            }
+        //         usersLogger.info(
+        //           "update down payment to paid: " + JSON.stringify(data)
+        //         );
+        //         result.paid++;
+        //         break;
+        //       }
+        //     }
 
-            if (!updatedPayment) {
-              throw new Error("Error in updating payment");
-            }
-          } catch (e) {
-            console.log(e);
-            await (
-              await this.logger.customPayment(
-                downPayment.id,
-                "Failed To Update Down Payment Status",
-                ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
-                {
-                  requestData: request,
-                  error: e,
-                  message: e.message,
-                  cashfreePayments: paymentDetails,
-                  downPayment,
-                },
-                this.request?.user,
-                downPayment.id
-              )
-            ).save();
-            usersLogger.error("Error in updating down payments: " + e);
-            result.error++;
-            continue;
-          }
+        //     if (!updatedPayment) {
+        //       throw new Error("Error in updating payment");
+        //     }
+        //   } catch (e) {
+        //     console.log(e);
+        //     await (
+        //       await this.logger.customPayment(
+        //         downPayment.id,
+        //         "Failed To Update Down Payment Status",
+        //         ERROR_CODES.ERROR_DOWN_PAYMENT_VERIFICATION,
+        //         {
+        //           requestData: request,
+        //           error: e,
+        //           message: e.message,
+        //           cashfreePayments: paymentDetails,
+        //           downPayment,
+        //         },
+        //         this.request?.user,
+        //         downPayment.id
+        //       )
+        //     ).save();
+        //     usersLogger.error("Error in updating down payments: " + e);
+        //     result.error++;
+        //     continue;
+        //   }
 
-          continue;
-        }
+        //   continue;
+        // }
       }
       return {
         status: "success",
