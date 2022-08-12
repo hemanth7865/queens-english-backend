@@ -86,9 +86,9 @@ export class ZoomUserService {
         .leftJoinAndSelect("zoom_user.user", "user")
         .where(condition);
 
-      const data = await query.offset(offsetRecords).limit(limit).getMany();
+      const data = await query.offset(offsetRecords).limit(limit).orderBy("zoom_user.updated_at", "DESC").getMany();
       const total = await query.getCount();
-
+      
       return {
         success: true,
         pageSize: limit,
