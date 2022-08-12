@@ -1,11 +1,11 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus, retryAutodebitPayment } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
@@ -74,6 +74,10 @@ const TableList: React.FC = () => {
         'FAILED': { text: 'FAILED', status: 'FAILED' }
     }
 
+    const autoRetryFailedFilter = {
+        1: { text: 'Auto Retry Failed', status: 1 },
+    }
+
     const closeModal = () => {
         setIsModalVisible(false);
         setIsWhatsappVisible(false);
@@ -135,6 +139,20 @@ const TableList: React.FC = () => {
 
     }
 
+    const retryCashfreePayment = async (data: any) => {
+        try {
+            const msg = await retryAutodebitPayment({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ installmentId: data.transactionId }),
+            });
+            handleAPIResponse(msg, "Retry Auto-Debit Payment success", "Failed To Auto retry the payment", false);
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "Retry Auto-Debit Payment success", "Failed To Auto retry the payment", false);
+        }
+    }
+
 
     const handleRegenerateLink = async (data: any) => {
         if (data.status == PaymentConstantValues.STATUSPENDING) {
@@ -153,6 +171,14 @@ const TableList: React.FC = () => {
     const handleRefreshStatus = async (data: any) => {
         if (confirm("Are you sure to refresh the installment status ?")) {
             await refreshStatus(data, false);
+        }
+        actionRef.current?.reload();
+    }
+
+    const handleRetryCashfree = async (data: any) => {
+        if (confirm("Are you sure to retry the payment ?")) {
+            console.log('auto retry', data)
+            await retryCashfreePayment(data);
         }
         actionRef.current?.reload();
     }
@@ -399,7 +425,6 @@ const TableList: React.FC = () => {
             valueType: 'select',
             request: async () => collectionAgents.map((i) => { return { value: i.id, label: i.firstName } })
         },
-
         {
             title: (
                 <FormattedMessage
@@ -410,6 +435,18 @@ const TableList: React.FC = () => {
             dataIndex: 'whatsAppLinkSent',
             valueType: 'select',
             valueEnum: whatsappLinkSentFilter,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleAutoRetryFailed"
+                    defaultMessage="Auto Retry Failed ?"
+                />
+            ),
+            dataIndex: 'autoRetryFailed',
+            valueType: 'select',
+            valueEnum: autoRetryFailedFilter,
+            hideInTable: true,
         },
         {
             title: (
@@ -511,6 +548,9 @@ const TableList: React.FC = () => {
                             style={{ marginLeft: 10 }}>
                             <EyeOutlined title='View details' />
                         </a>
+                        <Typography.Link onClick={() => handleRetryCashfree(entity)} style={{ marginLeft: 10 }}>
+                            <SyncOutlined title='Auto Retry payment' />
+                        </Typography.Link>
                     </div>
                 );
             },

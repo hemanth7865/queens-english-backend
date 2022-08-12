@@ -141,6 +141,20 @@ export class PaymentController {
         }
     }
 
+    async retryAutoDebitPayment(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        console.log("Retry Auto debit status");
+        try {
+            return await this.paymentService.retryAutoDebitPayment(request.body);
+        } catch (error) {
+            console.log(error);
+            return {
+                status: "error",
+                message: "Exception while updating Auto debit current status"
+            }
+        }
+    }
+
     async verifyDownPayment(request: Request, response: Response, next: NextFunction) {
         this.paymentService.request = request;
         try {

@@ -27,6 +27,8 @@ export const handleAPIResponse = (msg: any, success: string, failed: string, rel
         }
         else if (typeof msg.message === "string") {
             openNotificationWithIcon('error', msg.message, false);
+        } else if (typeof msg.message.message === "string") {
+            openNotificationWithIcon('error', msg.message.message, false);
         } else {
             openNotificationWithIcon('error', failed, false);
         }
