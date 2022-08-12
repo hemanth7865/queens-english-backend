@@ -309,6 +309,7 @@ export class ZoomController {
 
     if (result.link) {
       response.redirect(result.link);
+      return;
     }
 
     return result;
@@ -338,6 +339,7 @@ export class ZoomController {
 
     if (result.link) {
       response.redirect(result.link);
+      return;
     }
 
     return result;
