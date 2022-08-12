@@ -174,8 +174,16 @@ export const getZoomURL = (
     type: ZoomTypes.LinkType,
     zoomMeeting?: ZoomTypes.ZoomMeeting,
     zoomUser?: ZoomTypes.ZoomUser,
-    batch?: any
+    batch?: any,
+    dynamicBasedOnZoomFalg?: boolean,
 ) => {
+    if (
+      dynamicBasedOnZoomFalg &&
+      (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
+    ) {
+        return batch.zoomLink;
+    }
+
     // @ts-expect-error
     const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
 

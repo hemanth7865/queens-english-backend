@@ -84,6 +84,7 @@ export class LeadView {
   reasonInSAV?: string;
   classCode?: string;
   teacherCode?: string;
+  useNewZoomLink?: number;
 
   public constructor(
     id: string,
