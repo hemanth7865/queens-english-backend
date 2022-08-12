@@ -86,9 +86,13 @@ export class ZoomUserService {
         .leftJoinAndSelect("zoom_user.user", "user")
         .where(condition);
 
-      const data = await query.offset(offsetRecords).limit(limit).orderBy("zoom_user.updated_at", "DESC").getMany();
+      const data = await query
+        .offset(offsetRecords)
+        .limit(limit)
+        .orderBy("zoom_user.updated_at", "DESC")
+        .getMany();
       const total = await query.getCount();
-      
+
       return {
         success: true,
         pageSize: limit,
@@ -117,6 +121,8 @@ export class ZoomUserService {
           const meetings = data.meetings[meetingIndex];
           data.meetings[meetingIndex].batch =
             await this.batchRepository.findOne(meetings.batch_id);
+          data.meetings[meetingIndex].zoom_user =
+            await this.zoomUserRepository.findOne(meetings.host_id);
         }
       }
 
@@ -547,7 +553,7 @@ export class ZoomUserService {
     };
     const users =
       id && id.length > 2
-        ? [await this.zoomUserRepository.findOne({user_id: id})]
+        ? [await this.zoomUserRepository.findOne({ user_id: id })]
         : await this.zoomUserRepository.find();
 
     for (const user of users) {
