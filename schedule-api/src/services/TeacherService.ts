@@ -473,6 +473,9 @@ export class TeacherService {
       user.gender = data.gender;
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
+      if (data.status) {
+        user.status = data.status;
+      }
       user.type = data.type;
       if (data.id) user.id = data.id;
       user.startDate = data.startDate ? data.startDate : null;
