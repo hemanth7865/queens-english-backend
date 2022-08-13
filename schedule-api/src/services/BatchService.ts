@@ -215,16 +215,18 @@ export class BatchService {
       }
 
       await queryRunner.commitTransaction();
-
-      if (ENABLE_ZOOM) {
-        const meetingService = new ZoomMeetingService();
-        await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
-      }
-
       /**
        * Ensure that each batch gets a unique teacher code
        */
       await updateBatchesTeacherCode();
+
+      /**
+       * Run Zoom Actions In Case If Zoom Is Enabled
+       */
+      if (ENABLE_ZOOM) {
+        const meetingService = new ZoomMeetingService();
+        await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+      }
 
       return res1;
     } catch (error) {
