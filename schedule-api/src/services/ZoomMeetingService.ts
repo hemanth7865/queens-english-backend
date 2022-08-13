@@ -324,7 +324,7 @@ export class ZoomMeetingService {
     await (
       await this.logger.customZoom(
         userId,
-        `Reassign Failed: ${error.message}`,
+        `Reassign Zoom Meeting Failed: ${error.message}`,
         "FAILED_MEETING_REASSIGNMENT",
         { error, meetingId, to: userId },
         this.request.user || {}
