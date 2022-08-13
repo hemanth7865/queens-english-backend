@@ -297,7 +297,7 @@ export class ZoomMeetingService {
       const created = await this.generateZoomLinks([batch]);
 
       if (created.created > 0) {
-        zoomUser.message = `Reassigned Zoom Link && Batch: ${batch?.batchNumber} to: ${userId}.`;
+        zoomUser.message = `Reassigned Zoom Link && Batch: ${batch?.batchNumber} to: ${zoomUser?.first_name} ${zoomUser.last_name}.`;
         await(
           await this.logger.zoom(
             { user: zoomUser },
