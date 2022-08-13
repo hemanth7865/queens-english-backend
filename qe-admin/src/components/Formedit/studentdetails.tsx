@@ -9,6 +9,9 @@ import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
 import { CountryCode } from "../Constants/constants";
+import {
+  getZoomURL
+} from "@/services/ant-design-pro/helpers";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -170,22 +173,22 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   //Role Based Access
   const access = useAccess();
 
+  const unableToJoinMessage = props?.tempData?.useNewZoomLink ? "" : `(If unable to join through the link then use Meeting ID and Passcode : ${props.tempData.zoomInfo})
+
+(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : ${props.tempData.zoomInfo})`;
+
   const whatsappOnboard = props.tempData ? `    Hello,
 I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on ${props.tempData.classesStartDate}, you can use the below details to join your classes:
 
 *Batch:* ${props.tempData.batchCode}
 *Time:* ${props.tempData.timings} India
 *Frequency:* ${props.tempData.courseFrequency}
-*Zoom Link:* ${props.tempData.zoomLink}
+*Zoom Link:* ${getZoomURL("GENERIC_STUDENT", undefined, undefined, { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink }, true)}
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
 
-(If unable to join through the link then use Meeting ID and Passcode :
-${props.tempData.zoomInfo})
-
-(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें :
-${props.tempData.zoomInfo})
+${unableToJoinMessage}
 
 *Whatsapp Group Link:* ${props.tempData.whatsappLink}
 
@@ -220,7 +223,7 @@ Queen's English मे अगर आपको किसी तरह की स�
     message.success('Message copied');
   };
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string, useNewZoomLink: number) => {
     const waMessage = (
       <div >
         <div onClick={() => copy(whatsappOnboard)} align="center">
@@ -236,20 +239,24 @@ Queen's English मे अगर आपको किसी तरह की स�
         <p>Hello,<br />
           I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {classesStartDate}, you can use the below details to join your classes:<br />
           <br></br>
-          <b>Batch:</b> {batchCode}<br />
-          <b>Time:</b> {timings} India<br />
-          <b>Frequency:</b> {days}<br />
-          <b>Zoom Link:</b> {zoomLink}<br />
+          <b>*Batch:*</b> {batchCode}<br />
+          <b>*Time:*</b> {timings} India<br />
+          <b>*Frequency:*</b> {days}<br />
+          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink }, true)}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
           <br></br>
-          (If unable to join through the link then use Meeting ID and Passcode :<br />
-          {zoomInfo})<br />
-          <br></br>
-          (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : <br />
-          {zoomInfo})<br />
-          <br></br>
+          {!useNewZoomLink && (
+            <>
+              (If unable to join through the link then use Meeting ID and Passcode :<br />
+              {zoomInfo})<br />
+              <br></br>
+              (यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : <br />
+              {zoomInfo})<br />
+              <br /><br />
+            </>
+          )}
           <b>Whatsapp Group Link:</b> {whatsappLink}<br />
           <br></br>
           (Join the Whatsapp group from the link so that you won't miss out on the important notifications regarding the class)<br />
@@ -991,7 +998,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                 >
                   <a
                     onClick={() => {
-                      openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink)
+                      openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink, props.tempData.classCode, props.tempData.useNewZoomLink)
                     }}
                   >
                     <EyeOutlined />

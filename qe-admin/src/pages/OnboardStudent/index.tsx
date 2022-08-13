@@ -8,6 +8,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import prmData from "../../../data/prms.json";
 import { CheckCircleTwoTone } from '@ant-design/icons';
 import Tabsedit from "@/components/Formedit/tabs";
+import {
+  getZoomURL
+} from "@/services/ant-design-pro/helpers";
 
 const { Option } = Select;
 
@@ -274,17 +277,24 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string) => {
+  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string, useNewZoomLink: number) => {
     const waMessage = (
       <div>
         <p>Hello <br />
           I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
           classes:<br />
-          Zoom Link: {zoomLink} <br />
+          Zoom Link: {getZoomURL("GENERIC_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink }, true)} <br />
           Whatsapp Group Link: {whatsappLink} <br />
           Topic: {batchCode}<br />
           Time: {timings} India<br />
-          <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br /> <br />
+          {
+            !useNewZoomLink && (
+              <>
+                <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br />
+              </>
+            )
+          }
+          <br />
           (The details above are recurring and hence you can use the same details to join the class everyday)<br />
           Please send “OK” or a “:+1:” to activate the link above.<br />
           For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
@@ -638,7 +648,7 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink)
+              openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink, value.classCode, value.useNewZoomLink)
             }}
           >
             <EyeOutlined />
