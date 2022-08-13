@@ -39,6 +39,14 @@ const Show = ({ data }: Props) => {
             dataIndex: 'password',
             key: 'password',
         },
+        {
+            title: 'License Owner',
+            dataIndex: ["zoom_user", "first_name"],
+            key: 'batch',
+            render: (dom: any, entity: any) => {
+                return `${entity.zoom_user?.first_name} ${entity.zoom_user?.last_name}`;
+            }
+        },
     ];
 
     return data && data.id ? (

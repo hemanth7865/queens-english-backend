@@ -515,6 +515,13 @@ export const Routes = [
   },
   {
     method: "get",
+    route: "/zoom-user/inactive/licenses",
+    controller: ZoomController,
+    action: "getInactiveTeachersWithLicense",
+    authenticate: true,
+  },
+  {
+    method: "get",
     route: "/collection-agents",
     controller: CollectionAgentController,
     action: "listCollectionAgents",
