@@ -153,7 +153,9 @@ export class ZoomUserService {
       const teachers = await getManager()
         .createQueryBuilder(User, "teacher")
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
-        .where(`teacher.type = 'teacher' AND user.id IS NULL${where}`)
+        .where(
+          `teacher.type = 'teacher' AND teacher.status = '1' AND user.id IS NULL${where}`
+        )
         .getMany();
       if (where.length < 1) {
         await (
@@ -181,7 +183,7 @@ export class ZoomUserService {
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
         .leftJoinAndSelect(Classes, "batch", "teacher.id = batch.teacherId")
         .where(
-          `teacher.type = 'teacher' AND user.id IS NULL AND batch.classEndDate >= '${moment().format(
+          `teacher.type = 'teacher' AND teacher.status = '1' AND user.id IS NULL AND batch.classEndDate >= '${moment().format(
             "YYYY-MM-DD"
           )}'`
         )
@@ -348,6 +350,11 @@ export class ZoomUserService {
     errors: any;
   }> {
     const teachers = await this.getActiveTeachersWithoutLicense();
+    return {
+      created: teachers.length,
+      error: 0,
+      errors: teachers
+    };
     return await this.generateLicenses(teachers);
   }
 
