@@ -292,27 +292,16 @@ export class ZoomMeetingService {
         throw new Error("Selected Meeting Batch Not Found");
       }
 
-      const updated = {
-        topic: `Batch: ${batch.batchNumber}, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
-        settings: {
-          alternative_hosts: zoomUser.email,
-        },
-      };
+      await this.zoomMeetingRepository.delete(meeting);
 
-      meeting.user_id = userId;
+      const created = await this.generateZoomLinks([batch]);
 
-      const updatedMeeting = await zoomClient.updateMeeting(
-        meeting.id,
-        updated
-      );
-      if (updatedMeeting.length < 1) {
-        const data = await this.updateCreateZoomMeeting(meeting);
-
-        zoomUser.message = `Reassigned Zoom Linkto: ${userId}.`;
-        await (
+      if (created.created > 0) {
+        zoomUser.message = `Reassigned Zoom Link && Batch: ${batch?.batchNumber} to: ${zoomUser?.first_name} ${zoomUser.last_name}.`;
+        await(
           await this.logger.zoom(
             { user: zoomUser },
-            { zoomUser: zoomUser, zoomMeeting: data, user: zoomUser },
+            { zoomUser: zoomUser, user: zoomUser },
             this.request.user || {}
           )
         ).save();
@@ -335,7 +324,7 @@ export class ZoomMeetingService {
     await (
       await this.logger.customZoom(
         userId,
-        `Reassign Failed: ${error.message}`,
+        `Reassign Zoom Meeting Failed: ${error.message}`,
         "FAILED_MEETING_REASSIGNMENT",
         { error, meetingId, to: userId },
         this.request.user || {}
@@ -507,7 +496,7 @@ export class ZoomMeetingService {
         throw new Error(`Batch ${classCode} Doesn't Have A Link.`);
       }
 
-      await(
+      await (
         await this.logger.customZoom(
           classCode,
           `Success redirect to zoom meeting for student: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
@@ -518,7 +507,6 @@ export class ZoomMeetingService {
           }
         )
       ).save();
- 
     } catch (e) {
       console.log(e);
       logger.error(
@@ -580,7 +568,7 @@ export class ZoomMeetingService {
         throw new Error(`Batch ${teacherCode} Doesn't Have A Link.`);
       }
 
-      await(
+      await (
         await this.logger.customZoom(
           teacherCode,
           `Success redirect to zoom meeting for teacher: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
