@@ -82,11 +82,23 @@ export class ZoomUserService {
           : whereCondition.toString();
 
       const query = await createQueryBuilder(ZoomUser, "zoom_user")
-        .leftJoinAndSelect("zoom_user.meetings", "meetings")
         .leftJoinAndSelect("zoom_user.user", "user")
         .where(condition);
 
-      const data = await query.offset(offsetRecords).limit(limit).getMany();
+      const tmpData = await query
+        .offset(offsetRecords)
+        .limit(limit)
+        .orderBy("zoom_user.updated_at", "DESC")
+        .getMany();
+      
+      const data = [];
+
+      for (let d of tmpData) {
+        const meetings = await this.zoomMeetingRepository.find({user_id: d.user_id})
+        d.meetings = meetings;
+        data.push(d);
+      }
+      
       const total = await query.getCount();
 
       return {
@@ -117,6 +129,8 @@ export class ZoomUserService {
           const meetings = data.meetings[meetingIndex];
           data.meetings[meetingIndex].batch =
             await this.batchRepository.findOne(meetings.batch_id);
+          data.meetings[meetingIndex].zoom_user =
+            await this.zoomUserRepository.findOne(meetings.host_id);
         }
       }
 
@@ -147,7 +161,9 @@ export class ZoomUserService {
       const teachers = await getManager()
         .createQueryBuilder(User, "teacher")
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
-        .where(`teacher.type = 'teacher' AND user.id IS NULL${where}`)
+        .where(
+          `teacher.type = 'teacher' AND teacher.status = '1' AND user.id IS NULL${where}`
+        )
         .getMany();
       if (where.length < 1) {
         await (
@@ -175,7 +191,7 @@ export class ZoomUserService {
         .leftJoinAndSelect(ZoomUser, "user", "teacher.id = user.user_id")
         .leftJoinAndSelect(Classes, "batch", "teacher.id = batch.teacherId")
         .where(
-          `teacher.type = 'teacher' AND user.id IS NULL AND batch.classEndDate >= '${moment().format(
+          `teacher.type = 'teacher' AND teacher.status = '1' AND user.id IS NULL AND batch.classEndDate >= '${moment().format(
             "YYYY-MM-DD"
           )}'`
         )
@@ -190,6 +206,40 @@ export class ZoomUserService {
         )
       ).save();
       return teachers;
+    } catch (e) {
+      logger.error(e);
+      return [];
+    }
+  }
+
+  async getInactiveTeachersWithLicense(): Promise<any> {
+    try {
+      const query = await getManager()
+        .createQueryBuilder(User, "teacher")
+        .innerJoin(ZoomUser, "user", "teacher.id = user.user_id")
+        .where(
+          `teacher.type = 'teacher' AND (teacher.status != '1' OR teacher.status = "" OR teacher.status IS NULL) AND user.user_id IS NOT NULL`
+        );
+      const teachers = (await query.getMany()).map((i: User) => ({
+        id: i.id,
+        firstName: i.firstName,
+        lastName: i.lastName,
+        email: i.email,
+        phoneNumber: i.phoneNumber,
+      }));
+      await (
+        await this.logger.customZoom(
+          "INACTIVE_TEACHERS_WITH_LICENSE",
+          `You have ${teachers.length} Inactive Teachers That Have Licensed Account On Zoom.`,
+          "INACTIVE_TEACHERS_WITH_LICENSE",
+          {},
+          this.request?.user
+        )
+      ).save();
+      return {
+        totalInactiveTeachers: teachers.length,
+        inactiveTeachers: teachers,
+      };
     } catch (e) {
       logger.error(e);
       return [];
@@ -547,7 +597,7 @@ export class ZoomUserService {
     };
     const users =
       id && id.length > 2
-        ? [await this.zoomUserRepository.findOne({user_id: id})]
+        ? [await this.zoomUserRepository.findOne({ user_id: id })]
         : await this.zoomUserRepository.find();
 
     for (const user of users) {

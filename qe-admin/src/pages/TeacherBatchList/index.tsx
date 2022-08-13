@@ -952,6 +952,7 @@ const TeacherBatchList: React.FC = () => {
       startDate: moment(tempDataView.startDate, "YYYY/MM/DD"),
       gender: tempDataView.gender,
       phoneNumber: tempDataView.phoneNumber,
+      status: tempDataView.status,
       whatsApp: tempDataView.whatsApp,
       email: tempDataView.email,
       address: tempDataView.address,

@@ -286,6 +286,22 @@ export class ZoomController {
   }
 
   /**
+   * Get Inactive Teachers With Licenses
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async getInactiveTeachersWithLicense(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomUserService.request = request;
+    return await this.zoomUserService.getInactiveTeachersWithLicense();
+  }
+
+  /**
    * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
    * @param request
    * @param response
