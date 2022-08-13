@@ -287,7 +287,14 @@ const StudentOnboard: React.FC = () => {
           Whatsapp Group Link: {whatsappLink} <br />
           Topic: {batchCode}<br />
           Time: {timings} India<br />
-          <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br /> <br />
+          {
+            !useNewZoomLink && (
+              <>
+                <span dangerouslySetInnerHTML={{ __html: zoomInfo }}></span> <br />
+              </>
+            )
+          }
+          <br />
           (The details above are recurring and hence you can use the same details to join the class everyday)<br />
           Please send “OK” or a “:+1:” to activate the link above.<br />
           For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
