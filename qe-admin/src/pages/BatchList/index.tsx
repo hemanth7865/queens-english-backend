@@ -311,9 +311,10 @@ const BatchList: React.FC = () => {
 
           setFormData({
             ...formData, classCode: batchData.classes.classCode,
-            batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
+            batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, useNewZoomLink: batchData.classes.useNewZoomLink, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
           });
           setFollowupVersion(batchData.classes.followupVersion);
+          setUseNewZoomLink(batchData.classes.useNewZoomLink)
         }
         var tempObj = {
           batchData: data.data,
