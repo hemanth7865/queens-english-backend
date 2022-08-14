@@ -459,7 +459,7 @@ export class ZoomMeetingService {
       return result;
     } catch (e) {
       /**
-       * Delete Meeting If something went wrong
+       * Delete Meeting If something went wrong and teacher reassigned
        */
       try {
         const batch = await this.classesRepository.findOne({
@@ -470,16 +470,16 @@ export class ZoomMeetingService {
         });
         if (meeting.user_id !== batch.teacherId) {
           await this.zoomMeetingRepository.delete(meeting);
+          await (
+            await this.logger.customZoom(
+              batchData.batchNumber,
+              "Deleted Zoom Meeting After Error: " + e.message,
+              "DELETE_ZOOM_MEETING_AFTER_ERROR",
+              { error: e, message: e.message, batch: batchData },
+              this.request.user || {}
+            )
+          ).save();
         }
-        await (
-          await this.logger.customZoom(
-            batchData.batchNumber,
-            "Deleted Zoom Meeting After Error: " + e.message,
-            "DELETE_ZOOM_MEETING_AFTER_ERROR",
-            { error: e, message: e.message, batch: batchData },
-            this.request.user || {}
-          )
-        ).save();
       } catch (e) {
         logger.error(`Failed to delete meeting: ${e.message}`);
       }
