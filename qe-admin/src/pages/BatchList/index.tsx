@@ -250,16 +250,22 @@ const BatchList: React.FC = () => {
         body: JSON.stringify(dataForm),
       });
       if (msg.success) {
-        setShowDetail(false)
-        setCurrentRow(undefined)
         // actionRef.current?.reloadAndRest?.();
         if (msg.data[0]?.message) {
           message.error(msg.data[0].message);
+          /**
+           * Don't relaod if returned error message
+           */
+          // setTimeout(() => {
+          //   window.location.reload();
+          // }, 3000);
+        } else {
+          setShowDetail(false)
+          setCurrentRow(undefined)
+          message.success("Batch Created/Update Successfully.");
           setTimeout(() => {
             window.location.reload();
           }, 3000);
-        } else {
-          window.location.reload();
         }
         setIsLoading(false);
       }

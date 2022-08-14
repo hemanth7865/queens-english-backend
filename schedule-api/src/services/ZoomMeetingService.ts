@@ -198,7 +198,7 @@ export class ZoomMeetingService {
     for (let batch of batches) {
       try {
         logger.info("Start creating zoom meeting ", batch);
-        const zoomUser = await this.zoomUserRepository.findOne({
+        const zoomUser: any = await this.zoomUserRepository.findOne({
           where: { user_id: batch.teacherId },
         });
         await zoomClient.setUser(zoomUser);
@@ -225,6 +225,7 @@ export class ZoomMeetingService {
           await this.updateCreateZoomMeeting(zoomMeeting);
           logger.info("Success created zoom meeting locally ", createdMeeting);
           result.created++;
+          zoomUser.message = `Generated Zoom Meeting For Batch: ${batch.batchNumber} And Teacher: ${zoomUser.first_name} ${zoomUser.last_name}`;
           await (
             await this.logger.zoom(
               { zoomUser },
@@ -298,7 +299,7 @@ export class ZoomMeetingService {
 
       if (created.created > 0) {
         zoomUser.message = `Reassigned Zoom Link && Batch: ${batch?.batchNumber} to: ${zoomUser?.first_name} ${zoomUser.last_name}.`;
-        await(
+        await (
           await this.logger.zoom(
             { user: zoomUser },
             { zoomUser: zoomUser, user: zoomUser },
@@ -389,6 +390,8 @@ export class ZoomMeetingService {
         batch_id: batchId,
       });
 
+      const batchTeacherMessage = `Teacher: ${user.firstName} ${user.lastName}, Batch: ${batch.batchNumber}`;
+
       /**
        * Batch already has meeting and same teacher
        */
@@ -403,9 +406,16 @@ export class ZoomMeetingService {
        * selected teacher doesn't have a license
        */
       if (!license) {
+        if (!user.status || user.status != "1") {
+          throw new Error(
+            `Selected Teacher Is Not Active, ${batchTeacherMessage}.`
+          );
+        }
         const result = await zoomUserService.generateLicenses([user]);
         if (result.created < 1) {
-          throw new Error("Failed to generate license");
+          throw new Error(
+            `Failed to generate license, ${batchTeacherMessage}.`
+          );
         }
         license = await this.zoomUserRepository.findOne({
           user_id: teacher,
@@ -418,7 +428,9 @@ export class ZoomMeetingService {
       if (!meeting) {
         const result = await this.generateZoomLinks([batch]);
         if (result.created < 1) {
-          throw new Error("Failed to generate meeting");
+          throw new Error(
+            `Failed to generate meeting: ${batchTeacherMessage}.`
+          );
         }
         meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batchId,
@@ -431,7 +443,9 @@ export class ZoomMeetingService {
       if (meeting.user_id !== teacher) {
         const result = await this.reassignZoomMeeting(meeting.id, teacher);
         if (result.status === 400) {
-          throw new Error("Failed to reassing zoom meeting");
+          throw new Error(
+            `Failed to reassing zoom meeting: ${batchTeacherMessage}.`
+          );
         }
       }
 
@@ -444,6 +458,31 @@ export class ZoomMeetingService {
 
       return result;
     } catch (e) {
+      /**
+       * Delete Meeting If something went wrong and teacher reassigned
+       */
+      try {
+        const batch = await this.classesRepository.findOne({
+          batchNumber: batchData.batchNumber,
+        });
+        let meeting = await this.zoomMeetingRepository.findOne({
+          batch_id: batch.id,
+        });
+        if (meeting.user_id !== batch.teacherId) {
+          await this.zoomMeetingRepository.delete(meeting);
+          await (
+            await this.logger.customZoom(
+              batchData.batchNumber,
+              "Deleted Zoom Meeting After Error: " + e.message,
+              "DELETE_ZOOM_MEETING_AFTER_ERROR",
+              { error: e, message: e.message, batch: batchData },
+              this.request.user || {}
+            )
+          ).save();
+        }
+      } catch (e) {
+        logger.error(`Failed to delete meeting: ${e.message}`);
+      }
       logger.error(`Failed to assign zoom link to batch: ${e.message}`);
       await (
         await this.logger.customZoom(
@@ -456,7 +495,7 @@ export class ZoomMeetingService {
       ).save();
       return {
         success: false,
-        message: e.message,
+        message: `Batch Updated But Failed To Update Zoom, Error: ${e.message}`,
         e,
       };
     }
