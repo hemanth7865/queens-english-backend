@@ -390,6 +390,8 @@ export class ZoomMeetingService {
         batch_id: batchId,
       });
 
+      const batchTeacherMessage = `Teacher: ${user.firstName} ${user.lastName}, Batch: ${batch.batchNumber}`;
+
       /**
        * Batch already has meeting and same teacher
        */
@@ -404,13 +406,16 @@ export class ZoomMeetingService {
        * selected teacher doesn't have a license
        */
       if (!license) {
-        console.log(user);
         if (!user.status || user.status != "1") {
-          throw new Error("Selected Teacher Is Not Active.");
+          throw new Error(
+            `Selected Teacher Is Not Active, ${batchTeacherMessage}.`
+          );
         }
         const result = await zoomUserService.generateLicenses([user]);
         if (result.created < 1) {
-          throw new Error("Failed to generate license");
+          throw new Error(
+            `Failed to generate license, ${batchTeacherMessage}.`
+          );
         }
         license = await this.zoomUserRepository.findOne({
           user_id: teacher,
@@ -423,7 +428,9 @@ export class ZoomMeetingService {
       if (!meeting) {
         const result = await this.generateZoomLinks([batch]);
         if (result.created < 1) {
-          throw new Error("Failed to generate meeting");
+          throw new Error(
+            `Failed to generate meeting: ${batchTeacherMessage}.`
+          );
         }
         meeting = await this.zoomMeetingRepository.findOne({
           batch_id: batchId,
@@ -436,7 +443,9 @@ export class ZoomMeetingService {
       if (meeting.user_id !== teacher) {
         const result = await this.reassignZoomMeeting(meeting.id, teacher);
         if (result.status === 400) {
-          throw new Error("Failed to reassing zoom meeting");
+          throw new Error(
+            `Failed to reassing zoom meeting: ${batchTeacherMessage}.`
+          );
         }
       }
 
@@ -449,6 +458,31 @@ export class ZoomMeetingService {
 
       return result;
     } catch (e) {
+      /**
+       * Delete Meeting If something went wrong
+       */
+      try {
+        const batch = await this.classesRepository.findOne({
+          batchNumber: batchData.batchNumber,
+        });
+        let meeting = await this.zoomMeetingRepository.findOne({
+          batch_id: batch.id,
+        });
+        if (meeting.user_id !== batch.teacherId) {
+          await this.zoomMeetingRepository.delete(meeting);
+        }
+        await (
+          await this.logger.customZoom(
+            batchData.batchNumber,
+            "Deleted Zoom Meeting After Error: " + e.message,
+            "DELETE_ZOOM_MEETING_AFTER_ERROR",
+            { error: e, message: e.message, batch: batchData },
+            this.request.user || {}
+          )
+        ).save();
+      } catch (e) {
+        logger.error(`Failed to delete meeting: ${e.message}`);
+      }
       logger.error(`Failed to assign zoom link to batch: ${e.message}`);
       await (
         await this.logger.customZoom(
