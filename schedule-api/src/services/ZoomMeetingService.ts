@@ -198,7 +198,7 @@ export class ZoomMeetingService {
     for (let batch of batches) {
       try {
         logger.info("Start creating zoom meeting ", batch);
-        const zoomUser = await this.zoomUserRepository.findOne({
+        const zoomUser: any = await this.zoomUserRepository.findOne({
           where: { user_id: batch.teacherId },
         });
         await zoomClient.setUser(zoomUser);
@@ -225,6 +225,7 @@ export class ZoomMeetingService {
           await this.updateCreateZoomMeeting(zoomMeeting);
           logger.info("Success created zoom meeting locally ", createdMeeting);
           result.created++;
+          zoomUser.message = `Generated Zoom Meeting For Batch: ${batch.batchNumber} And Teacher: ${zoomUser.first_name} ${zoomUser.last_name}`;
           await (
             await this.logger.zoom(
               { zoomUser },
@@ -298,7 +299,7 @@ export class ZoomMeetingService {
 
       if (created.created > 0) {
         zoomUser.message = `Reassigned Zoom Link && Batch: ${batch?.batchNumber} to: ${zoomUser?.first_name} ${zoomUser.last_name}.`;
-        await(
+        await (
           await this.logger.zoom(
             { user: zoomUser },
             { zoomUser: zoomUser, user: zoomUser },
@@ -403,6 +404,10 @@ export class ZoomMeetingService {
        * selected teacher doesn't have a license
        */
       if (!license) {
+        console.log(user);
+        if (!user.status || user.status != "1") {
+          throw new Error("Selected Teacher Is Not Active.");
+        }
         const result = await zoomUserService.generateLicenses([user]);
         if (result.created < 1) {
           throw new Error("Failed to generate license");
@@ -456,7 +461,7 @@ export class ZoomMeetingService {
       ).save();
       return {
         success: false,
-        message: e.message,
+        message: `Batch Updated But Failed To Update Zoom, Error: ${e.message}`,
         e,
       };
     }

@@ -321,6 +321,7 @@ export class ZoomUserService {
             createdUser
           );
           result.created++;
+          createdUser.message = `Generated Zoom License For: ${zoomUser.first_name} ${zoomUser.last_name}`;
           await (
             await this.logger.zoom(
               { user: teacher },
