@@ -1,11 +1,15 @@
+const fs = require("fs");
+
 /**
  * Write the list of the lines here, that wanna convert into array.
  */
 const lines = ``;
 
-const result = lines
-  .split(/\n/g)
-  .map((i) => `'${i}'`)
-  .join(",");
+const arrayList = lines.split(/\n/g);
 
-console.log(`(${result})`);
+const result = arrayList.map((i) => `'${i}'`).join(",");
+
+fs.writeFile("result.txt", `(${result})`, (r) => {
+  console.log(`(${result})`, arrayList.length);
+  console.log(r);
+});

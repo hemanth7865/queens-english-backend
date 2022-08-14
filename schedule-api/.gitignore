@@ -9,3 +9,4 @@ ormconfig.json
 notes.md
 database/connections
 !database/connections/.gitkeep
+src/commands/result.txt
