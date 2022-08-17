@@ -40,6 +40,8 @@ export class ZoomMeeting extends BaseEntity {
   join_url: string;
   @Column({ type: "text" })
   password: string;
+  @Column({ type: "integer" })
+  sync_status: number;
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()

@@ -572,4 +572,10 @@ export const Routes = [
     controller: ZoomController,
     action: "getZoomMeetingsCSV",
   },
+  {
+    method: "post",
+    route: "/zoom/links/sync/cosmos",
+    controller: ZoomController,
+    action: "syncZoomLinksWithCosmos",
+  },
 ];

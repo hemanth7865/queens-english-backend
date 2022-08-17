@@ -6,6 +6,7 @@ import { ZoomMeeting } from "../entity/ZoomMeeting";
 import PaymentLogGenerator from "../utils/payment/paymentLoggerUtils";
 import zoomLogGenerator from "../utils/zoom/zoomLoggerUtils";
 const axios = require("axios");
+const { logger } = require("../Logger.js");
 
 const LOGS_API = process.env.LOGS_API;
 const LOGS_API_KEY = process.env.LOGS_API_KEY;
@@ -65,8 +66,8 @@ export default class LoggerService {
     const bot = user?.email ? false : true;
     if (bot) {
       user = {
-        email: "System Bot."
-      }
+        email: "System Bot.",
+      };
       title = "Bot Action, " + title;
     } else {
       title = "User Action, " + title;
@@ -143,6 +144,7 @@ export default class LoggerService {
       return await log(this.logData.page, this.logData.id, this.logData);
     } catch (e) {
       console.log(e.message);
+      logger.error("Failed to store log error: " + e.message + " data: "+JSON.stringify(this.logData));
       return e;
     }
   }

@@ -35,3 +35,10 @@ export const generatePagiantionAndConditions = (
 
   return { current, limit, offsetRecords, whereCondition, condition };
 };
+
+export const getZoomStartURL = (
+  start_url: string,
+  zak_token: string
+): string => {
+  return start_url.split("?zak=")[0] + "?zak=" + zak_token;
+};
