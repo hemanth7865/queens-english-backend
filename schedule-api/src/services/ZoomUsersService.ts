@@ -4,6 +4,7 @@ import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import zoomClient from "./../utils/zoom/zoomClient";
+import { ZoomMeetingService } from "./ZoomMeetingService";
 const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
@@ -13,6 +14,7 @@ export class ZoomUserService {
   private zoomUserRepository = getRepository(ZoomUser);
   private zoomMeetingRepository = getRepository(ZoomMeeting);
   private batchRepository = getRepository(Classes);
+  private zoomMeetingService = new ZoomMeetingService();
   private emailFormat = "@ISV.queensenglish.co.com";
   private debug: boolean = true;
   public defaultUserSettings = {
@@ -90,15 +92,17 @@ export class ZoomUserService {
         .limit(limit)
         .orderBy("zoom_user.updated_at", "DESC")
         .getMany();
-      
+
       const data = [];
 
       for (let d of tmpData) {
-        const meetings = await this.zoomMeetingRepository.find({user_id: d.user_id})
+        const meetings = await this.zoomMeetingRepository.find({
+          user_id: d.user_id,
+        });
         d.meetings = meetings;
         data.push(d);
       }
-      
+
       const total = await query.getCount();
 
       return {
@@ -621,6 +625,10 @@ export class ZoomUserService {
         await this.updateCreateZoomUser(user);
 
         logger.info(`Success updated user zak token: ${user.id}`);
+        await this.zoomMeetingRepository.update(
+          { host_id: user.id },
+          { sync_status: 0 }
+        );
         result.updated += 1;
       } catch (e) {
         result.errors += 1;
@@ -635,6 +643,8 @@ export class ZoomUserService {
         ).save();
       }
     }
+
+    await this.zoomMeetingService.syncZoomLinksWithCosmos();
 
     return result;
   }

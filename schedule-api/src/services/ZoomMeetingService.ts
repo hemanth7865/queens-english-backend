@@ -270,6 +270,9 @@ export class ZoomMeetingService {
 
       await setTimeout(() => {}, 100);
     }
+
+    await this.syncZoomLinksWithCosmos();
+
     return result;
   }
 
