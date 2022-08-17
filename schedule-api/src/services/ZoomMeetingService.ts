@@ -729,6 +729,8 @@ export class ZoomMeetingService {
           await meeting.save();
           result.synced++;
         }
+
+        await setTimeout(() => {}, 100);
       }
     } catch (e) {
       console.log(e);
