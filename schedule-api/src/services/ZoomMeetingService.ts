@@ -670,19 +670,17 @@ export class ZoomMeetingService {
                 : meeting.batch.classCode;
 
             const link =
-              code === "t"
+              type === "t"
                 ? getZoomStartURL(
                     meeting.start_url,
                     meeting.zoom_user.zak_token
                   )
                 : meeting.join_url;
 
-            const response = await axios.post(COSMOS_API.STORE_SHORT_LINK, {
+            await axios.post(COSMOS_API.STORE_SHORT_LINK, {
               id: type + "-" + code,
               link,
             });
-
-            console.log(response);
 
             await (
               await this.logger.customZoom(
@@ -722,7 +720,7 @@ export class ZoomMeetingService {
             result.failed++;
           }
         }
-        
+
         if (success === 2) {
           meeting.sync_status = 1;
           await meeting.save();
