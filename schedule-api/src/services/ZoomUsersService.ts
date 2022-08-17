@@ -644,12 +644,7 @@ export class ZoomUserService {
       }
     }
 
-    if (
-      process.env.USE_ZOOM_HIGH_AVAILABILITY_REDIRECTION &&
-      parseInt(process.env.USE_ZOOM_HIGH_AVAILABILITY_REDIRECTION) === 1
-    ) {
-      await this.zoomMeetingService.syncZoomLinksWithCosmos();
-    }
+    await this.zoomMeetingService.syncZoomLinksWithCosmos();
 
     return result;
   }
