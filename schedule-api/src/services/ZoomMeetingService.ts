@@ -271,7 +271,12 @@ export class ZoomMeetingService {
       await setTimeout(() => {}, 100);
     }
 
-    await this.syncZoomLinksWithCosmos();
+    if (
+      process.env.USE_ZOOM_HIGH_AVAILABILITY_REDIRECTION &&
+      parseInt(process.env.USE_ZOOM_HIGH_AVAILABILITY_REDIRECTION) === 1
+    ) {
+      await this.syncZoomLinksWithCosmos();
+    }
 
     return result;
   }
