@@ -556,10 +556,10 @@ export class BatchService {
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
+      // sync batch zoom link to cosmos
+      classes.sync_zoom_status = 0;
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
-        // sync batch zoom link to cosmos
-        classes.sync_zoom_status = 0;
       }
 
       if (data.id) {
