@@ -463,8 +463,6 @@ export class ZoomMeetingService {
         user,
       };
 
-      await this.syncZoomLinksWithCosmos();
-
       return result;
     } catch (e) {
       /**
@@ -502,8 +500,6 @@ export class ZoomMeetingService {
           this.request.user || {}
         )
       ).save();
-
-      await this.syncZoomLinksWithCosmos();
 
       return {
         success: false,

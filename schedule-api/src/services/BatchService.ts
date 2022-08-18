@@ -226,6 +226,7 @@ export class BatchService {
       if (ENABLE_ZOOM) {
         const meetingService = new ZoomMeetingService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+        await meetingService.syncZoomLinksWithCosmos();
       }
 
       return res1;
