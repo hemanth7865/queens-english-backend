@@ -55,6 +55,7 @@ const TableList: React.FC = () => {
         'Installment Pending': { text: 'Installment Pending', status: 'Installment Pending' },
         'Installment Paid': { text: 'Installment Paid', status: 'Installment Paid' },
         'Installment Failed': { text: 'Installment Failed', status: 'Installment Failed' },
+        'Partially Paid': { text: 'Partially Paid', status: 'Partially Paid' },
     }
 
     const paymentModeFilter = {
