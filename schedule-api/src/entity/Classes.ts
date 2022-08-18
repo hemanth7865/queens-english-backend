@@ -108,6 +108,9 @@ export class Classes extends BaseEntity {
   @Column({ nullable: true })
   useNewZoomLink: number;
 
+  @Column({ type: "integer" })
+  sync_zoom_status: number;
+
   @Column({ nullable: true })
   created_at: Date;
 

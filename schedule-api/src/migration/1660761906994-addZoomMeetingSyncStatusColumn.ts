@@ -4,17 +4,17 @@ export class addZoomMeetingSyncStatusColumn1660761906994
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    if (!(await queryRunner.hasColumn("zoom_meetings", "sync_status"))) {
+    if (!(await queryRunner.hasColumn("classes", "sync_zoom_status"))) {
       await queryRunner.query(
-        `ALTER table zoom_meetings add sync_status TinyInt(1) DEFAULT 0`
+        `ALTER table classes add sync_zoom_status TinyInt(1) DEFAULT 0`
       );
     }
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    if (await queryRunner.hasColumn("zoom_meetings", "sync_status")) {
+    if (await queryRunner.hasColumn("classes", "sync_zoom_status")) {
       await queryRunner.query(
-        `ALTER TABLE zoom_meetings DROP COLUMN sync_status`
+        `ALTER TABLE classes DROP COLUMN sync_zoom_status`
       );
     }
   }

@@ -558,6 +558,8 @@ export class BatchService {
       classes.createdBy = data.createdBy;
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+        // sync batch zoom link to cosmos
+        classes.sync_zoom_status = 0;
       }
 
       if (data.id) {

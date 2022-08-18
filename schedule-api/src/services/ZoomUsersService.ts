@@ -625,9 +625,12 @@ export class ZoomUserService {
         await this.updateCreateZoomUser(user);
 
         logger.info(`Success updated user zak token: ${user.id}`);
-        await this.zoomMeetingRepository.update(
-          { host_id: user.id },
-          { sync_status: 0 }
+        /**
+         * Mark Batch Sync Status As False For Zoom Meeting
+         */
+        await this.batchRepository.update(
+          { teacherId: user.user_id },
+          { sync_zoom_status: 0 }
         );
         result.updated += 1;
       } catch (e) {

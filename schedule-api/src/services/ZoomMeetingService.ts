@@ -10,10 +10,8 @@ const moment = require("moment");
 import zoomClient from "./../utils/zoom/zoomClient";
 import {
   generatePagiantionAndConditions,
-  getZoomStartURL,
 } from "../utils/helpers";
-import axios from "../helpers/axios";
-import { COSMOS_API } from "../helpers/Constants";
+import { syncZoomLinksWithCosmos } from "../utils/zoom/syncZoomLinksWithCosmos";
 
 export class ZoomMeetingService {
   private usersRepository = getRepository(User);
@@ -646,120 +644,6 @@ export class ZoomMeetingService {
     return result;
   }
 
-  async syncZoomLinksWithCosmos(): Promise<any> {
-    let result = {
-      synced: 0,
-      total: 0,
-      failed: 0,
-    };
-
-    try {
-      const meetings = await createQueryBuilder(ZoomMeeting, "meeting")
-        .leftJoinAndSelect("meeting.batch", "batch")
-        .leftJoinAndSelect("meeting.zoom_user", "zoom_user")
-        .where({
-          sync_status: Not(1),
-        })
-        .getMany();
-
-      for (const meeting of meetings) {
-        const types = ["t", "s"];
-        let success = 0;
-        for (const type of types) {
-          try {
-            const code =
-              type === "t"
-                ? meeting.batch.teacherCode
-                : meeting.batch.classCode;
-
-            const link =
-              type === "t"
-                ? getZoomStartURL(
-                    meeting.start_url,
-                    meeting.zoom_user.zak_token
-                  )
-                : meeting.join_url;
-
-            await axios.post(COSMOS_API.STORE_SHORT_LINK, {
-              id: type + "-" + code,
-              link,
-            });
-
-            await (
-              await this.logger.customZoom(
-                meeting.id,
-                `Success Sync zoom meeting for ${meeting.id} type: ${type}, code: ${code}, teacher: ${meeting.zoom_user.first_name} ${meeting.zoom_user.first_name} Batch: ${meeting.batch.batchNumber}`,
-                "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
-                { meeting },
-                this.request.user || {}
-              )
-            ).save();
-
-            success += 1;
-          } catch (e) {
-            console.log(e);
-            logger.error(
-              "Failed to Sync zoom meeting for " +
-                meeting.id +
-                " type: " +
-                type +
-                " error: " +
-                e.message
-            );
-            await (
-              await this.logger.customZoom(
-                meeting.id,
-                "Failed to Sync zoom meeting for " +
-                  meeting.id +
-                  " type: " +
-                  type +
-                  " error: " +
-                  e.message,
-                "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
-                { error: e, message: e.message, meeting },
-                this.request.user || {}
-              )
-            ).save();
-            result.failed++;
-          }
-        }
-
-        if (success === 2) {
-          meeting.sync_status = 1;
-          await meeting.save();
-          result.synced++;
-        }
-
-        await setTimeout(() => {}, 100);
-      }
-    } catch (e) {
-      console.log(e);
-      logger.error("Failed to Sync zoom meeting: " + e.message);
-      await (
-        await this.logger.customZoom(
-          "FAILED_TO_SYNC_ZOOM_MEETING",
-          "Failed to sync zoom meeting: " + e.message,
-          "FAILED_TO_SYNC_ZOOM_MEETING",
-          { error: e, message: e.message },
-          this.request.user || {}
-        )
-      ).save();
-      result.failed += 1;
-    }
-
-    await (
-      await this.logger.customZoom(
-        "ZOOM_MEETINGS_SYNC_RESULT",
-        `Zoom Meetings Sync to Cosmos Result`,
-        "ZOOM_MEETINGS_SYNC_RESULT",
-        { result },
-        this.request.user || {}
-      )
-    ).save();
-
-    return result;
-  }
-
   async getZoomMeetingsCSV(): Promise<any> {
     try {
       const meetings = await createQueryBuilder(ZoomMeeting, "zoom_meeting")
@@ -868,4 +752,8 @@ export class ZoomMeetingService {
       };
     }
   }
+
+  syncZoomLinksWithCosmos() {}
 }
+
+ZoomMeetingService.prototype.syncZoomLinksWithCosmos = syncZoomLinksWithCosmos;
