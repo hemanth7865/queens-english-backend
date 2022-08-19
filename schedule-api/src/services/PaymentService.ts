@@ -938,11 +938,9 @@ export class PaymentService {
               usersLogger.debug("pay: " + JSON.stringify(payment));
               if (
                 payment["addedOn"].includes(dueMonth) &&
-                payment["status"] == CASHFREE_PAYMENT_STATUS.SUCCESS &&
-                payment["amount"] == installment.emiAmount
+                payment["status"] == CASHFREE_PAYMENT_STATUS.SUCCESS
               ) {
                 let data: any = {
-                  status: PAYMENT_STATUS.PAID,
                   paidAmount: payment['amount'],
                   paidDate: payment['addedOn'],
                   subscriptionStatus: payment['status'],
@@ -950,6 +948,14 @@ export class PaymentService {
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
+
+                if(payment["amount"] == installment.emiAmount){
+                  data["status"] = PAYMENT_STATUS.PAID;
+                }
+                else{
+                  usersLogger.info("Partially paid record: " + installment.id);  
+                  data["status"] = PAYMENT_STATUS.PARTIALLY_PAID;
+                }
 
                 usersLogger.info("data for update: " + JSON.stringify(data));
                 await this.installmentService.updateInstallment(

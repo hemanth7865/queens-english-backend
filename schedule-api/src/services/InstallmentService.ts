@@ -64,7 +64,12 @@ export class InstallmentService {
     const transactionDetail = await this.transaDetailsRepository.findOne({
       transactionId: id,
     });
-    transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
+    if(!isNullOrUndefined(data.subscriptionStatus)){
+      transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
+    }
+    else{
+      transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
+    }
     await this.transaDetailsRepository.update(
       { transactionId: id },
       transactionDetail,
