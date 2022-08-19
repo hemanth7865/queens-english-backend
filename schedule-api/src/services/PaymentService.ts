@@ -952,7 +952,7 @@ export class PaymentService {
                 if(payment["amount"] == installment.emiAmount){
                   data["status"] = PAYMENT_STATUS.PAID;
                 }
-                else{
+                else if(payment["amount"] > 1){
                   usersLogger.info("Partially paid record: " + installment.id);  
                   data["status"] = PAYMENT_STATUS.PARTIALLY_PAID;
                 }
