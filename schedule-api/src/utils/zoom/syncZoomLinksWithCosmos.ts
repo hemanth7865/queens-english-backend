@@ -31,7 +31,6 @@ export async function syncZoomLinksWithCosmos(): Promise<any> {
 
         for (const meeting of meetings) {
           const types = ["t", "s"];
-          let success = 0;
           for (const type of types) {
             try {
               const code =
