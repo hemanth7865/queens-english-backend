@@ -463,7 +463,6 @@ Queen's English मे अगर आपको किसी तरह की स�
   const altcountrycode = (props.tempData?.alternativeMobile || "NA").substring(0, 3);
   const whatsappcountrycode = (props.tempData?.whatsapp || "NA").substring(0, 3);
 
-
   if (access.canSuperAdmin) {
     // User is Super Admin
   }
@@ -660,29 +659,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Form.Item>
             </Col>
 
-            {props.studentManageradd && countrycode == CountryCode.COUNTRYCODE_INDIA ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Registered Mobile Number"
-                  name="phoneNumber"
-                  rules={[{ pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
-                >
-                  <Input onChange={onChange} />
-
-                </Form.Item>
-              </Col>
-            ) : props.studentManageradd && countrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Registered Mobile Number"
-                  name="phoneNumber"
-                  rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
-                >
-                  <Input onChange={onChange} />
-
-                </Form.Item>
-              </Col>
-            ) : countrycode == CountryCode.COUNTRYCODE_INDIA ? (
+            {countrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
@@ -693,23 +670,12 @@ Queen's English मे अगर आपको किसी तरह की स�
 
                 </Form.Item>
               </Col>
-            ) : countrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
-              <Col span={12}>
-                <Form.Item
-                  label="Registered Mobile Number"
-                  name="phoneNumber"
-                  rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
-                >
-                  <Input onChange={onChange} />
-
-                </Form.Item>
-              </Col>
             ) : (
               <Col span={12}>
                 <Form.Item
                   label="Registered Mobile Number"
                   name="phoneNumber"
-                  rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Country Code not registered in portal please contact Product Team" }]}
+                  rules={[{ required: true, message: "Please enter Registered Mobile Number" }]}
                 >
                   <Input onChange={onChange} />
 
@@ -717,7 +683,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>
             )}
 
-            {(props.studentManageradd || props.studentManageredit) && whatsappcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
+            {props.studentManageradd && whatsappcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Whatsapp Number"
@@ -727,12 +693,12 @@ Queen's English मे अगर आपको किसी तरह की स�
                   <Input onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : (props.studentManageradd || props.studentManageredit) && whatsappcountrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
+            ) : whatsappcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Whatsapp Number"
                   name="whatsapp"
-                  rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
+                  rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
                 >
                   <Input onChange={onChange} />
                 </Form.Item>
@@ -742,14 +708,14 @@ Queen's English मे अगर आपको किसी तरह की स�
                 <Form.Item
                   label="Whatsapp Number"
                   name="whatsapp"
-                  rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+                  rules={[{ required: true, message: "Please Enter Whatsapp Number" }]}
                 >
                   <Input onChange={onChange} />
                 </Form.Item>
               </Col>
             )}
 
-            {(props.studentManageradd || props.studentManageredit) && altcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
+            {props.studentManageradd && altcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Alternate Mobile Number"
@@ -759,12 +725,12 @@ Queen's English मे अगर आपको किसी तरह की स�
                   <Input onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : (props.studentManageradd || props.studentManageredit) && altcountrycode == CountryCode.COUNTRYCODE_AFGHANISTAN ? (
+            ) : altcountrycode == CountryCode.COUNTRYCODE_INDIA ? (
               <Col span={12}>
                 <Form.Item
                   label="Alternate Mobile Number"
                   name="alternativeMobile"
-                  rules={[{ required: true, pattern: /^\+[0-9]{11}$/, message: "Enter valid number" }]}
+                  rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
                 >
                   <Input onChange={onChange} />
                 </Form.Item>
@@ -774,7 +740,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                 <Form.Item
                   label="Alternate Mobile Number"
                   name="alternativeMobile"
-                  rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}
+                  rules={[{ required: true, message: "Please enter Alternate Mobile number" }]}
                 >
                   <Input onChange={onChange} />
                 </Form.Item>
