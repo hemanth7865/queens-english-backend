@@ -1,4 +1,4 @@
-import { getRepository, getManager, createQueryBuilder } from "typeorm";
+import { getRepository, getManager, createQueryBuilder, Not } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
@@ -8,7 +8,10 @@ const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 import zoomClient from "./../utils/zoom/zoomClient";
-import { generatePagiantionAndConditions } from "../utils/helpers";
+import {
+  generatePagiantionAndConditions,
+} from "../utils/helpers";
+import { syncZoomLinksWithCosmos } from "../utils/zoom/syncZoomLinksWithCosmos";
 
 export class ZoomMeetingService {
   private usersRepository = getRepository(User);
@@ -83,6 +86,7 @@ export class ZoomMeetingService {
           this.request?.user
         )
       ).save();
+
       return {
         batches: [],
         batchesNeedsTeacherLicense: [],
@@ -265,6 +269,9 @@ export class ZoomMeetingService {
 
       await setTimeout(() => {}, 100);
     }
+
+    await this.syncZoomLinksWithCosmos();
+
     return result;
   }
 
@@ -493,6 +500,7 @@ export class ZoomMeetingService {
           this.request.user || {}
         )
       ).save();
+
       return {
         success: false,
         message: `Batch Updated But Failed To Update Zoom, Error: ${e.message}`,
@@ -746,4 +754,8 @@ export class ZoomMeetingService {
       };
     }
   }
+
+  syncZoomLinksWithCosmos() {}
 }
+
+ZoomMeetingService.prototype.syncZoomLinksWithCosmos = syncZoomLinksWithCosmos;

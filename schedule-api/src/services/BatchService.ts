@@ -226,6 +226,7 @@ export class BatchService {
       if (ENABLE_ZOOM) {
         const meetingService = new ZoomMeetingService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+        await meetingService.syncZoomLinksWithCosmos();
       }
 
       return res1;
@@ -556,8 +557,10 @@ export class BatchService {
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
+      // sync batch zoom link to cosmos
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+        classes.sync_zoom_status = 0;
       }
 
       if (data.id) {

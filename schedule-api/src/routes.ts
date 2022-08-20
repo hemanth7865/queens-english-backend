@@ -552,7 +552,7 @@ export const Routes = [
     route: "/zoom-user/update/zak",
     controller: ZoomController,
     action: "updateZakToken",
-    authenticate: true,
+    authenticate: false,
   },
   {
     method: "get",
@@ -571,5 +571,11 @@ export const Routes = [
     route: "/zoom/csv/meetings",
     controller: ZoomController,
     action: "getZoomMeetingsCSV",
+  },
+  {
+    method: "post",
+    route: "/zoom/links/sync/cosmos",
+    controller: ZoomController,
+    action: "syncZoomLinksWithCosmos",
   },
 ];
