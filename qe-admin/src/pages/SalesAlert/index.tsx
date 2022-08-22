@@ -67,10 +67,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
           <Option value="Lesson 1">Lesson 1</Option>
           <Option value="Lesson 31">Lesson 31</Option>
           <Option value="Lesson 61">Lesson 61</Option>
-          <Option value="Lesson 121">Lesson 121</Option>
+          <Option value="Lesson 107">Lesson 107</Option>
           <Option value="Lesson 201">Lesson 201</Option>
-          <Option value="Lesson 221">Lesson 221</Option>
-          <Option value="Lesson 240">Lesson 240</Option>
           <Option value="Lesson 301">Lesson 301</Option>
         </Select>
       )
