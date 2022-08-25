@@ -8,9 +8,7 @@ const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 import zoomClient from "./../utils/zoom/zoomClient";
-import {
-  generatePagiantionAndConditions,
-} from "../utils/helpers";
+import { generatePagiantionAndConditions } from "../utils/helpers";
 import { syncZoomLinksWithCosmos } from "../utils/zoom/syncZoomLinksWithCosmos";
 
 export class ZoomMeetingService {
@@ -24,6 +22,7 @@ export class ZoomMeetingService {
   public zoomMeetingApproveType = {
     NO_REGISTRATION_REQUIRED: 2,
   };
+  public MEETING_TIMEZONE = "Asia/Kolkata";
 
   public request: any = {};
   private logger = new LoggerService();
@@ -186,6 +185,7 @@ export class ZoomMeetingService {
         batch.batchNumber +
         `, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
       type: this.zoomMeetingTypes.RESCHEDULED_MEETING,
+      timezone: this.MEETING_TIMEZONE,
     };
   }
 
