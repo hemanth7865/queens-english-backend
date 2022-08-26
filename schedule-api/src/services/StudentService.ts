@@ -17,6 +17,7 @@ import { CollectionAgentService } from "./CollectionAgentService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
+import { deactivateStudents } from "./../utils/student/deactivateStudents";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -1450,4 +1451,9 @@ export class StudentService {
       return false;
     }
   }
+
+  async deactivateStudents(ids: string[]): Promise<any> { };
 }
+
+
+StudentService.prototype.deactivateStudents = deactivateStudents;

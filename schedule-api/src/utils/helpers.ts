@@ -42,3 +42,11 @@ export const getZoomStartURL = (
 ): string => {
   return start_url.split("?zak=")[0] + "?zak=" + zak_token;
 };
+
+export const jsonToString = (data: any): string => {
+  try {
+    return JSON.stringify(data);
+  } catch (e) {
+    return data;
+  }
+};
