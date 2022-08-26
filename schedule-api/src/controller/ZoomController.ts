@@ -318,6 +318,22 @@ export class ZoomController {
   }
 
   /**
+   * Reset/Update Zoom Meetings Settings In Bulk
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async resetZoomMeetingsSettings(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomMeetingService.request = request;
+    return await this.zoomMeetingService.resetZoomMeetingsSettings();
+  }
+
+  /**
    * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
    * @param request
    * @param response

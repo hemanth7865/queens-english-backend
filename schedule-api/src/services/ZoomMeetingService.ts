@@ -10,6 +10,7 @@ const moment = require("moment");
 import zoomClient from "./../utils/zoom/zoomClient";
 import { generatePagiantionAndConditions } from "../utils/helpers";
 import { syncZoomLinksWithCosmos } from "../utils/zoom/syncZoomLinksWithCosmos";
+import { resetZoomMeetingsSettings } from "../utils/zoom/resetZoomMeetingsSettings";
 
 export class ZoomMeetingService {
   private usersRepository = getRepository(User);
@@ -756,6 +757,10 @@ export class ZoomMeetingService {
   }
 
   syncZoomLinksWithCosmos() {}
+
+  resetZoomMeetingsSettings() {}
 }
 
 ZoomMeetingService.prototype.syncZoomLinksWithCosmos = syncZoomLinksWithCosmos;
+ZoomMeetingService.prototype.resetZoomMeetingsSettings =
+  resetZoomMeetingsSettings;

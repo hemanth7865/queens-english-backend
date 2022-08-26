@@ -578,4 +578,10 @@ export const Routes = [
     controller: ZoomController,
     action: "syncZoomLinksWithCosmos",
   },
+  {
+    method: "post",
+    route: "/zoom/meetings/reset/settings",
+    controller: ZoomController,
+    action: "resetZoomMeetingsSettings",
+  },
 ];
