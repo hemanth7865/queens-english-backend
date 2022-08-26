@@ -584,4 +584,12 @@ export const Routes = [
     controller: ZoomController,
     action: "resetZoomMeetingsSettings",
   },
+  {
+    method: "post",
+    route: "/student/deactivate/bulk",
+    controller: UserController,
+    action: "deactivateStudents",
+    authenticate: false,
+  },
+  
 ];
