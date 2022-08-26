@@ -39,10 +39,10 @@ export async function resetZoomMeetingsSettings(): Promise<any> {
           result.success += 1;
           await (
             await this.logger.customZoom(
-              meeting.id,
+              meeting.batch.batchNumber,
               `Success reset zoom meeting settings for user: 
               ${meeting.zoom_user.first_name} ${meeting.zoom_user.last_name}, 
-              Batch: ${meeting.batch.batchNumber}, Record No: ${counter} out of: ${result.total}`,
+              Batch: ${meeting.batch.batchNumber}, Meeting: ${meeting.id}, Record No: ${counter} out of: ${result.total}`,
               "SUCCESS_RESET_ZOOM_MEETING_SETTINGS",
               { meeting, meetingSettings },
               this.request.user || {}
