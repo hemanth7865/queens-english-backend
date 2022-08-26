@@ -546,8 +546,8 @@ export class ZoomMeetingService {
 
       await (
         await this.logger.customZoom(
-          classCode,
-          `Success redirect to zoom meeting for student: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
+          batch.batchNumber,
+          `Success redirect to zoom meeting for student: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}, Code: ${classCode}`,
           "SUCCESS_REDIRECT_TO_ZOOM_MEETING_STUDENT",
           { meeting, batch, teacher },
           this.request.user || {
@@ -618,8 +618,8 @@ export class ZoomMeetingService {
 
       await (
         await this.logger.customZoom(
-          teacherCode,
-          `Success redirect to zoom meeting for teacher: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
+          batch.batchNumber,
+          `Success redirect to zoom meeting for teacher: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}, Code: ${teacherCode}`,
           "SUCCESS_REDIRECT_TO_ZOOM_MEETING_TEACHER",
           { meeting, batch, teacher },
           this.request.user || {
