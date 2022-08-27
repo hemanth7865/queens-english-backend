@@ -1,4 +1,4 @@
-const lessons = require("./lessons.json");
+import lessons from "./lessonsList";
 
 export const LESSONS = lessons.sort(
   (a, b) => parseInt(a.number) - parseInt(b.number)
