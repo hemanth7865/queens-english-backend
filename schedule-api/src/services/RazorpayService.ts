@@ -13,6 +13,10 @@ export const getInstallmentPaymentById = async (id: string) => {
   return await client.payments.fetch(id);
 };
 
+export const getSubscriptionById = async (subscriptionId: string) => {
+  return await client.subscriptions.fetch(subscriptionId);
+};
+
 export interface Payment {
   id: string;
   status: string;
