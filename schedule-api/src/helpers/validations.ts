@@ -86,7 +86,9 @@ export class validations {
                     message = "This Payment account is not available. Please check subscription Number";
                     return { status, message };
                 }
-            } else if (total.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
+            }
+            //validate for razorpay subscription 
+            if (total.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
                 try {
                     const razorpaySubStatus = await getSubscriptionById(total.subscriptionNo);
                     if (!isNullOrUndefined(razorpaySubStatus)) {
