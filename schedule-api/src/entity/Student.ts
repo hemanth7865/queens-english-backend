@@ -144,4 +144,7 @@ export class Student extends BaseEntity {
 
   @Column({ nullable: false })
   prevBatchedStudent: boolean;
+
+  @Column({nullable: true})
+  onboardingIssueReason: string;
 }
