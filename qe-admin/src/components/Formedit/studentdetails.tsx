@@ -1035,25 +1035,11 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Option value="startclasslater">Start Class Later</Option>
                     <Option value="batching">Ready to batch</Option>
                     <Option value="onboarding">Onboarding</Option>
-                    {/* <Option value="onboardingIssue">Onboarding Issue</Option> */}
                     <Option value="active">Active</Option>
                   </Select >
                 </Form.Item >
               </Col >
             ) : ('')}
-
-            {/* {!props.studentManageradd && !props.studentManageredit && props.tempData.status==="onboardingIssue" ?
-            (<Col span={12}>
-              <Form.Item
-                name="onboardingIssueReason" 
-                label="Onboarding Issue Reason"
-                rules={[{
-                  required: true,
-                }]}>
-                  <Input type="text" onChange={onChange} />
-              </Form.Item>
-            </Col>):('')
-            } */}
 
             <Access
               accessible={access.canSuperAdmin}
@@ -1081,17 +1067,17 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Form.Item >
                 </Col >
               ) : ('')}
-              {!props.studentManageradd && !props.welcomepage && props.tempData.status==="onboardingIssue" ?
-              (<Col span={12}>
-                <Form.Item
-                  name="onboardingIssueReason" 
-                  label="Onboarding Issue Reason"
-                  rules={[{
-                    required: true,
-                  }]}>
+              {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+                (<Col span={12}>
+                  <Form.Item
+                    name="onboardingIssueReason"
+                    label="Onboarding Issue Reason"
+                    rules={[{
+                      required: true,
+                    }]}>
                     <Input type="text" onChange={onChange} />
-                </Form.Item>
-              </Col>):('')
+                  </Form.Item>
+                </Col>) : ('')
               }
             </Access>
           </Row>
