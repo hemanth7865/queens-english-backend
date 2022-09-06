@@ -145,7 +145,6 @@ export class InstallmentService {
           message: "Subcription id is not found!",
         };
       }
-      console.log('installment details: ', getInstallmentDetails, JSON.stringify(getInstallmentDetails));
 
       //get subscription details from razorpay
       const subscriptionDetails: any = await getSubscriptionById(
@@ -159,7 +158,6 @@ export class InstallmentService {
         };
       }
       usersLogger.info(`subscription details for razorpay: ${JSON.stringify(subscriptionDetails)}`);
-      console.log('subscription status', subscriptionDetails);
 
       //get invoice details from razorpay
       const invoiceDetails = await getRazorpayInvoicesForSubscription(
@@ -169,10 +167,10 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
+        paymentLink: subscriptionDetails.short_url,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
-      console.log('Invoice details: ', invoiceDetails);
       if (!invoiceDetails || invoiceDetails?.items.length === 0) {
         usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
         usersLogger.debug('data for update: ' + JSON.stringify(InitialSuscriptionData));
@@ -208,7 +206,6 @@ export class InstallmentService {
           data: "Updated succesfully",
         };
       }
-      console.log('data', data);
 
       //get order id details and payment status from razorpay
       const paymentStatusDetails: any = await getRazorpayOrder(
@@ -220,6 +217,7 @@ export class InstallmentService {
           status: PAYMENT_STATUS.PENDING,
           subscriptionStatus: subscriptionDetails.status.toUpperCase(),
           cycles: subscriptionDetails.paid_count,
+          paymentLink: subscriptionDetails.short_url,
           updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
           lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
         };
@@ -230,7 +228,6 @@ export class InstallmentService {
           data: "Updated succesfully",
         };
       }
-      console.log('payment details', paymentStatusDetails);
 
       /* Todo
           2. Update the Due Date from razorpay 
@@ -273,6 +270,15 @@ export class InstallmentService {
         usersLogger.debug('data for update: ' + JSON.stringify(finalData));
         await this.query.update(getInstallmentDetails.id, finalData);
       }
+      await (
+        await this.logger.customPayment(
+          paymentRequest.installment_id || "UNKNOWN",
+          "Updated Razorpay status",
+          "PAYMENT_UPDATE_STATUS_RAZORPAY_SUCCESS",
+          { paymentRequest, paymentStatusDetails },
+          {}
+        )
+      ).save();
       return {
         status: "success",
         data: "Updated succesfully",
@@ -284,7 +290,7 @@ export class InstallmentService {
       await (
         await this.logger.customPayment(
           paymentRequest.installment_id || "UNKNOWN",
-          "Failed Update Installemnt Status",
+          "Failed Update Razorpay Status",
           "PAYMENT_UPDATE_STATUS_ERROR",
           { paymentRequest, error, message: error.message },
           this.request.user || {}
