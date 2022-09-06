@@ -259,7 +259,7 @@ const StudentsBatchList: React.FC = () => {
               defaultMessage="Onboarding Issue"
             />
           ),
-          status: "onboarding",
+          status: "onboardingIssue",
         },
         'active': {
           text: (
