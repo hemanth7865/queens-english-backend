@@ -32,10 +32,10 @@ export class InstallmentController {
       );
       logger.info('Fetch installments: ' + pendingPayments?.length);
       console.log('pending payments: ' + pendingPayments, JSON.stringify(pendingPayments), request.query);
+      //check for razorpay subscriptions
       if (request.query.reference_id.split("_")[0] === "sub") {
-        await this.service.updateSubscriptionStatus(request.query.reference_id);
-        console.log('write logic here');
-        return 'testing';
+        const subscriptionValidation = await this.service.updateSubscriptionStatus(request.query);
+        return subscriptionValidation;
       }
       for (const payment of pendingPayments) {
         try {

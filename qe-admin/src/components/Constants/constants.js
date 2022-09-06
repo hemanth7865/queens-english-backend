@@ -14,6 +14,7 @@ export const PaymentConstantValues = {
 
 export const PaymentModevalues = {
   CASHFREE: "Cashfree",
+  RAZORPAY: "RazorPay",
 };
 
 export const CountryCode = {

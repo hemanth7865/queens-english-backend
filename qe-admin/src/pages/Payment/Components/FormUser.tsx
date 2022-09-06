@@ -138,7 +138,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 callDisposition: values.callDisposition ? values.callDisposition : callDisposition,
                 feedBackCall: values.feedBackCall ? values.feedBackCall : feedBackCall,
                 notes: values.notes ? values.notes : notes,
-                paymentMode: values.subscriptionId ? PaymentModevalues.CASHFREE : paymentMode,
+                paymentMode: values.paymentMode ? values.paymentMode : paymentMode,
                 paidDate: selectPaidDate ? selectPaidDate : paidDate,
                 dueDate: selectDueDate ? selectDueDate : dueDate,
                 reasonAmountChange: values.reasonAmountChange ? values.reasonAmountChange : '',
@@ -159,7 +159,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                 await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else if (values.subscriptionId) {
                 await editPaymentDetails(dataForm);
-                await props.refreshStatus({ transactionId, paymentMode: PaymentModevalues.CASHFREE }, true);
+                await props.refreshStatus({ transactionId: transactionId, referenceId: values.subscriptionId, paymentMode: dataForm[0].paymentMode }, true);
             } else {
                 await editPaymentDetails(dataForm);
             }
@@ -202,6 +202,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
             subscriptionId: subscriptionId,
             discount: discount,
             expireBy: expireBy != null ? moment(expireBy, "YYYY-MM-DD") : '',
+            paymentMode: paymentMode,
         });
     }
     useEffect(() => {
@@ -351,6 +352,16 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                             props.autodebitVisible ?
 
                                 <div>
+                                    <Form.Item
+                                        label="Subscription Provider"
+                                        name="paymentMode"
+                                    >
+                                        <Select >
+                                            <Option value={PaymentModevalues.RAZORPAY}>{PaymentModevalues.RAZORPAY}</Option>
+                                            <Option value={PaymentModevalues.CASHFREE}>{PaymentModevalues.CASHFREE}</Option>
+                                        </Select>
+                                    </Form.Item>
+
                                     <Form.Item
                                         label="Subscription ID"
                                         name="subscriptionId"

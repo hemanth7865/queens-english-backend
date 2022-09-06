@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -133,57 +133,153 @@ export class InstallmentService {
     }
   }
 
-  //Logic to update subsccripiton status
-  async updateSubscriptionStatus(paymentId) {
+  //Logic to update subsccripiton status && payment status && cycles 
+  async updateSubscriptionStatus(paymentRequest) {
     usersLogger.debug("rzp subscription status update api call");
     try {
-      const getInstallmentDetails = await this.query.findOne({ transactionId: paymentId });
-      //console.log('installment details: ', getInstallmentDetails, JSON.stringify(getInstallmentDetails));
-      const subscriptionDetails: RazorpayPayment = await getSubscriptionById(
-        paymentId
+      const getInstallmentDetails = await this.query.findOne({ id: paymentRequest.installment_id });
+      if (!getInstallmentDetails) {
+        usersLogger.error(`Error in getting installment details: ${JSON.stringify(getInstallmentDetails)}`);
+        return {
+          status: "error",
+          message: "Subcription id is not found!",
+        };
+      }
+      console.log('installment details: ', getInstallmentDetails, JSON.stringify(getInstallmentDetails));
+
+      //get subscription details from razorpay
+      const subscriptionDetails: any = await getSubscriptionById(
+        getInstallmentDetails.subscriptionId
       );
-      //subscriptionDetails.status ---> subscription status 
-      //console.log('status', subscriptionDetails);
-      //to get invoices details
-      //logic based on billing_start and billing_end / issued_at ---> status
+      if (!subscriptionDetails) {
+        usersLogger.error(`Error in getting subscription id: ${JSON.stringify(subscriptionDetails)}`);
+        return {
+          status: "error",
+          message: "Razorpay subscription not found for given id",
+        };
+      }
+      usersLogger.info(`subscription details for razorpay: ${JSON.stringify(subscriptionDetails)}`);
+      console.log('subscription status', subscriptionDetails);
+
+      //get invoice details from razorpay
       const invoiceDetails = await getRazorpayInvoicesForSubscription(
-        paymentId
+        getInstallmentDetails.subscriptionId
       );
-      if (!invoiceDetails) {
+      let InitialSuscriptionData: any = {
+        subscriptionStatus: subscriptionDetails.status,
+        cycles: subscriptionDetails.paid_count,
+        updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+        lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+      };
+      console.log('Invoice details: ', invoiceDetails);
+      if (!invoiceDetails || invoiceDetails?.items.length === 0) {
+        usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
+        usersLogger.debug('data for update: ' + JSON.stringify(InitialSuscriptionData));
+        await this.query.update(getInstallmentDetails.id, InitialSuscriptionData);
         return {
           status: "error",
           message: "Payment Details not found for the subscription",
         };
       }
+      usersLogger.info(`Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
+
+      let data;
       for (const payments of invoiceDetails?.items) {
-        //console.log('invoice each', payments)
-        const dateB = getDateFromTimeStamp(payments.billing_start);
-        console.log('date billing start', payments.billing_start, dateB);
-        if (checkRangeOfDate(payments.billing_start, payments.billing_end, '02/10/2022')) {
-          console.log('logic to get order Id here, success');
+        if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate)) {
+          console.log('payment', payments);
+          data = {
+            invoiceStatus: payments.status,
+            orderId: payments.order_id,
+            paymentUrl: payments.short_url,
+            updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+            lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+          };
           break;
         }
       }
-      //console.log('invoiceDetails', invoiceDetails);
-      //orderId --> status 
-      const paymentStatusDetails: RazorpayPayment = await getRazorpayOrder(
-        'order_KCbDewhB9Ub3n6'
+      usersLogger.info(`Getting the billing date match logic: ${JSON.stringify(data)}`);
+      console.log('data', data);
+
+      //get order id details and payment status from razorpay
+      const paymentStatusDetails: any = await getRazorpayOrder(
+        data.orderId
       );
-      //console.log('payment details', paymentStatusDetails);
-      //get payment status
+      if (!paymentStatusDetails || paymentStatusDetails.items.length === 0) {
+        usersLogger.error(`Error in fetching payment details: ${JSON.stringify(paymentStatusDetails)}`);
+        let finalData: any = {
+          status: PAYMENT_STATUS.PENDING,
+          subscriptionStatus: subscriptionDetails.status,
+          cycles: subscriptionDetails.paid_count,
+          updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+          lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+        };
+        usersLogger.debug('data for update: ' + JSON.stringify(finalData));
+        await this.query.update(getInstallmentDetails.id, finalData);
+        return {
+          status: "success",
+          data: "Updated succesfully",
+        };
+      }
+      console.log('payment details', paymentStatusDetails);
+
+      /* Todo
+          2. Update the Due Date from razorpay 
+      */
+
+      if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.SUCCESS
+        && (paymentStatusDetails?.items[0].amount / 100).toString() == getInstallmentDetails.emiAmount) {
+        let finalData: any = {
+          status: PAYMENT_STATUS.PAID,
+          subscriptionStatus: subscriptionDetails.status,
+          cycles: subscriptionDetails.paid_count,
+          paidAmount: paymentStatusDetails?.items[0].amount / 100,
+          paidDate: moment(paymentStatusDetails?.items[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss"),
+          paymentLink: subscriptionDetails.short_url,
+          updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+          lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+        };
+        usersLogger.debug('data for update: ' + JSON.stringify(finalData));
+        await this.query.update(getInstallmentDetails.id, finalData);
+      } else if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.FAILED) {
+        let finalData: any = {
+          status: PAYMENT_STATUS.FAILED,
+          subscriptionStatus: subscriptionDetails.status,
+          cycles: subscriptionDetails.paid_count,
+          paymentLink: subscriptionDetails.short_url,
+          updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+          lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+        };
+        usersLogger.debug('data for update: ' + JSON.stringify(finalData));
+        await this.query.update(getInstallmentDetails.id, finalData);
+      } else {
+        let finalData: any = {
+          status: PAYMENT_STATUS.PENDING,
+          subscriptionStatus: subscriptionDetails.status,
+          cycles: subscriptionDetails.paid_count,
+          paymentLink: subscriptionDetails.short_url,
+          updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+          lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+        };
+        usersLogger.debug('data for update: ' + JSON.stringify(finalData));
+        await this.query.update(getInstallmentDetails.id, finalData);
+      }
+      return {
+        status: "success",
+        data: "Updated succesfully",
+      };
     } catch (error) {
       usersLogger.error(
         `Error in razor pay status update status call: ${JSON.stringify(error)}`
       );
-      // await (
-      //   await this.logger.customPayment(
-      //     paymentId || "UNKNOWN",
-      //     "Failed Update Installemnt Status",
-      //     "PAYMENT_UPDATE_STATUS_ERROR",
-      //     { paymentId, error, message: error.message },
-      //     this.request.user || {}
-      //   )
-      // ).save();
+      await (
+        await this.logger.customPayment(
+          paymentRequest.installment_id || "UNKNOWN",
+          "Failed Update Installemnt Status",
+          "PAYMENT_UPDATE_STATUS_ERROR",
+          { paymentRequest, error, message: error.message },
+          this.request.user || {}
+        )
+      ).save();
       return PAYMENT_STATUS.PENDING;
     }
   }

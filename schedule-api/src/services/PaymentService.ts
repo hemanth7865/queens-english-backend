@@ -366,7 +366,12 @@ export class PaymentService {
         transaction.paidAmount = data.paidAmount;
         transaction.status = data.status;
         //payment details from razor pay
-        transaction.transactionId = data.referenceId;
+        //consider referenceId same as subscriptionId for razorpay
+        if (data.subscriptionId && data.paymentMode === PAYMENT_MODE.RAZORPAY) {
+          transaction.transactionId = data.subscriptionId;
+        } else {
+          transaction.transactionId = data.referenceId;
+        }
         transaction.paymentLink = data.paymentLink;
         transaction.discount = data.discount;
         transaction.expireBy = data.expireBy;
