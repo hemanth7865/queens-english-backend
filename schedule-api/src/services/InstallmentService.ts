@@ -166,8 +166,9 @@ export class InstallmentService {
         getInstallmentDetails.subscriptionId
       );
       let InitialSuscriptionData: any = {
-        subscriptionStatus: subscriptionDetails.status,
+        subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
+        status: PAYMENT_STATUS.PENDING,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
@@ -183,7 +184,7 @@ export class InstallmentService {
       }
       usersLogger.info(`Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
 
-      let data;
+      let data: any;
       for (const payments of invoiceDetails?.items) {
         if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate)) {
           console.log('payment', payments);
@@ -198,6 +199,15 @@ export class InstallmentService {
         }
       }
       usersLogger.info(`Getting the billing date match logic: ${JSON.stringify(data)}`);
+      if (!data) {
+        usersLogger.error(`Inoice for this date not found ${JSON.stringify(invoiceDetails)}`);
+        usersLogger.debug('data for update: ' + JSON.stringify(InitialSuscriptionData));
+        await this.query.update(getInstallmentDetails.id, InitialSuscriptionData);
+        return {
+          status: "success",
+          data: "Updated succesfully",
+        };
+      }
       console.log('data', data);
 
       //get order id details and payment status from razorpay
@@ -208,7 +218,7 @@ export class InstallmentService {
         usersLogger.error(`Error in fetching payment details: ${JSON.stringify(paymentStatusDetails)}`);
         let finalData: any = {
           status: PAYMENT_STATUS.PENDING,
-          subscriptionStatus: subscriptionDetails.status,
+          subscriptionStatus: subscriptionDetails.status.toUpperCase(),
           cycles: subscriptionDetails.paid_count,
           updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
           lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
@@ -230,7 +240,7 @@ export class InstallmentService {
         && (paymentStatusDetails?.items[0].amount / 100).toString() == getInstallmentDetails.emiAmount) {
         let finalData: any = {
           status: PAYMENT_STATUS.PAID,
-          subscriptionStatus: subscriptionDetails.status,
+          subscriptionStatus: subscriptionDetails.status.toUpperCase(),
           cycles: subscriptionDetails.paid_count,
           paidAmount: paymentStatusDetails?.items[0].amount / 100,
           paidDate: moment(paymentStatusDetails?.items[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss"),
@@ -243,7 +253,7 @@ export class InstallmentService {
       } else if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.FAILED) {
         let finalData: any = {
           status: PAYMENT_STATUS.FAILED,
-          subscriptionStatus: subscriptionDetails.status,
+          subscriptionStatus: subscriptionDetails.status.toUpperCase(),
           cycles: subscriptionDetails.paid_count,
           paymentLink: subscriptionDetails.short_url,
           updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -254,7 +264,7 @@ export class InstallmentService {
       } else {
         let finalData: any = {
           status: PAYMENT_STATUS.PENDING,
-          subscriptionStatus: subscriptionDetails.status,
+          subscriptionStatus: subscriptionDetails.status.toUpperCase(),
           cycles: subscriptionDetails.paid_count,
           paymentLink: subscriptionDetails.short_url,
           updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
