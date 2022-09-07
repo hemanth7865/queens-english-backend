@@ -24,4 +24,6 @@ export class PRManager extends BaseEntity {
     email: string;
     @Column("integer")
     allocate: string;
+    @Column({ nullable: true })
+    latestAssignment: Date;
 }

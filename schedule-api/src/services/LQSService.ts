@@ -10,6 +10,7 @@ import { randomFill } from "crypto";
 import { Constants } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
+import { PRManager } from "../entity/PRManager";
 const date = require('date-and-time')
 
 export class LQSService {
@@ -34,6 +35,7 @@ export class LQSService {
   private userRepository = getRepository(User);
   private studentRepository = getRepository(Student);
   private paymentRepository = getRepository(Payment);
+  private prmRepository = getRepository(PRManager);
 
 
   /**
@@ -54,11 +56,22 @@ export class LQSService {
   }
 
   async getPRMsAvailability() {
-    var prmsData = await getManager().query(
-      `SELECT SQL_NO_CACHE prm.id, prm.firstName, prm.lastName, COUNT(user.id) as students FROM user LEFT JOIN student ON user.id = student.id LEFT JOIN prm ON prm.id = student.prm_id AND user.status IN ('enrolled', 'onboarding', 'error') WHERE user.type='student' AND prm.allocate = 1 group by prm.id order by count(user.id) asc limit 1`
-    );
 
-    return prmsData;
+    var prmsData = await this.prmRepository.findOne({
+      where : {
+          allocate : 1,
+      },
+      order : {
+          latestAssignment : 'ASC',
+      }
+    });
+    var prmsId = prmsData?.id;
+    // Updating latest assignment value of prm
+    if(prmsId){
+        prmsData.latestAssignment = new Date();
+        await this.prmRepository.save(prmsData);
+    }
+    return [prmsData];
   }
 
   getRandomArbitrary(min, max) {
@@ -191,7 +204,7 @@ export class LQSService {
 
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
-      student.prm_id = await (await this.getPRMsAvailability())[0].id;
+      student.prm_id = parseInt(await (await this.getPRMsAvailability())[0].id);
       await this.studentRepository.save(student);
       await this.paymentRepository.save(payment);
     } catch (error) {
