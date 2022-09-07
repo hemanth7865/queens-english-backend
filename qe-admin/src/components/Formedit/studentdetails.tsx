@@ -78,6 +78,7 @@ export type StudentdetailseditProps = {
     classtype?: string;
     gender?: string;
     notes?: string;
+    onboardingIssueReason?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -114,6 +115,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       classType: value.classType,
       type: 'student',
       status: props.studentManageradd ? "active" : props.salesAlert ? "Enrolled" : value.status === undefined ? props.tempData.status : value.status,
+      onboardingIssueReason: value.onboardingIssueReason,
       alternativeMobile: !props.studentManageradd ? value.alternativeMobile : '',
       course: !props.studentManageradd ? value.course : '',
       startLesson: !props.studentManageradd ? value.startLesson : null,
@@ -384,6 +386,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
         gender: props.tempData.gender,
         notes: props.tempData.notes,
+        onboardingIssueReason: props.tempData.onboardingIssueReason
       })) : ('')
     };
   }
@@ -445,6 +448,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.comments : '',
       !props.studentManageradd ? props.tempData.gender : '',
       !props.studentManageradd ? props.tempData.notes : '',
+      !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
     ]
   )
 
@@ -1026,9 +1030,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                   rules={[{
                     required: true,
                   }]}>
-                  <Select
-                    placeholder="Select Status"
-                  >
+                  <Select placeholder="Select Status" onChange={onChange}>
                     <Option value="enrolled">Enrolled</Option>
                     <Option value="startclasslater">Start Class Later</Option>
                     <Option value="batching">Ready to batch</Option>
@@ -1053,16 +1055,30 @@ Queen's English मे अगर आपको किसी तरह की स�
                     }]}>
                     <Select
                       placeholder="Select Status"
+                      onChange={onChange}
                     >
                       <Option value="inactive">InActive</Option>
                       <Option value="active">Active</Option>
                       <Option value="startclasslater">Start Class Later</Option>
                       <Option value="batching">Batching</Option>
+                      <Option value="onboardingIssue">Onboarding Issue</Option>
                       <Option value='Error'>Error</Option>
                     </Select >
                   </Form.Item >
                 </Col >
               ) : ('')}
+              {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+                (<Col span={12}>
+                  <Form.Item
+                    name="onboardingIssueReason"
+                    label="Onboarding Issue Reason"
+                    rules={[{
+                      required: true,
+                    }]}>
+                    <Input type="text" onChange={onChange} />
+                  </Form.Item>
+                </Col>) : ('')
+              }
             </Access>
           </Row>
 
