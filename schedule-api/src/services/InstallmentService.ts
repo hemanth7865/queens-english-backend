@@ -185,7 +185,6 @@ export class InstallmentService {
       let data: any;
       for (const payments of invoiceDetails?.items) {
         if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate)) {
-          console.log('payment', payments);
           data = {
             invoiceStatus: payments.status,
             orderId: payments.order_id,
