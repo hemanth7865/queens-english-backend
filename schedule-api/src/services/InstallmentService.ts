@@ -185,6 +185,7 @@ export class InstallmentService {
       let data: any;
       for (const payments of invoiceDetails?.items) {
         if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate)) {
+          usersLogger.info(`Invoice for paid data: ${JSON.stringify(payments)}`);
           data = {
             invoiceStatus: payments.status,
             orderId: payments.order_id,
@@ -210,6 +211,7 @@ export class InstallmentService {
       const paymentStatusDetails: any = await getRazorpayOrder(
         data.orderId
       );
+      usersLogger.info(`Payment status for order id: ${JSON.stringify(paymentStatusDetails)}`);
       if (!paymentStatusDetails || paymentStatusDetails.items.length === 0) {
         usersLogger.error(`Error in fetching payment details: ${JSON.stringify(paymentStatusDetails)}`);
         let finalData: any = {
@@ -233,7 +235,7 @@ export class InstallmentService {
       */
 
       if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.SUCCESS
-        && (paymentStatusDetails?.items[0].amount / 100).toString() == getInstallmentDetails.emiAmount) {
+        && (paymentStatusDetails?.items[0].amount / 100) >= Number(getInstallmentDetails.emiAmount)) {
         let finalData: any = {
           status: PAYMENT_STATUS.PAID,
           subscriptionStatus: subscriptionDetails.status.toUpperCase(),
