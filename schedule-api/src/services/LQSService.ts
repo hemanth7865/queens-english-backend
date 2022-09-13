@@ -11,6 +11,7 @@ import { Constants } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 import { PRManager } from "../entity/PRManager";
+const moment = require("moment");
 const date = require('date-and-time')
 
 export class LQSService {
@@ -56,8 +57,8 @@ export class LQSService {
   }
 
   async getPRMsAvailability() {
-
-    var prmsData = await this.prmRepository.findOne({
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    var prmsData = await this.prmRepository.find({
       where : {
           allocate : 1,
       },
@@ -65,13 +66,13 @@ export class LQSService {
           latestAssignment : 'ASC',
       }
     });
-    var prmsId = prmsData?.id;
     // Updating latest assignment value of prm
-    if(prmsId){
-        prmsData.latestAssignment = new Date();
-        await this.prmRepository.save(prmsData);
+    if(prmsData[0]?.id){
+      prmsData[0].latestAssignment = moment().valueOf();
+      await this.prmRepository.update({id : prmsData[0].id},prmsData[0]);
     }
-    return [prmsData];
+    console.log(prmsData)
+    return prmsData;
   }
 
   getRandomArbitrary(min, max) {

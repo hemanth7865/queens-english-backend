@@ -25,5 +25,5 @@ export class PRManager extends BaseEntity {
     @Column("integer")
     allocate: string;
     @Column({ nullable: true })
-    latestAssignment: Date;
+    latestAssignment: string;
 }

@@ -27,6 +27,7 @@
       "https": "^1.0.0",
       "jsonwebtoken": "^8.5.1",
       "jws": "^4.0.0",
+      "moment": "^2.29.4",
       "mysql2": "^2.3.3-rc.0",
       "razorpay": "^2.8.1",
       "reflect-metadata": "^0.1.10",
