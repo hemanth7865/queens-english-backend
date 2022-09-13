@@ -47,31 +47,40 @@ export class LQSService {
     usersLogger.info('Registering students::Start');
     var lqsEntries = await this.fetchLastDayLSQRecords();
     usersLogger.info('Loading... data from database');
-    lqsEntries.forEach(async (element) => {
+    var prms = await getManager().query(
+      `SELECT * FROM prm WHERE allocate = 1 ORDER BY latestAssignment`
+    );
+    var totalPrms = prms.length;
+
+    lqsEntries.forEach(async (element,index) => {
       usersLogger.info(element.id);
-      var userDetails = await this.fillLeadDetails(element);
+      var userDetails = await this.fillLeadDetails(element,prms,index%totalPrms);
+      // var userDetails = await this.fillLeadDetails(element);
       element.lsqstatus = "created";
       await this.lQSRepository.save(element);
     });
     usersLogger.info('Created students in Admin portal::End');
   }
 
+  async updatePrmsLatestAssignment(prm_id:any) {
+    await this.prmRepository.update({ id: prm_id }, { latestAssignment: moment().valueOf() })
+  }
+
   async getPRMsAvailability() {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     var prmsData = await this.prmRepository.find({
       where : {
-          allocate : 1,
+        allocate : 1,
       },
       order : {
-          latestAssignment : 'ASC',
+        latestAssignment : 'ASC',
       }
     });
     // Updating latest assignment value of prm
     if(prmsData[0]?.id){
       prmsData[0].latestAssignment = moment().valueOf();
-      await this.prmRepository.update({id : prmsData[0].id},prmsData[0]);
+      await this.prmRepository.update({id : prmsData[0].id}, prmsData[0]);
     }
-    console.log(prmsData)
     return prmsData;
   }
 
@@ -133,7 +142,7 @@ export class LQSService {
    * Fetch data from LSQ
    * @param element
    */
-  async fillLeadDetails(element: any) {
+  async fillLeadDetails(element: any,prms?: any,prmIndex?: any) {
     try {
       var user = new User();
       var payment = new Payment();
@@ -205,7 +214,14 @@ export class LQSService {
 
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
-      student.prm_id = parseInt(await (await this.getPRMsAvailability())[0].id);
+
+      if(prms && prms.length>0){
+        student.prm_id = prms[prmIndex].id;
+        await this.updatePrmsLatestAssignment(prms[prmIndex].id);
+      }else{
+        student.prm_id = parseInt(await (await this.getPRMsAvailability())[0].id);
+      }
+
       await this.studentRepository.save(student);
       await this.paymentRepository.save(payment);
     } catch (error) {
@@ -663,41 +679,41 @@ export class LQSService {
           console.log(error);
         })
 
-    if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
-      usersLogger.info("Updating ProspectActivities...");
-      var item = details?.ProspectActivities[0].ActivityFields;
-      usersLogger.info(JSON.stringify(item));
-      element.status = item.Status;
-      element.salesowner = item.Owner;
-      element.pfirstName = item.pfirstName;
-      element.dateofsale = item.mx_Custom_1;
-      element.teacherName = item.mx_Custom_2;
-      // to remove student id from lsq
-      // element.studentID = item.mx_Custom_3;
-      element.studentID = element.id;
-      element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
-      element.alternativeMobile = item.mx_Custom_5;
-      element.customerEmail = item.mx_Custom_6;
-      element.address = item.mx_Custom_7;
-      element.customerAddressState = item.mx_Custom_8;
-      element.course = item.mx_Custom_9;
-      element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
-      element.timings = item.mx_Custom_12;
-      element.startingLevel = item.mx_Custom_13;
-      element.startDate = item.mx_Custom_14;
-      element.saleType = item.mx_Custom_15;
-      element.saleamount = item.mx_Custom_16;
-      element.classessold = item.mx_Custom_17;
-      element.subscription = item.mx_Custom_18;
-      element.subscriptionNo = item.mx_Custom_19;
-      element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
-      element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
-      element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
-      element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
-      element.transactionID = item.mx_Custom_28;
-      element.bdaComments = item.mx_Custom_29;
-      element.whatsapp = item.mx_Custom_30;
-    }
+      if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
+        usersLogger.info("Updating ProspectActivities...");
+        var item = details?.ProspectActivities[0].ActivityFields;
+        usersLogger.info(JSON.stringify(item));
+        element.status = item.Status;
+        element.salesowner = item.Owner;
+        element.pfirstName = item.pfirstName;
+        element.dateofsale = item.mx_Custom_1;
+        element.teacherName = item.mx_Custom_2;
+        // to remove student id from lsq
+        // element.studentID = item.mx_Custom_3;
+        element.studentID = element.id;
+        element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
+        element.alternativeMobile = item.mx_Custom_5;
+        element.customerEmail = item.mx_Custom_6;
+        element.address = item.mx_Custom_7;
+        element.customerAddressState = item.mx_Custom_8;
+        element.course = item.mx_Custom_9;
+        element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
+        element.timings = item.mx_Custom_12;
+        element.startingLevel = item.mx_Custom_13;
+        element.startDate = item.mx_Custom_14;
+        element.saleType = item.mx_Custom_15;
+        element.saleamount = item.mx_Custom_16;
+        element.classessold = item.mx_Custom_17;
+        element.subscription = item.mx_Custom_18;
+        element.subscriptionNo = item.mx_Custom_19;
+        element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
+        element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
+        element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
+        element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
+        element.transactionID = item.mx_Custom_28;
+        element.bdaComments = item.mx_Custom_29;
+        element.whatsapp = item.mx_Custom_30;
+      }
 
       await this.lQSRepository.save(element);
       await new Promise((resolve) => setTimeout(resolve, 1000));
