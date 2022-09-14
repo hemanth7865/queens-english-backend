@@ -602,7 +602,7 @@ export class StudentService {
 
     if (create) {
       const lqsClient = new LQSService();
-      student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
+      student.prm_id = parseInt(await (await lqsClient.getPRMsAvailability())[0].id);
 
       const collectionAgent = new CollectionAgentService();
       student.collection_agent_id = await (await collectionAgent.getAvailabileCollectionAgents())[0].id;
@@ -1297,9 +1297,9 @@ export class StudentService {
              */
             if (d["PRM"] === "Sukhmanjeet") {
               const lqsClient = new LQSService();
-              student.prm_id = await (
+              student.prm_id = parseInt(await (
                 await lqsClient.getPRMsAvailability()
-              )[0].id;
+              )[0].id);
             } else {
               result.notFoundPRMs.push({
                 prm: d["PRM"],
