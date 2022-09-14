@@ -42,6 +42,7 @@ export const CASHFREE_PAYMENT_STATUS = {
 
 export const RAZORPAY_PAYMENT_STATUS = {
     SUCCESS: "captured",
+    ACTIVE: "active",
 };
 
 export const ERROR_CODES = {
