@@ -67,7 +67,6 @@ export class LQSService {
   }
 
   async getPRMsAvailability() {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     var prmsData = await this.prmRepository.find({
       where : {
         allocate : 1,
