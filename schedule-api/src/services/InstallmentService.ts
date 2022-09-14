@@ -217,12 +217,12 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
+        updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+        lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
       if (!paymentStatusDetails || paymentStatusDetails.items.length === 0) {
         usersLogger.error(`Error in fetching payment details: ${JSON.stringify(paymentStatusDetails)}`);
         finalData['status'] = PAYMENT_STATUS.PENDING;
-        finalData['updated_at'] = moment().format("YYYY-MM-DD HH:mm:ss");
-        finalData['lastCheckedAt'] = moment().format("YYYY-MM-DD HH:mm:ss");
         usersLogger.debug('data for update: ' + JSON.stringify(finalData));
         await this.query.update(getInstallmentDetails.id, finalData);
         return {
@@ -240,21 +240,15 @@ export class InstallmentService {
         finalData['status'] = PAYMENT_STATUS.PAID;
         finalData['paidAmount'] = paymentStatusDetails?.items[0].amount / 100;
         finalData['paidDate'] = moment(paymentStatusDetails?.items[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
-        finalData['updated_at'] = moment().format("YYYY-MM-DD HH:mm:ss");
-        finalData['lastCheckedAt'] = moment().format("YYYY-MM-DD HH:mm:ss");
         await this.query.update(getInstallmentDetails.id, finalData);
       } else if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.FAILED) {
         finalData['status'] = PAYMENT_STATUS.FAILED;
-        finalData['updated_at'] = moment().format("YYYY-MM-DD HH:mm:ss");
-        finalData['lastCheckedAt'] = moment().format("YYYY-MM-DD HH:mm:ss");
         await this.query.update(getInstallmentDetails.id, finalData);
       } else {
         finalData['status'] = PAYMENT_STATUS.PENDING;
-        finalData['updated_at'] = moment().format("YYYY-MM-DD HH:mm:ss");
-        finalData['lastCheckedAt'] = moment().format("YYYY-MM-DD HH:mm:ss");
         await this.query.update(getInstallmentDetails.id, finalData);
       }
-      usersLogger.debug('data for update: ' + JSON.stringify(finalData));
+      usersLogger.info('data for update: ' + JSON.stringify(finalData));
       await (
         await this.logger.customPayment(
           paymentRequest.installment_id || "UNKNOWN",
