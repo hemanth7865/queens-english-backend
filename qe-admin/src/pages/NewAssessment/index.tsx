@@ -217,6 +217,16 @@ const TableList: React.FC = () => {
     {
       title: (
         <FormattedMessage
+          id="pages.searchTable.titleFSScore"
+          defaultMessage="Free Speech Score"
+        />
+      ),
+      hideInSearch: true,
+      dataIndex: "freeSpeechScore"
+    },
+    {
+      title: (
+        <FormattedMessage
           id="pages.searchTable.titleComment"
           defaultMessage="Comments"
         />

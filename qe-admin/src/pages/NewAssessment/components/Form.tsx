@@ -14,7 +14,6 @@ const { TextArea } = Input;
 
 
 const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
-  console.log('assessment form', props.assessmentData)
   const {
     studentName,
     id,
@@ -32,15 +31,16 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
     comment,
     teacherName,
     batchNumber,
-    createdTime
+    createdTime,
+    freeSpeechScore
   } = props.assessmentData ? props.assessmentData : "";
   const { scores } = props.assessmentData ? props.assessmentData : "";
 
-  console.log('scores', vocabScore, pronunciationScore, confidenceScore)
   const [selectAnswer, setSelectAnswer] = useState([] as any);
   const [vocalScoreStar, setVocalScoreStar] = useState("")
   const [confidenceScoreStar, setConfidenceScoreStar] = useState("");
   const [pronounciationScoreStar, setPronounciationScoreStar] = useState("");
+  const [freeSpeechScoreStar, setFreeSpeechScoreStar] = useState("");
 
   const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 
@@ -111,9 +111,9 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       confidenceScore: values.ConfidenceScore,
       pronunciationScore: values.PronounciationScore,
       comment: values.comment,
+      freeSpeechScore: values.freeSpeechScore,
     };
 
-    console.log("data form", data);
     try {
       const msg = await putAssessment({
         headers: {
@@ -252,6 +252,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       PronounciationScore: pronunciationScore,
       ConfidenceScore: confidenceScore,
       comment: comment,
+      freeSpeechScore: freeSpeechScore,
     });
   };
   useEffect(() => {
@@ -492,6 +493,12 @@ const AssessmentForm: React.FC<AssessmentFormProps> = (props) => {
       <Form.Item name="ConfidenceScore" label="Confidence Score">
         <Rate tooltips={desc} name="confidenceScore" value={confidenceScoreStar} onChange={(value) => {
           setConfidenceScoreStar(value)
+        }} />
+      </Form.Item>
+
+      <Form.Item name="freeSpeechScore" label="Free Speech Score">
+        <Rate tooltips={desc} name="freeSpeechScore" value={freeSpeechScoreStar} onChange={(value) => {
+          setFreeSpeechScoreStar(value)
         }} />
       </Form.Item>
 
