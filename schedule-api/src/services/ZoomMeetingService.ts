@@ -8,10 +8,9 @@ const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 import zoomClient from "./../utils/zoom/zoomClient";
-import {
-  generatePagiantionAndConditions,
-} from "../utils/helpers";
+import { generatePagiantionAndConditions } from "../utils/helpers";
 import { syncZoomLinksWithCosmos } from "../utils/zoom/syncZoomLinksWithCosmos";
+import { resetZoomMeetingsSettings } from "../utils/zoom/resetZoomMeetingsSettings";
 
 export class ZoomMeetingService {
   private usersRepository = getRepository(User);
@@ -24,6 +23,7 @@ export class ZoomMeetingService {
   public zoomMeetingApproveType = {
     NO_REGISTRATION_REQUIRED: 2,
   };
+  public MEETING_TIMEZONE = "Asia/Kolkata";
 
   public request: any = {};
   private logger = new LoggerService();
@@ -186,6 +186,7 @@ export class ZoomMeetingService {
         batch.batchNumber +
         `, Teacher: ${zoomUser.first_name} ${zoomUser.last_name}.`,
       type: this.zoomMeetingTypes.RESCHEDULED_MEETING,
+      timezone: this.MEETING_TIMEZONE,
     };
   }
 
@@ -545,8 +546,8 @@ export class ZoomMeetingService {
 
       await (
         await this.logger.customZoom(
-          classCode,
-          `Success redirect to zoom meeting for student: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
+          batch.batchNumber,
+          `Success redirect to zoom meeting for student: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}, Code: ${classCode}`,
           "SUCCESS_REDIRECT_TO_ZOOM_MEETING_STUDENT",
           { meeting, batch, teacher },
           this.request.user || {
@@ -617,8 +618,8 @@ export class ZoomMeetingService {
 
       await (
         await this.logger.customZoom(
-          teacherCode,
-          `Success redirect to zoom meeting for teacher: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}`,
+          batch.batchNumber,
+          `Success redirect to zoom meeting for teacher: ${teacher?.firstName} ${teacher?.lastName} Batch: ${batch.batchNumber}, Code: ${teacherCode}`,
           "SUCCESS_REDIRECT_TO_ZOOM_MEETING_TEACHER",
           { meeting, batch, teacher },
           this.request.user || {
@@ -756,6 +757,10 @@ export class ZoomMeetingService {
   }
 
   syncZoomLinksWithCosmos() {}
+
+  resetZoomMeetingsSettings() {}
 }
 
 ZoomMeetingService.prototype.syncZoomLinksWithCosmos = syncZoomLinksWithCosmos;
+ZoomMeetingService.prototype.resetZoomMeetingsSettings =
+  resetZoomMeetingsSettings;

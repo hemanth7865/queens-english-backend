@@ -17,3 +17,4 @@ qe-admin/data/call_disposition.json
 package-lock.json
 .sample
 schedule-api/ormlogs.log
+schedule-api/src/data/lessonsList.ts

@@ -327,4 +327,16 @@ export class UserController {
         console.log(resp);
         return resp;
     }
+
+    async deactivateStudents(request: Request, response: Response, next: NextFunction) {
+        let resp;
+        const ids: string[] = request.body.students || [];
+        try {
+            usersLogger.info("Fetching student Active Batches");
+            resp = await this.studentService.deactivateStudents(ids);
+        } catch (error) {
+            console.log(error);
+        }
+        return resp;
+    }
 }

@@ -881,7 +881,7 @@ export class PaymentService {
         where["id"] = params.installmentId;
       } else {
         where["subscriptionType"] = Like(SUBSCRIPTION_TYPE.AUTO_DEBIT);
-        where["status"] != PAYMENT_STATUS.PAID;
+        where["status"] = Not(PAYMENT_STATUS.PAID);
       }
 
       if (params?.limit) {

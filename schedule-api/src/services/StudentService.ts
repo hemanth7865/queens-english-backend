@@ -17,6 +17,7 @@ import { CollectionAgentService } from "./CollectionAgentService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
+import { deactivateStudents } from "./../utils/student/deactivateStudents";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -151,7 +152,7 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
 
@@ -300,6 +301,7 @@ export class StudentService {
         element.gender,
         element.batchId,
         element.reasonInSAV,
+        element.onboardingIssueReason,
       );
       l.batchId = batchId,
       l.isSibling = element.isSibling;
@@ -497,7 +499,7 @@ export class StudentService {
     user.languages = data.languages;
     user.created_at = new Date();
     user.updated_at = new Date();
-
+    
     let student = new Student();
     let payment = new Payment();
 
@@ -596,10 +598,11 @@ export class StudentService {
     student.salesDataFilled = data.salesDataFilled;
     student.assesmentDate =
       data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
+    student.onboardingIssueReason = data.onboardingIssueReason;
 
     if (create) {
       const lqsClient = new LQSService();
-      student.prm_id = await (await lqsClient.getPRMsAvailability())[0].id;
+      student.prm_id = parseInt(await (await lqsClient.getPRMsAvailability())[0].id);
 
       const collectionAgent = new CollectionAgentService();
       student.collection_agent_id = await (await collectionAgent.getAvailabileCollectionAgents())[0].id;
@@ -1294,9 +1297,9 @@ export class StudentService {
              */
             if (d["PRM"] === "Sukhmanjeet") {
               const lqsClient = new LQSService();
-              student.prm_id = await (
+              student.prm_id = parseInt(await (
                 await lqsClient.getPRMsAvailability()
-              )[0].id;
+              )[0].id);
             } else {
               result.notFoundPRMs.push({
                 prm: d["PRM"],
@@ -1450,4 +1453,9 @@ export class StudentService {
       return false;
     }
   }
+
+  async deactivateStudents(ids: string[]): Promise<any> { };
 }
+
+
+StudentService.prototype.deactivateStudents = deactivateStudents;

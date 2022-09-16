@@ -252,6 +252,15 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "onboarding",
         },
+        'onboardingIssue': {
+          text: (
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.onboardingIssue"
+              defaultMessage="Onboarding Issue"
+            />
+          ),
+          status: "onboardingIssue",
+        },
         'active': {
           text: (
             <FormattedMessage

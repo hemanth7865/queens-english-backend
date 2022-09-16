@@ -25,6 +25,7 @@ export const Status = {
     STARTCLASSLATER: "startclasslater",
     ERROR: "error",
     ONBOARDING: "onboarding",
+    ONBOARDING_ISSUE: "onboardingIssue",
 }
 
 export const SUBSCRIPTION_TYPE = {
@@ -42,6 +43,7 @@ export const CASHFREE_PAYMENT_STATUS = {
 export const RAZORPAY_PAYMENT_STATUS = {
     SUCCESS: "captured",
     FAILED: "failed",
+    ACTIVE: "active",
 };
 
 export const ERROR_CODES = {
