@@ -350,7 +350,7 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleCycles"
-                    defaultMessage="Cycles (Cashfree)"
+                    defaultMessage="Cycles"
                 />
             ),
             dataIndex: 'cycles',

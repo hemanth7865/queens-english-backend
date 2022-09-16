@@ -183,8 +183,9 @@ export class InstallmentService {
       usersLogger.info(`Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
 
       let data: any;
+      const dueMonth = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
       for (const payments of invoiceDetails?.items) {
-        if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate)) {
+        if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate) || moment.unix(payments.paid_at).format("YYYY-MM-DD").includes(dueMonth)) {
           usersLogger.info(`Invoice for paid data: ${JSON.stringify(payments)}`);
           data = {
             invoiceStatus: payments.status,
