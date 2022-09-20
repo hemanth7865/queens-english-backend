@@ -561,6 +561,17 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
+      title: 'Batch class start date',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any) => {
+        if (value) {
+          return value[0] ? value[0].batchesClassesStartDate ? moment(value[0].batchesClassesStartDate, "YYYY-MM-DD").format("DD-MM-YYYY") : '' : '';
+        }
+      }
+    },
+    {
       title: 'New Teacher Name',
       dataIndex: 'batchesHistory',
       width: 200,
