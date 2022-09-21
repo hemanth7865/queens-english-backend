@@ -617,7 +617,7 @@ export class ZoomUserService {
         zoomClient.setUser(user);
         const zak = await zoomClient.getZakToken();
         if (!zak?.token) {
-          throw new Error("Failed to get zak token");
+          throw new Error("Failed to get zak token "+zak?.message);
         }
 
         user.zak_token = zak.token;
