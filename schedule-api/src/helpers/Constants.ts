@@ -58,6 +58,10 @@ export const SUCCESS_CODES = {
     SUCCESS_AUTO_RETRY_PAYMENT: "SUCCESS_AUTO_RETRY_PAYMENT",
 }
 
+export const NULL_STRING = {
+    NULL: "null"
+}
+
 /**
  * TODO: Add all used cosmos API links here
  */

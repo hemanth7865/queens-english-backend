@@ -7,6 +7,7 @@ import {
   getSubscriptionById as getRazorpaySubscriptionById,
 } from "../services/RazorpayService";
 import { logger } from "./../Logger.js";
+import { NULL_STRING } from "../helpers/Constants"
 const moment = require("moment");
 
 export class InstallmentController {
@@ -31,7 +32,7 @@ export class InstallmentController {
         request.query
       );
       logger.info('Fetch installments: ' + pendingPayments?.length);
-      if (request.query.reference_id.length === 0 || request.query.reference_id == 'null') {
+      if (request.query.reference_id.length === 0 || request.query.reference_id === NULL_STRING.NULL) {
         return { status: 400, message: "Reference ID is invalid" };
       }
       //check for razorpay subscriptions
