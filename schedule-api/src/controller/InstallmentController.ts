@@ -31,6 +31,9 @@ export class InstallmentController {
         request.query
       );
       logger.info('Fetch installments: ' + pendingPayments?.length);
+      if (request.query.reference_id.length === 0 || request.query.reference_id == 'null') {
+        return { status: 400, message: "Reference ID is invalid" };
+      }
       //check for razorpay subscriptions
       if (request.query.reference_id.split("_")[0] === "sub") {
         logger.info(`Validate razorpay subscription: ${JSON.stringify(request.query)}`);
