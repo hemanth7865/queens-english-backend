@@ -3,14 +3,15 @@ import { createConnection } from "typeorm";
 import { ZoomUserService } from "../services/ZoomUsersService";
 import { ZoomUser } from "./../entity/ZoomUser";
 
-const { ZoomAPI } = require("zoomAPIClient");
+const { ZoomAPI } = require("zoom-api-client");
 
 const { ZOOM_API_KEY, ZOOM_API_SECRET } = process.env;
 
 createConnection().then(async (r) => {
-  const zoomClient = new ZoomAPI(ZOOM_API_KEY, ZOOM_API_SECRET);
-
-  zoomClient.init();
+  const zoomClient = new ZoomAPI({
+    APIKey: ZOOM_API_KEY,
+    APISecret: ZOOM_API_SECRET,
+  });
 
   const zoomUserService = new ZoomUserService();
 
