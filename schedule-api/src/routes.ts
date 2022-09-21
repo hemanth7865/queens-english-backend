@@ -591,5 +591,11 @@ export const Routes = [
     action: "deactivateStudents",
     authenticate: false,
   },
-  
+  {
+    method: "get",
+    route: "/generate/zoom/join/links/bulk",
+    controller: ZoomController,
+    action: "generateStudentsJoinLink",
+    authenticate: false,
+  },
 ];
