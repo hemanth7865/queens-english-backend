@@ -366,7 +366,12 @@ export class PaymentService {
         transaction.paidAmount = data.paidAmount;
         transaction.status = data.status;
         //payment details from razor pay
-        transaction.transactionId = data.referenceId;
+        //consider referenceId same as subscriptionId for razorpay
+        if (data.subscriptionId && data.paymentMode === PAYMENT_MODE.RAZORPAY) {
+          transaction.transactionId = data.subscriptionId;
+        } else {
+          transaction.transactionId = data.referenceId;
+        }
         transaction.paymentLink = data.paymentLink;
         transaction.discount = data.discount;
         transaction.expireBy = data.expireBy;
@@ -924,16 +929,22 @@ export class PaymentService {
           await this.cashFreeUtils.fetchSubscriptionDetails(
             installment.subscriptionId
           );
-        if (isNullOrUndefined(cashFreeResponse)) {
+        const subscriptionStatusResponse: any =
+          await this.cashFreeUtils.fetchCashfreeAccountDetail(
+            installment.subscriptionId
+          );
+        usersLogger.info("get subscription status: " + JSON.stringify(subscriptionStatusResponse));
+        if (isNullOrUndefined(cashFreeResponse) && isNullOrUndefined(subscriptionStatusResponse)) {
           usersLogger.error(
             "Error in fetching subscription details for id : " +
             request.installmentId
           );
           result.error++;
         } else {
-          if (!isNullOrUndefined(cashFreeResponse.payments)) {
+          if (!isNullOrUndefined(cashFreeResponse.payments) && !isNullOrUndefined(subscriptionStatusResponse.subscription)) {
             const dueMonth = moment(installment.dueDate).format("YYYY-MM");
             var payments: any = cashFreeResponse.payments;
+            var subStatus: any = subscriptionStatusResponse.subscription.status;
             for (const payment of payments) {
               usersLogger.debug("pay: " + JSON.stringify(payment));
               if (
@@ -943,17 +954,17 @@ export class PaymentService {
                 let data: any = {
                   paidAmount: payment['amount'],
                   paidDate: payment['addedOn'],
-                  subscriptionStatus: payment['status'],
+                  subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
 
-                if(payment["amount"] == installment.emiAmount){
+                if (payment["amount"] == installment.emiAmount) {
                   data["status"] = PAYMENT_STATUS.PAID;
                 }
-                else if(payment["amount"] > 1){
-                  usersLogger.info("Partially paid record: " + installment.id);  
+                else if (payment["amount"] > 1) {
+                  usersLogger.info("Partially paid record: " + installment.id);
                   data["status"] = PAYMENT_STATUS.PARTIALLY_PAID;
                 }
 
@@ -970,7 +981,7 @@ export class PaymentService {
               ) {
                 let data: any = {
                   status: PAYMENT_STATUS.FAILED,
-                  subscriptionStatus: payment['status'],
+                  subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -1056,7 +1067,6 @@ export class PaymentService {
                     status: PAYMENT_STATUS.PAID,
                     paidAmount: payment['amount'],
                     paidDate: payment['addedOn'],
-                    subscriptionStatus: payment['status'],
                     updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                     lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                   };
@@ -1087,7 +1097,6 @@ export class PaymentService {
                 ) {
                   let data: any = {
                     status: PAYMENT_STATUS.FAILED,
-                    subscriptionStatus: payment['status'],
                     autoRetryFailed: 1,
                     updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                     lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),

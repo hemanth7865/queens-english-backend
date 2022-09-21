@@ -70,9 +70,9 @@ const TableList: React.FC = () => {
     }
 
     const subscriptionStatusFilter = {
-        'SUCCESS': { text: 'SUCCESS', status: 'SUCCESS' },
-        'PENDING': { text: 'PENDING', status: 'PENDING' },
-        'FAILED': { text: 'FAILED', status: 'FAILED' }
+        'ACTIVE': { text: 'ACTIVE', status: 'ACTIVE' },
+        'CANCELLED': { text: 'CANCELLED', status: 'CANCELLED' },
+        'CREATED': { text: 'CREATED', status: 'CREATED' }
     }
 
     const autoRetryFailedFilter = {
@@ -350,7 +350,7 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleCycles"
-                    defaultMessage="Cycles (Cashfree)"
+                    defaultMessage="Cycles"
                 />
             ),
             dataIndex: 'cycles',
