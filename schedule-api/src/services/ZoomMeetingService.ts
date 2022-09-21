@@ -22,6 +22,7 @@ export class ZoomMeetingService {
   };
   public zoomMeetingApproveType = {
     NO_REGISTRATION_REQUIRED: 2,
+    REGISTRATION_REQUIRED: 0,
   };
   public MEETING_TIMEZONE = "Asia/Kolkata";
 
@@ -169,7 +170,7 @@ export class ZoomMeetingService {
       password: "QE",
       // pre_schedule: true,
       settings: {
-        approval_type: this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
+        approval_type: this.zoomMeetingApproveType.REGISTRATION_REQUIRED,
         join_before_host: true,
         meeting_authentication: false,
         waiting_room: false,
