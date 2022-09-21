@@ -163,7 +163,7 @@ export class InstallmentService {
       const invoiceDetails = await getRazorpayInvoicesForSubscription(
         getInstallmentDetails.subscriptionId
       );
-      let initialSuscriptionData: any = {
+      let initialSubscriptionData: any = {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
@@ -173,8 +173,8 @@ export class InstallmentService {
       };
       if (!invoiceDetails || invoiceDetails?.items.length === 0) {
         usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
-        usersLogger.debug('data for update: ' + JSON.stringify(initialSuscriptionData));
-        await this.query.update(getInstallmentDetails.id, initialSuscriptionData);
+        usersLogger.debug('data for update: ' + JSON.stringify(initialSubscriptionData));
+        await this.query.update(getInstallmentDetails.id, initialSubscriptionData);
         return {
           status: "error",
           message: "Payment Details not found for the subscription",
@@ -200,8 +200,8 @@ export class InstallmentService {
       usersLogger.info(`Getting the billing date match logic: ${JSON.stringify(data)}`);
       if (!data) {
         usersLogger.error(`Inoice for this date not found ${JSON.stringify(invoiceDetails)}`);
-        usersLogger.debug('data for update: ' + JSON.stringify(initialSuscriptionData));
-        await this.query.update(getInstallmentDetails.id, initialSuscriptionData);
+        usersLogger.debug('data for update: ' + JSON.stringify(initialSubscriptionData));
+        await this.query.update(getInstallmentDetails.id, initialSubscriptionData);
         return {
           status: "success",
           data: "Updated succesfully",
