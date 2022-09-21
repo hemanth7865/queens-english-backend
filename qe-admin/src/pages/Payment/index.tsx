@@ -247,7 +247,7 @@ const TableList: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.titleActualStartDate"
-                    defaultMessage="Actual Start Date"
+                    defaultMessage="First Ever Start Date"
                 />
             ),
             dataIndex: 'actualStartDate',

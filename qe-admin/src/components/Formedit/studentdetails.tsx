@@ -66,6 +66,7 @@ export type StudentdetailseditProps = {
     prm_firstName?: string;
     prm_lastName?: string;
     classesStartDate?: string;
+    canEditStartDate?: string;
     isSibling?: any;
     batchCode?: string;
     zoomLink?: string;
@@ -834,9 +835,9 @@ Queen's English मे अगर आपको किसी तरह की स�
             {props.studentManageredit || props.studentManageradd ? (
               <Col span={12}>
                 <Form.Item name="classesStartDate"
-                  label="Actual Start Date"
+                  label="First Ever Start Date"
                 >
-                  <Input type="date" onChange={onChange} />
+                  <Input type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
                 </Form.Item>
               </Col>
             ) : props.salesAlert ? (
@@ -844,12 +845,12 @@ Queen's English मे अगर आपको किसी तरह की स�
             ) : (
               <Col span={12}>
                 <Form.Item name="classesStartDate"
-                  label="Actual Start Date"
+                  label="First Ever Start Date"
                   rules={[{
                     required: true,
                   }]}
                 >
-                  <Input type="date" onChange={onChange} />
+                  <Input type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
                 </Form.Item>
               </Col>
             )}
