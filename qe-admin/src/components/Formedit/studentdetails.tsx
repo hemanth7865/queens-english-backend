@@ -79,7 +79,7 @@ export type StudentdetailseditProps = {
     gender?: string;
     notes?: string;
     onboardingIssueReason?: string;
-    batchesHistory?: any;
+    batchesClassesStartDate?: any;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -139,7 +139,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       age: value.dob == null || value.age == 'NaN' ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
-      batchesClassesStartDate: value.batchesClassesStartDate,
+      batchesClassesStartDate: !value.batchesClassesStartDate || value.batchesClassesStartDate == "Invalid date" ? null : moment(value.batchesClassesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       payment: !props.studentManageradd ? [{
         id: value.id,
         paymentid: value.paymentid,
@@ -389,7 +389,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         gender: props.tempData.gender,
         notes: props.tempData.notes,
         onboardingIssueReason: props.tempData.onboardingIssueReason,
-        batchesClassesStartDate: props.tempData.batchesHistory.length != 0 ? props.tempData.batchesHistory[0].batchesClassesStartDate ? moment(props.tempData.batchesHistory[0].batchesClassesStartDate).toISOString(true).split('T')[0] : '' : ''
+        batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
       })) : ('')
     };
   }
@@ -452,6 +452,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.gender : '',
       !props.studentManageradd ? props.tempData.notes : '',
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
+      !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
     ]
   )
 
@@ -1025,17 +1026,27 @@ Queen's English मे अगर आपको किसी तरह की स�
             ) : ''
             }
 
-            {props.studentManageredit || props.onboardpage ? (
+            {props.studentManageredit || props.studentManageradd ? (
               <Col span={12}>
                 <Form.Item
                   label="Rebatch Class Start Date"
                   name="batchesClassesStartDate"
                 >
-                  <Input type="date" />
+                  <Input type="date" onChange={onChange} />
                 </Form.Item>
               </Col>
-            ) : ''
-            }
+            ) : !props.onboardpage ? (
+              ''
+            ) : (
+              <Col span={12}>
+                <Form.Item
+                  label="Rebatch Class Start Date"
+                  name="batchesClassesStartDate"
+                >
+                  <Input type="date" onChange={onChange} />
+                </Form.Item>
+              </Col>
+            )}
 
             {props.studentManageredit && !props.studentManageradd && !props.salesAlert ? (
               <Col span={12}>
