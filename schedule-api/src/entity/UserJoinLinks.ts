@@ -24,8 +24,6 @@ export class UserJoinLinks extends BaseEntity {
   @PrimaryColumn()
   id: string;
   @Column({ type: "text" })
-  user_id: string;
-  @Column({ type: "text" })
   meeting_id: string;
   @Column({ type: "text" })
   join_url: string;

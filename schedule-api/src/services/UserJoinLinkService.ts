@@ -26,19 +26,24 @@ export class UserJoinLinkService {
   UserJoinLinkService() {}
 
   async getStudentWithoutCorrectJoinLink(): Promise<any[]> {
-    const result: User[] = [];
-    const meetings = await getManager()
-      .createQueryBuilder(ZoomMeeting, "meeting")
-      .leftJoinAndSelect(Classes, "batch", "batch.id = meeting.batch_id")
+    const students = await getManager()
+      .createQueryBuilder(BatchStudent, "batch_students")
+      .leftJoinAndSelect(Classes, "batch", "batch.id = batch_students.batchId")
+      .leftJoinAndSelect(User, "user", "user.id = batch_students.studentId")
       .leftJoinAndSelect(
-        BatchStudent,
-        "batch_students",
-        "batch.id = batch_students.batchId"
+        ZoomMeeting,
+        "meeting",
+        "meeting.batch_id = batch_students.batchId"
       )
-      .where(`batch.id IS NOT NULL`)
-      .getMany();
+      .leftJoinAndSelect(
+        UserJoinLinks,
+        "join_link",
+        "meeting.id = join_link.meeting_id AND join_link.id = batch_students.studentId AND join_link.batch_id = batch.id"
+      )
+      .where(`meeting.id IS NOT NULL AND join_link.id IS NULL`)
+      .getRawMany();
 
-    return meetings;
+    return students;
   }
 
   async generateStudentsJoinLink(): Promise<any> {
