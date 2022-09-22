@@ -14,6 +14,7 @@ import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
 import { CollectionAgentService } from "./CollectionAgentService";
+import { UserService } from "./UserService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
@@ -646,6 +647,7 @@ export class StudentService {
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
     try {
+      const userSerivce = new UserService();
       var studentAvailabilityList: StudentAvailability[] = [];
       var teacherAvailability: TeacherAvailability[] = [];
 
@@ -682,6 +684,8 @@ export class StudentService {
       user.studentAvailability = studentAvailability;
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
+
+      await userSerivce.generateUsersCode();
 
       return { ...user };
     } catch (error) {

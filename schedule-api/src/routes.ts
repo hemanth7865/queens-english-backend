@@ -598,4 +598,11 @@ export const Routes = [
     action: "generateStudentsJoinLink",
     authenticate: false,
   },
+  {
+    method: "post",
+    route: "/generate/user/unique/code/bulk",
+    controller: UserController,
+    action: "generateUsersCode",
+    authenticate: false,
+  },
 ];
