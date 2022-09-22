@@ -1,5 +1,5 @@
 export const BatchValues = {
-  MAXSTUDENTCOUNT: 9,
+  MAXSTUDENTCOUNT: 12,
   MINSTUDENTCOUNT: 1,
 };
 
