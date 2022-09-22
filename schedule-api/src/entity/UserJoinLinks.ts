@@ -31,6 +31,8 @@ export class UserJoinLinks extends BaseEntity {
   email: string;
   @Column({ type: "text" })
   batch_id: string;
+  @Column({ type: "text" })
+  registrant_id: string;
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()

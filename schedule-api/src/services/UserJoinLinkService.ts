@@ -1,4 +1,4 @@
-import { getRepository, getManager, createQueryBuilder } from "typeorm";
+import { getRepository, getManager } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
@@ -26,7 +26,7 @@ export class UserJoinLinkService {
   UserJoinLinkService() {}
 
   async getStudentWithoutCorrectJoinLink(): Promise<any[]> {
-    const students = await getManager()
+    return await getManager()
       .createQueryBuilder(BatchStudent, "batch_students")
       .leftJoinAndSelect(Classes, "batch", "batch.id = batch_students.batchId")
       .leftJoinAndSelect(User, "user", "user.id = batch_students.studentId")
@@ -42,13 +42,60 @@ export class UserJoinLinkService {
       )
       .where(`meeting.id IS NOT NULL AND join_link.id IS NULL`)
       .getRawMany();
-
-    return students;
   }
 
   async generateStudentsJoinLink(): Promise<any> {
-    const data = await this.getStudentWithoutCorrectJoinLink();
+    const result = {
+      errors: 0,
+      success: 0,
+      logs: [],
+    };
+    try {
+      const students = await this.getStudentWithoutCorrectJoinLink();
 
-    return data;
+      for (let student of students) {
+        const email = student.user_id + this.emailFormat;
+
+        const registrantUser = {
+          first_name: student.user_firstName,
+          last_name: student.user_lastName,
+          email,
+        };
+
+        const createdRegisterantUser: {
+          id: number;
+          join_url: string;
+          registrant_id: string;
+        } = await zoomClient.addMeetingRegistrant(
+          student.meeting_id,
+          registrantUser
+        );
+
+        if (createdRegisterantUser.registrant_id) {
+          const join_link = {
+            id: student.user_id,
+            join_url: createdRegisterantUser.join_url,
+            registrant_id: createdRegisterantUser.registrant_id,
+            email,
+            meeting_id: student.meeting_id,
+            batch_id: student.batch_id,
+          };
+
+          const createdJoinLink = await this.userJoinLinksRepositroy.save(
+            join_link
+          );
+
+          if (createdJoinLink.id) {
+            result.success += 1;
+          }
+        }
+
+        break;
+      }
+    } catch (e) {
+      result.logs.push(e.message);
+    }
+
+    return result;
   }
 }
