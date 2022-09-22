@@ -21,7 +21,12 @@ export class UserJoinLinkService {
 
   UserJoinLinkService() {}
 
-  async getStudentWithoutCorrectJoinLink(): Promise<any[]> {
+  async getStudentWithoutCorrectJoinLink(batchData: any = {}): Promise<any[]> {
+    const customWhere = `${
+      batchData?.batchNumber
+        ? `AND batch.batchNumber = '${batchData.batchNumber}'`
+        : ""
+    }`;
     return await getManager()
       .createQueryBuilder(BatchStudent, "batch_students")
       .leftJoinAndSelect(Classes, "batch", "batch.id = batch_students.batchId")
@@ -36,18 +41,18 @@ export class UserJoinLinkService {
         "join_link",
         "meeting.id = join_link.meeting_id AND join_link.id = batch_students.studentId AND join_link.batch_id = batch.id"
       )
-      .where(`meeting.id IS NOT NULL AND join_link.id IS NULL`)
+      .where(`meeting.id IS NOT NULL AND join_link.id IS NULL ${customWhere}`)
       .getRawMany();
   }
 
-  async generateStudentsJoinLink(): Promise<any> {
+  async generateStudentsJoinLink(batchData: any = {}): Promise<any> {
     const result = {
       errors: 0,
       success: 0,
       logs: [],
     };
     try {
-      const students = await this.getStudentWithoutCorrectJoinLink();
+      const students = await this.getStudentWithoutCorrectJoinLink(batchData);
 
       logger.info(
         `UserJoinLinkService::generateStudentsJoinLink start generating links for ${students.length}`
