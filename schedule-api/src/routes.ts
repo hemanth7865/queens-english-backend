@@ -562,6 +562,12 @@ export const Routes = [
   },
   {
     method: "get",
+    route: "/c/us/:userCode/:batchCode",
+    controller: ZoomController,
+    action: "redirectUniqueStudent",
+  },
+  {
+    method: "get",
     route: "/c/t/:teacherCode",
     controller: ZoomController,
     action: "redirectTeacher",

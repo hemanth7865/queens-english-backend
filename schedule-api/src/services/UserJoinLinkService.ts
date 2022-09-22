@@ -14,6 +14,8 @@ const moment = require("moment");
 
 export class UserJoinLinkService {
   private userJoinLinksRepositroy = getRepository(UserJoinLinks);
+  private userRepository = getRepository(User);
+  private batchRepository = getRepository(Classes);
   private emailFormat = "@CODE.student.queensenglish.co";
   public request: any = {};
   private logger = new LoggerService();
@@ -191,6 +193,79 @@ export class UserJoinLinkService {
         this.request.user || {}
       )
     ).save();
+
+    return result;
+  }
+
+  async redirectUniqueStudent(
+    userCode: string,
+    batchCode: string
+  ): Promise<any> {
+    let result: { link?: string; error?: boolean } = {};
+
+    try {
+      const user = await this.userRepository.findOne({ userCode });
+
+      let meeting: any;
+
+      if (!user) {
+        throw new Error(`User ${userCode} Not Found.`);
+      }
+
+      const batch = await this.batchRepository.findOne({
+        classCode: batchCode,
+      });
+
+      if (!batch) {
+        throw new Error(`Batch ${batchCode} Not Found.`);
+      }
+
+      if (batch.useNewZoomLink) {
+        meeting = await this.userJoinLinksRepositroy.findOne({
+          id: user.id,
+        });
+
+        if (!meeting) {
+          throw new Error(`User ${userCode} Doesn't Have A Join Link.`);
+        }
+        result.link = meeting.join_url;
+      } else {
+        result.link = batch.zoomLink;
+      }
+
+      if (!result.link) {
+        throw new Error(
+          `Student ${userCode} and batch ${batchCode} Doesn't Have A Link.`
+        );
+      }
+
+      await (
+        await this.logger.customZoom(
+          batch.batchNumber,
+          `Success redirect to zoom meeting for unique student: ${user?.firstName} ${user?.lastName} Batch: ${batch.batchNumber}, Code: ${batchCode}`,
+          "SUCCESS_REDIRECT_TO_ZOOM_MEETING_UNQIUE_STUDENT",
+          { meeting, batch, user },
+          this.request.user || {
+            email: user?.email,
+          }
+        )
+      ).save();
+    } catch (e) {
+      console.log(e);
+      logger.error(
+        "Failed to redirect to zoom meeting for unique student: " + e.message
+      );
+      await (
+        await this.logger.customZoom(
+          userCode,
+          "Failed to redirect to zoom meeting for unqiue student: " + e.message,
+          "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_UNIQUE_STUDENT",
+          { error: e, message: e.message },
+          this.request.user || {}
+        )
+      ).save();
+      result.error = true;
+    }
 
     return result;
   }

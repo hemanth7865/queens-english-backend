@@ -203,6 +203,15 @@ const View = ({ batchData, isLoading }: Props) => {
               title: "Phone Number",
               dataIndex: "phoneNumber",
               key: "phoneNumber"
+            },
+            {
+              title: "Join URL",
+              dataIndex: "join_url",
+              key: "join_url",
+              render: (_: any, record: any) => {
+                const join_url = getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, classes, false, record);
+                return <a href={join_url} target={"_blank"}>{join_url}</a>
+              }
             }
           ]} />
         </TabPane>

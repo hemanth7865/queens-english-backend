@@ -20,6 +20,7 @@ import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
+import { UserJoinLinks } from "../entity/UserJoinLinks";
 import {
   updateBatchesTeacherCode,
   getUniqueCode,
@@ -897,14 +898,41 @@ export class BatchService {
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
       .leftJoin("batchStudent.student", "student")
-      .addSelect(["student.firstName", "student.lastName", "student.phoneNumber"])
+      .leftJoin(
+        UserJoinLinks,
+        "join_link",
+        "join_link.batch_id = batchStudent.batchId AND join_link.id = batchStudent.studentId"
+      )
+      .addSelect([
+        "student.firstName",
+        "student.lastName",
+        "student.phoneNumber",
+        "student.userCode",
+        "join_link.join_url",
+        "join_link.email",
+      ])
       .where("batchStudent.batchId = :id", { id: batchId })
-      .getMany();
+      .getRawMany();
     const zoomMeeting = await this.zoomMeetingRepository.findOne({ batch_id: classes?.id });
     const zoomUser = await this.zoomUserRepository.findOne({ user_id: classes?.teacherId });
     teacherView.classes = classes;
     teacherView.batchAvailability = [batchavail];
-    teacherView.students = students;
+    teacherView.students = students.map((student): any => ({
+      id: student.batchStudent_id,
+      batchId: student.batchStudent_batchId,
+      studentId: student.batchStudent_studentId,
+      type: student.batchStudent_type,
+      created_at: student.batchStudent_created_at,
+      updated_at: student.batchStudent_updated_at,
+      student: {
+        firstName: student.student_firstName,
+        lastName: student.student_lastName,
+        phoneNumber: student.student_phoneNumber,
+        userCode: student.student_userCode,
+        join_url: student.join_link_join_url,
+        join_email: student.join_link_email,
+      },
+    }));
     teacherView.zoomMeeting = zoomMeeting;
     teacherView.zoomUser = zoomUser;
     return {
