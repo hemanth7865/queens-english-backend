@@ -87,6 +87,7 @@ export class UserJoinLinkService {
             first_name: student.user_firstName,
             last_name: student.user_lastName,
             email,
+            purchasing_time_frame: "No timeframe",
           };
 
           const createdRegisterantUser: any =
