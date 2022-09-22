@@ -592,7 +592,7 @@ export const Routes = [
     authenticate: false,
   },
   {
-    method: "get",
+    method: "post",
     route: "/generate/zoom/join/links/bulk",
     controller: ZoomController,
     action: "generateStudentsJoinLink",
