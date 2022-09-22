@@ -97,7 +97,7 @@ export class UserJoinLinkService {
             );
 
           if (createdRegisterantUser.registrant_id) {
-            const join_link = {
+            const join_link: any = {
               id: student.user_id,
               join_url: createdRegisterantUser.join_url,
               registrant_id: createdRegisterantUser.registrant_id,
@@ -105,8 +105,12 @@ export class UserJoinLinkService {
               meeting_id: student.meeting_id,
               batch_id: student.batch_id,
               last_daily_exhausted_error: null,
+              updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
             };
 
+            if (!previousRecord) {
+              join_link.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
+            }
             const createdJoinLink = await this.userJoinLinksRepositroy.save(
               join_link
             );
