@@ -7,21 +7,17 @@ import { BatchStudent } from "../entity/BatchStudent";
 import { UserJoinLinks } from "../entity/UserJoinLinks";
 import zoomClient from "../utils/zoom/zoomClient";
 import { ZoomMeetingService } from "./ZoomMeetingService";
+import { generateRandomCode } from "../utils/batch/getUniqueTeacherCode";
 const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 
 export class UserJoinLinkService {
-  private usersRepository = getRepository(User);
-  private zoomUserRepository = getRepository(ZoomUser);
-  private zoomMeetingRepository = getRepository(ZoomMeeting);
-  private batchRepository = getRepository(Classes);
   private userJoinLinksRepositroy = getRepository(UserJoinLinks);
-  private zoomMeetingService = new ZoomMeetingService();
-  private emailFormat = "@student.queensenglish.co";
-  private debug: boolean = true;
+  private emailFormat = "@CODE.student.queensenglish.co";
   public request: any = {};
   private logger = new LoggerService();
+  private today: string = moment().format("YYYY-MM-DD");
 
   UserJoinLinkService() {}
 
@@ -58,12 +54,29 @@ export class UserJoinLinkService {
       );
 
       for (let student of students) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         try {
           logger.info(
             `UserJoinLinkService::generateStudentsJoinLink start generating join link for student ${student.user_id}`
           );
 
-          const email = student.user_id + this.emailFormat;
+          let email: string = "";
+
+          const previousRecord: any =
+            await this.userJoinLinksRepositroy.findOne(student.user_id);
+
+          if (
+            previousRecord &&
+            previousRecord?.email &&
+            this.today !== previousRecord?.last_daily_exhausted_error
+          ) {
+            email = previousRecord.email;
+          } else {
+            email =
+              student.user_id +
+              this.emailFormat.replace("CODE", generateRandomCode());
+          }
 
           const registrantUser = {
             first_name: student.user_firstName,
@@ -85,6 +98,7 @@ export class UserJoinLinkService {
               email,
               meeting_id: student.meeting_id,
               batch_id: student.batch_id,
+              last_daily_exhausted_error: null,
             };
 
             const createdJoinLink = await this.userJoinLinksRepositroy.save(
@@ -93,6 +107,20 @@ export class UserJoinLinkService {
 
             if (createdJoinLink.id) {
               result.success += 1;
+              await (
+                await this.logger.customZoom(
+                  student.user_id,
+                  "Success generated student join link: " + createdJoinLink.id,
+                  "SUCCESS_GENERATED_STUDENT_JOIN_LINK",
+                  {
+                    createdRegisterantUser,
+                    createdJoinLink,
+                    student,
+                    previousRecord,
+                  },
+                  this.request.user || {}
+                )
+              ).save();
             }
 
             logger.info(
@@ -102,6 +130,16 @@ export class UserJoinLinkService {
             continue;
           }
 
+          if (
+            createdRegisterantUser?.message?.split(
+              "the daily rate limit of (3) for"
+            )[1]
+          ) {
+            const last_daily_exhausted_error = this.today;
+            await this.userJoinLinksRepositroy.update(student.user_id, {
+              last_daily_exhausted_error,
+            });
+          }
           throw new Error(
             `student: ${student.user_id} error: ${createdRegisterantUser?.message}`
           );
