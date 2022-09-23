@@ -79,6 +79,10 @@ export class UserService {
 
       for (let user of users) {
         try {
+          if (user.type !== "student") {
+            continue;
+          }
+
           const code = await this.getUniqueCode();
           user.userCode = code;
           const cosmosUpdate = {
@@ -87,17 +91,24 @@ export class UserService {
             body: {
               userCode: code,
               id: user.id,
+              type: user.type,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              phoneNumber: user.phoneNumber,
+              isAdministrator: false,
             },
           };
 
           await axios
             .put(cosmosUpdate.url, cosmosUpdate.body)
             .then(async (res) => {
-              this.usersRepository.update(user.id, user);
+              await this.usersRepository.update(user.id, user);
               result.success += 1;
               return user;
             })
             .catch(async (error) => {
+              console.log(error);
               throw new Error(
                 "Failed to update user on cosmos " + error.response.data
               );
