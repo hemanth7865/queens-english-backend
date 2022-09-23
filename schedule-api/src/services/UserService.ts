@@ -1,17 +1,21 @@
-import { getRepository, Not } from "typeorm";
+import { getRepository, Not, IsNull } from "typeorm";
 import { User } from "../entity/User";
+import { generateRandomCode } from "./../utils/batch/getUniqueTeacherCode";
 const { usersLogger } = require("../Logger.js");
 
 export class UserService {
-
   private usersRepository = getRepository(User);
 
-  UserService() { }
+  UserService() {}
 
-  async isUserExists(column = "phoneNumber", value: string, id: string | undefined): Promise<any> {
+  async isUserExists(
+    column = "phoneNumber",
+    value: string,
+    id: string | undefined
+  ): Promise<any> {
     let where: any = { [column]: value };
     if (id) {
-      where['id'] = Not(id);
+      where["id"] = Not(id);
     }
     try {
       const user = await this.usersRepository.findOne({ where });
@@ -22,13 +26,17 @@ export class UserService {
     }
   }
 
-  async isUserNotSiblingExists(column = "phoneNumber", value: string, id: string | undefined): Promise<any> {
+  async isUserNotSiblingExists(
+    column = "phoneNumber",
+    value: string,
+    id: string | undefined
+  ): Promise<any> {
     try {
       const user = await this.usersRepository.findOne({
         where: {
           [column]: value,
-          isSibling: 1
-        }
+          isSibling: 1,
+        },
       });
       if (user) {
         return false;
@@ -40,5 +48,51 @@ export class UserService {
 
     return await this.isUserExists(column, value, id);
   }
-}
 
+  async getUniqueCode() {
+    try {
+      let exists: boolean | User = true;
+      let code;
+      while (exists) {
+        code = generateRandomCode();
+        exists = await this.usersRepository.findOne({ userCode: code });
+      }
+
+      return code;
+    } catch (e) {
+      console.log(e);
+      return generateRandomCode();
+    }
+  }
+
+  async generateUsersCode(): Promise<any> {
+    const result = {
+      success: 0,
+      error: 0,
+      log: []
+    };
+    try {
+      const users = await this.usersRepository.find({
+        where: { userCode: IsNull() },
+      });
+
+      for (let user of users) {
+        try {
+          const code = await this.getUniqueCode();
+          user.userCode = code;
+          this.usersRepository.update(user.id, user);
+          result.success += 1;
+        } catch (e) {
+          result.error += 1;
+          usersLogger.error(e.message);
+          result.log.push(e.mesage);
+        }
+      }
+    } catch (e) {
+      usersLogger.error(e.message);
+      result.log.push(e.mesage);
+    }
+
+    return result;
+  }
+}

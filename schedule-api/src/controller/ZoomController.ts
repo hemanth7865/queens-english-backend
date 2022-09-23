@@ -365,6 +365,35 @@ export class ZoomController {
   }
 
   /**
+   * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async redirectUniqueStudent(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.userJoinLinkService.request = request;
+    const result = await this.userJoinLinkService.redirectUniqueStudent(
+      request.params.userCode
+    );
+
+    if (result.error) {
+      response.status(404).send("Not found");
+      return;
+    }
+
+    if (result.link) {
+      return response.redirect(result.link);
+    }
+
+    return result;
+  }
+
+  /**
    * Redirect To Zoom Meeting Based On Selected Batch Code For Teacher.
    * @param request
    * @param response

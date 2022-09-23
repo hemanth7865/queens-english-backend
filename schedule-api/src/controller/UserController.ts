@@ -23,6 +23,7 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
+    private userService = new UserService();
     private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
@@ -339,4 +340,15 @@ export class UserController {
         }
         return resp;
     }
+
+    async generateUsersCode(request: Request, response: Response, next: NextFunction) {
+        let resp = {};
+        try {
+            resp = await this.userService.generateUsersCode();
+        } catch (error) {
+            console.log(error);
+        }
+        return resp;
+    }
+    
 }

@@ -171,41 +171,46 @@ export const timeUTCToISTTimezone = (time?: string): string | undefined => {
 
 
 export const getZoomURL = (
-    type: ZoomTypes.LinkType,
-    zoomMeeting?: ZoomTypes.ZoomMeeting,
-    zoomUser?: ZoomTypes.ZoomUser,
-    batch?: any,
-    dynamicBasedOnZoomFalg?: boolean,
+  type: ZoomTypes.LinkType,
+  zoomMeeting?: ZoomTypes.ZoomMeeting,
+  zoomUser?: ZoomTypes.ZoomUser,
+  batch?: any,
+  dynamicBasedOnZoomFalg?: boolean,
+  user?: any
 ) => {
-    if (
-      dynamicBasedOnZoomFalg &&
-      (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
-    ) {
-        return batch.zoomLink;
-    }
+  if (
+    dynamicBasedOnZoomFalg &&
+    (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
+  ) {
+    return batch.zoomLink;
+  }
 
-    // @ts-expect-error
-    const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
+  // @ts-expect-error
+  const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
 
-    if (type === "GENERIC_TEACHER") {
-      return `${GENERIC_ZOOM}c/t/${batch?.teacherCode}`;
-    }
+  if (type === "GENERIC_TEACHER") {
+    return `${GENERIC_ZOOM}c/t/${batch?.teacherCode}`;
+  }
 
-    if (type === "GENERIC_STUDENT") {
-      return `${GENERIC_ZOOM}c/s/${batch?.classCode}`;
-    }
+  if (type === "GENERIC_STUDENT") {
+    return `${GENERIC_ZOOM}c/s/${batch?.classCode}`;
+  }
 
-    if (!zoomMeeting || !zoomUser) {
-        return "NA";
-    }
+  if (type === "GENERIC_UNIQUE_STUDENT") {
+    return `${GENERIC_ZOOM}c/us/${user?.userCode}`;
+  }
 
-    if (type === "PUBLIC_TEACHER") {
-        return zoomMeeting.start_url.split("?")[0] + "?zak=" + zoomUser.zak_token;
-    }
-
-    if (type === "PUBLIC_STUDENT") {
-        return zoomMeeting.join_url;
-    }
-
+  if (!zoomMeeting || !zoomUser) {
     return "NA";
+  }
+
+  if (type === "PUBLIC_TEACHER") {
+    return zoomMeeting.start_url.split("?")[0] + "?zak=" + zoomUser.zak_token;
+  }
+
+  if (type === "PUBLIC_STUDENT") {
+    return zoomMeeting.join_url;
+  }
+
+  return "NA";
 };

@@ -6,14 +6,18 @@ import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
 import { UserJoinLinks } from "../entity/UserJoinLinks";
 import zoomClient from "../utils/zoom/zoomClient";
-import { ZoomMeetingService } from "./ZoomMeetingService";
 import { generateRandomCode } from "../utils/batch/getUniqueTeacherCode";
+import { COSMOS_API } from "../helpers/Constants";
 const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
+import axios from "../helpers/axios";
 
 export class UserJoinLinkService {
   private userJoinLinksRepositroy = getRepository(UserJoinLinks);
+  private userRepository = getRepository(User);
+  private batchRepository = getRepository(Classes);
+  private batchStudentRepository = getRepository(BatchStudent);
   private emailFormat = "@CODE.student.queensenglish.co";
   public request: any = {};
   private logger = new LoggerService();
@@ -49,6 +53,8 @@ export class UserJoinLinkService {
     const result = {
       errors: 0,
       success: 0,
+      successSync: 0,
+      errorSync: 0,
       logs: [],
     };
     try {
@@ -131,6 +137,57 @@ export class UserJoinLinkService {
                   this.request.user || {}
                 )
               ).save();
+
+              const code = student.user_userCode;
+
+              try {
+                const type = "us";
+
+                const link = join_link.join_url;
+
+                await axios.post(COSMOS_API.STORE_SHORT_LINK, {
+                  id: type + "-" + code,
+                  link,
+                });
+
+                await (
+                  await this.logger.customZoom(
+                    student.user_id,
+                    `Success Sync zoom join meeting for batch ${student.batch_batchNumber} student: ${registrantUser.first_name} ${registrantUser.last_name}, 
+                    code: ${code}`,
+                    "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
+                    { createdRegisterantUser, join_link, student },
+                    this.request.user || {}
+                  )
+                ).save();
+
+                result.successSync += 1;
+              } catch (e) {
+                console.log(e);
+                logger.error(
+                  "Failed to Sync zoom join meeting for student: " +
+                    student.user_firstName +
+                    " " +
+                    student.user_lastName +
+                    " type: US error: " +
+                    e.message
+                );
+                await (
+                  await this.logger.customZoom(
+                    student.user_id,
+                    "Failed to Sync zoom join meeting for student: " +
+                      student.user_firstName +
+                      " " +
+                      student.user_lastName +
+                      " type: US error: " +
+                      e.message,
+                    "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_" + "US",
+                    { error: e, message: e.message, student },
+                    this.request.user || {}
+                  )
+                ).save();
+                result.errorSync++;
+              }
             }
 
             logger.info(
@@ -191,6 +248,86 @@ export class UserJoinLinkService {
         this.request.user || {}
       )
     ).save();
+
+    return result;
+  }
+
+  async redirectUniqueStudent(userCode: string): Promise<any> {
+    let result: { link?: string; error?: boolean } = {};
+
+    try {
+      const user = await this.userRepository.findOne({ userCode });
+
+      let meeting: any;
+
+      if (!user) {
+        throw new Error(`User ${userCode} Not Found.`);
+      }
+
+      const studentRecord = await this.batchStudentRepository.findOne({
+        studentId: user.id,
+      });
+
+      if (!studentRecord) {
+        throw new Error(`Student Record ${user.id} Not Found.`);
+      }
+
+      const batch = await this.batchRepository.findOne({
+        id: studentRecord.batchId,
+      });
+
+      const batchCode = batch?.classCode;
+
+      if (!batch) {
+        throw new Error(`Batch ${studentRecord.batchId} Not Found.`);
+      }
+
+      if (batch.useNewZoomLink) {
+        meeting = await this.userJoinLinksRepositroy.findOne({
+          id: user.id,
+        });
+
+        if (!meeting) {
+          throw new Error(`User ${userCode} Doesn't Have A Join Link.`);
+        }
+        result.link = meeting.join_url;
+      } else {
+        result.link = batch.zoomLink;
+      }
+
+      if (!result.link) {
+        throw new Error(
+          `Student ${userCode} and batch ${batchCode} Doesn't Have A Link.`
+        );
+      }
+
+      await (
+        await this.logger.customZoom(
+          batch.batchNumber,
+          `Success redirect to zoom meeting for unique student: ${user?.firstName} ${user?.lastName} Batch: ${batch.batchNumber}, Code: ${batchCode}`,
+          "SUCCESS_REDIRECT_TO_ZOOM_MEETING_UNQIUE_STUDENT",
+          { meeting, batch, user },
+          this.request.user || {
+            email: user?.email,
+          }
+        )
+      ).save();
+    } catch (e) {
+      console.log(e);
+      logger.error(
+        "Failed to redirect to zoom meeting for unique student: " + e.message
+      );
+      await (
+        await this.logger.customZoom(
+          userCode,
+          "Failed to redirect to zoom meeting for unqiue student: " + e.message,
+          "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_UNIQUE_STUDENT",
+          { error: e, message: e.message },
+          this.request.user || {}
+        )
+      ).save();
+      result.error = true;
+    }
 
     return result;
   }
