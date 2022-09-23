@@ -18,6 +18,9 @@ export class StudentBatchesHistory extends BaseEntity {
     @Column({ 'nullable': true })
     active: boolean;
 
+    @Column({ 'nullable': true, type: "datetime" })
+    batchesClassesStartDate: Date;
+
     @CreateDateColumn()
     @Column({ 'nullable': true, type: "datetime" })
     created_at: Date

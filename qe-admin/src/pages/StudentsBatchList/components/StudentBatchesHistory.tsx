@@ -23,6 +23,14 @@ const StudentBatchesHistory: React.FC<Props> = ({ data }) => {
         return dom.split("T")[0];
       }
     },
+    {
+      title: 'Class Start Date (Rebatch)',
+      dataIndex: 'batchesClassesStartDate',
+      key: 'batchesClassesStartDate',
+      render(dom: string) {
+        return dom ? dom.split("T")[0] : null;
+      }
+    },
   ];
 
   return (
