@@ -19,8 +19,8 @@ import { ZoomMeeting } from "./ZoomMeeting";
  */
 
 @Entity("users_zoom_links")
-export class UserJoinLinks extends BaseEntity {
-  UserJoinLinks() {}
+export class UserZoomLink extends BaseEntity {
+  UserZoomLink() {}
   @PrimaryColumn()
   id: string;
   @Column({ type: "text" })

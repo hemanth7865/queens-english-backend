@@ -1,10 +1,9 @@
 import { getRepository, getManager } from "typeorm";
 import { User } from "../entity/User";
-import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
-import { UserJoinLinks } from "../entity/UserJoinLinks";
+import { UserZoomLink } from "../entity/UserZoomLink";
 import zoomClient from "../utils/zoom/zoomClient";
 import { generateRandomCode } from "../utils/batch/getUniqueTeacherCode";
 import { COSMOS_API } from "../helpers/Constants";
@@ -13,8 +12,8 @@ import LoggerService from "./LoggerService";
 const moment = require("moment");
 import axios from "../helpers/axios";
 
-export class UserJoinLinkService {
-  private userJoinLinksRepositroy = getRepository(UserJoinLinks);
+export class UserZoomLinkService {
+  private userZoomLinkRepositroy = getRepository(UserZoomLink);
   private userRepository = getRepository(User);
   private batchRepository = getRepository(Classes);
   private batchStudentRepository = getRepository(BatchStudent);
@@ -23,7 +22,7 @@ export class UserJoinLinkService {
   private logger = new LoggerService();
   private today: string = moment().format("YYYY-MM-DD");
 
-  UserJoinLinkService() {}
+  UserZoomLinkService() {}
 
   async getStudentWithoutCorrectJoinLink(batchData: any = {}): Promise<any[]> {
     const customWhere = `${
@@ -41,7 +40,7 @@ export class UserJoinLinkService {
         "meeting.batch_id = batch_students.batchId"
       )
       .leftJoinAndSelect(
-        UserJoinLinks,
+        UserZoomLink,
         "join_link",
         "meeting.id = join_link.meeting_id AND join_link.id = batch_students.studentId AND join_link.batch_id = batch.id"
       )
@@ -61,7 +60,7 @@ export class UserJoinLinkService {
       const students = await this.getStudentWithoutCorrectJoinLink(batchData);
 
       logger.info(
-        `UserJoinLinkService::generateStudentsJoinLink start generating links for ${students.length}`
+        `UserZoomLinkService::generateStudentsJoinLink start generating links for ${students.length}`
       );
 
       for (let student of students) {
@@ -69,13 +68,13 @@ export class UserJoinLinkService {
 
         try {
           logger.info(
-            `UserJoinLinkService::generateStudentsJoinLink start generating join link for student ${student.user_id}`
+            `UserZoomLinkService::generateStudentsJoinLink start generating join link for student ${student.user_id}`
           );
 
           let email: string = "";
 
           const previousRecord: any =
-            await this.userJoinLinksRepositroy.findOne(student.user_id);
+            await this.userZoomLinkRepositroy.findOne(student.user_id);
 
           if (
             previousRecord &&
@@ -117,7 +116,7 @@ export class UserJoinLinkService {
             if (!previousRecord) {
               join_link.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
             }
-            const createdJoinLink = await this.userJoinLinksRepositroy.save(
+            const createdJoinLink = await this.userZoomLinkRepositroy.save(
               join_link
             );
 
@@ -191,19 +190,17 @@ export class UserJoinLinkService {
             }
 
             logger.info(
-              `UserJoinLinkService::generateStudentsJoinLink completed generating join link for student ${createdJoinLink.id}`
+              `UserZoomLinkService::generateStudentsJoinLink completed generating join link for student ${createdJoinLink.id}`
             );
 
             continue;
           }
 
-          if (
-            parseInt(createdRegisterantUser?.code) === 429
-          ) {
+          if (parseInt(createdRegisterantUser?.code) === 429) {
             // retry if got rate limit error
             students.push(student);
             const last_daily_exhausted_error = this.today;
-            await this.userJoinLinksRepositroy.update(student.user_id, {
+            await this.userZoomLinkRepositroy.update(student.user_id, {
               last_daily_exhausted_error,
             });
           }
@@ -283,7 +280,7 @@ export class UserJoinLinkService {
       }
 
       if (batch.useNewZoomLink) {
-        meeting = await this.userJoinLinksRepositroy.findOne({
+        meeting = await this.userZoomLinkRepositroy.findOne({
           id: user.id,
         });
 
