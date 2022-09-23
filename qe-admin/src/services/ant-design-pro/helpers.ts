@@ -197,7 +197,7 @@ export const getZoomURL = (
   }
 
   if (type === "GENERIC_UNIQUE_STUDENT") {
-    return `${GENERIC_ZOOM}c/us/${user?.userCode}/${batch?.classCode}`;
+    return `${GENERIC_ZOOM}c/us/${user?.userCode}_${batch?.classCode}`;
   }
 
   if (!zoomMeeting || !zoomUser) {

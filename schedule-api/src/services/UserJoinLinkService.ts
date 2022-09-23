@@ -137,13 +137,16 @@ export class UserJoinLinkService {
                 )
               ).save();
 
+              const code =
+                student.user_userCode + "_" + student.batch_classCode;
+
               try {
                 const type = "us";
 
                 const link = join_link.join_url;
 
                 await axios.post(COSMOS_API.STORE_SHORT_LINK, {
-                  id: type + "-" + student.user_userCode,
+                  id: type + "-" + code,
                   link,
                 });
 
@@ -151,7 +154,7 @@ export class UserJoinLinkService {
                   await this.logger.customZoom(
                     student.user_id,
                     `Success Sync zoom join meeting for batch ${student.batch_batchNumber} student: ${registrantUser.first_name} ${registrantUser.last_name}, 
-                    code: ${student.user_userCode}`,
+                    code: ${code}`,
                     "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
                     { createdRegisterantUser, join_link, student },
                     this.request.user || {}
