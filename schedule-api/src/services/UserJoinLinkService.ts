@@ -198,10 +198,10 @@ export class UserJoinLinkService {
           }
 
           if (
-            createdRegisterantUser?.message?.split(
-              "the daily rate limit of (3) for"
-            )[1]
+            parseInt(createdRegisterantUser?.code) === 429
           ) {
+            // retry if got rate limit error
+            students.push(student);
             const last_daily_exhausted_error = this.today;
             await this.userJoinLinksRepositroy.update(student.user_id, {
               last_daily_exhausted_error,

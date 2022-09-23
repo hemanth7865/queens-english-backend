@@ -6,12 +6,12 @@ export class addLastErrorDateColumnToUserJoinLinksTable1663863938041
   public async up(queryRunner: QueryRunner): Promise<void> {
     if (
       !(await queryRunner.hasColumn(
-        "users_join_links",
+        "users_zoom_links",
         "last_daily_exhausted_error"
       ))
     ) {
       await queryRunner.query(
-        `ALTER TABLE users_join_links ADD last_daily_exhausted_error DATE NULL`
+        `ALTER TABLE users_zoom_links ADD last_daily_exhausted_error DATE NULL`
       );
     }
   }
@@ -19,12 +19,12 @@ export class addLastErrorDateColumnToUserJoinLinksTable1663863938041
   public async down(queryRunner: QueryRunner): Promise<void> {
     if (
       await queryRunner.hasColumn(
-        "users_join_links",
+        "users_zoom_links",
         "last_daily_exhausted_error"
       )
     ) {
       await queryRunner.query(
-        `ALTER TABLE users_join_links DROP COLUMN last_daily_exhausted_error`
+        `ALTER TABLE users_zoom_links DROP COLUMN last_daily_exhausted_error`
       );
     }
   }
