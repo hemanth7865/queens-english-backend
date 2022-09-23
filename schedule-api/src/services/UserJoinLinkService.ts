@@ -17,6 +17,7 @@ export class UserJoinLinkService {
   private userJoinLinksRepositroy = getRepository(UserJoinLinks);
   private userRepository = getRepository(User);
   private batchRepository = getRepository(Classes);
+  private batchStudentRepository = getRepository(BatchStudent);
   private emailFormat = "@CODE.student.queensenglish.co";
   public request: any = {};
   private logger = new LoggerService();
@@ -137,8 +138,7 @@ export class UserJoinLinkService {
                 )
               ).save();
 
-              const code =
-                student.user_userCode + "_" + student.batch_classCode;
+              const code = student.user_userCode;
 
               try {
                 const type = "us";
@@ -150,7 +150,7 @@ export class UserJoinLinkService {
                   link,
                 });
 
-                await(
+                await (
                   await this.logger.customZoom(
                     student.user_id,
                     `Success Sync zoom join meeting for batch ${student.batch_batchNumber} student: ${registrantUser.first_name} ${registrantUser.last_name}, 
@@ -252,10 +252,7 @@ export class UserJoinLinkService {
     return result;
   }
 
-  async redirectUniqueStudent(
-    userCode: string,
-    batchCode: string
-  ): Promise<any> {
+  async redirectUniqueStudent(userCode: string): Promise<any> {
     let result: { link?: string; error?: boolean } = {};
 
     try {
@@ -267,12 +264,22 @@ export class UserJoinLinkService {
         throw new Error(`User ${userCode} Not Found.`);
       }
 
-      const batch = await this.batchRepository.findOne({
-        classCode: batchCode,
+      const studentRecord = await this.batchStudentRepository.findOne({
+        studentId: user.id,
       });
 
+      if (!studentRecord) {
+        throw new Error(`Student Record ${user.id} Not Found.`);
+      }
+
+      const batch = await this.batchRepository.findOne({
+        id: studentRecord.batchId,
+      });
+
+      const batchCode = batch?.classCode;
+
       if (!batch) {
-        throw new Error(`Batch ${batchCode} Not Found.`);
+        throw new Error(`Batch ${studentRecord.batchId} Not Found.`);
       }
 
       if (batch.useNewZoomLink) {
