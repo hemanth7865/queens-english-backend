@@ -377,9 +377,10 @@ export class ZoomController {
     next: NextFunction
   ) {
     this.userJoinLinkService.request = request;
+    const params = request.params.userCode.split("_");
     const result = await this.userJoinLinkService.redirectUniqueStudent(
-      request.params.userCode,
-      request.params.batchCode
+      params[0],
+      params[1]
     );
 
     if (result.error) {
