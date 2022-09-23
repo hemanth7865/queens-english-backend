@@ -14,7 +14,7 @@ import {
 import { Classes } from "./Classes";
 import { User } from "./User";
 import { ZoomUser } from "./ZoomUser";
-import { UserJoinLinks } from "./UserJoinLinks";
+import { UserZoomLink } from "./UserZoomLink";
 
 /**
  * Student transaction information
@@ -56,5 +56,5 @@ export class ZoomMeeting extends BaseEntity {
 
   @OneToMany((type) => Classes, (batch) => batch.meeting)
   @JoinColumn({ name: "id", referencedColumnName: "meeting_id" })
-  join_link: UserJoinLinks[];
+  join_link: UserZoomLink[];
 }

@@ -3,7 +3,7 @@ import { User } from "../entity/User";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
-import { UserJoinLinks } from "../entity/UserJoinLinks";
+import { UserZoomLink } from "../entity/UserZoomLink";
 import zoomClient from "../utils/zoom/zoomClient";
 import { generateRandomCode } from "../utils/batch/getUniqueTeacherCode";
 import { COSMOS_API } from "../helpers/Constants";
@@ -13,7 +13,7 @@ const moment = require("moment");
 import axios from "../helpers/axios";
 
 export class UserZoomLinkService {
-  private userJoinLinksRepositroy = getRepository(UserJoinLinks);
+  private userZoomLinkRepositroy = getRepository(UserZoomLink);
   private userRepository = getRepository(User);
   private batchRepository = getRepository(Classes);
   private batchStudentRepository = getRepository(BatchStudent);
@@ -40,7 +40,7 @@ export class UserZoomLinkService {
         "meeting.batch_id = batch_students.batchId"
       )
       .leftJoinAndSelect(
-        UserJoinLinks,
+        UserZoomLink,
         "join_link",
         "meeting.id = join_link.meeting_id AND join_link.id = batch_students.studentId AND join_link.batch_id = batch.id"
       )
@@ -74,7 +74,7 @@ export class UserZoomLinkService {
           let email: string = "";
 
           const previousRecord: any =
-            await this.userJoinLinksRepositroy.findOne(student.user_id);
+            await this.userZoomLinkRepositroy.findOne(student.user_id);
 
           if (
             previousRecord &&
@@ -116,7 +116,7 @@ export class UserZoomLinkService {
             if (!previousRecord) {
               join_link.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
             }
-            const createdJoinLink = await this.userJoinLinksRepositroy.save(
+            const createdJoinLink = await this.userZoomLinkRepositroy.save(
               join_link
             );
 
@@ -200,7 +200,7 @@ export class UserZoomLinkService {
             // retry if got rate limit error
             students.push(student);
             const last_daily_exhausted_error = this.today;
-            await this.userJoinLinksRepositroy.update(student.user_id, {
+            await this.userZoomLinkRepositroy.update(student.user_id, {
               last_daily_exhausted_error,
             });
           }
@@ -280,7 +280,7 @@ export class UserZoomLinkService {
       }
 
       if (batch.useNewZoomLink) {
-        meeting = await this.userJoinLinksRepositroy.findOne({
+        meeting = await this.userZoomLinkRepositroy.findOne({
           id: user.id,
         });
 

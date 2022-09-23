@@ -20,7 +20,7 @@ import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
-import { UserJoinLinks } from "../entity/UserJoinLinks";
+import { UserZoomLink } from "../entity/UserZoomLink";
 import {
   updateBatchesTeacherCode,
   getUniqueCode,
@@ -899,7 +899,7 @@ export class BatchService {
       .createQueryBuilder("batchStudent")
       .leftJoin("batchStudent.student", "student")
       .leftJoin(
-        UserJoinLinks,
+        UserZoomLink,
         "join_link",
         "join_link.batch_id = batchStudent.batchId AND join_link.id = batchStudent.studentId"
       )
