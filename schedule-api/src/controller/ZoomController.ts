@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { ZoomUserService } from "../services/ZoomUsersService";
 import { ZoomMeetingService } from "../services/ZoomMeetingService";
-import { UserJoinLinkService } from "../services/UserJoinLinkService";
+import { UserZoomLinkService } from "../services/UserZoomLinkService";
 
 export class ZoomController {
   private zoomUserService = new ZoomUserService();
   private zoomMeetingService = new ZoomMeetingService();
-  private userJoinLinkService = new UserJoinLinkService();
+  private userZoomLinkService = new UserZoomLinkService();
 
   /**
    * Get Teachers List That Don't Have License (Zoom User Yet)
@@ -376,8 +376,8 @@ export class ZoomController {
     response: Response,
     next: NextFunction
   ) {
-    this.userJoinLinkService.request = request;
-    const result = await this.userJoinLinkService.redirectUniqueStudent(
+    this.userZoomLinkService.request = request;
+    const result = await this.userZoomLinkService.redirectUniqueStudent(
       request.params.userCode
     );
 
@@ -434,7 +434,7 @@ export class ZoomController {
     response: Response,
     next: NextFunction
   ) {
-    this.userJoinLinkService.request = request;
-    return await this.userJoinLinkService.generateStudentsJoinLink();
+    this.userZoomLinkService.request = request;
+    return await this.userZoomLinkService.generateStudentsJoinLink();
   }
 }

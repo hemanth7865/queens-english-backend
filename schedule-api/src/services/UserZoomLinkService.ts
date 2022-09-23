@@ -1,6 +1,5 @@
 import { getRepository, getManager } from "typeorm";
 import { User } from "../entity/User";
-import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
@@ -13,7 +12,7 @@ import LoggerService from "./LoggerService";
 const moment = require("moment");
 import axios from "../helpers/axios";
 
-export class UserJoinLinkService {
+export class UserZoomLinkService {
   private userJoinLinksRepositroy = getRepository(UserJoinLinks);
   private userRepository = getRepository(User);
   private batchRepository = getRepository(Classes);
@@ -23,7 +22,7 @@ export class UserJoinLinkService {
   private logger = new LoggerService();
   private today: string = moment().format("YYYY-MM-DD");
 
-  UserJoinLinkService() {}
+  UserZoomLinkService() {}
 
   async getStudentWithoutCorrectJoinLink(batchData: any = {}): Promise<any[]> {
     const customWhere = `${
@@ -61,7 +60,7 @@ export class UserJoinLinkService {
       const students = await this.getStudentWithoutCorrectJoinLink(batchData);
 
       logger.info(
-        `UserJoinLinkService::generateStudentsJoinLink start generating links for ${students.length}`
+        `UserZoomLinkService::generateStudentsJoinLink start generating links for ${students.length}`
       );
 
       for (let student of students) {
@@ -69,7 +68,7 @@ export class UserJoinLinkService {
 
         try {
           logger.info(
-            `UserJoinLinkService::generateStudentsJoinLink start generating join link for student ${student.user_id}`
+            `UserZoomLinkService::generateStudentsJoinLink start generating join link for student ${student.user_id}`
           );
 
           let email: string = "";
@@ -191,15 +190,13 @@ export class UserJoinLinkService {
             }
 
             logger.info(
-              `UserJoinLinkService::generateStudentsJoinLink completed generating join link for student ${createdJoinLink.id}`
+              `UserZoomLinkService::generateStudentsJoinLink completed generating join link for student ${createdJoinLink.id}`
             );
 
             continue;
           }
 
-          if (
-            parseInt(createdRegisterantUser?.code) === 429
-          ) {
+          if (parseInt(createdRegisterantUser?.code) === 429) {
             // retry if got rate limit error
             students.push(student);
             const last_daily_exhausted_error = this.today;

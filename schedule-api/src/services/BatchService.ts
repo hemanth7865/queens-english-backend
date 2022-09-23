@@ -9,7 +9,7 @@ import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
 import { StudentService } from "./StudentService";
 import { ZoomMeetingService } from "./ZoomMeetingService";
-import { UserJoinLinkService } from "./UserJoinLinkService";
+import { UserZoomLinkService } from "./UserZoomLinkService";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
@@ -227,9 +227,9 @@ export class BatchService {
        */
       if (ENABLE_ZOOM) {
         const meetingService = new ZoomMeetingService();
-        const userJoinLink = new UserJoinLinkService();
+        const userZoomLink = new UserZoomLinkService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
-        await userJoinLink.generateStudentsJoinLink(data);
+        await userZoomLink.generateStudentsJoinLink(data);
         await meetingService.syncZoomLinksWithCosmos();
 
       }
