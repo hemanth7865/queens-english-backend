@@ -6,11 +6,12 @@ import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
 import { UserJoinLinks } from "../entity/UserJoinLinks";
 import zoomClient from "../utils/zoom/zoomClient";
-import { ZoomMeetingService } from "./ZoomMeetingService";
 import { generateRandomCode } from "../utils/batch/getUniqueTeacherCode";
+import { COSMOS_API } from "../helpers/Constants";
 const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
+import axios from "../helpers/axios";
 
 export class UserJoinLinkService {
   private userJoinLinksRepositroy = getRepository(UserJoinLinks);
@@ -51,6 +52,8 @@ export class UserJoinLinkService {
     const result = {
       errors: 0,
       success: 0,
+      successSync: 0,
+      errorSync: 0,
       logs: [],
     };
     try {
@@ -133,6 +136,55 @@ export class UserJoinLinkService {
                   this.request.user || {}
                 )
               ).save();
+
+              try {
+                const type = "us";
+
+                const link = join_link.join_url;
+
+                await axios.post(COSMOS_API.STORE_SHORT_LINK, {
+                  id: type + "-" + student.user_userCode,
+                  link,
+                });
+
+                await(
+                  await this.logger.customZoom(
+                    student.user_id,
+                    `Success Sync zoom join meeting for batch ${student.batch_batchNumber} student: ${registrantUser.first_name} ${registrantUser.last_name}, 
+                    code: ${student.user_userCode}`,
+                    "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
+                    { createdRegisterantUser, join_link, student },
+                    this.request.user || {}
+                  )
+                ).save();
+
+                result.successSync += 1;
+              } catch (e) {
+                console.log(e);
+                logger.error(
+                  "Failed to Sync zoom join meeting for student: " +
+                    student.user_firstName +
+                    " " +
+                    student.user_lastName +
+                    " type: US error: " +
+                    e.message
+                );
+                await (
+                  await this.logger.customZoom(
+                    student.user_id,
+                    "Failed to Sync zoom join meeting for student: " +
+                      student.user_firstName +
+                      " " +
+                      student.user_lastName +
+                      " type: US error: " +
+                      e.message,
+                    "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_" + "US",
+                    { error: e, message: e.message, student },
+                    this.request.user || {}
+                  )
+                ).save();
+                result.errorSync++;
+              }
             }
 
             logger.info(
