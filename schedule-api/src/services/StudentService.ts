@@ -153,7 +153,14 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
+    u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
+    u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age,
+    CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
+    CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
+    s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
+    s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
+    ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
 
@@ -310,6 +317,7 @@ export class StudentService {
       l.teacherCode = batchCodes[0]?.teacherCode;
       l.useNewZoomLink = batchCodes[0]?.useNewZoomLink;
       l.batchesHistory = batchesHistory;
+      l.userCode = element.userCode;
       leadView.push(l);
     }
 

@@ -275,13 +275,13 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string, useNewZoomLink: number) => {
+  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string, useNewZoomLink: number, userCode: string) => {
     const waMessage = (
       <div>
         <p>Hello <br />
           I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
           classes:<br />
-          Zoom Link: {getZoomURL("GENERIC_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink }, true)} <br />
+          Zoom Link: {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink }, true, {userCode})} <br />
           Whatsapp Group Link: {whatsappLink} <br />
           Topic: {batchCode}<br />
           Time: {timings} India<br />
@@ -646,7 +646,7 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink, value.classCode, value.useNewZoomLink)
+              openNotification('info', value.phoneNumber, value.courseFrequency, value.timings, value.zoomLink, value.prm_firstName, value.prm_lastName, value.classesStartDate, value.zoomInfo, value.batchCode, value.whatsappLink, value.classCode, value.useNewZoomLink, value.userCode)
             }}
           >
             <EyeOutlined />
