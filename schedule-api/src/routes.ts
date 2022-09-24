@@ -611,4 +611,11 @@ export const Routes = [
     action: "generateUsersCode",
     authenticate: false,
   },
+  {
+    method: "get",
+    route: "/zoom/sync/attendance",
+    controller: ZoomController,
+    action: "syncAttendance",
+    authenticate: false,
+  },
 ];

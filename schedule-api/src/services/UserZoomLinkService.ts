@@ -63,7 +63,10 @@ export class UserZoomLinkService {
         `UserZoomLinkService::generateStudentsJoinLink start generating links for ${students.length}`
       );
 
+      let counter = 0;
+
       for (let student of students) {
+        counter += 1;
         await new Promise((resolve) => setTimeout(resolve, 100));
 
         try {
@@ -73,8 +76,9 @@ export class UserZoomLinkService {
 
           let email: string = "";
 
-          const previousRecord: any =
-            await this.userZoomLinkRepositroy.findOne(student.user_id);
+          const previousRecord: any = await this.userZoomLinkRepositroy.findOne(
+            student.user_id
+          );
 
           if (
             previousRecord &&
@@ -116,6 +120,33 @@ export class UserZoomLinkService {
             if (!previousRecord) {
               join_link.created_at = moment().format("YYYY-MM-DD HH:mm:ss");
             }
+
+            const lengthText = `${counter} Out Of ${students.length}`;
+
+            const code = student.user_userCode;
+
+            const type = "us";
+
+            const link = join_link.join_url;
+
+            await axios.post(COSMOS_API.STORE_SHORT_LINK, {
+              id: type + "-" + code,
+              link,
+            });
+
+            await (
+              await this.logger.customZoom(
+                student.user_id,
+                `Success Sync zoom join meeting for batch ${student.batch_batchNumber} student: ${registrantUser.first_name} ${registrantUser.last_name}, 
+                    code: ${code}, ${lengthText}`,
+                "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
+                { join_link, student },
+                this.request.user || {}
+              )
+            ).save();
+
+            result.successSync += 1;
+
             const createdJoinLink = await this.userZoomLinkRepositroy.save(
               join_link
             );
@@ -125,7 +156,10 @@ export class UserZoomLinkService {
               await (
                 await this.logger.customZoom(
                   student.user_id,
-                  "Success generated student join link: " + createdJoinLink.id,
+                  "Success generated student join link: " +
+                    createdJoinLink.id +
+                    ", " +
+                    lengthText,
                   "SUCCESS_GENERATED_STUDENT_JOIN_LINK",
                   {
                     createdRegisterantUser,
@@ -136,57 +170,6 @@ export class UserZoomLinkService {
                   this.request.user || {}
                 )
               ).save();
-
-              const code = student.user_userCode;
-
-              try {
-                const type = "us";
-
-                const link = join_link.join_url;
-
-                await axios.post(COSMOS_API.STORE_SHORT_LINK, {
-                  id: type + "-" + code,
-                  link,
-                });
-
-                await (
-                  await this.logger.customZoom(
-                    student.user_id,
-                    `Success Sync zoom join meeting for batch ${student.batch_batchNumber} student: ${registrantUser.first_name} ${registrantUser.last_name}, 
-                    code: ${code}`,
-                    "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
-                    { createdRegisterantUser, join_link, student },
-                    this.request.user || {}
-                  )
-                ).save();
-
-                result.successSync += 1;
-              } catch (e) {
-                console.log(e);
-                logger.error(
-                  "Failed to Sync zoom join meeting for student: " +
-                    student.user_firstName +
-                    " " +
-                    student.user_lastName +
-                    " type: US error: " +
-                    e.message
-                );
-                await (
-                  await this.logger.customZoom(
-                    student.user_id,
-                    "Failed to Sync zoom join meeting for student: " +
-                      student.user_firstName +
-                      " " +
-                      student.user_lastName +
-                      " type: US error: " +
-                      e.message,
-                    "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_" + "US",
-                    { error: e, message: e.message, student },
-                    this.request.user || {}
-                  )
-                ).save();
-                result.errorSync++;
-              }
             }
 
             logger.info(

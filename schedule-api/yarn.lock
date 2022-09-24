@@ -2007,10 +2007,10 @@ zen-observable@0.8.15:
   resolved "https://registry.yarnpkg.com/zen-observable/-/zen-observable-0.8.15.tgz#96415c512d8e3ffd920afd3889604e30b9eaac15"
   integrity sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ==
 
-zoom-api-client@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/zoom-api-client/-/zoom-api-client-1.0.7.tgz#ebdf9e1d6e0ba6d41e92232908aaf2ccdf25d29b"
-  integrity sha512-P8xdWj4gLAK/LUgJbQJFjx3MyAohYW3MQBXGF5MJEXu4Evuf5QgADgcRHwg2v6yBDuCW8REHqKM1Y611X40+MA==
+zoom-api-client@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/zoom-api-client/-/zoom-api-client-1.0.8.tgz#aceaa74067e17e82f7ba75290d1cead1615f05e1"
+  integrity sha512-F/tHx0MWbxcX231vyLTJ+W9N6oVoSkqZoBl+GQpUYlRoRRmOPSd/0jrRxendMgfJlNFUndOS25HBla+8zrroFw==
   dependencies:
     axios "^0.27.2"
     jsonwebtoken "^8.5.1"
