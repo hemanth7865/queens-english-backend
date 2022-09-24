@@ -166,6 +166,8 @@ export class ZoomAttendanceService {
             this.request.user || {}
           )
         ).save();
+
+        result.success += 1;
       } catch (e) {
         logger.error(e.message);
         result.errors += 1;
