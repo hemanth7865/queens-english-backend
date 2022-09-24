@@ -1,11 +1,8 @@
 import { getRepository, getManager, In, Not } from "typeorm";
-import { User } from "../entity/User";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
-import { UserZoomLink } from "../entity/UserZoomLink";
 import zoomClient from "../utils/zoom/zoomClient";
-import { generateRandomCode } from "../utils/batch/getUniqueTeacherCode";
 import { COSMOS_API } from "../helpers/Constants";
 const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
@@ -13,8 +10,6 @@ const moment = require("moment");
 import axios from "../helpers/axios";
 
 export class ZoomAttendanceService {
-  private userZoomLinkRepositroy = getRepository(UserZoomLink);
-  private userRepository = getRepository(User);
   private batchRepository = getRepository(Classes);
   private batchStudentRepository = getRepository(BatchStudent);
   public request: any = {};
@@ -76,6 +71,7 @@ export class ZoomAttendanceService {
 
         const summary = {};
         const alreadyExistsStudents = [];
+        const batch = await this.batchRepository.findOne(meeting.batch_id);
         let attendDate = undefined;
 
         /**
@@ -101,9 +97,8 @@ export class ZoomAttendanceService {
                 "YYYY-MM-DD"
               ).format("DD-MM-YYYY");
               summary[userId] = {
-                name: record.name,
-                join_time: record.join_time,
-                leave_time: record.leave_time,
+                startTime: record.join_time,
+                endTime: record.leave_time,
                 duration: record.duration,
                 teacher: meeting.user_id === userId,
                 connectionProblem: false,
@@ -111,12 +106,14 @@ export class ZoomAttendanceService {
                 dateAttended: attendDate,
                 classProfileId: meeting.batch_id,
                 id: `${userId}-${meeting.batch_id}-${attendDate}`,
+                lessonId: batch.activeLessonId,
+                teacherId: batch.teacherId,
               };
               alreadyExistsStudents.push(userId);
             }
 
             if (!done) {
-              summary[userId].leave_time = record.leave_time;
+              summary[userId].endTime = record.leave_time;
               summary[userId].duration += record.duration;
               // mark people the disconnect then connect again as having network issue.
               summary[userId].connectionProblem = true;
@@ -148,19 +145,33 @@ export class ZoomAttendanceService {
             classProfileId: meeting.batch_id,
             id: `${student.studentId}-${meeting.batch_id}-${attendDate}`,
             studentAttended: this.attendanceTypes.NO,
+            lessonId: batch.activeLessonId,
+            teacherId: batch.teacherId,
           };
         }
 
-        result.logs.push(summary);
-        result.logs.push(students);
+        const attendanceResult = Object.values(summary);
 
-        console.log(summary, students);
+        await axios.put(
+          `${COSMOS_API.STORE_CLASS_ATTENDANCE}/${batch.id}`,
+          attendanceResult
+        );
+
+        await (
+          await this.logger.customZoom(
+            batch.id,
+            `Success Sync zoom attendance for batch ${batch.batchNumber} meeting: ${meeting.id}, ${lengthText}`,
+            "SUCCESS_TO_SYNC_MEETING_ATTENDANCE",
+            { meeting, batch, attendanceResult },
+            this.request.user || {}
+          )
+        ).save();
       } catch (e) {
         logger.error(e.message);
         result.errors += 1;
         await (
           await this.logger.customZoom(
-            meeting.id,
+            meeting.batch_id,
             "Failed to sync meeting attendance: " +
               e.message +
               ", " +
