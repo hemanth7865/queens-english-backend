@@ -8,6 +8,8 @@ const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 import axios from "../helpers/axios";
+import { getLessonByID } from "../data/lessons";
+import { User } from "../entity/User";
 
 export class ZoomAttendanceService {
   private batchRepository = getRepository(Classes);
@@ -72,6 +74,7 @@ export class ZoomAttendanceService {
         const summary = {};
         const alreadyExistsStudents = [];
         const batch = await this.batchRepository.findOne(meeting.batch_id);
+        const lesson = getLessonByID(batch.activeLessonId);
         let attendDate = undefined;
 
         /**
@@ -97,6 +100,7 @@ export class ZoomAttendanceService {
                 "YYYY-MM-DD"
               ).format("DD-MM-YYYY");
               summary[userId] = {
+                name: record.name,
                 startTime: record.join_time,
                 endTime: record.leave_time,
                 duration: record.duration,
@@ -108,6 +112,8 @@ export class ZoomAttendanceService {
                 id: `${userId}-${meeting.batch_id}-${attendDate}`,
                 lessonId: batch.activeLessonId,
                 teacherId: batch.teacherId,
+                lessonNumber: lesson?.number,
+                batchNumber: batch?.batchNumber,
               };
               alreadyExistsStudents.push(userId);
             }
@@ -132,21 +138,31 @@ export class ZoomAttendanceService {
         /**
          * Summarize students that didn't attend
          */
-        const students = await this.batchStudentRepository.find({
-          batchId: meeting.batch_id,
-          studentId: Not(In(alreadyExistsStudents)),
-        });
+        const students = await getManager()
+          .createQueryBuilder(BatchStudent, "batch_student")
+          .leftJoinAndSelect(User, "user", "user.id = batch_student.studentId")
+          .where(
+            `batch_student.batchId = '${
+              meeting.batch_id
+            }' AND batch_student.studentId NOT IN (${alreadyExistsStudents.map(
+              (i) => "'" + i + "'"
+            )})`
+          )
+          .getRawMany();
 
         for (let student of students) {
-          summary[student.studentId] = {
+          summary[student.batch_student_studentId] = {
             connectionProblem: false,
-            studentId: student.studentId,
+            studentId: student.batch_student_studentId,
             dateAttended: attendDate,
             classProfileId: meeting.batch_id,
-            id: `${student.studentId}-${meeting.batch_id}-${attendDate}`,
+            id: `${student.batch_student_studentId}-${meeting.batch_id}-${attendDate}`,
             studentAttended: this.attendanceTypes.NO,
             lessonId: batch.activeLessonId,
             teacherId: batch.teacherId,
+            lessonNumber: lesson?.number,
+            name: `${student.user_firstName} ${student.user_lastName}`,
+            batchNumber: batch?.batchNumber,
           };
         }
 
