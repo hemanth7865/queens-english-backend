@@ -612,7 +612,7 @@ export const Routes = [
     authenticate: false,
   },
   {
-    method: "get",
+    method: "post",
     route: "/zoom/sync/attendance",
     controller: ZoomController,
     action: "syncAttendance",
