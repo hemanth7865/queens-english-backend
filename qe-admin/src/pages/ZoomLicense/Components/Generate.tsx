@@ -37,6 +37,7 @@ const Reassign = () => {
                 <Button type="primary" onClick={() => handleCall("zoom/links/sync/cosmos", "post", {}, {})}>Sync Zoom Links To Cosmos</Button>
                 <Button type="primary" onClick={() => confirm("Are you sure that you wanna reset zoom meetings settings ?") && handleCall("zoom/meetings/reset/settings", "post", {}, {})}>Reset Zoom Meetings Seetings</Button>
                 <Button type="primary" onClick={() => handleCall("generate/zoom/join/links/bulk", "post", {}, {})}>Generate Students Join Link</Button>
+                <Button type="primary" onClick={() => handleCall("zoom/sync/attendance", "post", {}, {})}>Sync Zoom Attendance</Button>
                 <Button type="primary" onClick={() => window.open("/be/zoom/csv/meetings")}>Download Zoom Links</Button>
             </div>
         </Spin>
