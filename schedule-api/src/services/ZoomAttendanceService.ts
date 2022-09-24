@@ -1,4 +1,4 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, In, Not } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
@@ -20,6 +20,13 @@ export class ZoomAttendanceService {
   public request: any = {};
   private logger = new LoggerService();
   private today: string = moment().format("YYYY-MM-DD");
+  private FULLY_ATTENDED_DURATION = 50 * 60;
+  private IST = "+05:30";
+  private attendanceTypes = {
+    YES: "Yes",
+    NO: "No",
+    PARTIAL: "Partial",
+  };
 
   ZoomAttendanceService() {}
 
@@ -32,23 +39,150 @@ export class ZoomAttendanceService {
     return await getManager()
       .createQueryBuilder(ZoomMeeting, "meeting")
       .leftJoinAndSelect(Classes, "batch", "batch.id = meeting.batch_id")
-      .where(`batch.id IS NOT NULL AND join_link.id IS NULL ${customWhere}`)
-      .getRawMany();
+      .where(`batch.id IS NOT NULL ${customWhere}`)
+      .getMany();
   }
 
   async syncAttendance(): Promise<any> {
     const result = {
       success: 0,
-      error: 0,
-      log: [],
+      errors: 0,
+      logs: [],
     };
 
     const meetings = await this.getMeetings();
 
+    let counter = 0;
+
     for (const meeting of meetings) {
+      counter += 1;
+      const lengthText = `${counter} Out Of ${meetings.length}`;
       await new Promise((resolve) => setTimeout(resolve, 100));
-      console.log(meeting);
+
+      try {
+        const attendance = await zoomClient.getMeetingParticipants(meeting.id, {
+          page_size: 300,
+        });
+
+        if (attendance.code) {
+          throw new Error(attendance.message);
+        }
+
+        if (!attendance.participants || attendance.participants.length < 1) {
+          throw new Error("Attendance Particiapants Not Found.");
+        }
+
+        const participants = attendance.participants;
+
+        const summary = {};
+        const alreadyExistsStudents = [];
+        let attendDate = undefined;
+
+        /**
+         * Summarize participants and create one record for each valid student.
+         */
+        for (let record of participants) {
+          if (record.user_email && record.user_email.split("@")[0].length > 5) {
+            const userId = record.user_email.split("@")[0];
+
+            // convert into IST
+            record.join_time = moment(record.join_time)
+              .utcOffset(this.IST)
+              .format("YYYY-MM-DD HH:mm:ss");
+            record.leave_time = moment(record.leave_time)
+              .utcOffset(this.IST)
+              .format("YYYY-MM-DD HH:mm:ss");
+
+            let done = false;
+            if (!summary[userId]) {
+              done = true;
+              attendDate = moment(
+                record.join_time.split("T")[0],
+                "YYYY-MM-DD"
+              ).format("DD-MM-YYYY");
+              summary[userId] = {
+                name: record.name,
+                join_time: record.join_time,
+                leave_time: record.leave_time,
+                duration: record.duration,
+                teacher: meeting.user_id === userId,
+                connectionProblem: false,
+                studentId: userId,
+                dateAttended: attendDate,
+                classProfileId: meeting.batch_id,
+                id: `${userId}-${meeting.batch_id}-${attendDate}`,
+              };
+              alreadyExistsStudents.push(userId);
+            }
+
+            if (!done) {
+              summary[userId].leave_time = record.leave_time;
+              summary[userId].duration += record.duration;
+              // mark people the disconnect then connect again as having network issue.
+              summary[userId].connectionProblem = true;
+            }
+
+            // mark attendance type
+            if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
+              summary[userId].studentAttended = this.attendanceTypes.YES;
+              continue;
+            }
+
+            summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
+          }
+        }
+
+        /**
+         * Summarize students that didn't attend
+         */
+        const students = await this.batchStudentRepository.find({
+          batchId: meeting.batch_id,
+          studentId: Not(In(alreadyExistsStudents)),
+        });
+
+        for (let student of students) {
+          summary[student.studentId] = {
+            connectionProblem: false,
+            studentId: student.studentId,
+            dateAttended: attendDate,
+            classProfileId: meeting.batch_id,
+            id: `${student.studentId}-${meeting.batch_id}-${attendDate}`,
+            studentAttended: this.attendanceTypes.NO,
+          };
+        }
+
+        result.logs.push(summary);
+        result.logs.push(students);
+
+        console.log(summary, students);
+      } catch (e) {
+        logger.error(e.message);
+        result.errors += 1;
+        await (
+          await this.logger.customZoom(
+            meeting.id,
+            "Failed to sync meeting attendance: " +
+              e.message +
+              ", " +
+              lengthText,
+            "FAILED_TO_SYNC_MEETING_ATTENDANCE",
+            { error: e, message: e.message, meeting },
+            this.request.user || {}
+          )
+        ).save();
+        result.logs.push(e.message);
+      }
     }
+
+    await (
+      await this.logger.customZoom(
+        "SYNC_ZOOM_ATTENDANCE_RESULT",
+        "Sync Zoom Attendnace For " + this.today,
+        "SYNC_ZOOM_ATTENDANCE_RESULT",
+        { result },
+        this.request.user || {}
+      )
+    ).save();
 
     return result;
   }
