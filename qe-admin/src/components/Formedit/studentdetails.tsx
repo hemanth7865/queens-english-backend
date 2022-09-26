@@ -1568,6 +1568,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                       <Option value="TTS">TTS</Option>
                       <Option value="SS">SS</Option>
                       <Option value="MTWTF">MTWTF</Option>
+                      <Option value="TT">TT</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -1586,6 +1587,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                       <Option value="TTS">TTS</Option>
                       <Option value="SS">SS</Option>
                       <Option value="MTWTF">MTWTF</Option>
+                      <Option value="TT">TT</Option>
                     </Select>
                   </Form.Item>
                 </Col>
