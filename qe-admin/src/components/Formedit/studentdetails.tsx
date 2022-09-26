@@ -112,8 +112,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       dob: !value.dob || value.dob == "Invalid date" ? null : moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
       whatsapp: value.whatsapp,
       comments: value.comments,
-      email: value.email ? value.email : value.customerEmail,
-      customerEmail: value.customerEmail ? value.customerEmail : value.email,
+      email: value.customerEmail,
+      customerEmail: value.customerEmail,
       classType: value.classType,
       type: 'student',
       status: props.studentManageradd ? "active" : props.salesAlert ? "Enrolled" : value.status === undefined ? props.tempData.status : value.status,
@@ -343,7 +343,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         lastName: props.tempData.lastName,
         pfirstName: props.tempData.pfirstName,
         plastName: props.tempData.plastName,
-        email: props.tempData.customerEmail ? props.tempData.customerEmail : props.tempData.email,
+        customerEmail: props.tempData.customerEmail ? props.tempData.customerEmail : props.tempData.email,
         studentID: props.tempData.studentID,
         phoneNumber: props.tempData.phoneNumber,
         whatsapp: props.tempData.whatsapp,
@@ -558,13 +558,13 @@ Queen's English मे अगर आपको किसी तरह की स�
             <Col span={12}>
               <Form.Item
                 label="Email"
-                name="email"
+                name="customerEmail"
                 rules={[{
                   required: true,
                   type: 'email'
                 }]}
               >
-                <Input onChange={onChange} />
+                <Input />
               </Form.Item>
             </Col>
 
