@@ -17,9 +17,9 @@ export class ZoomAttendanceService {
   private batchRepository = getRepository(Classes);
   public request: any = {};
   private logger = new LoggerService();
-  private today: string = moment().format("YYYY-MM-DD");
   private FULLY_ATTENDED_DURATION = 45 * 60;
   private IST = "+05:30";
+  private today: string = moment().utcOffset(this.IST).format("YYYY-MM-DD");
   private attendanceTypes = {
     YES: "Yes",
     NO: "No",
@@ -74,9 +74,13 @@ export class ZoomAttendanceService {
 
         const summary = {};
         const alreadyExistsStudents = [];
+        const allowedStudents = [meeting.user_id];
         const batch = await this.batchRepository.findOne(meeting.batch_id);
         const lesson = getLessonByID(batch.activeLessonId);
-        let attendDate = undefined;
+        let attendDate = moment(
+          participants[0]?.join_time?.split("T")[0],
+          "YYYY-MM-DD"
+        ).format("DD-MM-YYYY");
         /**
          * Summarize students that didn't attend
          */
@@ -94,69 +98,81 @@ export class ZoomAttendanceService {
           )
           .getRawMany();
 
-        console.log(students);
-
-        result.logs.push(students);
+        students.map((i) => {
+          if (i.student_classesStartDate) {
+            result.logs.push(i);
+            console.log(i, i.student_classesStartDate);
+          }
+        });
 
         /**
          * Summarize participants and create one record for each valid student.
          */
         for (let record of participants) {
-          if (record.user_email && record.user_email.split("@")[0].length > 5) {
-            const userId = record.user_email.split("@")[0];
-
-            // convert into IST
-            record.join_time = moment(record.join_time)
-              .utcOffset(this.IST)
-              .format("YYYY-MM-DD HH:mm:ss");
-            record.leave_time = moment(record.leave_time)
-              .utcOffset(this.IST)
-              .format("YYYY-MM-DD HH:mm:ss");
-
-            let done = false;
-            if (!summary[userId]) {
-              done = true;
-              attendDate = moment(
-                record.join_time.split("T")[0],
-                "YYYY-MM-DD"
-              ).format("DD-MM-YYYY");
-              summary[userId] = {
-                name: record.name,
-                startTime: record.join_time,
-                endTime: record.leave_time,
-                duration: record.duration,
-                teacher: meeting.user_id === userId,
-                connectionProblem: false,
-                studentId: userId,
-                dateAttended: attendDate,
-                classProfileId: meeting.batch_id,
-                id: `${userId}-${meeting.batch_id}-${attendDate}`,
-                lessonId: batch.activeLessonId,
-                teacherId: batch.teacherId,
-                lessonNumber: lesson?.number,
-                batchNumber: batch?.batchNumber,
-              };
-              alreadyExistsStudents.push(userId);
-            }
-
-            if (!done) {
-              summary[userId].endTime = record.leave_time;
-              summary[userId].duration += record.duration;
-              // mark people the disconnect then connect again as having network issue.
-              summary[userId].connectionProblem = true;
-            }
-
-            // mark attendance type
-            if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
-              summary[userId].studentAttended = this.attendanceTypes.YES;
-              continue;
-            }
-
-            summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
+          if (
+            !record.user_email ||
+            record.user_email.split("@")[0].length < 5
+          ) {
+            continue;
           }
+
+          const userId = record.user_email.split("@")[0];
+
+          if (!allowedStudents.includes(userId)) {
+            continue;
+          }
+
+          // convert into IST
+          record.join_time = moment(record.join_time)
+            .utcOffset(this.IST)
+            .format("YYYY-MM-DD HH:mm:ss");
+          record.leave_time = moment(record.leave_time)
+            .utcOffset(this.IST)
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          let done = false;
+          if (!summary[userId]) {
+            done = true;
+            summary[userId] = {
+              name: record.name,
+              startTime: record.join_time,
+              endTime: record.leave_time,
+              duration: record.duration,
+              teacher: meeting.user_id === userId,
+              connectionProblem: false,
+              studentId: userId,
+              dateAttended: attendDate,
+              classProfileId: meeting.batch_id,
+              id: `${userId}-${meeting.batch_id}-${attendDate}`,
+              lessonId: batch.activeLessonId,
+              teacherId: batch.teacherId,
+              lessonNumber: lesson?.number,
+              batchNumber: batch?.batchNumber,
+            };
+            alreadyExistsStudents.push(userId);
+          }
+
+          if (!done) {
+            summary[userId].endTime = record.leave_time;
+            summary[userId].duration += record.duration;
+            // mark people the disconnect then connect again as having network issue.
+            summary[userId].connectionProblem = true;
+          }
+
+          // mark attendance type
+          if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
+            summary[userId].studentAttended = this.attendanceTypes.YES;
+            continue;
+          }
+
+          summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
         }
 
         for (let student of students) {
+          if (!allowedStudents.includes(student.batch_student_studentId)) {
+            continue;
+          }
+
           if (alreadyExistsStudents.includes(student.batch_student_studentId)) {
             continue;
           }
@@ -176,6 +192,8 @@ export class ZoomAttendanceService {
         }
 
         const attendanceResult = Object.values(summary);
+
+        result.logs.push(attendanceResult);
 
         await axios.put(
           `${COSMOS_API.STORE_CLASS_ATTENDANCE}/${batch.id}`,
@@ -223,9 +241,5 @@ export class ZoomAttendanceService {
     ).save();
 
     return result;
-  }
-
-  validateStudentStartDate(): boolean {
-    return false;
   }
 }
