@@ -19,6 +19,7 @@ import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
 import { deactivateStudents } from "./../utils/student/deactivateStudents";
+import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -28,6 +29,7 @@ export class StudentService {
   private teacherService = new TeacherService();
   private prmRepository = getRepository(PRManager);
   private lsq_userRepository = getRepository(LSQUser);
+  private studentBatchesHistory = getRepository(StudentBatchesHistory);
 
   private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
 
@@ -35,7 +37,7 @@ export class StudentService {
   private COSMOS_CODE = process.env.COSMOS_CODE;
 
   private BATCHES_HISTORY_QUERY = `
-    SELECT concat(u.firstName , "  ", u.lastName) as name, c.batchNumber, c.id, sbh.created_at, u.phoneNumber FROM student_batches_history as sbh 
+    SELECT concat(u.firstName , "  ", u.lastName) as name, c.batchNumber, c.id, sbh.created_at, u.phoneNumber, CONVERT_TZ(sbh.batchesClassesStartDate, @@session.time_zone, '+11:00') as batchesClassesStartDate FROM student_batches_history as sbh 
     INNER JOIN classes c ON c.id = sbh.batchId 
     INNER JOIN user u ON u.id = c.teacherId 
     WHERE sbh.studentId = ':studentId' ORDER BY sbh.created_at DESC`;
@@ -310,9 +312,10 @@ export class StudentService {
         element.batchId,
         element.reasonInSAV,
         element.onboardingIssueReason,
+        batchesHistory.length != 0 ? batchesHistory[0].batchesClassesStartDate ? batchesHistory[0].batchesClassesStartDate : '' : '',
       );
       l.batchId = batchId,
-      l.isSibling = element.isSibling;
+        l.isSibling = element.isSibling;
       l.classCode = batchCodes[0]?.classCode;
       l.teacherCode = batchCodes[0]?.teacherCode;
       l.useNewZoomLink = batchCodes[0]?.useNewZoomLink;
@@ -343,6 +346,8 @@ export class StudentService {
       lastName: data.lastName,
       isAdministrator: false,
       phoneNumber: data.phoneNumber,
+      classesStartDate: data.classesStartDate,
+      batchesClassesStartDate: data.batchesClassesStartDate,
     }
 
     if (data.cacheTime) {
@@ -508,7 +513,7 @@ export class StudentService {
     user.languages = data.languages;
     user.created_at = new Date();
     user.updated_at = new Date();
-    
+
     let student = new Student();
     let payment = new Payment();
 
@@ -650,6 +655,28 @@ export class StudentService {
     return { student, payments, user, studentAvailability };
   }
 
+  async updateStudentBatchHistoy(studentId: string, batchId: string, classStartDate: any) {
+    let studentBatchHistory = new StudentBatchesHistory();
+    studentBatchHistory.studentId = studentId;
+    studentBatchHistory.batchId = batchId;
+    studentBatchHistory.active = true;
+    studentBatchHistory.batchesClassesStartDate = classStartDate;
+    try {
+      const isBatchHistory = await this.studentBatchesHistory.findOne(
+        {
+          studentId: studentId,
+          batchesClassesStartDate: classStartDate,
+        });
+      if (!isBatchHistory) {
+        usersLogger.info(`Update the student batch history for ${studentId}`);
+        await this.studentBatchesHistory.save(studentBatchHistory);
+      }
+      usersLogger.info(`Student History already present for ${studentId}`);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async saveStudentSQL(data: any, id, create = false) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
@@ -686,10 +713,14 @@ export class StudentService {
         }
       }
 
-      console.log("leadAvailability", studentAvailability);
-
       user.teacherAvailability = teacherAvailability;
       user.studentAvailability = studentAvailability;
+
+      //update to student history here
+      if (data.batchesClassesStartDate && data.batchId.length != 0) {
+        const batchId = data.batchId[0].batchId;
+        await this.updateStudentBatchHistoy(data.id, batchId, data.batchesClassesStartDate);
+      }
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
 

@@ -17,6 +17,14 @@ export const getSubscriptionById = async (subscriptionId: string) => {
   return await client.subscriptions.fetch(subscriptionId);
 };
 
+export const getRazorpayInvoicesForSubscription = async (subscriptionId: string) => {
+  return await client.invoices.all({ subscription_id: subscriptionId });
+};
+
+export const getRazorpayOrder = async (orderId: string) => {
+  return await client.orders.fetchPayments(orderId);
+};
+
 export interface Payment {
   id: string;
   status: string;

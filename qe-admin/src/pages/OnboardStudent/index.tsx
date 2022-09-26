@@ -550,13 +550,24 @@ const StudentOnboard: React.FC = () => {
       }
     },
     {
-      title: 'Actual Start Date',
+      title: 'First Ever Start Date',
       dataIndex: 'classesStartDate',
       width: 200,
-      editable: true,
+      editable: false,
       render: (value: any) => {
         if (value) {
           return moment(value, "YYYY-MM-DD").format("DD-MM-YYYY");
+        }
+      }
+    },
+    {
+      title: 'Batch class start date',
+      dataIndex: 'batchesHistory',
+      width: 200,
+      editable: false,
+      render: (value: any) => {
+        if (value) {
+          return value[0] ? value[0].batchesClassesStartDate ? moment(value[0].batchesClassesStartDate, "YYYY-MM-DD").format("DD-MM-YYYY") : '' : '';
         }
       }
     },
@@ -715,6 +726,7 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
+              entity.canEditStartDate = typeof entity?.classesStartDate === 'undefined' || entity?.classesStartDate?.length <= 1 ? true : false;
               setVisibleEdit(true)
               setTmpData(entity)
             }}>

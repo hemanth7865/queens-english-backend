@@ -303,7 +303,6 @@ export const Routes = [
     action: "updateTransctionPaymentStatus",
     apiKey: false,
   },
-
   {
     method: "get",
     route: "/studentPaymentDetails",
@@ -399,7 +398,6 @@ export const Routes = [
     action: "uploadNetBankingResource",
     // authenticate: true
   },
-
   {
     method: "all",
     route: "/azure",

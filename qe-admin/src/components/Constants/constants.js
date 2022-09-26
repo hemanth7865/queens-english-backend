@@ -1,5 +1,5 @@
 export const BatchValues = {
-  MAXSTUDENTCOUNT: 9,
+  MAXSTUDENTCOUNT: 12,
   MINSTUDENTCOUNT: 1,
 };
 
@@ -14,6 +14,7 @@ export const PaymentConstantValues = {
 
 export const PaymentModevalues = {
   CASHFREE: "Cashfree",
+  RAZORPAY: "RazorPay",
 };
 
 export const CountryCode = {

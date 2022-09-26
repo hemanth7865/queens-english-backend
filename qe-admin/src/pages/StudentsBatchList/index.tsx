@@ -305,6 +305,7 @@ const StudentsBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
+              entity.canEditStartDate = typeof entity?.classesStartDate === 'undefined' || entity?.classesStartDate?.length <= 1 ? true : false;
               setTmpData(entity);
               showDrawerEdit();
               setVisibleEdit(true);

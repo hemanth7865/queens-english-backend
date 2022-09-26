@@ -1,9 +1,12 @@
 import { getRepository, LessThan, Like, MoreThan } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
+  getSubscriptionById,
+  getRazorpayInvoicesForSubscription,
+  getRazorpayOrder
 } from "../services/RazorpayService";
 const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
@@ -12,6 +15,7 @@ import { isNullOrUndefined } from "util";
 import { format } from "date-and-time";
 import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
+import { getDateFromTimeStamp, checkRangeOfDate } from "../helpers/timeStampToDate"
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -64,10 +68,10 @@ export class InstallmentService {
     const transactionDetail = await this.transaDetailsRepository.findOne({
       transactionId: id,
     });
-    if(!isNullOrUndefined(data.subscriptionStatus)){
+    if (!isNullOrUndefined(data.subscriptionStatus)) {
       transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
     }
-    else{
+    else {
       transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
     }
     await this.transaDetailsRepository.update(
@@ -122,6 +126,153 @@ export class InstallmentService {
           "Failed Update Installemnt Status",
           "PAYMENT_UPDATE_STATUS_ERROR",
           { paymentId, error, message: error.message },
+          this.request.user || {}
+        )
+      ).save();
+      return PAYMENT_STATUS.PENDING;
+    }
+  }
+
+  //Logic to update subsccripiton status && payment status && cycles 
+  async updateSubscriptionStatus(paymentRequest) {
+    usersLogger.debug("rzp subscription status update api call");
+    try {
+      const getInstallmentDetails = await this.query.findOne({ id: paymentRequest.installment_id });
+      if (!getInstallmentDetails) {
+        usersLogger.error(`Error in getting installment details: ${JSON.stringify(getInstallmentDetails)}`);
+        return {
+          status: "error",
+          message: "Subcription id is not found!",
+        };
+      }
+
+      //get subscription details from razorpay
+      const subscriptionDetails: any = await getSubscriptionById(
+        getInstallmentDetails.subscriptionId
+      );
+      if (!subscriptionDetails) {
+        usersLogger.error(`Error in getting subscription id: ${JSON.stringify(subscriptionDetails)}`);
+        return {
+          status: "error",
+          message: "Razorpay subscription not found for given id",
+        };
+      }
+      usersLogger.info(`subscription details for razorpay: ${JSON.stringify(subscriptionDetails)}`);
+
+      //get invoice details from razorpay
+      const invoiceDetails = await getRazorpayInvoicesForSubscription(
+        getInstallmentDetails.subscriptionId
+      );
+      let initialSubscriptionData: any = {
+        subscriptionStatus: subscriptionDetails.status.toUpperCase(),
+        cycles: subscriptionDetails.paid_count,
+        status: PAYMENT_STATUS.PENDING,
+        paymentLink: subscriptionDetails.short_url,
+        updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+        lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+      };
+      if (!invoiceDetails || invoiceDetails?.items.length === 0) {
+        usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
+        usersLogger.debug('data for update: ' + JSON.stringify(initialSubscriptionData));
+        await this.query.update(getInstallmentDetails.id, initialSubscriptionData);
+        return {
+          status: "error",
+          message: "Payment Details not found for the subscription",
+        };
+      }
+      usersLogger.info(`Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
+
+      let data: any;
+      const dueMonth = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
+      for (const payments of invoiceDetails?.items) {
+        if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate) || moment.unix(payments.paid_at).format("YYYY-MM-DD").includes(dueMonth)) {
+          usersLogger.info(`Invoice for paid data: ${JSON.stringify(payments)}`);
+          data = {
+            invoiceStatus: payments.status,
+            orderId: payments.order_id,
+            paymentUrl: payments.short_url,
+            updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+            lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
+          };
+          break;
+        }
+      }
+      usersLogger.info(`Getting the billing date match logic: ${JSON.stringify(data)}`);
+      if (!data) {
+        usersLogger.error(`Inoice for this date not found ${JSON.stringify(invoiceDetails)}`);
+        usersLogger.debug('data for update: ' + JSON.stringify(initialSubscriptionData));
+        await this.query.update(getInstallmentDetails.id, initialSubscriptionData);
+        return {
+          status: "success",
+          data: "Updated succesfully",
+        };
+      }
+
+      //get order id details and payment status from razorpay
+      const paymentStatusDetails: any = await getRazorpayOrder(
+        data.orderId
+      );
+      usersLogger.info(`Payment status for order id: ${JSON.stringify(paymentStatusDetails)}`);
+
+      let finalData: any = {
+        subscriptionStatus: subscriptionDetails.status.toUpperCase(),
+        cycles: subscriptionDetails.paid_count,
+        paymentLink: subscriptionDetails.short_url,
+        updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+        lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+      }
+      if (!paymentStatusDetails || paymentStatusDetails.items.length === 0) {
+        usersLogger.error(`Error in fetching payment details: ${JSON.stringify(paymentStatusDetails)}`);
+        finalData['status'] = PAYMENT_STATUS.PENDING;
+        usersLogger.debug('data for update: ' + JSON.stringify(finalData));
+        await this.query.update(getInstallmentDetails.id, finalData);
+        return {
+          status: "success",
+          data: "Updated succesfully",
+        };
+      }
+
+      /* Todo
+          2. Update the Due Date from razorpay 
+      */
+
+      if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.SUCCESS
+        && (paymentStatusDetails?.items[0].amount / 100) >= Number(getInstallmentDetails.emiAmount)) {
+        finalData['status'] = PAYMENT_STATUS.PAID;
+        finalData['paidAmount'] = paymentStatusDetails?.items[0].amount / 100;
+        finalData['paidDate'] = moment(paymentStatusDetails?.items[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
+        await this.query.update(getInstallmentDetails.id, finalData);
+      } else if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.FAILED) {
+        finalData['status'] = PAYMENT_STATUS.FAILED;
+        await this.query.update(getInstallmentDetails.id, finalData);
+      } else {
+        finalData['status'] = PAYMENT_STATUS.PENDING;
+        await this.query.update(getInstallmentDetails.id, finalData);
+      }
+      usersLogger.info('data for update: ' + JSON.stringify(finalData));
+      await (
+        await this.logger.customPayment(
+          paymentRequest.installment_id || "UNKNOWN",
+          "Updated Razorpay status",
+          "PAYMENT_UPDATE_STATUS_RAZORPAY_SUCCESS",
+          { paymentRequest, paymentStatusDetails },
+          {}
+        )
+      ).save();
+      return {
+        status: "success",
+        data: "Updated succesfully",
+      };
+    } catch (error) {
+      usersLogger.error(
+        `Error in razor pay status update status call: ${JSON.stringify(error)}`
+      );
+      await (
+        await this.logger.customPayment(
+          paymentRequest.installment_id || "UNKNOWN",
+          "Failed Update Razorpay Status",
+          "PAYMENT_UPDATE_STATUS_ERROR",
+          { paymentRequest, error, message: error.message },
           this.request.user || {}
         )
       ).save();
