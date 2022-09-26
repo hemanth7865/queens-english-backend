@@ -2,6 +2,8 @@ import { getRepository, getManager, In, Not } from "typeorm";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
+import { Student } from "../entity/Student";
+import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import zoomClient from "../utils/zoom/zoomClient";
 import { COSMOS_API } from "../helpers/Constants";
 const { logger } = require("../Logger.js");
@@ -13,11 +15,10 @@ import { User } from "../entity/User";
 
 export class ZoomAttendanceService {
   private batchRepository = getRepository(Classes);
-  private batchStudentRepository = getRepository(BatchStudent);
   public request: any = {};
   private logger = new LoggerService();
   private today: string = moment().format("YYYY-MM-DD");
-  private FULLY_ATTENDED_DURATION = 50 * 60;
+  private FULLY_ATTENDED_DURATION = 45 * 60;
   private IST = "+05:30";
   private attendanceTypes = {
     YES: "Yes",
@@ -76,6 +77,26 @@ export class ZoomAttendanceService {
         const batch = await this.batchRepository.findOne(meeting.batch_id);
         const lesson = getLessonByID(batch.activeLessonId);
         let attendDate = undefined;
+        /**
+         * Summarize students that didn't attend
+         */
+        let students = await getManager()
+          .createQueryBuilder(BatchStudent, "batch_student")
+          .leftJoinAndSelect(User, "user", "user.id = batch_student.studentId")
+          .leftJoinAndSelect(Student, "student", "user.id = student.id")
+          .leftJoinAndSelect(
+            StudentBatchesHistory,
+            "student_batch_history",
+            "student_batch_history.studentId = batch_student.studentId AND student_batch_history.batchId = batch_student.batchId"
+          )
+          .where(
+            `batch_student.batchId = '${meeting.batch_id}' ORDER BY student_batch_history.created_at DESC`
+          )
+          .getRawMany();
+
+        console.log(students);
+
+        result.logs.push(students);
 
         /**
          * Summarize participants and create one record for each valid student.
@@ -135,22 +156,10 @@ export class ZoomAttendanceService {
           }
         }
 
-        /**
-         * Summarize students that didn't attend
-         */
-        const students = await getManager()
-          .createQueryBuilder(BatchStudent, "batch_student")
-          .leftJoinAndSelect(User, "user", "user.id = batch_student.studentId")
-          .where(
-            `batch_student.batchId = '${
-              meeting.batch_id
-            }' AND batch_student.studentId NOT IN (${alreadyExistsStudents.map(
-              (i) => "'" + i + "'"
-            )})`
-          )
-          .getRawMany();
-
         for (let student of students) {
+          if (alreadyExistsStudents.includes(student.batch_student_studentId)) {
+            continue;
+          }
           summary[student.batch_student_studentId] = {
             connectionProblem: false,
             studentId: student.batch_student_studentId,
@@ -214,5 +223,9 @@ export class ZoomAttendanceService {
     ).save();
 
     return result;
+  }
+
+  validateStudentStartDate(): boolean {
+    return false;
   }
 }
