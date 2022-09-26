@@ -71,7 +71,8 @@ const PREMADE_FREQUENCY: { label: string, value: string }[] = [
   { label: "MWF", value: "MWF" },
   { label: "TTS", value: "TTS" },
   { label: "MTWTF", value: "MTWTF" },
-  { label: "SS", value: "SS" }
+  { label: "SS", value: "SS" },
+  { label: "TT", value: "TT" }
 ];
 
 const BatchList: React.FC = () => {
@@ -390,7 +391,7 @@ const BatchList: React.FC = () => {
     })
       .finally(() => {
         setIsLoading(false);
-    });
+      });
   }
 
   const columns: ProColumns<API.batchItem>[] = [
@@ -870,7 +871,7 @@ const BatchList: React.FC = () => {
 
                         <Col span={24}>
                           <Form.Item
-                              name="useNewZoomLink"
+                            name="useNewZoomLink"
                           >
                             <Select
                               placeholder="Use The New Zoom Link."
