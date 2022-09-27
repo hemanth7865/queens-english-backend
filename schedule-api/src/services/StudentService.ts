@@ -339,6 +339,7 @@ export class StudentService {
       phoneNumber: data.phoneNumber,
       classesStartDate: data.classesStartDate,
       batchesClassesStartDate: data.batchesClassesStartDate,
+      status: data.status,
     }
 
     if (data.cacheTime) {
