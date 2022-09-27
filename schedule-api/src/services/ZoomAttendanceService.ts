@@ -2,6 +2,8 @@ import { getRepository, getManager, In, Not } from "typeorm";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
+import { Student } from "../entity/Student";
+import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import zoomClient from "../utils/zoom/zoomClient";
 import { COSMOS_API } from "../helpers/Constants";
 const { logger } = require("../Logger.js");
@@ -13,12 +15,11 @@ import { User } from "../entity/User";
 
 export class ZoomAttendanceService {
   private batchRepository = getRepository(Classes);
-  private batchStudentRepository = getRepository(BatchStudent);
   public request: any = {};
   private logger = new LoggerService();
-  private today: string = moment().format("YYYY-MM-DD");
-  private FULLY_ATTENDED_DURATION = 50 * 60;
+  private FULLY_ATTENDED_DURATION = 45 * 60;
   private IST = "+05:30";
+  private today: string = moment().utcOffset(this.IST).format("YYYY-MM-DD");
   private attendanceTypes = {
     YES: "Yes",
     NO: "No",
@@ -73,84 +74,128 @@ export class ZoomAttendanceService {
 
         const summary = {};
         const alreadyExistsStudents = [];
+        const allowedStudents = [meeting.user_id];
         const batch = await this.batchRepository.findOne(meeting.batch_id);
         const lesson = getLessonByID(batch.activeLessonId);
-        let attendDate = undefined;
+        let attendDate = moment(
+          participants[0]?.join_time?.split("T")[0],
+          "YYYY-MM-DD"
+        ).format("DD-MM-YYYY");
+
+        /**
+         * Get all students on the batch
+         */
+        let students = await getManager()
+          .createQueryBuilder(BatchStudent, "batch_student")
+          .leftJoinAndSelect(User, "user", "user.id = batch_student.studentId")
+          .leftJoinAndSelect(Student, "student", "user.id = student.id")
+          .leftJoinAndSelect(
+            StudentBatchesHistory,
+            "student_batch_history",
+            "student_batch_history.studentId = batch_student.studentId AND student_batch_history.batchId = batch_student.batchId"
+          )
+          .where(
+            `batch_student.batchId = '${meeting.batch_id}' AND 
+            student_batch_history.id = (SELECT id from student_batches_history WHERE studentId = batch_student.studentId ORDER BY created_at DESC limit 1) 
+            ORDER BY student_batch_history.created_at DESC`
+          )
+          .getRawMany();
+
+        /**
+         * Get only allowed students
+         */
+        students.map((i) => {
+          if (
+            !i.student_classesStartDate ||
+            moment(i.student_classesStartDate)
+              .utcOffset(this.IST)
+              .format("DD-MM-YYYY") <= attendDate
+          ) {
+            if (
+              !i.student_batch_history_batchesClassesStartDate ||
+              moment(i.student_batch_history_batchesClassesStartDate)
+                .utcOffset(this.IST)
+                .format("DD-MM-YYYY") <= attendDate
+            ) {
+              allowedStudents.push(i.user_id);
+            }
+          }
+        });
 
         /**
          * Summarize participants and create one record for each valid student.
          */
         for (let record of participants) {
-          if (record.user_email && record.user_email.split("@")[0].length > 5) {
-            const userId = record.user_email.split("@")[0];
-
-            // convert into IST
-            record.join_time = moment(record.join_time)
-              .utcOffset(this.IST)
-              .format("YYYY-MM-DD HH:mm:ss");
-            record.leave_time = moment(record.leave_time)
-              .utcOffset(this.IST)
-              .format("YYYY-MM-DD HH:mm:ss");
-
-            let done = false;
-            if (!summary[userId]) {
-              done = true;
-              attendDate = moment(
-                record.join_time.split("T")[0],
-                "YYYY-MM-DD"
-              ).format("DD-MM-YYYY");
-              summary[userId] = {
-                name: record.name,
-                startTime: record.join_time,
-                endTime: record.leave_time,
-                duration: record.duration,
-                teacher: meeting.user_id === userId,
-                connectionProblem: false,
-                studentId: userId,
-                dateAttended: attendDate,
-                classProfileId: meeting.batch_id,
-                id: `${userId}-${meeting.batch_id}-${attendDate}`,
-                lessonId: batch.activeLessonId,
-                teacherId: batch.teacherId,
-                lessonNumber: lesson?.number,
-                batchNumber: batch?.batchNumber,
-              };
-              alreadyExistsStudents.push(userId);
-            }
-
-            if (!done) {
-              summary[userId].endTime = record.leave_time;
-              summary[userId].duration += record.duration;
-              // mark people the disconnect then connect again as having network issue.
-              summary[userId].connectionProblem = true;
-            }
-
-            // mark attendance type
-            if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
-              summary[userId].studentAttended = this.attendanceTypes.YES;
-              continue;
-            }
-
-            summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
+          if (
+            !record.user_email ||
+            record.user_email.split("@")[0].length < 5
+          ) {
+            continue;
           }
+
+          const userId = record.user_email.split("@")[0];
+
+          if (!allowedStudents.includes(userId)) {
+            continue;
+          }
+
+          // convert into IST
+          record.join_time = moment(record.join_time)
+            .utcOffset(this.IST)
+            .format("YYYY-MM-DD HH:mm:ss");
+          record.leave_time = moment(record.leave_time)
+            .utcOffset(this.IST)
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          let done = false;
+          if (!summary[userId]) {
+            done = true;
+            summary[userId] = {
+              name: record.name,
+              startTime: record.join_time,
+              endTime: record.leave_time,
+              duration: record.duration,
+              teacher: meeting.user_id === userId,
+              connectionProblem: false,
+              studentId: userId,
+              dateAttended: attendDate,
+              classProfileId: meeting.batch_id,
+              id: `${userId}-${meeting.batch_id}-${attendDate}`,
+              lessonId: batch.activeLessonId,
+              teacherId: batch.teacherId,
+              lessonNumber: lesson?.number,
+              batchNumber: batch?.batchNumber,
+            };
+            alreadyExistsStudents.push(userId);
+          }
+
+          if (!done) {
+            summary[userId].endTime = record.leave_time;
+            summary[userId].duration += record.duration;
+            // mark people the disconnect then connect again as having network issue.
+            summary[userId].connectionProblem = true;
+          }
+
+          // mark attendance type
+          if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
+            summary[userId].studentAttended = this.attendanceTypes.YES;
+            continue;
+          }
+
+          summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
         }
 
         /**
          * Summarize students that didn't attend
          */
-        const students = await getManager()
-          .createQueryBuilder(BatchStudent, "batch_student")
-          .leftJoinAndSelect(User, "user", "user.id = batch_student.studentId")
-          .where(
-            `batch_student.batchId = '${
-              meeting.batch_id
-            }' AND batch_student.studentId NOT IN (${alreadyExistsStudents.map(
-              (i) => "'" + i + "'"
-            )})`
-          )
-          .getRawMany();
-
         for (let student of students) {
+          if (!allowedStudents.includes(student.batch_student_studentId)) {
+            continue;
+          }
+
+          if (alreadyExistsStudents.includes(student.batch_student_studentId)) {
+            continue;
+          }
           summary[student.batch_student_studentId] = {
             connectionProblem: false,
             studentId: student.batch_student_studentId,
