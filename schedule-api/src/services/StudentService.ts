@@ -339,6 +339,7 @@ export class StudentService {
       phoneNumber: data.phoneNumber,
       classesStartDate: data.classesStartDate,
       batchesClassesStartDate: data.batchesClassesStartDate,
+      status: data.status,
     }
 
     if (data.cacheTime) {
@@ -544,6 +545,7 @@ export class StudentService {
           ? element.no_of_delayed_payments
           : 0;
         payment.notes = element.notes;
+        payment.forceRazorpayMoveSAV = element.forceRazorpayMoveSAV;
         payments.push(payment);
       }
     }
