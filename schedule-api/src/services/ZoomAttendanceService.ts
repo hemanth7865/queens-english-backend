@@ -81,8 +81,9 @@ export class ZoomAttendanceService {
           participants[0]?.join_time?.split("T")[0],
           "YYYY-MM-DD"
         ).format("DD-MM-YYYY");
+
         /**
-         * Summarize students that didn't attend
+         * Get all students on the batch
          */
         let students = await getManager()
           .createQueryBuilder(BatchStudent, "batch_student")
@@ -100,9 +101,12 @@ export class ZoomAttendanceService {
           )
           .getRawMany();
 
+        /**
+         * Get only allowed students
+         */
         students.map((i) => {
           if (
-            i.student_classesStartDate &&
+            !i.student_classesStartDate ||
             moment(i.student_classesStartDate)
               .utcOffset(this.IST)
               .format("DD-MM-YYYY") <= attendDate
@@ -181,6 +185,9 @@ export class ZoomAttendanceService {
           summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
         }
 
+        /**
+         * Summarize students that didn't attend
+         */
         for (let student of students) {
           if (!allowedStudents.includes(student.batch_student_studentId)) {
             continue;
