@@ -1,6 +1,6 @@
 import { Access, useAccess } from "umi";
 import { CopyOutlined, EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Col, Row, notification, Tabs, Button, message } from 'antd';
+import { Form, Input, Select, Col, Row, notification, Tabs, Button, message, Switch } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -81,6 +81,7 @@ export type StudentdetailseditProps = {
     notes?: string;
     onboardingIssueReason?: string;
     batchesClassesStartDate?: any;
+    forceRazorpayMoveSAV?: any;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -158,6 +159,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
         notes: value.notes,
+        forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
       }] : null
     }
     if (paymentTally == 0) {
@@ -901,7 +903,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Select>
                 </Form.Item>
               </Col>
-            ) : props.salesAlert ? (
+            ) : !props.salesAlert ? (
               ''
             ) : (
               <Col span={12}>
@@ -922,6 +924,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                 </Form.Item>
               </Col>
             )}
+
 
             {props.studentManageredit || props.studentManageradd ? (
               <Col span={12}>
@@ -1094,7 +1097,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Form.Item >
                 </Col >
               ) : ('')}
-              {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+
+              {!props.studentManageradd && !props.welcomepage && props.tempData.status === "" ?
                 (<Col span={12}>
                   <Form.Item
                     name="onboardingIssueReason"
@@ -1106,8 +1110,20 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Form.Item>
                 </Col>) : ('')
               }
+
+              {!props.studentManageradd && props.salesAlert ?
+                (<Col span={12}>
+                  <Form.Item
+                    name="forceRazorpayMoveSAV"
+                    label="Force Move"
+                  >
+                    <Switch onChange={onChange} />
+                  </Form.Item>
+                </Col>) : ('')
+              }
             </Access>
           </Row>
+
 
           {!props.studentManageradd ? (
             <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>

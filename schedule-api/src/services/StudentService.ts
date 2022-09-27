@@ -544,6 +544,7 @@ export class StudentService {
           ? element.no_of_delayed_payments
           : 0;
         payment.notes = element.notes;
+        payment.forceRazorpayMoveSAV = element.forceRazorpayMoveSAV;
         payments.push(payment);
       }
     }

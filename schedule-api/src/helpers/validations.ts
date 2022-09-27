@@ -24,6 +24,8 @@ export class validations {
                 ...payments
             }
         }
+        console.log('std', student);
+        console.log('total', total, typeof total.forceRazorpayMoveSAV);
         var status = "Enrolled";
         var message;
         var p = total;
@@ -68,11 +70,7 @@ export class validations {
 
         //Validate for Cashfree and razorpay payment Mode
         if (total.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT) {
-            if (!total.subscriptionNo || total.subscriptionNo.length < 3) {
-                status = "Error";
-                message = "Subscription Id is incorrect. Please fill the subscription Number";
-                return { status, message };
-            }
+
             if (total.paymentMode === PAYMENT_MODE.CASHFREE) {
                 const cashFreeResponse: any = await (new CashFreeUtils()).fetchCashfreeAccountDetail(total.subscriptionNo);
                 if (!isNullOrUndefined(cashFreeResponse)) {
@@ -87,25 +85,34 @@ export class validations {
                     return { status, message };
                 }
             }
-            //validate for razorpay subscription 
-            if (total.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
-                try {
-                    const razorpaySubStatus = await getSubscriptionById(total.subscriptionNo);
-                    if (!isNullOrUndefined(razorpaySubStatus)) {
-                        if (razorpaySubStatus.status != RAZORPAY_PAYMENT_STATUS.ACTIVE) {
+
+            if (total.forceRazorpayMoveSAV != 1) {
+                if (!total.subscriptionNo || total.subscriptionNo.length < 3) {
+                    status = "Error";
+                    message = "Subscription Id is incorrect. Please fill the subscription Number";
+                    return { status, message };
+                }
+                //validate for razorpay subscription
+                console.log('here');
+                if (total.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
+                    try {
+                        const razorpaySubStatus = await getSubscriptionById(total.subscriptionNo);
+                        if (!isNullOrUndefined(razorpaySubStatus)) {
+                            if (razorpaySubStatus.status != RAZORPAY_PAYMENT_STATUS.ACTIVE) {
+                                status = "Error";
+                                message = "Subscription account is not active";
+                                return { status, message };
+                            }
+                        } else {
                             status = "Error";
-                            message = "Subscription account is not active";
+                            message = "Subscription account is not available. Please check subscription Number";
                             return { status, message };
                         }
-                    } else {
+                    } catch (error) {
                         status = "Error";
-                        message = "Subscription account is not available. Please check subscription Number";
+                        message = "Subscription is not present / valid. Please check subscription Number";
                         return { status, message };
                     }
-                } catch (error) {
-                    status = "Error";
-                    message = "Subscription is not present / valid. Please check subscription Number";
-                    return { status, message };
                 }
             }
         }
