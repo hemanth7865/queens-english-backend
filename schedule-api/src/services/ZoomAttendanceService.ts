@@ -94,14 +94,27 @@ export class ZoomAttendanceService {
             "student_batch_history.studentId = batch_student.studentId AND student_batch_history.batchId = batch_student.batchId"
           )
           .where(
-            `batch_student.batchId = '${meeting.batch_id}' ORDER BY student_batch_history.created_at DESC`
+            `batch_student.batchId = '${meeting.batch_id}' AND 
+            student_batch_history.id = (SELECT id from student_batches_history WHERE studentId = batch_student.studentId ORDER BY created_at DESC limit 1) 
+            ORDER BY student_batch_history.created_at DESC`
           )
           .getRawMany();
 
         students.map((i) => {
-          if (i.student_classesStartDate) {
-            result.logs.push(i);
-            console.log(i, i.student_classesStartDate);
+          if (
+            i.student_classesStartDate &&
+            moment(i.student_classesStartDate)
+              .utcOffset(this.IST)
+              .format("DD-MM-YYYY") <= attendDate
+          ) {
+            if (
+              !i.student_batch_history_batchesClassesStartDate ||
+              moment(i.student_batch_history_batchesClassesStartDate)
+                .utcOffset(this.IST)
+                .format("DD-MM-YYYY") <= attendDate
+            ) {
+              allowedStudents.push(i.user_id);
+            }
           }
         });
 
@@ -192,8 +205,6 @@ export class ZoomAttendanceService {
         }
 
         const attendanceResult = Object.values(summary);
-
-        result.logs.push(attendanceResult);
 
         await axios.put(
           `${COSMOS_API.STORE_CLASS_ATTENDANCE}/${batch.id}`,
