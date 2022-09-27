@@ -790,3 +790,10 @@ export async function verifyDownPayment(
     ...(options || {}),
   });
 }
+
+//Sync All Users and update in Mongo
+export async function syncUsersToMongo() {
+  return request<API.RuleList>(`/be/get-all-users`, {
+    method: "GET",
+  });
+}

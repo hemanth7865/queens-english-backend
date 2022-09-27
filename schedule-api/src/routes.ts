@@ -589,5 +589,10 @@ export const Routes = [
     action: "deactivateStudents",
     authenticate: false,
   },
-  
+  {
+    method: "get",
+    route: "/get-all-users",
+    controller: UserController,
+    action: "getAllUsers",
+  },
 ];
