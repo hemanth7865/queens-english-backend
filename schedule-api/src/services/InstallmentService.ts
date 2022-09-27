@@ -236,17 +236,31 @@ export class InstallmentService {
           2. Update the Due Date from razorpay 
       */
 
-      if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.SUCCESS
-        && (paymentStatusDetails?.items[0].amount / 100) >= Number(getInstallmentDetails.emiAmount)) {
-        finalData['status'] = PAYMENT_STATUS.PAID;
-        finalData['paidAmount'] = paymentStatusDetails?.items[0].amount / 100;
-        finalData['paidDate'] = moment(paymentStatusDetails?.items[0].created_at * 1000).format("YYYY-MM-DD HH:mm:ss");
+      if (
+        paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+          .status === RAZORPAY_PAYMENT_STATUS.SUCCESS &&
+        paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+          .amount /
+          100 >=
+          Number(getInstallmentDetails.emiAmount)
+      ) {
+        finalData["status"] = PAYMENT_STATUS.PAID;
+        finalData["paidAmount"] =
+          paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+            .amount / 100;
+        finalData["paidDate"] = moment(
+          paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+            .created_at * 1000
+        ).format("YYYY-MM-DD HH:mm:ss");
         await this.query.update(getInstallmentDetails.id, finalData);
-      } else if (paymentStatusDetails?.items[0].status === RAZORPAY_PAYMENT_STATUS.FAILED) {
-        finalData['status'] = PAYMENT_STATUS.FAILED;
+      } else if (
+        paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+          .status === RAZORPAY_PAYMENT_STATUS.FAILED
+      ) {
+        finalData["status"] = PAYMENT_STATUS.FAILED;
         await this.query.update(getInstallmentDetails.id, finalData);
       } else {
-        finalData['status'] = PAYMENT_STATUS.PENDING;
+        finalData["status"] = PAYMENT_STATUS.PENDING;
         await this.query.update(getInstallmentDetails.id, finalData);
       }
       usersLogger.info('data for update: ' + JSON.stringify(finalData));
