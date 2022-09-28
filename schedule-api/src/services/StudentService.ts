@@ -339,6 +339,14 @@ export class StudentService {
     usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
+    let oldUser;
+
+    if(data.id){
+      oldUser = await this.usersRepository.findOne({id: data.id});
+      if(!data.userCode && oldUser && oldUser.userCode){
+        data.userCode = oldUser.userCode;
+      }
+    }
 
     const cosmosUserBody: any = {
       type: data.type,
@@ -349,6 +357,7 @@ export class StudentService {
       phoneNumber: data.phoneNumber,
       classesStartDate: data.classesStartDate,
       batchesClassesStartDate: data.batchesClassesStartDate,
+      userCode: data.userCode,
     }
 
     if (data.cacheTime) {
