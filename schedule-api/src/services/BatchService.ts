@@ -171,8 +171,6 @@ export class BatchService {
         },
       };
 
-      console.log("options",options)
-
       var res1 = {};
       if (!data.id || create) {
         res1 = await axios
@@ -206,9 +204,8 @@ export class BatchService {
 
         res1 = await axios
           .put(options.url, options.body)
-          .then(async (res) => {
-            const oldBatch = await this.classesRepository.findOne({id: data.id});
-            var batch = await this.updateBatchSql(data, oldBatch);
+          .then(async (res) => {;
+            var batch = await this.updateBatchSql(data);
             return batch;
           })
           .catch((error) => {
@@ -253,7 +250,6 @@ export class BatchService {
 
   async deleteBatch(data: any) {
     const alreadyExists: any = await this.batchExists(data, 'id');
-    console.log(data);
     if (!alreadyExists?.id) {
       return { status: false, message: "Batch Not Found" };
     }
@@ -339,7 +335,6 @@ export class BatchService {
   }
 
   async updateBatchAgeGroup(batch: Classes) {
-    console.log(batch);
     try {
       let students: any[];
       students = await getRepository(BatchStudent)
@@ -349,7 +344,6 @@ export class BatchService {
         .where("batchStudent.batchId = :id", { id: batch.id })
         .getMany();
 
-      console.log(students);
 
       const moment = require("moment");
 
@@ -478,14 +472,12 @@ export class BatchService {
           if (element.start_slot) {
             let time = element.start_slot.split(":");
             batchAvail.start_slot = time[0];
-            console.log("time is ", time);
             batchAvail.start_min = time[1];
             batchAvail.startMin = time[0] * 60 + time[1];
           }
           if (element.end_slot) {
             let time = element.end_slot.split(":");
             batchAvail.end_slot = time[0];
-            console.log("time is ", time);
             batchAvail.end_min = time[1];
             batchAvail.endMin = time[0] * 60 + time[1];
           }
@@ -539,8 +531,9 @@ export class BatchService {
     }
   }
 
-  async updateBatchSql(data: any, oldBatch: Classes) {
+  async updateBatchSql(data: any) {
     try {
+      const oldBatch = await this.classesRepository.findOne({id: data.id})
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
@@ -586,6 +579,8 @@ export class BatchService {
         classes.updated_at = new Date();
       }
 
+      console.log(classes, oldBatch);
+
       const batch = await this.classesRepository.update({ id: classes.id }, classes);
       await this.updateBatchAgeGroup(classes);
       return batch;
@@ -615,8 +610,6 @@ export class BatchService {
         .catch((error) => {
           return Promise.reject(error);
         });
-
-      console.log(res1);
     }
   }
 
@@ -737,7 +730,6 @@ export class BatchService {
     else {
       orderClause = ` classes.created_at DESC `;
     }
-    console.log('order: ' + orderClause);
 
     const createdBy = parameters.createdBy;
     if (createdBy) {
@@ -797,7 +789,6 @@ export class BatchService {
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from 
     classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
-    console.log(quer);
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];

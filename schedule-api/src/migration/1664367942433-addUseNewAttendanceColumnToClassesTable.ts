@@ -12,7 +12,7 @@ export class addUseNewAttendanceColumnToClassesTable1664367942433
 
     if (!(await queryRunner.hasColumn("classes", "meetingSettingsTracked"))) {
       await queryRunner.query(
-        `ALTER TABLE classes ADD meetingSettingsTracked TINYINT(1) NOT NULL DEFAULT 0`
+        `ALTER TABLE classes ADD meetingSettingsTracked TINYINT(1) NOT NULL DEFAULT 1`
       );
     }
   }
