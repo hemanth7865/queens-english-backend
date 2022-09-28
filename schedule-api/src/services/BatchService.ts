@@ -567,8 +567,12 @@ export class BatchService {
       }
       if (typeof data.useAutoAttendance != "undefined") {
         classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+        /**
+         * Update meeting settings and sync links once useAutoAttendance Is Changed.
+         */
         if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
           classes.meetingSettingsTracked = 0;
+          classes.sync_zoom_status = 0;
         }
       }
       if (data.id) {
@@ -578,8 +582,6 @@ export class BatchService {
         classes.created_at = new Date();
         classes.updated_at = new Date();
       }
-
-      console.log(classes, oldBatch);
 
       const batch = await this.classesRepository.update({ id: classes.id }, classes);
       await this.updateBatchAgeGroup(classes);

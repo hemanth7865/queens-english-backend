@@ -49,6 +49,7 @@ export async function syncZoomLinksWithCosmos(): Promise<any> {
               await axios.post(COSMOS_API.STORE_SHORT_LINK, {
                 id: type + "-" + code,
                 link,
+                disabled: type === "s" && meeting.batch.useAutoAttendance == 1
               });
 
               await (
