@@ -589,5 +589,12 @@ export const Routes = [
     action: "deactivateStudents",
     authenticate: false,
   },
-  
+  {
+    method: "post",
+    route: "/student/validate/status",
+    controller: UserController,
+    action: "validateStudentStatus",
+    authenticate: false,
+  },
+
 ];

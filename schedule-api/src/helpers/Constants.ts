@@ -26,6 +26,7 @@ export const Status = {
     ERROR: "error",
     ONBOARDING: "onboarding",
     ONBOARDING_ISSUE: "onboardingIssue",
+    ENROLLED_CAPS: "Enrolled",
 }
 
 export const SUBSCRIPTION_TYPE = {
