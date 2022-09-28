@@ -168,6 +168,7 @@ export class BatchService {
           zoomLink: data.zoomLink,
           zoomInfo: data.zoomInfo,
           whatsappLink: data.whatsappLink,
+          useAutoAttendance: data.useAutoAttendance
         },
       };
 

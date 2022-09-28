@@ -351,8 +351,24 @@ export class ZoomController {
   ) {
     this.zoomMeetingService.request = request;
     const result = await this.zoomMeetingService.redirectStudent(
-      request.params.batchCode
+      request.params.batchCode,
+      request
     );
+
+    if (result.showData) {
+      response.status(200).send(result.message);
+      return;
+    }
+
+    if (result.getData) {
+      response.status(500).send(`
+        <script>
+          const phone = window.prompt("${result.message}");
+          window.location.href = window.location.href.split("?")[0] + "?phoneNumber="+phone
+        </script>
+      `);
+      return;
+    }
 
     if (result.error) {
       response.status(404).send("Not found");
