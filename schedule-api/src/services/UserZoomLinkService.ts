@@ -11,6 +11,7 @@ const { logger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
 const moment = require("moment");
 import axios from "../helpers/axios";
+import { ZoomMeetingService } from "./ZoomMeetingService";
 
 export class UserZoomLinkService {
   private userZoomLinkRepositroy = getRepository(UserZoomLink);
@@ -44,17 +45,23 @@ export class UserZoomLinkService {
         "join_link",
         "meeting.id = join_link.meeting_id AND join_link.id = batch_students.studentId AND join_link.batch_id = batch.id"
       )
-      .where(`meeting.id IS NOT NULL AND join_link.id IS NULL ${customWhere}`)
+      .where(
+        `meeting.id IS NOT NULL AND join_link.id IS NULL AND batch.useAutoAttendance = 1 ${customWhere}`
+      )
       .getRawMany();
   }
 
   async generateStudentsJoinLink(batchData: any = {}): Promise<any> {
+    const zoomMeetingService = new ZoomMeetingService();
     const result = {
       errors: 0,
       success: 0,
       successSync: 0,
       errorSync: 0,
       logs: [],
+      settingsResult: await zoomMeetingService.resetZoomMeetingsSettings(
+        "batch.meetingSettingsTracked = 0"
+      ),
     };
     try {
       const students = await this.getStudentWithoutCorrectJoinLink(batchData);

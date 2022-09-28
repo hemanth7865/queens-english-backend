@@ -207,8 +207,8 @@ export class BatchService {
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
-
-            var batch = await this.updateBatchSql(data);
+            const oldBatch = await this.classesRepository.findOne({id: data.id});
+            var batch = await this.updateBatchSql(data, oldBatch);
             return batch;
           })
           .catch((error) => {
@@ -455,6 +455,9 @@ export class BatchService {
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
+      if (typeof data.useAutoAttendance != "undefined") {
+        classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+      }
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -536,7 +539,7 @@ export class BatchService {
     }
   }
 
-  async updateBatchSql(data: any) {
+  async updateBatchSql(data: any, oldBatch: Classes) {
     try {
       var classes = new Classes();
       classes.classCode = data.classCode;
@@ -565,9 +568,16 @@ export class BatchService {
       // sync batch zoom link to cosmos
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
-        classes.sync_zoom_status = 0;
+        if(oldBatch?.useNewZoomLink != classes.useNewZoomLink){
+          classes.sync_zoom_status = 0;
+        }
       }
-
+      if (typeof data.useAutoAttendance != "undefined") {
+        classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+        if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
+          classes.meetingSettingsTracked = 0;
+        }
+      }
       if (data.id) {
         classes.id = data.id;
         classes.updated_at = new Date();
