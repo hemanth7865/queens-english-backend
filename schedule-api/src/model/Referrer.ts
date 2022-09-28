@@ -34,6 +34,9 @@ const referrerSchema = new Schema<IReferrer>(
       required: true,
       unique: true,
     },
+    status: {
+      type: String,
+    },
   },
   {
     timestamps: true,

@@ -793,7 +793,7 @@ export async function verifyDownPayment(
 
 //Sync All Users and update in Mongo
 export async function syncUsersToMongo() {
-  return request<API.RuleList>(`/be/get-all-users`, {
+  return request<API.RuleList>(`/be/sync-users-to-mongo`, {
     method: "GET",
   });
 }

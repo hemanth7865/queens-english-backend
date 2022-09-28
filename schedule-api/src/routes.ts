@@ -591,8 +591,8 @@ export const Routes = [
   },
   {
     method: "get",
-    route: "/get-all-users",
+    route: "/sync-users-to-mongo",
     controller: UserController,
-    action: "getAllUsers",
+    action: "syncUsersToMongo",
   },
 ];

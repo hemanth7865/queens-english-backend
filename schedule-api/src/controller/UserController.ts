@@ -341,7 +341,7 @@ export class UserController {
         return resp;
     }
 
-    async getAllUsers(request: Request, response: Response, next: NextFunction) {
+    async syncUsersToMongo(request: Request, response: Response, next: NextFunction) {
         let users: any;
         let referrers: any;
         const res = {
@@ -402,6 +402,11 @@ export class UserController {
                                         `Updated User: Name: ${users[i].firstName}, ID:${users[i].id}; New Last Name: ${users[i].lastName}, Old Last Name: ${referrers[j].lastName}`
                                     );
                                 }
+                                if (users[i].status !== referrers[j].status) {
+                                    res.message.push(
+                                        `Updated User: Name: ${users[i].firstName}, ID:${users[i].id}; New Status: ${users[i].status}, Old Status ${referrers[j].status}`
+                                    );
+                                }
                             }
                         } catch (error) {
                             console.log(error);
@@ -420,6 +425,7 @@ export class UserController {
                         email: user?.email,
                         phoneNumber: user.phoneNumber,
                         type: user?.type,
+                        status: user?.status,
                     };
                     const saveMongo = new Referrer(referrersObject);
                     await saveMongo.save();
