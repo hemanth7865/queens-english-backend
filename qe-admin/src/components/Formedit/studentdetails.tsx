@@ -188,7 +188,9 @@ I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.p
 *Batch:* ${props.tempData.batchCode}
 *Time:* ${props.tempData.timings} India
 *Frequency:* ${props.tempData.courseFrequency}
-*Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink }, true, {userCode: props.tempData.userCode})}
+*Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, 
+{ classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true, 
+{userCode: props.tempData.userCode})}
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
@@ -228,7 +230,8 @@ Queen's English मे अगर आपको किसी तरह की स�
     message.success('Message copied');
   };
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, classCode: string, useNewZoomLink: number, userCode: string) => {
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, 
+    classCode: string, useNewZoomLink: number, userCode: string, useAutoAttendance: number) => {
     const waMessage = (
       <div >
         <div onClick={() => copy(whatsappOnboard)} align="center">
@@ -247,7 +250,7 @@ Queen's English मे अगर आपको किसी तरह की स�
           <b>*Batch:*</b> {batchCode}<br />
           <b>*Time:*</b> {timings} India<br />
           <b>*Frequency:*</b> {days}<br />
-          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink }, true, {userCode})}<br />
+          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, {userCode})}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
@@ -973,7 +976,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                 >
                   <a
                     onClick={() => {
-                      openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink, props.tempData.classCode, props.tempData.useNewZoomLink, props.tempData.userCode)
+                      openonboardNotification('info', props.tempData.phoneNumber, props.tempData.courseFrequency, props.tempData.timings, props.tempData.zoomLink, props.tempData.prm_firstName, props.tempData.prm_lastName, props.tempData.classesStartDate, props.tempData.zoomInfo, props.tempData.batchCode, props.tempData.whatsappLink, props.tempData.classCode, props.tempData.useNewZoomLink, props.tempData.userCode, props.tempData.useAutoAttendance)
                     }}
                   >
                     <EyeOutlined />

@@ -88,6 +88,7 @@ export class LeadView {
   useNewZoomLink?: number;
   userCode?: string;
   batchesClassesStartDate?: string;
+  useAutoAttendance?: string;
 
   public constructor(id: string, leadId: string, date: string, name: string, experience: string, mobile: string, email: string, status: string, classestaken: number,
     ratings: number, slots: string, leadType: number, type: string, batchCode: string, studentID: string, dob?: string | Date, whatsapp?: string, address?: string,
