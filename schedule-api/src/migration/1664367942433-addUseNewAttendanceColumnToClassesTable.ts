@@ -1,0 +1,33 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class addUseNewAttendanceColumnToClassesTable1664367942433
+  implements MigrationInterface
+{
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    if (!(await queryRunner.hasColumn("classes", "useAutoAttendance"))) {
+      await queryRunner.query(
+        `ALTER TABLE classes ADD useAutoAttendance TINYINT(1) NOT NULL DEFAULT 0`
+      );
+    }
+
+    if (!(await queryRunner.hasColumn("classes", "meetingSettingsTracked"))) {
+      await queryRunner.query(
+        `ALTER TABLE classes ADD meetingSettingsTracked TINYINT(1) NOT NULL DEFAULT 1`
+      );
+    }
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    if (await queryRunner.hasColumn("classes", "useAutoAttendance")) {
+      await queryRunner.query(
+        `ALTER TABLE classes DROP COLUMN useAutoAttendance`
+      );
+    }
+
+    if (await queryRunner.hasColumn("classes", "meetingSettingsTracked")) {
+      await queryRunner.query(
+        `ALTER TABLE classes DROP COLUMN meetingSettingsTracked`
+      );
+    }
+  }
+}

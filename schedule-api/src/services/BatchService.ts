@@ -171,8 +171,6 @@ export class BatchService {
         },
       };
 
-      console.log("options",options)
-
       var res1 = {};
       if (!data.id || create) {
         res1 = await axios
@@ -206,8 +204,7 @@ export class BatchService {
 
         res1 = await axios
           .put(options.url, options.body)
-          .then(async (res) => {
-
+          .then(async (res) => {;
             var batch = await this.updateBatchSql(data);
             return batch;
           })
@@ -253,7 +250,6 @@ export class BatchService {
 
   async deleteBatch(data: any) {
     const alreadyExists: any = await this.batchExists(data, 'id');
-    console.log(data);
     if (!alreadyExists?.id) {
       return { status: false, message: "Batch Not Found" };
     }
@@ -339,7 +335,6 @@ export class BatchService {
   }
 
   async updateBatchAgeGroup(batch: Classes) {
-    console.log(batch);
     try {
       let students: any[];
       students = await getRepository(BatchStudent)
@@ -349,7 +344,6 @@ export class BatchService {
         .where("batchStudent.batchId = :id", { id: batch.id })
         .getMany();
 
-      console.log(students);
 
       const moment = require("moment");
 
@@ -455,6 +449,9 @@ export class BatchService {
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
+      if (typeof data.useAutoAttendance != "undefined") {
+        classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+      }
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -475,14 +472,12 @@ export class BatchService {
           if (element.start_slot) {
             let time = element.start_slot.split(":");
             batchAvail.start_slot = time[0];
-            console.log("time is ", time);
             batchAvail.start_min = time[1];
             batchAvail.startMin = time[0] * 60 + time[1];
           }
           if (element.end_slot) {
             let time = element.end_slot.split(":");
             batchAvail.end_slot = time[0];
-            console.log("time is ", time);
             batchAvail.end_min = time[1];
             batchAvail.endMin = time[0] * 60 + time[1];
           }
@@ -538,6 +533,7 @@ export class BatchService {
 
   async updateBatchSql(data: any) {
     try {
+      const oldBatch = await this.classesRepository.findOne({id: data.id})
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
@@ -565,9 +561,20 @@ export class BatchService {
       // sync batch zoom link to cosmos
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
-        classes.sync_zoom_status = 0;
+        if(oldBatch?.useNewZoomLink != classes.useNewZoomLink){
+          classes.sync_zoom_status = 0;
+        }
       }
-
+      if (typeof data.useAutoAttendance != "undefined") {
+        classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+        /**
+         * Update meeting settings and sync links once useAutoAttendance Is Changed.
+         */
+        if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
+          classes.meetingSettingsTracked = 0;
+          classes.sync_zoom_status = 0;
+        }
+      }
       if (data.id) {
         classes.id = data.id;
         classes.updated_at = new Date();
@@ -605,8 +612,6 @@ export class BatchService {
         .catch((error) => {
           return Promise.reject(error);
         });
-
-      console.log(res1);
     }
   }
 
@@ -727,7 +732,6 @@ export class BatchService {
     else {
       orderClause = ` classes.created_at DESC `;
     }
-    console.log('order: ' + orderClause);
 
     const createdBy = parameters.createdBy;
     if (createdBy) {
@@ -787,7 +791,6 @@ export class BatchService {
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from 
     classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
-    console.log(quer);
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];

@@ -170,7 +170,9 @@ export class ZoomMeetingService {
       password: "QE",
       // pre_schedule: true,
       settings: {
-        approval_type: this.zoomMeetingApproveType.REGISTRATION_REQUIRED,
+        approval_type: batch.useAutoAttendance
+          ? this.zoomMeetingApproveType.REGISTRATION_REQUIRED
+          : this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
         join_before_host: true,
         meeting_authentication: false,
         waiting_room: false,
@@ -759,7 +761,7 @@ export class ZoomMeetingService {
 
   syncZoomLinksWithCosmos() {}
 
-  resetZoomMeetingsSettings() {}
+  resetZoomMeetingsSettings(customWhere = "") {}
 }
 
 ZoomMeetingService.prototype.syncZoomLinksWithCosmos = syncZoomLinksWithCosmos;

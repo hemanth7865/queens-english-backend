@@ -98,6 +98,7 @@ const BatchList: React.FC = () => {
   const [endLesson, setEndLesson] = useState(undefined);
   const [selectedFrequency, setSelectedFrequency] = useState(getParam('frequency') || undefined);
   const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(getParam('useNewZoomLink') || 0);
+  const [selectedUseAutoAttendnace, setUseAutoAttendnace] = useState(getParam('useAutoAttendance') || 0);
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -233,6 +234,7 @@ const BatchList: React.FC = () => {
         ageGroup: selectedAgeGroup,
         frequency: selectedFrequency,
         useNewZoomLink: selectedUseNewZoomLink,
+        useAutoAttendance: selectedUseAutoAttendnace,
         followupVersion: followupVersion,
 
         id: createBatch ? null : currentRow?.id,
@@ -317,10 +319,13 @@ const BatchList: React.FC = () => {
 
           setFormData({
             ...formData, classCode: batchData.classes.classCode,
-            batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, useNewZoomLink: batchData.classes.useNewZoomLink, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
+            batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, useNewZoomLink: batchData.classes.useNewZoomLink,
+            useAutoAttendance: batchData.classes.useAutoAttendance, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
           });
           setFollowupVersion(batchData.classes.followupVersion);
           setUseNewZoomLink(batchData.classes.useNewZoomLink)
+          setUseAutoAttendnace(batchData.classes.useAutoAttendance)
+
         }
         var tempObj = {
           batchData: data.data,
@@ -390,7 +395,7 @@ const BatchList: React.FC = () => {
     })
       .finally(() => {
         setIsLoading(false);
-    });
+      });
   }
 
   const columns: ProColumns<API.batchItem>[] = [
@@ -870,7 +875,7 @@ const BatchList: React.FC = () => {
 
                         <Col span={24}>
                           <Form.Item
-                              name="useNewZoomLink"
+                            name="useNewZoomLink"
                           >
                             <Select
                               placeholder="Use The New Zoom Link."
@@ -888,6 +893,25 @@ const BatchList: React.FC = () => {
                           </Form.Item>
                         </Col>
 
+                        <Col span={24}>
+                          <Form.Item
+                            name="useAutoAttendance"
+                          >
+                            <Select
+                              placeholder="Use Auto Attendance Tracker."
+                              maxTagCount={1}
+                              onChange={(v) => setUseAutoAttendnace(v)}
+                              value={selectedUseAutoAttendnace}
+                              options={
+                                [
+                                  { label: "Use Auto Attendance Tracker.", value: 1 },
+                                  { label: "Don't Use Auto Attendance Tracker.", value: 0 },
+                                ]
+                              }
+                              defaultValue={!createBatch ? prePop?.batchData?.classes?.useAutoAttendance : selectedUseAutoAttendnace}
+                            />
+                          </Form.Item>
+                        </Col>
 
                         <Col span={24}>
                           <Form.Item

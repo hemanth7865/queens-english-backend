@@ -111,6 +111,12 @@ export class Classes extends BaseEntity {
   @Column({ type: "integer" })
   sync_zoom_status: number;
 
+  @Column({ type: "integer" })
+  useAutoAttendance: number;
+
+  @Column({ type: "integer" })
+  meetingSettingsTracked: number;
+
   @Column({ nullable: true })
   created_at: Date;
 
