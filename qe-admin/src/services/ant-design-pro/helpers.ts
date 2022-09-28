@@ -178,8 +178,6 @@ export const getZoomURL = (
   dynamicBasedOnZoomFalg?: boolean,
   user?: any
 ) => {
-    console.log(batch?.useAutoAttendance != 1, batch?.useAutoAttendance, batch);
-
   if (
     dynamicBasedOnZoomFalg &&
     (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
@@ -193,8 +191,6 @@ export const getZoomURL = (
   if(batch?.useAutoAttendance != 1){
     type = "GENERIC_STUDENT";
   }
-
-  console.log(type, zoomMeeting, zoomUser, batch, dynamicBasedOnZoomFalg, user);
 
   if (type === "GENERIC_TEACHER") {
     return `${GENERIC_ZOOM}c/t/${batch?.teacherCode}`;
