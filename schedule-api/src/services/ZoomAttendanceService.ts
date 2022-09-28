@@ -37,7 +37,7 @@ export class ZoomAttendanceService {
     return await getManager()
       .createQueryBuilder(ZoomMeeting, "meeting")
       .leftJoinAndSelect(Classes, "batch", "batch.id = meeting.batch_id")
-      .where(`batch.id IS NOT NULL ${customWhere}`)
+      .where(`batch.id IS NOT NULL AND batch.useAutoAttendance = 1 ${customWhere}`)
       .getMany();
   }
 
