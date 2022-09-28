@@ -237,24 +237,24 @@ export class InstallmentService {
       */
 
       if (
-        paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+        paymentStatusDetails.items[paymentStatusDetails.items.length - 1]
           .status === RAZORPAY_PAYMENT_STATUS.SUCCESS &&
-        paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+        paymentStatusDetails.items[paymentStatusDetails.items.length - 1]
           .amount /
           100 >=
           Number(getInstallmentDetails.emiAmount)
       ) {
         finalData["status"] = PAYMENT_STATUS.PAID;
         finalData["paidAmount"] =
-          paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+          paymentStatusDetails.items[paymentStatusDetails.items.length - 1]
             .amount / 100;
         finalData["paidDate"] = moment(
-          paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+          paymentStatusDetails.items[paymentStatusDetails.items.length - 1]
             .created_at * 1000
         ).format("YYYY-MM-DD HH:mm:ss");
         await this.query.update(getInstallmentDetails.id, finalData);
       } else if (
-        paymentStatusDetails?.items[paymentStatusDetails?.items.length - 1]
+        paymentStatusDetails.items[paymentStatusDetails.items.length - 1]
           .status === RAZORPAY_PAYMENT_STATUS.FAILED
       ) {
         finalData["status"] = PAYMENT_STATUS.FAILED;
