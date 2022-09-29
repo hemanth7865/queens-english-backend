@@ -812,9 +812,21 @@ export async function getAllAttendance(
   );
 }
 
+//PUT - ATTENDANCE DETAILS
+export async function updateAssessment(
+  id: string,
+  options?: { [key: string]: any }) {
+  console.log("option", options);
+  return request<any>(`/be/azure?url=api/classAttendance/${id}`, {
+    method: "PUT",
+    ...(options || {}),
+  });
+}
+
 //Sync All Users and update in Mongo
 export async function syncUsersToMongo() {
   return request<API.RuleList>(`/be/sync-users-to-mongo`, {
     method: "GET",
   });
 }
+
