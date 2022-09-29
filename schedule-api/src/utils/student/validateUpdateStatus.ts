@@ -11,12 +11,15 @@ export async function validateStudentStatus(): Promise<any> {
     const studentRepository = getRepository(Student);
     const paymentRepository = getRepository(Payment);
 
+    let ids = [];
+    let total_updated = 0;
+    let total_records = 0;
+
     //get the users with status error
     const errorStatus = await userRepository.find({
         where: { status: Status.ERROR },
     })
 
-    let ids = [];
     for (const userDetails of errorStatus) {
         try {
             const user = new User();
@@ -47,10 +50,13 @@ export async function validateStudentStatus(): Promise<any> {
                 studentRepository.update({ id: userDetails.id }, { status: Status.ENROLLED });
             }
 
+            total_updated = ids.length;
+            total_records = errorStatus.length;
+
         } catch (e) {
             logger.error("Faled to valiate student: " + e.message);
             console.log(e);
         }
     }
-    return { ids_updated: ids };
+    return { ids_updated: ids, total_updated: total_updated, total_records: total_records };
 }
