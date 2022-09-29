@@ -1,27 +1,22 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined } from '@ant-design/icons';
-import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
+import { EditTwoTone } from '@ant-design/icons';
+import { Drawer, Spin, Select, DatePicker } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { getAllAttendance } from '@/services/ant-design-pro/api';
 import EditAttendance from "./components/index";
+import moment from "moment";
 
 /**
  * @en-US Add node
  * @zh-CN 添加节点
  * @param fields
  */
-const { Option } = Select;
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-
-  const [visible, setVisible] = useState<boolean>(false);
-  const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
-  const [visibleAdd, setVisibleAdd] = useState<boolean>(false);
   const [tempData, setTempData] = useState<any>(null);
 
   const [showEditAttendance, setShowEditAttendance] = useState(false);
@@ -29,8 +24,6 @@ const TableList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const intl = useIntl();
-
-  const { RangePicker } = DatePicker;
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
@@ -93,7 +86,24 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: "dateAttended",
-      width: 160,
+      width: 140,
+      renderFormItem: (value) => {
+        return <DatePicker format="DD-MM-YYYY" />;
+      },
+      search: {
+        transform: (value: any) => {
+          const attendedDate = moment(value).format('DD-MM-YYYY');
+          return { dateAttended: attendedDate };
+        },
+      },
+      /* Todo - date rangepicker needs to be implemeneted */
+      // search: {
+      //   transform: (value: any) => {
+      //     const startDate = moment(value[0]).format('DD-MM-YYYY');
+      //     const endDate = moment(value[1]).format('DD-MM-YYYY');
+      //     return { startDate: startDate, endDate: endDate };
+      //   },
+      // },
     },
     {
       title: (
@@ -154,7 +164,12 @@ const TableList: React.FC = () => {
         }}
         width={600}
       >
-        <EditAttendance attendanceData={tempData} />
+        <EditAttendance
+          attendanceData={tempData}
+          setShowEditAttendance={setShowEditAttendance}
+          showEditAttendance={showEditAttendance}
+          actionRef={actionRef}
+        />
       </Drawer>
     </>
   );
