@@ -85,8 +85,6 @@ export class ZoomAttendanceService {
           page_size: 300,
         });
 
-        console.log(attendance);
-
         if (attendance.code && attendance.code !== this.MEETING_NOT_FOUND) {
           throw new Error(attendance.message);
         }
