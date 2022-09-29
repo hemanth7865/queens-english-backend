@@ -589,5 +589,10 @@ export const Routes = [
     action: "deactivateStudents",
     authenticate: false,
   },
-  
+  {
+    method: "get",
+    route: "/sync-users-to-mongo",
+    controller: UserController,
+    action: "syncUsersToMongo",
+  },
 ];
