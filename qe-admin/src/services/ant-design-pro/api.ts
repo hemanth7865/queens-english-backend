@@ -811,6 +811,7 @@ export async function getAllAttendance(
     }
   );
 }
+
 //Sync All Users and update in Mongo
 export async function syncUsersToMongo() {
   return request<API.RuleList>(`/be/sync-users-to-mongo`, {
