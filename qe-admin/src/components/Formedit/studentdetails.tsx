@@ -1078,7 +1078,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col >
             ) : ('')}
 
-            {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+            {!props.studentManageradd && props.tempData.status === "onboardingIssue" ?
               (<Col span={12}>
                 <Form.Item
                   name="onboardingIssueReason"
