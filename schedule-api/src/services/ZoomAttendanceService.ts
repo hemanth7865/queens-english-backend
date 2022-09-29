@@ -19,12 +19,20 @@ export class ZoomAttendanceService {
   private logger = new LoggerService();
   private FULLY_ATTENDED_DURATION = 45 * 60;
   private IST = "+05:30";
-  private today: string = moment().utcOffset(this.IST).format("YYYY-MM-DD");
+  private today: string = moment().utc().format("YYYY-MM-DD");
   private attendanceTypes = {
     YES: "Yes",
     NO: "No",
     PARTIAL: "Partial",
   };
+  private day: string = moment().utc().format("dddd");
+  private frequencyList = {
+    MWF: ["Monday", "Tuesday", "Wednesday"],
+    TTS: ["Tuesday", "Thursday", "Saturday"],
+    MTWTF: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    SS: ["Saturday", "Sunday"],
+  };
+  private MEETING_NOT_FOUND: number = 3001;
 
   ZoomAttendanceService() {}
 
@@ -37,7 +45,9 @@ export class ZoomAttendanceService {
     return await getManager()
       .createQueryBuilder(ZoomMeeting, "meeting")
       .leftJoinAndSelect(Classes, "batch", "batch.id = meeting.batch_id")
-      .where(`batch.id IS NOT NULL AND batch.useAutoAttendance = 1 ${customWhere}`)
+      .where(
+        `batch.id IS NOT NULL AND batch.useAutoAttendance = 1 ${customWhere}`
+      )
       .getMany();
   }
 
@@ -55,6 +65,19 @@ export class ZoomAttendanceService {
     for (const meeting of meetings) {
       counter += 1;
       const lengthText = `${counter} Out Of ${meetings.length}`;
+      const batch = await this.batchRepository.findOne(meeting.batch_id);
+      let forceUpdateAttendance = false;
+      if (this.frequencyList[batch.frequency]?.includes(this.day)) {
+        forceUpdateAttendance = true;
+      }
+
+      /**
+       * ? Disable this if statement if you want to track attendance whenever the batch run, and not based on frequency only.
+       */
+      if(!forceUpdateAttendance){
+        continue;
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
@@ -62,25 +85,27 @@ export class ZoomAttendanceService {
           page_size: 300,
         });
 
-        if (attendance.code) {
+        if (attendance.code && attendance.code !== this.MEETING_NOT_FOUND) {
           throw new Error(attendance.message);
         }
 
-        if (!attendance.participants || attendance.participants.length < 1) {
-          throw new Error("Attendance Particiapants Not Found.");
-        }
+        /**
+         * ? Enable this if check if you want to enable tracking attendance whenever the batch starts.
+         */
+        // if (
+        //   (!attendance.participants || attendance.participants.length < 1) &&
+        //   !forceUpdateAttendance
+        // ) {
+        //   throw new Error("Attendance Particiapants Not Found.");
+        // }
 
         const participants = attendance.participants;
 
         const summary = {};
         const alreadyExistsStudents = [];
         const allowedStudents = [meeting.user_id];
-        const batch = await this.batchRepository.findOne(meeting.batch_id);
         const lesson = getLessonByID(batch.activeLessonId);
-        let attendDate = moment(
-          participants[0]?.join_time?.split("T")[0],
-          "YYYY-MM-DD"
-        ).format("DD-MM-YYYY");
+        let attendDate = moment(this.today, "YYYY-MM-DD").format("DD-MM-YYYY");
 
         /**
          * Get all students on the batch
@@ -125,64 +150,74 @@ export class ZoomAttendanceService {
         /**
          * Summarize participants and create one record for each valid student.
          */
-        for (let record of participants) {
-          if (
-            !record.user_email ||
-            record.user_email.split("@")[0].length < 5
-          ) {
-            continue;
+        if (Array.isArray(participants)) {
+          for (let record of participants) {
+            if (
+              !record.user_email ||
+              record.user_email.split("@")[0].length < 5
+            ) {
+              continue;
+            }
+
+            if (
+              moment(record.join_time)
+                .utcOffset(this.IST)
+                .format("YYYY-MM-DD") != this.today
+            ) {
+              continue;
+            }
+
+            const userId = record.user_email.split("@")[0];
+
+            if (!allowedStudents.includes(userId)) {
+              continue;
+            }
+
+            // convert into IST
+            record.join_time = moment(record.join_time)
+              .utcOffset(this.IST)
+              .format("YYYY-MM-DD HH:mm:ss");
+            record.leave_time = moment(record.leave_time)
+              .utcOffset(this.IST)
+              .format("YYYY-MM-DD HH:mm:ss");
+
+            let done = false;
+            if (!summary[userId]) {
+              done = true;
+              summary[userId] = {
+                name: record.name,
+                startTime: record.join_time,
+                endTime: record.leave_time,
+                duration: record.duration,
+                teacher: meeting.user_id === userId,
+                connectionProblem: false,
+                studentId: userId,
+                dateAttended: attendDate,
+                classProfileId: meeting.batch_id,
+                id: `${userId}-${meeting.batch_id}-${attendDate}`,
+                lessonId: batch.activeLessonId,
+                teacherId: batch.teacherId,
+                lessonNumber: lesson?.number,
+                batchNumber: batch?.batchNumber,
+              };
+              alreadyExistsStudents.push(userId);
+            }
+
+            if (!done) {
+              summary[userId].endTime = record.leave_time;
+              summary[userId].duration += record.duration;
+              // mark people the disconnect then connect again as having network issue.
+              summary[userId].connectionProblem = true;
+            }
+
+            // mark attendance type
+            if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
+              summary[userId].studentAttended = this.attendanceTypes.YES;
+              continue;
+            }
+
+            summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
           }
-
-          const userId = record.user_email.split("@")[0];
-
-          if (!allowedStudents.includes(userId)) {
-            continue;
-          }
-
-          // convert into IST
-          record.join_time = moment(record.join_time)
-            .utcOffset(this.IST)
-            .format("YYYY-MM-DD HH:mm:ss");
-          record.leave_time = moment(record.leave_time)
-            .utcOffset(this.IST)
-            .format("YYYY-MM-DD HH:mm:ss");
-
-          let done = false;
-          if (!summary[userId]) {
-            done = true;
-            summary[userId] = {
-              name: record.name,
-              startTime: record.join_time,
-              endTime: record.leave_time,
-              duration: record.duration,
-              teacher: meeting.user_id === userId,
-              connectionProblem: false,
-              studentId: userId,
-              dateAttended: attendDate,
-              classProfileId: meeting.batch_id,
-              id: `${userId}-${meeting.batch_id}-${attendDate}`,
-              lessonId: batch.activeLessonId,
-              teacherId: batch.teacherId,
-              lessonNumber: lesson?.number,
-              batchNumber: batch?.batchNumber,
-            };
-            alreadyExistsStudents.push(userId);
-          }
-
-          if (!done) {
-            summary[userId].endTime = record.leave_time;
-            summary[userId].duration += record.duration;
-            // mark people the disconnect then connect again as having network issue.
-            summary[userId].connectionProblem = true;
-          }
-
-          // mark attendance type
-          if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
-            summary[userId].studentAttended = this.attendanceTypes.YES;
-            continue;
-          }
-
-          summary[userId].studentAttended = this.attendanceTypes.PARTIAL;
         }
 
         /**
