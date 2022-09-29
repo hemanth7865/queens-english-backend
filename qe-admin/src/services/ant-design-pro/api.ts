@@ -790,3 +790,24 @@ export async function verifyDownPayment(
     ...(options || {}),
   });
 }
+
+
+//GET ASSESSMENT DETAILS
+export async function getAllAttendance(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/classAttendance`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}
