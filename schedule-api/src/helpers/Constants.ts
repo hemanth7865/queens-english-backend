@@ -63,6 +63,11 @@ export const NULL_STRING = {
     NULL: "null"
 }
 
+export const MONGOOSE_OPTIONS = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
+
 /**
  * TODO: Add all used cosmos API links here
  */

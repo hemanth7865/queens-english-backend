@@ -596,5 +596,10 @@ export const Routes = [
     action: "validateStudentStatus",
     authenticate: false,
   },
-
+  {
+    method: "get",
+    route: "/sync-users-to-mongo",
+    controller: UserController,
+    action: "syncUsersToMongo",
+  },
 ];

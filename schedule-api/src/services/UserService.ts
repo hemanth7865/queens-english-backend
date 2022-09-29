@@ -40,5 +40,17 @@ export class UserService {
 
     return await this.isUserExists(column, value, id);
   }
+
+  async getAllUsersService() {
+    try {
+      const users = await this.usersRepository.find({
+        phoneNumber: Not("undefined"),
+      });
+      return users;
+    } catch (e) {
+      usersLogger.error(e);
+      return false;
+    }
+  }
 }
 
