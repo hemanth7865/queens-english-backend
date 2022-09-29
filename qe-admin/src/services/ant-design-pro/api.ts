@@ -791,6 +791,26 @@ export async function verifyDownPayment(
   });
 }
 
+
+//GET ASSESSMENT DETAILS
+export async function getAllAttendance(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/classAttendance`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}
 //Sync All Users and update in Mongo
 export async function syncUsersToMongo() {
   return request<API.RuleList>(`/be/sync-users-to-mongo`, {
