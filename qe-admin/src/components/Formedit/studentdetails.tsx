@@ -655,7 +655,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     required: true,
                   }]}
                 >
-                  <Input type="date" onChange={onChange} />
+                  <Input type="date" onChange={onChange} required />
                 </Form.Item>
               </Col>
             )}
@@ -856,7 +856,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     required: true,
                   }]}
                 >
-                  <Input type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
+                  <Input required type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
                 </Form.Item>
               </Col>
             )}
@@ -1052,7 +1052,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>
             )}
 
-            {props.studentManageredit && !props.studentManageradd && !props.salesAlert ? (
+            {(props.studentManageredit || props.onboardpage || props.welcomepage || props.startclasslaterpage) && !props.studentManageradd && !props.salesAlert ? (
               <Col span={12}>
                 <Form.Item
                   name="status"
@@ -1067,7 +1067,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Option value="onboarding">Onboarding</Option>
                     <Option value="active">Active</Option>
                     <Option value="onboardingIssue">Onboarding Issue</Option>
-                    {access.canSuperAdmin ? (
+                    {access.canSuperAdmin && props.studentManageredit ? (
                       <>
                         <Option value="inactive">InActive</Option>
                         <Option value='Error'>Error</Option>
