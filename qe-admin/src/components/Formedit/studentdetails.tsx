@@ -66,7 +66,6 @@ export type StudentdetailseditProps = {
     prm_firstName?: string;
     prm_lastName?: string;
     classesStartDate?: string;
-    canEditStartDate?: string;
     isSibling?: any;
     batchCode?: string;
     zoomLink?: string;
@@ -180,9 +179,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   //Role Based Access
   const access = useAccess();
 
-  const unableToJoinMessage = props?.tempData?.useNewZoomLink ? "" : `(If unable to join through the link then use Meeting ID and Passcode : ${props.tempData.zoomInfo})
+  const unableToJoinMessage = props?.tempData?.useNewZoomLink ? "" : `(If unable to join through the link then use Meeting ID and Passcode : ${props.tempData?.zoomInfo})
 
-(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : ${props.tempData.zoomInfo})`;
+(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : ${props.tempData?.zoomInfo})`;
 
   const whatsappOnboard = props.tempData ? `    Hello,
 I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on ${props.tempData.classesStartDate}, you can use the below details to join your classes:
@@ -385,7 +384,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         zoomLink: props.tempData.zoomLink,
         zoomInfo: props.tempData.zoomInfo,
         whatsappLink: props.tempData.whatsappLink,
-        age: props.tempData.age,
+        age: props.tempData.dob == null || props.tempData.age == 'NaN' ? null : moment(new Date()).diff(moment(props.tempData.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
         dateofsale: props.tempData.dateofsale ? moment(props.tempData.dateofsale).toISOString(true).split('T')[0] : props.tempData.dateofsale,
         plantype: props.tempData.plantype,
         dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
@@ -843,7 +842,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                 <Form.Item name="classesStartDate"
                   label="First Ever Start Date"
                 >
-                  <Input type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
+                  <Input type="date" onChange={onChange} disabled={(access.canSuperAdmin) ? false : (props.tempData.status === 'active' &&
+                    typeof props.tempData?.classesStartDate !== 'undefined' && props.tempData?.classesStartDate?.length > 1) ? true : false} />
                 </Form.Item>
               </Col>
             ) : props.salesAlert ? (
@@ -856,7 +856,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     required: true,
                   }]}
                 >
-                  <Input required type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
+                  <Input required type="date" onChange={onChange} />
                 </Form.Item>
               </Col>
             )}

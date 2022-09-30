@@ -881,7 +881,6 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              entity.canEditStartDate = typeof entity?.classesStartDate === 'undefined' || entity?.classesStartDate?.length <= 1 ? true : false;
               setVisibleEdit(true)
               setTmpData(entity)
             }}>
