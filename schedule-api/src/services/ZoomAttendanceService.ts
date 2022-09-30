@@ -27,7 +27,7 @@ export class ZoomAttendanceService {
   };
   private day: string = moment().utc().format("dddd");
   private frequencyList = {
-    MWF: ["Monday", "Tuesday", "Wednesday"],
+    MWF: ["Monday", "Wednesday", "Friday"],
     TTS: ["Tuesday", "Thursday", "Saturday"],
     MTWTF: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
     SS: ["Saturday", "Sunday"],
@@ -74,7 +74,7 @@ export class ZoomAttendanceService {
       /**
        * ? Disable this if statement if you want to track attendance whenever the batch run, and not based on frequency only.
        */
-      if(!forceUpdateAttendance){
+      if (!forceUpdateAttendance) {
         continue;
       }
 
