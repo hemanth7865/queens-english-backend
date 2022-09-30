@@ -6,7 +6,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { getAllAttendance } from '@/services/ant-design-pro/api';
-import EditAttendance from "./components/index";
+import EditAttendance from "./Components/AttendanceForm";
 import moment from "moment";
 
 /**
@@ -24,6 +24,8 @@ const TableList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const intl = useIntl();
+
+  const { RangePicker } = DatePicker;
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
@@ -88,22 +90,15 @@ const TableList: React.FC = () => {
       dataIndex: "dateAttended",
       width: 140,
       renderFormItem: (value) => {
-        return <DatePicker format="DD-MM-YYYY" />;
+        return <RangePicker format="DD-MM-YYYY" />;
       },
       search: {
         transform: (value: any) => {
-          const attendedDate = moment(value).format('DD-MM-YYYY');
-          return { dateAttended: attendedDate };
+          const startDate = moment(value[0]).format('YYYY-MM-DD');
+          const endDate = moment(value[1]).format('YYYY-MM-DD');
+          return { startDate: startDate, endDate: endDate };
         },
       },
-      /* Todo - date rangepicker needs to be implemeneted */
-      // search: {
-      //   transform: (value: any) => {
-      //     const startDate = moment(value[0]).format('DD-MM-YYYY');
-      //     const endDate = moment(value[1]).format('DD-MM-YYYY');
-      //     return { startDate: startDate, endDate: endDate };
-      //   },
-      // },
     },
     {
       title: (
