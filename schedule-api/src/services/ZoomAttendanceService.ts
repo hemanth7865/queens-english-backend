@@ -123,7 +123,7 @@ export class ZoomAttendanceService {
           .where(
             `batch_student.batchId = '${meeting.batch_id}' AND 
             student_batch_history.id = (SELECT id from student_batches_history WHERE studentId = batch_student.studentId ORDER BY created_at DESC limit 1) 
-            ORDER BY student_batch_history.created_at DESC`
+            ORDER BY student_batch_history.batchesClassesStartDate DESC`
           )
           .getRawMany();
 
@@ -135,13 +135,13 @@ export class ZoomAttendanceService {
             !i.student_classesStartDate ||
             moment(i.student_classesStartDate)
               .utcOffset(this.IST)
-              .format("DD-MM-YYYY") <= attendDate
+              .format("X") <= moment(attendDate, "DD-MM-YYYY").format("X")
           ) {
             if (
               !i.student_batch_history_batchesClassesStartDate ||
               moment(i.student_batch_history_batchesClassesStartDate)
                 .utcOffset(this.IST)
-                .format("DD-MM-YYYY") <= attendDate
+                .format("X") <= moment(attendDate, "DD-MM-YYYY").format("X")
             ) {
               allowedStudents.push(i.user_id);
             }
