@@ -153,7 +153,7 @@ export class UserController {
 
         try {
             if (request.query['type'] === 'student') {
-            resp = await studentService.listStudentDetails(request.body, parameters);
+                resp = await studentService.listStudentDetails(request.body, parameters);
             } else {
                 resp = await this.teacherService.listLeadDetails(request.body, parameters);
             }
@@ -335,6 +335,17 @@ export class UserController {
         try {
             usersLogger.info("Fetching student Active Batches");
             resp = await this.studentService.deactivateStudents(ids);
+        } catch (error) {
+            console.log(error);
+        }
+        return resp;
+    }
+
+    async validateStudentStatus(request: Request, response: Response, next: NextFunction) {
+        let resp;
+        try {
+            usersLogger.info("Fetching student Error status student");
+            resp = await this.studentService.validateStudentStatus();
         } catch (error) {
             console.log(error);
         }
