@@ -170,20 +170,6 @@ const View = ({ batchData, isLoading }: Props) => {
 
               <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{PUBLIC_STUDENT_LINK}</a></div>
             </Col>
-
-            <Col span={8}>
-              <div>Old Zoom Link</div>
-            </Col>
-            <Col span={16}>
-              <div><a href={classes?.zoomLink} target="_blank">{classes?.zoomLink || "NA"}</a></div>
-            </Col>
-
-            <Col span={8}>
-              <div>Old Zoom Info</div>
-            </Col>
-            <Col span={16}>
-              <div> {classes?.zoomInfo || "NA"}</div>
-            </Col>
           </Row>
         </TabPane>
         <TabPane tab="Students" key="3">
