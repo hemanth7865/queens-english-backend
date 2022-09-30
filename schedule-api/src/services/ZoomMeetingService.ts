@@ -546,8 +546,10 @@ export class ZoomMeetingService {
             }: </h3><table>
             <tr><th>Student</th><th>Join Link</th></tr>`;
             for (const user of users) {
-              const link = `${req.protocol}://${
-                req.headers.host
+              const link = `https://${req.headers.host}${
+                req.headers.host === "testadmin.thequeensenglish.co"
+                  ? "/be"
+                  : ""
               }${req.originalUrl
                 .split("?")[0]
                 .replace("s/" + classCode, "us/" + user.userCode)}`;
