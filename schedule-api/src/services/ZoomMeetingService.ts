@@ -536,7 +536,7 @@ export class ZoomMeetingService {
           result.message = `Phone number ${req.query.phoneNumber} isn't correct, please ensrue to type correct phone number.`;
           const users = await this.usersRepository.find({
             phoneNumber: Like(`%${req.query.phoneNumber}%`),
-            type: "student"
+            type: "student",
           });
 
           if (users.length > 0) {
@@ -546,10 +546,15 @@ export class ZoomMeetingService {
             }: </h3><table>
             <tr><th>Student</th><th>Join Link</th></tr>`;
             for (const user of users) {
+              const link = `${req.protocol}://${
+                req.headers.host
+              }${req.originalUrl
+                .split("?")[0]
+                .replace("s/" + classCode, "us/" + user.userCode)}`;
               result.message += `
                 <tr>
                   <td>${user.firstName} ${user.lastName}</td>
-                  <td><a target="_blank" href="https://${req.headers.host}/c/us/${user.userCode}">https://${req.headers.host}/c/us/${user.userCode}</a></td>
+                  <td><a target="_blank" href="${link}">${link}</a></td>
                 </tr>
               `;
             }

@@ -142,6 +142,13 @@ const View = ({ batchData, isLoading }: Props) => {
             </Col>
 
             <Col span={8}>
+              <div>Use Auto Attendance?</div>
+            </Col>
+            <Col span={16}>
+              <div>{classes?.useAutoAttendance ? "Yes" : "No"}</div>
+            </Col>
+
+            <Col span={8}>
               <div>Generic Teacher Link</div>
             </Col>
             <Col span={16}>
