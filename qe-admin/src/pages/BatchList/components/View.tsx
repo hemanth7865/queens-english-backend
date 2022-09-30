@@ -135,13 +135,6 @@ const View = ({ batchData, isLoading }: Props) => {
         <TabPane tab="Zoom" key="2">
           <Row gutter={[16, 15]}>
             <Col span={8}>
-              <div>Use New Zoom Link?</div>
-            </Col>
-            <Col span={16}>
-              <div>{classes?.useNewZoomLink ? "Yes" : "No"}</div>
-            </Col>
-
-            <Col span={8}>
               <div>Use Auto Attendance?</div>
             </Col>
             <Col span={16}>

@@ -97,7 +97,7 @@ const BatchList: React.FC = () => {
   const [startLesson, setStartLesson] = useState(getParam('startLesson') || undefined);
   const [endLesson, setEndLesson] = useState(undefined);
   const [selectedFrequency, setSelectedFrequency] = useState(getParam('frequency') || undefined);
-  const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(getParam('useNewZoomLink') || 0);
+  const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(1);
   const [selectedUseAutoAttendnace, setUseAutoAttendnace] = useState(getParam('useAutoAttendance') || 0);
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
@@ -872,26 +872,30 @@ const BatchList: React.FC = () => {
                           </Form.Item>
                         </Col>
 
-
-                        <Col span={24}>
-                          <Form.Item
-                            name="useNewZoomLink"
-                          >
-                            <Select
-                              placeholder="Use The New Zoom Link."
-                              maxTagCount={1}
-                              onChange={(v) => setUseNewZoomLink(v)}
-                              value={selectedUseNewZoomLink}
-                              options={
-                                [
-                                  { label: "Use New Zoom Meeting", value: 1 },
-                                  { label: "Use Old Zoom Meeting", value: 0 },
-                                ]
-                              }
-                              defaultValue={!createBatch ? prePop?.batchData?.classes?.useNewZoomLink : selectedUseNewZoomLink}
-                            />
-                          </Form.Item>
-                        </Col>
+                        {
+                          selectedUseNewZoomLink == 0 && (
+                            <Col span={24}>
+                              <Form.Item
+                                name="useNewZoomLink"
+                              >
+                                <Select
+                                  placeholder="Use The New Zoom Link."
+                                  maxTagCount={1}
+                                  onChange={(v) => setUseNewZoomLink(v)}
+                                  value={selectedUseNewZoomLink}
+                                  options={
+                                    [
+                                      { label: "Use New Zoom Meeting", value: 1 },
+                                      { label: "Use Old Zoom Meeting", value: 0 },
+                                    ]
+                                  }
+                                  defaultValue={!createBatch ? prePop?.batchData?.classes?.useNewZoomLink : selectedUseNewZoomLink}
+                                />
+                              </Form.Item>
+                            </Col>
+                          )
+                        }
+        
 
                         <Col span={24}>
                           <Form.Item
