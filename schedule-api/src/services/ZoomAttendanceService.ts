@@ -27,10 +27,11 @@ export class ZoomAttendanceService {
   };
   private day: string = moment().utc().format("dddd");
   private frequencyList = {
+    SS: ["Saturday", "Sunday"],
+    TT: ["Tuesday", "Thursday"],
     MWF: ["Monday", "Wednesday", "Friday"],
     TTS: ["Tuesday", "Thursday", "Saturday"],
     MTWTF: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    SS: ["Saturday", "Sunday"],
   };
   private MEETING_NOT_FOUND: number = 3001;
 
