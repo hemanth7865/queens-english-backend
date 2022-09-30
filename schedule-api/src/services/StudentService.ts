@@ -18,6 +18,7 @@ import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
 import { deactivateStudents } from "./../utils/student/deactivateStudents";
+import { validateStudentStatus } from "./../utils/student/validateUpdateStatus";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 
 export class StudentService {
@@ -1488,7 +1489,9 @@ export class StudentService {
   }
 
   async deactivateStudents(ids: string[]): Promise<any> { };
+  async validateStudentStatus(): Promise<any> { };
 }
 
 
 StudentService.prototype.deactivateStudents = deactivateStudents;
+StudentService.prototype.validateStudentStatus = validateStudentStatus;

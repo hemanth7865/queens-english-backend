@@ -130,7 +130,6 @@ function authenticateAPIKey(req, res, next) {
  */
 (async () => {
   try {
-    await app.listen(process.env.MONGO_PORT);
     await mongoose.connect(process.env.MONGODB_URL, MONGOOSE_OPTIONS);
   } catch (error) {
     console.log(error);
