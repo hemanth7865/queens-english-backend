@@ -18,6 +18,7 @@ export class ZoomAttendanceService {
   public request: any = {};
   private logger = new LoggerService();
   private FULLY_ATTENDED_DURATION = 45 * 60;
+  private UPSENT_TIME = 5 * 60;
   private IST = "+05:30";
   private today: string = moment().utc().format("YYYY-MM-DD");
   private attendanceTypes = {
@@ -214,6 +215,11 @@ export class ZoomAttendanceService {
             // mark attendance type
             if (this.FULLY_ATTENDED_DURATION <= summary[userId].duration) {
               summary[userId].studentAttended = this.attendanceTypes.YES;
+              continue;
+            }
+
+            if (this.UPSENT_TIME > summary[userId].duration) {
+              summary[userId].studentAttended = this.attendanceTypes.NO;
               continue;
             }
 

@@ -66,7 +66,6 @@ export type StudentdetailseditProps = {
     prm_firstName?: string;
     prm_lastName?: string;
     classesStartDate?: string;
-    canEditStartDate?: string;
     isSibling?: any;
     batchCode?: string;
     zoomLink?: string;
@@ -180,9 +179,9 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
   //Role Based Access
   const access = useAccess();
 
-  const unableToJoinMessage = props?.tempData?.useNewZoomLink ? "" : `(If unable to join through the link then use Meeting ID and Passcode : ${props.tempData.zoomInfo})
+  const unableToJoinMessage = props?.tempData?.useNewZoomLink ? "" : `(If unable to join through the link then use Meeting ID and Passcode : ${props.tempData?.zoomInfo})
 
-(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : ${props.tempData.zoomInfo})`;
+(यदि लिंक के माध्यम से शामिल होने में असमर्थ हैं तो मीटिंग आईडी का उपयोग करें : ${props.tempData?.zoomInfo})`;
 
   const whatsappOnboard = props.tempData ? `    Hello,
 I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on ${props.tempData.classesStartDate}, you can use the below details to join your classes:
@@ -388,7 +387,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         zoomLink: props.tempData.zoomLink,
         zoomInfo: props.tempData.zoomInfo,
         whatsappLink: props.tempData.whatsappLink,
-        age: props.tempData.age,
+        age: props.tempData.dob == null || props.tempData.age == 'NaN' ? null : moment(new Date()).diff(moment(props.tempData.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
         dateofsale: props.tempData.dateofsale ? moment(props.tempData.dateofsale).toISOString(true).split('T')[0] : props.tempData.dateofsale,
         plantype: props.tempData.plantype,
         dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
@@ -658,7 +657,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     required: true,
                   }]}
                 >
-                  <Input type="date" onChange={onChange} />
+                  <Input type="date" onChange={onChange} required />
                 </Form.Item>
               </Col>
             )}
@@ -846,7 +845,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                 <Form.Item name="classesStartDate"
                   label="First Ever Start Date"
                 >
-                  <Input type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
+                  <Input type="date" onChange={onChange} disabled={(access.canSuperAdmin) ? false : ((props.tempData.status === 'active' || props.tempData.status === 'inactive') &&
+                    typeof props.tempData?.classesStartDate !== 'undefined' && props.tempData?.classesStartDate?.length > 1) ? true : false} />
                 </Form.Item>
               </Col>
             ) : props.salesAlert ? (
@@ -859,7 +859,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     required: true,
                   }]}
                 >
-                  <Input type="date" onChange={onChange} disabled={access.canSuperAdmin ? false : !props.tempData.canEditStartDate} />
+                  <Input required type="date" onChange={onChange} />
                 </Form.Item>
               </Col>
             )}
@@ -1055,7 +1055,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>
             )}
 
-            {props.studentManageredit && !props.studentManageradd && !props.salesAlert ? (
+            {(props.studentManageredit || props.onboardpage || props.welcomepage || props.startclasslaterpage) && !props.studentManageradd && !props.salesAlert ? (
               <Col span={12}>
                 <Form.Item
                   name="status"
@@ -1070,7 +1070,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Option value="onboarding">Onboarding</Option>
                     <Option value="active">Active</Option>
                     <Option value="onboardingIssue">Onboarding Issue</Option>
-                    {access.canSuperAdmin ? (
+                    {access.canSuperAdmin && props.studentManageredit ? (
                       <>
                         <Option value="inactive">InActive</Option>
                         <Option value='Error'>Error</Option>
@@ -1081,7 +1081,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col >
             ) : ('')}
 
-            {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+            {!props.studentManageradd && props.tempData.status === "onboardingIssue" ?
               (<Col span={12}>
                 <Form.Item
                   name="onboardingIssueReason"
