@@ -200,7 +200,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         </Select>
       )
     } else if (inputType === 'selectCourseFrequency') {
-      const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF']);
+      const [items, setItems] = useState(['MWF', 'TTS', 'SS', 'MTWTF', 'TT']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         setName(event.target.value);

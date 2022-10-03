@@ -71,7 +71,8 @@ const PREMADE_FREQUENCY: { label: string, value: string }[] = [
   { label: "MWF", value: "MWF" },
   { label: "TTS", value: "TTS" },
   { label: "MTWTF", value: "MTWTF" },
-  { label: "SS", value: "SS" }
+  { label: "SS", value: "SS" },
+  { label: "TT", value: "TT" }
 ];
 
 const BatchList: React.FC = () => {

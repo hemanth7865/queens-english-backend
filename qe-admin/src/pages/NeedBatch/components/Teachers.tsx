@@ -59,7 +59,8 @@ const Batch: React.FC<BatchProps> = (props) => {
         MWF: "1,3,5",
         SS: "6,0",
         TTS: "2,4,6",
-        MTWTF: "1,2,3,4,5"
+        MTWTF: "1,2,3,4,5",
+        TT: "2,4"
       };
 
 

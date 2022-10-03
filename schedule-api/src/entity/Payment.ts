@@ -1,6 +1,6 @@
 import {
-    Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
-    ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn
+  Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
+  ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn
 } from "typeorm";
 import { Status } from "./Status";
 //import {Nationality} from "./Nationality";
@@ -10,7 +10,7 @@ import { Status } from "./Status";
 
 @Entity("payment")
 export class Payment extends BaseEntity {
-  Payment() {}
+  Payment() { }
   @PrimaryGeneratedColumn("uuid")
   id: string;
   @Column("text")
@@ -53,6 +53,8 @@ export class Payment extends BaseEntity {
   is_down_payment_verified: number;
   @Column({ nullable: true })
   notes: string;
+  @Column({ nullable: false })
+  forceRazorpayMoveSAV: number;
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()

@@ -616,4 +616,17 @@ export const Routes = [
     action: "syncAttendance",
     authenticate: false,
   },
+  {
+    method: "post",
+    route: "/student/validate/status",
+    controller: UserController,
+    action: "validateStudentStatus",
+    authenticate: false,
+  },
+  {
+    method: "get",
+    route: "/sync-users-to-mongo",
+    controller: UserController,
+    action: "syncUsersToMongo",
+  },
 ];

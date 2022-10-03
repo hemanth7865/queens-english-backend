@@ -26,6 +26,7 @@ export const Status = {
     ERROR: "error",
     ONBOARDING: "onboarding",
     ONBOARDING_ISSUE: "onboardingIssue",
+    ENROLLED_CAPS: "Enrolled",
 }
 
 export const SUBSCRIPTION_TYPE = {
@@ -61,6 +62,11 @@ export const SUCCESS_CODES = {
 export const NULL_STRING = {
     NULL: "null"
 }
+
+export const MONGOOSE_OPTIONS = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
 
 /**
  * TODO: Add all used cosmos API links here

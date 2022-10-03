@@ -1,6 +1,6 @@
 import { Access, useAccess } from "umi";
 import { CopyOutlined, EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Col, Row, notification, Tabs, Button, message } from 'antd';
+import { Form, Input, Select, Col, Row, notification, Tabs, Button, message, Switch } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -81,6 +81,7 @@ export type StudentdetailseditProps = {
     notes?: string;
     onboardingIssueReason?: string;
     batchesClassesStartDate?: any;
+    forceRazorpayMoveSAV?: any;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -112,8 +113,8 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       dob: !value.dob || value.dob == "Invalid date" ? null : moment(value.dob, "YYYY-MM-DD").format("YYYY-MM-DD"),
       whatsapp: value.whatsapp,
       comments: value.comments,
-      email: value.email ? value.email : value.customerEmail,
-      customerEmail: value.customerEmail ? value.customerEmail : value.email,
+      email: value.customerEmail,
+      customerEmail: value.customerEmail,
       classType: value.classType,
       type: 'student',
       status: props.studentManageradd ? "active" : props.salesAlert ? "Enrolled" : value.status === undefined ? props.tempData.status : value.status,
@@ -158,6 +159,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
         notes: value.notes,
+        forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
       }] : null
     }
     if (paymentTally == 0) {
@@ -346,7 +348,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         lastName: props.tempData.lastName,
         pfirstName: props.tempData.pfirstName,
         plastName: props.tempData.plastName,
-        email: props.tempData.customerEmail ? props.tempData.customerEmail : props.tempData.email,
+        customerEmail: props.tempData.customerEmail ? props.tempData.customerEmail : props.tempData.email,
         studentID: props.tempData.studentID,
         phoneNumber: props.tempData.phoneNumber,
         whatsapp: props.tempData.whatsapp,
@@ -561,13 +563,13 @@ Queen's English मे अगर आपको किसी तरह की स�
             <Col span={12}>
               <Form.Item
                 label="Email"
-                name="email"
+                name="customerEmail"
                 rules={[{
                   required: true,
                   type: 'email'
                 }]}
               >
-                <Input onChange={onChange} />
+                <Input />
               </Form.Item>
             </Col>
 
@@ -904,7 +906,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Select>
                 </Form.Item>
               </Col>
-            ) : props.salesAlert ? (
+            ) : !props.salesAlert ? (
               ''
             ) : (
               <Col span={12}>
@@ -925,6 +927,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                 </Form.Item>
               </Col>
             )}
+
 
             {props.studentManageredit || props.studentManageradd ? (
               <Col span={12}>
@@ -1066,51 +1069,49 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Option value="batching">Ready to batch</Option>
                     <Option value="onboarding">Onboarding</Option>
                     <Option value="active">Active</Option>
+                    <Option value="onboardingIssue">Onboarding Issue</Option>
+                    {access.canSuperAdmin ? (
+                      <>
+                        <Option value="inactive">InActive</Option>
+                        <Option value='Error'>Error</Option>
+                      </>
+                    ) : ('')}
                   </Select >
                 </Form.Item >
               </Col >
             ) : ('')}
 
+            {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+              (<Col span={12}>
+                <Form.Item
+                  name="onboardingIssueReason"
+                  label="Onboarding Issue Reason"
+                  rules={[{
+                    required: true,
+                  }]}>
+                  <Input type="text" onChange={onChange} />
+                </Form.Item>
+              </Col>) : ('')
+            }
+
+
             <Access
               accessible={access.canSuperAdmin}
               fallback={<div> </div>}
             >
-              {props.studentManageredit ? (
-                <Col span={12}>
-                  <Form.Item
-                    name="status"
-                    label="Status"
-                    rules={[{
-                      required: true,
-                    }]}>
-                    <Select
-                      placeholder="Select Status"
-                      onChange={onChange}
-                    >
-                      <Option value="inactive">InActive</Option>
-                      <Option value="active">Active</Option>
-                      <Option value="startclasslater">Start Class Later</Option>
-                      <Option value="batching">Batching</Option>
-                      <Option value="onboardingIssue">Onboarding Issue</Option>
-                      <Option value='Error'>Error</Option>
-                    </Select >
-                  </Form.Item >
-                </Col >
-              ) : ('')}
-              {!props.studentManageradd && !props.welcomepage && props.tempData.status === "onboardingIssue" ?
+              {!props.studentManageradd && props.salesAlert ?
                 (<Col span={12}>
                   <Form.Item
-                    name="onboardingIssueReason"
-                    label="Onboarding Issue Reason"
-                    rules={[{
-                      required: true,
-                    }]}>
-                    <Input type="text" onChange={onChange} />
+                    name="forceRazorpayMoveSAV"
+                    label="Force Move"
+                  >
+                    <Switch onChange={onChange} />
                   </Form.Item>
                 </Col>) : ('')
               }
             </Access>
           </Row>
+
 
           {!props.studentManageradd ? (
             <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>
@@ -1440,221 +1441,224 @@ Queen's English मे अगर आपको किसी तरह की स�
         </Form>
       </TabPane>
 
-      {props.studentManageradd ? ('') : (
-        <TabPane tab="Batch Details" key="2">
-          <Form
-            name="batchdetails"
-            form={form}
-            labelCol={{
-              span: 8,
-            }}
-            wrapperCol={{
-              span: 16,
-            }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Batch Code"
-                  name="batchCode"
-                >
-                  <Input disabled />
-                </Form.Item>
-              </Col>
-
-              <Col span={12}>
-                <Form.Item
-                  label="Zoom Link"
-                  name="zoomLink"
-                >
-                  <Input disabled />
-                </Form.Item>
-              </Col>
-
-              <Col span={12}>
-                <Form.Item
-                  label="Zoom Info"
-                  name="zoomInfo"
-                >
-                  <Input disabled />
-                </Form.Item>
-              </Col>
-
-              {props.studentManageradd || props.studentManageredit ? (
+      {
+        props.studentManageradd ? ('') : (
+          <TabPane tab="Batch Details" key="2">
+            <Form
+              name="batchdetails"
+              form={form}
+              labelCol={{
+                span: 8,
+              }}
+              wrapperCol={{
+                span: 16,
+              }}
+              onFinish={onFinish}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
+            >
+              <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
-                    name="course"
-                    label="Course">
-                    <Select
-                      placeholder="Select Course"
-                    >
-                      <Option value="DISE - Group Class">DISE - Group Class</Option>
-                      <Option value="DISE - 1:1">DISE - 1:1</Option>
-                      <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-                      <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-                    </Select>
+                    label="Batch Code"
+                    name="batchCode"
+                  >
+                    <Input disabled />
                   </Form.Item>
                 </Col>
-              ) : (
-                <Col span={12}>
-                  <Form.Item
-                    name="course"
-                    label="Course"
-                    rules={[{
-                      required: true,
-                    }]}>
-                    <Select
-                      placeholder="Select Course"
-                    >
-                      <Option value="DISE - Group Class">DISE - Group Class</Option>
-                      <Option value="DISE - 1:1">DISE - 1:1</Option>
-                      <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-                      <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              )}
 
-              {props.studentManageradd || props.studentManageredit ? (
                 <Col span={12}>
                   <Form.Item
-                    name="startLesson"
-                    label="Starting Lesson">
-                    <Select
-                      placeholder="Select Starting Lesson"
-                    >
-                      <Option value="Placement Pending">Placement Pending</Option>
-                      <Option value="Lesson 1">Lesson 1</Option>
-                      <Option value="Lesson 31">Lesson 31</Option>
-                      <Option value="Lesson 61">Lesson 61</Option>
-                      <Option value="Lesson 107">Lesson 107</Option>
-                      <Option value="Lesson 201">Lesson 201</Option>
-                      <Option value="Lesson 301">Lesson 301</Option>
-                    </Select>
+                    label="Zoom Link"
+                    name="zoomLink"
+                  >
+                    <Input disabled />
                   </Form.Item>
                 </Col>
-              ) : (
-                <Col span={12}>
-                  <Form.Item
-                    name="startLesson"
-                    label="Starting Lesson"
-                    rules={[{
-                      required: true,
-                    }]}>
-                    <Select
-                      placeholder="Select Starting Lesson"
-                    >
-                      <Option value="Lesson 1">Lesson 1</Option>
-                      <Option value="Lesson 31">Lesson 31</Option>
-                      <Option value="Lesson 61">Lesson 61</Option>
-                      <Option value="Lesson 107">Lesson 107</Option>
-                      <Option value="Lesson 201">Lesson 201</Option>
-                      <Option value="Lesson 301">Lesson 301</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              )}
 
+                <Col span={12}>
+                  <Form.Item
+                    label="Zoom Info"
+                    name="zoomInfo"
+                  >
+                    <Input disabled />
+                  </Form.Item>
+                </Col>
 
-              {props.studentManageradd || props.studentManageredit ? (
-                <Col span={12}>
-                  <Form.Item
-                    name="courseFrequency"
-                    label="Course Frequency">
-                    <Select
-                      placeholder="Select Course Frequency"
-                    >
-                      <Option value="MWF">MWF</Option>
-                      <Option value="TTS">TTS</Option>
-                      <Option value="SS">SS</Option>
-                      <Option value="MTWTF">MTWTF</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              ) : (
-                <Col span={12}>
-                  <Form.Item
-                    name="courseFrequency"
-                    label="Course Frequency"
-                    rules={[{
-                      required: true,
-                    }]}>
-                    <Select
-                      placeholder="Select Course Frequency"
-                    >
-                      <Option value="MWF">MWF</Option>
-                      <Option value="TTS">TTS</Option>
-                      <Option value="SS">SS</Option>
-                      <Option value="MTWTF">MTWTF</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              )}
+                {props.studentManageradd || props.studentManageredit ? (
+                  <Col span={12}>
+                    <Form.Item
+                      name="course"
+                      label="Course">
+                      <Select
+                        placeholder="Select Course"
+                      >
+                        <Option value="DISE - Group Class">DISE - Group Class</Option>
+                        <Option value="DISE - 1:1">DISE - 1:1</Option>
+                        <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+                        <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                ) : (
+                  <Col span={12}>
+                    <Form.Item
+                      name="course"
+                      label="Course"
+                      rules={[{
+                        required: true,
+                      }]}>
+                      <Select
+                        placeholder="Select Course"
+                      >
+                        <Option value="DISE - Group Class">DISE - Group Class</Option>
+                        <Option value="DISE - 1:1">DISE - 1:1</Option>
+                        <Option value="IELTS - Group Class">IELTS - Group Class</Option>
+                        <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                )}
+
+                {props.studentManageradd || props.studentManageredit ? (
+                  <Col span={12}>
+                    <Form.Item
+                      name="startLesson"
+                      label="Starting Lesson">
+                      <Select
+                        placeholder="Select Starting Lesson"
+                      >
+                        <Option value="Placement Pending">Placement Pending</Option>
+                        <Option value="Lesson 1">Lesson 1</Option>
+                        <Option value="Lesson 31">Lesson 31</Option>
+                        <Option value="Lesson 61">Lesson 61</Option>
+                        <Option value="Lesson 107">Lesson 107</Option>
+                        <Option value="Lesson 201">Lesson 201</Option>
+                        <Option value="Lesson 301">Lesson 301</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                ) : (
+                  <Col span={12}>
+                    <Form.Item
+                      name="startLesson"
+                      label="Starting Lesson"
+                      rules={[{
+                        required: true,
+                      }]}>
+                      <Select
+                        placeholder="Select Starting Lesson"
+                      >
+                        <Option value="Lesson 1">Lesson 1</Option>
+                        <Option value="Lesson 31">Lesson 31</Option>
+                        <Option value="Lesson 61">Lesson 61</Option>
+                        <Option value="Lesson 107">Lesson 107</Option>
+                        <Option value="Lesson 201">Lesson 201</Option>
+                        <Option value="Lesson 301">Lesson 301</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                )}
 
 
-              {props.studentManageradd || props.studentManageredit ? (
-                <Col span={12}>
-                  <Form.Item
-                    name="timings"
-                    label="Timings">
-                    <Select
-                      placeholder="Select Class Timings"
-                    >
-                      <Option value="15:00">15:00</Option>
-                      <Option value="16:30">16:30</Option>
-                      <Option value="18:00">18:00</Option>
-                      <Option value="19:30">19:30</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              ) : (
-                <Col span={12}>
-                  <Form.Item
-                    name="timings"
-                    label="Timings"
-                    rules={[{
-                      required: true,
-                    }]}>
-                    <Select
-                      placeholder="Select Class Timings"
-                    >
-                      <Option value="15:00">15:00</Option>
-                      <Option value="16:30">16:30</Option>
-                      <Option value="18:00">18:00</Option>
-                      <Option value="19:30">19:30</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              )}
-            </Row >
+                {props.studentManageradd || props.studentManageredit ? (
+                  <Col span={12}>
+                    <Form.Item
+                      name="courseFrequency"
+                      label="Course Frequency">
+                      <Select
+                        placeholder="Select Course Frequency"
+                      >
+                        <Option value="MWF">MWF</Option>
+                        <Option value="TTS">TTS</Option>
+                        <Option value="SS">SS</Option>
+                        <Option value="MTWTF">MTWTF</Option>
+                        <Option value="TT">TT</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                ) : (
+                  <Col span={12}>
+                    <Form.Item
+                      name="courseFrequency"
+                      label="Course Frequency"
+                      rules={[{
+                        required: true,
+                      }]}>
+                      <Select
+                        placeholder="Select Course Frequency"
+                      >
+                        <Option value="MWF">MWF</Option>
+                        <Option value="TTS">TTS</Option>
+                        <Option value="SS">SS</Option>
+                        <Option value="MTWTF">MTWTF</Option>
+                        <Option value="TT">TT</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                )}
 
-            <Row>
-              <Col span={12}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  value="Save Changes"
-                  onClick={onChange}
-                  shape="round"
-                  block
-                  style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                >Save Changes</Button>
-              </Col>
-              <Col span={12}>
-                <Rebatching data={props.tempData} show={showRebatching} setShow={setShowRebatching} />
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <StudentBatchesHistory data={props.tempData} />
-              </Col>
-            </Row>
-          </Form>
-        </TabPane>
-      )
+
+                {props.studentManageradd || props.studentManageredit ? (
+                  <Col span={12}>
+                    <Form.Item
+                      name="timings"
+                      label="Timings">
+                      <Select
+                        placeholder="Select Class Timings"
+                      >
+                        <Option value="15:00">15:00</Option>
+                        <Option value="16:30">16:30</Option>
+                        <Option value="18:00">18:00</Option>
+                        <Option value="19:30">19:30</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                ) : (
+                  <Col span={12}>
+                    <Form.Item
+                      name="timings"
+                      label="Timings"
+                      rules={[{
+                        required: true,
+                      }]}>
+                      <Select
+                        placeholder="Select Class Timings"
+                      >
+                        <Option value="15:00">15:00</Option>
+                        <Option value="16:30">16:30</Option>
+                        <Option value="18:00">18:00</Option>
+                        <Option value="19:30">19:30</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                )}
+              </Row >
+
+              <Row>
+                <Col span={12}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    value="Save Changes"
+                    onClick={onChange}
+                    shape="round"
+                    block
+                    style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                  >Save Changes</Button>
+                </Col>
+                <Col span={12}>
+                  <Rebatching data={props.tempData} show={showRebatching} setShow={setShowRebatching} />
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={24}>
+                  <StudentBatchesHistory data={props.tempData} />
+                </Col>
+              </Row>
+            </Form>
+          </TabPane>
+        )
       }
     </Tabs >
   )
