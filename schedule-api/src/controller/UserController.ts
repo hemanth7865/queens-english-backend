@@ -25,7 +25,6 @@ export class UserController {
     private teacherService = new TeacherService();
     private userService = new UserService();
     private batchController = new BatchController();
-    private userService = new UserService();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -351,7 +350,7 @@ export class UserController {
         }
         return resp;
     }
-    
+
     async validateStudentStatus(request: Request, response: Response, next: NextFunction) {
         let resp;
         try {
