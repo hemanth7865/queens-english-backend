@@ -71,8 +71,8 @@ export class BatchService {
       if (!data.id) {
         data.id = uuidv4();
         create = true;
-      }   
-        
+      }
+
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
@@ -205,7 +205,8 @@ export class BatchService {
 
         res1 = await axios
           .put(options.url, options.body)
-          .then(async (res) => {;
+          .then(async (res) => {
+            ;
             var batch = await this.updateBatchSql(data);
             return batch;
           })
@@ -241,12 +242,12 @@ export class BatchService {
     }
   }
 
-  async getCosmosBatch(id: string): Promise<any> { 
+  async getCosmosBatch(id: string): Promise<any> {
     const cosomos_url = COSMOS_API.GET_BATCH(id);
 
     const data: any = await axios.get(cosomos_url);
 
-    return data?.data?.result ? data?.data?.result[0]: null;
+    return data?.data?.result ? data?.data?.result[0] : null;
   }
 
   async deleteBatch(data: any) {
@@ -534,7 +535,7 @@ export class BatchService {
 
   async updateBatchSql(data: any) {
     try {
-      const oldBatch = await this.classesRepository.findOne({id: data.id})
+      const oldBatch = await this.classesRepository.findOne({ id: data.id })
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
@@ -562,7 +563,7 @@ export class BatchService {
       // sync batch zoom link to cosmos
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
-        if(oldBatch?.useNewZoomLink != classes.useNewZoomLink){
+        if (oldBatch?.useNewZoomLink != classes.useNewZoomLink) {
           classes.sync_zoom_status = 0;
         }
       }
@@ -571,7 +572,7 @@ export class BatchService {
         /**
          * Update meeting settings and sync links once useAutoAttendance Is Changed.
          */
-        if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
+        if (oldBatch?.useAutoAttendance != classes.useAutoAttendance) {
           classes.meetingSettingsTracked = 0;
           classes.sync_zoom_status = 0;
         }
