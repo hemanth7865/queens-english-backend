@@ -40,6 +40,7 @@ steps:
         cd /home/qeuser/qe-backend/qe-admin && yarn build &> /home/qeuser/build.txt && cat /home/qeuser/build.txt 
         rm -rf /var/www/html/qe-admin
         cd /home/qeuser/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
+        rm -rf /var/www/html/qe-admin-ui && cp -r /var/www/html/qe-admin /var/www/html/qe-admin-ui
         pm2 restart all
       readyTimeout: "20000"
       # Don't Show Error Message If Command Fail
