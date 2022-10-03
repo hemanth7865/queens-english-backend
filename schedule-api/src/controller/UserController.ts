@@ -13,7 +13,7 @@ import { getManager } from "typeorm";
 import { validations } from "../helpers/validations";
 import { BatchController } from "./BatchController";
 import { Status } from "../helpers/Constants";
-
+import Referrer from "../model/Referrer";
 
 export class UserController {
 
@@ -23,6 +23,7 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
+    private userService = new UserService();
     private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
@@ -152,7 +153,7 @@ export class UserController {
 
         try {
             if (request.query['type'] === 'student') {
-            resp = await studentService.listStudentDetails(request.body, parameters);
+                resp = await studentService.listStudentDetails(request.body, parameters);
             } else {
                 resp = await this.teacherService.listLeadDetails(request.body, parameters);
             }
@@ -338,5 +339,126 @@ export class UserController {
             console.log(error);
         }
         return resp;
+    }
+
+    async generateUsersCode(request: Request, response: Response, next: NextFunction) {
+        let resp = {};
+        try {
+            resp = await this.userService.generateUsersCode();
+        } catch (error) {
+            console.log(error);
+        }
+        return resp;
+    }
+
+    async validateStudentStatus(request: Request, response: Response, next: NextFunction) {
+        let resp;
+        try {
+            usersLogger.info("Fetching student Error status student");
+            resp = await this.studentService.validateStudentStatus();
+        } catch (error) {
+            console.log(error);
+        }
+        return resp;
+    }
+
+    async syncUsersToMongo(request: Request, response: Response, next: NextFunction) {
+        let users: any;
+        let referrers: any;
+        const res = {
+            newUsers: [],
+            updatedUsers: [],
+            addErrors: [],
+            updateErrors: [],
+            message: [],
+        };
+        try {
+            // Fetching all users and referrers
+            users = await this.userService.getAllUsersService();
+            referrers = await Referrer.find();
+            // Filtering already added referrers
+            for (var i = users.length - 1; i >= 0; i--) {
+                for (var j = 0; j < referrers.length; j++) {
+                    if (users[i] && users[i].id === referrers[j].userId) {
+                        try {
+                            if (
+                                users[i].phoneNumber !== referrers[j].phoneNumber ||
+                                users[i].email.toLowerCase() !== referrers[j].email ||
+                                users[i].firstName !== referrers[j].firstName ||
+                                users[i].lastName !== referrers[j].lastName
+                            ) {
+                                const updateReferrersPhoneNumber =
+                                    await Referrer.findOneAndUpdate(
+                                        { userId: users[i].id },
+                                        {
+                                            $set: {
+                                                firstName: users[i].firstName,
+                                                lastName: users[i].lastName,
+                                                phoneNumber: users[i].phoneNumber,
+                                                email: users[i].email.toLowerCase(),
+                                            },
+                                        },
+                                        { multi: true }
+                                    );
+                                res.updatedUsers.push(updateReferrersPhoneNumber);
+                                if (users[i].phoneNumber !== referrers[j].phoneNumber) {
+                                    res.message.push(
+                                        `Updated User: Name: ${users[i].firstName}, ID:${users[i].id}; New Phone Number: ${users[i].phoneNumber}, Old Phone Number: ${referrers[j].phoneNumber}`
+                                    );
+                                }
+                                if (users[i].email.toLowerCase() !== referrers[j].email) {
+                                    res.message.push(
+                                        `Updated User: Name: ${users[i].firstName}, ID:${users[i].id
+                                        }; New Email: ${users[i].email.toLowerCase()}, Old Email: ${referrers[j].email
+                                        }`
+                                    );
+                                }
+                                if (users[i].firstName !== referrers[j].firstName) {
+                                    res.message.push(
+                                        `Updated User: Name: ${users[i].firstName}, ID:${users[i].id}; New First Name: ${users[i].firstName}, Old First Name: ${referrers[j].firstName}`
+                                    );
+                                }
+                                if (users[i].lastName !== referrers[j].lastName) {
+                                    res.message.push(
+                                        `Updated User: Name: ${users[i].firstName}, ID:${users[i].id}; New Last Name: ${users[i].lastName}, Old Last Name: ${referrers[j].lastName}`
+                                    );
+                                }
+                                if (users[i].status !== referrers[j].status) {
+                                    res.message.push(
+                                        `Updated User: Name: ${users[i].firstName}, ID:${users[i].id}; New Status: ${users[i].status}, Old Status ${referrers[j].status}`
+                                    );
+                                }
+                            }
+                        } catch (error) {
+                            console.log(error);
+                            res.updateErrors.push(error);
+                        }
+                        await users.splice(i, 1);
+                    }
+                }
+            }
+            for (let user of users) {
+                try {
+                    const referrersObject = {
+                        firstName: user.firstName,
+                        lastName: user?.lastName,
+                        userId: user.id,
+                        email: user?.email,
+                        phoneNumber: user.phoneNumber,
+                        type: user?.type,
+                        status: user?.status,
+                    };
+                    const saveMongo = new Referrer(referrersObject);
+                    await saveMongo.save();
+                    res.newUsers.push(saveMongo);
+                } catch (error) {
+                    console.log(error);
+                    res.addErrors.push(error);
+                }
+            }
+            return res;
+        } catch (error) {
+            console.log(error);
+        }
     }
 }

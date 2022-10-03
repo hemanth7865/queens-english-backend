@@ -26,6 +26,7 @@ export const Status = {
     ERROR: "error",
     ONBOARDING: "onboarding",
     ONBOARDING_ISSUE: "onboardingIssue",
+    ENROLLED_CAPS: "Enrolled",
 }
 
 export const SUBSCRIPTION_TYPE = {
@@ -62,10 +63,16 @@ export const NULL_STRING = {
     NULL: "null"
 }
 
+export const MONGOOSE_OPTIONS = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
+
 /**
  * TODO: Add all used cosmos API links here
  */
 export const COSMOS_API = {
     GET_BATCH: (id: string): string => `/api/classProfile/${id}`,
-    STORE_SHORT_LINK: "/api/shortlink"
+    STORE_SHORT_LINK: "/api/shortlink",
+    STORE_CLASS_ATTENDANCE: "/api/classAttendance",
 };

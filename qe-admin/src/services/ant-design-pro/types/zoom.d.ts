@@ -39,7 +39,8 @@ declare namespace Zoom {
     | "GENERIC_STUDENT"
     | "GENERIC_TEACHER"
     | "PUBLIC_STUDENT"
-    | "PUBLIC_TEACHER";
+    | "PUBLIC_TEACHER"
+    | "GENERIC_UNIQUE_STUDENT";
 }
 
 export default Zoom;

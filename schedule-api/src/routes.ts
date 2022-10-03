@@ -560,6 +560,12 @@ export const Routes = [
   },
   {
     method: "get",
+    route: "/c/us/:userCode",
+    controller: ZoomController,
+    action: "redirectUniqueStudent",
+  },
+  {
+    method: "get",
     route: "/c/t/:teacherCode",
     controller: ZoomController,
     action: "redirectTeacher",
@@ -589,5 +595,38 @@ export const Routes = [
     action: "deactivateStudents",
     authenticate: false,
   },
-  
+  {
+    method: "post",
+    route: "/generate/zoom/join/links/bulk",
+    controller: ZoomController,
+    action: "generateStudentsJoinLink",
+    authenticate: false,
+  },
+  {
+    method: "post",
+    route: "/generate/user/unique/code/bulk",
+    controller: UserController,
+    action: "generateUsersCode",
+    authenticate: false,
+  },
+  {
+    method: "post",
+    route: "/zoom/sync/attendance",
+    controller: ZoomController,
+    action: "syncAttendance",
+    authenticate: false,
+  },
+  {
+    method: "post",
+    route: "/student/validate/status",
+    controller: UserController,
+    action: "validateStudentStatus",
+    authenticate: false,
+  },
+  {
+    method: "get",
+    route: "/sync-users-to-mongo",
+    controller: UserController,
+    action: "syncUsersToMongo",
+  },
 ];

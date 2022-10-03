@@ -86,7 +86,9 @@ export class LeadView {
   classCode?: string;
   teacherCode?: string;
   useNewZoomLink?: number;
+  userCode?: string;
   batchesClassesStartDate?: string;
+  useAutoAttendance?: string;
   forceRazorpayMoveSAV?: any;
 
   public constructor(id: string, leadId: string, date: string, name: string, experience: string, mobile: string, email: string, status: string, classestaken: number,

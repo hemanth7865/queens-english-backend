@@ -4,7 +4,9 @@ import zoomClient from "./zoomClient";
 import { jsonToString } from "./../helpers";
 const { logger } = require("../../Logger.js");
 
-export async function resetZoomMeetingsSettings(): Promise<any> {
+export async function resetZoomMeetingsSettings(
+  customWhere = ""
+): Promise<any> {
   let result = {
     total: 0,
     success: 0,
@@ -15,6 +17,7 @@ export async function resetZoomMeetingsSettings(): Promise<any> {
     const meetings = await createQueryBuilder(ZoomMeeting, "meeting")
       .leftJoinAndSelect("meeting.batch", "batch")
       .leftJoinAndSelect("meeting.zoom_user", "zoom_user")
+      .where(customWhere)
       .getMany();
 
     result.total = meetings.length;
@@ -31,6 +34,11 @@ export async function resetZoomMeetingsSettings(): Promise<any> {
         const response = await zoomClient.updateMeeting(
           meeting.id,
           meetingSettings
+        );
+
+        await this.classesRepository.update(
+          { id: meeting.batch.id },
+          { meetingSettingsTracked: 1 }
         );
 
         await new Promise((resolve, reject) => setTimeout(resolve, 100));

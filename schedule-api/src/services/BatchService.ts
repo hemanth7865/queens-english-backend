@@ -9,6 +9,7 @@ import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
 import { StudentService } from "./StudentService";
 import { ZoomMeetingService } from "./ZoomMeetingService";
+import { UserZoomLinkService } from "./UserZoomLinkService";
 import { Classes } from "../entity/Classes";
 import { BatchView } from "../model/BatchView";
 import { TeacherView } from "../model/TeacherView";
@@ -19,6 +20,7 @@ import { COSMOS_API } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
+import { UserZoomLink } from "../entity/UserZoomLink";
 import {
   updateBatchesTeacherCode,
   getUniqueCode,
@@ -166,10 +168,9 @@ export class BatchService {
           zoomLink: data.zoomLink,
           zoomInfo: data.zoomInfo,
           whatsappLink: data.whatsappLink,
+          useAutoAttendance: data.useAutoAttendance
         },
       };
-
-      console.log("options",options)
 
       var res1 = {};
       if (!data.id || create) {
@@ -204,8 +205,7 @@ export class BatchService {
 
         res1 = await axios
           .put(options.url, options.body)
-          .then(async (res) => {
-
+          .then(async (res) => {;
             var batch = await this.updateBatchSql(data);
             return batch;
           })
@@ -225,8 +225,11 @@ export class BatchService {
        */
       if (ENABLE_ZOOM) {
         const meetingService = new ZoomMeetingService();
+        const userZoomLink = new UserZoomLinkService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
+        await userZoomLink.generateStudentsJoinLink(data);
         await meetingService.syncZoomLinksWithCosmos();
+
       }
 
       return res1;
@@ -248,7 +251,6 @@ export class BatchService {
 
   async deleteBatch(data: any) {
     const alreadyExists: any = await this.batchExists(data, 'id');
-    console.log(data);
     if (!alreadyExists?.id) {
       return { status: false, message: "Batch Not Found" };
     }
@@ -334,7 +336,6 @@ export class BatchService {
   }
 
   async updateBatchAgeGroup(batch: Classes) {
-    console.log(batch);
     try {
       let students: any[];
       students = await getRepository(BatchStudent)
@@ -344,7 +345,6 @@ export class BatchService {
         .where("batchStudent.batchId = :id", { id: batch.id })
         .getMany();
 
-      console.log(students);
 
       const moment = require("moment");
 
@@ -450,6 +450,9 @@ export class BatchService {
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
+      if (typeof data.useAutoAttendance != "undefined") {
+        classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+      }
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -470,14 +473,12 @@ export class BatchService {
           if (element.start_slot) {
             let time = element.start_slot.split(":");
             batchAvail.start_slot = time[0];
-            console.log("time is ", time);
             batchAvail.start_min = time[1];
             batchAvail.startMin = time[0] * 60 + time[1];
           }
           if (element.end_slot) {
             let time = element.end_slot.split(":");
             batchAvail.end_slot = time[0];
-            console.log("time is ", time);
             batchAvail.end_min = time[1];
             batchAvail.endMin = time[0] * 60 + time[1];
           }
@@ -533,6 +534,7 @@ export class BatchService {
 
   async updateBatchSql(data: any) {
     try {
+      const oldBatch = await this.classesRepository.findOne({id: data.id})
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
@@ -560,9 +562,20 @@ export class BatchService {
       // sync batch zoom link to cosmos
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
-        classes.sync_zoom_status = 0;
+        if(oldBatch?.useNewZoomLink != classes.useNewZoomLink){
+          classes.sync_zoom_status = 0;
+        }
       }
-
+      if (typeof data.useAutoAttendance != "undefined") {
+        classes.useAutoAttendance = parseInt(data.useAutoAttendance);
+        /**
+         * Update meeting settings and sync links once useAutoAttendance Is Changed.
+         */
+        if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
+          classes.meetingSettingsTracked = 0;
+          classes.sync_zoom_status = 0;
+        }
+      }
       if (data.id) {
         classes.id = data.id;
         classes.updated_at = new Date();
@@ -600,8 +613,6 @@ export class BatchService {
         .catch((error) => {
           return Promise.reject(error);
         });
-
-      console.log(res1);
     }
   }
 
@@ -722,7 +733,6 @@ export class BatchService {
     else {
       orderClause = ` classes.created_at DESC `;
     }
-    console.log('order: ' + orderClause);
 
     const createdBy = parameters.createdBy;
     if (createdBy) {
@@ -782,7 +792,6 @@ export class BatchService {
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from 
     classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
-    console.log(quer);
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
@@ -893,14 +902,41 @@ export class BatchService {
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
       .leftJoin("batchStudent.student", "student")
-      .addSelect(["student.firstName", "student.lastName", "student.phoneNumber"])
+      .leftJoin(
+        UserZoomLink,
+        "join_link",
+        "join_link.batch_id = batchStudent.batchId AND join_link.id = batchStudent.studentId"
+      )
+      .addSelect([
+        "student.firstName",
+        "student.lastName",
+        "student.phoneNumber",
+        "student.userCode",
+        "join_link.join_url",
+        "join_link.email",
+      ])
       .where("batchStudent.batchId = :id", { id: batchId })
-      .getMany();
+      .getRawMany();
     const zoomMeeting = await this.zoomMeetingRepository.findOne({ batch_id: classes?.id });
     const zoomUser = await this.zoomUserRepository.findOne({ user_id: classes?.teacherId });
     teacherView.classes = classes;
     teacherView.batchAvailability = [batchavail];
-    teacherView.students = students;
+    teacherView.students = students.map((student): any => ({
+      id: student.batchStudent_id,
+      batchId: student.batchStudent_batchId,
+      studentId: student.batchStudent_studentId,
+      type: student.batchStudent_type,
+      created_at: student.batchStudent_created_at,
+      updated_at: student.batchStudent_updated_at,
+      student: {
+        firstName: student.student_firstName,
+        lastName: student.student_lastName,
+        phoneNumber: student.student_phoneNumber,
+        userCode: student.student_userCode,
+        join_url: student.join_link_join_url,
+        join_email: student.join_link_email,
+      },
+    }));
     teacherView.zoomMeeting = zoomMeeting;
     teacherView.zoomUser = zoomUser;
     return {

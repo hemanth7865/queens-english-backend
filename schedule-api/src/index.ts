@@ -11,17 +11,20 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const fileUpload = require('express-fileupload');
 import * as utils from './utils/payment/RazorPayUtils';
+import { MONGOOSE_OPTIONS } from "./helpers/Constants";
+const mongoose = require("mongoose");
 
 export default {
   utils
 }
 
+// create express app
+const app = express();
+
 // get config vars
 dotenv.config();
 createConnection()
   .then(async (connection) => {
-    // create express app
-    const app = express();
     app.use(fileUpload());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
@@ -121,3 +124,14 @@ function authenticateAPIKey(req, res, next) {
 
   next();
 }
+
+/**
+ * Connection to MongoDB
+ */
+(async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URL, MONGOOSE_OPTIONS);
+  } catch (error) {
+    console.log(error);
+  }
+})();

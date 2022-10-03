@@ -24,8 +24,6 @@ export class validations {
                 ...payments
             }
         }
-        console.log('std', student);
-        console.log('total', total, typeof total.forceRazorpayMoveSAV);
         var status = "Enrolled";
         var message;
         var p = total;

@@ -68,6 +68,11 @@
         access: "canSuperAdmin",
       },
       {
+        name: "Attendance",
+        path: "/manage/attendance",
+        component: "./Attendance",
+      },
+      {
         name: "Onboard",
         path: "/manage/dashboard",
         routes: [
