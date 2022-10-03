@@ -842,7 +842,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                 <Form.Item name="classesStartDate"
                   label="First Ever Start Date"
                 >
-                  <Input type="date" onChange={onChange} disabled={(access.canSuperAdmin) ? false : (props.tempData.status === 'active' &&
+                  <Input type="date" onChange={onChange} disabled={(access.canSuperAdmin) ? false : ((props.tempData.status === 'active' || props.tempData.status === 'inactive') &&
                     typeof props.tempData?.classesStartDate !== 'undefined' && props.tempData?.classesStartDate?.length > 1) ? true : false} />
                 </Form.Item>
               </Col>
