@@ -1,10 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { ZoomUserService } from "../services/ZoomUsersService";
 import { ZoomMeetingService } from "../services/ZoomMeetingService";
+import { UserZoomLinkService } from "../services/UserZoomLinkService";
+import { ZoomAttendanceService } from "../services/ZoomAttendanceService";
 
 export class ZoomController {
   private zoomUserService = new ZoomUserService();
   private zoomMeetingService = new ZoomMeetingService();
+  private userZoomLinkService = new UserZoomLinkService();
+  private zoomAttendanceService = new ZoomAttendanceService();
 
   /**
    * Get Teachers List That Don't Have License (Zoom User Yet)
@@ -347,7 +351,52 @@ export class ZoomController {
   ) {
     this.zoomMeetingService.request = request;
     const result = await this.zoomMeetingService.redirectStudent(
-      request.params.batchCode
+      request.params.batchCode,
+      request
+    );
+
+    if (result.showData) {
+      response.status(200).send(result.message);
+      return;
+    }
+
+    if (result.getData) {
+      response.status(500).send(`
+        <script>
+          const phone = window.prompt("${result.message}");
+          window.location.href = window.location.href.split("?")[0] + "?phoneNumber="+phone
+        </script>
+      `);
+      return;
+    }
+
+    if (result.error) {
+      response.status(404).send("Not found");
+      return;
+    }
+
+    if (result.link) {
+      return response.redirect(result.link);
+    }
+
+    return result;
+  }
+
+  /**
+   * Redirect To Zoom Meeting Based On Selected Batch Code For Student.
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async redirectUniqueStudent(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.userZoomLinkService.request = request;
+    const result = await this.userZoomLinkService.redirectUniqueStudent(
+      request.params.userCode
     );
 
     if (result.error) {
@@ -389,5 +438,37 @@ export class ZoomController {
     }
 
     return result;
+  }
+
+  /**
+   * Generate Students Join Link
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async generateStudentsJoinLink(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.userZoomLinkService.request = request;
+    return await this.userZoomLinkService.generateStudentsJoinLink();
+  }
+
+  /**
+   * Sync Zoom Attendance
+   * @param request
+   * @param response
+   * @param next
+   * @returns
+   */
+  async syncAttendance(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    this.zoomAttendanceService.request = request;
+    return await this.zoomAttendanceService.syncAttendance();
   }
 }

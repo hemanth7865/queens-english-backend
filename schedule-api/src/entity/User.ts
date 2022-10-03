@@ -9,6 +9,7 @@ import { TeacherAvailability } from "./TeacherAvailability";
 import { StudentAvailability } from "./StudentAvailability";
 import { Payment } from "./Payment";
 import { ZoomUser } from "./ZoomUser";
+import { UserZoomLink } from "./UserZoomLink";
 //import { Lead } from "./Lead";
 
 @Entity("user")
@@ -88,6 +89,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   slots: string;
 
+  @Column({ nullable: true })
+  userCode: string;
+
   @Column({ nullable: true, type: "boolean" })
   isSibling: boolean;
 
@@ -104,4 +108,7 @@ export class User extends BaseEntity {
   @OneToOne((type) => ZoomUser, (zoom_user) => zoom_user.user)
   @JoinColumn({ name: "id" })
   zoom_user: ZoomUser;
+  @OneToOne((type) => ZoomUser, (zoom_user) => zoom_user.user)
+  @JoinColumn({ name: "id" })
+  join_link: UserZoomLink;
 }

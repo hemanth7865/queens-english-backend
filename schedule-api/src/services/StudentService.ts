@@ -14,6 +14,7 @@ import { Payment } from "../entity/Payment";
 import { PRManager } from "../entity/PRManager";
 import { LQSService } from "./LQSService";
 import { CollectionAgentService } from "./CollectionAgentService";
+import { UserService } from "./UserService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
 import { getDateOutOfDateTime } from "./../helpers/index";
@@ -155,7 +156,14 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.isSibling, s.studentID, s.callStatus, u.firstName, u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile, u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age, CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,  CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason, s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent, s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
+    u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
+    u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age,
+    CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
+    CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
+    s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
+    s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
+    ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
 
@@ -184,7 +192,7 @@ export class StudentService {
 
       if (type == "student") {
         var quer =
-          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, classCode, teacherCode, useNewZoomLink from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, classCode, teacherCode, useNewZoomLink, useAutoAttendance from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
         var quer2 = "select batchId from batch_students where studentId='" +
@@ -308,11 +316,13 @@ export class StudentService {
         batchesHistory.length != 0 ? batchesHistory[0].batchesClassesStartDate ? batchesHistory[0].batchesClassesStartDate : '' : '',
       );
       l.batchId = batchId,
-        l.isSibling = element.isSibling;
+      l.isSibling = element.isSibling;
       l.classCode = batchCodes[0]?.classCode;
+      l.useAutoAttendance = batchCodes[0]?.useAutoAttendance;
       l.teacherCode = batchCodes[0]?.teacherCode;
       l.useNewZoomLink = batchCodes[0]?.useNewZoomLink;
       l.batchesHistory = batchesHistory;
+      l.userCode = element.userCode;
       leadView.push(l);
     }
 
@@ -330,6 +340,14 @@ export class StudentService {
     usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
+    let oldUser;
+
+    if(data.id){
+      oldUser = await this.usersRepository.findOne({id: data.id});
+      if(!data.userCode && oldUser && oldUser.userCode){
+        data.userCode = oldUser.userCode;
+      }
+    }
 
     const cosmosUserBody: any = {
       type: data.type,
@@ -340,6 +358,7 @@ export class StudentService {
       phoneNumber: data.phoneNumber,
       classesStartDate: data.classesStartDate,
       batchesClassesStartDate: data.batchesClassesStartDate,
+      userCode: data.userCode,
       status: data.status,
     }
 
@@ -676,6 +695,7 @@ export class StudentService {
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
     try {
+      const userSerivce = new UserService();
       var studentAvailabilityList: StudentAvailability[] = [];
       var teacherAvailability: TeacherAvailability[] = [];
 
@@ -716,6 +736,8 @@ export class StudentService {
       }
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
+
+      await userSerivce.generateUsersCode();
 
       return { ...user };
     } catch (error) {

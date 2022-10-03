@@ -23,8 +23,8 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
-    private batchController = new BatchController();
     private userService = new UserService();
+    private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
         return this.usersRepository.find();
@@ -335,6 +335,16 @@ export class UserController {
         try {
             usersLogger.info("Fetching student Active Batches");
             resp = await this.studentService.deactivateStudents(ids);
+        } catch (error) {
+            console.log(error);
+        }
+        return resp;
+    }
+
+    async generateUsersCode(request: Request, response: Response, next: NextFunction) {
+        let resp = {};
+        try {
+            resp = await this.userService.generateUsersCode();
         } catch (error) {
             console.log(error);
         }

@@ -73,5 +73,6 @@ export const MONGOOSE_OPTIONS = {
  */
 export const COSMOS_API = {
     GET_BATCH: (id: string): string => `/api/classProfile/${id}`,
-    STORE_SHORT_LINK: "/api/shortlink"
+    STORE_SHORT_LINK: "/api/shortlink",
+    STORE_CLASS_ATTENDANCE: "/api/classAttendance",
 };

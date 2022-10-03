@@ -37,7 +37,7 @@
       "tsc": "^2.0.3",
       "typeorm": "0.2.41",
       "winston-daily-rotate-file": "^4.7.1",
-      "zoomAPIClient": "file:../modules/zoomAPIClient"
+      "zoom-api-client": "^1.0.9"
    },
    "scripts": {
       "start": "ts-node src/index.ts",

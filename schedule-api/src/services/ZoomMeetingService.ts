@@ -1,4 +1,4 @@
-import { getRepository, getManager, createQueryBuilder, Not } from "typeorm";
+import { getRepository, getManager, createQueryBuilder, Like } from "typeorm";
 import { User } from "../entity/User";
 import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
@@ -22,6 +22,7 @@ export class ZoomMeetingService {
   };
   public zoomMeetingApproveType = {
     NO_REGISTRATION_REQUIRED: 2,
+    REGISTRATION_REQUIRED: 0,
   };
   public MEETING_TIMEZONE = "Asia/Kolkata";
 
@@ -169,7 +170,9 @@ export class ZoomMeetingService {
       password: "QE",
       // pre_schedule: true,
       settings: {
-        approval_type: this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
+        approval_type: batch.useAutoAttendance
+          ? this.zoomMeetingApproveType.REGISTRATION_REQUIRED
+          : this.zoomMeetingApproveType.NO_REGISTRATION_REQUIRED,
         join_before_host: true,
         meeting_authentication: false,
         waiting_room: false,
@@ -510,13 +513,62 @@ export class ZoomMeetingService {
     }
   }
 
-  async redirectStudent(classCode: string): Promise<any> {
-    let result: { link?: string; error?: boolean } = {};
+  async redirectStudent(classCode: string, req: any): Promise<any> {
+    let result: {
+      link?: string;
+      error?: boolean;
+      getData?: boolean;
+      showData?: boolean;
+      message?: string;
+      logs?: any;
+    } = {};
 
     try {
       const batch = await this.classesRepository.findOne({
         classCode,
       });
+
+      if (batch.useAutoAttendance === 1) {
+        result.message =
+          "This link is disabled, please write your phone number to get the new link.";
+
+        if (req.query.phoneNumber && req.query.phoneNumber.length > 9) {
+          result.message = `Phone number ${req.query.phoneNumber} isn't correct, please ensrue to type correct phone number.`;
+          const users = await this.usersRepository.find({
+            phoneNumber: Like(`%${req.query.phoneNumber}%`),
+            type: "student",
+          });
+
+          if (users.length > 0) {
+            result.showData = true;
+            result.message = `<h3>Your join zoom link${
+              users.length > 1 ? "s" : ""
+            }: </h3><table>
+            <tr><th>Student</th><th>Join Link</th></tr>`;
+            for (const user of users) {
+              const link = `https://${req.headers.host}${
+                req.headers.host === "testadmin.thequeensenglish.co"
+                  ? "/be"
+                  : ""
+              }${req.originalUrl
+                .split("?")[0]
+                .replace("s/" + classCode, "us/" + user.userCode)}`;
+              result.message += `
+                <tr>
+                  <td>${user.firstName} ${user.lastName}</td>
+                  <td><a target="_blank" href="${link}">${link}</a></td>
+                </tr>
+              `;
+            }
+
+            result.message += `</table>`;
+          }
+        }
+
+        result.getData = true;
+
+        return result;
+      }
 
       let meeting: any;
 
@@ -758,7 +810,7 @@ export class ZoomMeetingService {
 
   syncZoomLinksWithCosmos() {}
 
-  resetZoomMeetingsSettings() {}
+  resetZoomMeetingsSettings(customWhere = "") {}
 }
 
 ZoomMeetingService.prototype.syncZoomLinksWithCosmos = syncZoomLinksWithCosmos;

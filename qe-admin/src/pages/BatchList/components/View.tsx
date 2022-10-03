@@ -135,10 +135,10 @@ const View = ({ batchData, isLoading }: Props) => {
         <TabPane tab="Zoom" key="2">
           <Row gutter={[16, 15]}>
             <Col span={8}>
-              <div>Use New Zoom Link?</div>
+              <div>Use Auto Attendance?</div>
             </Col>
             <Col span={16}>
-              <div>{classes?.useNewZoomLink ? "Yes" : "No"}</div>
+              <div>{classes?.useAutoAttendance ? "Yes" : "No"}</div>
             </Col>
 
             <Col span={8}>
@@ -170,20 +170,6 @@ const View = ({ batchData, isLoading }: Props) => {
 
               <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{PUBLIC_STUDENT_LINK}</a></div>
             </Col>
-
-            <Col span={8}>
-              <div>Old Zoom Link</div>
-            </Col>
-            <Col span={16}>
-              <div><a href={classes?.zoomLink} target="_blank">{classes?.zoomLink || "NA"}</a></div>
-            </Col>
-
-            <Col span={8}>
-              <div>Old Zoom Info</div>
-            </Col>
-            <Col span={16}>
-              <div> {classes?.zoomInfo || "NA"}</div>
-            </Col>
           </Row>
         </TabPane>
         <TabPane tab="Students" key="3">
@@ -203,6 +189,15 @@ const View = ({ batchData, isLoading }: Props) => {
               title: "Phone Number",
               dataIndex: "phoneNumber",
               key: "phoneNumber"
+            },
+            {
+              title: "Join URL",
+              dataIndex: "join_url",
+              key: "join_url",
+              render: (_: any, record: any) => {
+                const join_url = getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, classes, false, record);
+                return <a href={join_url} target={"_blank"}>{join_url}</a>
+              }
             }
           ]} />
         </TabPane>
