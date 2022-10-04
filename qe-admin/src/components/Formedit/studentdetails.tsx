@@ -1368,7 +1368,25 @@ Queen's English मे अगर आपको किसी तरह की स�
                     >
                       <Input type="number" />
                     </Form.Item>
-                  </Col></>
+                  </Col>
+                  {(props.onboardpage || props.welcomepage) && (
+                    <Col span={12}>
+                      <Form.Item
+                        label="EMI payment status"
+                        name="emiPaymentStatus"
+                        rules={[{
+                          required: true,
+                        }]}
+                      >
+                        <Select placeholder="Select EMI Payment Status" onChange={onChange}>
+                          {Object.values(EmiPaymentStatus).map((emiStatus) => (
+                            <Option value={emiStatus}>{emiStatus}</Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  )}
+                </>
               ) : (
                 <><Col span={12}>
                   <Form.Item
@@ -1427,6 +1445,9 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Form.Item
                       label="EMI payment status"
                       name="emiPaymentStatus"
+                      rules={[{
+                        required: true,
+                      }]}
                     >
                       <Select placeholder="Select EMI Payment Status" onChange={onChange}>
                         {Object.values(EmiPaymentStatus).map((emiStatus) => (
