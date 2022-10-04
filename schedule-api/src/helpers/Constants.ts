@@ -10,6 +10,8 @@ export const PAYMENT_MODE = {
     CASHFREE: 'Cashfree',
     DOWNPAYMENT_RAZORPAY: "Razorpay",
     DOWNPAYMENT_CASHFREE: "Cashfree",
+    JODO: "Jodo",
+    AKSHAR: "Akshar",
 };
 
 
@@ -64,8 +66,8 @@ export const NULL_STRING = {
 }
 
 export const MONGOOSE_OPTIONS = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 };
 
 /**

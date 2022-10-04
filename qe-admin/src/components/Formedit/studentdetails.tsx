@@ -189,9 +189,9 @@ I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.p
 *Batch:* ${props.tempData.batchCode}
 *Time:* ${props.tempData.timings} India
 *Frequency:* ${props.tempData.courseFrequency}
-*Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, 
-{ classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true, 
-{userCode: props.tempData.userCode})}
+*Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+    { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true,
+    { userCode: props.tempData.userCode })}
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
@@ -231,7 +231,7 @@ Queen's English मे अगर आपको किसी तरह की स�
     message.success('Message copied');
   };
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, 
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string,
     classCode: string, useNewZoomLink: number, userCode: string, useAutoAttendance: number) => {
     const waMessage = (
       <div >
@@ -251,7 +251,7 @@ Queen's English मे अगर आपको किसी तरह की स�
           <b>*Batch:*</b> {batchCode}<br />
           <b>*Time:*</b> {timings} India<br />
           <b>*Frequency:*</b> {days}<br />
-          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, {userCode})}<br />
+          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, { userCode })}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
@@ -1323,6 +1323,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
+                        <Option value="Jodo">Jodo</Option>
+                        <Option value="Akshar">Akshar</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>
@@ -1384,6 +1386,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
+                        <Option value="Jodo">Jodo</Option>
+                        <Option value="Akshar">Akshar</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>
