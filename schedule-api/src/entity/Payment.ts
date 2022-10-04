@@ -59,4 +59,6 @@ export class Payment extends BaseEntity {
   created_at: Date;
   @UpdateDateColumn()
   updated_at: Date;
+  @Column({ nullable: false })
+  emiPaymentStatus: string;
 }

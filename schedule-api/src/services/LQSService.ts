@@ -7,7 +7,7 @@ import { LQSEntry } from "../entity/LQSEntry";
 import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
 import { randomFill } from "crypto";
-import { Constants } from "../helpers/Constants";
+import { Constants, EMI_PAYMENT_STATUS } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 import { PRManager } from "../entity/PRManager";
@@ -52,9 +52,9 @@ export class LQSService {
     );
     var totalPrms = prms.length;
 
-    lqsEntries.forEach(async (element,index) => {
+    lqsEntries.forEach(async (element, index) => {
       usersLogger.info(element.id);
-      var userDetails = await this.fillLeadDetails(element,prms,index%totalPrms);
+      var userDetails = await this.fillLeadDetails(element, prms, index % totalPrms);
       // var userDetails = await this.fillLeadDetails(element);
       element.lsqstatus = "created";
       await this.lQSRepository.save(element);
@@ -62,23 +62,23 @@ export class LQSService {
     usersLogger.info('Created students in Admin portal::End');
   }
 
-  async updatePrmsLatestAssignment(prm_id:any) {
+  async updatePrmsLatestAssignment(prm_id: any) {
     await this.prmRepository.update({ id: prm_id }, { latestAssignment: moment().valueOf() })
   }
 
   async getPRMsAvailability() {
     var prmsData = await this.prmRepository.find({
-      where : {
-        allocate : 1,
+      where: {
+        allocate: 1,
       },
-      order : {
-        latestAssignment : 'ASC',
+      order: {
+        latestAssignment: 'ASC',
       }
     });
     // Updating latest assignment value of prm
-    if(prmsData[0]?.id){
+    if (prmsData[0]?.id) {
       prmsData[0].latestAssignment = moment().valueOf();
-      await this.prmRepository.update({id : prmsData[0].id}, prmsData[0]);
+      await this.prmRepository.update({ id: prmsData[0].id }, prmsData[0]);
     }
     return prmsData;
   }
@@ -141,7 +141,7 @@ export class LQSService {
    * Fetch data from LSQ
    * @param element
    */
-  async fillLeadDetails(element: any,prms?: any,prmIndex?: any) {
+  async fillLeadDetails(element: any, prms?: any, prmIndex?: any) {
     try {
       var user = new User();
       var payment = new Payment();
@@ -202,6 +202,7 @@ export class LQSService {
       payment.paymentMode = element.paymentMode;
       payment.paymentid = element.transactionID;
       payment.notes = element.bdaComments;
+      payment.emiPaymentStatus = (element.saleamount && element.saleamount === element.downpayment) ? EMI_PAYMENT_STATUS.FULLY_PAID : element.subscription === 'Manual (Quarterly)' ? EMI_PAYMENT_STATUS.QUARTERLY_PAID : EMI_PAYMENT_STATUS.PENDING;
 
       usersLogger.info(`Applying Validate ${user.id}`);
       const validateStudent = await (new validations()).validateStudent('LSQValidate', student, user, payment);
@@ -214,10 +215,10 @@ export class LQSService {
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
 
-      if(prms && prms.length>0){
+      if (prms && prms.length > 0) {
         student.prm_id = prms[prmIndex].id;
         await this.updatePrmsLatestAssignment(prms[prmIndex].id);
-      }else{
+      } else {
         student.prm_id = parseInt(await (await this.getPRMsAvailability())[0].id);
       }
 

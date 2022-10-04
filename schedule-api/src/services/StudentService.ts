@@ -315,7 +315,7 @@ export class StudentService {
         element.onboardingIssueReason,
         batchesHistory.length != 0 ? batchesHistory[0].batchesClassesStartDate ? batchesHistory[0].batchesClassesStartDate : '' : '',
       );
-      l.batchId = batchId,
+      l.batchId = batchId;
       l.isSibling = element.isSibling;
       l.classCode = batchCodes[0]?.classCode;
       l.useAutoAttendance = batchCodes[0]?.useAutoAttendance;
@@ -342,9 +342,9 @@ export class StudentService {
     const queryRunner = connection.createQueryRunner();
     let oldUser;
 
-    if(data.id){
-      oldUser = await this.usersRepository.findOne({id: data.id});
-      if(!data.userCode && oldUser && oldUser.userCode){
+    if (data.id) {
+      oldUser = await this.usersRepository.findOne({ id: data.id });
+      if (!data.userCode && oldUser && oldUser.userCode) {
         data.userCode = oldUser.userCode;
       }
     }
@@ -566,6 +566,7 @@ export class StudentService {
           : 0;
         payment.notes = element.notes;
         payment.forceRazorpayMoveSAV = element.forceRazorpayMoveSAV;
+        payment.emiPaymentStatus = element.emiPaymentStatus;
         payments.push(payment);
       }
     }

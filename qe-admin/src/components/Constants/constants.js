@@ -22,3 +22,9 @@ export const CountryCode = {
   COUNTRYCODE_AFGHANISTAN: "+93",
   COUNTRYCODE_OMAN: "+968",
 };
+
+export const EmiPaymentStatus = {
+  PENDING: "Pending",
+  FULLY_PAID: "Fully Paid",
+  QUARTERLY_PAID: "Quarterly paid",
+};
