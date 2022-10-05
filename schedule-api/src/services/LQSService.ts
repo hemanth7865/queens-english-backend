@@ -68,17 +68,17 @@ export class LQSService {
 
   async getPRMsAvailability() {
     var prmsData = await this.prmRepository.find({
-      where:{
-        allocate:1,
+      where : {
+        allocate : 1,
       },
-      order:{
-        latestAssignment:'ASC',
+      order : {
+        latestAssignment : 'ASC',
       }
     });
     // Updating latest assignment value of prm
     if(prmsData[0]?.id){
       prmsData[0].latestAssignment = moment().valueOf();
-      await this.prmRepository.update({id: prmsData[0].id}, prmsData[0]);
+      await this.prmRepository.update({id : prmsData[0].id}, prmsData[0]);
     }
     return prmsData;
   }
@@ -215,7 +215,7 @@ export class LQSService {
       await this.updateCosmos(user, student, payment);
       await this.userRepository.save(user);
 
-      if(prms && prms.length>0) {
+      if(prms && prms.length>0){
         student.prm_id = prms[prmIndex].id;
         await this.updatePrmsLatestAssignment(prms[prmIndex].id);
       }else{
