@@ -737,7 +737,11 @@ export class StudentService {
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
 
-      await userSerivce.generateUsersCode();
+      if (
+        process.env.AUTO_RUN_GENERATE_STUDENT_CODE_DYNAMICALLY !== "NOT_ALLOWED"
+      ) {
+        await userSerivce.generateUsersCode();
+      }
 
       return { ...user };
     } catch (error) {
