@@ -342,9 +342,9 @@ export class StudentService {
     const queryRunner = connection.createQueryRunner();
     let oldUser;
 
-    if (data.id) {
-      oldUser = await this.usersRepository.findOne({ id: data.id });
-      if (!data.userCode && oldUser && oldUser.userCode) {
+    if(data.id){
+      oldUser = await this.usersRepository.findOne({id: data.id});
+      if(!data.userCode && oldUser && oldUser.userCode){
         data.userCode = oldUser.userCode;
       }
     }
