@@ -64,8 +64,14 @@ export const NULL_STRING = {
 }
 
 export const MONGOOSE_OPTIONS = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+};
+
+export const EMI_PAYMENT_STATUS = {
+    PENDING: "Pending",
+    FULLY_PAID: "Fully Paid",
+    QUARTERLY_PAID: "Quarterly paid",
 };
 
 /**
