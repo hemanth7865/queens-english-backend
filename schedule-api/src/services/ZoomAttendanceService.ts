@@ -132,7 +132,7 @@ export class ZoomAttendanceService {
             })
             .orderBy("created_at", "DESC")
             .getOne();
-          console.log(batchHistory);
+
           if (
             !student.student_classesStartDate ||
             moment(student.student_classesStartDate)
