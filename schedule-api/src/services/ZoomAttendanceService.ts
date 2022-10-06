@@ -61,7 +61,7 @@ export class ZoomAttendanceService {
       logs: [],
     };
 
-    const meetings = await this.getMeetings({ batchNumber: "QE525" });
+    const meetings = await this.getMeetings();
 
     let counter = 0;
 
