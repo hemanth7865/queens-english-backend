@@ -5,7 +5,7 @@ const fs = require("fs");
  */
 const lines = ``;
 
-const arrayList = lines.split(/\n/g);
+const arrayList = [...new Set(lines.split(/\n/g))];
 
 const result = arrayList.map((i) => `'${i}'`).join(",");
 

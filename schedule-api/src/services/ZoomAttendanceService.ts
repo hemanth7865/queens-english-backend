@@ -15,6 +15,7 @@ import { User } from "../entity/User";
 
 export class ZoomAttendanceService {
   private batchRepository = getRepository(Classes);
+  private batchHistroyRepository = getRepository(StudentBatchesHistory);
   public request: any = {};
   private logger = new LoggerService();
   private FULLY_ATTENDED_DURATION = 45 * 60;
@@ -116,38 +117,39 @@ export class ZoomAttendanceService {
           .createQueryBuilder(BatchStudent, "batch_student")
           .leftJoinAndSelect(User, "user", "user.id = batch_student.studentId")
           .leftJoinAndSelect(Student, "student", "user.id = student.id")
-          .leftJoinAndSelect(
-            StudentBatchesHistory,
-            "student_batch_history",
-            "student_batch_history.studentId = batch_student.studentId AND student_batch_history.batchId = batch_student.batchId"
-          )
-          .where(
-            `batch_student.batchId = '${meeting.batch_id}' AND 
-            student_batch_history.id = (SELECT id from student_batches_history WHERE studentId = batch_student.studentId ORDER BY created_at DESC limit 1) 
-            ORDER BY student_batch_history.batchesClassesStartDate DESC`
-          )
+          .where(`batch_student.batchId = '${meeting.batch_id}'`)
           .getRawMany();
 
         /**
          * Get only allowed students
          */
-        students.map((i) => {
+        for (const student of students) {
+          const batchHistory = await this.batchHistroyRepository
+            .createQueryBuilder()
+            .where({
+              studentId: student.user_id,
+              batchId: student.batch_student_batchId,
+            })
+            .orderBy("created_at", "DESC")
+            .getOne();
+
           if (
-            !i.student_classesStartDate ||
-            moment(i.student_classesStartDate)
+            !student.student_classesStartDate ||
+            moment(student.student_classesStartDate)
               .utcOffset(this.IST)
               .format("X") <= moment(attendDate, "DD-MM-YYYY").format("X")
           ) {
             if (
-              !i.student_batch_history_batchesClassesStartDate ||
-              moment(i.student_batch_history_batchesClassesStartDate)
+              !batchHistory ||
+              !batchHistory.batchesClassesStartDate ||
+              moment(batchHistory.batchesClassesStartDate)
                 .utcOffset(this.IST)
                 .format("X") <= moment(attendDate, "DD-MM-YYYY").format("X")
             ) {
-              allowedStudents.push(i.user_id);
+              allowedStudents.push(student.user_id);
             }
           }
-        });
+        }
 
         /**
          * Summarize participants and create one record for each valid student.
