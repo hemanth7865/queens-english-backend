@@ -5,7 +5,7 @@ const fs = require("fs");
  */
 const lines = ``;
 
-const result = lines.split(/\n/g);
+const result = [...new Set(lines.split(/\n/g))];
 
 fs.writeFile("result.txt", JSON.stringify(result), (r) => {
   console.log(result, result.length);
