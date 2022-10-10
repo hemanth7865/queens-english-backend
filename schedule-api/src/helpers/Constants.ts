@@ -70,6 +70,12 @@ export const MONGOOSE_OPTIONS = {
     useUnifiedTopology: true,
 };
 
+export const EMI_PAYMENT_STATUS = {
+    PENDING: "Pending",
+    FULLY_PAID: "Fully Paid",
+    QUARTERLY_PAID: "Quarterly paid",
+};
+
 /**
  * TODO: Add all used cosmos API links here
  */

@@ -8,7 +8,7 @@ import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
-import { CountryCode } from "../Constants/constants";
+import { CountryCode, EmiPaymentStatus } from "../Constants/constants";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
@@ -81,6 +81,7 @@ export type StudentdetailseditProps = {
     onboardingIssueReason?: string;
     batchesClassesStartDate?: any;
     forceRazorpayMoveSAV?: any;
+    emiPaymentStatus?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -159,6 +160,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         paymentMode: value.paymentMode,
         notes: value.notes,
         forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
+        emiPaymentStatus: value.emiPaymentStatus
       }] : null
     }
     if (paymentTally == 0) {
@@ -192,6 +194,7 @@ I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.p
 *Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
     { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true,
     { userCode: props.tempData.userCode })}
+
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
@@ -395,6 +398,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         notes: props.tempData.notes,
         onboardingIssueReason: props.tempData.onboardingIssueReason,
         batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
+        emiPaymentStatus: props.tempData.emiPaymentStatus,
       })) : ('')
     };
   }
@@ -458,6 +462,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.notes : '',
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
       !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
+      !props.studentManageradd ? props.tempData.emiPaymentStatus : null,
     ]
   )
 
@@ -1366,7 +1371,25 @@ Queen's English मे अगर आपको किसी तरह की स�
                     >
                       <Input type="number" />
                     </Form.Item>
-                  </Col></>
+                  </Col>
+                  {(props.onboardpage || props.welcomepage) && (
+                    <Col span={12}>
+                      <Form.Item
+                        label="EMI payment status"
+                        name="emiPaymentStatus"
+                        rules={[{
+                          required: true,
+                        }]}
+                      >
+                        <Select placeholder="Select EMI Payment Status" onChange={onChange}>
+                          {Object.values(EmiPaymentStatus).map((emiStatus) => (
+                            <Option value={emiStatus}>{emiStatus}</Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  )}
+                </>
               ) : (
                 <><Col span={12}>
                   <Form.Item
@@ -1422,7 +1445,23 @@ Queen's English मे अगर आपको किसी तरह की स�
                     >
                       <Input onChange={onChange} type="number" />
                     </Form.Item>
-                  </Col></>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label="EMI payment status"
+                      name="emiPaymentStatus"
+                      rules={[{
+                        required: true,
+                      }]}
+                    >
+                      <Select placeholder="Select EMI Payment Status" onChange={onChange}>
+                        {Object.values(EmiPaymentStatus).map((emiStatus) => (
+                          <Option value={emiStatus}>{emiStatus}</Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </>
               )}
             </Row></>
           ) : ('')

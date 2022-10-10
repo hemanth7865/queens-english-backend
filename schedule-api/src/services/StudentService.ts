@@ -315,7 +315,7 @@ export class StudentService {
         element.onboardingIssueReason,
         batchesHistory.length != 0 ? batchesHistory[0].batchesClassesStartDate ? batchesHistory[0].batchesClassesStartDate : '' : '',
       );
-      l.batchId = batchId,
+      l.batchId = batchId;
       l.isSibling = element.isSibling;
       l.classCode = batchCodes[0]?.classCode;
       l.useAutoAttendance = batchCodes[0]?.useAutoAttendance;
@@ -566,6 +566,7 @@ export class StudentService {
           : 0;
         payment.notes = element.notes;
         payment.forceRazorpayMoveSAV = element.forceRazorpayMoveSAV;
+        payment.emiPaymentStatus = element.emiPaymentStatus;
         payments.push(payment);
       }
     }
@@ -737,7 +738,11 @@ export class StudentService {
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
 
-      await userSerivce.generateUsersCode();
+      if (
+        process.env.AUTO_RUN_GENERATE_STUDENT_CODE_DYNAMICALLY !== "NOT_ALLOWED"
+      ) {
+        await userSerivce.generateUsersCode();
+      }
 
       return { ...user };
     } catch (error) {

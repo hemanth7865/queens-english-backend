@@ -71,8 +71,8 @@ export class BatchService {
       if (!data.id) {
         data.id = uuidv4();
         create = true;
-      }   
-        
+      }
+
       if (data.students) {
         let i = 0;
         for (const element of data.students) {
@@ -241,7 +241,7 @@ export class BatchService {
     }
   }
 
-  async getCosmosBatch(id: string): Promise<any> { 
+  async getCosmosBatch(id: string): Promise<any> {
     const cosomos_url = COSMOS_API.GET_BATCH(id);
 
     const data: any = await axios.get(cosomos_url);
@@ -560,12 +560,8 @@ export class BatchService {
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
       // sync batch zoom link to cosmos
-      if (typeof data.useNewZoomLink != "undefined") {
-        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
-        if(oldBatch?.useNewZoomLink != classes.useNewZoomLink){
-          classes.sync_zoom_status = 0;
-        }
-      }
+      classes.sync_zoom_status = 0;
+      
       if (typeof data.useAutoAttendance != "undefined") {
         classes.useAutoAttendance = parseInt(data.useAutoAttendance);
         /**
@@ -573,7 +569,6 @@ export class BatchService {
          */
         if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
           classes.meetingSettingsTracked = 0;
-          classes.sync_zoom_status = 0;
         }
       }
       if (data.id) {
