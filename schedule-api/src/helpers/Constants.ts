@@ -64,8 +64,8 @@ export const NULL_STRING = {
 }
 
 export const MONGOOSE_OPTIONS = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 };
 
 /**
@@ -76,3 +76,10 @@ export const COSMOS_API = {
     STORE_SHORT_LINK: "/api/shortlink",
     STORE_CLASS_ATTENDANCE: "/api/classAttendance",
 };
+
+export const TABLE_NAMES = {
+    STUDENT: "student",
+    INSTALLMENT: "installment",
+    TRANSACTION_DETAILS: "transactionDetails",
+    PAYMENT: "payment"
+}

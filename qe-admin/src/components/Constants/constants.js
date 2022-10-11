@@ -22,3 +22,8 @@ export const CountryCode = {
   COUNTRYCODE_AFGHANISTAN: "+93",
   COUNTRYCODE_OMAN: "+968",
 };
+
+export const InstallmentBulkUpload = {
+  ADDINSTALLMENTS: "Add Installments",
+  DELETEINSTALLMENTS: "Delete Installments",
+};

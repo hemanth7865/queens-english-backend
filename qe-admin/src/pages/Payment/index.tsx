@@ -13,7 +13,8 @@ import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
 import { PaymentConstantValues, PaymentModevalues } from '@/components/Constants/constants';
-import "./payment.css"
+import "./payment.css";
+import BulkUpload from './Components/Upload';
 
 
 /**
@@ -40,6 +41,7 @@ const TableList: React.FC = () => {
     const [netbankingVisible, setNetbankingVisible] = useState(false);
     const [autodebitVisible, setAutodebitVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [upload, setUpload] = useState<boolean>(false);
 
 
     const intl = useIntl();
@@ -584,6 +586,12 @@ const TableList: React.FC = () => {
                         >
                             Add Payment
                         </Button>,
+                        <Button
+                            type="primary"
+                            key="primary1"
+                            onClick={() => setUpload(true)}>
+                            Bulk Upload
+                        </Button>
 
                     ]}
                 />
@@ -619,6 +627,19 @@ const TableList: React.FC = () => {
             </Drawer>
 
             <Modal
+                width={700}
+                visible={upload}
+                title={`Generate APIs`}
+                onCancel={() => {
+                    setUpload(false);
+                }}
+                footer={null}
+                centered
+            >
+                <BulkUpload upload={upload} />
+            </Modal>
+
+            <Modal
                 title={isWhatsappVisible ? "WA Message" : "Edit"}
                 visible={isModalVisible}
                 footer={null}
@@ -644,6 +665,7 @@ const TableList: React.FC = () => {
                     refreshStatus={refreshStatus}
                 />
             </Modal>
+
         </PageContainer>
     );
 };

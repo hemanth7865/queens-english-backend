@@ -9,6 +9,7 @@ import {
 import { logger } from "./../Logger.js";
 import { NULL_STRING } from "../helpers/Constants"
 const moment = require("moment");
+import { parse } from "csv-parse";
 
 export class InstallmentController {
   private service = new InstallmentService();
@@ -120,5 +121,38 @@ export class InstallmentController {
       )}.`
     );
     return result;
+  }
+
+  //CSV Delete Installments 
+  async updateDeleteInstallmentsCSV(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    const file = request.files.agents;
+    let data = [];
+
+    try {
+      await new Promise(function (myResolve: any, myReject: any) {
+        parse(
+          file.data.toString(),
+          { columns: true, trim: true },
+          function (e, records) {
+            data = records;
+            if (data) {
+              myResolve();
+            } else {
+              myReject();
+            }
+          }
+        );
+      });
+      return this.service.updateDeleteInstallmentsCSV(
+        data,
+        request.query
+      );
+    } catch (e) {
+      return { e, name: file.name, size: file.size, type: file.type };
+    }
   }
 }
