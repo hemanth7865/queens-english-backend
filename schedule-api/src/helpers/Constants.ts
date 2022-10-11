@@ -10,6 +10,8 @@ export const PAYMENT_MODE = {
     CASHFREE: 'Cashfree',
     DOWNPAYMENT_RAZORPAY: "Razorpay",
     DOWNPAYMENT_CASHFREE: "Cashfree",
+    JODO: "Jodo",
+    AKSHAR: "Akshar",
 };
 
 
