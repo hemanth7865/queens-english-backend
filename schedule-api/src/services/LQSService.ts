@@ -7,7 +7,7 @@ import { LQSEntry } from "../entity/LQSEntry";
 import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
 import { randomFill } from "crypto";
-import { Constants } from "../helpers/Constants";
+import { Constants, EMI_PAYMENT_STATUS } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 import { PRManager } from "../entity/PRManager";
@@ -202,6 +202,7 @@ export class LQSService {
       payment.paymentMode = element.paymentMode;
       payment.paymentid = element.transactionID;
       payment.notes = element.bdaComments;
+      payment.emiPaymentStatus = (element.saleamount && element.saleamount === element.downpayment) ? EMI_PAYMENT_STATUS.FULLY_PAID : element.subscription === 'Manual (Quarterly)' ? EMI_PAYMENT_STATUS.QUARTERLY_PAID : EMI_PAYMENT_STATUS.PENDING;
 
       usersLogger.info(`Applying Validate ${user.id}`);
       const validateStudent = await (new validations()).validateStudent('LSQValidate', student, user, payment);

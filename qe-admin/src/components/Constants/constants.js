@@ -27,3 +27,9 @@ export const InstallmentBulkUpload = {
   ADDINSTALLMENTS: "Add Installments",
   DELETEINSTALLMENTS: "Delete Installments",
 };
+
+export const EmiPaymentStatus = {
+  PENDING: "Pending",
+  FULLY_PAID: "Fully Paid",
+  QUARTERLY_PAID: "Quarterly paid",
+};
