@@ -1,5 +1,5 @@
-import { EditTwoTone } from '@ant-design/icons';
-import { Drawer, Spin, Select, DatePicker } from 'antd';
+import { EditTwoTone, EyeTwoTone } from '@ant-design/icons';
+import { Drawer, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -7,6 +7,7 @@ import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { getAllAttendance } from '@/services/ant-design-pro/api';
 import EditAttendance from "./Components/AttendanceForm";
+import ViewAttendance from "./Components/AttendanceView";
 import moment from "moment";
 
 /**
@@ -20,6 +21,7 @@ const TableList: React.FC = () => {
   const [tempData, setTempData] = useState<any>(null);
 
   const [showEditAttendance, setShowEditAttendance] = useState(false);
+  const [showViewAttendance, setShowViewAttendance] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -103,11 +105,11 @@ const TableList: React.FC = () => {
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleedit"
+          id="pages.searchTable.titleOperations"
           defaultMessage="Operations"
         />
       ),
-      dataIndex: "edit",
+      dataIndex: "operations",
       hideInSearch: true,
       fixed: "right",
       width: 100,
@@ -123,6 +125,15 @@ const TableList: React.FC = () => {
             >
               <EditTwoTone title="Edit" />
             </a>
+            <a
+              onClick={() => {
+                setTempData(entity);
+                setShowViewAttendance(true);
+              }}
+              style={{ marginLeft: 10 }}
+            >
+              <EyeTwoTone title="View" />
+            </a>
           </div>
         );
       },
@@ -135,7 +146,7 @@ const TableList: React.FC = () => {
         <Spin spinning={isLoading}>
           <ProTable<API.RuleListItem, API.PageParams>
             headerTitle={intl.formatMessage({
-              id: "pages.searchTable.titleUser",
+              id: "pages.searchTable.titleAttendanceManagement",
               defaultMessage: "Attendance Management",
             })}
             actionRef={actionRef}
@@ -163,6 +174,21 @@ const TableList: React.FC = () => {
           attendanceData={tempData}
           setShowEditAttendance={setShowEditAttendance}
           showEditAttendance={showEditAttendance}
+          actionRef={actionRef}
+        />
+      </Drawer>
+      <Drawer
+        visible={showViewAttendance}
+        onClose={() => {
+          setShowViewAttendance(false);
+          setTempData(null);
+        }}
+        width={600}
+      >
+        <ViewAttendance
+          attendanceData={tempData}
+          setShowViewAttendance={setShowEditAttendance}
+          showViewAttendance={showEditAttendance}
           actionRef={actionRef}
         />
       </Drawer>
