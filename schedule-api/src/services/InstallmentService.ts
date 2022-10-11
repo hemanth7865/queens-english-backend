@@ -399,7 +399,7 @@ export class InstallmentService {
       return result;
     } else if (table === TABLE_NAMES.PAYMENT) {
       if (params.id) {
-        where.studentID = params.id;
+        where.id = params.id;
       }
 
       result = await this.paymentRepository.findOne({
@@ -437,13 +437,13 @@ export class InstallmentService {
 
           if (primaryColumnExists) {
             const leadId = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
-            if (!leadId && leadId.status != Status.INACTIVE) {
+            if (!leadId || leadId.status != Status.INACTIVE) {
               result.notFound++;
               continue;
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: d[primaryColumn] });
-            if (!paymentDetails && paymentDetails.emiPaymentStatus != "Fully Paid") {
-              result.error++;
+            if (!paymentDetails || paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus != "Fully Paid") {
+              result.notFound++;
               continue;
             }
             const studentId = leadId.id;
