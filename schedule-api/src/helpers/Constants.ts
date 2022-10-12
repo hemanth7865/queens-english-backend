@@ -38,7 +38,8 @@ export const CASHFREE_PAYMENT_STATUS = {
     SUCCESS: 'SUCCESS',
     PENDING: 'PENDING',
     FAILED: 'FAILED',
-    ACTIVE: 'ACTIVE'
+    ACTIVE: 'ACTIVE',
+    ERROR: 'ERROR',
 }
 
 export const RAZORPAY_PAYMENT_STATUS = {
@@ -88,4 +89,9 @@ export const TABLE_NAMES = {
     INSTALLMENT: "installment",
     TRANSACTION_DETAILS: "transactionDetails",
     PAYMENT: "payment"
+}
+
+export const RESPONSE_STATUS = {
+    SUCCESS: "success",
+    ERROR: "error"
 }

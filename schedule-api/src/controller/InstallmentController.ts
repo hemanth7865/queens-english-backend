@@ -123,13 +123,13 @@ export class InstallmentController {
     return result;
   }
 
-  //CSV Delete Installments 
+  /* CSV Delete Installments */
   async updateDeleteInstallmentsCSV(
     request: Request,
     response: Response,
     next: NextFunction
   ) {
-    const file = request.files.agents;
+    const file = request.files.deleteAddInstallment;
     let data = [];
 
     try {
@@ -148,6 +148,39 @@ export class InstallmentController {
         );
       });
       return this.service.updateDeleteInstallmentsCSV(
+        data,
+        request.query
+      );
+    } catch (e) {
+      return { e, name: file.name, size: file.size, type: file.type };
+    }
+  }
+
+  /* CSV Add Installments */
+  async updateAddInstallmentsCSV(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    const file = request.files.deleteAddInstallment;
+    let data = [];
+
+    try {
+      await new Promise(function (myResolve: any, myReject: any) {
+        parse(
+          file.data.toString(),
+          { columns: true, trim: true },
+          function (e, records) {
+            data = records;
+            if (data) {
+              myResolve();
+            } else {
+              myReject();
+            }
+          }
+        );
+      });
+      return this.service.updateAddInstallmentsCSV(
         data,
         request.query
       );

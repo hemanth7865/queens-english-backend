@@ -629,7 +629,7 @@ const TableList: React.FC = () => {
             <Modal
                 width={700}
                 visible={upload}
-                title={`Generate APIs`}
+                title={`Bulk Upload`}
                 onCancel={() => {
                     setUpload(false);
                 }}

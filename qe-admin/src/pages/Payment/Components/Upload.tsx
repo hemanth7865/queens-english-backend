@@ -54,7 +54,7 @@ const BulkUpload: React.FC<BulkUploadProps> = (props) => {
                             target="_blank"
                             method="post"
                             encType="multipart/form-data" >
-                            <input type="file" name="agents" required id="file" />
+                            <input type="file" name="deleteAddInstallment" required id="file" />
                             <button className="ant-btn ant-btn-primary">
                                 {isAddInstallments ? 'Upload Add Installment File' : 'Upload Delete Installment File'}
                             </button>

@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan, PrimaryColumn } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -15,11 +15,12 @@ import { isNullOrUndefined } from "util";
 import { format } from "date-and-time";
 import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
-import { getDateFromTimeStamp, checkRangeOfDate } from "../helpers/timeStampToDate";
+import { checkRangeOfDate, monthYearComparison } from "../helpers/timeStampToDate";
 import { Student } from "../entity/Student";
 import { Payment } from "../entity/Payment";
 import { InstallmentController } from "../controller/InstallmentController";
-import { PaymentService } from "../services/PaymentService"
+import { PaymentService } from "../services/PaymentService";
+import { CashFreeUtils } from "../utils/payment/CashFreeUtils"
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -29,6 +30,7 @@ export class InstallmentService {
   private transaDetailsRepository = getRepository(TransactionDetails);
   private studentRepository = getRepository(Student);
   private paymentRepository = getRepository(Payment);
+  private cashFreeUtils = new CashFreeUtils();
 
   async getPendingInstallments(params) {
     var limit = 100;
@@ -304,22 +306,16 @@ export class InstallmentService {
 
 
   //logic to update status and delete the records 
-  async updateStatusAndDelete(installmentDetails: any, params: any) {
+  async updateStatusAndDelete(installmentDetails: any, params: any, result: any) {
     console.log('ids', installmentDetails.id)
     const where: any = {};
-    let result: any = {
-      updated: 0,
-      notFound: 0,
-      error: 0,
-    };
 
     if (installmentDetails)
       try {
         let transactionDetails = await this.transaDetailsRepository.findOne({ transactionId: installmentDetails.id });
         if (!transactionDetails) {
           console.log('here 2')
-          result.error++;
-          return result;
+          return result.errors++;
         }
 
         /* RAZORPAY PAYMENT MODE */
@@ -335,12 +331,10 @@ export class InstallmentService {
               const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
               console.log('record delete', deleteInstallmentRecord, deleteTransactionDetailsRecord);
-              result.updated++;
-              return result;
+              return result.updated++;
             }
           } else {
-            result.error++;
-            return result;
+            return result.errors++;
           }
         } else if (transactionDetails.paymentMode === PAYMENT_MODE.CASHFREE) {
           /* CASHFREE PAYMENT MODE */
@@ -356,21 +350,15 @@ export class InstallmentService {
               const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
               console.log('record delete', deleteInstallmentRecord, deleteTransactionDetailsRecord);
-              result.updated++;
-              return result;
+              return result.updated++;
             }
           } else {
-            result.error++;
-            return result;
+            return result.errors++;
           }
         }
-
-
       } catch (e) {
         console.log(e);
       }
-
-
   }
 
   async fetchFromTable(table: any, params: any) {
@@ -417,6 +405,7 @@ export class InstallmentService {
     data: any,
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
   ) {
+    console.log('data', data);
     const primaryColumn = "student_id";
     const dueDateColumn = "due_date";
     let result: any = {
@@ -437,13 +426,14 @@ export class InstallmentService {
 
           if (primaryColumnExists) {
             const leadId = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
-            if (!leadId || leadId.status != Status.INACTIVE) {
+            if (!leadId) {
               result.notFound++;
               continue;
             }
-            const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: d[primaryColumn] });
-            if (!paymentDetails || paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus != "Fully Paid") {
-              result.notFound++;
+            const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadId.id });
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || leadId.status === Status.INACTIVE) {
+              console.log('here 1', paymentDetails.emiPaymentStatus, paymentDetails.emiPaymentStatus, leadId.status)
+              result.errors++;
               continue;
             }
             const studentId = leadId.id;
@@ -452,8 +442,127 @@ export class InstallmentService {
               result.notFound++;
               continue;
             }
-            const statusUpdate = await this.updateStatusAndDelete(installmentDetails, { dueDate: d[dueDateColumn] });
+            const statusUpdate = await this.updateStatusAndDelete(installmentDetails, { dueDate: d[dueDateColumn] }, result);
             console.log('updated', statusUpdate);
+          }
+        }
+        catch (e) {
+          console.log(e);
+          result.errors++;
+        }
+      }
+    } catch (e) {
+      console.log(e, data);
+    }
+
+    return result;
+  }
+
+
+  //logic to update status and delete the records 
+  async addInstallmentRecord(leadDetails: any, paymentDetails: any, result: any, dueDate: string) {
+    console.log('ids', paymentDetails.paymentMode, paymentDetails.subscription, paymentDetails.subscriptionNo)
+    const where: any = {};
+    try {
+      let newDueDate;
+      if (leadDetails.classesStartDate && paymentDetails.subscriptionNo) {
+        const datesCheck = monthYearComparison(leadDetails.classesStartDate, dueDate);
+        if (!datesCheck) {
+          console.log('here');
+          return result.errors++;
+        }
+        if (paymentDetails.subscription === SUBSCRIPTION_TYPE.MANUAL) {
+          const particularDate = moment(leadDetails.classesStartDate).format("DD");
+          newDueDate = `${dueDate}-${particularDate}`;
+        } else if (paymentDetails.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT && paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
+          const subscriptionDetails = await getSubscriptionById(paymentDetails.subscriptionNo);
+          console.log('subsc', subscriptionDetails)
+          if (!subscriptionDetails) {
+            return result.errors++;
+          }
+          newDueDate = moment.unix(subscriptionDetails.current_end).format("YYYY-MM-DD");
+        } else if (paymentDetails.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT && paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+          const subscriptionDetailsCashfree = await this.cashFreeUtils.fetchSubscriptionDetails(paymentDetails.subscriptionNo);
+          if (isNullOrUndefined(subscriptionDetailsCashfree) || subscriptionDetailsCashfree!.status === CASHFREE_PAYMENT_STATUS.ERROR) {
+            console.log('here 3');
+            return result.errors++;
+          }
+          newDueDate = moment.unix(subscriptionDetailsCashfree.subscription.scheduledOn).format("YYYY-MM-DD");
+        } else {
+          console.log('here 4');
+          return result.errors++;
+        }
+      } else {
+        console.log('here 5 ');
+        return result.errors++;
+      }
+
+      if (!newDueDate) {
+        return result.errors++;
+      }
+
+      let newInstallmentRecord = [{
+        studentId: paymentDetails.id,
+        emiAmount: paymentDetails.emi,
+        dueDate: newDueDate,
+        status: PAYMENT_STATUS.PENDING,
+        subscriptionType: paymentDetails.subscription,
+        paymentMode: paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY ? PAYMENT_MODE.RAZORPAY : paymentDetails.paymentMode,
+        subscriptionId: paymentDetails.subscriptionNo ? paymentDetails.subscriptionNo : null,
+      }];
+
+      const addInstallment = await (new PaymentService()).paymentDetails(newInstallmentRecord);
+      console.log('addIns', addInstallment);
+      if (addInstallment.status === RESPONSE_STATUS.SUCCESS) {
+        return result.updated++;
+      } else {
+        return result.errors++;
+      }
+    } catch (e) {
+      result.errors++;
+      console.log('error', e);
+    }
+  }
+
+
+  //csv delete installments 
+  async updateAddInstallmentsCSV(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
+    const primaryColumn = "student_id";
+    const dueDateColumn = "due_date";
+    let result: any = {
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      notFoundCEs: [],
+    };
+
+    try {
+      for (let d of data) {
+        try {
+          const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
+          const dueDateColumnExists = d[dueDateColumn] && d[dueDateColumn].length > 4;
+          if (!primaryColumnExists && !dueDateColumnExists) {
+            continue;
+          }
+
+          if (primaryColumnExists) {
+            const leadDetails = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
+
+            if (!leadDetails) {
+              result.notFound++;
+              continue;
+            }
+            const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadDetails.id });
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || leadDetails.status === Status.INACTIVE) {
+              result.errors++;
+              continue;
+            }
+
+            //logic to add the installments
+            const installmentDetails = await this.addInstallmentRecord(leadDetails, paymentDetails, result, d[dueDateColumn]);
           }
         }
         catch (e) {
