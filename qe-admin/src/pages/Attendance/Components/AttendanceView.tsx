@@ -33,7 +33,6 @@ const ViewAttendance: React.FC<ViewAttendanceProps> = (props) => {
         setDetails(response?.data);
         setIsLoading(false);
         if (response?.data?.length === 0) {
-            console.log(details.length, response);
             noDataFound(props?.attendanceData?.studentId);
         }
     };
