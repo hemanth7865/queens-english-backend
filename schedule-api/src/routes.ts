@@ -629,4 +629,11 @@ export const Routes = [
     controller: UserController,
     action: "syncUsersToMongo",
   },
+  {
+    method: "post",
+    route: "/sync/student/payments/info/mongo",
+    controller: UserController,
+    action: "syncStudentPaymentInfo",
+    authenticate: false,
+  },
 ];
