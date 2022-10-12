@@ -385,6 +385,11 @@ export class InstallmentService {
             result.ids.errorIds.push(studentId);
             return result;
           }
+        } else {
+          usersLogger.info('No payment mode found for ' + studentId);
+          result.errors++;
+          result.ids.errorIds.push(studentId);
+          return result;
         }
       } catch (e) {
         usersLogger.error('error', e);
