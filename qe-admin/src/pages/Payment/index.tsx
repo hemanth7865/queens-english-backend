@@ -636,7 +636,7 @@ const TableList: React.FC = () => {
                 footer={null}
                 centered
             >
-                <BulkUpload upload={upload} />
+                <BulkUpload upload={upload} setUpload={setUpload} />
             </Modal>
 
             <Modal
