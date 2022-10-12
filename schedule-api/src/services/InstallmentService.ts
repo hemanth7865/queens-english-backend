@@ -307,11 +307,12 @@ export class InstallmentService {
 
   //logic to update status and delete the records 
   async updateStatusAndDelete(installmentDetails: any, studentId: string, result: any) {
+    usersLogger.info('records inside the logic ' + studentId);
     if (installmentDetails)
       try {
         let transactionDetails = await this.transaDetailsRepository.findOne({ transactionId: installmentDetails.id });
         if (!transactionDetails) {
-          usersLogger.debug('TransactionDetails not found', studentId);
+          usersLogger.info('TransactionDetails not found', studentId);
           result.errors++;
           result.ids.errorIds.push(studentId);
           return result;
@@ -323,13 +324,13 @@ export class InstallmentService {
           let updatedStatus;
           if (installmentDetails.status != PAYMENT_STATUS.PAID || installmentDetails.status != PAYMENT_STATUS.PARTIALLY_PAID) {
             const validatingStudent = await (new InstallmentController()).updateTransctionPaymentStatus({ query: { installment_id: installmentDetails.id, reference_id: installmentDetails.transactionId } }, '', '');
-            usersLogger.debug("validating razorpay status" + JSON.stringify(validatingStudent));
+            usersLogger.info("validating razorpay status" + JSON.stringify(validatingStudent));
             updatedStatus = await this.query.findOne({ id: installmentDetails.id });
             //deleting the record 
             if (updatedStatus && updatedStatus.status != PAYMENT_STATUS.PAID && updatedStatus.status != PAYMENT_STATUS.PARTIALLY_PAID) {
               const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
-              usersLogger.debug("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
+              usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
               await (
                 await this.logger.customPayment(
                   installmentDetails.id || "UNKNOWN",
@@ -343,13 +344,13 @@ export class InstallmentService {
               result.ids.updatedIds.push(studentId);
               return result;
             } else {
-              usersLogger.debug('Razorpay status -- Installment Paid');
+              usersLogger.info('Razorpay status -- Installment Paid');
               result.errors++;
               result.ids.errorIds.push(studentId);
               return result;
             }
           } else {
-            usersLogger.debug('Installment status -- Installment Paid');
+            usersLogger.info('Installment status -- Installment Paid');
             result.errors++;
             result.ids.errorIds.push(studentId);
             return result;
@@ -358,13 +359,13 @@ export class InstallmentService {
           /* CASHFREE PAYMENT MODE */
           if (installmentDetails.status != PAYMENT_STATUS.PAID || installmentDetails.status != PAYMENT_STATUS.PARTIALLY_PAID) {
             const validatingStudent = await (new PaymentService()).updateAutoDebitStatus({ installmentId: installmentDetails.id });
-            usersLogger.debug("validating cashfree status" + JSON.stringify(validatingStudent));
+            usersLogger.info("validating cashfree status" + JSON.stringify(validatingStudent));
             const updatedCashfreeStatus = await this.query.findOne({ id: installmentDetails.id });
             //deleting the record 
             if (updatedCashfreeStatus && updatedCashfreeStatus.status != PAYMENT_STATUS.PAID && updatedCashfreeStatus.status != PAYMENT_STATUS.PARTIALLY_PAID) {
               const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
-              usersLogger.debug("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
+              usersLogger.info("Deleting the installment record for " + studentId);
               await (
                 await this.logger.customPayment(
                   installmentDetails.id || "UNKNOWN",
@@ -379,7 +380,7 @@ export class InstallmentService {
               return result;
             }
           } else {
-            usersLogger.debug('Cashfree status -- Installment Paid');
+            usersLogger.info('Cashfree status -- Installment Paid');
             result.errors++;
             result.ids.errorIds.push(studentId);
             return result;
@@ -435,7 +436,7 @@ export class InstallmentService {
     data: any,
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
   ) {
-    usersLogger.debug(`data from csv ${JSON.stringify(data)}`);
+    usersLogger.info(`data from csv ${JSON.stringify(data)}`);
     const primaryColumn = "student_id";
     const dueDateColumn = "due_date";
     let result: any = {
@@ -455,7 +456,7 @@ export class InstallmentService {
           const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
           const dueDateColumnExists = d[dueDateColumn] && d[dueDateColumn].length > 4;
           if (!primaryColumnExists && !dueDateColumnExists) {
-            usersLogger.debug('student not found', d[primaryColumn]);
+            usersLogger.info('student not found ' + d[primaryColumn]);
             result.notFound++;
             result.ids.notFoundIds.push(d[primaryColumn]);
             continue;
@@ -464,14 +465,14 @@ export class InstallmentService {
           if (primaryColumnExists) {
             const leadId = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
             if (!leadId) {
-              usersLogger.debug('student not found', d[primaryColumn]);
+              usersLogger.info('student not found ' + d[primaryColumn]);
               result.notFound++;
               result.ids.notFoundIds.push(d[primaryColumn]);
               continue;
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadId.id });
             if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || leadId.status === Status.INACTIVE) {
-              usersLogger.debug('payment details not found for', d[primaryColumn]);
+              usersLogger.info('payment details not found for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
               continue;
@@ -479,23 +480,23 @@ export class InstallmentService {
             const studentId = leadId.id;
             const installmentDetails = await this.fetchFromTable(TABLE_NAMES.INSTALLMENT, { id: studentId, dueDate: d[dueDateColumn] });
             if (!installmentDetails) {
-              usersLogger.debug('Installment details not found for', d[primaryColumn]);
+              usersLogger.info('Installment details not found for ' + d[primaryColumn]);
               result.notFound++;
               result.ids.notFoundIds.push(d[primaryColumn]);
               continue;
             }
             const statusUpdate = await this.updateStatusAndDelete(installmentDetails, d[primaryColumn], result);
-            usersLogger.debug('Updated records', JSON.stringify(statusUpdate));
+            usersLogger.info('Updated records', JSON.stringify(statusUpdate));
           }
         }
         catch (e) {
           console.log(e);
-          usersLogger.error('error', JSON.stringify(e));
+          usersLogger.error('error ' + JSON.stringify(e));
         }
       }
     } catch (e) {
       console.log(e, data);
-      usersLogger.error('error', JSON.stringify(e), JSON.stringify(data));
+      usersLogger.error('error ' + JSON.stringify(e) + JSON.stringify(data));
     }
 
     return result;
@@ -504,12 +505,13 @@ export class InstallmentService {
 
   //logic to update status and delete the records 
   async addInstallmentRecord(leadDetails: any, paymentDetails: any, result: any, dueDate: string, studentId: string) {
+    usersLogger.info('records inside the logic ' + studentId);
     try {
       let newDueDate;
       if (leadDetails.classesStartDate && paymentDetails.subscriptionNo) {
         const datesCheck = monthYearComparison(leadDetails.classesStartDate, dueDate);
+        usersLogger.info('date check ' + datesCheck);
         if (!datesCheck) {
-          usersLogger.debug('Date check for', studentId, leadDetails.classesStartDate, dueDate, datesCheck);
           result.errors++;
           result.ids.errorIds.push(studentId);
           return result;
@@ -519,38 +521,38 @@ export class InstallmentService {
           newDueDate = `${dueDate}-${particularDate}`;
         } else if (paymentDetails.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT && paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
           const subscriptionDetails = await getSubscriptionById(paymentDetails.subscriptionNo);
-          usersLogger.debug("Payment details for razorpay" + JSON.stringify(subscriptionDetails));
+          usersLogger.info("Payment details for razorpay" + JSON.stringify(subscriptionDetails));
           if (!subscriptionDetails) {
-            usersLogger.debug('Razorpay subscription details not found for', studentId);
+            usersLogger.info('Razorpay subscription details not found for ' + studentId);
             result.errors++;
             result.ids.errorIds.push(studentId);
             return result;
           }
           newDueDate = moment.unix(subscriptionDetails.current_end).format("YYYY-MM-DD");
         } else if (paymentDetails.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT && paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
-          const subscriptionDetailsCashfree = await this.cashFreeUtils.fetchSubscriptionDetails(paymentDetails.subscriptionNo);
-          if (isNullOrUndefined(subscriptionDetailsCashfree) || subscriptionDetailsCashfree!.status === CASHFREE_PAYMENT_STATUS.ERROR) {
-            usersLogger.debug('Cashfree subscription not found for', studentId);
+          const subscriptionDetailsCashfree = await this.cashFreeUtils.fetchCashfreeAccountDetail(paymentDetails.subscriptionNo);
+          if (isNullOrUndefined(subscriptionDetailsCashfree) || subscriptionDetailsCashfree!.status === CASHFREE_PAYMENT_STATUS.ERROR || !subscriptionDetailsCashfree.subscription.scheduledOn) {
+            usersLogger.info('Cashfree subscription not found for ' + studentId);
             result.errors++;
             result.ids.errorIds.push(studentId);
             return result;
           }
-          newDueDate = moment.unix(subscriptionDetailsCashfree.subscription.scheduledOn).format("YYYY-MM-DD");
+          newDueDate = moment(subscriptionDetailsCashfree.subscription.scheduledOn).format("YYYY-MM-DD");
         } else {
-          usersLogger.debug('Payment details not found', studentId);
+          usersLogger.info('Payment details not found ' + studentId);
           result.errors++;
           result.ids.errorIds.push(studentId);
           return result;
         }
       } else {
-        usersLogger.debug('Payment details not found', studentId);
+        usersLogger.info('Payment details not found ' + studentId);
         result.errors++;
         result.ids.errorIds.push(studentId);
         return result;
       }
 
       if (!newDueDate) {
-        usersLogger.debug('updated new date not found', studentId);
+        usersLogger.info('updated new date not found' + studentId);
         result.errors++;
         result.ids.errorIds.push(studentId);
         return result;
@@ -567,7 +569,7 @@ export class InstallmentService {
 
       const addInstallment = await (new PaymentService()).paymentDetails(newInstallmentRecord);
       if (addInstallment.status === RESPONSE_STATUS.SUCCESS) {
-        usersLogger.debug("Added new record", JSON.stringify(addInstallment));
+        usersLogger.debug("Added new record " + JSON.stringify(addInstallment));
         await (
           await this.logger.customPayment(
             studentId || "UNKNOWN",
@@ -581,14 +583,14 @@ export class InstallmentService {
         result.ids.updatedIds.push(studentId);
         return result;
       } else {
-        usersLogger.debug('Adding new record failed', JSON.stringify(addInstallment));
+        usersLogger.debug('Adding new record failed ' + JSON.stringify(addInstallment));
         result.errors++;
         result.ids.errorIds.push(studentId);
         return result;
       }
     } catch (e) {
       console.log('error', e);
-      usersLogger.error('error', JSON.stringify(e));
+      usersLogger.error('error ' + JSON.stringify(e));
     }
   }
 
@@ -617,7 +619,7 @@ export class InstallmentService {
           const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
           const dueDateColumnExists = d[dueDateColumn] && d[dueDateColumn].length > 4;
           if (!primaryColumnExists && !dueDateColumnExists) {
-            usersLogger.debug('student not found', d[primaryColumn]);
+            usersLogger.debug('student not found ' + d[primaryColumn]);
             result.notFound++;
             result.ids.notFoundIds.push(d[primaryColumn]);
             continue;
@@ -626,14 +628,14 @@ export class InstallmentService {
           if (primaryColumnExists) {
             const leadDetails = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
             if (!leadDetails) {
-              usersLogger.debug('student not found', d[primaryColumn]);
+              usersLogger.debug('student not found ' + d[primaryColumn]);
               result.notFound++;
               result.ids.notFoundIds.push(d[primaryColumn]);
               continue;
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadDetails.id });
             if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || leadDetails.status === Status.INACTIVE) {
-              usersLogger.debug('payment details not found for', d[primaryColumn]);
+              usersLogger.debug('payment details not found for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
               continue;
@@ -641,17 +643,17 @@ export class InstallmentService {
 
             //logic to add the installments
             const installmentDetails = await this.addInstallmentRecord(leadDetails, paymentDetails, result, d[dueDateColumn], d[primaryColumn]);
-            usersLogger.debug('Updated records', JSON.stringify(installmentDetails));
+            usersLogger.debug('Updated records ' + JSON.stringify(installmentDetails));
           }
         }
         catch (e) {
           console.log(e);
-          usersLogger.error('error', JSON.stringify(e));
+          usersLogger.error('error ' + JSON.stringify(e));
         }
       }
     } catch (e) {
       console.log(e, data);
-      usersLogger.error('error', JSON.stringify(e), JSON.stringify(data));
+      usersLogger.error('error ' + JSON.stringify(e) + JSON.stringify(data));
     }
 
     return result;
