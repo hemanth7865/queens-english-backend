@@ -635,4 +635,10 @@ export const Routes = [
     controller: InstallmentController,
     action: "updateDeleteInstallmentsCSV",
   },
+  {
+    method: "post",
+    route: "/csv/installments/add-bulk-installments",
+    controller: InstallmentController,
+    action: "updateAddInstallmentsCSV",
+  },
 ];

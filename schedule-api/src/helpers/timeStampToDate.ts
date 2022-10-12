@@ -19,7 +19,6 @@ export const checkRangeOfDate = (billingStartDate, billingEndDate, dueDate) => {
 
 export const monthYearComparison = (startDate, dueDate) => {
     startDate = moment(startDate).format("YYYY-MM");
-    console.log('start date', startDate, dueDate)
     if (startDate <= dueDate) {
         return true;
     } else {
