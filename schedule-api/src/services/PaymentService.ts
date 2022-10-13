@@ -945,6 +945,7 @@ export class PaymentService {
             const dueMonth = moment(installment.dueDate).format("YYYY-MM");
             var payments: any = cashFreeResponse.payments;
             var subStatus: any = subscriptionStatusResponse.subscription.status;
+            var subDueDate: any = subscriptionStatusResponse.subscription.scheduledOn ? moment(subscriptionStatusResponse.subscription.scheduledOn).format("YYYY-MM-DD") : installment.dueDate;
             for (const payment of payments) {
               usersLogger.debug("pay: " + JSON.stringify(payment));
               if (
@@ -956,10 +957,10 @@ export class PaymentService {
                   paidDate: payment['addedOn'],
                   subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
+                  dueDate: subDueDate,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
-
                 if (payment["amount"] == installment.emiAmount) {
                   data["status"] = PAYMENT_STATUS.PAID;
                 }
@@ -983,6 +984,7 @@ export class PaymentService {
                   status: PAYMENT_STATUS.FAILED,
                   subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
+                  dueDate: subDueDate,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
