@@ -82,6 +82,7 @@ export type StudentdetailseditProps = {
     batchesClassesStartDate?: any;
     forceRazorpayMoveSAV?: any;
     emiPaymentStatus?: string;
+    salesowner?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -339,8 +340,15 @@ Queen's English मे अगर आपको किसी तरह की स�
     });
   }
 
+  const findSalesAgent = async (salesOwnerId: any) => {
+    const salesAgent = await lsqUsersData.find((user: any) => user.ID === salesOwnerId);
+    console.log('salesAgent', salesAgent, "salesOwnerId", salesOwnerId);
+    const salesAgentName = salesAgent?.FirstName + ' ' + salesAgent?.LastName;
+    return salesAgentName;
+  };
+
   const [form] = Form.useForm()
-  const defaultValues = () => {
+  const defaultValues = async () => {
     {
       !props.studentManageradd ? (form.setFieldsValue({
         id: props.tempData.id,
@@ -365,7 +373,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         timings: props.tempData.timings,
         startDate: moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
         classesStartDate: moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-        lsq_user_name: props.tempData.lsq_user_name,
+        lsq_user_name: props.tempData.lsq_user_name ? props.tempData.lsq_user_name : await findSalesAgent(props.tempData.salesowner),
         classessold: props.tempData.classessold,
         saleamount: props.tempData.saleamount,
         downpayment: props.tempData.downpayment,
