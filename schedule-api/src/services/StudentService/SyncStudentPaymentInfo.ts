@@ -14,6 +14,7 @@ export async function SyncStudentPaymentInfo(): Promise<any> {
   const paymentRepository = getRepository(Payment);
   const result: any = {
     logs: [],
+    foundData: [],
   };
 
   const users = await getManager()
@@ -24,9 +25,7 @@ export async function SyncStudentPaymentInfo(): Promise<any> {
     .getMany();
 
   for (const user of users) {
-    const lead = await MongoLead.findOne({ ProspectID: user.id }).populate(
-      "payment"
-    );
+    const lead = await MongoLead.findOne({ ProspectID: user.id });
 
     if (!lead) {
       result.logs.push({
@@ -38,9 +37,12 @@ export async function SyncStudentPaymentInfo(): Promise<any> {
       continue;
     }
 
-    result.activeLead = lead;
+    const payment = await MongoPayment.findOne({
+      LeadId: lead.id,
+      paymentStatus: "Paid",
+    });
 
-    if (!lead.payment) {
+    if (!payment) {
       result.logs.push({
         message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Payment Doesn't Exist On TCM Or Not Paid Yet.`,
         user,
@@ -64,7 +66,12 @@ export async function SyncStudentPaymentInfo(): Promise<any> {
       continue;
     }
 
-    console.log(user);
+    result.foundData.push({
+      trial,
+      lead,
+      payment,
+      user,
+    });
   }
 
   result.count = users.length;
