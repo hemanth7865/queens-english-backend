@@ -5,6 +5,7 @@ import { User } from "../../entity/User";
 import MongoLead from "../../model/mongo/lead";
 import MongoTrial from "../../model/mongo/trial";
 import MongoPayment from "../../model/mongo/payment";
+import MongoTeacher from "../../model/mongo/teacher";
 
 const { logger } = require("../../Logger.js");
 
@@ -66,10 +67,13 @@ export async function SyncStudentPaymentInfo(): Promise<any> {
       continue;
     }
 
+    const teacher = await MongoTeacher.findOne({ _id: trial.selectedTeacher });
+
     result.foundData.push({
       trial,
       lead,
       payment,
+      teacher,
       user,
     });
   }

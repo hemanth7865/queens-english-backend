@@ -185,6 +185,11 @@ const trialSchema = new Schema<any>(
       type: Number,
       default: 0,
     },
+    selectedTeacher: {
+      type: Schema.Types.ObjectId,
+      ref: "teacher",
+      required: true,
+    },
   },
   {
     timestamps: true,
