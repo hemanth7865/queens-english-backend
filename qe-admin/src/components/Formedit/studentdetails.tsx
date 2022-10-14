@@ -1432,7 +1432,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                       name="paymentMode"
                       label="Plan Mode"
                     >
-                      <Select placeholder="Select Plan Mode" onChange={onChange}>
+                        <Select placeholder="Select Plan Mode" onChange={(newValue: any) => setNewPaymentMode(newValue)}>
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
