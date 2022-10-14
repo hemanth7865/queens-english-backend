@@ -15,7 +15,7 @@ import { isDate, isNullOrUndefined } from "util";
 import { format } from "date-and-time";
 import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
-import { checkRangeOfDate, monthYearComparison } from "../helpers/timeStampToDate";
+import { checkRangeOfDate, monthYearComparison, comparisonStatus } from "../helpers/timeStampToDate";
 import { Student } from "../entity/Student";
 import { Payment } from "../entity/Payment";
 import { InstallmentController } from "../controller/InstallmentController";
@@ -476,8 +476,14 @@ export class InstallmentService {
               continue;
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadId.id });
-            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || leadId.status === Status.INACTIVE) {
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus) {
               usersLogger.info('payment details not found for ' + d[primaryColumn]);
+              result.errors++;
+              result.ids.errorIds.push(d[primaryColumn]);
+              continue;
+            }
+            if (comparisonStatus(leadId.status, paymentDetails.emiPaymentStatus)) {
+              usersLogger.info('lead status and emi status are not correct for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
               continue;
