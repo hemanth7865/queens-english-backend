@@ -462,7 +462,7 @@ export class UserController {
         let resp;
         try {
             usersLogger.info("Sync Student Payment Info");
-            resp = await SyncStudentPaymentInfo();
+            resp = await SyncStudentPaymentInfo(request);
         } catch (error) {
             console.log(error);
             resp = { status: 400, error: error.message }
