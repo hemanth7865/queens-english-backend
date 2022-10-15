@@ -113,11 +113,11 @@ function updateStudentData(student: Student, { trial, teacher }): Student {
   }
 
   if (!student.pfirstName || student.pfirstName.length < 2) {
-    student.pfirstName = trial.pName.split(" ")[1];
+    student.pfirstName = trial.pName.split(" ")[0];
   }
 
   if (!student.plastName || student.plastName.length < 3) {
-    student.plastName = trial.pName.split(" ")[0];
+    student.plastName = trial.pName.split(" ")[1];
   }
 
   student.startLesson = getRecommendedLesson(trial);
@@ -168,11 +168,24 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
 
   for (const user of users) {
     try {
-      const lead = await MongoLead.findOne({ ProspectID: user.id });
+      const lead = await MongoLead.findOne({
+        ProspectID: user.id,
+      });
 
       if (!lead) {
         result.logs.push({
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Doesn't Exist On TCM.`,
+          user,
+          lead,
+        });
+
+        result.skipped += 1;
+        continue;
+      }
+
+      if (lead.isLeadAPSynced) {
+        result.logs.push({
+          message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Already Synced Before.`,
           user,
           lead,
         });
@@ -232,6 +245,8 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
       await userData.save();
       await studentData.save();
       await paymentData.save();
+
+      await MongoLead.updateOne({ _id: lead.id }, { isLeadAPSynced: true });
 
       result.logs.push({
         message: `Success Sync Student ${user.firstName} ${user.lastName}`,
