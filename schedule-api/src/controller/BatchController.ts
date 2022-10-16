@@ -18,6 +18,16 @@ export class BatchController {
     private batchService = new BatchService();
 
 
+    async getTeacherLessons(request: Request, response: Response, next: NextFunction) {
+        let lessons;
+        try {
+            lessons = await this.batchService.getTeacherLessons(request.params);
+        } catch (error) {
+            console.log()
+        }
+        return { "success": true, "data": [lessons], "total": 1 };
+    }
+
     async createBatch(request: Request, response: Response, next: NextFunction) {
         console.log("saving batch");
         var batch;
@@ -27,6 +37,16 @@ export class BatchController {
             console.log()
         }
         return { "success": true, "data": [batch], "total": 1 };
+    }
+
+    async resetLessonStatus(request: Request, response: Response, next: NextFunction) {
+        var updatedLessonStatus;
+        try {
+            updatedLessonStatus = await this.batchService.resetLessonStatus(request.params.id, request.body.lessonsData);
+        } catch (error) {
+            console.log('error = ', error);
+        }
+        return { "success": true, "data": [updatedLessonStatus], "total": 1 };
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
@@ -57,7 +77,6 @@ export class BatchController {
     }
 
     async listBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("Batch List");
         var parameters = {
             current: request.query['current'],
             pageSize: request.query['pageSize'],

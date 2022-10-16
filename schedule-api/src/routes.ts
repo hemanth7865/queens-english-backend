@@ -131,6 +131,13 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "get",
+    route: "/getTeacherLessons/:id",
+    controller: BatchController,
+    action: "getTeacherLessons",
+    authenticate: true,
+  },
+  {
     method: "post",
     route: "/createBatch",
     controller: BatchController,
@@ -149,6 +156,13 @@ export const Routes = [
     route: "/update-batch-zoom-info-csv",
     controller: BatchController,
     action: "updateBatchZoomInfoAndWACSV",
+  },
+  {
+    method: "post",
+    route: "/resetLessonStatus/:id",
+    controller: BatchController,
+    action: "resetLessonStatus",
+    authenticate: true,
   },
   {
     method: "delete",
