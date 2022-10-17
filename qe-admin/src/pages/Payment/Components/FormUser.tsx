@@ -381,7 +381,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             <Form.Item
                                                 label="Subscription ID"
                                                 name="subscriptionId"
-                                                rules={[{ required: true, pattern: /^[0-9]{8}$/, message: "Enter Valid Subscription ID" }]}
+                                                rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription ID" }]}
                                             >
                                                 <Input />
                                             </Form.Item>
@@ -528,7 +528,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                     <Form.Item
                                                         label="Reference ID"
                                                         name="referenceId"
-                                                        rules={[{ pattern: /^[0-9]{8}$/, message: "Enter Valid Subscription ID" }]}
+                                                        rules={[{ pattern: /^[0-9]{7}$/, message: "Enter Valid Reference ID" }]}
                                                     >
                                                         <Input />
                                                     </Form.Item>

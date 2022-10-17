@@ -1368,7 +1368,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Form.Item
                           label="Subscription Number"
                           name="subscriptionNo"
-                          rules={[{ required: true, pattern: /^[0-9]{8}$/, message: "Enter Valid Subscription Number" }]}
+                          rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription Number" }]}
                         >
                           <Input onChange={onChange} />
                         </Form.Item>
@@ -1463,7 +1463,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                           <Form.Item
                             label="Subscription Number"
                             name="subscriptionNo"
-                            rules={[{ required: true, pattern: /^[0-9]{8}$/, message: "Enter Valid Subscription Number" }]}
+                            rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription Number" }]}
                           >
                             <Input onChange={onChange} />
                           </Form.Item>
