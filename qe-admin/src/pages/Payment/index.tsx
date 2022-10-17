@@ -1,7 +1,7 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
-import { useIntl, FormattedMessage } from 'umi';
+import { useIntl, FormattedMessage, Access, useAccess } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -45,6 +45,7 @@ const TableList: React.FC = () => {
 
 
     const intl = useIntl();
+    const access = useAccess();
 
     const { RangePicker } = DatePicker;
 
@@ -586,12 +587,17 @@ const TableList: React.FC = () => {
                         >
                             Add Payment
                         </Button>,
-                        <Button
-                            type="primary"
-                            key="primary1"
-                            onClick={() => setUpload(true)}>
-                            Bulk Upload
-                        </Button>
+                        <Access
+                            accessible={access.canSuperAdmin}
+                            fallback={<div> </div>}
+                        >
+                            <Button
+                                type="primary"
+                                key="primary1"
+                                onClick={() => setUpload(true)}>
+                                Bulk Upload
+                            </Button>
+                        </Access>
 
                     ]}
                 />
