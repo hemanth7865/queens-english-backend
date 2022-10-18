@@ -128,8 +128,6 @@ function updateStudentData(student: Student, { trial, teacher }): Student {
 function updatePaymentData(paymentData: Payment, { payment }): Payment {
   paymentData.subscription = getSubscriptionType(payment);
   paymentData.paymentMode = payment.provider;
-  paymentData.is_down_payment_auto_verified = 1;
-  paymentData.is_down_payment_verified = 1;
   paymentData.paymentid = payment.transactionId;
   paymentData.subscriptionNo = payment.subscriptionId;
   paymentData.saleamount = payment.totalAmount;
