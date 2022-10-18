@@ -95,3 +95,8 @@ export const RESPONSE_STATUS = {
     SUCCESS: "success",
     ERROR: "error"
 }
+
+export const CSV_CONSTANTS = {
+    STUDENTID: "student_id",
+    DUEDATE: "due_date"
+}

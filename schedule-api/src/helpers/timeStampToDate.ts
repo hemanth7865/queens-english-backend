@@ -18,7 +18,7 @@ export const checkRangeOfDate = (billingStartDate, billingEndDate, dueDate) => {
     }
 }
 
-export const monthYearComparison = (startDate, dueDate) => {
+export const startDateAndDueDateComparison = (startDate, dueDate) => {
     startDate = moment(startDate).format("YYYY-MM");
     if (startDate <= dueDate) {
         return true;
@@ -27,10 +27,21 @@ export const monthYearComparison = (startDate, dueDate) => {
     }
 }
 
-export const comparisonStatus = (status, emiStatus) => {
-    if ((status === Status.INACTIVE && emiStatus === EMI_PAYMENT_STATUS.FULLY_PAID) || (status === Status.INACTIVE && emiStatus === EMI_PAYMENT_STATUS.PENDING) || (status === Status.INACTIVE && emiStatus === EMI_PAYMENT_STATUS.QUARTERLY_PAID) || (status === Status.ACTIVE && emiStatus === EMI_PAYMENT_STATUS.FULLY_PAID) || (status === Status.ACTIVE && emiStatus === EMI_PAYMENT_STATUS.QUARTERLY_PAID)) {
-        return false;
-    } else {
+export const compareStatusAndEMIStatus = (status, emiStatus) => {
+    if (status === Status.ACTIVE) {
+        if (emiStatus === EMI_PAYMENT_STATUS.PENDING) {
+            return true
+        } else {
+            return false
+        }
+    } else if (status === Status.INACTIVE) {
+        if (emiStatus) {
+            return false
+        } else {
+            return true
+        }
+    }
+    else {
         return true;
     }
 }

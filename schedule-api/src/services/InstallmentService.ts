@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan, PrimaryColumn } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -15,7 +15,7 @@ import { isDate, isNullOrUndefined } from "util";
 import { format } from "date-and-time";
 import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
-import { checkRangeOfDate, monthYearComparison, comparisonStatus } from "../helpers/timeStampToDate";
+import { checkRangeOfDate, startDateAndDueDateComparison, compareStatusAndEMIStatus } from "../helpers/timeStampToDate";
 import { Student } from "../entity/Student";
 import { Payment } from "../entity/Payment";
 import { InstallmentController } from "../controller/InstallmentController";
@@ -328,8 +328,8 @@ export class InstallmentService {
             updatedStatus = await this.query.findOne({ id: installmentDetails.id });
             //deleting the record 
             if (updatedStatus && updatedStatus.status != PAYMENT_STATUS.PAID && updatedStatus.status != PAYMENT_STATUS.PARTIALLY_PAID) {
-              const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+              const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
               await (
                 await this.logger.customPayment(
@@ -363,8 +363,8 @@ export class InstallmentService {
             const updatedCashfreeStatus = await this.query.findOne({ id: installmentDetails.id });
             //deleting the record 
             if (updatedCashfreeStatus && updatedCashfreeStatus.status != PAYMENT_STATUS.PAID && updatedCashfreeStatus.status != PAYMENT_STATUS.PARTIALLY_PAID) {
-              const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+              const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               usersLogger.info("Deleting the installment record for " + studentId);
               await (
                 await this.logger.customPayment(
@@ -442,8 +442,8 @@ export class InstallmentService {
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
   ) {
     usersLogger.info(`data from csv ${JSON.stringify(data)}`);
-    const primaryColumn = "student_id";
-    const dueDateColumn = "due_date";
+    const primaryColumn = CSV_CONSTANTS.STUDENTID;
+    const dueDateColumn = CSV_CONSTANTS.DUEDATE;
     let result: any = {
       updated: 0,
       notFound: 0,
@@ -482,7 +482,7 @@ export class InstallmentService {
               result.ids.errorIds.push(d[primaryColumn]);
               continue;
             }
-            if (comparisonStatus(leadId.status, paymentDetails.emiPaymentStatus)) {
+            if (compareStatusAndEMIStatus(leadId.status, paymentDetails.emiPaymentStatus)) {
               usersLogger.info('lead status and emi status are not correct for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
@@ -520,7 +520,7 @@ export class InstallmentService {
     try {
       let newDueDate;
       if (leadDetails.classesStartDate && paymentDetails.subscriptionNo) {
-        const datesCheck = monthYearComparison(leadDetails.classesStartDate, dueDate);
+        const datesCheck = startDateAndDueDateComparison(leadDetails.classesStartDate, dueDate);
         usersLogger.info('date check ' + datesCheck);
         if (!datesCheck) {
           result.errors++;
@@ -611,8 +611,8 @@ export class InstallmentService {
     data: any,
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
   ) {
-    const primaryColumn = "student_id";
-    const dueDateColumn = "due_date";
+    const primaryColumn = CSV_CONSTANTS.STUDENTID;
+    const dueDateColumn = CSV_CONSTANTS.DUEDATE;
     let result: any = {
       updated: 0,
       notFound: 0,
