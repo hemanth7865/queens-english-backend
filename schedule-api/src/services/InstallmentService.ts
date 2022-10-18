@@ -18,9 +18,10 @@ const date = require('date-and-time')
 import { checkRangeOfDate, startDateAndDueDateComparison, compareStatusAndEMIStatus } from "../helpers/timeStampToDate";
 import { Student } from "../entity/Student";
 import { Payment } from "../entity/Payment";
-import { InstallmentController } from "../controller/InstallmentController";
-import { PaymentService } from "../services/PaymentService";
-import { CashFreeUtils } from "../utils/payment/CashFreeUtils"
+import { User } from "../entity/User";
+import { PaymentService } from "./PaymentService"
+import { CashFreeUtils } from "../utils/payment/CashFreeUtils";
+import { validatePaymentStatus } from "../utils/payment/validateADStatus";
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -30,7 +31,10 @@ export class InstallmentService {
   private transaDetailsRepository = getRepository(TransactionDetails);
   private studentRepository = getRepository(Student);
   private paymentRepository = getRepository(Payment);
+  private userRepository = getRepository(User);
   private cashFreeUtils = new CashFreeUtils();
+  private validateStatusUtils = new validatePaymentStatus();
+
 
   async getPendingInstallments(params) {
     var limit = 100;
@@ -323,31 +327,66 @@ export class InstallmentService {
           //calling the razorpay status update function
           let updatedStatus;
           if (installmentDetails.status != PAYMENT_STATUS.PAID || installmentDetails.status != PAYMENT_STATUS.PARTIALLY_PAID) {
-            const validatingStudent = await (new InstallmentController()).updateTransctionPaymentStatus({ query: { installment_id: installmentDetails.id, reference_id: installmentDetails.transactionId } }, '', '');
-            usersLogger.info("validating razorpay status" + JSON.stringify(validatingStudent));
-            updatedStatus = await this.query.findOne({ id: installmentDetails.id });
-            //deleting the record 
-            if (updatedStatus && updatedStatus.status != PAYMENT_STATUS.PAID && updatedStatus.status != PAYMENT_STATUS.PARTIALLY_PAID) {
-              const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
-              const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
-              usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
-              await (
-                await this.logger.customPayment(
-                  installmentDetails.id || "UNKNOWN",
-                  "DELETE THE RECORD",
-                  "DELETE THE RECORD",
-                  { installmentDetails, deleteInstallmentRecord, deleteTransactionDetailsRecord },
-                  this.request.user || {}
-                )
-              ).save();
-              result.updated++;
-              result.ids.updatedIds.push(studentId);
-              return result;
+            if (installmentDetails.transactionId.split("_") && installmentDetails.transactionId.split("_")[0] === "sub") {
+              const validatingStudent: any = await this.validateStatusUtils.razorpayAutoDebitValidation(installmentDetails);
+              usersLogger.info("validating razorpay status" + JSON.stringify(validatingStudent));
+              if (validatingStudent.error > 0) {
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
+              if (validatingStudent.pending > 0 || validatingStudent.failed > 0) {
+                const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+                const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
+                usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
+                await (
+                  await this.logger.customPayment(
+                    installmentDetails.id || "UNKNOWN",
+                    "DELETE THE RECORD",
+                    "DELETE THE RECORD",
+                    { installmentDetails, deleteInstallmentRecord, deleteTransactionDetailsRecord },
+                    this.request.user || {}
+                  )
+                ).save();
+                result.updated++;
+                result.ids.updatedIds.push(studentId);
+                return result;
+              } else {
+                usersLogger.info('Razorpay auto debit  -- Installment Paid');
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
             } else {
-              usersLogger.info('Razorpay status -- Installment Paid');
-              result.errors++;
-              result.ids.errorIds.push(studentId);
-              return result;
+              const validatingStudent: any = await this.validateStatusUtils.razorpayManualValidation(installmentDetails.transactionId);
+              usersLogger.info("validating razorpay status Manual mode" + JSON.stringify(validatingStudent));
+              if (validatingStudent.error > 0) {
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
+              if (validatingStudent.pending > 0) {
+                const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+                const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
+                usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
+                await (
+                  await this.logger.customPayment(
+                    installmentDetails.id || "UNKNOWN",
+                    "DELETE THE RECORD",
+                    "DELETE THE RECORD",
+                    { installmentDetails, deleteInstallmentRecord, deleteTransactionDetailsRecord },
+                    this.request.user || {}
+                  )
+                ).save();
+                result.updated++;
+                result.ids.updatedIds.push(studentId);
+                return result;
+              } else {
+                usersLogger.info('Razorpay manual -- Installment Paid');
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
             }
           } else {
             usersLogger.info('Installment status -- Installment Paid');
@@ -358,11 +397,15 @@ export class InstallmentService {
         } else if (transactionDetails.paymentMode === PAYMENT_MODE.CASHFREE) {
           /* CASHFREE PAYMENT MODE */
           if (installmentDetails.status != PAYMENT_STATUS.PAID || installmentDetails.status != PAYMENT_STATUS.PARTIALLY_PAID) {
-            const validatingStudent = await (new PaymentService()).updateAutoDebitStatus({ installmentId: installmentDetails.id });
-            usersLogger.info("validating cashfree status" + JSON.stringify(validatingStudent));
-            const updatedCashfreeStatus = await this.query.findOne({ id: installmentDetails.id });
+            const validatingStudent: any = await this.validateStatusUtils.cashfreeStatusValidation(installmentDetails);
+            usersLogger.info("Validating status" + JSON.stringify(validatingStudent));
+            if (validatingStudent.error > 0) {
+              result.errors++;
+              result.ids.errorIds.push(studentId);
+              return result;
+            }
             //deleting the record 
-            if (updatedCashfreeStatus && updatedCashfreeStatus.status != PAYMENT_STATUS.PAID && updatedCashfreeStatus.status != PAYMENT_STATUS.PARTIALLY_PAID) {
+            if (validatingStudent.pending > 0 || validatingStudent.failed > 0) {
               const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
               const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
               usersLogger.info("Deleting the installment record for " + studentId);
@@ -476,13 +519,14 @@ export class InstallmentService {
               continue;
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadId.id });
-            if (!paymentDetails || !paymentDetails.emiPaymentStatus) {
+            const userStatus = await this.userRepository.findOne({ id: leadId.id })
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || !userStatus.status) {
               usersLogger.info('payment details not found for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
               continue;
             }
-            if (compareStatusAndEMIStatus(leadId.status, paymentDetails.emiPaymentStatus)) {
+            if (compareStatusAndEMIStatus(userStatus.status, paymentDetails.emiPaymentStatus)) {
               usersLogger.info('lead status and emi status are not correct for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
@@ -645,7 +689,8 @@ export class InstallmentService {
               continue;
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadDetails.id });
-            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || leadDetails.status === Status.INACTIVE) {
+            const userStatus = await this.userRepository.findOne({ id: leadDetails.id })
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || userStatus.status === Status.INACTIVE) {
               usersLogger.debug('payment details not found for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
