@@ -291,6 +291,7 @@ export class PaymentService {
         view.cycles = record.transactions_cycles;
         view.subscriptionStatus = record.transactions_subscription_status;
         view.autoRetryFailed = record.transactions_auto_retry_failed;
+        view.reasonForFailure = record.transactions_reason_for_failure;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -983,6 +984,7 @@ export class PaymentService {
                   status: PAYMENT_STATUS.FAILED,
                   subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
+                  reasonForFailure: payment['failureReason'],
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };

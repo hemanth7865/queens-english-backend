@@ -167,7 +167,6 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
-        dueDate: moment.unix(subscriptionDetails.current_end).format("YYYY-MM-DD HH:mm:ss"),
         paymentLink: subscriptionDetails.short_url,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
@@ -260,6 +259,7 @@ export class InstallmentService {
           .status === RAZORPAY_PAYMENT_STATUS.FAILED
       ) {
         finalData["status"] = PAYMENT_STATUS.FAILED;
+        finalData["reasonForFailure"] = paymentStatusDetails.items[paymentStatusDetails.items.length - 1].error_description;
         await this.query.update(getInstallmentDetails.id, finalData);
       } else {
         finalData["status"] = PAYMENT_STATUS.PENDING;
