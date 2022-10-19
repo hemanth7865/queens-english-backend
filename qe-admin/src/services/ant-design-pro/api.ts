@@ -852,6 +852,25 @@ export async function updateAssessment(
   });
 }
 
+//Get One Student Attendance
+export async function getOneAttendance(
+  params: {
+    studentId: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/classAttendance`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}
+
 //Sync All Users and update in Mongo
 export async function syncUsersToMongo() {
   return request<API.RuleList>(`/be/sync-users-to-mongo`, {

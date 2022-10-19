@@ -191,6 +191,7 @@ export class InstallmentService {
             invoiceStatus: payments.status,
             orderId: payments.order_id,
             paymentUrl: payments.short_url,
+            invoiceDueDate: moment.unix(payments.billing_end).format("YYYY-MM-DD HH:mm:ss"),
             updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
             lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
           };
@@ -218,6 +219,7 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
+        dueDate: data.invoiceDueDate,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
@@ -241,8 +243,8 @@ export class InstallmentService {
           .status === RAZORPAY_PAYMENT_STATUS.SUCCESS &&
         paymentStatusDetails.items[paymentStatusDetails.items.length - 1]
           .amount /
-          100 >=
-          Number(getInstallmentDetails.emiAmount)
+        100 >=
+        Number(getInstallmentDetails.emiAmount)
       ) {
         finalData["status"] = PAYMENT_STATUS.PAID;
         finalData["paidAmount"] =

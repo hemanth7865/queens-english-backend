@@ -8,10 +8,11 @@ import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
-import { CountryCode } from "../Constants/constants";
+import { CountryCode, EmiPaymentStatus } from "../Constants/constants";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
+import { PaymentModevalues } from "../Constants/constants";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -80,7 +81,8 @@ export type StudentdetailseditProps = {
     notes?: string;
     onboardingIssueReason?: string;
     batchesClassesStartDate?: any;
-    forceRazorpayMoveSAV?: any;
+    emiPaymentStatus?: string;
+    salesowner?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -158,7 +160,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
         notes: value.notes,
-        forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
+        emiPaymentStatus: value.emiPaymentStatus
       }] : null
     }
     if (paymentTally == 0) {
@@ -189,9 +191,9 @@ I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.p
 *Batch:* ${props.tempData.batchCode}
 *Time:* ${props.tempData.timings} India
 *Frequency:* ${props.tempData.courseFrequency}
-*Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, 
-{ classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true, 
-{userCode: props.tempData.userCode})}
+*Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+    { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true,
+    {userCode: props.tempData.userCode})}
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
@@ -231,7 +233,7 @@ Queen's English मे अगर आपको किसी तरह की स�
     message.success('Message copied');
   };
 
-  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string, 
+  const openonboardNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classesStartDate: any, zoomInfo: any, batchCode: any, whatsappLink: string,
     classCode: string, useNewZoomLink: number, userCode: string, useAutoAttendance: number) => {
     const waMessage = (
       <div >
@@ -337,8 +339,15 @@ Queen's English मे अगर आपको किसी तरह की स�
     });
   }
 
+  const findSalesAgent = async (salesOwnerId: any) => {
+    const salesAgent = await lsqUsersData.find((user: any) => user.ID === salesOwnerId);
+    console.log('salesAgent', salesAgent, "salesOwnerId", salesOwnerId);
+    const salesAgentName = salesAgent?.FirstName + ' ' + salesAgent?.LastName;
+    return salesAgentName;
+  };
+
   const [form] = Form.useForm()
-  const defaultValues = () => {
+  const defaultValues = async () => {
     {
       !props.studentManageradd ? (form.setFieldsValue({
         id: props.tempData.id,
@@ -363,7 +372,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         timings: props.tempData.timings,
         startDate: moment(props.tempData.startDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
         classesStartDate: moment(props.tempData.classesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
-        lsq_user_name: props.tempData.lsq_user_name,
+        lsq_user_name: props.tempData.lsq_user_name ? props.tempData.lsq_user_name : await findSalesAgent(props.tempData.salesowner),
         classessold: props.tempData.classessold,
         saleamount: props.tempData.saleamount,
         downpayment: props.tempData.downpayment,
@@ -395,6 +404,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         notes: props.tempData.notes,
         onboardingIssueReason: props.tempData.onboardingIssueReason,
         batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
+        emiPaymentStatus: props.tempData.emiPaymentStatus,
       })) : ('')
     };
   }
@@ -458,6 +468,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.notes : '',
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
       !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
+      !props.studentManageradd ? props.tempData.emiPaymentStatus : null,
     ]
   )
 
@@ -475,6 +486,7 @@ Queen's English मे अगर आपको किसी तरह की स�
   const countrycode = (props.tempData?.phoneNumber || "NA").substring(0, 3);
   const altcountrycode = (props.tempData?.alternativeMobile || "NA").substring(0, 3);
   const whatsappcountrycode = (props.tempData?.whatsapp || "NA").substring(0, 3);
+  const [newPaymentMode, setNewPaymentMode] = useState(props?.tempData?.paymentMode);
 
   if (access.canSuperAdmin) {
     // User is Super Admin
@@ -1094,24 +1106,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>) : ('')
             }
 
-
-            <Access
-              accessible={access.canSuperAdmin}
-              fallback={<div> </div>}
-            >
-              {!props.studentManageradd && props.salesAlert ?
-                (<Col span={12}>
-                  <Form.Item
-                    name="forceRazorpayMoveSAV"
-                    label="Force Move"
-                  >
-                    <Switch onChange={onChange} />
-                  </Form.Item>
-                </Col>) : ('')
-              }
-            </Access>
-          </Row>
-
+            </Row>
 
           {!props.studentManageradd ? (
             <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>
@@ -1319,7 +1314,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                         required: true,
                       }]}
                     >
-                      <Select placeholder="Select Plan Mode" onChange={onChange}>
+                      <Select placeholder="Select Plan Mode" onChange={(newValue: any) => setNewPaymentMode(newValue)}>
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
@@ -1338,17 +1333,37 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Option value="One-Time">One-Time</Option>
                       </Select>
                     </Form.Item>
-                  </Col><Col span={12}>
-                    <Form.Item
-                      label="Subscription Number"
-                      name="subscriptionNo"
-                      rules={[{
-                        required: true,
-                      }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Col><Col span={12}>
+                  </Col>
+                  {newPaymentMode === PaymentModevalues.Razorpay ?
+                    <Col span={12}>
+                      <Form.Item
+                        label="Subscription Number"
+                        name="subscriptionNo"
+                        rules={[{ required: true, pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription Number" }]}
+                      >
+                        <Input onChange={onChange} maxLength={18} minLength={18} />
+                      </Form.Item>
+                    </Col>
+                    : newPaymentMode === PaymentModevalues.CASHFREE ?
+                      <Col span={12}>
+                        <Form.Item
+                          label="Subscription Number"
+                          name="subscriptionNo"
+                          rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription Number" }]}
+                        >
+                          <Input onChange={onChange} />
+                        </Form.Item>
+                      </Col>
+                      : <Col span={12}>
+                        <Form.Item
+                          label="Subscription Number"
+                          name="subscriptionNo"
+                          rules={[{ required: true, message: "Enter Valid Subscription Number" }]}
+                        >
+                          <Input onChange={onChange} />
+                        </Form.Item>
+                      </Col>}
+                  <Col span={12}>
                     <Form.Item
                       label="Subscription Amount"
                       name="emi"
@@ -1364,7 +1379,25 @@ Queen's English मे अगर आपको किसी तरह की स�
                     >
                       <Input type="number" />
                     </Form.Item>
-                  </Col></>
+                  </Col>
+                  {(props.onboardpage || props.welcomepage) && (
+                    <Col span={12}>
+                      <Form.Item
+                        label="EMI payment status"
+                        name="emiPaymentStatus"
+                        rules={[{
+                          required: true,
+                        }]}
+                      >
+                        <Select placeholder="Select EMI Payment Status" onChange={onChange}>
+                          {Object.values(EmiPaymentStatus).map((emiStatus) => (
+                            <Option value={emiStatus}>{emiStatus}</Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  )}
+                </>
               ) : (
                 <><Col span={12}>
                   <Form.Item
@@ -1380,7 +1413,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                       name="paymentMode"
                       label="Plan Mode"
                     >
-                      <Select placeholder="Select Plan Mode" onChange={onChange}>
+                        <Select placeholder="Select Plan Mode" onChange={(newValue: any) => setNewPaymentMode(newValue)}>
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
@@ -1395,14 +1428,37 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Option value="Auto-Debit">Auto-Debit</Option>
                       </Select>
                     </Form.Item>
-                  </Col><Col span={12}>
-                    <Form.Item
-                      label="Subscription Number"
-                      name="subscriptionNo"
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Col><Col span={12}>
+                    </Col>
+                    {newPaymentMode === PaymentModevalues.Razorpay ?
+                      <Col span={12}>
+                        <Form.Item
+                          label="Subscription Number"
+                          name="subscriptionNo"
+                          rules={[{ required: true, pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription Number" }]}
+                        >
+                          <Input onChange={onChange} maxLength={18} minLength={18} />
+                        </Form.Item>
+                      </Col>
+                      : newPaymentMode === PaymentModevalues.CASHFREE ?
+                        <Col span={12}>
+                          <Form.Item
+                            label="Subscription Number"
+                            name="subscriptionNo"
+                            rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription Number" }]}
+                          >
+                            <Input onChange={onChange} />
+                          </Form.Item>
+                        </Col>
+                        : <Col span={12}>
+                          <Form.Item
+                            label="Subscription Number"
+                            name="subscriptionNo"
+                            rules={[{ required: true, message: "Enter Valid Subscription Number" }]}
+                          >
+                            <Input onChange={onChange} />
+                          </Form.Item>
+                        </Col>}
+                    <Col span={12}>
                     <Form.Item
                       label="Subscription Amount"
                       name="emi"
@@ -1418,7 +1474,23 @@ Queen's English मे अगर आपको किसी तरह की स�
                     >
                       <Input onChange={onChange} type="number" />
                     </Form.Item>
-                  </Col></>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      label="EMI payment status"
+                      name="emiPaymentStatus"
+                      rules={[{
+                        required: true,
+                      }]}
+                    >
+                      <Select placeholder="Select EMI Payment Status" onChange={onChange}>
+                        {Object.values(EmiPaymentStatus).map((emiStatus) => (
+                          <Option value={emiStatus}>{emiStatus}</Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </>
               )}
             </Row></>
           ) : ('')

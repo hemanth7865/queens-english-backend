@@ -52,6 +52,7 @@ export class PaymentsView {
   subscriptionStatus?: string;
   cycles?: number;
   autoRetryFailed?: number;
+  installmentType?: string;
   PaymentsView(
     id: String,
     studentId: string,
@@ -90,7 +91,7 @@ export class PaymentsView {
     subscriptionStatus?: string,
     cycles?: number,
     autoRetryFailed?: number,
-
+    installmentType?: string,
   ) {
     this.id = id;
     this.studentId = studentId;
@@ -129,5 +130,6 @@ export class PaymentsView {
     this.subscriptionStatus = subscriptionStatus;
     this.cycles = cycles;
     this.autoRetryFailed = autoRetryFailed;
+    this.installmentType = installmentType;
   }
 }

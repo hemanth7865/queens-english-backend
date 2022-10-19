@@ -15,6 +15,7 @@ export const PaymentConstantValues = {
 export const PaymentModevalues = {
   CASHFREE: "Cashfree",
   RAZORPAY: "RazorPay",
+  Razorpay: "Razorpay",
 };
 
 export const CountryCode = {
@@ -22,3 +23,14 @@ export const CountryCode = {
   COUNTRYCODE_AFGHANISTAN: "+93",
   COUNTRYCODE_OMAN: "+968",
 };
+
+export const EmiPaymentStatus = {
+  PENDING: "Pending",
+  FULLY_PAID: "Fully Paid",
+  QUARTERLY_PAID: "Quarterly paid",
+};
+
+export const SUBSCRIPTION_TYPE = {
+  MANUAL: 'Manual',
+  AUTO_DEBIT: 'Auto-Debit'
+}

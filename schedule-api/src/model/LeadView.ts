@@ -90,6 +90,7 @@ export class LeadView {
   batchesClassesStartDate?: string;
   useAutoAttendance?: string;
   forceRazorpayMoveSAV?: any;
+  emiPaymentStatus?: string;
 
   public constructor(id: string, leadId: string, date: string, name: string, experience: string, mobile: string, email: string, status: string, classestaken: number,
     ratings: number, slots: string, leadType: number, type: string, batchCode: string, studentID: string, dob?: string | Date, whatsapp?: string, address?: string,
@@ -137,6 +138,7 @@ export class LeadView {
       this.classtype = payments.map(p => p.classtype).join(',');
       this.notes = payments.map(p => p.notes).join(',');
       this.forceRazorpayMoveSAV = payments.map(p => p.forceRazorpayMoveSAV).join(',');
+      this.emiPaymentStatus = payments.map(p => p.emiPaymentStatus).join(',');
     }
     this.age = age;
     this.startDate = startDate;

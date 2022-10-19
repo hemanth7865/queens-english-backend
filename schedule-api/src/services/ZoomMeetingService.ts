@@ -533,7 +533,7 @@ export class ZoomMeetingService {
           "This link is disabled, please write your phone number to get the new link.";
 
         if (req.query.phoneNumber && req.query.phoneNumber.length > 9) {
-          result.message = `Phone number ${req.query.phoneNumber} isn't correct, please ensrue to type correct phone number.`;
+          result.message = `Phone number ${req.query.phoneNumber} isn't correct, please ensure to type correct phone number, for support please contact us over: 8143513850.`;
           const users = await this.usersRepository.find({
             phoneNumber: Like(`%${req.query.phoneNumber}%`),
             type: "student",
