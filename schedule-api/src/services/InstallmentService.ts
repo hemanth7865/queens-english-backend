@@ -175,11 +175,15 @@ export class InstallmentService {
       const invoiceDetails = await getRazorpayInvoicesForSubscription(
         getInstallmentDetails.subscriptionId
       );
+      const dueDateNumber = moment.unix(subscriptionDetails.current_end).format("DD");
+      const dueDateMonthYear = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
+      const subscriptionDueDate = `${dueDateMonthYear}-${dueDateNumber}`;
       let initialSubscriptionData: any = {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
         paymentLink: subscriptionDetails.short_url,
+        dueDate: subscriptionDueDate,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
@@ -195,15 +199,14 @@ export class InstallmentService {
       usersLogger.info(`Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
 
       let data: any;
-      const dueMonth = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
       for (const payments of invoiceDetails?.items) {
-        if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate) || moment.unix(payments.paid_at).format("YYYY-MM-DD").includes(dueMonth)) {
+        if (checkRangeOfDate(payments.billing_start, payments.billing_end, getInstallmentDetails.dueDate) || moment.unix(payments.paid_at).format("YYYY-MM-DD").includes(dueDateMonthYear)) {
           usersLogger.info(`Invoice for paid data: ${JSON.stringify(payments)}`);
           data = {
             invoiceStatus: payments.status,
             orderId: payments.order_id,
             paymentUrl: payments.short_url,
-            invoiceDueDate: moment.unix(payments.billing_end).format("YYYY-MM-DD HH:mm:ss"),
+            invoiceDueDate: moment.unix(payments.billing_end).format("DD"),
             updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
             lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
           };
@@ -227,11 +230,12 @@ export class InstallmentService {
       );
       usersLogger.info(`Payment status for order id: ${JSON.stringify(paymentStatusDetails)}`);
 
+      const paymentLinkDueDate = `${dueDateMonthYear}-${data.invoiceDueDate}`;
       let finalData: any = {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: data.invoiceDueDate,
+        dueDate: paymentLinkDueDate,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
