@@ -34,7 +34,7 @@ export class InstallmentService {
   private userRepository = getRepository(User);
   private cashFreeUtils = new CashFreeUtils();
   private validateStatusUtils = new validatePaymentStatus();
-
+  private paymentService: any;
 
   async getPendingInstallments(params) {
     var limit = 100;
@@ -621,8 +621,7 @@ export class InstallmentService {
         subscriptionType: paymentDetails.subscription,
         paymentMode: paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY ? PAYMENT_MODE.RAZORPAY : paymentDetails.paymentMode,
       }];
-
-      const addInstallment = await (new PaymentService()).paymentDetails(newInstallmentRecord);
+      const addInstallment = await this.paymentService.paymentDetails(newInstallmentRecord);
       if (addInstallment.status === RESPONSE_STATUS.SUCCESS) {
         usersLogger.debug("Added new record " + JSON.stringify(addInstallment));
         await (
@@ -669,6 +668,7 @@ export class InstallmentService {
     };
 
     try {
+      this.paymentService = new PaymentService();
       for (let d of data) {
         try {
           const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
