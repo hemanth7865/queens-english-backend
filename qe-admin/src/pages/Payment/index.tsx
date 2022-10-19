@@ -1,7 +1,7 @@
 import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
-import { useIntl, FormattedMessage } from 'umi';
+import { useIntl, FormattedMessage, Access, useAccess } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -13,7 +13,8 @@ import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
 import { PaymentConstantValues, PaymentModevalues } from '@/components/Constants/constants';
-import "./payment.css"
+import "./payment.css";
+import BulkUpload from './Components/Upload';
 
 
 /**
@@ -40,9 +41,11 @@ const TableList: React.FC = () => {
     const [netbankingVisible, setNetbankingVisible] = useState(false);
     const [autodebitVisible, setAutodebitVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [upload, setUpload] = useState<boolean>(false);
 
 
     const intl = useIntl();
+    const access = useAccess();
 
     const { RangePicker } = DatePicker;
 
@@ -395,6 +398,17 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleInstallmentType"
+                    defaultMessage="Installment Type"
+                />
+            ),
+            dataIndex: 'installmentType',
+            valueType: 'select',
+            valueEnum: subscriptionTypeFilter,
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleInstallmentCollected"
                     defaultMessage="Installment Collected"
                 />
@@ -448,6 +462,17 @@ const TableList: React.FC = () => {
             valueType: 'select',
             valueEnum: autoRetryFailedFilter,
             hideInTable: true,
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleReasonForFailure"
+                    defaultMessage="Reason For AD Failure"
+                />
+            ),
+            dataIndex: 'reasonForFailure',
+            hideInSearch: true,
+            width: 200
         },
         {
             title: (
@@ -584,6 +609,17 @@ const TableList: React.FC = () => {
                         >
                             Add Payment
                         </Button>,
+                        <Access
+                            accessible={access.canSuperAdmin}
+                            fallback={<div> </div>}
+                        >
+                            <Button
+                                type="primary"
+                                key="primary1"
+                                onClick={() => setUpload(true)}>
+                                Bulk Upload
+                            </Button>
+                        </Access>
 
                     ]}
                 />
@@ -619,6 +655,19 @@ const TableList: React.FC = () => {
             </Drawer>
 
             <Modal
+                width={700}
+                visible={upload}
+                title={`Bulk Upload`}
+                onCancel={() => {
+                    setUpload(false);
+                }}
+                footer={null}
+                centered
+            >
+                <BulkUpload upload={upload} setUpload={setUpload} />
+            </Modal>
+
+            <Modal
                 title={isWhatsappVisible ? "WA Message" : "Edit"}
                 visible={isModalVisible}
                 footer={null}
@@ -644,6 +693,7 @@ const TableList: React.FC = () => {
                     refreshStatus={refreshStatus}
                 />
             </Modal>
+
         </PageContainer>
     );
 };
