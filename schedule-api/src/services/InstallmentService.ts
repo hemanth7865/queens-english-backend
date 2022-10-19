@@ -175,15 +175,20 @@ export class InstallmentService {
       const invoiceDetails = await getRazorpayInvoicesForSubscription(
         getInstallmentDetails.subscriptionId
       );
-      const dueDateNumber = moment.unix(subscriptionDetails.current_end).format("DD");
+      let subscriptionDueDate;
       const dueDateMonthYear = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
-      const subscriptionDueDate = `${dueDateMonthYear}-${dueDateNumber}`;
+      if (subscriptionDetails.current_end) {
+        const dueDateNumber = moment.unix(subscriptionDetails.current_end).format("DD");
+        subscriptionDueDate = `${dueDateMonthYear}-${dueDateNumber}`;
+      } else {
+        subscriptionDueDate = getInstallmentDetails.dueDate;
+      }
       let initialSubscriptionData: any = {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: subscriptionDueDate,
+        dueDate: moment(subscriptionDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
@@ -235,7 +240,7 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: paymentLinkDueDate,
+        dueDate: moment(paymentLinkDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
