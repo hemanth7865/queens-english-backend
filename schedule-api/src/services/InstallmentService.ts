@@ -192,6 +192,7 @@ export class InstallmentService {
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
+      usersLogger.info(`data to store in db: ${JSON.stringify(initialSubscriptionData)}`);
       if (!invoiceDetails || invoiceDetails?.items.length === 0) {
         usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
         usersLogger.debug('data for update: ' + JSON.stringify(initialSubscriptionData));
@@ -244,6 +245,7 @@ export class InstallmentService {
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
+      usersLogger.info(`data to store in db from invoice: ${JSON.stringify(finalData)}`);
       if (!paymentStatusDetails || paymentStatusDetails.items.length === 0) {
         usersLogger.error(`Error in fetching payment details: ${JSON.stringify(paymentStatusDetails)}`);
         finalData['status'] = PAYMENT_STATUS.PENDING;
