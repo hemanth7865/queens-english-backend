@@ -9,6 +9,7 @@ import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
 import { CountryCode, EmiPaymentStatus } from "../Constants/constants";
+import SyncStudentPayment from "./SyncStudentPayment";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
@@ -1118,7 +1119,14 @@ Queen's English मे अगर आपको किसी तरह की स�
 
 
           {!props.studentManageradd ? (
-            <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>
+            <>
+              <Row align="center">
+                <Col span={24} align="center">
+                  <h2>Payment Info</h2>
+                </Col>
+                <SyncStudentPayment props={props} />
+              </Row>
+              <Row gutter={16}>
               {props.studentManageredit ? (
                 <Col span={12}>
                   <Form.Item
