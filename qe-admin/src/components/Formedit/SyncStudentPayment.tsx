@@ -24,16 +24,19 @@ const SyncStudentPayment = ({ props }: { props: any }) => {
     try {
       const data: any = await syncStudentPaymentInfo(props.tempData.id);
       openNotificationWithIcon("success", "Sync Student Payment Info", data?.logs[0]?.message);
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
+
+      if (data?.success >= 1) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
     } catch (e: any) {
       openNotificationWithIcon("error", "Unexpected Error", e.message);
     }
     setLoading(false);
   }
 
-  return (
+  return props?.tempData?.status === "Error" && (
     <Col span={24} style={{ textAlign: "center" }}>
       <p><Button type="primary" loading={loading} onClick={syncPaymentData}>Sync Payment Info From TCM</Button></p>
     </Col>
