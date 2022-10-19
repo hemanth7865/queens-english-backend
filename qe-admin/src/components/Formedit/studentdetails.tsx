@@ -81,7 +81,6 @@ export type StudentdetailseditProps = {
     notes?: string;
     onboardingIssueReason?: string;
     batchesClassesStartDate?: any;
-    forceRazorpayMoveSAV?: any;
     emiPaymentStatus?: string;
     salesowner?: string;
   },
@@ -161,7 +160,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
         notes: value.notes,
-        forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
         emiPaymentStatus: value.emiPaymentStatus
       }] : null
     }
@@ -1108,24 +1106,7 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>) : ('')
             }
 
-
-            <Access
-              accessible={access.canSuperAdmin}
-              fallback={<div> </div>}
-            >
-              {!props.studentManageradd && props.salesAlert ?
-                (<Col span={12}>
-                  <Form.Item
-                    name="forceRazorpayMoveSAV"
-                    label="Force Move"
-                  >
-                    <Switch onChange={onChange} />
-                  </Form.Item>
-                </Col>) : ('')
-              }
-            </Access>
-          </Row>
-
+            </Row>
 
           {!props.studentManageradd ? (
             <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>
