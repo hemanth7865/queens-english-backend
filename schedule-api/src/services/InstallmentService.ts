@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan, PrimaryColumn } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS, EMI_PAYMENT_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -690,7 +690,7 @@ export class InstallmentService {
             }
             const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadDetails.id });
             const userStatus = await this.userRepository.findOne({ id: leadDetails.id })
-            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === "Fully Paid" || userStatus.status === Status.INACTIVE) {
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === EMI_PAYMENT_STATUS.FULLY_PAID || userStatus.status === Status.INACTIVE) {
               usersLogger.debug('payment details not found for ' + d[primaryColumn]);
               result.errors++;
               result.ids.errorIds.push(d[primaryColumn]);
