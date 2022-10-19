@@ -1327,14 +1327,14 @@ Queen's English मे अगर आपको किसी तरह की स�
                       rules={[{
                         required: true,
                       }]}>
-                      <Select placeholder="Select Subscription Type">
+                      <Select placeholder="Select Subscription Type" onChange={onChange}>
                         <Option value="Manual">Manual</Option>
                         <Option value="Auto-Debit">Auto-Debit</Option>
                         <Option value="One-Time">One-Time</Option>
                       </Select>
                     </Form.Item>
                   </Col>
-                  {newPaymentMode === PaymentModevalues.Razorpay ?
+                  {newPaymentMode === PaymentModevalues.Razorpay && props.tempData.subscription === "Auto-Debit" ?
                     <Col span={12}>
                       <Form.Item
                         label="Subscription Number"
@@ -1344,7 +1344,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Input onChange={onChange} maxLength={18} minLength={18} />
                       </Form.Item>
                     </Col>
-                    : newPaymentMode === PaymentModevalues.CASHFREE ?
+                    : newPaymentMode === PaymentModevalues.CASHFREE && props.tempData.subscription === "Auto-Debit" ?
                       <Col span={12}>
                         <Form.Item
                           label="Subscription Number"
@@ -1358,7 +1358,6 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Form.Item
                           label="Subscription Number"
                           name="subscriptionNo"
-                          rules={[{ required: true, message: "Enter Valid Subscription Number" }]}
                         >
                           <Input onChange={onChange} />
                         </Form.Item>
@@ -1423,13 +1422,13 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Form.Item
                       name="subscription"
                       label="Subscription Type">
-                      <Select placeholder="Select Subscription Type">
+                        <Select placeholder="Select Subscription Type" onChange={onChange}>
                         <Option value="Manual">Manual</Option>
                         <Option value="Auto-Debit">Auto-Debit</Option>
                       </Select>
                     </Form.Item>
                     </Col>
-                    {newPaymentMode === PaymentModevalues.Razorpay ?
+                    {newPaymentMode === PaymentModevalues.Razorpay && props.tempData.subscription === "Auto-Debit" ?
                       <Col span={12}>
                         <Form.Item
                           label="Subscription Number"
@@ -1439,7 +1438,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                           <Input onChange={onChange} maxLength={18} minLength={18} />
                         </Form.Item>
                       </Col>
-                      : newPaymentMode === PaymentModevalues.CASHFREE ?
+                      : newPaymentMode === PaymentModevalues.CASHFREE && props.tempData.subscription === "Auto-Debit" ?
                         <Col span={12}>
                           <Form.Item
                             label="Subscription Number"
@@ -1453,7 +1452,6 @@ Queen's English मे अगर आपको किसी तरह की स�
                           <Form.Item
                             label="Subscription Number"
                             name="subscriptionNo"
-                            rules={[{ required: true, message: "Enter Valid Subscription Number" }]}
                           >
                             <Input onChange={onChange} />
                           </Form.Item>
