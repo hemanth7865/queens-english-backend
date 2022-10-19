@@ -395,6 +395,17 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleInstallmentType"
+                    defaultMessage="Installment Type"
+                />
+            ),
+            dataIndex: 'installmentType',
+            valueType: 'select',
+            valueEnum: subscriptionTypeFilter,
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleInstallmentCollected"
                     defaultMessage="Installment Collected"
                 />

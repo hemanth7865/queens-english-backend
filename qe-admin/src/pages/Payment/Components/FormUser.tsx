@@ -7,7 +7,7 @@ import moment from 'moment';
 import callDispositionStatus from "../../../../data/call_disposition.json";
 import DebounceSelect from "@/components/DebounceSelect";
 import StudentDetails from "../Components/StudentDetails";
-import { PaymentConstantValues, PaymentModevalues } from "../../../components/Constants/constants"
+import { PaymentConstantValues, PaymentModevalues, SUBSCRIPTION_TYPE } from "../../../components/Constants/constants"
 
 export type FormUserProps = {
     data?: any;
@@ -33,7 +33,7 @@ const { TextArea } = Input;
 
 
 const FormUser: React.FC<FormUserProps> = (props) => {
-    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType, discount, expireBy } = props.data ? props.data : '';
+    const { studentId, emiAmount, id, dueDate, paidDate, paidAmount, status, transaction_details_id, transactionId, razorpayLink, whatsAppLinkSent, modeOfPayment, callDisposition, feedBackCall, paymentMode, notes, leadId, reasonAmountChange, whatsapp, referenceId, netbankRefLink, subscriptionId, subscriptionType, discount, expireBy, installmentType } = props.data ? props.data : '';
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectPaidDate, setSelectPaidDate] = useState(PaymentConstantValues.INITITALPAIDDATE);
@@ -155,9 +155,14 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                     handleAPIResponse({ status: 400 }, "Razorpay link generated  Successfully", "Unable to regenerate for paid case", false);
                 }
             } else if (values.referenceId && values.referenceId != referenceId) {
+                if (values.referenceId.includes("_") && values.referenceId.split("_")[0] === "plink") {
+                    dataForm[0].paymentMode = PaymentModevalues.RAZORPAY;
+                    dataForm[0]['installmentType'] = SUBSCRIPTION_TYPE.MANUAL;
+                }
                 await editPaymentDetails(dataForm);
                 await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else if (values.subscriptionId) {
+                dataForm[0]['installmentType'] = SUBSCRIPTION_TYPE.AUTO_DEBIT;
                 await editPaymentDetails(dataForm);
                 await props.refreshStatus({ transactionId: transactionId, referenceId: values.subscriptionId, paymentMode: dataForm[0].paymentMode }, true);
             } else {
@@ -208,6 +213,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     useEffect(() => {
         defaultValues();
     }, [leadId, emiAmount, callDisposition, notes, whatsAppLinkSent, status, reasonAmountChange, referenceId, paidDate, paidAmount])
+
+    const [newPaymentMode, setNewPaymentMode] = useState(props?.data?.paymentMode);
 
     return (
         <div>
@@ -356,19 +363,43 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         label="Subscription Provider"
                                         name="paymentMode"
                                     >
-                                        <Select >
+                                        <Select onChange={(newValue: any) => setNewPaymentMode(newValue)} >
                                             <Option value={PaymentModevalues.RAZORPAY}>{PaymentModevalues.RAZORPAY}</Option>
                                             <Option value={PaymentModevalues.CASHFREE}>{PaymentModevalues.CASHFREE}</Option>
                                         </Select>
                                     </Form.Item>
 
-                                    <Form.Item
-                                        label="Subscription ID"
-                                        name="subscriptionId"
-                                        rules={[{ required: true, message: 'Please Enter Subscription ID!' }]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
+                                    {newPaymentMode === PaymentModevalues.RAZORPAY ?
+
+                                        <Form.Item
+                                            label="Subscription ID"
+                                            name="subscriptionId"
+                                            rules={[{
+                                                required: true, pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription ID"
+                                            }]}
+                                        >
+                                            <Input maxLength={18} minLength={18} />
+                                        </Form.Item>
+
+                                        : newPaymentMode === PaymentModevalues.CASHFREE ?
+
+                                            <Form.Item
+                                                label="Subscription ID"
+                                                name="subscriptionId"
+                                                rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription ID" }]}
+                                            >
+                                                <Input />
+                                            </Form.Item>
+
+                                            :
+                                            <Form.Item
+                                                label="Subscription ID"
+                                                name="subscriptionId"
+                                                rules={[{ required: true, message: "Enter Valid Subscription ID" }]}
+                                            >
+                                                <Input />
+                                            </Form.Item>
+                                    }
                                 </div> :
 
                                 props.netbankingVisible ?
@@ -485,13 +516,36 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                                 <TextArea rows={3} />
                                             </Form.Item>
 
-                                            <Form.Item
-                                                label="Reference ID"
-                                                name="referenceId"
-                                                rules={[{ required: false, message: 'Please Enter Reference Id!' }]}
-                                            >
-                                                <Input />
-                                            </Form.Item>
+                                            {newPaymentMode === PaymentModevalues.RAZORPAY ?
+
+                                                <Form.Item
+                                                    label="Reference ID"
+                                                    name="referenceId"
+                                                    rules={[{
+                                                        pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription ID"
+                                                    }]}
+                                                >
+                                                    <Input maxLength={18} minLength={18} />
+                                                </Form.Item>
+
+                                                : newPaymentMode === PaymentModevalues.CASHFREE ?
+
+                                                    <Form.Item
+                                                        label="Reference ID"
+                                                        name="referenceId"
+                                                        rules={[{ pattern: /^[0-9]{7}$/, message: "Enter Valid Reference ID" }]}
+                                                    >
+                                                        <Input />
+                                                    </Form.Item>
+
+                                                    :
+                                                    <Form.Item
+                                                        label="Reference ID"
+                                                        name="referenceId"
+                                                    >
+                                                        <Input />
+                                                    </Form.Item>
+                                            }
 
                                         </div>
 
