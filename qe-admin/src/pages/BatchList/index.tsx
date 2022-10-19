@@ -275,33 +275,35 @@ const BatchList: React.FC = () => {
       let currentCompletedLessons = [];
       let message = '';
 
-      const lessons = await getTeacherLessons(currentRow?.id);
-      if (lessons.data[0].length > 0) {
-        const startLessonNumber = LESSONS.filter((l) =>
-          startLesson ? l.id === startLesson : false
-        )[0]?.number;
+      if (currentRow?.id) {
+        const lessons = await getTeacherLessons(currentRow?.id);
+        if (lessons.data[0].length > 0) {
+          const startLessonNumber = LESSONS.filter((l) =>
+            startLesson ? l.id === startLesson : false
+          )[0]?.number;
 
-        const endLessonNumber = LESSONS.filter((l) =>
-          endLesson ? l.id === endLesson : false
-        )[0]?.number;
+          const endLessonNumber = LESSONS.filter((l) =>
+            endLesson ? l.id === endLesson : false
+          )[0]?.number;
 
-        currentCompletedLessons = lessons.data[0].filter((e: any) => {
-          return (e.isComplete === true) &&
-            (parseInt(e.lessonNumber) >= parseInt(startLessonNumber)) &&
-            (parseInt(e.lessonNumber) <= parseInt(endLessonNumber))
-        });
-        setCompletedLessons(currentCompletedLessons);
+          currentCompletedLessons = lessons.data[0].filter((e: any) => {
+            return (e.isComplete === true) &&
+              (parseInt(e.lessonNumber) >= parseInt(startLessonNumber)) &&
+              (parseInt(e.lessonNumber) <= parseInt(endLessonNumber))
+          });
+          setCompletedLessons(currentCompletedLessons);
 
-        currentCompletedLessons.forEach((lesson: any) => {
-          message += `${lesson.lessonNumber}, `;
-        });
-        setCompletedLessonMessage(message);
+          currentCompletedLessons.forEach((lesson: any) => {
+            message += `${lesson.lessonNumber}, `;
+          });
+          setCompletedLessonMessage(message);
+        }
       }
 
       if (currentCompletedLessons.length > 0) {
         setCompletedLessonModal(true);
       } else {
-        createEditBatch();
+        createEditBatch(dataForm);
       }
     } catch (error: any) {
       setIsLoading(false);
@@ -309,13 +311,13 @@ const BatchList: React.FC = () => {
     };
   }
 
-  const createEditBatch = async () => {
+  const createEditBatch = async (data? : any) => {
     // 登录
     const msg = await addeditbatch({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(batchData),
+      body: batchData?.batchNumber ? JSON.stringify(batchData) : JSON.stringify(data),
     });
 
     if (msg.success) {

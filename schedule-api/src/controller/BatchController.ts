@@ -29,7 +29,6 @@ export class BatchController {
     }
 
     async createBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("saving batch");
         var batch;
         try {
             batch = await this.batchService.createBatch(request.body);
@@ -66,7 +65,6 @@ export class BatchController {
 
 
     async deleteBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("saving batch");
         var batch;
         try {
             batch = await this.batchService.deleteBatch(request.params);
