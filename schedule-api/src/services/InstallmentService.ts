@@ -272,6 +272,7 @@ export class InstallmentService {
           .status === RAZORPAY_PAYMENT_STATUS.FAILED
       ) {
         finalData["status"] = PAYMENT_STATUS.FAILED;
+        finalData["reasonForFailure"] = paymentStatusDetails.items[paymentStatusDetails.items.length - 1].error_description;
         await this.query.update(getInstallmentDetails.id, finalData);
       } else {
         finalData["status"] = PAYMENT_STATUS.PENDING;

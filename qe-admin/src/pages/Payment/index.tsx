@@ -466,6 +466,17 @@ const TableList: React.FC = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.titleReasonForFailure"
+                    defaultMessage="Reason For AD Failure"
+                />
+            ),
+            dataIndex: 'reasonForFailure',
+            hideInSearch: true,
+            width: 200
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.titleNotes"
                     defaultMessage="Notes"
                 />
