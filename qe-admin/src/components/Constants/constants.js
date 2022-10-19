@@ -24,6 +24,11 @@ export const CountryCode = {
   COUNTRYCODE_OMAN: "+968",
 };
 
+export const InstallmentBulkUpload = {
+  ADDINSTALLMENTS: "Add Installments",
+  DELETEINSTALLMENTS: "Delete Installments",
+};
+
 export const EmiPaymentStatus = {
   PENDING: "Pending",
   FULLY_PAID: "Fully Paid",

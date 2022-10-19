@@ -1,6 +1,6 @@
-import { getRepository, LessThan, Like, MoreThan } from "typeorm";
+import { getRepository, LessThan, Like, MoreThan, PrimaryColumn } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS, EMI_PAYMENT_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -11,11 +11,17 @@ import {
 const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
-import { isNullOrUndefined } from "util";
+import { isDate, isNullOrUndefined } from "util";
 import { format } from "date-and-time";
 import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
-import { getDateFromTimeStamp, checkRangeOfDate } from "../helpers/timeStampToDate"
+import { checkRangeOfDate, startDateAndDueDateComparison, compareStatusAndEMIStatus } from "../helpers/timeStampToDate";
+import { Student } from "../entity/Student";
+import { Payment } from "../entity/Payment";
+import { User } from "../entity/User";
+import { PaymentService } from "./PaymentService"
+import { CashFreeUtils } from "../utils/payment/CashFreeUtils";
+import { validatePaymentStatus } from "../utils/payment/validateADStatus";
 
 export class InstallmentService {
   private installmentStatus = Constants.AUTO_UPDATE_INSTALLMENT_STATUS;
@@ -23,6 +29,12 @@ export class InstallmentService {
   private logger = new LoggerService();
   private query = getRepository(Transactions);
   private transaDetailsRepository = getRepository(TransactionDetails);
+  private studentRepository = getRepository(Student);
+  private paymentRepository = getRepository(Payment);
+  private userRepository = getRepository(User);
+  private cashFreeUtils = new CashFreeUtils();
+  private validateStatusUtils = new validatePaymentStatus();
+  private paymentService: any;
 
   async getPendingInstallments(params) {
     var limit = 100;
@@ -294,6 +306,413 @@ export class InstallmentService {
       ).save();
       return PAYMENT_STATUS.PENDING;
     }
+  }
+
+
+  //logic to update status and delete the records 
+  async updateStatusAndDelete(installmentDetails: any, studentId: string, result: any) {
+    usersLogger.info('records inside the logic ' + studentId);
+    if (installmentDetails)
+      try {
+        let transactionDetails = await this.transaDetailsRepository.findOne({ transactionId: installmentDetails.id });
+        if (!transactionDetails) {
+          usersLogger.info('TransactionDetails not found', studentId);
+          result.errors++;
+          result.ids.errorIds.push(studentId);
+          return result;
+        }
+
+        /* RAZORPAY PAYMENT MODE */
+        if (transactionDetails.paymentMode === PAYMENT_MODE.RAZORPAY && installmentDetails.transactionId != null) {
+          //calling the razorpay status update function
+          let updatedStatus;
+          if (installmentDetails.status != PAYMENT_STATUS.PAID || installmentDetails.status != PAYMENT_STATUS.PARTIALLY_PAID) {
+            if (installmentDetails.transactionId.split("_") && installmentDetails.transactionId.split("_")[0] === "sub") {
+              const validatingStudent: any = await this.validateStatusUtils.razorpayAutoDebitValidation(installmentDetails);
+              usersLogger.info("validating razorpay status" + JSON.stringify(validatingStudent));
+              if (validatingStudent.error > 0) {
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
+              if (validatingStudent.pending > 0 || validatingStudent.failed > 0) {
+                const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+                const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
+                usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
+                await (
+                  await this.logger.customPayment(
+                    installmentDetails.id || "UNKNOWN",
+                    "DELETE THE RECORD",
+                    "DELETE THE RECORD",
+                    { installmentDetails, deleteInstallmentRecord, deleteTransactionDetailsRecord },
+                    this.request.user || {}
+                  )
+                ).save();
+                result.updated++;
+                result.ids.updatedIds.push(studentId);
+                return result;
+              } else {
+                usersLogger.info('Razorpay auto debit  -- Installment Paid');
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
+            } else {
+              const validatingStudent: any = await this.validateStatusUtils.razorpayManualValidation(installmentDetails.transactionId);
+              usersLogger.info("validating razorpay status Manual mode" + JSON.stringify(validatingStudent));
+              if (validatingStudent.error > 0) {
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
+              if (validatingStudent.pending > 0) {
+                const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+                const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
+                usersLogger.info("Deleting the installment record", JSON.stringify(deleteInstallmentRecord), JSON.stringify(deleteTransactionDetailsRecord));
+                await (
+                  await this.logger.customPayment(
+                    installmentDetails.id || "UNKNOWN",
+                    "DELETE THE RECORD",
+                    "DELETE THE RECORD",
+                    { installmentDetails, deleteInstallmentRecord, deleteTransactionDetailsRecord },
+                    this.request.user || {}
+                  )
+                ).save();
+                result.updated++;
+                result.ids.updatedIds.push(studentId);
+                return result;
+              } else {
+                usersLogger.info('Razorpay manual -- Installment Paid');
+                result.errors++;
+                result.ids.errorIds.push(studentId);
+                return result;
+              }
+            }
+          } else {
+            usersLogger.info('Installment status -- Installment Paid');
+            result.errors++;
+            result.ids.errorIds.push(studentId);
+            return result;
+          }
+        } else if (transactionDetails.paymentMode === PAYMENT_MODE.CASHFREE) {
+          /* CASHFREE PAYMENT MODE */
+          if (installmentDetails.status != PAYMENT_STATUS.PAID || installmentDetails.status != PAYMENT_STATUS.PARTIALLY_PAID) {
+            const validatingStudent: any = await this.validateStatusUtils.cashfreeStatusValidation(installmentDetails);
+            usersLogger.info("Validating status" + JSON.stringify(validatingStudent));
+            if (validatingStudent.error > 0) {
+              result.errors++;
+              result.ids.errorIds.push(studentId);
+              return result;
+            }
+            //deleting the record 
+            if (validatingStudent.pending > 0 || validatingStudent.failed > 0) {
+              const deleteTransactionDetailsRecord = await this.transaDetailsRepository.delete({ transactionId: installmentDetails.id });
+              const deleteInstallmentRecord = await this.query.delete({ id: installmentDetails.id });
+              usersLogger.info("Deleting the installment record for " + studentId);
+              await (
+                await this.logger.customPayment(
+                  installmentDetails.id || "UNKNOWN",
+                  "DELETE THE RECORD",
+                  "DELETE THE RECORD",
+                  { installmentDetails, deleteInstallmentRecord, deleteTransactionDetailsRecord },
+                  this.request.user || {}
+                )
+              ).save();
+              result.updated++;
+              result.ids.updatedIds.push(studentId);
+              return result;
+            }
+          } else {
+            usersLogger.info('Cashfree status -- Installment Paid');
+            result.errors++;
+            result.ids.errorIds.push(studentId);
+            return result;
+          }
+        } else {
+          usersLogger.info('No payment mode found for ' + studentId);
+          result.errors++;
+          result.ids.errorIds.push(studentId);
+          return result;
+        }
+      } catch (e) {
+        usersLogger.error('error', e);
+        console.log(e);
+      }
+  }
+
+  async fetchFromTable(table: any, params: any) {
+    const where: any = {};
+    let result;
+
+    if (table === TABLE_NAMES.STUDENT) {
+      if (params.id) {
+        where.studentID = params.id;
+      }
+
+      result = await this.studentRepository.findOne({
+        where,
+      });
+
+      return result;
+    } else if (table === TABLE_NAMES.INSTALLMENT) {
+      if (params.id) {
+        where.studentId = params.id;
+        where.dueDate = Like(`%${params.dueDate}%`);
+      }
+      result = await this.query.findOne({
+        where,
+      });
+
+      return result;
+    } else if (table === TABLE_NAMES.PAYMENT) {
+      if (params.id) {
+        where.id = params.id;
+      }
+
+      result = await this.paymentRepository.findOne({
+        where,
+      });
+
+      return result;
+    } else {
+      return '';
+    }
+  }
+
+  //csv delete installments 
+  async updateDeleteInstallmentsCSV(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
+    usersLogger.info(`data from csv ${JSON.stringify(data)}`);
+    const primaryColumn = CSV_CONSTANTS.STUDENTID;
+    const dueDateColumn = CSV_CONSTANTS.DUEDATE;
+    let result: any = {
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      ids: {
+        updatedIds: [],
+        notFoundIds: [],
+        errorIds: []
+      },
+    };
+
+    try {
+      for (let d of data) {
+        try {
+          const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
+          const dueDateColumnExists = d[dueDateColumn] && d[dueDateColumn].length > 4;
+          if (!primaryColumnExists && !dueDateColumnExists) {
+            usersLogger.info('student not found ' + d[primaryColumn]);
+            result.notFound++;
+            result.ids.notFoundIds.push(d[primaryColumn]);
+            continue;
+          }
+
+          if (primaryColumnExists) {
+            const leadId = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
+            if (!leadId) {
+              usersLogger.info('student not found ' + d[primaryColumn]);
+              result.notFound++;
+              result.ids.notFoundIds.push(d[primaryColumn]);
+              continue;
+            }
+            const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadId.id });
+            const userStatus = await this.userRepository.findOne({ id: leadId.id })
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || !userStatus.status) {
+              usersLogger.info('payment details not found for ' + d[primaryColumn]);
+              result.errors++;
+              result.ids.errorIds.push(d[primaryColumn]);
+              continue;
+            }
+            if (compareStatusAndEMIStatus(userStatus.status, paymentDetails.emiPaymentStatus)) {
+              usersLogger.info('lead status and emi status are not correct for ' + d[primaryColumn]);
+              result.errors++;
+              result.ids.errorIds.push(d[primaryColumn]);
+              continue;
+            }
+            const studentId = leadId.id;
+            const installmentDetails = await this.fetchFromTable(TABLE_NAMES.INSTALLMENT, { id: studentId, dueDate: d[dueDateColumn] });
+            if (!installmentDetails) {
+              usersLogger.info('Installment details not found for ' + d[primaryColumn]);
+              result.notFound++;
+              result.ids.notFoundIds.push(d[primaryColumn]);
+              continue;
+            }
+            const statusUpdate = await this.updateStatusAndDelete(installmentDetails, d[primaryColumn], result);
+            usersLogger.info('Updated records', JSON.stringify(statusUpdate));
+          }
+        }
+        catch (e) {
+          console.log(e);
+          usersLogger.error('error ' + JSON.stringify(e));
+        }
+      }
+    } catch (e) {
+      console.log(e, data);
+      usersLogger.error('error ' + JSON.stringify(e) + JSON.stringify(data));
+    }
+
+    return result;
+  }
+
+
+  //logic to update status and delete the records 
+  async addInstallmentRecord(leadDetails: any, paymentDetails: any, result: any, dueDate: string, studentId: string) {
+    usersLogger.info('records inside the logic ' + studentId);
+    try {
+      let newDueDate;
+      if (leadDetails.classesStartDate && paymentDetails.subscriptionNo) {
+        const datesCheck = startDateAndDueDateComparison(leadDetails.classesStartDate, dueDate);
+        usersLogger.info('date check ' + datesCheck);
+        if (!datesCheck) {
+          result.errors++;
+          result.ids.errorIds.push(studentId);
+          return result;
+        }
+        if (paymentDetails.subscription === SUBSCRIPTION_TYPE.MANUAL) {
+          const particularDate = moment(leadDetails.classesStartDate).format("DD");
+          newDueDate = `${dueDate}-${particularDate}`;
+        } else if (paymentDetails.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT && paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY) {
+          const subscriptionDetails = await getSubscriptionById(paymentDetails.subscriptionNo);
+          usersLogger.info("Payment details for razorpay" + JSON.stringify(subscriptionDetails));
+          if (!subscriptionDetails) {
+            usersLogger.info('Razorpay subscription details not found for ' + studentId);
+            result.errors++;
+            result.ids.errorIds.push(studentId);
+            return result;
+          }
+          newDueDate = moment.unix(subscriptionDetails.current_end).format("YYYY-MM-DD");
+        } else if (paymentDetails.subscription === SUBSCRIPTION_TYPE.AUTO_DEBIT && paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_CASHFREE) {
+          const subscriptionDetailsCashfree = await this.cashFreeUtils.fetchCashfreeAccountDetail(paymentDetails.subscriptionNo);
+          if (isNullOrUndefined(subscriptionDetailsCashfree) || subscriptionDetailsCashfree!.status === CASHFREE_PAYMENT_STATUS.ERROR || !subscriptionDetailsCashfree.subscription.scheduledOn) {
+            usersLogger.info('Cashfree subscription not found for ' + studentId);
+            result.errors++;
+            result.ids.errorIds.push(studentId);
+            return result;
+          }
+          newDueDate = moment(subscriptionDetailsCashfree.subscription.scheduledOn).format("YYYY-MM-DD");
+        } else {
+          usersLogger.info('Payment details not found ' + studentId);
+          result.errors++;
+          result.ids.errorIds.push(studentId);
+          return result;
+        }
+      } else {
+        usersLogger.info('Payment details not found ' + studentId);
+        result.errors++;
+        result.ids.errorIds.push(studentId);
+        return result;
+      }
+
+      if (!newDueDate) {
+        usersLogger.info('updated new date not found' + studentId);
+        result.errors++;
+        result.ids.errorIds.push(studentId);
+        return result;
+      }
+
+      let newInstallmentRecord = [{
+        studentId: paymentDetails.id,
+        emiAmount: paymentDetails.emi,
+        dueDate: newDueDate,
+        status: PAYMENT_STATUS.PENDING,
+        subscriptionType: paymentDetails.subscription,
+        paymentMode: paymentDetails.paymentMode === PAYMENT_MODE.DOWNPAYMENT_RAZORPAY ? PAYMENT_MODE.RAZORPAY : paymentDetails.paymentMode,
+      }];
+      const addInstallment = await this.paymentService.paymentDetails(newInstallmentRecord);
+      if (addInstallment.status === RESPONSE_STATUS.SUCCESS) {
+        usersLogger.debug("Added new record " + JSON.stringify(addInstallment));
+        await (
+          await this.logger.customPayment(
+            studentId || "UNKNOWN",
+            "BULK ADD INSTALLMENT",
+            "BULK ADD INSTALLMENT",
+            { addInstallment },
+            this.request.user || {}
+          )
+        ).save();
+        result.updated++;
+        result.ids.updatedIds.push(studentId);
+        return result;
+      } else {
+        usersLogger.debug('Adding new record failed ' + JSON.stringify(addInstallment));
+        result.errors++;
+        result.ids.errorIds.push(studentId);
+        return result;
+      }
+    } catch (e) {
+      console.log('error', e);
+      usersLogger.error('error ' + JSON.stringify(e));
+    }
+  }
+
+
+  //csv delete installments 
+  async updateAddInstallmentsCSV(
+    data: any,
+    query: { test: boolean; clear: boolean } = { test: false, clear: false }
+  ) {
+    const primaryColumn = CSV_CONSTANTS.STUDENTID;
+    const dueDateColumn = CSV_CONSTANTS.DUEDATE;
+    let result: any = {
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      ids: {
+        updatedIds: [],
+        notFoundIds: [],
+        errorIds: []
+      },
+    };
+
+    try {
+      this.paymentService = new PaymentService();
+      for (let d of data) {
+        try {
+          const primaryColumnExists = d[primaryColumn] && d[primaryColumn].length > 4;
+          const dueDateColumnExists = d[dueDateColumn] && d[dueDateColumn].length > 4;
+          if (!primaryColumnExists && !dueDateColumnExists) {
+            usersLogger.debug('student not found ' + d[primaryColumn]);
+            result.notFound++;
+            result.ids.notFoundIds.push(d[primaryColumn]);
+            continue;
+          }
+
+          if (primaryColumnExists) {
+            const leadDetails = await this.fetchFromTable(TABLE_NAMES.STUDENT, { id: d[primaryColumn] });
+            if (!leadDetails) {
+              usersLogger.debug('student not found ' + d[primaryColumn]);
+              result.notFound++;
+              result.ids.notFoundIds.push(d[primaryColumn]);
+              continue;
+            }
+            const paymentDetails = await this.fetchFromTable(TABLE_NAMES.PAYMENT, { id: leadDetails.id });
+            const userStatus = await this.userRepository.findOne({ id: leadDetails.id })
+            if (!paymentDetails || !paymentDetails.emiPaymentStatus || paymentDetails.emiPaymentStatus === EMI_PAYMENT_STATUS.FULLY_PAID || userStatus.status === Status.INACTIVE) {
+              usersLogger.debug('payment details not found for ' + d[primaryColumn]);
+              result.errors++;
+              result.ids.errorIds.push(d[primaryColumn]);
+              continue;
+            }
+
+            //logic to add the installments
+            const installmentDetails = await this.addInstallmentRecord(leadDetails, paymentDetails, result, d[dueDateColumn], d[primaryColumn]);
+            usersLogger.debug('Updated records ' + JSON.stringify(installmentDetails));
+          }
+        }
+        catch (e) {
+          console.log(e);
+          usersLogger.error('error ' + JSON.stringify(e));
+        }
+      }
+    } catch (e) {
+      console.log(e, data);
+      usersLogger.error('error ' + JSON.stringify(e) + JSON.stringify(data));
+    }
+
+    return result;
   }
 }
 
