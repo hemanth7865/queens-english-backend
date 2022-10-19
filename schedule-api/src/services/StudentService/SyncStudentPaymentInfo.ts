@@ -155,11 +155,15 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
     total: 0,
   };
 
+  const { userId } = request.query;
+
+  const where = userId && userId.length > 5 ? ` AND user.id = '${userId}'` : "";
+
   const users = await getManager()
     .createQueryBuilder(User, "user")
     .innerJoinAndSelect(Student, "student", "student.id = user.id")
     .innerJoinAndSelect(Payment, "payment", "payment.id = user.id")
-    .where(`user.status = "error"`)
+    .where(`user.status = "error"${where}`)
     .getMany();
 
   result.total = users.length;
@@ -181,7 +185,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
         continue;
       }
 
-      if (lead.isLeadAPSynced) {
+      if (lead.isLeadAPSynced && where.length < 1) {
         result.logs.push({
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Already Synced Before.`,
           user,
@@ -263,7 +267,9 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
 
   await (
     await logger.customPayment(
-      "SYNC_USER_PAYMENT_INFO_RESULT",
+      `SYNC_USER_PAYMENT_INFO_RESULT_${
+        userId && userId.length > 5 ? userId : "GENERAL"
+      }`,
       "Sync User, Student and Payment Info From LSQ",
       "SYNC_USER_PAYMENT_INFO_RESULT",
       { result },
