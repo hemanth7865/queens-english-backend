@@ -82,6 +82,7 @@ export type StudentdetailseditProps = {
     batchesClassesStartDate?: any;
     forceRazorpayMoveSAV?: any;
     emiPaymentStatus?: string;
+    dateOfInactivation?: string;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -136,6 +137,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       zoomLink: value.zoomLink,
       zoomInfo: value.zoomInfo,
       whatsappLink: value.whatsappLink,
+      dateOfInactivation: !value.dateOfInactivation || value.dateOfInactivation == "Invalid date" ? null : moment(value.dateOfInactivation, "YYYY-MM-DD").format("YYYY-MM-DD"),
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
@@ -398,6 +400,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         onboardingIssueReason: props.tempData.onboardingIssueReason,
         batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
         emiPaymentStatus: props.tempData.emiPaymentStatus,
+        dateOfInactivation: moment(props.tempData.dateOfInactivation, "YYYY-MM-DD").format("YYYY-MM-DD"),
       })) : ('')
     };
   }
@@ -462,6 +465,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
       !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
       !props.studentManageradd ? props.tempData.emiPaymentStatus : null,
+      !props.studentManageradd ? props.tempData.dateOfInactivation : null,
     ]
   )
 
@@ -1097,6 +1101,15 @@ Queen's English मे अगर आपको किसी तरह की स�
                 </Form.Item>
               </Col>) : ('')
             }
+
+            <Col span={12}>
+              <Form.Item
+                name="dateOfInactivation"
+                label="Date of Inactivation"
+              >
+                <Input type="date" disabled />
+              </Form.Item>
+            </Col>
 
 
             <Access

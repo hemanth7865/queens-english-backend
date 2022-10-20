@@ -68,6 +68,8 @@ export class UserController {
                     removequery = await getManager().query(removebatchquery)
                     console.log("Trying to remove Inactive Student")
                     await this.batchService.addStudentsBatchesHistory([request.body.id], request.body.batchId[0].batchId, false)
+                    var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
+                    let addDateOfInactivationRes = await getManager().query(addDateOfInactivationQuery)
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
