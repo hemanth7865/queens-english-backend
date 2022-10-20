@@ -192,7 +192,6 @@ export class InstallmentService {
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
-      console.log('init', initialSubscriptionData);
       usersLogger.info(`data to store in db: ${JSON.stringify(initialSubscriptionData)}`);
       if (!invoiceDetails || invoiceDetails?.items.length === 0) {
         usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
@@ -213,7 +212,7 @@ export class InstallmentService {
             invoiceStatus: payments.status,
             orderId: payments.order_id,
             paymentUrl: payments.short_url,
-            invoiceDueDate: moment.unix(payments.billing_end).format("DD"),
+            invoiceDueDate: moment.unix(payments.billing_end).utcOffset("+05:30").format("DD"),
             updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
             lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
           };
@@ -242,7 +241,7 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: moment(paymentLinkDueDate).utcOffset("+05:30").format("YYYY-MM-DD HH:mm:ss"),
+        dueDate: moment(paymentLinkDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
