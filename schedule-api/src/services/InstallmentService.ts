@@ -188,7 +188,7 @@ export class InstallmentService {
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: moment(subscriptionDueDate).format("YYYY-MM-DD HH:mm:ss"),
+        dueDate: moment(subscriptionDueDate).utcOffset("+05:30").format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
@@ -241,7 +241,7 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: moment(paymentLinkDueDate).format("YYYY-MM-DD HH:mm:ss"),
+        dueDate: moment(paymentLinkDueDate).utcOffset("+05:30").format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }
