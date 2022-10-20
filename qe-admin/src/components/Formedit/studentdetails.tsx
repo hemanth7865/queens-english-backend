@@ -83,7 +83,7 @@ export type StudentdetailseditProps = {
     batchesClassesStartDate?: any;
     emiPaymentStatus?: string;
     salesowner?: string;
-    dateOfInactivation?: string;
+    dateOfInactivation?: Date;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -1115,7 +1115,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                   name="dateOfInactivation"
                   label="Date of Inactivation"
                 >
-                  <Input type="date" disabled />
+                  <Input type="text" disabled />
                 </Form.Item>
               </Col>
             )}
