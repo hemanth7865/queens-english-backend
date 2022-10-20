@@ -178,7 +178,7 @@ export class InstallmentService {
       let subscriptionDueDate;
       const dueDateMonthYear = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
       if (subscriptionDetails.current_end) {
-        const dueDateNumber = moment.unix(subscriptionDetails.current_end).format("DD");
+        const dueDateNumber = moment.unix(subscriptionDetails.current_end).utcOffset("+05:30").format("DD");
         subscriptionDueDate = `${dueDateMonthYear}-${dueDateNumber}`;
       } else {
         subscriptionDueDate = getInstallmentDetails.dueDate;
@@ -188,10 +188,11 @@ export class InstallmentService {
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: moment(subscriptionDueDate).utcOffset("+05:30").format("YYYY-MM-DD HH:mm:ss"),
+        dueDate: moment(subscriptionDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
+      console.log('init', initialSubscriptionData);
       usersLogger.info(`data to store in db: ${JSON.stringify(initialSubscriptionData)}`);
       if (!invoiceDetails || invoiceDetails?.items.length === 0) {
         usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
