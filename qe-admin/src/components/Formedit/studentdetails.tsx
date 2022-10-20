@@ -1109,15 +1109,16 @@ Queen's English मे अगर आपको किसी तरह की स�
                 </Form.Item>
               </Col>) : ('')
             }
-
-            <Col span={12}>
-              <Form.Item
-                name="dateOfInactivation"
-                label="Date of Inactivation"
-              >
-                <Input type="date" disabled />
-              </Form.Item>
-            </Col>
+            {!props.studentManageradd && (
+              <Col span={12}>
+                <Form.Item
+                  name="dateOfInactivation"
+                  label="Date of Inactivation"
+                >
+                  <Input type="date" disabled />
+                </Form.Item>
+              </Col>
+            )}
           </Row>
 
           {!props.studentManageradd ? (
