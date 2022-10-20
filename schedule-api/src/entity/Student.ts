@@ -132,6 +132,8 @@ export class Student extends BaseEntity {
 
   @Column({ nullable: true, type: "date" })
   crossedEndDate: Date;
+  @Column({ nullable: true, type: "date" })
+  dateOfInactivation: Date;
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()
