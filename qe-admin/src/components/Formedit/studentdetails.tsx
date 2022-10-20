@@ -144,6 +144,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       age: value.dob == null || value.age == 'NaN' ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
       batchesClassesStartDate: !value.batchesClassesStartDate || value.batchesClassesStartDate == "Invalid date" ? null : moment(value.batchesClassesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      enrollmentType: value.enrollmentType,
       payment: !props.studentManageradd ? [{
         id: value.id,
         paymentid: value.paymentid,
@@ -163,7 +164,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         notes: value.notes,
         forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
         emiPaymentStatus: value.emiPaymentStatus,
-        enrollmentType: value.enrollmentType,
       }] : null
     }
     if (paymentTally == 0) {
