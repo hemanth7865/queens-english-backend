@@ -83,6 +83,7 @@ export type StudentdetailseditProps = {
     batchesClassesStartDate?: any;
     emiPaymentStatus?: string;
     salesowner?: string;
+    dateOfInactivation?: Date;
   },
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
@@ -137,6 +138,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       zoomLink: value.zoomLink,
       zoomInfo: value.zoomInfo,
       whatsappLink: value.whatsappLink,
+      dateOfInactivation: !value.dateOfInactivation || value.dateOfInactivation == "Invalid date" ? null : moment(value.dateOfInactivation, "YYYY-MM-DD").format("YYYY-MM-DD"),
       isSibling: value.isSibling ? value.isSibling : 0,
       prm_id: String(value.prm).length < 3 && parseInt(value.prm) > 0 ? value.prm : value.prm_id,
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
@@ -193,7 +195,7 @@ I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.p
 *Frequency:* ${props.tempData.courseFrequency}
 *Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
     { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true,
-    {userCode: props.tempData.userCode})}
+    { userCode: props.tempData.userCode })}
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
@@ -253,7 +255,7 @@ Queen's English मे अगर आपको किसी तरह की स�
           <b>*Batch:*</b> {batchCode}<br />
           <b>*Time:*</b> {timings} India<br />
           <b>*Frequency:*</b> {days}<br />
-          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, {userCode})}<br />
+          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, { userCode })}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
@@ -405,6 +407,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         onboardingIssueReason: props.tempData.onboardingIssueReason,
         batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
         emiPaymentStatus: props.tempData.emiPaymentStatus,
+        dateOfInactivation: moment(props.tempData.dateOfInactivation, "YYYY-MM-DD").format("YYYY-MM-DD"),
       })) : ('')
     };
   }
@@ -469,6 +472,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
       !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
       !props.studentManageradd ? props.tempData.emiPaymentStatus : null,
+      !props.studentManageradd ? props.tempData.dateOfInactivation : null,
     ]
   )
 
@@ -1105,8 +1109,17 @@ Queen's English मे अगर आपको किसी तरह की स�
                 </Form.Item>
               </Col>) : ('')
             }
-
-            </Row>
+            {!props.studentManageradd && (
+              <Col span={12}>
+                <Form.Item
+                  name="dateOfInactivation"
+                  label="Date of Inactivation"
+                >
+                  <Input type="text" disabled />
+                </Form.Item>
+              </Col>
+            )}
+          </Row>
 
           {!props.studentManageradd ? (
             <><Row align="center"><h2>Payment Info</h2></Row><Row gutter={16}>
@@ -1412,7 +1425,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                       name="paymentMode"
                       label="Plan Mode"
                     >
-                        <Select placeholder="Select Plan Mode" onChange={(newValue: any) => setNewPaymentMode(newValue)}>
+                      <Select placeholder="Select Plan Mode" onChange={(newValue: any) => setNewPaymentMode(newValue)}>
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
@@ -1422,41 +1435,41 @@ Queen's English मे अगर आपको किसी तरह की स�
                     <Form.Item
                       name="subscription"
                       label="Subscription Type">
-                        <Select placeholder="Select Subscription Type" onChange={onChange}>
+                      <Select placeholder="Select Subscription Type" onChange={onChange}>
                         <Option value="Manual">Manual</Option>
                         <Option value="Auto-Debit">Auto-Debit</Option>
                       </Select>
                     </Form.Item>
+                  </Col>
+                  {newPaymentMode === PaymentModevalues.Razorpay && props.tempData.subscription === "Auto-Debit" ?
+                    <Col span={12}>
+                      <Form.Item
+                        label="Subscription Number"
+                        name="subscriptionNo"
+                        rules={[{ required: true, pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription Number" }]}
+                      >
+                        <Input onChange={onChange} maxLength={18} minLength={18} />
+                      </Form.Item>
                     </Col>
-                    {newPaymentMode === PaymentModevalues.Razorpay && props.tempData.subscription === "Auto-Debit" ?
+                    : newPaymentMode === PaymentModevalues.CASHFREE && props.tempData.subscription === "Auto-Debit" ?
                       <Col span={12}>
                         <Form.Item
                           label="Subscription Number"
                           name="subscriptionNo"
-                          rules={[{ required: true, pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription Number" }]}
+                          rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription Number" }]}
                         >
-                          <Input onChange={onChange} maxLength={18} minLength={18} />
+                          <Input onChange={onChange} />
                         </Form.Item>
                       </Col>
-                      : newPaymentMode === PaymentModevalues.CASHFREE && props.tempData.subscription === "Auto-Debit" ?
-                        <Col span={12}>
-                          <Form.Item
-                            label="Subscription Number"
-                            name="subscriptionNo"
-                            rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription Number" }]}
-                          >
-                            <Input onChange={onChange} />
-                          </Form.Item>
-                        </Col>
-                        : <Col span={12}>
-                          <Form.Item
-                            label="Subscription Number"
-                            name="subscriptionNo"
-                          >
-                            <Input onChange={onChange} />
-                          </Form.Item>
-                        </Col>}
-                    <Col span={12}>
+                      : <Col span={12}>
+                        <Form.Item
+                          label="Subscription Number"
+                          name="subscriptionNo"
+                        >
+                          <Input onChange={onChange} />
+                        </Form.Item>
+                      </Col>}
+                  <Col span={12}>
                     <Form.Item
                       label="Subscription Amount"
                       name="emi"
@@ -1508,8 +1521,8 @@ Queen's English मे अगर आपको किसी तरह की स�
               >Save Changes</Button>
             </Col>
           </Row>
-        </Form>
-      </TabPane>
+        </Form >
+      </TabPane >
 
       {
         props.studentManageradd ? ('') : (
