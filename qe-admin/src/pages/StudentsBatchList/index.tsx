@@ -5,7 +5,6 @@ import {
   EyeOutlined,
   ClockCircleOutlined,
   UploadOutlined,
-
   EditOutlined,
   CopyOutlined,
 } from "@ant-design/icons";
@@ -78,6 +77,7 @@ import StudentBatchesHistory from "./components/StudentBatchesHistory";
 import access from "@/access";
 import { AlignType } from 'rc-table/lib/interface';
 import Tabsedit from "@/components/Formedit/tabs";
+import HistoryTable from "@/components/HistoryTab/tableView";
 
 const { TabPane } = Tabs;
 
@@ -97,6 +97,7 @@ const StudentsBatchList: React.FC = () => {
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
+  const [visibleHistoryTab, setVisibleHistoryTab] = useState<boolean>(false);
 
   //add drawer
   const showDrawer = () => {
@@ -118,6 +119,7 @@ const StudentsBatchList: React.FC = () => {
   };
   const onCloseEdit = () => {
     setVisibleEdit(false);
+    setVisibleHistoryTab(false);
   };
 
   //props for columns
@@ -317,6 +319,29 @@ const StudentsBatchList: React.FC = () => {
         );
       },
     },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.updateForm.titlePaymentHistory"
+          defaultMessage="payment History"
+        />
+      ),
+      dataIndex: "paymentHistory",
+      hideInSearch: true,
+      render: (dom: any, entity: { id: any; }) => {
+        return (
+          <a
+            onClick={() => {
+              setTmpData(entity.id);
+              setVisibleEdit(true);
+              setVisibleHistoryTab(true);
+            }}
+          >
+            <EyeOutlined />
+          </a>
+        );
+      },
+    },
   ];
 
   const handleFormChange = (e, value) => {
@@ -370,13 +395,17 @@ const StudentsBatchList: React.FC = () => {
 
       <Spin spinning={isLoading}>
         <Drawer
-          title="Edit Student"
+          title={!visibleHistoryTab ? "Edit Student" : "Payment History"}
           placement="right"
           onClose={onCloseEdit}
           visible={visibleEdit}
           width={1200}
           destroyOnClose>
-          <Tabsedit tmpData={tmpData} studentManageredit={studentManageredit} onChange={handleFormChange} />
+          {!visibleHistoryTab ?
+            <Tabsedit tmpData={tmpData} studentManageredit={studentManageredit} onChange={handleFormChange} /> :
+            <HistoryTable tmpData={tmpData} />
+          }
+
         </Drawer>
       </Spin>
     </PageContainer >
