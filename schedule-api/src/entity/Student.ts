@@ -125,6 +125,8 @@ export class Student extends BaseEntity {
   salesDataFilled: string;
   @Column({ nullable: true })
   reasonInSAV: string;
+  @Column({ type: "text" })
+  enrollmentType: string;
   @Column({ nullable: true, type: "date" })
   assesmentDate: Date;
 
@@ -147,6 +149,6 @@ export class Student extends BaseEntity {
   @Column({ nullable: false })
   prevBatchedStudent: boolean;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   onboardingIssueReason: string;
 }

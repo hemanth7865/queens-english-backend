@@ -83,6 +83,7 @@ export type StudentdetailseditProps = {
     batchesClassesStartDate?: any;
     emiPaymentStatus?: string;
     salesowner?: string;
+    enrollmentType?: string;
     dateOfInactivation?: Date;
   },
   submit: (data: any) => any;
@@ -145,6 +146,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       age: value.dob == null || value.age == 'NaN' ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
       batchesClassesStartDate: !value.batchesClassesStartDate || value.batchesClassesStartDate == "Invalid date" ? null : moment(value.batchesClassesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      enrollmentType: value.enrollmentType,
       payment: !props.studentManageradd ? [{
         id: value.id,
         paymentid: value.paymentid,
@@ -162,7 +164,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
         notes: value.notes,
-        emiPaymentStatus: value.emiPaymentStatus
+        emiPaymentStatus: value.emiPaymentStatus,
       }] : null
     }
     if (paymentTally == 0) {
@@ -407,6 +409,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         onboardingIssueReason: props.tempData.onboardingIssueReason,
         batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
         emiPaymentStatus: props.tempData.emiPaymentStatus,
+        enrollmentType: props.tempData.enrollmentType,
         dateOfInactivation: moment(props.tempData.dateOfInactivation, "YYYY-MM-DD").format("YYYY-MM-DD"),
       })) : ('')
     };
@@ -472,6 +475,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
       !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
       !props.studentManageradd ? props.tempData.emiPaymentStatus : null,
+      !props.studentManageradd ? props.tempData.enrollmentType : '',
       !props.studentManageradd ? props.tempData.dateOfInactivation : null,
     ]
   )
@@ -1109,6 +1113,22 @@ Queen's English मे अगर आपको किसी तरह की स�
                 </Form.Item>
               </Col>) : ('')
             }
+
+            {!props.studentManageradd &&
+              (<Col span={12}>
+                <Form.Item
+                  name="enrollmentType"
+                  label="Enrollment Type"
+                >
+                  <Select placeholder="Select Enrollment Type" onChange={onChange}>
+                    <Option value="Trial(TCM)">Trial(TCM)</Option>
+                    <Option value="Self Trial">Self Trial</Option>
+                    <Option value="Direct Enrollment">Direct Enrollment</Option>
+                  </Select >
+                </Form.Item>
+              </Col>)
+            }
+
             {!props.studentManageradd && (
               <Col span={12}>
                 <Form.Item
