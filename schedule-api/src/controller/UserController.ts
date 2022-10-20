@@ -464,7 +464,7 @@ export class UserController {
             usersLogger.info("Sync Student Payment Info");
             resp = await SyncStudentPaymentInfo(request);
         } catch (error) {
-            console.log(error);
+            usersLogger.error("Sync Student Payment Info Error: "+error.message);
             resp = { status: 400, error: error.message }
         }
         return resp;
