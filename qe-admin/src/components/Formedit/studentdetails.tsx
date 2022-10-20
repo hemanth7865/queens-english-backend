@@ -162,7 +162,6 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         emiMonths: Number(value.emiMonths),
         paymentMode: value.paymentMode,
         notes: value.notes,
-        forceRazorpayMoveSAV: props.tempData.forceRazorpayMoveSAV ? props.tempData.forceRazorpayMoveSAV : value.forceRazorpayMoveSAV ? 1 : 0,
         emiPaymentStatus: value.emiPaymentStatus,
       }] : null
     }
@@ -196,7 +195,7 @@ I am your Academic Counsellor ${props.tempData.prm_firstName} ${props.tempData.p
 *Frequency:* ${props.tempData.courseFrequency}
 *Zoom Link:* ${getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
     { classCode: props?.tempData?.classCode, useNewZoomLink: props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: props?.tempData?.useAutoAttendance }, true,
-    { userCode: props.tempData.userCode })}
+    {userCode: props.tempData.userCode})}
 
 (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)
 (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)
@@ -256,7 +255,7 @@ Queen's English मे अगर आपको किसी तरह की स�
           <b>*Batch:*</b> {batchCode}<br />
           <b>*Time:*</b> {timings} India<br />
           <b>*Frequency:*</b> {days}<br />
-          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, { userCode })}<br />
+          <b>*Zoom Link:*</b> {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, {userCode})}<br />
           <br></br>
           (Zoom link is the SAME for all the classes. You can use the same link to join the class every day)<br />
           (जूम लिंक सभी कक्षा के लिए समान है। आप हर दिन कक्षा में शामिल होने के लिए उसी लिंक का उपयोग कर सकते हैं)<br />
