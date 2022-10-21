@@ -1359,6 +1359,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
+                        <Option value="Jodo">Jodo</Option>
+                        <Option value="Akshar">Akshar</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>
@@ -1457,6 +1459,8 @@ Queen's English मे अगर आपको किसी तरह की स�
                         <Option value="Razorpay">Razorpay</Option>
                         <Option value="Netbanking">Bank Transfer</Option>
                         <Option value="Cashfree">Cashfree</Option>
+                        <Option value="Jodo">Jodo</Option>
+                        <Option value="Akshar">Akshar</Option>
                       </Select>
                     </Form.Item>
                   </Col><Col span={12}>

@@ -366,6 +366,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         <Select onChange={(newValue: any) => setNewPaymentMode(newValue)} >
                                             <Option value={PaymentModevalues.RAZORPAY}>{PaymentModevalues.RAZORPAY}</Option>
                                             <Option value={PaymentModevalues.CASHFREE}>{PaymentModevalues.CASHFREE}</Option>
+                                            <Option value={PaymentModevalues.JODO}>{PaymentModevalues.JODO}</Option>
+                                            <Option value={PaymentModevalues.AKSHAR}>{PaymentModevalues.AKSHAR}</Option>
                                         </Select>
                                     </Form.Item>
 

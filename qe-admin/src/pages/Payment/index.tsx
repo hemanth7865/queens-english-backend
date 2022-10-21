@@ -65,6 +65,8 @@ const TableList: React.FC = () => {
         'Razorpay': { text: 'Razorpay', status: 'Razorpay' },
         'Netbanking': { text: 'Netbanking', status: 'Netbanking' },
         'Cashfree': { text: 'Cashfree', status: 'Cashfree' },
+        'Jodo': { text: 'Jodo', status: 'Jodo' },
+        'Akshar': { text: 'Akshar', status: 'Akshar' },
     }
 
     const subscriptionTypeFilter = {

@@ -71,7 +71,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         </Select>
       )
     } else if (inputType === 'selectPlan') {
-      const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
+      const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree', 'Jodo', 'Akshar']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         setName(event.target.value);
@@ -275,14 +275,14 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any, 
+  const openNotification = (type: string, message: string, days: string, timings: string, zoomLink: string, prm_firstName: string, prm_lastName: string, classDate: any, zoomInfo: any, batchCode: any,
     whatsappLink: string, classCode: string, useNewZoomLink: number, userCode: string, useAutoAttendance: number) => {
     const waMessage = (
       <div>
         <p>Hello <br />
           I am your Academic Counsellor {prm_firstName} {prm_lastName} from The Queen’s English and I am thrilled to inform you that your live classes will be starting on {moment(classDate, "YYYY-MM-DD").format("YYYY-MM-DD")}, you can use the below details to join your
           classes:<br />
-          Zoom Link: {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, {userCode})} <br />
+          Zoom Link: {getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, { classCode, useNewZoomLink, zoomLink, useAutoAttendance }, true, { userCode })} <br />
           Whatsapp Group Link: {whatsappLink} <br />
           Topic: {batchCode}<br />
           Time: {timings} India<br />
