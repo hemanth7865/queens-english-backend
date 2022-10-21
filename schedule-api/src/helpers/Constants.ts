@@ -100,3 +100,7 @@ export const CSV_CONSTANTS = {
     STUDENTID: "student_id",
     DUEDATE: "due_date"
 }
+
+export const TIME_ZONE = {
+    ISTTIMEZONE: "+05:30"
+}
