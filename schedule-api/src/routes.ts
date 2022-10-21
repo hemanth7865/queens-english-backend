@@ -631,6 +631,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/sync/student/payments/info/mongo",
+    controller: UserController,
+    action: "syncStudentPaymentInfo",
+    authenticate: false,
+  },
+  {
+    method: "post",
     route: "/csv/installments/delete-bulk-installments",
     controller: InstallmentController,
     action: "updateDeleteInstallmentsCSV",

@@ -849,3 +849,9 @@ export async function syncUsersToMongo() {
   });
 }
 
+//Sync Payment And User Info
+export async function syncStudentPaymentInfo(userId: string) {
+  return request<API.RuleList>(`/be/sync/student/payments/info/mongo?userId=${userId}`, {
+    method: "POST",
+  });
+}

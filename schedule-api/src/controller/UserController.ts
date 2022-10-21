@@ -15,6 +15,7 @@ import { validations } from "../helpers/validations";
 import { BatchController } from "./BatchController";
 import { Status } from "../helpers/Constants";
 import Referrer from "../model/Referrer";
+import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
 
 export class UserController {
 
@@ -88,7 +89,6 @@ export class UserController {
         return resp;
     }
 
-
     async updateLeadsStatus(request: Request, response: Response, next: NextFunction) {
         usersLogger.info('Start::UserController::updateLeadsStatus');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
@@ -115,9 +115,6 @@ export class UserController {
         }
         return { "success": true, "data": [user], "total": 1 };
     }
-
-
-
 
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Fetch details from database::listLeadDetails");
@@ -313,7 +310,6 @@ export class UserController {
         }
     }
 
-
     async loadTeacherAvailability(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Loading teacher availability ....");
         let msg = await this.teacherService.updateTeacherAvailability();
@@ -465,5 +461,17 @@ export class UserController {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    async syncStudentPaymentInfo(request: Request, response: Response, next: NextFunction) {
+        let resp;
+        try {
+            usersLogger.info("Sync Student Payment Info");
+            resp = await SyncStudentPaymentInfo(request);
+        } catch (error) {
+            usersLogger.error("Sync Student Payment Info Error: "+error.message);
+            resp = { status: 400, error: error.message }
+        }
+        return resp;
     }
 }

@@ -9,6 +9,7 @@ import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
+window.localStorage.setItem("umi_locale", "en-US")
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
 export const initialStateConfig = {

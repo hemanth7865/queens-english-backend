@@ -11,6 +11,8 @@ import { Constants, EMI_PAYMENT_STATUS } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 import { PRManager } from "../entity/PRManager";
+import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
+
 const moment = require("moment");
 const date = require('date-and-time')
 
@@ -225,6 +227,7 @@ export class LQSService {
 
       await this.studentRepository.save(student);
       await this.paymentRepository.save(payment);
+      await SyncStudentPaymentInfo({query: {userId: user.id}});
     } catch (error) {
       console.log(error);
       usersLogger.info(`Failed during Registering students ${element.id}`);
