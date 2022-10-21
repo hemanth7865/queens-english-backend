@@ -40,7 +40,8 @@ export const CASHFREE_PAYMENT_STATUS = {
     SUCCESS: 'SUCCESS',
     PENDING: 'PENDING',
     FAILED: 'FAILED',
-    ACTIVE: 'ACTIVE'
+    ACTIVE: 'ACTIVE',
+    ERROR: 'ERROR',
 }
 
 export const RAZORPAY_PAYMENT_STATUS = {
@@ -84,3 +85,24 @@ export const COSMOS_API = {
     STORE_SHORT_LINK: "/api/shortlink",
     STORE_CLASS_ATTENDANCE: "/api/classAttendance",
 };
+
+export const TABLE_NAMES = {
+    STUDENT: "student",
+    INSTALLMENT: "installment",
+    TRANSACTION_DETAILS: "transactionDetails",
+    PAYMENT: "payment"
+}
+
+export const RESPONSE_STATUS = {
+    SUCCESS: "success",
+    ERROR: "error"
+}
+
+export const CSV_CONSTANTS = {
+    STUDENTID: "student_id",
+    DUEDATE: "due_date"
+}
+
+export const TIME_ZONE = {
+    ISTTIMEZONE: "+05:30"
+}

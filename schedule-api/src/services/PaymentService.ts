@@ -229,6 +229,11 @@ export class PaymentService {
               `transactions.auto_retry_failed = '${parameters[param]}'`
             );
             break;
+          case "installmentType":
+            whereCondition.push(
+              `transactions.installmentType = '${parameters[param]}'`
+            );
+            break;
           case "leadId":
             whereCondition.push(`student.studentID = '${parameters[param]}'`);
             break;
@@ -291,6 +296,8 @@ export class PaymentService {
         view.cycles = record.transactions_cycles;
         view.subscriptionStatus = record.transactions_subscription_status;
         view.autoRetryFailed = record.transactions_auto_retry_failed;
+        view.reasonForFailure = record.transactions_reason_for_failure;
+        view.installmentType = record.transactions_installment_type;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -367,7 +374,7 @@ export class PaymentService {
         transaction.status = data.status;
         //payment details from razor pay
         //consider referenceId same as subscriptionId for razorpay
-        if (data.subscriptionId && data.paymentMode === PAYMENT_MODE.RAZORPAY) {
+        if (data.subscriptionId && data.paymentMode === PAYMENT_MODE.RAZORPAY && !data.referenceId) {
           transaction.transactionId = data.subscriptionId;
         } else {
           transaction.transactionId = data.referenceId;
@@ -378,6 +385,7 @@ export class PaymentService {
         //subscription id for auto debit
         transaction.subscriptionId = data.subscriptionId;
         transaction.subscriptionType = data.subscriptionType;
+        transaction.installmentType = data.installmentType;
 
         if (!data.id) {
           const dueDateFormatYear = moment(data.dueDate).format("YYYY");
@@ -945,6 +953,7 @@ export class PaymentService {
             const dueMonth = moment(installment.dueDate).format("YYYY-MM");
             var payments: any = cashFreeResponse.payments;
             var subStatus: any = subscriptionStatusResponse.subscription.status;
+            var subDueDate: any = subscriptionStatusResponse.subscription.scheduledOn ? moment(subscriptionStatusResponse.subscription.scheduledOn).format("YYYY-MM-DD") : installment.dueDate;
             for (const payment of payments) {
               usersLogger.debug("pay: " + JSON.stringify(payment));
               if (
@@ -956,10 +965,10 @@ export class PaymentService {
                   paidDate: payment['addedOn'],
                   subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
+                  dueDate: subDueDate,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
-
                 if (payment["amount"] == installment.emiAmount) {
                   data["status"] = PAYMENT_STATUS.PAID;
                 }
@@ -983,6 +992,8 @@ export class PaymentService {
                   status: PAYMENT_STATUS.FAILED,
                   subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
+                  reasonForFailure: payment['failureReason'],
+                  dueDate: subDueDate,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };

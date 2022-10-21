@@ -17,6 +17,7 @@ export const PaymentModevalues = {
   RAZORPAY: "RazorPay",
   JODO: "Jodo",
   AKSHAR: "Akshar",
+  Razorpay: "Razorpay",
 };
 
 export const CountryCode = {
@@ -25,8 +26,18 @@ export const CountryCode = {
   COUNTRYCODE_OMAN: "+968",
 };
 
+export const InstallmentBulkUpload = {
+  ADDINSTALLMENTS: "Add Installments",
+  DELETEINSTALLMENTS: "Delete Installments",
+};
+
 export const EmiPaymentStatus = {
   PENDING: "Pending",
   FULLY_PAID: "Fully Paid",
   QUARTERLY_PAID: "Quarterly paid",
 };
+
+export const SUBSCRIPTION_TYPE = {
+  MANUAL: 'Manual',
+  AUTO_DEBIT: 'Auto-Debit'
+}

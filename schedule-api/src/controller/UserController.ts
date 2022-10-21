@@ -7,6 +7,7 @@ import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
 import { UserService } from "../services/UserService";
+import { BatchService } from "../services/BatchService";
 import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
@@ -24,6 +25,7 @@ export class UserController {
     private studentService = new StudentService();
     private teacherService = new TeacherService();
     private userService = new UserService();
+    private batchService = new BatchService();
     private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
@@ -65,6 +67,9 @@ export class UserController {
                     var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                     removequery = await getManager().query(removebatchquery)
                     console.log("Trying to remove Inactive Student")
+                    await this.batchService.addStudentsBatchesHistory([request.body.id], request.body.batchId[0].batchId, false)
+                    var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
+                    let addDateOfInactivationRes = await getManager().query(addDateOfInactivationQuery)
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
