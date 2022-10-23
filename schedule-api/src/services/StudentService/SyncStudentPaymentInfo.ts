@@ -179,6 +179,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Doesn't Exist On TCM.`,
           user,
           lead,
+          code: 404,
         });
 
         result.skipped += 1;
@@ -190,6 +191,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Already Synced Before.`,
           user,
           lead,
+          code: 300,
         });
 
         result.skipped += 1;
@@ -203,9 +205,22 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
 
       if (!payment) {
         result.logs.push({
-          message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Payment Doesn't Exist On TCM Or Not Paid Yet.`,
+          message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Payment Doesn't Exist On TCM`,
           user,
           lead,
+          code: 404,
+        });
+
+        result.skipped += 1;
+        continue;
+      }
+
+      if (payment?.paymentStatus !== "Paid") {
+        result.logs.push({
+          message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Payment Status Is Not Paid On TCM`,
+          user,
+          lead,
+          code: 300,
         });
 
         result.skipped += 1;
@@ -221,6 +236,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Trial Doesn't Exist On TCM.`,
           user,
           lead,
+          code: 404,
         });
 
         result.skipped += 1;
@@ -253,6 +269,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
       result.logs.push({
         message: `Success Sync Student ${user.firstName} ${user.lastName}`,
         user,
+        code: 200,
       });
 
       result.success += 1;
@@ -261,6 +278,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
       result.logs.push({
         message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because of error: ${e.message}.`,
         user,
+        code: 400,
       });
     }
   }
