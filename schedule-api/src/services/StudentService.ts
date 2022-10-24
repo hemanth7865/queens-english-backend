@@ -352,7 +352,7 @@ export class StudentService {
       if(!data.userCode && oldUser && oldUser.userCode){
         data.userCode = oldUser.userCode;
       }
-      
+
       if(oldUser){
         data.id = oldUser.id;
       }
@@ -515,6 +515,8 @@ export class StudentService {
     user.alternativeMobile = data.alternativeMobile;
     user.isSibling = data.isSibling;
     user.state = data.state;
+    user.offlineStudentCode = data.offlineStudentCode;
+    user.preventAppAccess = data.preventAppAccess;
 
     if (data.id) {
       user.id = data.id;
