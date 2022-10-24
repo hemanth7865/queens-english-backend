@@ -352,6 +352,10 @@ export class StudentService {
       if(!data.userCode && oldUser && oldUser.userCode){
         data.userCode = oldUser.userCode;
       }
+      
+      if(oldUser){
+        data.id = oldUser.id;
+      }
     }
 
     const cosmosUserBody: any = {
