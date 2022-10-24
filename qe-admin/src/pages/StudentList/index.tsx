@@ -16,6 +16,7 @@ import { studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
 import AddUser from './components/AddUser';
 import EditUser from './components/EditUser';
 import ViewStudent from './components/ViewStudent';
+import UploadStudentsBulkWithoutRMN from './components/UploadStudentsBulkWithoutRMN';
 
 /**
  * @en-US Add node
@@ -185,6 +186,7 @@ const TableList: React.FC = () => {
         request={studentBatches}
         columns={columns}
         toolBarRender={() => [
+          <UploadStudentsBulkWithoutRMN />,
           <Button
             type="primary"
             key="primary"
