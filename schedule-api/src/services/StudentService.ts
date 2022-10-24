@@ -347,6 +347,11 @@ export class StudentService {
       if(!data.userCode && oldUser && oldUser.userCode){
         data.userCode = oldUser.userCode;
       }
+    }else if(data.offlineStudentCode){
+      oldUser = await this.usersRepository.findOne({offlineStudentCode: data.offlineStudentCode});
+      if(!data.userCode && oldUser && oldUser.userCode){
+        data.userCode = oldUser.userCode;
+      }
     }
 
     const cosmosUserBody: any = {
@@ -360,6 +365,8 @@ export class StudentService {
       batchesClassesStartDate: data.batchesClassesStartDate,
       userCode: data.userCode,
       status: data.status,
+      offlineStudentCode: data.offlineStudentCode,
+      preventAppAccess: data.preventAppAccess,
     }
 
     if (data.cacheTime) {
