@@ -179,7 +179,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Doesn't Exist On TCM.`,
           user,
           lead,
-          code: 404,
+          success: false,
         });
 
         result.skipped += 1;
@@ -191,7 +191,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Lead Already Synced Before.`,
           user,
           lead,
-          code: 300,
+          success: false,
         });
 
         result.skipped += 1;
@@ -208,19 +208,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
           message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Payment Doesn't Exist On TCM`,
           user,
           lead,
-          code: 404,
-        });
-
-        result.skipped += 1;
-        continue;
-      }
-
-      if (payment?.paymentStatus !== "Paid") {
-        result.logs.push({
-          message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Payment Status Is Not Paid On TCM`,
-          user,
-          lead,
-          code: 300,
+          success: false,
         });
 
         result.skipped += 1;
@@ -231,37 +219,29 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
         lead_id: user.id,
       });
 
-      if (!trial) {
-        result.logs.push({
-          message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because Trial Doesn't Exist On TCM.`,
-          user,
-          lead,
-          code: 404,
-        });
-
-        result.skipped += 1;
-        continue;
-      }
-
       const teacher = await MongoTeacher.findOne({
         _id: trial.selectedTeacher,
       });
 
-      const userData: User = updateUserData(
-        await userRepository.findOne(user.id),
-        { trial }
-      );
-      const studentData: Student = updateStudentData(
-        await studentRepository.findOne(user.id),
-        { trial, teacher }
-      );
+      if (trial) {
+        const userData: User = updateUserData(
+          await userRepository.findOne(user.id),
+          { trial }
+        );
+        const studentData: Student = updateStudentData(
+          await studentRepository.findOne(user.id),
+          { trial, teacher }
+        );
+
+        await userData.save();
+        await studentData.save();
+      }
+
       const paymentData = updatePaymentData(
         await paymentRepository.findOne(user.id),
         { payment }
       );
 
-      await userData.save();
-      await studentData.save();
       await paymentData.save();
 
       await MongoLead.updateOne({ _id: lead.id }, { isLeadAPSynced: true });
@@ -269,7 +249,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
       result.logs.push({
         message: `Success Sync Student ${user.firstName} ${user.lastName}`,
         user,
-        code: 200,
+        success: true,
       });
 
       result.success += 1;
@@ -278,7 +258,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
       result.logs.push({
         message: `Failed To Sync Student ${user.firstName} ${user.lastName}, Because of error: ${e.message}.`,
         user,
-        code: 400,
+        success: false,
       });
     }
   }

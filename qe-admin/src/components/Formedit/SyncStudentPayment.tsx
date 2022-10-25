@@ -23,13 +23,8 @@ const SyncStudentPayment = ({ props }: { props: any }) => {
     setLoading(true);
     try {
       const data: any = await syncStudentPaymentInfo(props.tempData.id);
-      if (data?.code === 200) {
-        openNotificationWithIcon("success", "Sync Student Payment Info", data?.logs[0]?.message);
-      } else if (data?.code === 300) {
-        openNotificationWithIcon("warning", "Sync Student Payment Info", data?.logs[0]?.message);
-      } else {
-        openNotificationWithIcon("error", "Sync Student Payment Info", data?.logs[0]?.message);
-      }
+      openNotificationWithIcon(data?.logs[0]?.success ? "success" : "error", "Sync Student Payment Info", data?.logs[0]?.message);
+
       if (data?.success >= 1) {
         setTimeout(() => {
           window.location.reload();
