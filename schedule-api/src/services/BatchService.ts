@@ -1055,13 +1055,13 @@ export class BatchService {
     return result;
   }
 
-  async addStudentsBatchesHistory(students: string[], batchId: string) {
+  async addStudentsBatchesHistory(students: string[], batchId: string, status: boolean = true) {
     const studentsBatchesHistory = [];
     for (let i = 0; i < students.length; i++) {
       let studentBatchesHistory = new StudentBatchesHistory();
       studentBatchesHistory.studentId = students[i];
       studentBatchesHistory.batchId = batchId;
-      studentBatchesHistory.active = true;
+      studentBatchesHistory.active = status;
       studentsBatchesHistory.push(studentBatchesHistory);
     }
     try {

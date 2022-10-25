@@ -88,6 +88,8 @@ export class LQSEntry extends BaseEntity {
     retry: number;
     @Column({ type: "text" })
     bdaComments: string;
+    @Column({ type: "text" })
+    enrollmentType: string;
     @CreateDateColumn()
     created_at: Date;
     @UpdateDateColumn()

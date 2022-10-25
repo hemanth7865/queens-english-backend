@@ -7,6 +7,7 @@ import { TeacherService } from "../services/TeacherService";
 import { Lesson } from "../entity/Lessons";
 import { StudentService } from "../services/StudentService";
 import { UserService } from "../services/UserService";
+import { BatchService } from "../services/BatchService";
 import { parse } from 'csv-parse';
 const { usersLogger } = require("../Logger.js");
 import { getManager } from "typeorm";
@@ -14,6 +15,7 @@ import { validations } from "../helpers/validations";
 import { BatchController } from "./BatchController";
 import { Status } from "../helpers/Constants";
 import Referrer from "../model/Referrer";
+import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
 
 export class UserController {
 
@@ -24,6 +26,7 @@ export class UserController {
     private studentService = new StudentService();
     private teacherService = new TeacherService();
     private userService = new UserService();
+    private batchService = new BatchService();
     private batchController = new BatchController();
 
     async allLeads(request: Request, response: Response, next: NextFunction) {
@@ -65,6 +68,9 @@ export class UserController {
                     var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                     removequery = await getManager().query(removebatchquery)
                     console.log("Trying to remove Inactive Student")
+                    await this.batchService.addStudentsBatchesHistory([request.body.id], request.body.batchId[0].batchId, false)
+                    var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
+                    let addDateOfInactivationRes = await getManager().query(addDateOfInactivationQuery)
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
@@ -82,7 +88,6 @@ export class UserController {
         console.log('End::UserController::SaveLead');
         return resp;
     }
-
 
     async updateLeadsStatus(request: Request, response: Response, next: NextFunction) {
         usersLogger.info('Start::UserController::updateLeadsStatus');
@@ -110,9 +115,6 @@ export class UserController {
         }
         return { "success": true, "data": [user], "total": 1 };
     }
-
-
-
 
     async listLeadDetails(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Fetch details from database::listLeadDetails");
@@ -308,7 +310,6 @@ export class UserController {
         }
     }
 
-
     async loadTeacherAvailability(request: Request, response: Response, next: NextFunction) {
         usersLogger.info("Loading teacher availability ....");
         let msg = await this.teacherService.updateTeacherAvailability();
@@ -460,5 +461,17 @@ export class UserController {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    async syncStudentPaymentInfo(request: Request, response: Response, next: NextFunction) {
+        let resp;
+        try {
+            usersLogger.info("Sync Student Payment Info");
+            resp = await SyncStudentPaymentInfo(request);
+        } catch (error) {
+            usersLogger.error("Sync Student Payment Info Error: "+error.message);
+            resp = { status: 400, error: error.message }
+        }
+        return resp;
     }
 }

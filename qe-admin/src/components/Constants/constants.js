@@ -15,6 +15,8 @@ export const PaymentConstantValues = {
 export const PaymentModevalues = {
   CASHFREE: "Cashfree",
   RAZORPAY: "RazorPay",
+  JODO: "Jodo",
+  AKSHAR: "Akshar",
   Razorpay: "Razorpay",
 };
 
@@ -22,6 +24,11 @@ export const CountryCode = {
   COUNTRYCODE_INDIA: "+91",
   COUNTRYCODE_AFGHANISTAN: "+93",
   COUNTRYCODE_OMAN: "+968",
+};
+
+export const InstallmentBulkUpload = {
+  ADDINSTALLMENTS: "Add Installments",
+  DELETEINSTALLMENTS: "Delete Installments",
 };
 
 export const EmiPaymentStatus = {
