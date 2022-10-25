@@ -206,10 +206,7 @@ const BatchList: React.FC = () => {
     Object.keys(completedLessons).forEach((key: any) => {
       completedLessons[key].isComplete = false
     })
-
-    console.log('Data is ', completedLessons);
     const statusReset = await resetLessonStatus(currentRow?.id, completedLessons);
-    console.log("statusReset = ", statusReset);
     setCompletedLessonModal(false);
     setIsLoading(false);
     createEditBatch();
@@ -243,7 +240,6 @@ const BatchList: React.FC = () => {
       message.error("Please select class date range");
       return
     }
-    console.log(prePop);
     try {
       const dataForm = {
         classCode: formData.classCode,
@@ -277,7 +273,7 @@ const BatchList: React.FC = () => {
 
       if (currentRow?.id) {
         const lessons = await getTeacherLessons(currentRow?.id);
-        if (lessons.data[0].length > 0) {
+        if (lessons.length > 0) {
           const startLessonNumber = LESSONS.filter((l) =>
             startLesson ? l.id === startLesson : false
           )[0]?.number;
@@ -286,7 +282,7 @@ const BatchList: React.FC = () => {
             endLesson ? l.id === endLesson : false
           )[0]?.number;
 
-          currentCompletedLessons = lessons.data[0].filter((e: any) => {
+          currentCompletedLessons = lessons.filter((e: any) => {
             return (e.isComplete === true) &&
               (parseInt(e.lessonNumber) >= parseInt(startLessonNumber)) &&
               (parseInt(e.lessonNumber) <= parseInt(endLessonNumber))

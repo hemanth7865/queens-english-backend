@@ -431,7 +431,7 @@ export async function getTeacherLessons(
     pageSize?: number;
   },
   options?: { [key: string]: any }) {
-  return request<any>("/be/getTeacherLessons/"+id, {
+  return request<any>(`/be/azure?url=api/classProfile/${id}/lessons`, {
     method: "GET",
     params: {
       ...params,
@@ -451,8 +451,7 @@ export async function addeditbatch(options?: { [key: string]: any }) {
 
 //RESET EXISTING LESSON STATUS
 export async function resetLessonStatus(id?: string, lessonsData?: any) {
-  console.log('come on data is = ', lessonsData);
-  return request<any>("/be/resetLessonStatus/" + id, {
+  return request<any>(`/be/azure?url=api/classProfile/${id}/lessonStatus`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
