@@ -168,7 +168,8 @@ export class BatchService {
           zoomLink: data.zoomLink,
           zoomInfo: data.zoomInfo,
           whatsappLink: data.whatsappLink,
-          useAutoAttendance: data.useAutoAttendance
+          useAutoAttendance: data.useAutoAttendance,
+          offlineBatch: data.offlineBatch
         },
       };
 
@@ -453,6 +454,9 @@ export class BatchService {
       if (typeof data.useAutoAttendance != "undefined") {
         classes.useAutoAttendance = parseInt(data.useAutoAttendance);
       }
+      if (typeof data.offlineBatch != "undefined") {
+        classes.offlineBatch = parseInt(data.offlineBatch);
+      }
       classes.created_at = new Date();
       classes.updated_at = new Date();
 
@@ -570,6 +574,9 @@ export class BatchService {
         if(oldBatch?.useAutoAttendance != classes.useAutoAttendance){
           classes.meetingSettingsTracked = 0;
         }
+      }
+      if (typeof data.offlineBatch != "undefined") {
+        classes.offlineBatch = parseInt(data.offlineBatch);
       }
       if (data.id) {
         classes.id = data.id;
