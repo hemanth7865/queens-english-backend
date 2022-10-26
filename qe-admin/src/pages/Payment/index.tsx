@@ -42,6 +42,7 @@ const TableList: React.FC = () => {
     const [autodebitVisible, setAutodebitVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [upload, setUpload] = useState<boolean>(false);
+    const [refreshPaymentStatus, setRefreshPaymentStatus] = useState<boolean>(false);
 
 
     const intl = useIntl();
@@ -175,9 +176,11 @@ const TableList: React.FC = () => {
     }
 
     const handleRefreshStatus = async (data: any) => {
+        setRefreshPaymentStatus(true);
         if (confirm("Are you sure to refresh the installment status ?")) {
             await refreshStatus(data, false);
         }
+        setRefreshPaymentStatus(false);
         actionRef.current?.reload();
     }
 
@@ -497,7 +500,7 @@ const TableList: React.FC = () => {
             dataIndex: "edit",
             hideInSearch: true,
             fixed: 'right',
-            width: 240,
+            width: 300,
             tip: 'Paid cases are not editable',
             render: (dom, entity: any) => {
                 return (
@@ -566,7 +569,9 @@ const TableList: React.FC = () => {
                             <PlusSquareTwoTone title='Other Payment' />
                         </Popover>
                         <Typography.Link onClick={() => handleRefreshStatus(entity)} style={{ marginLeft: 10 }}>
-                            <ReloadOutlined title='Refresh Installment status' />
+                            <Spin spinning={refreshPaymentStatus} size="small" hidden={!refreshPaymentStatus}>
+                            </Spin>
+                            <ReloadOutlined title='Refresh Installment status' hidden={refreshPaymentStatus} />
                         </Typography.Link>
                         <a
                             onClick={() => {

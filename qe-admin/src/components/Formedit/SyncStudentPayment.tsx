@@ -23,7 +23,7 @@ const SyncStudentPayment = ({ props }: { props: any }) => {
     setLoading(true);
     try {
       const data: any = await syncStudentPaymentInfo(props.tempData.id);
-      openNotificationWithIcon("success", "Sync Student Payment Info", data?.logs[0]?.message);
+      openNotificationWithIcon(data?.logs[0]?.success ? "success" : "error", "Sync Student Payment Info", data?.logs[0]?.message);
 
       if (data?.success >= 1) {
         setTimeout(() => {
