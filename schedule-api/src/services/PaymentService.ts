@@ -1450,6 +1450,9 @@ export class PaymentService {
 
   async activateCashfreeSubscription(request: any) {
     try {
+      usersLogger.info(
+        "Activate Subscription: " + JSON.stringify(request)
+      );
       let installmentId = request.installmentId
       let installment = await this.transactionRepository.find({
         id: installmentId
@@ -1462,7 +1465,14 @@ export class PaymentService {
         };
       }
       let subscriptionId = installment[0]?.subscriptionId
-      let dueDate = moment(installment[0]?.dueDate).format("DD")
+      let subscriptionDetails = await this.cashFreeUtils.fetchCashfreeAccountDetail(subscriptionId)
+      if (subscriptionDetails?.subscription?.status !== 'ON_HOLD') {
+        return {
+          status: "error",
+          message: "Subscription is not On Hold",
+        };
+      }
+      let dueDate = moment(subscriptionDetails?.subscription?.scheduledOn).format("DD")
       let nextMonth = moment().add(1, 'M').startOf('month').format('YYYY-MM-DD')
       let nextDate = moment(nextMonth).add((dueDate > 20 ? 20 : dueDate) - 1, 'days').format('YYYY-MM-DD')
       let activateSubscriptionResponse = await this.cashFreeUtils.activateCashfreeSubscription(subscriptionId, nextDate)
@@ -1476,11 +1486,18 @@ export class PaymentService {
           message: "Error in Activating Cashfree Subscription",
         };
       }
+      usersLogger.info(
+        "Activated Subscription successfully: " + JSON.stringify(request)
+      );
       return {
         status: "success",
         message: "Successfully Activated Subscription",
       }
     } catch (error) {
+      usersLogger.error(
+        "Error in Activating Subscription : " +
+        error
+      );
       return {
         status: "error",
         message: "Error in Activating Cashfree Subscription",

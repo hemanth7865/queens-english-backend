@@ -166,7 +166,9 @@ const TableList: React.FC = () => {
                 body: JSON.stringify({ installmentId: data.transactionId }),
             });
             handleAPIResponse(msg, "Activated Subscription successfully", "Failed to Activate Subscription", false);
-            await refreshStatus(data, false)
+            if (msg.status !== 400 && msg.status !== 500 && msg.status != "error") {
+                await refreshStatus(data, false)
+            }
         } catch (error) {
             handleAPIResponse({ status: 400 }, "Activated Subscription successfully", "Failed to Activate Subscription", false);
         }
