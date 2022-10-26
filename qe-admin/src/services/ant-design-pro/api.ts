@@ -681,7 +681,6 @@ export async function retryAutodebitPayment(options?: { [key: string]: any }) {
 
 // Activate Cashfree Subscription
 export async function activateCashfreeSubscription(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/activateCashfreeSubscription", {
     method: "POST",
     ...(options || {}),
