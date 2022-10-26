@@ -37,18 +37,23 @@ const UploadStudentsBulkWithoutRMN = () => {
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
+                if (!Array.isArray(data)) {
+                    throw new Error("Failed to parse CSV File");
+                }
                 setTotalRecords(data.length);
                 for (const student of data) {
                     setCurrentRecord((n) => n + 1);
-                    if (student["First Name"] && student["Student Code"]) {
+                    if (student["First Name"] && student["Dummy number"]) {
                         const studentData = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"],
+                            teacherName: student["Teacher Name"],
+                            startLesson: student["Lesson Start"],
                             email: student["Email"],
-                            phoneNumber: student["RMN"] || student["Student Code"],
+                            phoneNumber: student["RMN"] || student["Dummy number"],
                             type: "student",
                             status: "active",
-                            offlineStudentCode: student["Student Code"],
+                            offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 1
                         };
 
@@ -63,7 +68,7 @@ const UploadStudentsBulkWithoutRMN = () => {
 
                         continue;
                     }
-                    message.error(`Student Record Doesn't Have First Name Or Student Code: ${JSON.stringify(student)}.`);
+                    message.error(`Student Record Doesn't Have First Name Or Dummy Number: ${JSON.stringify(student)}.`);
                 }
                 setIsLoading(false)
             };
