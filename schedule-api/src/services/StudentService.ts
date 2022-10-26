@@ -373,6 +373,8 @@ export class StudentService {
       preventAppAccess: data.preventAppAccess,
     }
 
+    console.log(data);
+
     if (data.cacheTime) {
       cosmosUserBody.cacheTime = data.cacheTime
     }

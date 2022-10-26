@@ -1,4 +1,4 @@
-import { Button, message, Spin, Modal, Progress } from 'antd';
+import { Button, message, Modal, Progress } from 'antd';
 import { useState } from 'react'
 import { addUserSchedule } from "@/services/ant-design-pro/api";
 
@@ -25,6 +25,7 @@ const UploadStudentsBulkWithoutRMN = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [currentRecord, setCurrentRecord] = useState<number>(0);
+    const [notStoredUsers, setNotStoredUsers] = useState<object[]>([])
 
     const handleUpload = async (e: any) => {
         e.preventDefault();
@@ -37,19 +38,22 @@ const UploadStudentsBulkWithoutRMN = () => {
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
+                console.log(data);
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
                 setTotalRecords(data.length);
+                setCurrentRecord(0);
                 for (const student of data) {
                     setCurrentRecord((n) => n + 1);
+                    await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
                         const studentData = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"],
                             teacherName: student["Teacher Name"],
                             startLesson: student["Lesson Start"],
-                            email: student["Email"],
+                            email: student["Email"] || student["Dummy number"],
                             phoneNumber: student["RMN"] || student["Dummy number"],
                             type: "student",
                             status: "active",
@@ -64,11 +68,20 @@ const UploadStudentsBulkWithoutRMN = () => {
                             body: JSON.stringify(studentData),
                         });
 
+                        if (!res.id) {
+                            setNotStoredUsers((d) => {
+                                d.push({ studentData, res });
+                                return d;
+                            })
+                        }
+
                         setResponse(res);
 
-                        continue;
+                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
+                    } else {
+                        message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
+                        console.log(student);
                     }
-                    message.error(`Student Record Doesn't Have First Name Or Dummy Number: ${JSON.stringify(student)}.`);
                 }
                 setIsLoading(false)
             };
@@ -91,31 +104,29 @@ const UploadStudentsBulkWithoutRMN = () => {
             </Button>
 
             <Modal visible={openUpload} onCancel={() => setOpenUpload(false)} footer={false}>
-                <Spin spinning={isLoading}>
-                    <code>
-                        <pre>
-                            {JSON.stringify(response, null, 4)}
-                        </pre>
-                    </code>
+                <code style={{ maxHeight: "300px" }}>
+                    <pre>
+                        {JSON.stringify(notStoredUsers, null, 4)}
+                    </pre>
+                </code>
 
-                    <code>
-                        File must be CSV and in this format:
-                        <pre>
-                            First Name,Last Name, RMN, Email, Student Code
-                        </pre>
-                    </code>
+                <code>
+                    File must be CSV and in this format:
+                    <pre>
+                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number
+                    </pre>
+                </code>
 
-                    {totalRecords ? <Progress percent={currentRecord ? currentRecord / totalRecords * 100 : 0}></Progress> : ""}
+                {totalRecords ? <Progress percent={currentRecord ? parseFlaot(String(currentRecord / totalRecords * 100)) : 0}></Progress> : ""}
 
-                    <br />
+                <br />
 
-                    <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}>
-                        <input type="file" name="agents" required id="file" />
-                        <button className="ant-btn ant-btn-primary">
-                            Upload File
-                        </button>
-                    </form>
-                </Spin>
+                <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}>
+                    <input type="file" name="agents" required id="file" />
+                    <Button loading={isLoading} type="primary" htmlType="submit">
+                        Upload File
+                    </Button>
+                </form>
             </Modal>
         </>
     )
