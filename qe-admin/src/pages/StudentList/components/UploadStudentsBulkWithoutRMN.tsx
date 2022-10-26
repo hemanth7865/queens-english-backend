@@ -104,7 +104,7 @@ const UploadStudentsBulkWithoutRMN = () => {
             </Button>
 
             <Modal visible={openUpload} onCancel={() => setOpenUpload(false)} footer={false}>
-                <code style={{ maxHeight: "300px" }}>
+                <code style={{ maxHeight: "300px", overflow: "auto" }}>
                     <pre>
                         {JSON.stringify(notStoredUsers, null, 4)}
                     </pre>
@@ -117,7 +117,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                     </pre>
                 </code>
 
-                {totalRecords ? <Progress percent={currentRecord ? parseFloat(String(currentRecord / totalRecords * 100)) : 0}></Progress> : ""}
+                {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
 
                 <br />
 
