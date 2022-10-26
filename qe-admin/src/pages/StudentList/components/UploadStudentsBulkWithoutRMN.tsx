@@ -117,7 +117,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                     </pre>
                 </code>
 
-                {totalRecords ? <Progress percent={currentRecord ? parseFlaot(String(currentRecord / totalRecords * 100)) : 0}></Progress> : ""}
+                {totalRecords ? <Progress percent={currentRecord ? parseFloat(String(currentRecord / totalRecords * 100)) : 0}></Progress> : ""}
 
                 <br />
 
