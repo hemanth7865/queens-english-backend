@@ -849,3 +849,33 @@ export async function syncUsersToMongo() {
   });
 }
 
+//Get One Student Attendance
+export async function getPaymentHistory(
+  params: {
+    current?: number;
+    pageSize?: number;
+    studentId?: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/log/api/logs/all`,
+    {
+      method: "GET",
+      params: {
+        page: params.current,
+        perpage: params.pageSize,
+        refresh: 0,
+        selectedPage: "payments-history",
+        filters: {
+          id: {
+            "value": params.studentId,
+            "matchMode": "contains"
+          }
+        }
+      },
+      ...(options || {}),
+    }
+  );
+}
+

@@ -1,53 +1,42 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { PageContainer } from '@ant-design/pro-layout';
 import { FormattedMessage } from "umi";
-import { rule } from '@/services/ant-design-pro/api';
-
-type list = {
-  label: string | number;
-  value: string | number;
-};
+import { getPaymentHistory } from '@/services/ant-design-pro/api';
+import { EyeOutlined } from '@ant-design/icons';
+import { Modal } from 'antd';
+import PaymentDataDetials from './dataDisplay';
+import moment from 'moment';
 
 export type Props = {
-  value: list[];
-  defaultValue: list[];
-  options: list[];
-  onChange: (data: list[]) => void;
-
+  tmpData: any;
 };
 
-const cascaderOptions = [
-  {
-    field: 'front end',
-    value: 'fe',
-  },
-  {
-    field: 'back end',
-    value: 'be',
-  },
-];
 
 const HistoryTable: React.FC<Props> = (props) => {
 
   const actionRef = useRef<ActionType>();
+  const [dataDisplay, setDataDisplay] = useState(false);
+  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+  console.log('prop', props, props.tmpData);
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.createdBy"
-          defaultMessage="Created By"
+          id="pages.searchTable.id"
+          defaultMessage="Id"
         />
       ),
-      dataIndex: "createdBy",
+      dataIndex: "id",
+      hideInSearch: true,
     },
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.titleCreatedAt"
-          defaultMessage="Created At"
+          defaultMessage="Created Date"
         />
       ),
       dataIndex: "createdAt",
@@ -56,34 +45,87 @@ const HistoryTable: React.FC<Props> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleUpdatedData"
-          defaultMessage="Updated Data"
+          id="pages.searchTable.titleCreatedTimings"
+          defaultMessage="Created Time"
         />
       ),
-      fieldProps: {
-        options: cascaderOptions,
-        fieldNames: {
-          children: 'language',
-          label: 'field',
-        },
-        showSearch: true,
-        filterTreeNode: true,
-        multiple: true,
-        treeNodeFilterProp: 'field',
-      },
-      dataIndex: "UpdatedData",
+      dataIndex: "UpdatedAt",
+      hideInSearch: true,
+      render: (dom, entity: any) => {
+        return (
+          <div>{(moment(entity.createdAt)).format("hh:mm:ss")}</div>
+        )
+      }
     },
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleOldData"
-          defaultMessage="Old Data"
+          id="pages.searchTable.titleEvent"
+          defaultMessage="Event"
         />
       ),
-      dataIndex: "OldData",
+      dataIndex: "event",
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.user"
+          defaultMessage="User"
+        />
+      ),
+      dataIndex: "debug",
+      hideInSearch: true,
+      render: (dom, entity: any) => {
+        return (
+          <div>{entity.debug.user.email}</div>
+        )
+      }
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleDebug"
+          defaultMessage="old Record"
+        />
+      ),
+      dataIndex: "debug",
+      hideInSearch: true,
+      render: (dom, entity: any) => {
+        return (
+          <a
+            onClick={() => {
+              setDataDisplay(true);
+              setCurrentRow(entity.debug.oldRecord);
+            }}
+            style={{ marginLeft: 10 }}>
+            <EyeOutlined title='View details' />
+          </a>
+        )
+      }
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleDebug"
+          defaultMessage="New Record"
+        />
+      ),
+      dataIndex: "debug",
+      hideInSearch: true,
+      render: (dom, entity: any) => {
+        return (
+          <a
+            onClick={() => {
+              setDataDisplay(true);
+              setCurrentRow(entity.debug.newRecord);
+            }}
+            style={{ marginLeft: 10 }}>
+            <EyeOutlined title='View details' />
+          </a>
+        )
+      }
     },
   ];
-
 
   return (
     <PageContainer>
@@ -95,7 +137,17 @@ const HistoryTable: React.FC<Props> = (props) => {
           labelWidth: 120,
         }}
         toolBarRender={() => []}
-        request={rule}
+        request={
+          async (params) => {
+            const data: any = await getPaymentHistory({ ...params, studentId: props.tmpData });
+            const mappedData = {
+              data: data.data,
+              current: data.pagination.page,
+              total: data.pagination.total,
+              pageSize: data.pagination.perpage
+            }
+            return mappedData;
+          }}
         columns={columns}
         pagination={{
           defaultPageSize: 5,
@@ -103,6 +155,19 @@ const HistoryTable: React.FC<Props> = (props) => {
           pageSizeOptions: ["5", "10", "20", "30"],
         }}
       />
+
+      <Modal
+        width={700}
+        visible={dataDisplay}
+        title={`Data Display`}
+        onCancel={() => {
+          setDataDisplay(false);
+        }}
+        footer={null}
+        centered
+      >
+        <PaymentDataDetials data={currentRow} />
+      </Modal>
     </PageContainer>
 
   )
