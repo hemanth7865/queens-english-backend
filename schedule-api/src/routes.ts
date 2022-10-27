@@ -648,4 +648,10 @@ export const Routes = [
     controller: InstallmentController,
     action: "updateAddInstallmentsCSV",
   },
+  {
+    method: "post",
+    route: "/activateCashfreeSubscription",
+    controller: PaymentController,
+    action: "activateCashfreeSubscription",
+  },
 ];

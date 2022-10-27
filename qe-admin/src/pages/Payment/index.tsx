@@ -1,11 +1,11 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined, CheckCircleTwoTone } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage, Access, useAccess } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus, retryAutodebitPayment } from '@/services/ant-design-pro/api';
+import { getAllPayment, regeneratePaymentLink, refreshRazorpayStatus, refreshAutoDebitStatus, retryAutodebitPayment, activateCashfreeSubscription } from '@/services/ant-design-pro/api';
 import FormUser from './Components/FormUser';
 import RazorpayDetails from './Components/RazorpayDetails';
 import moment from 'moment';
@@ -160,6 +160,23 @@ const TableList: React.FC = () => {
         }
     }
 
+    const activateCashfree = async (data: any) => {
+        try {
+            const msg = await activateCashfreeSubscription({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ installmentId: data.transactionId }),
+            });
+            handleAPIResponse(msg, "Activated Subscription successfully", "", false);
+            if (msg.status !== 400 && msg.status !== 500 && msg.status != "error") {
+                await refreshStatus(data, false)
+            }
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "", "Failed to Activate Subscription", false);
+        }
+    }
+
 
     const handleRegenerateLink = async (data: any) => {
         if (data.status == PaymentConstantValues.STATUSPENDING) {
@@ -188,6 +205,13 @@ const TableList: React.FC = () => {
         if (confirm("Are you sure to retry the payment ?")) {
             console.log('auto retry', data)
             await retryCashfreePayment(data);
+        }
+        actionRef.current?.reload();
+    }
+
+    const handleActivateCashfree = async (data: any) => {
+        if (confirm("Are you sure to activate subscription ?")) {
+            await activateCashfree(data)
         }
         actionRef.current?.reload();
     }
@@ -584,6 +608,13 @@ const TableList: React.FC = () => {
                         <Typography.Link onClick={() => handleRetryCashfree(entity)} style={{ marginLeft: 10 }}>
                             <SyncOutlined title='Auto Retry payment' />
                         </Typography.Link>
+                        {
+                            access.canSuperAdmin && entity?.paymentMode === PaymentModevalues.CASHFREE && (
+                                <Typography.Link onClick={() => handleActivateCashfree(entity)} style={{ marginLeft: 10 }}>
+                                    <CheckCircleTwoTone title='Activate Cashfree Subscription' />
+                                </Typography.Link>
+                            )
+                        }
                     </div>
                 );
             },

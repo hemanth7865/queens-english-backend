@@ -167,4 +167,16 @@ export class PaymentController {
             }
         }
     }
+
+    async activateCashfreeSubscription(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        try {
+            return await this.paymentService.activateCashfreeSubscription(request.body);
+        } catch (error) {
+            return {
+                status: "error",
+                message: "Exception while Activating Cashfree Subscription"
+            }
+        }
+    }
 }

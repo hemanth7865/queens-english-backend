@@ -679,6 +679,14 @@ export async function retryAutodebitPayment(options?: { [key: string]: any }) {
   });
 }
 
+// Activate Cashfree Subscription
+export async function activateCashfreeSubscription(options?: { [key: string]: any }) {
+  return request<any>("/be/activateCashfreeSubscription", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
 //get all zoom
 export async function getAllZoomUsers(
   //studentId: string,
