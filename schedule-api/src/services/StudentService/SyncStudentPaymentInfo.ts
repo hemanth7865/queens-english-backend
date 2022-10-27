@@ -25,22 +25,22 @@ const getRecommendedLesson = ({ placementTests }) => {
       return qw?.score < 6
         ? "Lesson 1"
         : qw?.score <= 25
-        ? "Lesson 31"
-        : qw?.score <= 35
-        ? "Lesson 61"
-        : qw?.score <= 40
-        ? "lesson 61"
-        : "";
+          ? "Lesson 31"
+          : qw?.score <= 35
+            ? "Lesson 61"
+            : qw?.score <= 40
+              ? "lesson 61"
+              : "";
     } else if (qw?.key === "level1B") {
       return qw?.score <= 6 ? "Lesson 61" : qw?.score <= 8 ? "lesson 61" : "";
     } else if (qw?.key === "level2") {
       return qw?.score <= 8
         ? "Lesson 121"
         : qw?.score <= 12
-        ? "Lesson 201"
-        : qw?.score <= 14
-        ? "Lesson 301"
-        : "";
+          ? "Lesson 201"
+          : qw?.score <= 14
+            ? "Lesson 301"
+            : "";
     }
   } else {
     return "No Test Conducted";
@@ -219,11 +219,11 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
         lead_id: user.id,
       });
 
-      const teacher = await MongoTeacher.findOne({
-        _id: trial.selectedTeacher,
-      });
-
       if (trial) {
+        const teacher = await MongoTeacher.findOne({
+          _id: trial.selectedTeacher,
+        });
+
         const userData: User = updateUserData(
           await userRepository.findOne(user.id),
           { trial }
@@ -265,8 +265,7 @@ export async function SyncStudentPaymentInfo(request): Promise<any> {
 
   await (
     await logger.customPayment(
-      `SYNC_USER_PAYMENT_INFO_RESULT_${
-        userId && userId.length > 5 ? userId : "GENERAL"
+      `SYNC_USER_PAYMENT_INFO_RESULT_${userId && userId.length > 5 ? userId : "GENERAL"
       }`,
       "Sync User, Student and Payment Info From LSQ",
       "SYNC_USER_PAYMENT_INFO_RESULT",
