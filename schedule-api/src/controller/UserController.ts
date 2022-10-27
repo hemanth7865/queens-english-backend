@@ -37,7 +37,7 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        if (!request.body.isSibling) {
+        if (!request.body.isSibling && !request.body.offlineStudentCode) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
             var resp;
             if (userExists) {
