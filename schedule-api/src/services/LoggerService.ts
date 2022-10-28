@@ -5,6 +5,8 @@ import { ZoomUser } from "../entity/ZoomUser";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import PaymentLogGenerator from "../utils/payment/paymentLoggerUtils";
 import zoomLogGenerator from "../utils/zoom/zoomLoggerUtils";
+import paymentHistory from "../utils/audit/PaymentHistoryUtils";
+import { Payment } from "../entity/Payment";
 const axios = require("axios");
 const { logger } = require("../Logger.js");
 
@@ -91,6 +93,25 @@ export default class LoggerService {
       title,
       event,
       debug: { ...debug, user },
+    };
+    return this;
+  }
+
+  public async paymentHistory(
+    id: string,
+    oldRecord: Payment,
+    newRecord: Payment,
+    user: object | boolean
+  ) {
+    this.page = "payments-history";
+    const logData = await paymentHistory(oldRecord, newRecord, user);
+    this.logData = {
+      id: id,
+      page: this.page,
+      title: this.page,
+      event: this.page,
+      debug: {},
+      ...logData,
     };
     return this;
   }
