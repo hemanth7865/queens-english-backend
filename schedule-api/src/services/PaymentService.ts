@@ -1447,6 +1447,63 @@ export class PaymentService {
       };
     }
   }
+
+  async activateCashfreeSubscription(request: any) {
+    try {
+      usersLogger.info(
+        "Activate Subscription: " + JSON.stringify(request)
+      );
+      let installmentId = request.installmentId
+      let installment = await this.transactionRepository.find({
+        id: installmentId
+      })
+      if (isNullOrUndefined(installment)) {
+        usersLogger.debug("No installment available for the given id");
+        return {
+          status: "error",
+          message: "No installment available for the given id",
+        };
+      }
+      let subscriptionId = installment[0]?.subscriptionId
+      let subscriptionDetails = await this.cashFreeUtils.fetchCashfreeAccountDetail(subscriptionId)
+      if (subscriptionDetails?.subscription?.status !== 'ON_HOLD') {
+        return {
+          status: "error",
+          message: "Subscription is not On Hold",
+        };
+      }
+      let dueDate = moment(subscriptionDetails?.subscription?.scheduledOn).format("DD")
+      let nextMonth = moment().add(1, 'M').startOf('month').format('YYYY-MM-DD')
+      let nextDate = moment(nextMonth).add((dueDate > 20 ? 20 : dueDate) - 1, 'days').format('YYYY-MM-DD')
+      let activateSubscriptionResponse = await this.cashFreeUtils.activateCashfreeSubscription(subscriptionId, nextDate)
+      if (!isNullOrUndefined(activateSubscriptionResponse?.errorResponse)) {
+        usersLogger.error(
+          "Error in Activating Subscription : " +
+          request.installmentId
+        );
+        return {
+          status: "error",
+          message: "Error in Activating Cashfree Subscription",
+        };
+      }
+      usersLogger.info(
+        "Activated Subscription successfully: " + JSON.stringify(request)
+      );
+      return {
+        status: "success",
+        message: "Successfully Activated Subscription",
+      }
+    } catch (error) {
+      usersLogger.error(
+        "Error in Activating Subscription : " +
+        error
+      );
+      return {
+        status: "error",
+        message: "Error in Activating Cashfree Subscription",
+      };
+    }
+  }
 }
 
 export const LessThanDate = (date: Date) => LessThan(format(date, 'YYYY-MM-DD HH:mm:ss'))

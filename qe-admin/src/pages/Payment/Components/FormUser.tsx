@@ -366,6 +366,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                         <Select onChange={(newValue: any) => setNewPaymentMode(newValue)} >
                                             <Option value={PaymentModevalues.RAZORPAY}>{PaymentModevalues.RAZORPAY}</Option>
                                             <Option value={PaymentModevalues.CASHFREE}>{PaymentModevalues.CASHFREE}</Option>
+                                            <Option value={PaymentModevalues.JODO}>{PaymentModevalues.JODO}</Option>
+                                            <Option value={PaymentModevalues.AKSHAR}>{PaymentModevalues.AKSHAR}</Option>
                                         </Select>
                                     </Form.Item>
 
@@ -515,38 +517,12 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             >
                                                 <TextArea rows={3} />
                                             </Form.Item>
-
-                                            {newPaymentMode === PaymentModevalues.RAZORPAY ?
-
-                                                <Form.Item
-                                                    label="Reference ID"
-                                                    name="referenceId"
-                                                    rules={[{
-                                                        pattern: /^[A-Za-z0-9]+_[A-Za-z0-9]+$/, message: "Enter Valid Subscription ID"
-                                                    }]}
-                                                >
-                                                    <Input maxLength={18} minLength={18} />
-                                                </Form.Item>
-
-                                                : newPaymentMode === PaymentModevalues.CASHFREE ?
-
-                                                    <Form.Item
-                                                        label="Reference ID"
-                                                        name="referenceId"
-                                                        rules={[{ pattern: /^[0-9]{7}$/, message: "Enter Valid Reference ID" }]}
+                                            <Form.Item
+                                                label="Reference ID"
+                                                name="referenceId"
                                                     >
                                                         <Input />
-                                                    </Form.Item>
-
-                                                    :
-                                                    <Form.Item
-                                                        label="Reference ID"
-                                                        name="referenceId"
-                                                    >
-                                                        <Input />
-                                                    </Form.Item>
-                                            }
-
+                                            </Form.Item>
                                         </div>
 
                     }

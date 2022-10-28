@@ -10,6 +10,8 @@ export const PAYMENT_MODE = {
     CASHFREE: 'Cashfree',
     DOWNPAYMENT_RAZORPAY: "Razorpay",
     DOWNPAYMENT_CASHFREE: "Cashfree",
+    JODO: "Jodo",
+    AKSHAR: "Akshar",
 };
 
 
@@ -99,4 +101,8 @@ export const RESPONSE_STATUS = {
 export const CSV_CONSTANTS = {
     STUDENTID: "student_id",
     DUEDATE: "due_date"
+}
+
+export const TIME_ZONE = {
+    ISTTIMEZONE: "+05:30"
 }

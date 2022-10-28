@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan, PrimaryColumn } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS, EMI_PAYMENT_STATUS } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS, EMI_PAYMENT_STATUS, TIME_ZONE } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -178,7 +178,7 @@ export class InstallmentService {
       let subscriptionDueDate;
       const dueDateMonthYear = moment(getInstallmentDetails.dueDate).format("YYYY-MM");
       if (subscriptionDetails.current_end) {
-        const dueDateNumber = moment.unix(subscriptionDetails.current_end).format("DD");
+        const dueDateNumber = moment.unix(subscriptionDetails.current_end).utcOffset(TIME_ZONE.ISTTIMEZONE).format("DD");
         subscriptionDueDate = `${dueDateMonthYear}-${dueDateNumber}`;
       } else {
         subscriptionDueDate = getInstallmentDetails.dueDate;
@@ -188,7 +188,7 @@ export class InstallmentService {
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: moment(subscriptionDueDate).utcOffset("+05:30").format("YYYY-MM-DD HH:mm:ss"),
+        dueDate: moment(subscriptionDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
@@ -212,7 +212,7 @@ export class InstallmentService {
             invoiceStatus: payments.status,
             orderId: payments.order_id,
             paymentUrl: payments.short_url,
-            invoiceDueDate: moment.unix(payments.billing_end).format("DD"),
+            invoiceDueDate: moment.unix(payments.billing_end).utcOffset(TIME_ZONE.ISTTIMEZONE).format("DD"),
             updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
             lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
           };
@@ -241,7 +241,7 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
-        dueDate: moment(paymentLinkDueDate).utcOffset("+05:30").format("YYYY-MM-DD HH:mm:ss"),
+        dueDate: moment(paymentLinkDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
       }

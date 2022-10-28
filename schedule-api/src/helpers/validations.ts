@@ -84,7 +84,6 @@ export class validations {
                 }
             }
 
-            if (total.forceRazorpayMoveSAV != 1) {
                 if (!total.subscriptionNo || total.subscriptionNo.length < 3) {
                     status = "Error";
                     message = "Subscription Id is incorrect. Please fill the subscription Number";
@@ -112,7 +111,6 @@ export class validations {
                         return { status, message };
                     }
                 }
-            }
         }
 
         //validate the downpayment for razorpay

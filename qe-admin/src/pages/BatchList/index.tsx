@@ -31,9 +31,11 @@ import ProDescriptions from "@ant-design/pro-descriptions";
 import {
   listTeacherAndStudent,
   listBatch,
+  getTeacherLessons,
   addeditbatch,
   getIndividualBatch,
-  deleteBatch
+  deleteBatch,
+  resetLessonStatus,
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
@@ -100,6 +102,7 @@ const BatchList: React.FC = () => {
   const [selectedFrequency, setSelectedFrequency] = useState(getParam('frequency') || undefined);
   const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(1);
   const [selectedUseAutoAttendnace, setUseAutoAttendnace] = useState(getParam('useAutoAttendance') || 0);
+  const [selectedOfflineBatch, setOfflineBatch] = useState(getParam('offlineBatch') || 0);
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -107,7 +110,12 @@ const BatchList: React.FC = () => {
 
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
-  const [prePop, setPrePop] = useState({});
+  const [prePop, setPrePop] = useState<any>({});
+
+  const [completedLessons, setCompletedLessons] = useState<any>();
+  const [completedLessonMessage, setCompletedLessonMessage] = useState<string>('');
+  const [completedLessonModal, setCompletedLessonModal] = useState(false);
+  const [batchData, setBatchData] = useState<any>({});
   const intl = useIntl();
 
   const options = [];
@@ -135,7 +143,7 @@ const BatchList: React.FC = () => {
     listBatch({
       current: 1,
       pageSize: 20
-    }).then(msg => {
+    }).then((msg: any) => {
       setTempData(msg.data);
     }).catch(e => {
       console.log("error", e);
@@ -144,7 +152,7 @@ const BatchList: React.FC = () => {
 
   useEffect(() => {
     listTeacherAndStudent()
-      .then((data) => {
+      .then((data: any) => {
         setLeadList(data?.data);
       })
       .catch((error) => {
@@ -163,7 +171,7 @@ const BatchList: React.FC = () => {
       pageSize: 5,
       keyword: username
     })
-      .then((body) =>
+      .then((body: any) =>
         body.data.map((user: any) => ({
           label: `${user.name}`,
           value: user.id,
@@ -179,7 +187,7 @@ const BatchList: React.FC = () => {
         keyword: username
       }
     )
-      .then((body) =>
+      .then((body: any) =>
         body.data.map((user: any) => ({
           label: `${user.name} - ${user.phoneNumber}`,
           value: user.id,
@@ -194,6 +202,21 @@ const BatchList: React.FC = () => {
   const handleClassDateRange = (value: any) => {
     setClassDateRange(value);
   };
+
+  const handleLessonOk = async () => {
+    Object.keys(completedLessons).forEach((key: any) => {
+      completedLessons[key].isComplete = false
+    })
+    const statusReset = await resetLessonStatus(currentRow?.id, completedLessons);
+    setCompletedLessonModal(false);
+    setIsLoading(false);
+    createEditBatch();
+  }
+
+  const handleLessonCancel = () => {
+    setCompletedLessonModal(false);
+    createEditBatch();
+  }
 
   const handleOk = () => {
     try {
@@ -236,6 +259,7 @@ const BatchList: React.FC = () => {
         frequency: selectedFrequency,
         useNewZoomLink: selectedUseNewZoomLink,
         useAutoAttendance: selectedUseAutoAttendnace,
+        offlineBatch: selectedOfflineBatch,
         followupVersion: followupVersion,
 
         id: createBatch ? null : currentRow?.id,
@@ -244,38 +268,76 @@ const BatchList: React.FC = () => {
         edit
       };
 
+      setBatchData(dataForm);
       setIsLoading(true);
-      // 登录
-      const msg = await addeditbatch({
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataForm),
-      });
-      if (msg.success) {
-        // actionRef.current?.reloadAndRest?.();
-        if (msg.data[0]?.message) {
-          message.error(msg.data[0].message);
-          /**
-           * Don't relaod if returned error message
-           */
-          // setTimeout(() => {
-          //   window.location.reload();
-          // }, 3000);
-        } else {
-          setShowDetail(false)
-          setCurrentRow(undefined)
-          message.success("Batch Created/Update Successfully.");
-          setTimeout(() => {
-            window.location.reload();
-          }, 3000);
+      let currentCompletedLessons = [];
+      let message = '';
+
+      if (currentRow?.id) {
+        const lessons = await getTeacherLessons(currentRow?.id);
+        if (lessons.length > 0) {
+          const startLessonNumber = LESSONS.filter((l) =>
+            startLesson ? l.id === startLesson : false
+          )[0]?.number;
+
+          const endLessonNumber = LESSONS.filter((l) =>
+            endLesson ? l.id === endLesson : false
+          )[0]?.number;
+
+          currentCompletedLessons = lessons.filter((e: any) => {
+            return (e.isComplete === true) &&
+              (parseInt(e.lessonNumber) >= parseInt(startLessonNumber)) &&
+              (parseInt(e.lessonNumber) <= parseInt(endLessonNumber))
+          });
+          setCompletedLessons(currentCompletedLessons);
+
+          currentCompletedLessons.forEach((lesson: any) => {
+            message += `${lesson.lessonNumber}, `;
+          });
+          setCompletedLessonMessage(message);
         }
-        setIsLoading(false);
+      }
+
+      if (currentCompletedLessons.length > 0) {
+        setCompletedLessonModal(true);
+      } else {
+        createEditBatch(dataForm);
       }
     } catch (error: any) {
       setIsLoading(false);
       message.error("Please try again: " + error.message);
     };
+  }
+
+  const createEditBatch = async (data? : any) => {
+    // 登录
+    const msg = await addeditbatch({
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: batchData?.batchNumber ? JSON.stringify(batchData) : JSON.stringify(data),
+    });
+
+    if (msg.success) {
+      // actionRef.current?.reloadAndRest?.();
+      if (msg.data[0]?.message) {
+        message.error(msg.data[0].message);
+        /**
+         * Don't relaod if returned error message
+         */
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 3000);
+      } else {
+        setShowDetail(false)
+        setCurrentRow(undefined)
+        message.success("Batch Created/Update Successfully.");
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
+      setIsLoading(false);
+    }
   }
 
   const handleFormDelete = async (id: string) => {
@@ -306,7 +368,7 @@ const BatchList: React.FC = () => {
 
   const prepareEditFormData = (rowval: any) => {
     getIndividualBatch(rowval.id)
-      .then((data) => {
+      .then((data: any) => {
         const batchData = data.data;
 
         if (batchData.classes) {
@@ -321,11 +383,12 @@ const BatchList: React.FC = () => {
           setFormData({
             ...formData, classCode: batchData.classes.classCode,
             batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, useNewZoomLink: batchData.classes.useNewZoomLink,
-            useAutoAttendance: batchData.classes.useAutoAttendance, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
+            useAutoAttendance: batchData.classes.useAutoAttendance, offlineBatch: batchData.classes.offlineBatch, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
           });
           setFollowupVersion(batchData.classes.followupVersion);
           setUseNewZoomLink(batchData.classes.useNewZoomLink)
           setUseAutoAttendnace(batchData.classes.useAutoAttendance)
+          setOfflineBatch(batchData.classes.offlineBatch)
 
         }
         var tempObj = {
@@ -678,6 +741,25 @@ const BatchList: React.FC = () => {
         <p>Are you sure you want to delete the current batch?</p>
       </Modal>
 
+      <Modal
+        title="Lesson Status"
+        visible={completedLessonModal}
+        onOk={handleLessonOk}
+        onCancel={handleLessonCancel}
+        footer={[
+          <Button key="back" onClick={handleLessonCancel}>
+            Keep Same Status
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleLessonOk}>
+            Reset All Status
+          </Button>,
+        ]}
+      >
+        <p>Following lessons are already completed in this batch</p>
+        <p>
+          {completedLessonMessage}
+        </p>
+      </Modal>
       <Drawer
         width={addTeacherComponent ? 1400 : 600}
         visible={showDetail}
@@ -740,14 +822,13 @@ const BatchList: React.FC = () => {
                               }}
                               defaultValue={startLesson}
                               value={formData.startingLessonId}
-                              disabled={edit}
                               showSearch
-                              filterOption={(input, option) =>
+                              filterOption={(input, option: any) =>
                                 option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                               }
                             >
                               {
-                                LESSONS.map((_l) => (<Option key={_l.id} value={_l.id}>{_l.number}</Option>))
+                                LESSONS.map((_l) => (<Option key={_l.id} value={_l.id} label={_l.number}>{_l.number}</Option>))
                               }
                             </Select>
                           </Form.Item>
@@ -766,9 +847,8 @@ const BatchList: React.FC = () => {
                               }}
                               value={endLesson}
                               defaultValue={endLesson}
-                              disabled={edit}
                               showSearch
-                              filterOption={(input, option) =>
+                              filterOption={(input, option: any) =>
                                 option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                               }
                             >
@@ -827,7 +907,6 @@ const BatchList: React.FC = () => {
                               },
                             ]}
                           >
-                            {console.log("currentRow", currentRow)}
                             <DebounceSelect
                               showSearch
                               value={teacherName}
@@ -896,27 +975,49 @@ const BatchList: React.FC = () => {
                             </Col>
                           )
                         }
-        
+
 
                         <Col span={24}>
                           <Form.Item
-                            name="useAutoAttendance"
+                            name="offlineBatch"
                           >
                             <Select
-                              placeholder="Use Auto Attendance Tracker."
+                              placeholder="Offline Batch."
                               maxTagCount={1}
-                              onChange={(v) => setUseAutoAttendnace(v)}
-                              value={selectedUseAutoAttendnace}
+                              onChange={(v) => setOfflineBatch(v)}
+                              value={selectedOfflineBatch}
                               options={
                                 [
-                                  { label: "Use Auto Attendance Tracker.", value: 1 },
-                                  { label: "Don't Use Auto Attendance Tracker.", value: 0 },
+                                  { label: "Offline Batch.", value: 1 },
+                                  { label: "Online Batch.", value: 0 },
                                 ]
                               }
-                              defaultValue={!createBatch ? prePop?.batchData?.classes?.useAutoAttendance : selectedUseAutoAttendnace}
+                              defaultValue={!createBatch ? prePop?.batchData?.classes?.offlineBatch : selectedOfflineBatch}
                             />
                           </Form.Item>
                         </Col>
+
+                        {!selectedOfflineBatch && 
+                          <Col span={24}>
+                            <Form.Item
+                              name="useAutoAttendance"
+                            >
+                              <Select
+                                placeholder="Use Auto Attendance Tracker."
+                                maxTagCount={1}
+                                onChange={(v) => setUseAutoAttendnace(v)}
+                                value={selectedUseAutoAttendnace}
+                                options={
+                                  [
+                                    { label: "Use Auto Attendance Tracker.", value: 1 },
+                                    { label: "Don't Use Auto Attendance Tracker.", value: 0 },
+                                  ]
+                                }
+                                defaultValue={!createBatch ? prePop?.batchData?.classes?.useAutoAttendance : selectedUseAutoAttendnace}
+                              />
+                            </Form.Item>
+                          </Col>
+                        }
 
                         <Col span={24}>
                           <Form.Item
