@@ -10,6 +10,7 @@ const secret = process.env.CASHFREE_SECRET;
 const cashfreeUrl = process.env.CASHFREE_URL;
 const paymentsUrl = process.env.CASHFREE_PAYMENTS_URL;
 const retryUrl = process.env.CASHFREE_RETRY_URL;
+const activateUrl = process.env.CASHFREE_ACTIVATE_URL;
 
 const params = {
   'X-Client-Id': clientId,
@@ -63,6 +64,25 @@ export class CashFreeUtils {
         return resp.data;
       }).catch((error) => {
         usersLogger.error('Error in auto retry: ' + JSON.stringify(error));
+        errorResponse = error.response.data
+        return error.response.data;
+      });
+    return { response, errorResponse };
+  }
+
+  async activateCashfreeSubscription(subscriptionId: string, nextDate: string) {
+    let response: any = null;
+    let errorResponse: any = null;
+    usersLogger.info('Inside the cashfree activate Subscription');
+    await axios.post(`${cashfreeUrl}${subscriptionId}${activateUrl}`, { nextScheduledOn: nextDate }, { headers: params })
+      .then((resp) => {
+        if (!isNullOrUndefined(resp.data)) {
+          usersLogger.info('Cashfree response for fetch details of the customer: ' + JSON.stringify(resp.data));
+          response = resp.data;
+        }
+        return resp.data;
+      }).catch((error) => {
+        usersLogger.error('Error in Activating Subscription: ' + JSON.stringify(error));
         errorResponse = error.response.data
         return error.response.data;
       });

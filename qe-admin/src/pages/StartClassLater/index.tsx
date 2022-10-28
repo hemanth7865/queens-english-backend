@@ -67,7 +67,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         </Select>
       )
     } else if (inputType === 'selectPlan') {
-      const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree']);
+      const [items, setItems] = useState(['Razorpay', 'Bank Transfer', 'Cashfree', 'Jodo', 'Akshar']);
       const [name, setName] = useState('');
       const onNameChange = event => {
         setName(event.target.value);

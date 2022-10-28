@@ -1,6 +1,7 @@
 import { useIntl } from 'umi';
-import { GithubOutlined } from '@ant-design/icons';
 import { DefaultFooter } from '@ant-design/pro-layout';
+import { Button } from 'antd';
+import { BugOutlined } from '@ant-design/icons';
 
 export default () => {
   const intl = useIntl();
@@ -15,24 +16,12 @@ export default () => {
     <DefaultFooter
       copyright={`${currentYear} ${defaultMessage}`}
       links={[
-        // {
-        //   key: 'Ant Design Pro',
-        //   title: 'Ant Design Pro',
-        //   href: 'https://pro.ant.design',
-        //   blankTarget: true,
-        // },
-        // {
-        //   key: 'github',
-        //   title: <GithubOutlined />,
-        //   href: 'https://github.com/ant-design/ant-design-pro',
-        //   blankTarget: true,
-        // },
-        // {
-        //   key: 'Ant Design',
-        //   title: 'Ant Design',
-        //   href: 'https://ant.design',
-        //   blankTarget: true,
-        // },
+        {
+          key: 'Raise a Ticket for Technical Issue',
+          title: <><Button ><BugOutlined />Raise a Ticket for Technical Issue</Button></>,
+          href: 'https://tqetechsupport.freshdesk.com/support/tickets/new',
+          blankTarget: true,
+        },
       ]}
 
     />

@@ -631,6 +631,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/sync/student/payments/info/mongo",
+    controller: UserController,
+    action: "syncStudentPaymentInfo",
+    authenticate: false,
+  },
+  {
+    method: "post",
     route: "/csv/installments/delete-bulk-installments",
     controller: InstallmentController,
     action: "updateDeleteInstallmentsCSV",
@@ -640,5 +647,11 @@ export const Routes = [
     route: "/csv/installments/add-bulk-installments",
     controller: InstallmentController,
     action: "updateAddInstallmentsCSV",
+  },
+  {
+    method: "post",
+    route: "/activateCashfreeSubscription",
+    controller: PaymentController,
+    action: "activateCashfreeSubscription",
   },
 ];

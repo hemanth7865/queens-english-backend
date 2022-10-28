@@ -17,9 +17,7 @@ export class BatchController {
     private userMasterRepository = getRepository(UserMaster);
     private batchService = new BatchService();
 
-
     async createBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("saving batch");
         var batch;
         try {
             batch = await this.batchService.createBatch(request.body);
@@ -46,7 +44,6 @@ export class BatchController {
 
 
     async deleteBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("saving batch");
         var batch;
         try {
             batch = await this.batchService.deleteBatch(request.params);
@@ -57,7 +54,6 @@ export class BatchController {
     }
 
     async listBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("Batch List");
         var parameters = {
             current: request.query['current'],
             pageSize: request.query['pageSize'],

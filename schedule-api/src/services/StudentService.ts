@@ -165,7 +165,7 @@ export class StudentService {
     CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
     CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
     s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
-    s.salesDataFilled, s.reasonInSAV from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
+    s.salesDataFilled, s.reasonInSAV, s.enrollmentType, CONVERT_TZ(s.dateOfInactivation, @@session.time_zone, '+11:00') as dateOfInactivation from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
     ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
@@ -317,6 +317,8 @@ export class StudentService {
         element.reasonInSAV,
         element.onboardingIssueReason,
         batchesHistory.length != 0 ? batchesHistory[0].batchesClassesStartDate ? batchesHistory[0].batchesClassesStartDate : '' : '',
+        element.enrollmentType,
+        element.dateOfInactivation ? element.dateOfInactivation.toISOString().split("T")[0] : "",
       );
       l.batchId = batchId;
       l.isSibling = element.isSibling;
@@ -345,10 +347,19 @@ export class StudentService {
     const queryRunner = connection.createQueryRunner();
     let oldUser;
 
-    if(data.id){
-      oldUser = await this.usersRepository.findOne({id: data.id});
+    if (data.id) {
+      oldUser = await this.usersRepository.findOne({ id: data.id });
+      if (!data.userCode && oldUser && oldUser.userCode) {
+        data.userCode = oldUser.userCode;
+      }
+    }else if(data.offlineStudentCode){
+      oldUser = await this.usersRepository.findOne({offlineStudentCode: data.offlineStudentCode});
       if(!data.userCode && oldUser && oldUser.userCode){
         data.userCode = oldUser.userCode;
+      }
+
+      if(oldUser){
+        data.id = oldUser.id;
       }
     }
 
@@ -363,7 +374,11 @@ export class StudentService {
       batchesClassesStartDate: data.batchesClassesStartDate,
       userCode: data.userCode,
       status: data.status,
+      offlineStudentCode: data.offlineStudentCode,
+      preventAppAccess: data.preventAppAccess,
     }
+
+    console.log(data);
 
     if (data.cacheTime) {
       cosmosUserBody.cacheTime = data.cacheTime
@@ -507,6 +522,8 @@ export class StudentService {
     user.alternativeMobile = data.alternativeMobile;
     user.isSibling = data.isSibling;
     user.state = data.state;
+    user.offlineStudentCode = data.offlineStudentCode;
+    user.preventAppAccess = data.preventAppAccess;
 
     if (data.id) {
       user.id = data.id;
@@ -630,6 +647,7 @@ export class StudentService {
     student.assesmentDate =
       data.assesmentDate?.length > 0 ? data.assesmentDate : new Date();
     student.onboardingIssueReason = data.onboardingIssueReason;
+    student.enrollmentType = data.enrollmentType;
 
     if (create) {
       const lqsClient = new LQSService();

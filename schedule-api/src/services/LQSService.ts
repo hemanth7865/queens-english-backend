@@ -11,6 +11,8 @@ import { Constants, EMI_PAYMENT_STATUS } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 import { PRManager } from "../entity/PRManager";
+import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
+
 const moment = require("moment");
 const date = require('date-and-time')
 
@@ -54,7 +56,7 @@ export class LQSService {
 
     lqsEntries.forEach(async (element,index) => {
       usersLogger.info(element.id);
-      var userDetails = await this.fillLeadDetails(element,prms,index%totalPrms);
+      var userDetails = await this.fillLeadDetails(element,prms,index % totalPrms);
       // var userDetails = await this.fillLeadDetails(element);
       element.lsqstatus = "created";
       await this.lQSRepository.save(element);
@@ -78,7 +80,7 @@ export class LQSService {
     // Updating latest assignment value of prm
     if(prmsData[0]?.id){
       prmsData[0].latestAssignment = moment().valueOf();
-      await this.prmRepository.update({id : prmsData[0].id}, prmsData[0]);
+      await this.prmRepository.update({id: prmsData[0].id}, prmsData[0]);
     }
     return prmsData;
   }
@@ -189,6 +191,7 @@ export class LQSService {
       student.startDate = element.startDate;
       student.teacherName = element.teacherName;
       student.partner = Constants.PARTNER_CODE_QE;
+      student.enrollmentType = element.enrollmentType;
 
       payment.classessold = element.classessold;
       payment.saleamount = element.saleamount;
@@ -224,6 +227,7 @@ export class LQSService {
 
       await this.studentRepository.save(student);
       await this.paymentRepository.save(payment);
+      await SyncStudentPaymentInfo({query: {userId: user.id}});
     } catch (error) {
       console.log(error);
       usersLogger.info(`Failed during Registering students ${element.id}`);
@@ -552,7 +556,7 @@ export class LQSService {
           "SqlOperator": ">"
         },
         "Columns": {
-          "Include_CSV": "ProspectID, CreatedOn,ModifiedOn,Source,ProspectStage,mx_Parent_Name,LastModifiedOn, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone"
+          "Include_CSV": "ProspectID, CreatedOn,ModifiedOn,Source,ProspectStage,mx_Parent_Name,LastModifiedOn, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone,mx_Trial_Type"
         },
         "Sorting": {
           "ColumnName": "ModifiedOn",
@@ -602,6 +606,7 @@ export class LQSService {
               lqsEntry.retry = parseInt(this.LSQ_RETRY);
               lqsEntry.updated_at = new Date();
               lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
+              lqsEntry.enrollmentType = element.mx_Trial_Type;
               lqsEntry.created_at = new Date();
               await this.lQSRepository.save(lqsEntry);
             } else {

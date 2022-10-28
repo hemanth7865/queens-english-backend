@@ -92,6 +92,12 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   userCode: string;
 
+  @Column({ nullable: true })
+  offlineStudentCode: string;
+
+  @Column({ nullable: true })
+  preventAppAccess: number;
+
   @Column({ nullable: true, type: "boolean" })
   isSibling: boolean;
 

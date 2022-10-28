@@ -91,6 +91,8 @@ export class LeadView {
   useAutoAttendance?: string;
   forceRazorpayMoveSAV?: any;
   emiPaymentStatus?: string;
+  enrollmentType?: string;
+  dateOfInactivation?: string;
 
   public constructor(id: string, leadId: string, date: string, name: string, experience: string, mobile: string, email: string, status: string, classestaken: number,
     ratings: number, slots: string, leadType: number, type: string, batchCode: string, studentID: string, dob?: string | Date, whatsapp?: string, address?: string,
@@ -99,7 +101,7 @@ export class LeadView {
     comments?: string, alternativeMobile?: string, paymentid?: string, firstName?: string, lastName?: string, teacherName?: string, days?: string,
     studentType?: string, firstFeedback?: string, classesStartDate?: string | Date, callStatus?: string, callBackon?: string, bdaName?: string, bdmName?:
       string, poc?: string, courseFrequency?: string, timings?: string, customerEmail?: string, state?: string, zoomLink?: string, zoomInfo?: string,
-    prm_id?: string, prm_firstName?: string, prm_lastName?: string, salestatus?: string, salesowner?: string, prm?: string, waMessageSent?: string, salesDataFilled?: string, lsq_user_id?: string, lsq_user_name?: string, whatsappLink?: string, gender?: string, batchId?: any, reasonInSAV?: string, onboardingIssueReason?: string, batchesClassesStartDate?: string) {
+    prm_id?: string, prm_firstName?: string, prm_lastName?: string, salestatus?: string, salesowner?: string, prm?: string, waMessageSent?: string, salesDataFilled?: string, lsq_user_id?: string, lsq_user_name?: string, whatsappLink?: string, gender?: string, batchId?: any, reasonInSAV?: string, onboardingIssueReason?: string, batchesClassesStartDate?: string, enrollmentType?: string, dateOfInactivation?: string) {
     this.id = id;
     this.leadId = leadId;
     this.date = date;
@@ -123,7 +125,6 @@ export class LeadView {
     this.payments = payments;
     console.log(payments);
     if (Array.isArray(payments)) {
-      console.log("in side payments");
       this.paymentid = payments.map(p => p.paymentid).join(',');
       this.downpayment = payments.map(p => p.downpayment).join(',');
       this.classessold = payments.map(p => p.classessold).join(',');
@@ -183,5 +184,7 @@ export class LeadView {
     this.reasonInSAV = reasonInSAV;
     this.onboardingIssueReason = onboardingIssueReason;
     this.batchesClassesStartDate = batchesClassesStartDate;
+    this.enrollmentType = enrollmentType;
+    this.dateOfInactivation = dateOfInactivation;
   }
 }
