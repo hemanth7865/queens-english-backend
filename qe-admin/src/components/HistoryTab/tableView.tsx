@@ -7,6 +7,7 @@ import { getPaymentHistory } from '@/services/ant-design-pro/api';
 import { EyeOutlined } from '@ant-design/icons';
 import { Modal } from 'antd';
 import PaymentDataDetials from './dataDisplay';
+import UpdatedRecordData from './updatedData';
 import moment from 'moment';
 
 export type Props = {
@@ -18,8 +19,8 @@ const HistoryTable: React.FC<Props> = (props) => {
 
   const actionRef = useRef<ActionType>();
   const [dataDisplay, setDataDisplay] = useState(false);
+  const [updatedDataDisplay, setUpdatedDataDisplay] = useState(false);
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  console.log('prop', props, props.tmpData);
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
@@ -40,7 +41,8 @@ const HistoryTable: React.FC<Props> = (props) => {
         />
       ),
       dataIndex: "createdAt",
-      valueType: "date"
+      valueType: "date",
+      hideInSearch: true,
     },
     {
       title: (
@@ -60,11 +62,11 @@ const HistoryTable: React.FC<Props> = (props) => {
     {
       title: (
         <FormattedMessage
-          id="pages.searchTable.titleEvent"
-          defaultMessage="Event"
+          id="pages.searchTable.titleTitle"
+          defaultMessage="Title"
         />
       ),
-      dataIndex: "event",
+      dataIndex: "title",
     },
     {
       title: (
@@ -125,6 +127,29 @@ const HistoryTable: React.FC<Props> = (props) => {
         )
       }
     },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleUpdatedData"
+          defaultMessage="Updated Data"
+        />
+      ),
+      dataIndex: "debug",
+      hideInSearch: true,
+      render: (dom, entity: any) => {
+        return (
+          <a
+            onClick={() => {
+              setDataDisplay(true);
+              setCurrentRow(entity.debug.updatedData);
+              setUpdatedDataDisplay(true);
+            }}
+            style={{ marginLeft: 10 }}>
+            <EyeOutlined title='View details' />
+          </a>
+        )
+      }
+    },
   ];
 
   return (
@@ -162,11 +187,16 @@ const HistoryTable: React.FC<Props> = (props) => {
         title={`Data Display`}
         onCancel={() => {
           setDataDisplay(false);
+          setUpdatedDataDisplay(false);
         }}
         footer={null}
         centered
       >
-        <PaymentDataDetials data={currentRow} />
+        {
+          !updatedDataDisplay ?
+            <PaymentDataDetials data={currentRow} /> :
+            <UpdatedRecordData data={currentRow} />
+        }
       </Modal>
     </PageContainer>
 

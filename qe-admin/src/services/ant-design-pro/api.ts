@@ -891,6 +891,7 @@ export async function getPaymentHistory(
     current?: number;
     pageSize?: number;
     studentId?: string;
+    title?: string;
   },
   options?: { [key: string]: any }
 ) {
@@ -906,6 +907,10 @@ export async function getPaymentHistory(
         filters: {
           id: {
             "value": params.studentId,
+            "matchMode": "contains"
+          },
+          title: {
+            "value": params.title,
             "matchMode": "contains"
           }
         }
