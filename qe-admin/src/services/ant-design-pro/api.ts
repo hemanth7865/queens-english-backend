@@ -423,12 +423,40 @@ export async function listBatch(
     ...(options || {}),
   });
 }
+// Get the lessons that are stored in the COSMOS DB for the particular batch
+export async function getTeacherLessons(
+  id: string,
+  params?: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }) {
+  return request<any>(`/be/azure?url=api/classProfile/${id}/lessons`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  })
+}
+
 //ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
 export async function addeditbatch(options?: { [key: string]: any }) {
   console.log("option", options);
   return request<any>("/be/createBatch", {
     method: "POST",
     ...(options || {}),
+  });
+}
+
+//RESET EXISTING LESSON STATUS
+export async function resetLessonStatus(id?: string, lessonsData?: any) {
+  return request<any>(`/be/azure?url=api/classProfile/${id}/lessonStatus`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ lessonsData }),
   });
 }
 

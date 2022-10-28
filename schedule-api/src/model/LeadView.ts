@@ -125,7 +125,6 @@ export class LeadView {
     this.payments = payments;
     console.log(payments);
     if (Array.isArray(payments)) {
-      console.log("in side payments");
       this.paymentid = payments.map(p => p.paymentid).join(',');
       this.downpayment = payments.map(p => p.downpayment).join(',');
       this.classessold = payments.map(p => p.classessold).join(',');

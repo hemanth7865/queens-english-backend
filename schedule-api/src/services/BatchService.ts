@@ -62,7 +62,7 @@ export class BatchService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
-    var studnets: { id: string, type: string }[] = [];
+    var students: { id: string, type: string }[] = [];
     let create: boolean = false;
     try {
       await queryRunner.connect();
@@ -84,7 +84,7 @@ export class BatchService {
           batchStud.type = "studentProfile";
           if (element.value) {
             batchStudent[i++] = batchStud;
-            studnets.push({ id: batchStud.studentId, type: batchStud.type });
+            students.push({ id: batchStud.studentId, type: batchStud.type });
           }
         }
       }
@@ -117,7 +117,7 @@ export class BatchService {
 
       let alreadyExists;
 
-      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(studnets, data) : false;
+      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(students, data) : false;
 
       if (studentHasBatch) {
         return { status: false, message: studentHasBatch };
@@ -132,11 +132,11 @@ export class BatchService {
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
         const cosmosBatch = await this.getCosmosBatch(data.id);
-        if (cosmosBatch) {
-          if (cosmosBatch.activeLessonId) {
-            data.activeLessonId = cosmosBatch.activeLessonId;
-          }
-        }
+        // if (cosmosBatch) {
+        //   if (cosmosBatch.activeLessonId) {
+        //     data.activeLessonId = cosmosBatch.activeLessonId;
+        //   }
+        // }
         if (!alreadyExists?.id) {
           return { status: false, message: "Batch Not Found" };
         }
@@ -163,7 +163,7 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           activeLessonId: data.activeLessonId,
-          students: studnets,
+          students: students,
           frequency: data.frequency,
           zoomLink: data.zoomLink,
           zoomInfo: data.zoomInfo,
@@ -179,7 +179,7 @@ export class BatchService {
           .post(options.url, options.body)
           .then(async (res) => {
             var batch = await this.createBatchSql(data);
-            await this.addStudentsBatchesHistory(studnets.map(i => i.id), data.id);
+            await this.addStudentsBatchesHistory(students.map(i => i.id), data.id);
             await axios.put(options.url, options.body).catch((error) => {
               return Promise.reject(error);
             });
