@@ -224,13 +224,12 @@ export class BatchService {
       /**
        * Run Zoom Actions In Case If Zoom Is Enabled
        */
-      if (ENABLE_ZOOM) {
+      if (ENABLE_ZOOM && (!data.id || !data.offlineBatch)) {
         const meetingService = new ZoomMeetingService();
         const userZoomLink = new UserZoomLinkService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
         await userZoomLink.generateStudentsJoinLink(data);
         await meetingService.syncZoomLinksWithCosmos();
-
       }
 
       return res1;
