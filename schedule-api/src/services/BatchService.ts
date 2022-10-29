@@ -895,11 +895,11 @@ export class BatchService {
       .createQueryBuilder(Classes, "classes")
       .leftJoin("classes.teacher", "teacher")
       .addSelect(["teacher.firstName", "teacher.lastName"])
-      .where("classes.id = :id", { id: batchId })
+      .where("classes.id = :id or classes.batchNumber = :batchNumber", { id: batchId, batchNumber: batchId })
       .getOne();
     const batchavail = await getManager()
       .createQueryBuilder(BatchAvailability, "batchAvailability")
-      .where("batchAvailability.id = :id", { id: batchId })
+      .where("batchAvailability.id = :id", { id: classes?.id })
       .getOne();
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
@@ -917,7 +917,7 @@ export class BatchService {
         "join_link.join_url",
         "join_link.email",
       ])
-      .where("batchStudent.batchId = :id", { id: batchId })
+      .where("batchStudent.batchId = :id", { id: classes?.id })
       .getRawMany();
     const zoomMeeting = await this.zoomMeetingRepository.findOne({ batch_id: classes?.id });
     const zoomUser = await this.zoomUserRepository.findOne({ user_id: classes?.teacherId });
