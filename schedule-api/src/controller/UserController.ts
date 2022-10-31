@@ -34,6 +34,8 @@ export class UserController {
     }
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
+        this.studentService.request = request;
+
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
@@ -49,6 +51,7 @@ export class UserController {
 
         try {
             if (request.body.type === 'student') {
+                // TODO: Reuse studentService Object.
                 const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
 
                 if (request.body.status.toLowerCase() == 'enrolled' || request.body.status == 'startclasslater') {
