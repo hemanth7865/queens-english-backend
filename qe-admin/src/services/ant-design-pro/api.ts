@@ -896,7 +896,7 @@ export async function getPaymentHistory(
   options?: { [key: string]: any }
 ) {
   return request<API.RuleList>(
-    `/log/api/logs/all`,
+    `/be/logs?url=logs/all`,
     {
       method: "GET",
       params: {
