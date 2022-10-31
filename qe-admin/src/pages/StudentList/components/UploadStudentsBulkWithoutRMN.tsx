@@ -83,7 +83,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                          */
                         if (student["Batch code"]) {
                             try {
-                                const batchData = await getIndividualBatch(student["Batch code"]);
+                                const batchData: any = await getIndividualBatch(student["Batch code"]);
                                 const batch = batchData.data.classes;
                                 const batchStudents = batchData.data.students;
                                 batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
