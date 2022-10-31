@@ -132,46 +132,50 @@ const View = ({ batchData, isLoading }: Props) => {
             </Col>
           </Row>
         </TabPane>
-        <TabPane tab="Zoom" key="2">
-          <Row gutter={[16, 15]}>
-            <Col span={8}>
-              <div>Use Auto Attendance?</div>
-            </Col>
-            <Col span={16}>
-              <div>{classes?.useAutoAttendance ? "Yes" : "No"}</div>
-            </Col>
+        {
+          !classes?.offlineBatch && (
+            <TabPane tab="Zoom" key="2">
+              <Row gutter={[16, 15]}>
+                <Col span={8}>
+                  <div>Use Auto Attendance?</div>
+                </Col>
+                <Col span={16}>
+                  <div>{classes?.useAutoAttendance ? "Yes" : "No"}</div>
+                </Col>
 
-            <Col span={8}>
-              <div>Generic Teacher Link</div>
-            </Col>
-            <Col span={16}>
+                <Col span={8}>
+                  <div>Generic Teacher Link</div>
+                </Col>
+                <Col span={16}>
 
-              <div><a href={GENERIC_TEACHER_LINK} target="_blank">{GENERIC_TEACHER_LINK}</a></div>
-            </Col>
+                  <div><a href={GENERIC_TEACHER_LINK} target="_blank">{GENERIC_TEACHER_LINK}</a></div>
+                </Col>
 
-            <Col span={8}>
-              <div>Generic Student Link</div>
-            </Col>
-            <Col span={16}>
-              <div><a href={GENERIC_STUDENT_LINK} target="_blank">{GENERIC_STUDENT_LINK}</a></div>
-            </Col>
+                <Col span={8}>
+                  <div>Generic Student Link</div>
+                </Col>
+                <Col span={16}>
+                  <div><a href={GENERIC_STUDENT_LINK} target="_blank">{GENERIC_STUDENT_LINK}</a></div>
+                </Col>
 
-            <Col span={8}>
-              <div>Direct Teacher Link</div>
-            </Col>
-            <Col span={16}>
-              <div><a href={PUBLIC_TEACHER_LINK} target="_blank">{PUBLIC_TEACHER_LINK}</a></div>
-            </Col>
+                <Col span={8}>
+                  <div>Direct Teacher Link</div>
+                </Col>
+                <Col span={16}>
+                  <div><a href={PUBLIC_TEACHER_LINK} target="_blank">{PUBLIC_TEACHER_LINK}</a></div>
+                </Col>
 
-            <Col span={8}>
-              <div>Direct Student Link</div>
-            </Col>
-            <Col span={16}>
+                <Col span={8}>
+                  <div>Direct Student Link</div>
+                </Col>
+                <Col span={16}>
 
-              <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{PUBLIC_STUDENT_LINK}</a></div>
-            </Col>
-          </Row>
-        </TabPane>
+                  <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{PUBLIC_STUDENT_LINK}</a></div>
+                </Col>
+              </Row>
+            </TabPane>
+          )
+        }
         <TabPane tab="Students" key="3">
           <div className="title">Students</div>
           <Table style={{ width: "100%" }} dataSource={batchData?.students?.map((i: any) => i.student)} columns={[
@@ -195,6 +199,9 @@ const View = ({ batchData, isLoading }: Props) => {
               dataIndex: "join_url",
               key: "join_url",
               render: (_: any, record: any) => {
+                if (!classes?.offlineBatch) {
+                  return "NA";
+                }
                 const join_url = getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, classes, false, record);
                 return <a href={join_url} target={"_blank"}>{join_url}</a>
               }

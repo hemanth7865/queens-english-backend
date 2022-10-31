@@ -953,7 +953,14 @@ export class PaymentService {
             const dueMonth = moment(installment.dueDate).format("YYYY-MM");
             var payments: any = cashFreeResponse.payments;
             var subStatus: any = subscriptionStatusResponse.subscription.status;
-            var subDueDate: any = subscriptionStatusResponse.subscription.scheduledOn ? moment(subscriptionStatusResponse.subscription.scheduledOn).format("YYYY-MM-DD") : installment.dueDate;
+            var subDueDate;
+            if (subscriptionStatusResponse.subscription.scheduledOn) {
+              const dueDateNumber = moment(subscriptionStatusResponse.subscription.scheduledOn).format("DD");
+              subDueDate = `${dueMonth}-${dueDateNumber}`;
+            } else {
+              subDueDate = installment.dueDate
+            }
+            usersLogger.info("due date from cashfree: " + JSON.stringify(subDueDate));
             for (const payment of payments) {
               usersLogger.debug("pay: " + JSON.stringify(payment));
               if (
