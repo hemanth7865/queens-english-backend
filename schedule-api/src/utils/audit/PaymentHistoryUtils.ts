@@ -6,6 +6,7 @@ const paymentAudit = async (
   newRecord: Payment,
   user: any
 ): Promise<object> => {
+  //to be enabled if we want to exclude any specific fields which are for internal technical purpose
   //let excludeKeyList = ["is_down_payment_auto_verified","is_down_payment_verified","forceRazorpayMoveSAV"];
   let title = "Updated ";
   let updatedData = jsonDiff.diff(oldRecord,newRecord);
