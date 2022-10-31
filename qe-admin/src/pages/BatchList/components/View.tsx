@@ -199,7 +199,7 @@ const View = ({ batchData, isLoading }: Props) => {
               dataIndex: "join_url",
               key: "join_url",
               render: (_: any, record: any) => {
-                if (!classes?.offlineBatch) {
+                if (classes?.offlineBatch) {
                   return "NA";
                 }
                 const join_url = getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined, classes, false, record);
