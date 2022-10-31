@@ -28,12 +28,7 @@ export default {
       target: 'https://ed-uat-functions.azurewebsites.net/',
       changeOrigin: true,
       pathRewrite: { '^/am': '' },
-    },
-    '/log': {
-      target: 'https://logs-tracker.vercel.app',
-      changeOrigin: true,
-      pathRewrite: { '^/log': '' },
-    },
+    }
   },
   test: {
     '/api/': {
