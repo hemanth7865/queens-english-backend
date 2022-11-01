@@ -1,6 +1,6 @@
 import { Button, message, Modal, Progress } from 'antd';
 import { useState } from 'react'
-import { addUserSchedule } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch } from "@/services/ant-design-pro/api";
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -21,7 +21,6 @@ function csvToArray(str: string, delimiter: string = ",") {
 
 const UploadStudentsBulkWithoutRMN = () => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
-    const [response, setResponse] = useState<object>({});
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [currentRecord, setCurrentRecord] = useState<number>(0);
@@ -73,11 +72,43 @@ const UploadStudentsBulkWithoutRMN = () => {
                                 d.push({ studentData, res });
                                 return d;
                             })
+                            message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
+                            continue;
                         }
 
-                        setResponse(res);
-
                         message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
+
+                        /**
+                         * Add student to batch
+                         */
+                        if (student["Batch code"]) {
+                            try {
+                                const batchData: any = await getIndividualBatch(student["Batch code"]);
+                                const batch = batchData.data.classes;
+                                const batchStudents = batchData.data.students;
+                                batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
+                                batch.students.push({ value: res.id })
+                                const addBatchRes = await addeditbatch({
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify(batch),
+                                });
+
+                                if (addBatchRes.success) {
+                                    if (addBatchRes.data[0]?.message) {
+                                        message.error(`Error: ${addBatchRes.data[0].message} For Student: \n ${JSON.stringify(student)}.`);
+                                    } else {
+                                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
+                                    }
+                                } else {
+                                    message.error(`Failed to add student to batch For Student: \n ${JSON.stringify(student)}.`);
+                                }
+                            } catch (e) {
+                                message.error(`Failed to add batch for student: \n ${JSON.stringify(student)}.`);
+                            }
+                        }
+
                     } else {
                         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
                         console.log(student);
@@ -88,7 +119,7 @@ const UploadStudentsBulkWithoutRMN = () => {
 
             reader.readAsText(file.files[0]);
         } catch (e: any) {
-            setResponse({ error: e?.message })
+            message.error(`Something went wrong: ${e.message}`);
             setIsLoading(false)
         }
     }
@@ -121,12 +152,19 @@ const UploadStudentsBulkWithoutRMN = () => {
 
                 <br />
 
-                <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}>
+                <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <input type="file" name="agents" required id="file" />
                     <Button loading={isLoading} type="primary" htmlType="submit">
                         Upload File
                     </Button>
                 </form>
+
+                <div style={{ textAlign: "right" }}>
+                    <Button type="default" onClick={() => window.location.reload()}>
+                        Cancel
+                    </Button>
+                </div>
             </Modal>
         </>
     )

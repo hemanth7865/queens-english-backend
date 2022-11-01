@@ -21,6 +21,7 @@ import { getDateOutOfDateTime } from "./../helpers/index";
 import { deactivateStudents } from "./../utils/student/deactivateStudents";
 import { validateStudentStatus } from "./../utils/student/validateUpdateStatus";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
+import LoggerService from "./LoggerService";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -31,6 +32,8 @@ export class StudentService {
   private prmRepository = getRepository(PRManager);
   private lsq_userRepository = getRepository(LSQUser);
   private studentBatchesHistory = getRepository(StudentBatchesHistory);
+  private logger = new LoggerService();
+  public request: any = {};
 
   private QUERY_FILTER = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.dob, u.whatsapp, u.address, st.studentId, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.type from user u left join student st on u.id=st.id `;
 
@@ -727,11 +730,21 @@ export class StudentService {
       usersLogger.info(`user data after insert ${JSON.stringify(user)}`);
 
       for (let element of payments) {
+        const oldPayment = await this.paymentRepository.findOne(element.id);
         const payment = await this.paymentRepository.save(element);
+        const newPayment = await this.paymentRepository.findOne(element.id);
         user.payment = [payment];
         usersLogger.info(
           `Successfully updated payment  ${JSON.stringify(payment)}`
         );
+        await (
+          await this.logger.paymentHistory(
+            user.id,
+            oldPayment,
+            newPayment,
+            this.request.user || {}
+          )
+        ).save();
       }
 
       student = await this.studentRepository.save(student);
