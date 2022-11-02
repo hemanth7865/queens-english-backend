@@ -9,6 +9,7 @@ import { PaymentController } from "./controller/PaymentController";
 import { AzureProxyController } from "./controller/AzureProxyController";
 import { ZoomController } from "./controller/ZoomController";
 import { CollectionAgentController } from "./controller/CollectionAgentController";
+import { LogsProxyController } from "./controller/LogsProxyController";
 
 export const Routes = [
   {
@@ -653,5 +654,12 @@ export const Routes = [
     route: "/activateCashfreeSubscription",
     controller: PaymentController,
     action: "activateCashfreeSubscription",
+  },
+  {
+    method: "all",
+    route: "/logs",
+    controller: LogsProxyController,
+    action: "serve",
+    authenticate: true,
   },
 ];
