@@ -76,7 +76,7 @@ export type StudentdetailseditProps = {
     age?: string;
     plantype?: string;
     dateofsale?: Date;
-    dueDate?: Date;
+    duedate?: Date;
     classtype?: string;
     gender?: string;
     notes?: string;
@@ -156,7 +156,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
         classessold: value.classessold,
         saleamount: Number(value.saleamount),
         dateofsale: !value.dateofsale || value.dateofsale == "Invalid date" ? null : (moment(value.dateofsale).toISOString(true).split('T')[0]),
-        dueDate: !value.duedate || value.duedate == "Invalid date" ? null : (moment(value.duedate).toISOString(true).split('T')[0]),
+        duedate: !value.duedate || value.duedate.length == 0 ? null : (moment(props.tempData.duedate, "YYYY-MM-DD").format("YYYY-MM-DD")),
         downpayment: Number(value.downpayment),
         classtype: value.classtype,
         subscription: value.subscription,
@@ -404,7 +404,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         age: props.tempData.dob == null || props.tempData.age == 'NaN' ? null : moment(new Date()).diff(moment(props.tempData.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
         dateofsale: props.tempData.dateofsale ? moment(props.tempData.dateofsale).toISOString(true).split('T')[0] : props.tempData.dateofsale,
         plantype: props.tempData.plantype,
-        dueDate: props.tempData.dueDate ? moment(props.tempData.dueDate).toISOString(true).split('T')[0] : props.tempData.dueDate,
+        duedate: props.tempData.duedate ? moment(props.tempData.duedate).toISOString(true).split('T')[0] : props.tempData.duedate,
         gender: props.tempData.gender,
         notes: props.tempData.notes,
         onboardingIssueReason: props.tempData.onboardingIssueReason,
@@ -469,7 +469,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.age : null,
       !props.studentManageradd ? props.tempData.dateofsale : null,
       !props.studentManageradd ? props.tempData.plantype : '',
-      !props.studentManageradd ? props.tempData.dueDate : null,
+      !props.studentManageradd ? props.tempData.duedate : null,
       !props.studentManageradd ? props.tempData.comments : '',
       !props.studentManageradd ? props.tempData.gender : '',
       !props.studentManageradd ? props.tempData.notes : '',
@@ -1313,10 +1313,10 @@ Queen's English मे अगर आपको किसी तरह की स�
               )}
 
               <Col span={12}>
-                <Form.Item name="dueDate"
+                <Form.Item name="duedate"
                   label="Due Date"
                 >
-                  <Input type="date" onChange={onChange} />
+                  <Input type="date" />
                 </Form.Item>
               </Col>
 
