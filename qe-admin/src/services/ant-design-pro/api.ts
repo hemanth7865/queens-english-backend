@@ -885,6 +885,41 @@ export async function syncUsersToMongo() {
   });
 }
 
+//Get One Student Attendance
+export async function getPaymentHistory(
+  params: {
+    current?: number;
+    pageSize?: number;
+    studentId?: string;
+    title?: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/logs?url=logs/all`,
+    {
+      method: "GET",
+      params: {
+        page: params.current,
+        perpage: params.pageSize,
+        refresh: 0,
+        selectedPage: "payments-history",
+        filters: {
+          id: {
+            "value": params.studentId,
+            "matchMode": "contains"
+          },
+          title: {
+            "value": params.title,
+            "matchMode": "contains"
+          }
+        }
+      },
+      ...(options || {}),
+    }
+  );
+}
+
 //Sync Payment And User Info
 export async function syncStudentPaymentInfo(userId: string) {
   return request<API.RuleList>(`/be/sync/student/payments/info/mongo?userId=${userId}`, {

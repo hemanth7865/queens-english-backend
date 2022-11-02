@@ -580,7 +580,6 @@ export class StudentService {
         payment.emi = element.emi;
         payment.emiMonths = element.emiMonths;
         payment.paymentMode = element.paymentMode;
-        payment.dateofsale = element.dateofsale;
         payment.no_of_delayed_payments = element.no_of_delayed_payments
           ? element.no_of_delayed_payments
           : 0;
