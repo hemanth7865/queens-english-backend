@@ -404,7 +404,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         age: props.tempData.dob == null || props.tempData.age == 'NaN' ? null : moment(new Date()).diff(moment(props.tempData.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
         dateofsale: props.tempData.dateofsale ? moment(props.tempData.dateofsale).toISOString(true).split('T')[0] : props.tempData.dateofsale,
         plantype: props.tempData.plantype,
-        duedate: props.tempData.duedate ? moment(props.tempData.duedate).toISOString(true).split('T')[0] : props.tempData.duedate,
+        duedate: props.tempData.duedate ? moment(props.tempData.duedate).format("YYYY-MM-DD") : props.tempData.duedate,
         gender: props.tempData.gender,
         notes: props.tempData.notes,
         onboardingIssueReason: props.tempData.onboardingIssueReason,
