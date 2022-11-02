@@ -1473,6 +1473,12 @@ export class PaymentService {
       }
       let subscriptionId = installment[0]?.subscriptionId
       let subscriptionDetails = await this.cashFreeUtils.fetchCashfreeAccountDetail(subscriptionId)
+      if (isNullOrUndefined(subscriptionDetails)) {
+        return {
+          status: "error",
+          message: "Error in fatching Subscription Details",
+        };
+      }
       if (subscriptionDetails?.subscription?.status !== 'ON_HOLD') {
         return {
           status: "error",
