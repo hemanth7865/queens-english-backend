@@ -93,6 +93,7 @@ export class LeadView {
   emiPaymentStatus?: string;
   enrollmentType?: string;
   dateOfInactivation?: string;
+  duedate?: string;
 
   public constructor(id: string, leadId: string, date: string, name: string, experience: string, mobile: string, email: string, status: string, classestaken: number,
     ratings: number, slots: string, leadType: number, type: string, batchCode: string, studentID: string, dob?: string | Date, whatsapp?: string, address?: string,
@@ -123,7 +124,6 @@ export class LeadView {
     this.address = address;
     this.classType = classType;
     this.payments = payments;
-    console.log(payments);
     if (Array.isArray(payments)) {
       this.paymentid = payments.map(p => p.paymentid).join(',');
       this.downpayment = payments.map(p => p.downpayment).join(',');
@@ -141,6 +141,7 @@ export class LeadView {
       this.notes = payments.map(p => p.notes).join(',');
       this.forceRazorpayMoveSAV = payments.map(p => p.forceRazorpayMoveSAV).join(',');
       this.emiPaymentStatus = payments.map(p => p.emiPaymentStatus).join(',');
+      this.duedate = payments.map(p => p.duedate).join(',');
     }
     this.age = age;
     this.startDate = startDate;
