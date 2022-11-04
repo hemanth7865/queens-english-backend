@@ -736,14 +736,15 @@ export class StudentService {
         usersLogger.info(
           `Successfully updated payment  ${JSON.stringify(payment)}`
         );
-        await (
-          await this.logger.paymentHistory(
-            user.id,
-            oldPayment,
-            newPayment,
-            this.request.user || {}
-          )
-        ).save();
+        var logResponse = await this.logger.paymentHistory(
+          user.id,
+          oldPayment,
+          newPayment,
+          this.request.user || {}
+        );
+        if(logResponse != null){
+          await logResponse.save();
+        }
       }
 
       student = await this.studentRepository.save(student);
