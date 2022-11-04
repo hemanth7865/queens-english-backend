@@ -204,16 +204,23 @@ const BatchList: React.FC = () => {
   };
 
   const handleLessonOk = async () => {
-    Object.keys(completedLessons).forEach((key: any) => {
-      completedLessons[key].isComplete = false
-    })
-    const statusReset = await resetLessonStatus(currentRow?.id, completedLessons);
-    setCompletedLessonModal(false);
-    setIsLoading(false);
-    createEditBatch();
+    try {
+      Object.keys(completedLessons).forEach((key: any) => {
+        completedLessons[key].isComplete = false
+      })
+      await resetLessonStatus(currentRow?.id, completedLessons);
+      batchData.activeLessonId = batchData.startingLessonId;
+      setCompletedLessonModal(false);
+      setIsLoading(false);
+      createEditBatch();
+    } catch (error) {
+      console.log(error);
+      message.error("Resetting the lesson status failed. please try again");
+    }
   }
 
   const handleLessonCancel = () => {
+    batchData.activeLessonId = prePop?.batchData?.classes?.activeLessonId;
     setCompletedLessonModal(false);
     createEditBatch();
   }
@@ -261,6 +268,7 @@ const BatchList: React.FC = () => {
         useAutoAttendance: selectedUseAutoAttendnace,
         offlineBatch: selectedOfflineBatch,
         followupVersion: followupVersion,
+        activeLessonId: prePop?.batchData?.classes?.activeLessonId ? prePop?.batchData?.classes?.activeLessonId : startLesson,
 
         id: createBatch ? null : currentRow?.id,
         batchAvailability: [{}],
@@ -268,12 +276,12 @@ const BatchList: React.FC = () => {
         edit
       };
 
-      setBatchData(dataForm);
       setIsLoading(true);
       let currentCompletedLessons = [];
       let message = '';
 
-      if (currentRow?.id) {
+      if (currentRow?.id && (currentRow?.startingLessonId !== startLesson || currentRow?.endingLessonId !== endLesson)) {
+        dataForm.activeLessonId = startLesson;
         const lessons = await getTeacherLessons(currentRow?.id);
         if (lessons.length > 0) {
           const startLessonNumber = LESSONS.filter((l) =>
@@ -298,6 +306,7 @@ const BatchList: React.FC = () => {
         }
       }
 
+      setBatchData(dataForm);
       if (currentCompletedLessons.length > 0) {
         setCompletedLessonModal(true);
       } else {
@@ -309,7 +318,7 @@ const BatchList: React.FC = () => {
     };
   }
 
-  const createEditBatch = async (data? : any) => {
+  const createEditBatch = async (data?: any) => {
     // 登录
     const msg = await addeditbatch({
       headers: {
@@ -997,7 +1006,7 @@ const BatchList: React.FC = () => {
                           </Form.Item>
                         </Col>
 
-                        {!selectedOfflineBatch && 
+                        {!selectedOfflineBatch &&
                           <Col span={24}>
                             <Form.Item
                               name="useAutoAttendance"
