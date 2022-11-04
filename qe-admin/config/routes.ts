@@ -73,6 +73,12 @@
         component: "./Attendance",
       },
       {
+        name: "Lessons",
+        path: "/manage/lessons",
+        component: "./LessonsList",
+        access: "canSuperAdmin",
+      },
+      {
         name: "Onboard",
         path: "/manage/dashboard",
         routes: [
