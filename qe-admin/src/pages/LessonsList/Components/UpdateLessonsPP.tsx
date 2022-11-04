@@ -1,6 +1,6 @@
-import { Button, message, Modal, Progress } from 'antd';
+import { Button, message, Modal, Progress, Input } from 'antd';
 import { useState } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch } from "@/services/ant-design-pro/api";
+import { getAllLessons, updateLesson } from "@/services/ant-design-pro/api";
 import { csvToArray } from "@/services/ant-design-pro/helpers";
 
 const UpdateLessonsPP = () => {
@@ -8,6 +8,7 @@ const UpdateLessonsPP = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [currentRecord, setCurrentRecord] = useState<number>(0);
+    const [storagePath, setStoragePath] = useState<string>("assets/v2/l1-up");
     const [notStoredUsers, setNotStoredUsers] = useState<object[]>([])
 
     const handleUpload = async (e: any) => {
@@ -21,82 +22,83 @@ const UpdateLessonsPP = () => {
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
-                console.log(data);
+
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
-                setTotalRecords(data.length);
+
+                const lessons = data.reduce(function (r: any, a: any) {
+                    r[a.No] = r[a.No] || [];
+                    r[a.No].push(a);
+                    return r;
+                }, Object.create(null));
+
+                setTotalRecords(Object.keys(lessons).length);
                 setCurrentRecord(0);
-                for (const student of data) {
+
+                for (const lessonKey in lessons) {
                     setCurrentRecord((n) => n + 1);
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (student["First Name"] && student["Dummy number"]) {
-                        const studentData = {
-                            firstName: student["First Name"],
-                            lastName: student["Last Name"],
-                            teacherName: student["Teacher Name"],
-                            startLesson: student["Lesson Start"],
-                            email: student["Email"] || student["Dummy number"],
-                            phoneNumber: student["RMN"] || student["Dummy number"],
-                            type: "student",
-                            status: "active",
-                            offlineStudentCode: student["Dummy number"],
-                            preventAppAccess: 1
-                        };
-
-                        const res = await addUserSchedule({
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(studentData),
-                        });
-
-                        if (!res.id) {
-                            setNotStoredUsers((d) => {
-                                d.push({ studentData, res });
-                                return d;
-                            })
-                            message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
-                            continue;
-                        }
-
-                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
+                    const pps = lessons[lessonKey];
+                    const lessonNumber = parseInt(lessonKey) < 10 ? `0${lessonKey}` : lessonKey;
+                    const lesson = await getAllLessons({ lessonId: lessonNumber });
+                    const ppNames = lesson.practiceProblems.map((i: any) => i.name);
+                    const duplicatedRecords = [];
+                    for (const pp of pps) {
+                        const CHANGE_IMAGE_PATH = pp.imageUrl.split("/").length < 2;
+                        const CHANGE_QUESTION_AUDIO_PATH = pp.questionSoundUrl.split("/").length < 2;
+                        const CHANGE_ANSWER_AUDIO_PATH = pp.answerSoundUrl.split("/").length < 2;
+                        delete pp.No;
+                        let storagePathPP = storagePath;
 
                         /**
-                         * Add student to batch
+                         * Remap PPs
                          */
-                        if (student["Batch code"]) {
-                            try {
-                                const batchData: any = await getIndividualBatch(student["Batch code"]);
-                                const batch = batchData.data.classes;
-                                const batchStudents = batchData.data.students;
-                                batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
-                                batch.students.push({ value: res.id })
-                                const addBatchRes = await addeditbatch({
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(batch),
-                                });
-
-                                if (addBatchRes.success) {
-                                    if (addBatchRes.data[0]?.message) {
-                                        message.error(`Error: ${addBatchRes.data[0].message} For Student: \n ${JSON.stringify(student)}.`);
-                                    } else {
-                                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
-                                    }
-                                } else {
-                                    message.error(`Failed to add student to batch For Student: \n ${JSON.stringify(student)}.`);
-                                }
-                            } catch (e) {
-                                message.error(`Failed to add batch for student: \n ${JSON.stringify(student)}.`);
-                            }
+                        if (pp.type === "repeat") {
+                            pp.name += ".0";
+                            storagePathPP = `${storagePath}/repeat`;
                         }
 
-                    } else {
-                        message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
-                        console.log(student);
+                        if (pp.type === "questionAndAnswer") {
+                            pp.name += ".1";
+                            storagePathPP = `${storagePath}/qa`;
+                        }
+
+                        if (CHANGE_IMAGE_PATH) {
+                            pp.imageUrl = `${storagePathPP}/images/${pp.imageUrl}`;
+                        }
+
+                        if (CHANGE_QUESTION_AUDIO_PATH) {
+                            pp.questionSoundUrl = `${storagePathPP}/question/${pp.questionSoundUrl}`;
+                        }
+
+                        if (CHANGE_ANSWER_AUDIO_PATH) {
+                            pp.answerSoundUrl = `${storagePathPP}/answer/${pp.answerSoundUrl}`;
+                        }
+
+                        lesson.practiceProblems.push(pp);
+
+                        if (ppNames.includes(pp.name)) {
+                            duplicatedRecords.push(pp);
+                        }
                     }
+                    if (duplicatedRecords.length > 0) {
+                        for (let duplicatedRecord of duplicatedRecords) {
+                            message.error(`Fix duplicated record ${duplicatedRecord.name} for lesson ${lessonKey} for type ${duplicatedRecord.type}`);
+                        }
+                        break;
+                    }
+
+                    const updatedLesson = await updateLesson({
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(lesson),
+                    })
+
+                    console.log(updatedLesson);
+
+                    break;
                 }
                 setIsLoading(false)
             };
@@ -128,11 +130,16 @@ const UpdateLessonsPP = () => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number
+                        No,name,questionSoundUrl,answerSoundUrl,type,questionText,expectedAnswer,imageUrl
                     </pre>
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
+
+                <br />
+
+                <label>Assets Base Path: </label>
+                <Input value={storagePath} onChange={(e) => setStoragePath(e.target.value)} placeholder="Assets Base Path" />
 
                 <br />
 

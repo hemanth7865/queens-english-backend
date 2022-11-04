@@ -842,16 +842,20 @@ export async function getAllLessons(
   params: {
     current?: number; // page
     pageSize?: number; // size
+    lessonId: string;
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(`/be/azure?url=api/lesson`, {
-    method: "GET",
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
+  return request<API.RuleList>(
+    `/be/azure?url=api/lesson/${params.lessonId || ""}`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
 }
 
 //PUT - ATTENDANCE DETAILS
@@ -862,6 +866,14 @@ export async function updateAssessment(
   console.log("option", options);
   return request<any>(`/be/azure?url=api/classAttendance/${id}`, {
     method: "PUT",
+    ...(options || {}),
+  });
+}
+
+//PUT - Update Lesson
+export async function updateLesson(options?: { [key: string]: any }) {
+  return request<any>(`/be/azure?url=api/lesson`, {
+    method: "POST",
     ...(options || {}),
   });
 }
