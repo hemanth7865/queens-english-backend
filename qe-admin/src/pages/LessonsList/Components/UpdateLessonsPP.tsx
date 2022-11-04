@@ -9,7 +9,6 @@ const UpdateLessonsPP = () => {
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [currentRecord, setCurrentRecord] = useState<number>(0);
     const [storagePath, setStoragePath] = useState<string>("assets/v2/l1-up");
-    const [notStoredUsers, setNotStoredUsers] = useState<object[]>([])
 
     const handleUpload = async (e: any) => {
         e.preventDefault();
@@ -89,16 +88,14 @@ const UpdateLessonsPP = () => {
                         break;
                     }
 
-                    const updatedLesson = await updateLesson({
+                    await updateLesson({
                         headers: {
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify(lesson),
                     })
 
-                    console.log(updatedLesson);
-
-                    break;
+                    message.success(`Success updated lesson ${lessonNumber}`);
                 }
                 setIsLoading(false)
             };
@@ -121,16 +118,11 @@ const UpdateLessonsPP = () => {
             </Button>
 
             <Modal visible={openUpload} onCancel={() => setOpenUpload(false)} footer={false}>
-                <code style={{ maxHeight: "300px", overflow: "auto" }}>
-                    <pre>
-                        {JSON.stringify(notStoredUsers, null, 4)}
-                    </pre>
-                </code>
-
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        No,name,questionSoundUrl,answerSoundUrl,type,questionText,expectedAnswer,imageUrl
+                        No,name,questionSoundUrl,answerSoundUrl,type,
+                        questionText,expectedAnswer,imageUrl
                     </pre>
                 </code>
 
