@@ -1,6 +1,6 @@
 import { getRepository, LessThan, Like, MoreThan, PrimaryColumn } from "typeorm";
 import { Transactions } from "../entity/Transaction";
-import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS, EMI_PAYMENT_STATUS, TIME_ZONE } from "./../helpers/Constants";
+import { Constants, PAYMENT_MODE, PAYMENT_STATUS, RAZORPAY_PAYMENT_STATUS, TABLE_NAMES, Status, SUBSCRIPTION_TYPE, CASHFREE_PAYMENT_STATUS, RESPONSE_STATUS, CSV_CONSTANTS, EMI_PAYMENT_STATUS, TIME_ZONE, RAZORPAY_SUBSCRIPTION_STATUS, AUTODEBIT_STATUS } from "./../helpers/Constants";
 import {
   getPaymentById as getRazorpayPaymentById,
   Payment as RazorpayPayment,
@@ -183,15 +183,25 @@ export class InstallmentService {
       } else {
         subscriptionDueDate = getInstallmentDetails.dueDate;
       }
+
+      let autodebitStatus;
+      if (subscriptionDetails.status.toUpperCase() === RAZORPAY_SUBSCRIPTION_STATUS.HALTED) {
+        autodebitStatus = AUTODEBIT_STATUS.UNSUCCESSFUL_AD;
+      } else {
+        autodebitStatus = AUTODEBIT_STATUS.SUCCESSFUL_AD;
+      }
+
       let initialSubscriptionData: any = {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         status: PAYMENT_STATUS.PENDING,
         paymentLink: subscriptionDetails.short_url,
         dueDate: moment(subscriptionDueDate).format("YYYY-MM-DD HH:mm:ss"),
+        autodebitStatus: autodebitStatus,
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss")
       };
+
       usersLogger.info(`data to store in db: ${JSON.stringify(initialSubscriptionData)}`);
       if (!invoiceDetails || invoiceDetails?.items.length === 0) {
         usersLogger.error(`Error in Invoice details from razorpay: ${JSON.stringify(invoiceDetails)}`);
@@ -241,6 +251,7 @@ export class InstallmentService {
         subscriptionStatus: subscriptionDetails.status.toUpperCase(),
         cycles: subscriptionDetails.paid_count,
         paymentLink: subscriptionDetails.short_url,
+        autodebitStatus: autodebitStatus,
         dueDate: moment(paymentLinkDueDate).format("YYYY-MM-DD HH:mm:ss"),
         updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
         lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),

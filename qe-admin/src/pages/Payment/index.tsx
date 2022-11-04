@@ -1,6 +1,6 @@
-import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined, CheckCircleTwoTone } from '@ant-design/icons';
+import { EditTwoTone, WhatsAppOutlined, LinkOutlined, MoneyCollectTwoTone, PlusSquareTwoTone, ReloadOutlined, EyeOutlined, InfoCircleTwoTone, SyncOutlined, CheckCircleTwoTone, WarningTwoTone } from '@ant-design/icons';
 import { Button, Drawer, Modal, Popover, Typography, Spin, Select, DatePicker, message } from 'antd';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useIntl, FormattedMessage, Access, useAccess } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
@@ -12,7 +12,7 @@ import moment from 'moment';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import collectionAgents from "./../../../data/collection_agent.json";
 import callDispositionStatus from "./../../../data/call_disposition.json";
-import { PaymentConstantValues, PaymentModevalues } from '@/components/Constants/constants';
+import { PaymentConstantValues, PaymentModevalues, URLPATH, AUTODEBIT_STATUS } from '@/components/Constants/constants';
 import "./payment.css";
 import BulkUpload from './Components/Upload';
 
@@ -43,6 +43,7 @@ const TableList: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [upload, setUpload] = useState<boolean>(false);
     const [refreshPaymentStatus, setRefreshPaymentStatus] = useState<boolean>(false);
+    const [isPaymentIssue, setIsPaymentIssue] = useState<boolean>(false);
 
 
     const intl = useIntl();
@@ -83,6 +84,10 @@ const TableList: React.FC = () => {
 
     const autoRetryFailedFilter = {
         1: { text: 'Auto Retry Failed', status: 1 },
+    }
+
+    const autodebitStatusFilter = {
+        'unSuccessfullADInstallment': { text: 'unsuccessful AD', status: 'unSuccessfullADInstallment' },
     }
 
     const closeModal = () => {
@@ -220,6 +225,17 @@ const TableList: React.FC = () => {
         setOtherPayment(newVisible);
     };
 
+    useEffect(() => {
+        console.log('urlPath', window.location.pathname, window.location.href);
+        if (window.location.pathname === URLPATH.PAYMENT_ISSUE) {
+            setIsPaymentIssue(true);
+        } else {
+            setIsPaymentIssue(false);
+        }
+    }, [])
+
+    console.log('isPaymentIssue', isPaymentIssue);
+
     const columns: ProColumns<API.RuleListItem>[] = [
         {
             title: (
@@ -235,8 +251,10 @@ const TableList: React.FC = () => {
                 let highlight: any = "";
                 if (entity.paymentMode === PaymentConstantValues.PAYMENTMODE) {
                     highlight =
-                        <InfoCircleTwoTone title='Payment Mode - Netbanking' />
-                        ;
+                        <InfoCircleTwoTone title='Payment Mode - Netbanking' />;
+                } else if (entity.autodebitStatus === AUTODEBIT_STATUS.UNSUCCESSFUL_AD) {
+                    highlight =
+                        <WarningTwoTone title='Payment issue, status is onhold/halted' twoToneColor="#FECE0F" style={{ fontSize: '18px' }} />;
                 }
                 return <>
                     {value} {" "} {highlight}
@@ -250,7 +268,7 @@ const TableList: React.FC = () => {
                     defaultMessage="student Name"
                 />
             ),
-            render: (dom, entity) => {
+            render: (dom, entity: any) => {
                 return <p>{entity.firstName} {entity.lastName}</p>
             },
             hideInSearch: true,
@@ -394,7 +412,7 @@ const TableList: React.FC = () => {
                     defaultMessage="Razorpay Link"
                 />
             ),
-            render: (dom, entity) => {
+            render: (dom, entity: any) => {
                 return (
                     <a href={entity.razorpayLink} target="_blank">
                         {entity.razorpayLink}
@@ -454,7 +472,7 @@ const TableList: React.FC = () => {
             dataIndex: 'paidDate',
             width: 160,
             valueType: 'date',
-            render: (dom, entity) => {
+            render: (dom, entity: any) => {
                 return <p>{entity.paidDate != "NaN-NaN-NaN" && entity.paidDate != null ? moment.utc(entity.paidDate).format('YYYY-MM-DD') : '-'}</p>
             },
         },
@@ -512,6 +530,19 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'notes',
             hideInSearch: true,
+            width: 200
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.titleautodebitStatus"
+                    defaultMessage="AutoDebit status"
+                />
+            ),
+            dataIndex: 'autodebitStatus',
+            hideInTable: true,
+            valueType: 'select',
+            valueEnum: autodebitStatusFilter,
             width: 200
         },
         {
@@ -627,14 +658,24 @@ const TableList: React.FC = () => {
                 <ProTable<API.RuleListItem, API.PageParams>
                     headerTitle={intl.formatMessage({
                         id: 'pages.searchTable.titleUser',
-                        defaultMessage: 'Payment Management',
+                        defaultMessage: isPaymentIssue ? 'Payment Issue Management' : 'Payment Management',
                     })}
                     actionRef={actionRef}
                     rowKey="key"
                     search={{
                         labelWidth: 120,
                     }}
-                    request={getAllPayment}
+                    request={
+                        async (params) => {
+                            let data: any
+                            if (isPaymentIssue) {
+                                data = await getAllPayment({ ...params, autodebitStatus: AUTODEBIT_STATUS.UNSUCCESSFUL_AD });
+                            } else {
+                                data = await getAllPayment({ ...params });
+                            }
+                            return data;
+                        }
+                    }
                     columns={columns}
                     scroll={{
                         x: 2500,

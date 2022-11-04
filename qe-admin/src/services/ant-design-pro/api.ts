@@ -615,6 +615,7 @@ export async function getAllPayment(
   params: {
     current?: number;
     pageSize?: number;
+    autodebitStatus?: string;
   },
   options?: { [key: string]: any }
 ) {

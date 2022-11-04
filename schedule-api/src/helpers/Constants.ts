@@ -42,6 +42,7 @@ export const CASHFREE_PAYMENT_STATUS = {
     FAILED: 'FAILED',
     ACTIVE: 'ACTIVE',
     ERROR: 'ERROR',
+    ON_HOLD: 'ON_HOLD'
 }
 
 export const RAZORPAY_PAYMENT_STATUS = {
@@ -105,4 +106,13 @@ export const CSV_CONSTANTS = {
 
 export const TIME_ZONE = {
     ISTTIMEZONE: "+05:30"
+}
+
+export const RAZORPAY_SUBSCRIPTION_STATUS = {
+    HALTED: "HALTED"
+};
+
+export const AUTODEBIT_STATUS = {
+    UNSUCCESSFUL_AD: 'unSuccessfullADInstallment',
+    SUCCESSFUL_AD: 'successfullADInstallment'
 }
