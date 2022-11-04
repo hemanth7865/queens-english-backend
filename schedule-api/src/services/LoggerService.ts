@@ -105,6 +105,9 @@ export default class LoggerService {
   ) {
     this.page = "payments-history";
     const logData = await paymentHistory(oldRecord, newRecord, user);
+    if(logData === null){
+      return null;
+    }
     this.logData = {
       id: id,
       page: this.page,
