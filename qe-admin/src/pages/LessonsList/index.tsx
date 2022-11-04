@@ -7,6 +7,7 @@ import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { getAllLessons } from '@/services/ant-design-pro/api';
 import View from "./Components/View";
+import UpdateLessonsPP from "./Components/UpdateLessonsPP";
 
 /**
  * @en-US Add node
@@ -86,13 +87,12 @@ const TableList: React.FC = () => {
           <ProTable<API.RuleListItem, API.PageParams>
             headerTitle={intl.formatMessage({
               id: "pages.searchTable.titleAttendanceManagement",
-              defaultMessage: "Attendance Management",
+              defaultMessage: "Lessons Management",
             })}
+            toolBarRender={() => [<UpdateLessonsPP />]}
             actionRef={actionRef}
             rowKey="key"
-            search={{
-              labelWidth: 120,
-            }}
+            search={false}
             request={async (params) => {
               return { data: await getAllLessons({}) }
             }}
@@ -100,6 +100,7 @@ const TableList: React.FC = () => {
             scroll={{
               x: 750,
             }}
+
           />
         </Spin>
       </PageContainer>
