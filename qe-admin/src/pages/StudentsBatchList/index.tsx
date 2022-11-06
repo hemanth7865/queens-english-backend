@@ -78,6 +78,7 @@ import access from "@/access";
 import { AlignType } from 'rc-table/lib/interface';
 import Tabsedit from "@/components/Formedit/tabs";
 import HistoryTable from "@/components/HistoryTab/tableView";
+import InstallmentHistoryTable from "@/components/HistoryTab/installmentView";
 
 const { TabPane } = Tabs;
 
@@ -98,6 +99,7 @@ const StudentsBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [visibleHistoryTab, setVisibleHistoryTab] = useState<boolean>(false);
+  const [visiblePaymentHistoryTab, setVisiblePaymentHistoryTab] = useState<boolean>(false);
 
   //add drawer
   const showDrawer = () => {
@@ -120,6 +122,7 @@ const StudentsBatchList: React.FC = () => {
   const onCloseEdit = () => {
     setVisibleEdit(false);
     setVisibleHistoryTab(false);
+    setVisiblePaymentHistoryTab(false);
   };
 
   //props for columns
@@ -335,6 +338,30 @@ const StudentsBatchList: React.FC = () => {
               setTmpData(entity.id);
               setVisibleEdit(true);
               setVisibleHistoryTab(true);
+              setVisiblePaymentHistoryTab(true)
+            }}
+          >
+            <EyeOutlined />
+          </a>
+        );
+      },
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.updateForm.titleInstallmentHistory"
+          defaultMessage="Installment History"
+        />
+      ),
+      dataIndex: "installmentHistory",
+      hideInSearch: true,
+      render: (dom: any, entity: { id: any; }) => {
+        return (
+          <a
+            onClick={() => {
+              setTmpData(entity.id);
+              setVisibleEdit(true);
+              setVisibleHistoryTab(true);
             }}
           >
             <EyeOutlined />
@@ -395,7 +422,7 @@ const StudentsBatchList: React.FC = () => {
 
       <Spin spinning={isLoading}>
         <Drawer
-          title={!visibleHistoryTab ? "Edit Student" : "Payment History"}
+          title={!visibleHistoryTab ? "Edit Student" : visiblePaymentHistoryTab ? "Payment History" : "Installment History"}
           placement="right"
           onClose={onCloseEdit}
           visible={visibleEdit}
@@ -403,7 +430,7 @@ const StudentsBatchList: React.FC = () => {
           destroyOnClose>
           {!visibleHistoryTab ?
             <Tabsedit tmpData={tmpData} studentManageredit={studentManageredit} onChange={handleFormChange} /> :
-            <HistoryTable tmpData={tmpData} />
+            visiblePaymentHistoryTab ? <HistoryTable tmpData={tmpData} /> : <InstallmentHistoryTable tmpData={tmpData} />
           }
 
         </Drawer>

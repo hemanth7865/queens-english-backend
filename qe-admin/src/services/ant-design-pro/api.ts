@@ -920,6 +920,41 @@ export async function getPaymentHistory(
   );
 }
 
+// Getting Installment History Details
+export async function getInstallmentHistory(
+  params: {
+    current?: number;
+    pageSize?: number;
+    studentId?: string;
+    title?: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/logs?url=logs/all`,
+    {
+      method: "GET",
+      params: {
+        page: params.current,
+        perpage: params.pageSize,
+        refresh: 0,
+        selectedPage: "payments",
+        filters: {
+          "debug.oldRecord.transaction.studentId": {
+            "value": params.studentId,
+            "matchMode": "contains"
+          },
+          title: {
+            "value": params.title,
+            "matchMode": "contains"
+          }
+        }
+      },
+      ...(options || {}),
+    }
+  );
+}
+
 //Sync Payment And User Info
 export async function syncStudentPaymentInfo(userId: string) {
   return request<API.RuleList>(`/be/sync/student/payments/info/mongo?userId=${userId}`, {
