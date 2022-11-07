@@ -53,9 +53,6 @@ const Batch: React.FC<BatchProps> = (props) => {
   const rebatching = props.filterTheme == "RE_BATCHING";
   const currentBatch = props.currentBatch;
 
-
-  console.log(data);
-
   const { id, timings, startLesson, dob, courseFrequency, startDate, course } =
     data;
 

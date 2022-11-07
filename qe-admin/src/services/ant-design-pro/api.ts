@@ -430,14 +430,15 @@ export async function getTeacherLessons(
     current?: number;
     pageSize?: number;
   },
-  options?: { [key: string]: any }) {
+  options?: { [key: string]: any }
+) {
   return request<any>(`/be/azure?url=api/classProfile/${id}/lessons`, {
     method: "GET",
     params: {
       ...params,
     },
     ...(options || {}),
-  })
+  });
 }
 
 //ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
@@ -674,29 +675,21 @@ export async function refreshRazorpayStatus(
 }
 
 //Refresh status - autodebit
-export async function refreshAutoDebitStatus(
-  options?: { [key: string]: any }
-) {
+export async function refreshAutoDebitStatus(options?: { [key: string]: any }) {
   console.log("option", options);
-  return request<any>(`/be/updateAutoDebitStatus`,
-    {
-      method: "POST",
-      ...(options || {}),
-    }
-  );
+  return request<any>(`/be/updateAutoDebitStatus`, {
+    method: "POST",
+    ...(options || {}),
+  });
 }
 
 //Get details of all payment - autodebit
-export async function getAllAutoDebitStatus(
-  options?: { [key: string]: any }
-) {
+export async function getAllAutoDebitStatus(options?: { [key: string]: any }) {
   console.log("option", options);
-  return request<any>(`/be/fetchAutoDebitDetails`,
-    {
-      method: "POST",
-      ...(options || {}),
-    }
-  );
+  return request<any>(`/be/fetchAutoDebitDetails`, {
+    method: "POST",
+    ...(options || {}),
+  });
 }
 
 //retry auto-debit payment
@@ -709,7 +702,9 @@ export async function retryAutodebitPayment(options?: { [key: string]: any }) {
 }
 
 // Activate Cashfree Subscription
-export async function activateCashfreeSubscription(options?: { [key: string]: any }) {
+export async function activateCashfreeSubscription(options?: {
+  [key: string]: any;
+}) {
   return request<any>("/be/activateCashfreeSubscription", {
     method: "POST",
     ...(options || {}),
@@ -782,7 +777,7 @@ export async function reassignZoomUserLicense(from: string, to: string) {
 
 //update zak token
 export async function updateZoomUserZAKToken(id?: string) {
-  return request<API.Any>(`/be/zoom-user/update/zak?userId=${id ? id : ''}`, {
+  return request<API.Any>(`/be/zoom-user/update/zak?userId=${id ? id : ""}`, {
     method: "POST",
   });
 }
@@ -819,15 +814,12 @@ export async function getAllCollectionAgents(
 }
 
 //verify down payment
-export async function verifyDownPayment(
-  options?: { [key: string]: any }
-) {
+export async function verifyDownPayment(options?: { [key: string]: any }) {
   return request<any>(`/be/verifyDownPayment`, {
     method: "POST",
     ...(options || {}),
   });
 }
-
 
 //GET ASSESSMENT DETAILS
 export async function getAllAttendance(
@@ -837,8 +829,26 @@ export async function getAllAttendance(
   },
   options?: { [key: string]: any }
 ) {
+  return request<API.RuleList>(`/be/azure?url=api/classAttendance`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+//GET Lessons DETAILS
+export async function getAllLessons(
+  params: {
+    current?: number; // page
+    pageSize?: number; // size
+    lessonId: string;
+  },
+  options?: { [key: string]: any }
+) {
   return request<API.RuleList>(
-    `/be/azure?url=api/classAttendance`,
+    `/be/azure?url=api/lesson/${params.lessonId || ""}`,
     {
       method: "GET",
       params: {
@@ -852,10 +862,19 @@ export async function getAllAttendance(
 //PUT - ATTENDANCE DETAILS
 export async function updateAssessment(
   id: string,
-  options?: { [key: string]: any }) {
+  options?: { [key: string]: any }
+) {
   console.log("option", options);
   return request<any>(`/be/azure?url=api/classAttendance/${id}`, {
     method: "PUT",
+    ...(options || {}),
+  });
+}
+
+//PUT - Update Lesson
+export async function updateLesson(options?: { [key: string]: any }) {
+  return request<any>(`/be/azure?url=api/lesson`, {
+    method: "POST",
     ...(options || {}),
   });
 }
@@ -867,16 +886,13 @@ export async function getOneAttendance(
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/azure?url=api/classAttendance`,
-    {
-      method: "GET",
-      params: {
-        ...params,
-      },
-      ...(options || {}),
-    }
-  );
+  return request<API.RuleList>(`/be/azure?url=api/classAttendance`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
 }
 
 //Sync All Users and update in Mongo
@@ -896,34 +912,34 @@ export async function getPaymentHistory(
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/logs?url=logs/all`,
-    {
-      method: "GET",
-      params: {
-        page: params.current,
-        perpage: params.pageSize,
-        refresh: 0,
-        selectedPage: "payments-history",
-        filters: {
-          id: {
-            "value": params.studentId,
-            "matchMode": "contains"
-          },
-          title: {
-            "value": params.title,
-            "matchMode": "contains"
-          }
-        }
+  return request<API.RuleList>(`/be/logs?url=logs/all`, {
+    method: "GET",
+    params: {
+      page: params.current,
+      perpage: params.pageSize,
+      refresh: 0,
+      selectedPage: "payments-history",
+      filters: {
+        id: {
+          value: params.studentId,
+          matchMode: "contains",
+        },
+        title: {
+          value: params.title,
+          matchMode: "contains",
+        },
       },
-      ...(options || {}),
-    }
-  );
+    },
+    ...(options || {}),
+  });
 }
 
 //Sync Payment And User Info
 export async function syncStudentPaymentInfo(userId: string) {
-  return request<API.RuleList>(`/be/sync/student/payments/info/mongo?userId=${userId}`, {
-    method: "POST",
-  });
+  return request<API.RuleList>(
+    `/be/sync/student/payments/info/mongo?userId=${userId}`,
+    {
+      method: "POST",
+    }
+  );
 }
