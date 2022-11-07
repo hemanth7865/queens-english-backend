@@ -71,7 +71,7 @@ const UpdateLessonsPP = () => {
                          * Remap PPs
                          */
                         if (!LESSON_TYPES[pp.type]) {
-                            message.error(`Practive Problem Type Not Supported, Type: ${pp.type}, Lesson: ${lessonNumber}`)
+                            message.error(`Practice Problem Type Not Supported, Type: ${pp.type}, Lesson: ${lessonNumber}`)
                             continue;
                         }
 
