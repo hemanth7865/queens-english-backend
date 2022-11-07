@@ -3,6 +3,23 @@ import { useState } from 'react'
 import { getAllLessons, updateLesson } from "@/services/ant-design-pro/api";
 import { csvToArray } from "@/services/ant-design-pro/helpers";
 
+const STORAGE = {
+    ANSWER: "answer",
+    QUESTION: "question",
+    IMAGE: "image"
+};
+
+const LESSON_TYPES = {
+    repeat: {
+        prefix: ".0",
+        storage: "repeat",
+    },
+    questionAndAnswer: {
+        prefix: "0.1",
+        storage: "qa",
+    }
+};
+
 const UpdateLessonsPP = () => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -40,7 +57,7 @@ const UpdateLessonsPP = () => {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     const pps = lessons[lessonKey];
                     const lessonNumber = parseInt(lessonKey) < 10 ? `0${lessonKey}` : lessonKey;
-                    const lesson = await getAllLessons({ lessonId: lessonNumber });
+                    const lesson: any = await getAllLessons({ lessonId: lessonNumber });
                     const ppNames = lesson.practiceProblems.map((i: any) => i.name);
                     const duplicatedRecords = [];
                     for (const pp of pps) {
@@ -53,26 +70,25 @@ const UpdateLessonsPP = () => {
                         /**
                          * Remap PPs
                          */
-                        if (pp.type === "repeat") {
-                            pp.name += ".0";
-                            storagePathPP = `${storagePath}/repeat`;
+                        if (!LESSON_TYPES[pp.type]) {
+                            message.error(`Practive Problem Type Not Supported, Type: ${pp.type}, Lesson: ${lessonNumber}`)
+                            continue;
                         }
 
-                        if (pp.type === "questionAndAnswer") {
-                            pp.name += ".1";
-                            storagePathPP = `${storagePath}/qa`;
-                        }
+                        pp.name += LESSON_TYPES[pp.type].prefix;
+                        storagePathPP = `${storagePath}/${LESSON_TYPES[pp.type].storage}`;
+
 
                         if (CHANGE_IMAGE_PATH) {
-                            pp.imageUrl = `${storagePathPP}/images/${pp.imageUrl}`;
+                            pp.imageUrl = `${storagePathPP}/${STORAGE.IMAGE}/${pp.imageUrl}`;
                         }
 
                         if (CHANGE_QUESTION_AUDIO_PATH) {
-                            pp.questionSoundUrl = `${storagePathPP}/question/${pp.questionSoundUrl}`;
+                            pp.questionSoundUrl = `${storagePathPP}/${STORAGE.QUESTION}/${pp.questionSoundUrl}`;
                         }
 
                         if (CHANGE_ANSWER_AUDIO_PATH) {
-                            pp.answerSoundUrl = `${storagePathPP}/answer/${pp.answerSoundUrl}`;
+                            pp.answerSoundUrl = `${storagePathPP}/${STORAGE.ANSWER}/${pp.answerSoundUrl}`;
                         }
 
                         lesson.practiceProblems.push(pp);
