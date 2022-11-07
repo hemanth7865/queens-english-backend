@@ -54,6 +54,7 @@ export class PaymentsView {
   autoRetryFailed?: number;
   reasonForFailure?: string;
   installmentType?: string;
+  autodebitStatus?: string;
   PaymentsView(
     id: String,
     studentId: string,
@@ -94,6 +95,7 @@ export class PaymentsView {
     autoRetryFailed?: number,
     reasonForFailure?: string,
     installmentType?: string,
+    autodebitStatus?: string,
   ) {
     this.id = id;
     this.studentId = studentId;
@@ -134,5 +136,6 @@ export class PaymentsView {
     this.autoRetryFailed = autoRetryFailed;
     this.reasonForFailure = reasonForFailure;
     this.installmentType = installmentType;
+    this.autodebitStatus = autodebitStatus;
   }
 }

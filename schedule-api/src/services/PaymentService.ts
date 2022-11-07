@@ -19,6 +19,7 @@ import {
   RAZORPAY_PAYMENT_STATUS,
   ERROR_CODES,
   SUCCESS_CODES,
+  AUTODEBIT_STATUS
 } from "../helpers/Constants";
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
@@ -129,6 +130,11 @@ export class PaymentService {
       var condition = "";
       // console.log(whereCondition.join(" and "));
       whereCondition.push(" 1 = 1 ");
+
+
+      /** check the onhold / halted status  */
+      await this.checkOnHoldRecords();
+
       for (let param in parameters) {
         switch (param) {
           case "dueDate":
@@ -231,13 +237,17 @@ export class PaymentService {
             break;
           case "installmentType":
             whereCondition.push(
-              `transactions.installmentType = '${parameters[param]}'`
+              `transactions.installment_type = '${parameters[param]}'`
+            );
+            break;
+          case "autodebitStatus":
+            whereCondition.push(
+              `transactions.autodebit_status = '${parameters[param]}'`
             );
             break;
           case "leadId":
             whereCondition.push(`student.studentID = '${parameters[param]}'`);
             break;
-
         }
       }
 
@@ -298,6 +308,7 @@ export class PaymentService {
         view.autoRetryFailed = record.transactions_auto_retry_failed;
         view.reasonForFailure = record.transactions_reason_for_failure;
         view.installmentType = record.transactions_installment_type;
+        view.autodebitStatus = record.transactions_autodebit_status;
 
         view.transaction_details_id = record.tDetails_id;
         view.whatsAppLinkSent = record.tDetails_whatsapp_link_sent;
@@ -954,11 +965,19 @@ export class PaymentService {
             var payments: any = cashFreeResponse.payments;
             var subStatus: any = subscriptionStatusResponse.subscription.status;
             var subDueDate;
+            var autodebitStatus;
+            //update due date from the cashfree
             if (subscriptionStatusResponse.subscription.scheduledOn) {
               const dueDateNumber = moment(subscriptionStatusResponse.subscription.scheduledOn).format("DD");
               subDueDate = `${dueMonth}-${dueDateNumber}`;
             } else {
-              subDueDate = installment.dueDate
+              subDueDate = installment.dueDate;
+            }
+            //update the auto debit status --> successfulAD / unsuccessfulAD
+            if (subscriptionStatusResponse.subscription.subStatus === CASHFREE_PAYMENT_STATUS.ON_HOLD) {
+              autodebitStatus = AUTODEBIT_STATUS.UNSUCCESSFUL_AD;
+            } else {
+              autodebitStatus = AUTODEBIT_STATUS.SUCCESSFUL_AD;
             }
             usersLogger.info("due date from cashfree: " + JSON.stringify(subDueDate));
             for (const payment of payments) {
@@ -973,6 +992,7 @@ export class PaymentService {
                   subscriptionStatus: subStatus,
                   cycles: payment['cycle'],
                   dueDate: subDueDate,
+                  autodebitStatus: autodebitStatus,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
@@ -1001,6 +1021,7 @@ export class PaymentService {
                   cycles: payment['cycle'],
                   reasonForFailure: payment['failureReason'],
                   dueDate: subDueDate,
+                  autodebitStatus: autodebitStatus,
                   updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
                   lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
                 };
@@ -1509,6 +1530,36 @@ export class PaymentService {
         status: "error",
         message: "Error in Activating Cashfree Subscription",
       };
+    }
+  }
+
+  async checkOnHoldRecords() {
+    try {
+      usersLogger.error("Checking onhold / halted records");
+      let query = `installments.subscription_status IN ('ON_HOLD', 'HALTED') 
+      AND installments.subscription_type = 'Auto-Debit' 
+      AND installments.payment_status IN ('Installment Failed', 'Installment Pending') 
+      AND (installments.installment_type = 'Auto-Debit' OR installments.installment_type is null)`
+      let getOnholdRecords = await getManager()
+        .createQueryBuilder(Transactions, "installments")
+        .where(
+          query
+        )
+        .getMany();
+      usersLogger.error("query list for onhold / halted cases" + getOnholdRecords.length);
+      if (getOnholdRecords && getOnholdRecords.length > 0) {
+        let querUpdateRecords = `update installments set installments.autodebit_status = 'unSuccessfullADInstallment'
+        WHERE ${query}`;
+        let details = await getManager().query(querUpdateRecords);
+        usersLogger.error("updated status list for onhold cases" + details.affectedRows + JSON.stringify(details));
+        console.log('details', details);
+      }
+      return {
+        status: "success",
+        message: "Successfully updated the AD status",
+      }
+    } catch (error) {
+      usersLogger.error("error" + error)
     }
   }
 }
