@@ -5,7 +5,6 @@ interface Props {
 }
 
 const Show = ({ data }: Props) => {
-    console.log(data);
     const columns = [
         {
             title: 'Meeting ID',
