@@ -184,6 +184,7 @@ export const getZoomURL = (
   dynamicBasedOnZoomFalg?: boolean,
   user?: any
 ) => {
+  console.log(type, zoomMeeting, zoomUser, batch, dynamicBasedOnZoomFalg, user);
   if (
     dynamicBasedOnZoomFalg &&
     (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
