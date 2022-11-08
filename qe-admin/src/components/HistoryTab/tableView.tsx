@@ -3,12 +3,13 @@ import ProTable from "@ant-design/pro-table";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import { PageContainer } from '@ant-design/pro-layout';
 import { FormattedMessage } from "umi";
-import { getPaymentHistory } from '@/services/ant-design-pro/api';
+import { getInstallmentHistory, getPaymentHistory } from '@/services/ant-design-pro/api';
 import { EyeOutlined } from '@ant-design/icons';
-import { Modal } from 'antd';
+import { Modal, Tabs } from 'antd';
 import PaymentDataDetials from './dataDisplay';
 import UpdatedRecordData from './updatedData';
 import moment from 'moment';
+const { TabPane } = Tabs;
 
 export type Props = {
   tmpData: any;
@@ -22,7 +23,7 @@ const HistoryTable: React.FC<Props> = (props) => {
   const [updatedDataDisplay, setUpdatedDataDisplay] = useState(false);
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
 
-  const columns: ProColumns<API.RuleListItem>[] = [
+  const PaymentColumns: ProColumns<API.RuleListItem>[] = [
     {
       title: (
         <FormattedMessage
@@ -152,52 +153,151 @@ const HistoryTable: React.FC<Props> = (props) => {
     },
   ];
 
+  const InstallmentColumns: ProColumns<API.RuleListItem>[] = [
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.installmentNumber"
+          defaultMessage="Installment Number"
+        />
+      ),
+      dataIndex: "InstallmentNo",
+      hideInSearch: true,
+      render: (dom, entity: any, index) => {
+        return (
+          <div>Installment {index + 1}</div>
+        )
+      }
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.paymentMode"
+          defaultMessage="Payment Mode"
+        />
+      ),
+      dataIndex: "paymentMode",
+      hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.installmentType"
+          defaultMessage="Installment Type"
+        />
+      ),
+      dataIndex: "installmentType",
+      hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.paidDate"
+          defaultMessage="Paid Date (YYYY-MM-DD)"
+        />
+      ),
+      dataIndex: "paidDate",
+      hideInSearch: true,
+    },
+  ];
+
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
-        headerTitle={"Payment History"}
-        actionRef={actionRef}
-        rowKey="key"
-        search={{
-          labelWidth: 120,
-        }}
-        toolBarRender={() => []}
-        request={
-          async (params) => {
-            const data: any = await getPaymentHistory({ ...params, studentId: props.tmpData });
-            const mappedData = {
-              data: data.data,
-              current: data.pagination.page,
-              total: data.pagination.total,
-              pageSize: data.pagination.perpage
-            }
-            return mappedData;
-          }}
-        columns={columns}
-        pagination={{
-          defaultPageSize: 5,
-          showSizeChanger: true,
-          pageSizeOptions: ["5", "10", "20", "30"],
-        }}
-      />
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Payment History" key="1">
+          <ProTable<API.RuleListItem, API.PageParams>
+            headerTitle={"Payment History"}
+            actionRef={actionRef}
+            rowKey="key"
+            search={{
+              labelWidth: 120,
+            }}
+            toolBarRender={() => []}
+            request={
+              async (params) => {
+                const data: any = await getPaymentHistory({ ...params, studentId: props.tmpData });
+                const mappedData = {
+                  data: data.data,
+                  current: data.pagination.page,
+                  total: data.pagination.total,
+                  pageSize: data.pagination.perpage
+                }
+                return mappedData;
+              }}
+            columns={PaymentColumns}
+            pagination={{
+              defaultPageSize: 5,
+              showSizeChanger: true,
+              pageSizeOptions: ["5", "10", "20", "30"],
+            }}
+          />
 
-      <Modal
-        width={700}
-        visible={dataDisplay}
-        title={`Data Display`}
-        onCancel={() => {
-          setDataDisplay(false);
-          setUpdatedDataDisplay(false);
-        }}
-        footer={null}
-        centered
-      >
-        {
-          !updatedDataDisplay ?
-            <PaymentDataDetials data={currentRow} /> :
-            <UpdatedRecordData data={currentRow} />
-        }
-      </Modal>
+          <Modal
+            width={700}
+            visible={dataDisplay}
+            title={`Data Display`}
+            onCancel={() => {
+              setDataDisplay(false);
+              setUpdatedDataDisplay(false);
+            }}
+            footer={null}
+            centered
+          >
+            {
+              !updatedDataDisplay ?
+                <PaymentDataDetials data={currentRow} /> :
+                <UpdatedRecordData data={currentRow} />
+            }
+          </Modal>
+        </TabPane>
+        <TabPane tab="Installment History" key="2">
+          <ProTable<API.RuleListItem, API.PageParams>
+            headerTitle={"Installment History"}
+            actionRef={actionRef}
+            rowKey="key"
+            toolBarRender={() => []}
+            request={
+              async (params) => {
+                // Getting all Installment History Details
+                const data: any = await getInstallmentHistory({ ...params, studentId: props.tmpData });
+                // Sorting them accordingly createdAt date
+                data.data.sort(
+                  (a, b) => moment(a.createdAt).diff(moment(b.createdAt))
+                );
+
+                let realData: any[] = [];
+                let paymentMode = "";
+                let installmentType = "";
+                let subscriptionType = "";
+                let paidDate = '';
+
+                // Going through all installment details
+                data.data.forEach((d: any) => {
+                  paymentMode = d?.debug?.newRecord?.transactionDetails?.paymentMode
+                    ? d?.debug?.newRecord?.transactionDetails?.paymentMode
+                    : paymentMode;
+                  installmentType = d?.debug?.newRecord?.transaction?.installmentType
+                    ? d?.debug?.newRecord?.transaction?.installmentType
+                    : installmentType;
+                  subscriptionType = d?.debug?.newRecord?.transaction?.subscriptionType
+                    ? d?.debug?.newRecord?.transaction?.subscriptionType
+                    : subscriptionType;
+                  paidDate = d?.debug?.newRecord?.transaction?.paidDate
+                    ? moment(d?.debug?.newRecord?.transaction?.paidDate).format('YYYY-MM-DD')
+                    : paidDate;
+                  if (d?.debug?.newRecord?.transaction?.status === "Installment Paid" && !realData.find(d => d.paidDate == paidDate && d.installmentType == installmentType && d.paymentMode == paymentMode)) {
+                    realData.push({ paymentMode, installmentType: installmentType !== '' && installmentType !== ' ' ? installmentType : subscriptionType, paidDate });
+                  }
+                });
+                realData.sort((a, b) => moment(a.paidDate).diff(moment(b.paidDate)))
+                return { data: realData };
+              }}
+            columns={InstallmentColumns}
+            pagination={false}
+            search={false}
+          />
+        </TabPane>
+      </Tabs>
     </PageContainer>
 
   )
