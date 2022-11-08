@@ -64,7 +64,7 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
-                if (request.body.status == Status.INACTIVE) {
+                if (request.body.status == Status.INACTIVE && request.body?.batchId[0]?.batchid) {
                     resp = await this.batchController.reBatch(request, response, next);
                     await response;
                     let removequery: any[] = [];
