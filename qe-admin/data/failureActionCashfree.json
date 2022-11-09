@@ -1,0 +1,51 @@
+[
+    {
+        "FAILURE_REASON": "Inactive Mandate or Subscription",
+        "ACTION_SYSTEM": "Intimate the CE to redo the mandate.",
+        "ACTION_CE": "Talk to the customer and redo the mandate.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "Balance Insufficient / Insufficient Funds in the Account or Overdraft Account",
+        "ACTION_SYSTEM": "Intimate the CE",
+        "ACTION_CE": "Talk to the customer and ensure the correct authentication details are entered. ",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "Customer to refer to the branch",
+        "ACTION_SYSTEM": "Intimate the CE",
+        "ACTION_CE": "Nudge the customer to reach out to the bank to understand the blocker. Customer to take necessary action.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "Account Blocked/ Frozen",
+        "ACTION_SYSTEM": "Intimate the CE",
+        "ACTION_CE": "Talk to the customer and request unblocking the account. Then retry. (IF can't be fixed, collect manually). IF can be rectified for the same payment mode next month - No Action, Else - Follow up to change the payment mode. IF can't be rectified - Move to Manual after approval (or) Mark as Inactive.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "Transaction Failed / Pre Charge Failed",
+        "ACTION_SYSTEM": "Intimate the CE",
+        "ACTION_CE": "Talk to the customer and ensure the correct authentication details are entered. ",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "Stolen or Lost Card",
+        "ACTION_SYSTEM": "Intimate the CE",
+        "ACTION_CE": "Nudge the customer to reach out to the bank to understand the blocker. Customer to take necessary action.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "Pre-Debit Notification Failed Due to MMS API Failure",
+        "ACTION_SYSTEM": "Notify Cashfree within 7 days of the transaction",
+        "ACTION_CE": "Flag the issue to tech team",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    }
+]
