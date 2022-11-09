@@ -656,6 +656,12 @@ export const Routes = [
     action: "activateCashfreeSubscription",
   },
   {
+    method: "post",
+    route: "/activateAllOnHoldCashfreeSubscription",
+    controller: PaymentController,
+    action: "activateAllOnHoldCashfreeSubscription"
+  },
+  {
     method: "all",
     route: "/logs",
     controller: LogsProxyController,

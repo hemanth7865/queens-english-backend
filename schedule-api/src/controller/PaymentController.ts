@@ -179,4 +179,16 @@ export class PaymentController {
             }
         }
     }
+
+    async activateAllOnHoldCashfreeSubscription(request: Request, response: Response, next: NextFunction) {
+        this.paymentService.request = request;
+        try {
+            return await this.paymentService.activateAllCashfreeSubscription();
+        } catch (error) {
+            return {
+                status: "error",
+                message: "Exception while Activating All Cashfree Subscriptions"
+            }
+        }
+    }
 }

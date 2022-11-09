@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WhatsAppOutlined, CopyOutlined } from '@ant-design/icons';
 import { Form, Input, Button, Select, DatePicker, Spin, Row, Col, message } from 'antd';
-import { editPayment, editNetBanking, listTeacherAndStudent, activateCashfreeSubscription } from '@/services/ant-design-pro/api';
+import { editPayment, editNetBanking, listTeacherAndStudent } from '@/services/ant-design-pro/api';
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import moment from 'moment';
 import callDispositionStatus from "../../../../data/call_disposition.json";
@@ -109,20 +109,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
         }
     }
 
-    const activateCashfree = async (data: any) => {
-        try {
-            const msg = await activateCashfreeSubscription({
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ installmentId: data.transactionId }),
-            });
-            handleAPIResponse(msg, "Activated Subscription successfully", "", false);
-        } catch (error) {
-            handleAPIResponse({ status: 400 }, "", "Failed to Activate Subscription", false);
-        }
-    }
-
     const onFinish = async (values: any) => {
         setIsLoading(true);
         if (props.netbankingVisible) {
@@ -174,9 +160,6 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                     dataForm[0]['installmentType'] = SUBSCRIPTION_TYPE.MANUAL;
                 }
                 await editPaymentDetails(dataForm);
-                if (values.referenceId.includes("_") && values.referenceId.split("_")[0] === "plink") {
-                    await activateCashfree({ transactionId })
-                }
                 await props.refreshStatus({ transactionId, referenceId: values.referenceId }, true);
             } else if (values.subscriptionId) {
                 dataForm[0]['installmentType'] = SUBSCRIPTION_TYPE.AUTO_DEBIT;
@@ -405,7 +388,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             <Form.Item
                                                 label="Subscription ID"
                                                 name="subscriptionId"
-                                                // rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription ID" }]}
+                                            // rules={[{ required: true, pattern: /^[0-9]{7}$/, message: "Enter Valid Subscription ID" }]}
                                             >
                                                 <Input />
                                             </Form.Item>

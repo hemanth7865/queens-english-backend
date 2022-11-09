@@ -1481,7 +1481,7 @@ export class PaymentService {
       usersLogger.info(
         "Activate Subscription: " + JSON.stringify(request)
       );
-      let installmentId = request.installmentId
+      let { installmentId, checkInstallmentStatus } = request
       let installment = await this.transactionRepository.find({
         id: installmentId
       })
@@ -1490,6 +1490,13 @@ export class PaymentService {
         return {
           status: "error",
           message: "No installment available for the given id",
+        };
+      }
+      if (checkInstallmentStatus && installment[0].status !== 'Installment Paid') {
+        usersLogger.debug("Installment is not Paid");
+        return {
+          status: "error",
+          message: "Installment is not paid, Can't Activate On_hold Subscription",
         };
       }
       let subscriptionId = installment[0]?.subscriptionId
@@ -1520,6 +1527,11 @@ export class PaymentService {
           message: "Error in Activating Cashfree Subscription",
         };
       }
+      installment[0].subscriptionStatus = 'ACTIVE'
+      let UpdatedData = await this.transactionRepository.update(
+        { id: installmentId },
+        installment[0]
+      )
       usersLogger.info(
         "Activated Subscription successfully: " + JSON.stringify(request)
       );
@@ -1563,6 +1575,37 @@ export class PaymentService {
       return {
         status: "success",
         message: "Successfully updated the AD status",
+      }
+    } catch (error) {
+      usersLogger.error("error" + error)
+    }
+  }
+
+  async activateAllCashfreeSubscription() {
+    try {
+      let success = 0, error = 0;
+      usersLogger.info("Getting All Onhold Subscriptions");
+      let query = `installments.subscription_status = 'ON_HOLD'
+        AND installments.subscription_type = 'Auto-Debit'
+        AND installments.payment_status = 'Installment Paid'`
+      let getOnholdRecords = await getManager()
+        .createQueryBuilder(Transactions, "installments")
+        .where(
+          query
+        )
+        .getMany();
+      for (let record of getOnholdRecords) {
+        console.log(record)
+        let res = await this.activateCashfreeSubscription({ installmentId: record.id })
+        if (res.status === 'success') {
+          success += 1;
+        } else if (res.status === 'error') {
+          error += 1;
+        }
+      }
+      return {
+        "success": success,
+        "error": error
       }
     } catch (error) {
       usersLogger.error("error" + error)
