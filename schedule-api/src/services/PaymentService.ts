@@ -1528,6 +1528,9 @@ export class PaymentService {
         };
       }
       installment[0].subscriptionStatus = 'ACTIVE'
+      if (installment[0].autodebitStatus === AUTODEBIT_STATUS.UNSUCCESSFUL_AD) {
+        installment[0].autodebitStatus = AUTODEBIT_STATUS.SUCCESSFUL_AD
+      }
       let UpdatedData = await this.transactionRepository.update(
         { id: installmentId },
         installment[0]
