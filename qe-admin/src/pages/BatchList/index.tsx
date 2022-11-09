@@ -33,6 +33,7 @@ import {
   listBatch,
   getTeacherLessons,
   addeditbatch,
+  listCosmosBatch,
   getIndividualBatch,
   deleteBatch,
   resetLessonStatus,
@@ -375,11 +376,15 @@ const BatchList: React.FC = () => {
 
   const dateToLocal = (date: string) => format(parseISO(date!), "yyyy-MM-dd") + "T" + format(parseISO(date!), "HH:mm") + ".000Z";
 
-  const prepareEditFormData = (rowval: any) => {
+  const prepareEditFormData = async (rowval: any) => {
+    const batchDetailsFromCOSMOS = await listCosmosBatch(rowval.id);
+
     getIndividualBatch(rowval.id)
       .then((data: any) => {
         const batchData = data.data;
 
+        batchData.classes.activeLessonId = batchDetailsFromCOSMOS.activeLessonId;
+        
         if (batchData.classes) {
           try {
             data.data.classes.lessonStartTime = dateToLocal(batchData.classes.lessonStartTime);
