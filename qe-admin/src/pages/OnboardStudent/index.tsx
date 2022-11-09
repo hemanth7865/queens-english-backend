@@ -11,6 +11,7 @@ import Tabsedit from "@/components/Formedit/tabs";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
+import { QE_SUPPORT_WHATSAPP_NUMBER } from "@/components/Constants/constants";
 
 const { Option } = Select;
 
@@ -297,7 +298,7 @@ const StudentOnboard: React.FC = () => {
           (The details above are recurring and hence you can use the same details to join the class everyday)<br />
           Please send “OK” or a “:+1:” to activate the link above.<br />
           For any support please feel free to reach out to us on our customer support number: +91 81435 13850<br />
-          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर {QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।
           We are really excited to see you soon in class! Happy Learning!_<br /></p>
       </div>
     )

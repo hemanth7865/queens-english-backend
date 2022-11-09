@@ -41,3 +41,5 @@ export const SUBSCRIPTION_TYPE = {
   MANUAL: 'Manual',
   AUTO_DEBIT: 'Auto-Debit'
 }
+
+export const QE_SUPPORT_WHATSAPP_NUMBER = 8143513850
