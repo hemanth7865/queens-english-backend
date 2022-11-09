@@ -259,38 +259,35 @@ const HistoryTable: React.FC<Props> = (props) => {
             request={
               async (params) => {
                 // Getting all Installment History Details
-                const data: any = await getInstallmentHistory({ ...params, studentId: props.tmpData });
-                // Sorting them accordingly createdAt date
-                data.data.sort(
-                  (a, b) => moment(a.createdAt).diff(moment(b.createdAt))
-                );
+                const { data }: any = await getInstallmentHistory({ ...params, studentId: props.tmpData });
 
-                let realData: any[] = [];
+                let installmentData: any[] = [];
                 let paymentMode = "";
                 let installmentType = "";
                 let subscriptionType = "";
                 let paidDate = '';
 
                 // Going through all installment details
-                data.data.forEach((d: any) => {
-                  paymentMode = d?.debug?.newRecord?.transactionDetails?.paymentMode
-                    ? d?.debug?.newRecord?.transactionDetails?.paymentMode
-                    : paymentMode;
-                  installmentType = d?.debug?.newRecord?.transaction?.installmentType
-                    ? d?.debug?.newRecord?.transaction?.installmentType
-                    : installmentType;
-                  subscriptionType = d?.debug?.newRecord?.transaction?.subscriptionType
-                    ? d?.debug?.newRecord?.transaction?.subscriptionType
-                    : subscriptionType;
-                  paidDate = d?.debug?.newRecord?.transaction?.paidDate
-                    ? moment(d?.debug?.newRecord?.transaction?.paidDate).format('YYYY-MM-DD')
+                data.forEach((d: any) => {
+                  let transaction = d?.debug?.newRecord?.transaction
+                  let transactionDetails = d?.debug?.newRecord?.transactionDetails
+                  paymentMode = transactionDetails?.paymentMode || paymentMode;
+                  installmentType = transaction?.installmentType || installmentType;
+                  subscriptionType = transaction?.subscriptionType || subscriptionType;
+                  paidDate = transaction?.paidDate
+                    ? moment(transaction?.paidDate).format('YYYY-MM-DD')
                     : paidDate;
-                  if (d?.debug?.newRecord?.transaction?.status === "Installment Paid" && !realData.find(d => d.paidDate == paidDate && d.installmentType == installmentType && d.paymentMode == paymentMode)) {
-                    realData.push({ paymentMode, installmentType: installmentType !== '' && installmentType !== ' ' ? installmentType : subscriptionType, paidDate });
+
+                  if (
+                    transaction?.status === "Installment Paid" &&
+                    !installmentData.find(d => d.paidDate == paidDate && d.installmentType == installmentType && d.paymentMode == paymentMode)
+                  ) {
+                    installmentType = !installmentType ? subscriptionType : installmentType.trim().length <= 0 ? subscriptionType : installmentType
+                    installmentData.push({ paymentMode, installmentType, paidDate });
                   }
                 });
-                realData.sort((a, b) => moment(a.paidDate).diff(moment(b.paidDate)))
-                return { data: realData };
+                installmentData.sort((a, b) => moment(a.paidDate).diff(moment(b.paidDate)))
+                return { data: installmentData };
               }}
             columns={InstallmentColumns}
             pagination={false}

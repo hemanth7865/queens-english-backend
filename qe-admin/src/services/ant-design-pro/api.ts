@@ -936,7 +936,7 @@ export async function getInstallmentHistory(
       method: "GET",
       params: {
         page: params.current,
-        perpage: params.pageSize,
+        perpage: 100,
         refresh: 0,
         selectedPage: "payments",
         filters: {
@@ -948,7 +948,9 @@ export async function getInstallmentHistory(
             "value": params.title,
             "matchMode": "contains"
           }
-        }
+        },
+        sortField: "createdAt",
+        sortOrder: 1
       },
       ...(options || {}),
     }
