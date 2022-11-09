@@ -42,4 +42,14 @@ export const SUBSCRIPTION_TYPE = {
   AUTO_DEBIT: 'Auto-Debit'
 }
 
+export const URLPATH = {
+  PAYMENT: '/manage/paymentDashboard/payment',
+  PAYMENT_ISSUE: '/manage/paymentDashboard/paymentIssue'
+}
+
+export const AUTODEBIT_STATUS = {
+  UNSUCCESSFUL_AD: 'unSuccessfullADInstallment',
+  SUCCESSFUL_AD: 'successfullADInstallment'
+}
+
 export const QE_SUPPORT_WHATSAPP_NUMBER = 8143513850

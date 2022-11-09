@@ -10,12 +10,16 @@ const paymentAudit = async (
   //let excludeKeyList = ["is_down_payment_auto_verified","is_down_payment_verified","forceRazorpayMoveSAV"];
   let title = "Updated ";
   let updatedData = jsonDiff.diff(oldRecord,newRecord);
+  if(updatedData === null || updatedData === undefined){
+    return null;
+  }
   // excludeKeyList.forEach(excludeKey=> {
   //   delete updatedData[excludeKey];
   // });
   for(var key in updatedData){
     title = title + key + ", "; 
   }
+  title = title.slice(0, -2);
   return {
     debug: { oldRecord, newRecord, updatedData, user },
     title: title,

@@ -611,6 +611,12 @@ const StudentOnboard: React.FC = () => {
       editable: true,
     },
     {
+      title: 'Referrer Code',
+      dataIndex: 'userCode',
+      width: 200,
+      editable: true,
+    },
+    {
       title: 'Student Id',
       dataIndex: 'id',
       width: 300,

@@ -51,9 +51,20 @@
         component: "./NewAssessment",
       },
       {
-        name: "Payment",
-        path: "/manage/payment",
-        component: "./Payment",
+        name: "Payment Management",
+        path: "/manage/paymentDashboard",
+        routes: [
+          {
+            name: "Payment",
+            path: "/manage/paymentDashboard/payment",
+            component: "./Payment",
+          },
+          {
+            name: "Payment Issue",
+            path: "/manage/paymentDashboard/paymentIssue",
+            component: "./Payment",
+          },
+        ]
       },
       {
         name: "Collection Agents",
@@ -71,6 +82,12 @@
         name: "Attendance",
         path: "/manage/attendance",
         component: "./Attendance",
+      },
+      {
+        name: "Lessons",
+        path: "/manage/lessons",
+        component: "./LessonsList",
+        access: "canSuperAdmin",
       },
       {
         name: "Onboard",
