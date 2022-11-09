@@ -9,6 +9,7 @@ import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Tabsedit from "@/components/Formedit/tabs";
+import Batch from './../NeedBatch/components/Batch';
 
 const { Option } = Select;
 interface Item {
@@ -384,6 +385,7 @@ const StudentOnboard: React.FC = () => {
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
+  const [showBatching, setShowBatching] = useState<boolean>(false);
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [welcomepage, setwelcomepage] = useState<boolean>(false);
 
@@ -873,9 +875,17 @@ const StudentOnboard: React.FC = () => {
             </Popconfirm>
           </span>
         ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            Edit
-          </Typography.Link>
+            <>
+              <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+                Edit
+              </Typography.Link> <br />
+              <Typography.Link onClick={() => {
+                setTmpData(record);
+                setShowBatching(true);
+              }}>
+                Process Batching
+              </Typography.Link>
+            </>
         );
       },
     },
@@ -1033,6 +1043,16 @@ const StudentOnboard: React.FC = () => {
           }}
         >
           <Tabsedit tmpData={tmpData} welcomepage={welcomepage} />
+        </Drawer>
+        <Drawer
+          title="Proccess Batching"
+          placement="right"
+          onClose={() => {
+            setShowBatching(false)
+          }}
+          visible={showBatching}
+          width={960}>
+          <Batch data={tmpData} visible={showBatching} setVisible={setShowBatching} pageTheme="welcome" />
         </Drawer>
       </Spin>
     </>
