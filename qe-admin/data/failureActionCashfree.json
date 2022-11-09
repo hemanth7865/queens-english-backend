@@ -42,7 +42,7 @@
         "ACTION_PRODUCT": "NA"
     },
     {
-        "FAILURE_REASON": "Pre-Debit Notification Failed Due to MMS API Failure",
+        "FAILURE_REASON": "PreDebit Notification Failed Due to MMS API Failure",
         "ACTION_SYSTEM": "Notify Cashfree within 7 days of the transaction",
         "ACTION_CE": "Flag the issue to tech team",
         "ACTION_CD": "NA",
