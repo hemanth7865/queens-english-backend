@@ -13,8 +13,8 @@ import SyncStudentPayment from "./SyncStudentPayment";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
-import { PaymentModevalues } from "../Constants/constants";
-import coursesType from "../../../data/coursesType.json"
+import { PaymentModevalues, DEFAULT_TIMINGS_FREQUENCY} from "../Constants/constants";
+import coursesType from "../../../data/coursesType.json";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -100,9 +100,11 @@ export type StudentdetailseditProps = {
 
 const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
 
-  const [timingsOption, setTimingsOption] = useState(['15:00', '16:30', '18:00', '19:30', '20:30']);
+ 
+
+  const [timingsOption, setTimingsOption] = useState(DEFAULT_TIMINGS_FREQUENCY.DEFAULT_TIMINGS);
   const [timingsValue, setTimingsValue] = useState('');
-  const [frequency, setFrequency] = useState(['MWF', 'TTS', 'SS', 'MTWTF', 'TT']);
+  const [frequency, setFrequency] = useState(DEFAULT_TIMINGS_FREQUENCY.DEFAULT_FREQUENCY);
   const [frequencyValue, setFrequencyValue] = useState('');
   let index = 0;
 
@@ -1719,7 +1721,7 @@ Queen's English मे अगर आपको किसी तरह की स�
                               value={timingsValue}
                               onChange={(event: any) => { setTimingsValue(event.target.value) }}
                             />
-                            <Button type="text" icon={<PlusOutlined />}
+                           <Button type="text" icon={<PlusOutlined />}
                               onClick={() => {
                                 setTimingsOption([...timingsOption, timingsValue || `New item ${index++}`]);
                                 setTimingsValue('');
