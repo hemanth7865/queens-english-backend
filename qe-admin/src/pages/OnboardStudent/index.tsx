@@ -11,6 +11,7 @@ import Tabsedit from "@/components/Formedit/tabs";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
+import coursesType from "../../../data/coursesType.json";
 
 const { Option } = Select;
 
@@ -51,10 +52,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'select') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="DISE - Group Class">DISE - Group Class</Option>
-          <Option value="DISE - 1:1">DISE - 1:1</Option>
-          <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-          <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+          { coursesType.map((course: any) => <Option key={course.value} value={course.value}>{course.label}</Option>) }
         </Select>
       )
     } else if (inputType === 'date') {
