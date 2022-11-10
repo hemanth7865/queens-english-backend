@@ -210,10 +210,11 @@ const BatchList: React.FC = () => {
         completedLessons[key].isComplete = false
       })
       await resetLessonStatus(currentRow?.id, completedLessons);
-      batchData.activeLessonId = batchData.startingLessonId;
+      const tempBatchData = batchData;
+      tempBatchData.activeLessonId = batchData.startingLessonId;
       setCompletedLessonModal(false);
       setIsLoading(false);
-      createEditBatch();
+      createEditBatch(tempBatchData);
     } catch (error) {
       console.log(error);
       message.error("Resetting the lesson status failed. please try again");
@@ -221,9 +222,10 @@ const BatchList: React.FC = () => {
   }
 
   const handleLessonCancel = () => {
-    batchData.activeLessonId = prePop?.batchData?.classes?.activeLessonId;
+    const tempBatchData = batchData;
+    tempBatchData.activeLessonId = prePop?.batchData?.classes?.activeLessonId;
     setCompletedLessonModal(false);
-    createEditBatch();
+    createEditBatch(tempBatchData);
   }
 
   const handleOk = () => {
