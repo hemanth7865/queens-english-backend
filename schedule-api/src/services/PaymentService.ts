@@ -1481,11 +1481,18 @@ export class PaymentService {
       usersLogger.info(
         "Activate Subscription: " + JSON.stringify(request)
       );
-      let { installmentId, checkInstallmentStatus } = request
-      let installment = await this.transactionRepository.find({
-        id: installmentId
-      })
-      if (isNullOrUndefined(installment)) {
+      let { installmentId, cf_subscription_id, checkInstallmentStatus } = request
+      if (!installmentId && !cf_subscription_id) {
+        return {
+          status: "error",
+          message: "Please provide valid request data",
+        };
+      }
+
+      let installment = await this.transactionRepository.find(
+        installmentId ? { id: installmentId } : { subscriptionId: cf_subscription_id }
+      )
+      if (isNullOrUndefined(installment) || installment.length <= 0) {
         usersLogger.debug("No installment available for the given id");
         return {
           status: "error",
@@ -1507,7 +1514,10 @@ export class PaymentService {
           message: "Error in fatching Subscription Details",
         };
       }
-      if (subscriptionDetails?.subscription?.status !== 'ON_HOLD') {
+      if (subscriptionDetails?.subscription?.status !== CASHFREE_PAYMENT_STATUS.ON_HOLD) {
+        if (subscriptionDetails?.subscription?.status === CASHFREE_PAYMENT_STATUS.ACTIVE) {
+          await this.UpdateActiveSubscriptionOnDB(subscriptionId)
+        }
         return {
           status: "error",
           message: "Subscription is not On Hold",
@@ -1527,14 +1537,7 @@ export class PaymentService {
           message: "Error in Activating Cashfree Subscription",
         };
       }
-      installment[0].subscriptionStatus = 'ACTIVE'
-      if (installment[0].autodebitStatus === AUTODEBIT_STATUS.UNSUCCESSFUL_AD) {
-        installment[0].autodebitStatus = AUTODEBIT_STATUS.SUCCESSFUL_AD
-      }
-      let UpdatedData = await this.transactionRepository.update(
-        { id: installmentId },
-        installment[0]
-      )
+      await this.UpdateActiveSubscriptionOnDB(subscriptionId)
       usersLogger.info(
         "Activated Subscription successfully: " + JSON.stringify(request)
       );
@@ -1550,6 +1553,28 @@ export class PaymentService {
       return {
         status: "error",
         message: "Error in Activating Cashfree Subscription",
+      };
+    }
+  }
+
+  async UpdateActiveSubscriptionOnDB(subscriptionId: any) {
+    try {
+      let data = {
+        subscriptionStatus: CASHFREE_PAYMENT_STATUS.ACTIVE,
+        autodebitStatus: AUTODEBIT_STATUS.SUCCESSFUL_AD
+      }
+      let updatedData = await this.transactionRepository.update(
+        { subscriptionId: subscriptionId },
+        data
+      )
+    } catch (error) {
+      usersLogger.error(
+        "Error in Updating Subscription on DB : " +
+        error
+      );
+      return {
+        status: "error",
+        message: "Error in Updating Cashfree Subscription on DB",
       };
     }
   }
@@ -1588,18 +1613,11 @@ export class PaymentService {
     try {
       let success = 0, error = 0;
       usersLogger.info("Getting All Onhold Subscriptions");
-      let query = `installments.subscription_status = 'ON_HOLD'
-        AND installments.subscription_type = 'Auto-Debit'
-        AND installments.payment_status = 'Installment Paid'`
-      let getOnholdRecords = await getManager()
-        .createQueryBuilder(Transactions, "installments")
-        .where(
-          query
-        )
-        .getMany();
+      let query = `select DISTINCT subscription_id from installments where installments.subscription_status = 'ON_HOLD' AND installments.subscription_type = 'Auto-Debit' AND installments.payment_status = 'Installment Paid'`
+      let getOnholdRecords = await getManager().query(query)
+
       for (let record of getOnholdRecords) {
-        console.log(record)
-        let res = await this.activateCashfreeSubscription({ installmentId: record.id })
+        let res = await this.activateCashfreeSubscription({ cf_subscription_id: record.subscription_id })
         if (res.status === 'success') {
           success += 1;
         } else if (res.status === 'error') {
