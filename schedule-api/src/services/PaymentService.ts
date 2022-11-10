@@ -19,7 +19,8 @@ import {
   RAZORPAY_PAYMENT_STATUS,
   ERROR_CODES,
   SUCCESS_CODES,
-  AUTODEBIT_STATUS
+  AUTODEBIT_STATUS,
+  RAZORPAY_SUBSCRIPTION_STATUS
 } from "../helpers/Constants";
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
@@ -1516,7 +1517,7 @@ export class PaymentService {
       }
       if (subscriptionDetails?.subscription?.status !== CASHFREE_PAYMENT_STATUS.ON_HOLD) {
         if (subscriptionDetails?.subscription?.status === CASHFREE_PAYMENT_STATUS.ACTIVE) {
-          await this.UpdateActiveSubscriptionOnDB(subscriptionId)
+          await this.updateActiveSubscriptionOnDB(subscriptionId)
         }
         return {
           status: "error",
@@ -1537,7 +1538,7 @@ export class PaymentService {
           message: "Error in Activating Cashfree Subscription",
         };
       }
-      await this.UpdateActiveSubscriptionOnDB(subscriptionId)
+      await this.updateActiveSubscriptionOnDB(subscriptionId)
       usersLogger.info(
         "Activated Subscription successfully: " + JSON.stringify(request)
       );
@@ -1557,7 +1558,7 @@ export class PaymentService {
     }
   }
 
-  async UpdateActiveSubscriptionOnDB(subscriptionId: any) {
+  async updateActiveSubscriptionOnDB(subscriptionId: any) {
     try {
       let data = {
         subscriptionStatus: CASHFREE_PAYMENT_STATUS.ACTIVE,
@@ -1582,10 +1583,10 @@ export class PaymentService {
   async checkOnHoldRecords() {
     try {
       usersLogger.error("Checking onhold / halted records");
-      let query = `installments.subscription_status IN ('ON_HOLD', 'HALTED') 
-      AND installments.subscription_type = 'Auto-Debit' 
-      AND installments.payment_status IN ('Installment Failed', 'Installment Pending') 
-      AND (installments.installment_type = 'Auto-Debit' OR installments.installment_type is null)`
+      let query = `installments.subscription_status IN ('${CASHFREE_PAYMENT_STATUS.ON_HOLD}', '${RAZORPAY_SUBSCRIPTION_STATUS.HALTED}') 
+      AND installments.subscription_type = '${SUBSCRIPTION_TYPE.AUTO_DEBIT}' 
+      AND installments.payment_status IN ('${PAYMENT_STATUS.FAILED}', '${PAYMENT_STATUS.PAID}') 
+      AND (installments.installment_type = '${SUBSCRIPTION_TYPE.AUTO_DEBIT}' OR installments.installment_type is null)`
       let getOnholdRecords = await getManager()
         .createQueryBuilder(Transactions, "installments")
         .where(
@@ -1611,22 +1612,22 @@ export class PaymentService {
 
   async activateAllCashfreeSubscription() {
     try {
-      let success = 0, error = 0;
+      let successCount = 0, errorCount = 0;
       usersLogger.info("Getting All Onhold Subscriptions");
-      let query = `select DISTINCT subscription_id from installments where installments.subscription_status = 'ON_HOLD' AND installments.subscription_type = 'Auto-Debit' AND installments.payment_status = 'Installment Paid'`
+      let query = `select DISTINCT subscription_id from installments where installments.subscription_status = '${CASHFREE_PAYMENT_STATUS.ON_HOLD}' AND installments.subscription_type = '${SUBSCRIPTION_TYPE.AUTO_DEBIT}' AND installments.payment_status = '${PAYMENT_STATUS.PAID}'`
       let getOnholdRecords = await getManager().query(query)
 
       for (let record of getOnholdRecords) {
         let res = await this.activateCashfreeSubscription({ cf_subscription_id: record.subscription_id })
         if (res.status === 'success') {
-          success += 1;
+          successCount += 1;
         } else if (res.status === 'error') {
-          error += 1;
+          errorCount += 1;
         }
       }
       return {
-        "success": success,
-        "error": error
+        "success": successCount,
+        "error": errorCount
       }
     } catch (error) {
       usersLogger.error("error" + error)
