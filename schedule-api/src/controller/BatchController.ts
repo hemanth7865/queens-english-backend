@@ -87,6 +87,15 @@ export class BatchController {
         }
     }
 
+    async getCosmosBatch(request: Request, response: Response, next: NextFunction) {
+        var res;
+        try {
+            res = await this.batchService.getCosmosBatch(request.params.id);
+            return res;
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     async getBatchDetails(request: Request, response: Response, next: NextFunction) {
         var res;
