@@ -15,6 +15,7 @@ import callDispositionStatus from "./../../../data/call_disposition.json";
 import { PaymentConstantValues, PaymentModevalues, URLPATH, AUTODEBIT_STATUS } from '@/components/Constants/constants';
 import "./payment.css";
 import BulkUpload from './Components/Upload';
+import DisplayFailureActions from './Components/DisplayFailureActions';
 
 
 /**
@@ -44,6 +45,7 @@ const TableList: React.FC = () => {
     const [upload, setUpload] = useState<boolean>(false);
     const [refreshPaymentStatus, setRefreshPaymentStatus] = useState<boolean>(false);
     const [isPaymentIssue, setIsPaymentIssue] = useState<boolean>(false);
+    const [displayReason, setDisplayReason] = useState(false);
 
 
     const intl = useIntl();
@@ -226,7 +228,6 @@ const TableList: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log('urlPath', window.location.pathname, window.location.href);
         if (window.location.pathname === URLPATH.PAYMENT_ISSUE) {
             setIsPaymentIssue(true);
         } else {
@@ -234,7 +235,6 @@ const TableList: React.FC = () => {
         }
     }, [])
 
-    console.log('isPaymentIssue', isPaymentIssue);
 
     const columns: ProColumns<API.RuleListItem>[] = [
         {
@@ -519,7 +519,25 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'reasonForFailure',
             hideInSearch: true,
-            width: 200
+            width: 200,
+            render: (dom, entity: any) => {
+                if (entity.reasonForFailure) {
+                    return (
+                        <div style={{ display: "flex" }}>
+                            <a
+                                onClick={() => {
+                                    setDisplayRazorpay(true);
+                                    setCurrentRow(entity);
+                                    setDisplayReason(true);
+                                }}
+                                style={{ marginLeft: 10, marginTop: 25 }}>
+                                {entity.reasonForFailure}
+                            </a>
+                        </div >
+                    )
+                }
+                return <p>{entity.reasonForFailure}</p>
+            }
         },
         {
             title: (
@@ -559,7 +577,7 @@ const TableList: React.FC = () => {
             tip: 'Paid cases are not editable',
             render: (dom, entity: any) => {
                 return (
-                    <div>
+                    <div >
                         <a
                             onClick={() => {
                                 setTempData(entity);
@@ -720,17 +738,17 @@ const TableList: React.FC = () => {
             </Drawer>
 
             <Drawer
-                width={600}
+                width={800}
                 visible={displayRazorpay}
                 title="Payment details"
                 onClose={() => {
+                    setDisplayReason(false);
                     setCurrentRow('');
                     setDisplayRazorpay(false);
                 }}
                 closable={true}
             >
-                <RazorpayDetails data={currentRow} />
-
+                {displayRazorpay ? <DisplayFailureActions data={currentRow} /> : <RazorpayDetails data={currentRow} />}
             </Drawer>
 
             <Modal
