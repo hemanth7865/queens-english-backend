@@ -805,6 +805,9 @@ export class PaymentService {
       const transactionDetail = await this.transaDetailsRepository.findOne({
         transactionId: body.id,
       });
+      let oldData: any = {}, newData: any = {}
+      oldData.transaction = installment;
+      oldData.transactionDetails = transactionDetail;
       installment.netbankRefLink = body.netbankRefLink;
       installment.paidDate = body.paidDate;
       installment.status = body.status;
@@ -813,14 +816,29 @@ export class PaymentService {
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
+      newData.transaction = installment;
       await this.transactionRepository.update(
         { id: installment.id },
         installment
       );
+      newData.transactionDetails = transactionDetail;
       await this.transaDetailsRepository.update(
         { transactionId: installment.id },
         transactionDetail
       );
+      if (oldData?.transaction?.id && oldData?.transactionDetails?.id) {
+        await (await this.logger.payment(oldData, newData, {})).save();
+      } else {
+        await (
+          await this.logger.customPayment(
+            newData?.transaction?.id || "UNKNOWN",
+            "Created Payment",
+            "PAYMENT_CREATED",
+            { requestData: body, newRecord: newData, oldRecord: newData },
+            {}
+          )
+        ).save();
+      }
       return {
         success: true,
         msg: "successfully updated link",

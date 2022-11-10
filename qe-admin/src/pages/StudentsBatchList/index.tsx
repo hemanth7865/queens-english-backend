@@ -78,7 +78,6 @@ import access from "@/access";
 import { AlignType } from 'rc-table/lib/interface';
 import Tabsedit from "@/components/Formedit/tabs";
 import HistoryTable from "@/components/HistoryTab/tableView";
-import InstallmentHistoryTable from "@/components/HistoryTab/installmentView";
 
 const { TabPane } = Tabs;
 
