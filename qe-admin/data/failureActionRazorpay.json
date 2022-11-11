@@ -1,0 +1,793 @@
+[
+    {
+        "FAILURE_REASON": "NA",
+        "ACTION_SYSTEM": "Should mark the customer inactive.Intimate the Collection Executive if the present month's sub is not collected.Intimate the CD (a new page?)",
+        "ACTION_CE": "NA",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "NA",
+        "ACTION_SYSTEM": "Intimate the CD (clearly stating cancelation not done by customer)",
+        "ACTION_CE": "NA",
+        "ACTION_CD": "Should understand who did and flag the issue to tech team",
+        "ACTION_PRODUCT": "Review access of sub cancelation"
+    },
+    {
+        "FAILURE_REASON": "Insufficient Balance",
+        "ACTION_SYSTEM": "Intimate the CE with the retry details",
+        "ACTION_CE": "Talk to the customer and retry. (IF can't be fixed, collect manually), IF can be rectified for the same payment mode next month - No Action Else - Follow up to change the payment mode. IF can't be rectified - Move to Manual after approval (or) Mark as Inactive.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Define a new workflow for invalid subs"
+    },
+    {
+        "FAILURE_REASON": "authentication_failed",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer and ensure the correct authentication details are entered. ",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "authorisation_declined_by_psp",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Recheck the customer's VPA (upi ID) and retry. If this is recurring, then the customer can choose another PSP app and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "bank_account_invalid",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer to try using a valid bank account or another method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "bank_account_validation_failed",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer to try using a valid bank account or another method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "bank_not_available",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the bank's end. ",
+        "ACTION_CE": "Talk to the customer to retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "bank_not_enabled",
+        "ACTION_SYSTEM": "The selected bank to complete the transaction is not enabled for your business.",
+        "ACTION_CE": "Option 1- Inform the tech team and wait until Razorpay enables the bank, and then retry. Option 2- Retry using another bank immediately.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Send an immediate request to Razorpay to enable the bank/ relay the information back to the CE. "
+    },
+    {
+        "FAILURE_REASON": "bank_technical_error",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the bank's end. ",
+        "ACTION_CE": "Talk to the customer to retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "beneficiary_account_does_not_exist",
+        "ACTION_SYSTEM": "Notify the Razorpay team. Intimate the CE that the lag is from RP's end. And to wait for further communication.",
+        "ACTION_CE": "NA",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Define a process to send such cases to the RP team directly. Relay the information back to CE."
+    },
+    {
+        "FAILURE_REASON": "beneficiary_account_dormant",
+        "ACTION_SYSTEM": "Notify the Razorpay team. Intimate the CE that the lag is from RP's end. And to wait for further communication.",
+        "ACTION_CE": "NA",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Define a process to send such cases to the RP team directly. Relay the information back to CE."
+    },
+    {
+        "FAILURE_REASON": "capture_failed",
+        "ACTION_SYSTEM": "Intimate the CE",
+        "ACTION_CE": "Talk to the customer to retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "card_declined",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the bank's end. ",
+        "ACTION_CE": "Talk to the customer to get in touch with the issuing bank. ",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "card_expired",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer to retry using a valid card that is within its date of expiry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "card_network_not_enabled",
+        "ACTION_SYSTEM": "Send request to Razorpay to enable the card.",
+        "ACTION_CE": "Option 1- Wait until Razorpay enables the card, and then retry. Option 2- Retry using another card immediately.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Send an immediate request to Razorpay to enable the card/ relay the information back to the CE. "
+    },
+    {
+        "FAILURE_REASON": "card_not_enrolled",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's or the bank's end. ",
+        "ACTION_CE": "Option 1- Customer enrols the card with the issuer and retries. Option 2- Customer retries with another card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "card_number_invalid",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer to enter the correct card number.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "card_type_invalid",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer to enter the correct card type.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "collect_request_pending",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer to approve the collect request.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "compliance_violation",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from on analysis-1. The customer's end OR 2. QE's end.",
+        "ACTION_CE": "If the issue is from the customer's end then talk to the customer to reach out to the bank to resolve the issue. If the issue is from QE's end, wait for further intimation.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Identify where the risk check failed and send the intimation. If issue is at QE's end, relay the information back to the CE."
+    },
+    {
+        "FAILURE_REASON": "credit_limit_exceeded",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer and ask them to retry with another payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "credit_limit_expired",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer and ask them to retry with another payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "credit_limit_inactive",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "The customer must activate the credit limit or retry using a different payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "credit_limit_not_approved",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. ",
+        "ACTION_CE": "Talk to the customer and ask them to retry with another payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "credit_not_permitted",
+        "ACTION_SYSTEM": "Intimate the CE that the beneficiary bank has not allowed the credit to happen into the merchant's account. This can be because of the TPV account mismatch or an issue at the beneficiary bank.",
+        "ACTION_CE": "Talk to the customer and ask them to check their bank account details and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "credit_failed",
+        "ACTION_SYSTEM": "Intimate the CE that the beneficiary bank has not allowed the credit to happen into the merchant's account. This can be because of the TPV account mismatch or an issue at the beneficiary bank.",
+        "ACTION_CE": "Talk to the customer and ask them to check their bank account details and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "debit_declined",
+        "ACTION_SYSTEM": "Intimate the CE that this issue is from the customer's end. One of the reasons can be because of the account being blocked.",
+        "ACTION_CE": "Talk to the customer and ask them to check with their bank.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "deemed_transaction",
+        "ACTION_SYSTEM": "Intimate the CE that this is the case of a deemed transaction wherein the status of the transaction is not known to us and the status will be known on the next day.",
+        "ACTION_CE": "Please check the status after some time.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "debit_instrument_blocked",
+        "ACTION_SYSTEM": "Intimate the CE that the customer is using a blocked card to complete the payment. The card could have been blocked by the issuer or by customers themselves.",
+        "ACTION_CE": "Talk to the customer to retry with a different card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "debit_instrument_inactive",
+        "ACTION_SYSTEM": "Intimate the CE that the customer is using an inactive or frozen card to complete the payment. The card could have been marked inactive by the issuer or by customer themselves.",
+        "ACTION_CE": "Talk to the customer to retry with a different card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "duplicate_refund_id",
+        "ACTION_SYSTEM": "Intimate the CE that two refunds with the same Refund ID have been initiated.",
+        "ACTION_CE": "Please recheck the refund ID and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "duplicate_request",
+        "ACTION_SYSTEM": "Intimate the CE that a payment initiation request with the exact same parameters was passed to the gateway. This can be an integration issue.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Check the payment parameters and retry."
+    },
+    {
+        "FAILURE_REASON": "duplicate_rrn_found",
+        "ACTION_SYSTEM": "Intimate the CE that a payment with the same RRN is found. A very rare case but possible as the RRN is not unique. This is a rare and temporary issue which can be fixed by a retry.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "emi_greater_than_max_amount",
+        "ACTION_SYSTEM": "Intimate the CE that the EMI amount is greater than the maximum amount allowed for the customer. This error occurs in Cardless EMI payments.",
+        "ACTION_CE": "The customer must use a different EMI plan or retry using a different method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "emi_plan_unavailable",
+        "ACTION_SYSTEM": "The customer-selected EMI plan is no longer supported by the EMI provider. This error occurs in Cardless EMI payments.",
+        "ACTION_CE": "The customer must use a different EMI plan or retry using a different method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "funds_blocked_by_mandate",
+        "ACTION_SYSTEM": "This is an error for One time Mandate product. Funds are blocked and customer is trying to access these funds via payment.",
+        "ACTION_CE": "The customer should add more funds or release their mandate to complete the transaction.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "funds_blocked_by_mandate",
+        "ACTION_SYSTEM": "This is an error for One time Mandate product. Funds are blocked and customer is trying to access these funds via payment.",
+        "ACTION_CE": "The customer should add more funds or release their mandate to complete the transaction.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "gateway_technical_error",
+        "ACTION_SYSTEM": "Payment failed due to a technical error at the gateway. This usually occurs when the gateway server encounters a technical error while processing the payment.",
+        "ACTION_CE": "Please retry with a different payment method or retry after some time.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_atm_pin",
+        "ACTION_SYSTEM": "Some banks ask for Debit card information for authentication. If the customer enters the ATM pin incorrectly, this error is thrown during the UPI registeration process.Note: This is a very rare error code in payment transactions.",
+        "ACTION_CE": "The customer must retry with the correct ATM PIN.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_card_details",
+        "ACTION_SYSTEM": "This is a generic error message when a customer has entered incorrect card details to complete the payment. The customer has to enter multiple values like cardholder name, expiry date, cvv to complete the payment.",
+        "ACTION_CE": "The customer must use the correct card details to complete the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_card_expiry_date",
+        "ACTION_SYSTEM": "The customer has entered an incorrect expiry date of the card.",
+        "ACTION_CE": "The customer must enter the correct expiry date of the card.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_cardholder_name",
+        "ACTION_SYSTEM": "The customer has entered an incorrect name of the card holder.",
+        "ACTION_CE": "The customer must enter the correct name of the card holder.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_cvv",
+        "ACTION_SYSTEM": "The customer has entered an incorrect CVV to complete the payment.",
+        "ACTION_CE": "The customer must retry with the correct CVV.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_otp",
+        "ACTION_SYSTEM": "The customer has entered an incorrect OTP to complete the payment.",
+        "ACTION_CE": "The customer must retry and enter the correct OTP.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "incorrect_pin",
+        "ACTION_SYSTEM": "The customer has entered an incorrect PIN to complete the payment.",
+        "ACTION_CE": "The customer must retry with the correct PIN.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "input_validation_failed",
+        "ACTION_SYSTEM": "Payment failed due to wrong request or input sent in the payment request. This is also seen while creating a payment with incorrect parameter values on the Dashboard.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Rectify the validation issues and try again. Check the error description and field parameters for more information about the error.Check your integration/payment request or reach out to Razorpay. Refer to the API Reference Guide."
+    },
+    {
+        "FAILURE_REASON": "insufficient_funds",
+        "ACTION_SYSTEM": "The customer does not have sufficient funds in the account to complete the payment.",
+        "ACTION_CE": "The customer must retry with a different card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_amount",
+        "ACTION_SYSTEM": "Amount or currency passed in the payment request is not supported or invalid. This can arise when you pass a different variable type in the amount field or pass an unsupported amount value.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Check your integration and payment request."
+    },
+    {
+        "FAILURE_REASON": "invalid_currency",
+        "ACTION_SYSTEM": "The currency type for the request you are sending is not enabled or not supported for your business. For example, you are attempting a payment in British pound when international currency is not enabled for your account.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Reach out to Razorpay to enable the currency or get more information about the supported currencies."
+    },
+    {
+        "FAILURE_REASON": "invalid_device",
+        "ACTION_SYSTEM": "UPI mandates that all transactions must at least be 2FA using a mobile device(the device fingerprint) as one factor and the UPI PIN as the second. This error occurs when a user tries to complete the payment using an unregistered device to send or receive payments using that account.",
+        "ACTION_CE": "The customer must first complete the device binding process and try again.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_email",
+        "ACTION_SYSTEM": "The customer has provided an invalid email.",
+        "ACTION_CE": "The customer must retry using the correct email.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_mobile_number",
+        "ACTION_SYSTEM": "The customer used an unregistered or invalid mobile number to complete the transaction. This error occurs in Wallet payments.",
+        "ACTION_CE": "The customer must use the registered mobile number with the issuer to complete the transaction.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_order_id",
+        "ACTION_SYSTEM": "Order ID required in the payment request is either missing or is invalid. Order ID is mandatory for every payment.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Make sure correct order ID is always passed while initiating a new payment."
+    },
+    {
+        "FAILURE_REASON": "invalid_response_from_gateway",
+        "ACTION_SYSTEM": "The response received from the gateway is invalid.",
+        "ACTION_CE": "The customer must retry with the correct ATM PIN.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_request",
+        "ACTION_SYSTEM": "The request is invalid because of the information that the merchant has passed.",
+        "ACTION_CE": "Please check the payment request and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_user_details",
+        "ACTION_SYSTEM": "The customer does not exist.",
+        "ACTION_CE": "The customer must use valid credentials.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "invalid_vpa",
+        "ACTION_SYSTEM": "The customer is using an invalid VPA or an unregistered VPA to complete the payment.",
+        "ACTION_CE": "The customer must use a valid VPA to complete the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "issuer_technical_error",
+        "ACTION_SYSTEM": "Payment failed due to a technical error at the issuer. This usually occurs when the gateway server encounters a technical error while processing the payment.",
+        "ACTION_CE": "Please retry with a different payment method or retry after some time.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "issuer_technical_error",
+        "ACTION_SYSTEM": "A technical error at the issuer (UPI).",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "live_mode_not_enabled",
+        "ACTION_SYSTEM": "Live mode is not enabled for your business. This error generally arises when you use test mode keys to make a live payment.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Generate the live mode keys in Razorpay Dashboard and use them in your Integration."
+    },
+    {
+        "FAILURE_REASON": "mandate_creation_declined",
+        "ACTION_SYSTEM": "Mandate creation failed. This is applicable for UPI Autopay and UPI OTM.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "mandate_creation_expired",
+        "ACTION_SYSTEM": "Mandate creation expired.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "mandate_creation_failed",
+        "ACTION_SYSTEM": "Mandate creation declined by an entity.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "mandate_creation_timeout",
+        "ACTION_SYSTEM": "Mandate creation timed out.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "mcc_amount_limit_exceeded",
+        "ACTION_SYSTEM": "NPCI restricts Collect requests over 5k for some MCCs (4814 & 4812).",
+        "ACTION_CE": "Please reach out to the tech team to flag it with Razorpay.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Flag to Razorpay."
+    },
+    {
+        "FAILURE_REASON": "merchant_not_activated",
+        "ACTION_SYSTEM": "Merchant is not activated with the gateway. An issue with the merchant's terminal/account.",
+        "ACTION_CE": "Please reach out to the tech team to flag it with Razorpay.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Flag to Razorpay."
+    },
+    {
+        "FAILURE_REASON": "mismatch_in_transaction_details",
+        "ACTION_SYSTEM": "The merchant has not passed the transaction details correctly.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Reach out to Razorpay to get the required card network enabled."
+    },
+    {
+        "FAILURE_REASON": "mobile_number_invalid",
+        "ACTION_SYSTEM": "The customer is using an invalid or an unregistered mobile number to complete the payment. This means that the mobile number is not mapped to the bank account.",
+        "ACTION_CE": "The customer should check the mobile number mapped to their UPI account and reach out to bank to get the correct mobile number mapped.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "order_already_paid",
+        "ACTION_SYSTEM": "There can only be one successful payment for each order ID. This error arises when you are trying to use an order ID where a payment is already completed.",
+        "ACTION_CE": "Check for order status before initiating a new payment attempt on the order. You can also evaluate using a different order ID for each payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "order_payment_method_mismatch",
+        "ACTION_SYSTEM": "This error arises when the method mentioned in the order request is different from the method mentioned in the payment request.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Do not pass method in the create order request."
+    },
+    {
+        "FAILURE_REASON": "order_amount_mismatch",
+        "ACTION_SYSTEM": "This error arises when the amount mentioned in the order request is different from the amount mentioned in the payment request.",
+        "ACTION_CE": "Please make sure that the same amount is passed in both payment and order request.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "otp_attempts_exceeded",
+        "ACTION_SYSTEM": "The customer has entered the wrong OTP multiple times and exceeded the limit. Some issuers limit the number of OTP retries, beyond which the card is temporarily blocked.",
+        "ACTION_CE": "The customer must retry using a different card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "otp_expired",
+        "ACTION_SYSTEM": "The customer has entered an expired OTP.",
+        "ACTION_CE": "The customer must generate OTP again and retry the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_amount_tampered",
+        "ACTION_SYSTEM": "The payment amount has been tampered.",
+        "ACTION_CE": "The customer must retry with the correct amount.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_cancelled",
+        "ACTION_SYSTEM": "The customer has explicitly cancelled the payment due to which the authentication failed to complete.",
+        "ACTION_CE": "The customer must retry to complete the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_collect_request_expired",
+        "ACTION_SYSTEM": "The UPI collect request time period has expired. For example, in most collect requests the expiry period is 5-10 minutes within the payment has to be completed by the customer on the UPI app. If a customer fails to complete the payment during this time, the collect request is marked as expired and the payment fails.",
+        "ACTION_CE": "The customer must retry and complete the payment within the expiry time.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_declined",
+        "ACTION_SYSTEM": "Issuer Bank or Gateway has declined the payment due to business or technical reasons. The exact reason in this case is not communicated to Razorpay.",
+        "ACTION_CE": "Customer must reach out to the issuer bank.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_declined_due_to_high_traffic",
+        "ACTION_SYSTEM": "Primarily occurs in the case of high TPS scenarios like IPL wherein the bank is unable to serve requests.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_failed",
+        "ACTION_SYSTEM": "Payment processing failed due to error at bank or wallet gateway. No specific error code received from gateway in this case.",
+        "ACTION_CE": "The customer must retry with a different payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_method_not_enabled",
+        "ACTION_SYSTEM": "The selected payment method is not enabled. This error occurs when your customer tries to complete a transaction using a method that is not enabled for you.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Reach out to Razorpay to enable payment method."
+    },
+    {
+        "FAILURE_REASON": "payment_method_not_enabled",
+        "ACTION_SYSTEM": "UPI is not enabled.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Reach out to Razorpay to enable payment method."
+    },
+    {
+        "FAILURE_REASON": "payment_pending",
+        "ACTION_SYSTEM": "The payment was marked as pending by the bank or the gateway. Pending transactions may later on become authorized.",
+        "ACTION_CE": "The customer must wait for some time and retry the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_pending_approval",
+        "ACTION_SYSTEM": "The payment is currently pending approval by the concerned authority as part of the maker-checker flow.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Please reach out to the approver in your organization to get the transaction approved."
+    },
+    {
+        "FAILURE_REASON": "payment_risk_check_failed",
+        "ACTION_SYSTEM": "Payment declined due to risk checks. The source parameter would give additional clarity where the risk check failed.",
+        "ACTION_CE": "The customer must retry with a different card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_session_expired",
+        "ACTION_SYSTEM": "The payment session expired as the payment was not completed within the time by the customer. This is mostly due to an inactive payment window.",
+        "ACTION_CE": "The customer must retry to complete the payment within the time.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "payment_timed_out",
+        "ACTION_SYSTEM": "The customer did not complete the transaction within the specified time. This error may also happen when no response is received from the gateway.",
+        "ACTION_CE": "The customer must retry and complete the transaction within the time.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "pin_attempts_exceeded",
+        "ACTION_SYSTEM": "The customer has entered the wrong PIN multiple times and exceeded the limit. Some issuers limit the maximum number of PIN retries beyond which the card is temporarily blocked.",
+        "ACTION_CE": "The customer must retry using a different card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "pin_not_set",
+        "ACTION_SYSTEM": "There is no PIN set by the customer for the UPI account.",
+        "ACTION_CE": "The customer must set the UPI PIN first, and then retry to complete the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "psp_app_ not_available",
+        "ACTION_SYSTEM": "PSP app is not available. This can be because of a downtime with the PSP.",
+        "ACTION_CE": "The customer must retry with another PSP app.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "psp_app_not_supported",
+        "ACTION_SYSTEM": "UPI App is not supported. This is a rare error used when a particular app is blacklisted.",
+        "ACTION_CE": "Please choose another PSP app and try again.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "psp_not_available",
+        "ACTION_SYSTEM": "PSP is not available due to a downtime at their end.",
+        "ACTION_CE": "The customer must choose another PSP app and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "psp_not_available",
+        "ACTION_SYSTEM": "PSP is not available due to a downtime at their end.",
+        "ACTION_CE": "The customer must choose another PSP app and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "psp_not_registered",
+        "ACTION_SYSTEM": "The PSP is not registered on the customer's device.",
+        "ACTION_CE": "The customer must retry with another PSP app.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "record_not_found",
+        "ACTION_SYSTEM": "A record of a payment is not found at the bank. This usually happens when a status check call is hit for intent payments for which the status check call is not hit.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "recurring_payment_not_enabled",
+        "ACTION_SYSTEM": "This error arises when you are trying to process a recurring payment when recurring payments are not enabled for your business.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Reach out to Razorpay to enable the recurring payment."
+    },
+    {
+        "FAILURE_REASON": "refund_limit_crossed",
+        "ACTION_SYSTEM": "Refund amount limit crossed.",
+        "ACTION_CE": "Please recheck the refund amount and retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "reqauth_mandate_not_acknowledged",
+        "ACTION_SYSTEM": "PSP did not respond to the authorisation request for the mandate. This can happen due to a downtime with a PSP.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "request_timed_out",
+        "ACTION_SYSTEM": "The request timed out.",
+        "ACTION_CE": "The customer must retry.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "server_error",
+        "ACTION_SYSTEM": "Technical error at Razorpay's server. This usually occurs when there is some server issue at Razorpay's end.",
+        "ACTION_CE": "Please retry after some time or reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Reach out to Razorpay."
+    },
+    {
+        "FAILURE_REASON": "transaction_daily_count_exceeded",
+        "ACTION_SYSTEM": "The customer has exceeded the maximum number of transactions that can be performed daily for his card.",
+        "ACTION_CE": "The customer must try after 24 hours or using a different card or another method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "transaction_daily_limit_exceeded",
+        "ACTION_SYSTEM": "The customer has exceeded the daily transaction limit set on the card. Some of the cards allow customers to set a limit or have a default limit set.",
+        "ACTION_CE": "The customer must retry using a different instrument or wait 24 hours to complete the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "transaction_limit_exceeded",
+        "ACTION_SYSTEM": "The customers have exceeded the credit or debit limit set on their cards. This error usually arises while doing high value transactions.",
+        "ACTION_CE": "The customer must retry using a different bank's card or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "transaction_frequency_limit_exceeded",
+        "ACTION_SYSTEM": "NPCI has a transaction limit both on the amount and the frequency per day. Customer has exceeded this limit.",
+        "ACTION_CE": "Please retry using another payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "transaction_on_vpa_restricted",
+        "ACTION_SYSTEM": "Transaction on this VPA has been temporarily/permanently blocked by the PSP.",
+        "ACTION_CE": "The customer to retry with another UPI ID.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "upi_app_technical_error",
+        "ACTION_SYSTEM": "Technical error occurred at the customer PSP due to which the payment failed.",
+        "ACTION_CE": "The customer must retry the payment. If the error persists then the customer should use a different PSP to complete the payment.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "upi_autopay_not_supported_on_psp",
+        "ACTION_SYSTEM": "UPI Autopay is not supported on PSP.",
+        "ACTION_CE": "The customer to retry with another PSP app.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "upi_collect_not_enabled",
+        "ACTION_SYSTEM": "UPI Collect flow is not enabled however merchant has hit the Collect payment request on API.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Enable collect flow."
+    },
+    {
+        "FAILURE_REASON": "upi_intent_not_enabled",
+        "ACTION_SYSTEM": "UPI Intent flow is not enabled however merchant has hit the Intent Payment request on API.",
+        "ACTION_CE": "Reach out to the tech team.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "Enable intent flow."
+    },
+    {
+        "FAILURE_REASON": "user_not_eligible",
+        "ACTION_SYSTEM": "The customer failed the eligibility check and is not eligible for credit. This error occurs in Cardless EMI payments.",
+        "ACTION_CE": "The customer must retry using a different payment method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "user_not_registered_for_netbanking",
+        "ACTION_SYSTEM": "The customer's bank account is not registered for netbanking.",
+        "ACTION_CE": "The customer should register their account with the issuing bank for netbanking.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "vpa_resolution_failed",
+        "ACTION_SYSTEM": "The UPI network failed to validate the VPA. This is a technical error when the resolution service of the NPCI fails.",
+        "ACTION_CE": "The customer must retry using a different bank account or method.",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    },
+    {
+        "FAILURE_REASON": "verification_failed",
+        "ACTION_SYSTEM": "Verification of the payment using the status check API has failed.",
+        "ACTION_CE": "This is a temporary error. The customer must retry",
+        "ACTION_CD": "NA",
+        "ACTION_PRODUCT": "NA"
+    }
+]

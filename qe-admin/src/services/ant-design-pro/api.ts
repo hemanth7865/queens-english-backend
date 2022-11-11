@@ -423,6 +423,23 @@ export async function listBatch(
     ...(options || {}),
   });
 }
+// get individual batch from COSMOS DB
+export async function listCosmosBatch(
+  rowId: string,
+  params?: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }) {
+  return request<API.RuleList>(`/be/listCosmosBatch/${rowId}`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 // Get the lessons that are stored in the COSMOS DB for the particular batch
 export async function getTeacherLessons(
   id: string,
