@@ -9,6 +9,9 @@ import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Tabsedit from "@/components/Formedit/tabs";
+import {
+  getZoomURL
+} from "@/services/ant-design-pro/helpers";
 import coursesType from "../../../data/coursesType.json";
 
 const { Option } = Select;
@@ -409,7 +412,7 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string) => {
+  const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string, data: any) => {
     const waMessage = (
       <div>
         <p>Hello <br />
@@ -418,6 +421,11 @@ const StudentOnboard: React.FC = () => {
           We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br />
           Step 1: Go to the Google Play Store and download the app using the following link:
           <a>https://queensenglish.co/app</a><br />
+          Zoom Link: <a href={getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+            { classCode: data?.classCode, useNewZoomLink: !data?.classCode ? 1 : data?.useNewZoomLink, zoomLink: data?.zoomLink, useAutoAttendance: !data?.classCode ? 1 : data?.useAutoAttendance }, true,
+            { userCode: data.userCode })}>{getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+              { classCode: data?.classCode, useNewZoomLink: !data?.classCode ? 1 : data?.useNewZoomLink, zoomLink: data?.zoomLink, useAutoAttendance: !data?.classCode ? 1 : data?.useAutoAttendance }, true,
+              { userCode: data.userCode })}</a> <br />
           User information:<br />
           Phone: {message}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
@@ -821,7 +829,7 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              openNotification('info', value.phoneNumber, value.prm_firstName, value.prm_lastName)
+              openNotification('info', value.phoneNumber, value.prm_firstName, value.prm_lastName, value)
             }}
           >
             <EyeOutlined />

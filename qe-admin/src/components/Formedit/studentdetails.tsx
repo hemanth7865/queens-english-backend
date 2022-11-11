@@ -333,6 +333,11 @@ Queen's English मे अगर आपको किसी तरह की स�
           I'll be your academic counsellor, and my name is {prm_firstName} {prm_lastName}.<br />
           We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br />
           Step 1: Go to the Google Play Store and download the app using the following link: <a> https://queensenglish.co/app</a><br />
+          Zoom Link: <a href={getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+            { classCode: props?.tempData?.classCode, useNewZoomLink: !props?.tempData?.classCode ? 1 : props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: !props?.tempData?.classCode ? 1 : props?.tempData?.useAutoAttendance }, true,
+            { userCode: props?.tempData.userCode })}>{getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+              { classCode: props?.tempData?.classCode, useNewZoomLink: !props?.tempData?.classCode ? 1 : props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: !props?.tempData?.classCode ? 1 : props?.tempData?.useAutoAttendance }, true,
+              { userCode: props?.tempData.userCode })}</a> <br />
           User information:<br />
           Registered Phone Number: {phoneNumber}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
