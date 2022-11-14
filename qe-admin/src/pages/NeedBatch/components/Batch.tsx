@@ -29,6 +29,7 @@ export type BatchProps = {
   filterTheme?: string;
   currentBatch?: any;
   filterCallBack?: (data: any) => any;
+  pageTheme?: string;
 };
 
 const Batch: React.FC<BatchProps> = (props) => {
@@ -313,6 +314,7 @@ const Batch: React.FC<BatchProps> = (props) => {
     },
   ];
 
+  const ALLOW_CREATING_BATCHES = props.pageTheme !== "welcome" || ["IELTS - 1:1", "DISE - 1:1"].includes(data.course);
 
   return (
     <Spin spinning={isLoading}>
@@ -340,9 +342,13 @@ const Batch: React.FC<BatchProps> = (props) => {
               </Col>
             </Row>
           </TabPane>
-          <TabPane tab="Teacher" key="2">
-            <Teachers data={data} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch} />
-          </TabPane>
+          {
+            ALLOW_CREATING_BATCHES && (
+              <TabPane tab="Teacher" key="2">
+                <Teachers data={data} selectedBatch={selectedBatch} setSelectedBatch={setSelectedBatch} />
+              </TabPane>
+            )
+          }
         </Tabs>
 
         <Row gutter={16}>

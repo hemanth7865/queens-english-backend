@@ -102,7 +102,6 @@ export class BatchService {
       data.classEndDate = this.fixDate(data.classEndDate);
       data.lessonStartTime = this.fixDate(data.lessonStartTime);
       data.lessonEndTime = this.fixDate(data.lessonEndTime);
-      data.activeLessonId = data.startingLessonId;
 
       const dateValidate = [
         moment(data.classStartDate).format("YYYY-MM-DD"),
@@ -132,11 +131,11 @@ export class BatchService {
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
         const cosmosBatch = await this.getCosmosBatch(data.id);
-        // if (cosmosBatch) {
-        //   if (cosmosBatch.activeLessonId) {
-        //     data.activeLessonId = cosmosBatch.activeLessonId;
-        //   }
-        // }
+        if (cosmosBatch && !data.activeLessonId) {
+          if (cosmosBatch.activeLessonId) {
+            data.activeLessonId = cosmosBatch.activeLessonId;
+          }
+        }
         if (!alreadyExists?.id) {
           return { status: false, message: "Batch Not Found" };
         }

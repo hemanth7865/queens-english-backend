@@ -1,6 +1,6 @@
 import { Access, useAccess } from "umi";
-import { CopyOutlined, EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Col, Row, notification, Tabs, Button, message, Switch } from 'antd';
+import { CopyOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Col, Row, notification, Tabs, Button, message, Switch, Divider, Space } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -13,7 +13,8 @@ import SyncStudentPayment from "./SyncStudentPayment";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
-import { PaymentModevalues } from "../Constants/constants";
+import { PaymentModevalues, DEFAULT_TIMINGS_FREQUENCY} from "../Constants/constants";
+import coursesType from "../../../data/coursesType.json";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -98,6 +99,14 @@ export type StudentdetailseditProps = {
 };
 
 const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
+
+ 
+
+  const [timingsOption, setTimingsOption] = useState(DEFAULT_TIMINGS_FREQUENCY.DEFAULT_TIMINGS);
+  const [timingsValue, setTimingsValue] = useState('');
+  const [frequency, setFrequency] = useState(DEFAULT_TIMINGS_FREQUENCY.DEFAULT_FREQUENCY);
+  const [frequencyValue, setFrequencyValue] = useState('');
+  let index = 0;
 
   function stringContainsNumber(_string: any) {
     return /\d/.test(_string);
@@ -324,6 +333,11 @@ Queen's English मे अगर आपको किसी तरह की स�
           I'll be your academic counsellor, and my name is {prm_firstName} {prm_lastName}.<br />
           We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br />
           Step 1: Go to the Google Play Store and download the app using the following link: <a> https://queensenglish.co/app</a><br />
+          Zoom Link: <a href={getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+            { classCode: props?.tempData?.classCode, useNewZoomLink: !props?.tempData?.classCode ? 1 : props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: !props?.tempData?.classCode ? 1 : props?.tempData?.useAutoAttendance }, true,
+            { userCode: props?.tempData.userCode })}>{getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+              { classCode: props?.tempData?.classCode, useNewZoomLink: !props?.tempData?.classCode ? 1 : props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: !props?.tempData?.classCode ? 1 : props?.tempData?.useAutoAttendance }, true,
+              { userCode: props?.tempData.userCode })}</a> <br />
           User information:<br />
           Registered Phone Number: {phoneNumber}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
@@ -1600,40 +1614,20 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Form.Item>
                 </Col>
 
-                {props.studentManageradd || props.studentManageredit ? (
-                  <Col span={12}>
-                    <Form.Item
-                      name="course"
-                      label="Course">
-                      <Select
-                        placeholder="Select Course"
-                      >
-                        <Option value="DISE - Group Class">DISE - Group Class</Option>
-                        <Option value="DISE - 1:1">DISE - 1:1</Option>
-                        <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-                        <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                ) : (
-                  <Col span={12}>
-                    <Form.Item
-                      name="course"
-                      label="Course"
-                      rules={[{
-                        required: true,
-                      }]}>
-                      <Select
-                        placeholder="Select Course"
-                      >
-                        <Option value="DISE - Group Class">DISE - Group Class</Option>
-                        <Option value="DISE - 1:1">DISE - 1:1</Option>
-                        <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-                        <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                )}
+                <Col span={12}>
+                  <Form.Item
+                    name="course"
+                    label="Course"
+                    rules={[{
+                      required: (props.studentManageradd || props.studentManageredit) ? false : true,
+                    }]}>
+                    <Select
+                      placeholder="Select Course"
+                    >
+                      { coursesType.map(course => <Option key={course.value} value={course.value}>{course.label}</Option>) }
+                    </Select>
+                  </Form.Item>
+                </Col>
 
                 {props.studentManageradd || props.studentManageredit ? (
                   <Col span={12}>
@@ -1675,79 +1669,77 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Col>
                 )}
 
+                <Col span={12}>
+                  <Form.Item
+                    name="courseFrequency"
+                    label="Course Frequency"
+                    rules={[{
+                      required: (props.studentManageradd || props.studentManageredit) ? false : true,
+                      pattern: /^[MTWFS]*$/,
+                      message: "Enter only any of MTWTFSS days",
+                    }]}>
+                    <Select
+                      style={{ width: 300 }}
+                      placeholder="Select Course Frequency"
+                      dropdownRender={menu => (
+                        <>
+                          {menu}
+                          <Divider style={{ margin: '8px 0' }} />
+                          <Space style={{ padding: '0 8px 4px' }}>
+                            <Input
+                              placeholder="Please enter item"
+                              value={frequencyValue}
+                              onChange={(event: any) => { setFrequencyValue(event.target.value) }}
+                            />
+                            <Button type="text" icon={<PlusOutlined />}
+                              onClick={() => {
+                                setFrequency([...frequency, frequencyValue || `New item ${index++}`]);
+                                setFrequencyValue('');
+                              }}>
+                              Add item
+                            </Button>
+                          </Space>
+                        </>
+                      )}
+                      options={frequency.map(item => ({ label: item, value: item }))}
+                    />
+                  </Form.Item>
+                </Col>
 
-                {props.studentManageradd || props.studentManageredit ? (
-                  <Col span={12}>
-                    <Form.Item
-                      name="courseFrequency"
-                      label="Course Frequency">
-                      <Select
-                        placeholder="Select Course Frequency"
-                      >
-                        <Option value="MWF">MWF</Option>
-                        <Option value="TTS">TTS</Option>
-                        <Option value="SS">SS</Option>
-                        <Option value="MTWTF">MTWTF</Option>
-                        <Option value="TT">TT</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                ) : (
-                  <Col span={12}>
-                    <Form.Item
-                      name="courseFrequency"
-                      label="Course Frequency"
-                      rules={[{
-                        required: true,
-                      }]}>
-                      <Select
-                        placeholder="Select Course Frequency"
-                      >
-                        <Option value="MWF">MWF</Option>
-                        <Option value="TTS">TTS</Option>
-                        <Option value="SS">SS</Option>
-                        <Option value="MTWTF">MTWTF</Option>
-                        <Option value="TT">TT</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                )}
-
-
-                {props.studentManageradd || props.studentManageredit ? (
-                  <Col span={12}>
-                    <Form.Item
-                      name="timings"
-                      label="Timings">
-                      <Select
-                        placeholder="Select Class Timings"
-                      >
-                        <Option value="15:00">15:00</Option>
-                        <Option value="16:30">16:30</Option>
-                        <Option value="18:00">18:00</Option>
-                        <Option value="19:30">19:30</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                ) : (
-                  <Col span={12}>
-                    <Form.Item
-                      name="timings"
-                      label="Timings"
-                      rules={[{
-                        required: true,
-                      }]}>
-                      <Select
-                        placeholder="Select Class Timings"
-                      >
-                        <Option value="15:00">15:00</Option>
-                        <Option value="16:30">16:30</Option>
-                        <Option value="18:00">18:00</Option>
-                        <Option value="19:30">19:30</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                )}
+                <Col span={12}>
+                  <Form.Item
+                    name="timings"
+                    label="Timings"
+                    rules={[{
+                      required: (props.studentManageradd || props.studentManageredit) ? false : true,
+                    }]}>
+                    <Select
+                      style={{ width: 300 }}
+                      placeholder="Select Class Timings"
+                      dropdownRender={menu => (
+                        <>
+                          {menu}
+                          <Divider style={{ margin: '8px 0' }} />
+                          <Space style={{ padding: '0 8px 4px' }}>
+                            <Input
+                              placeholder="Please enter item"
+                              value={timingsValue}
+                              onChange={(event: any) => { setTimingsValue(event.target.value) }}
+                            />
+                           <Button type="text" icon={<PlusOutlined />}
+                              onClick={() => {
+                                setTimingsOption([...timingsOption, timingsValue || `New item ${index++}`]);
+                                setTimingsValue('');
+                              }}>
+                              Add item
+                            </Button>
+                          </Space>
+                        </>
+                      )}
+                      options={timingsOption.map(item => ({ label: item, value: item }))}
+                    />
+                  </Form.Item>
+                </Col>
               </Row >
 
               <Row>
