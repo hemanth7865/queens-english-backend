@@ -52,6 +52,8 @@ export const AUTODEBIT_STATUS = {
   SUCCESSFUL_AD: 'successfullADInstallment'
 }
 
+export const QE_SUPPORT_WHATSAPP_NUMBER = 8143513850
+
 export const DEFAULT_TIMINGS_FREQUENCY = {
   DEFAULT_TIMINGS: ['15:00', '16:30', '18:00', '19:30', '20:30'],
   DEFAULT_FREQUENCY: ['MWF', 'TTS', 'SS', 'MTWTF', 'TT']
