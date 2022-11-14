@@ -64,16 +64,23 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
+                if (request.body.status == Status.INACTIVE) {
+                    var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
+                    let addDateOfInactivationRes = await getManager().query(addDateOfInactivationQuery)
+                }
                 if (request.body.status == Status.INACTIVE && request.body?.batchId.length > 0) {
-                    resp = await this.batchController.reBatch(request, response, next);
+                    resp = await this.batchController.reBatch({
+                        body: {
+                            studentId: request.body.studentId,
+                            batchId: request.body.batchId[0].batchId
+                        }
+                    }, response, next);
                     await response;
                     let removequery: any[] = [];
                     var removebatchquery = `DELETE FROM batch_students where studentId='${request.body.id}'`;
                     removequery = await getManager().query(removebatchquery)
                     console.log("Trying to remove Inactive Student")
                     await this.batchService.addStudentsBatchesHistory([request.body.id], request.body.batchId[0].batchId, false)
-                    var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
-                    let addDateOfInactivationRes = await getManager().query(addDateOfInactivationQuery)
                 } else { console.log('Cannot Remove Student From Batch due to Not Inactive Status') }
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
@@ -472,7 +479,7 @@ export class UserController {
             usersLogger.info("Sync Student Payment Info");
             resp = await SyncStudentPaymentInfo(request);
         } catch (error) {
-            usersLogger.error("Sync Student Payment Info Error: "+error.message);
+            usersLogger.error("Sync Student Payment Info Error: " + error.message);
             resp = { status: 400, error: error.message }
         }
         return resp;
