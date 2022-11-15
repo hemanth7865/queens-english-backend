@@ -150,7 +150,8 @@ const TableList: React.FC = () => {
                 handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
             }
         }
-
+        // Check if Any CF sub is on_hold and Installment is paid then we will activating it again
+        await activateCashfree(data, true, true)
     }
 
     const retryCashfreePayment = async (data: any) => {
@@ -167,20 +168,21 @@ const TableList: React.FC = () => {
         }
     }
 
-    const activateCashfree = async (data: any) => {
+    const activateCashfree = async (data: any, checkInstallmentStatus: boolean = false, skipApiResponse: boolean = false) => {
         try {
             const msg = await activateCashfreeSubscription({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ installmentId: data.transactionId }),
+                body: JSON.stringify({ installmentId: data.transactionId, checkInstallmentStatus }),
             });
-            handleAPIResponse(msg, "Activated Subscription successfully", "", false);
-            if (msg.status !== 400 && msg.status !== 500 && msg.status != "error") {
-                await refreshStatus(data, false)
+            if (msg.status === 'success' || !skipApiResponse) {
+                handleAPIResponse(msg, "Activated Subscription successfully", "", false);
             }
         } catch (error) {
-            handleAPIResponse({ status: 400 }, "", "Failed to Activate Subscription", false);
+            if (!skipApiResponse) {
+                handleAPIResponse({ status: 400 }, "", "Failed to Activate Subscription", false);
+            }
         }
     }
 
@@ -658,9 +660,9 @@ const TableList: React.FC = () => {
                             <SyncOutlined title='Auto Retry payment' />
                         </Typography.Link>
                         {
-                            access.canSuperAdmin && entity?.paymentMode === PaymentModevalues.CASHFREE && (
+                            access.canSuperAdmin && entity?.subscriptionStatus === 'ON_HOLD' && (
                                 <Typography.Link onClick={() => handleActivateCashfree(entity)} style={{ marginLeft: 10 }}>
-                                    <CheckCircleTwoTone title='Activate Cashfree Subscription' />
+                                    <CheckCircleTwoTone title="Activate 'On Hold' Cashfree Subscription" />
                                 </Typography.Link>
                             )
                         }
