@@ -46,6 +46,10 @@ export class InstallmentService {
     if (params?.reference_id) {
       where["transactionId"] = params.reference_id;
     }
+    else if (params?.subscription_id) {
+      where["subscriptionId"] = params.subscription_id;
+      where["status"] = this.installmentStatus;
+    }
     else {
       where["transactionId"] = Like("plink_%");
       where["status"] = this.installmentStatus;
@@ -66,7 +70,7 @@ export class InstallmentService {
     if (params?.dueMonth) {
       where["dueDate"] = Like(params.dueMonth + '%');
     }
-    usersLogger.debug('where: ' + JSON.stringify(where));
+    usersLogger.info('where: ' + JSON.stringify(where));
 
     return await this.query.find({
       where,

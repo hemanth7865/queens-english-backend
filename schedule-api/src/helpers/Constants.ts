@@ -116,3 +116,9 @@ export const AUTODEBIT_STATUS = {
     UNSUCCESSFUL_AD: 'unSuccessfullADInstallment',
     SUCCESSFUL_AD: 'successfullADInstallment'
 }
+
+export const PAYMENT_WEBHOOK_EVENTS = {
+    SUBSCRIPTION_CHARGED: 'subscription.charged',
+    SUBSCRIPTION_PENDING: 'subscription.pending',
+    PAYMENT_LINK_PAID: 'payment_link.paid'
+}

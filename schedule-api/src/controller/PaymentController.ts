@@ -1,10 +1,13 @@
+import { ok } from "assert";
 import { NextFunction, Request, Response } from "express";
 import { isNullOrUndefined } from "util";
 import { PaymentService } from "../services/PaymentService";
+import { PaymentWebhookService } from "../services/PaymentWebhookService";
 const { usersLogger } = require("../Logger.js");
 
 export class PaymentController {
     private paymentService = new PaymentService();
+    private paymentWebhookService = new PaymentWebhookService();
     private ENABLE_ACTIVITY_API = process.env.ENABLE_ACTIVITY_API;
 
     async fetchCollectionAgent(request: Request, response: Response, next: NextFunction) {
@@ -177,6 +180,18 @@ export class PaymentController {
                 status: "error",
                 message: "Exception while Activating Cashfree Subscription"
             }
+        }
+    }
+
+    async updateRazorpayWebhookStatus(request: Request, response: Response, next: NextFunction) {
+        try {
+            usersLogger.info('rzp webhook request: '+ JSON.stringify(request.headers));
+            usersLogger.info('rzp webhook body: '+ JSON.stringify(request.body));
+            var paymentResponse = await this.paymentWebhookService.updateRazorpayWebhookStatus(request, response);
+            response.status(200).json(paymentResponse);
+        } catch (error) {
+            usersLogger.error('Exception while updating razor pay status via webhook');
+            response.status(500).json(null);
         }
     }
 }
