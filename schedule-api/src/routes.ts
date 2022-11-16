@@ -180,6 +180,14 @@ export const Routes = [
   },
   {
     method: "get",
+    route: "/listCosmosBatch/:id",
+    controller: BatchController,
+    action: "getCosmosBatch",
+    authenticate: true,
+    
+  },
+  {
+    method: "get",
     route: "/listBatch/:id",
     controller: BatchController,
     action: "getBatchDetails",
@@ -654,6 +662,12 @@ export const Routes = [
     route: "/activateCashfreeSubscription",
     controller: PaymentController,
     action: "activateCashfreeSubscription",
+  },
+  {
+    method: "post",
+    route: "/activateAllOnHoldCashfreeSubscription",
+    controller: PaymentController,
+    action: "activateAllOnHoldCashfreeSubscription"
   },
   {
     method: "all",

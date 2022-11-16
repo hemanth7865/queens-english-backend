@@ -7,7 +7,7 @@ import moment from 'moment';
 import callDispositionStatus from "../../../../data/call_disposition.json";
 import DebounceSelect from "@/components/DebounceSelect";
 import StudentDetails from "../Components/StudentDetails";
-import { PaymentConstantValues, PaymentModevalues, SUBSCRIPTION_TYPE } from "../../../components/Constants/constants"
+import { PaymentConstantValues, PaymentModevalues, QE_SUPPORT_WHATSAPP_NUMBER, SUBSCRIPTION_TYPE } from "../../../components/Constants/constants"
 
 export type FormUserProps = {
     data?: any;
@@ -49,7 +49,7 @@ const FormUser: React.FC<FormUserProps> = (props) => {
     
     Kindly make the payment at the link below. Payment link - ${razorpayLink}
 
-    In case of any issues or queries, please feel free to contact QE Support Whatsapp Number - 8143513850.
+    In case of any issues or queries, please feel free to contact QE Support Whatsapp Number - ${QE_SUPPORT_WHATSAPP_NUMBER}.
 
     Thanks & regards,
 
@@ -520,8 +520,8 @@ const FormUser: React.FC<FormUserProps> = (props) => {
                                             <Form.Item
                                                 label="Reference ID"
                                                 name="referenceId"
-                                                    >
-                                                        <Input />
+                                            >
+                                                <Input />
                                             </Form.Item>
                                         </div>
 

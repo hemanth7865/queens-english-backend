@@ -9,6 +9,8 @@ import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Tabsedit from "@/components/Formedit/tabs";
+import { QE_SUPPORT_WHATSAPP_NUMBER } from "@/components/Constants/constants";
+import coursesType from "../../../data/coursesType.json";
 
 const { Option } = Select;
 interface Item {
@@ -47,10 +49,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'select') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="DISE - Group Class">DISE - Group Class</Option>
-          <Option value="DISE - 1:1">DISE - 1:1</Option>
-          <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-          <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+          {coursesType.map((course: any) => <Option key={course.value} value={course.value}>{course.label}</Option>)}
         </Select>
       )
     } else if (inputType === 'date') {
@@ -422,7 +421,7 @@ const StudentOnboard: React.FC = () => {
           Phone: {message}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
           We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br />
-          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर {QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।_</p>
       </div>
     )
 

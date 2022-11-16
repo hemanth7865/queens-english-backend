@@ -423,6 +423,23 @@ export async function listBatch(
     ...(options || {}),
   });
 }
+// get individual batch from COSMOS DB
+export async function listCosmosBatch(
+  rowId: string,
+  params?: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }) {
+  return request<API.RuleList>(`/be/listCosmosBatch/${rowId}`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 // Get the lessons that are stored in the COSMOS DB for the particular batch
 export async function getTeacherLessons(
   id: string,
@@ -932,6 +949,43 @@ export async function getPaymentHistory(
     },
     ...(options || {}),
   });
+}
+
+// Getting Installment History Details
+export async function getInstallmentHistory(
+  params: {
+    current?: number;
+    pageSize?: number;
+    studentId?: string;
+    title?: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/logs?url=logs/all`,
+    {
+      method: "GET",
+      params: {
+        page: params.current,
+        perpage: 100,
+        refresh: 0,
+        selectedPage: "payments",
+        filters: {
+          "debug.oldRecord.transaction.studentId": {
+            "value": params.studentId,
+            "matchMode": "contains"
+          },
+          title: {
+            "value": params.title,
+            "matchMode": "contains"
+          }
+        },
+        sortField: "createdAt",
+        sortOrder: 1
+      },
+      ...(options || {}),
+    }
+  );
 }
 
 //Sync Payment And User Info

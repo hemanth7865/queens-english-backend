@@ -9,6 +9,12 @@ import lsqUsersData from "../../../data/lsq_users.json";
 import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Tabsedit from "@/components/Formedit/tabs";
+import { QE_SUPPORT_WHATSAPP_NUMBER } from "@/components/Constants/constants";
+import {
+  getZoomURL
+} from "@/services/ant-design-pro/helpers";
+import Batch from './../NeedBatch/components/Batch';
+import coursesType from "../../../data/coursesType.json";
 
 const { Option } = Select;
 interface Item {
@@ -49,10 +55,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     } else if (inputType === 'select') {
       return (
         <Select style={{ width: 100 + "%" }} >
-          <Option value="DISE - Group Class">DISE - Group Class</Option>
-          <Option value="DISE - 1:1">DISE - 1:1</Option>
-          <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-          <Option value="IELTS - 1:1">IELTS - 1:1</Option>
+          {coursesType.map((course: any) => <Option key={course.value} value={course.value}>{course.label}</Option>)}
         </Select>
       )
     } else if (inputType === 'date') {
@@ -384,6 +387,7 @@ const StudentOnboard: React.FC = () => {
   const [editingKey, setEditingKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tmpData, setTmpData] = useState<any>();
+  const [showBatching, setShowBatching] = useState<boolean>(false);
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [welcomepage, setwelcomepage] = useState<boolean>(false);
 
@@ -411,7 +415,7 @@ const StudentOnboard: React.FC = () => {
   };
 
 
-  const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string) => {
+  const openNotification = (type: string, message: string, prm_firstName: string, prm_lastName: string, data: any) => {
     const waMessage = (
       <div>
         <p>Hello <br />
@@ -420,11 +424,16 @@ const StudentOnboard: React.FC = () => {
           We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br />
           Step 1: Go to the Google Play Store and download the app using the following link:
           <a>https://queensenglish.co/app</a><br />
+          Zoom Link: <a href={getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+            { classCode: data?.classCode, useNewZoomLink: !data?.classCode ? 1 : data?.useNewZoomLink, zoomLink: data?.zoomLink, useAutoAttendance: !data?.classCode ? 1 : data?.useAutoAttendance }, true,
+            { userCode: data.userCode })}>{getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+              { classCode: data?.classCode, useNewZoomLink: !data?.classCode ? 1 : data?.useNewZoomLink, zoomLink: data?.zoomLink, useAutoAttendance: !data?.classCode ? 1 : data?.useAutoAttendance }, true,
+              { userCode: data.userCode })}</a> <br />
           User information:<br />
           Phone: {message}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
           We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br />
-          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।_</p>
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर {QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।_</p>
       </div>
     )
 
@@ -823,7 +832,7 @@ const StudentOnboard: React.FC = () => {
         return (
           <a
             onClick={() => {
-              openNotification('info', value.phoneNumber, value.prm_firstName, value.prm_lastName)
+              openNotification('info', value.phoneNumber, value.prm_firstName, value.prm_lastName, value)
             }}
           >
             <EyeOutlined />
@@ -873,9 +882,17 @@ const StudentOnboard: React.FC = () => {
             </Popconfirm>
           </span>
         ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            Edit
-          </Typography.Link>
+          <>
+            <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+              Edit
+            </Typography.Link> <br />
+            <Typography.Link onClick={() => {
+              setTmpData(record);
+              setShowBatching(true);
+            }}>
+              Process Batching
+            </Typography.Link>
+          </>
         );
       },
     },
@@ -1033,6 +1050,16 @@ const StudentOnboard: React.FC = () => {
           }}
         >
           <Tabsedit tmpData={tmpData} welcomepage={welcomepage} />
+        </Drawer>
+        <Drawer
+          title="Proccess Batching"
+          placement="right"
+          onClose={() => {
+            setShowBatching(false)
+          }}
+          visible={showBatching}
+          width={960}>
+          <Batch data={tmpData} visible={showBatching} setVisible={setShowBatching} pageTheme="welcome" />
         </Drawer>
       </Spin>
     </>

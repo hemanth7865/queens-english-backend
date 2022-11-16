@@ -11,7 +11,9 @@ export class LogsProxyController {
                 url,
                 params: request.query,
                 data: request.body
-            }).then(async (res) => { return res.data; }).catch((error) => {
+            }).then(async (res) => {
+                return res.data;
+            }).catch((error) => {
                 return Promise.reject(error);
             });
         } catch (e) {

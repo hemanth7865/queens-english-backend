@@ -1,6 +1,6 @@
 import { Access, useAccess } from "umi";
-import { CopyOutlined, EyeOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Col, Row, notification, Tabs, Button, message, Switch } from 'antd';
+import { CopyOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Col, Row, notification, Tabs, Button, message, Switch, Divider, Space } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import lsqUsersData from "../../../data/lsq_users.json";
@@ -8,12 +8,13 @@ import prmData from "../../../data/prms.json";
 import statesData from "../../../data/stateCustomer.json";
 import Rebatching from '@/pages/StudentsBatchList/components/Rebatching';
 import StudentBatchesHistory from "@/pages/StudentsBatchList/components/StudentBatchesHistory";
-import { CountryCode, EmiPaymentStatus } from "../Constants/constants";
+import { CountryCode, EmiPaymentStatus, QE_SUPPORT_WHATSAPP_NUMBER } from "../Constants/constants";
 import SyncStudentPayment from "./SyncStudentPayment";
 import {
   getZoomURL
 } from "@/services/ant-design-pro/helpers";
-import { PaymentModevalues } from "../Constants/constants";
+import { PaymentModevalues, DEFAULT_TIMINGS_FREQUENCY} from "../Constants/constants";
+import coursesType from "../../../data/coursesType.json";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -98,6 +99,14 @@ export type StudentdetailseditProps = {
 };
 
 const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
+
+ 
+
+  const [timingsOption, setTimingsOption] = useState(DEFAULT_TIMINGS_FREQUENCY.DEFAULT_TIMINGS);
+  const [timingsValue, setTimingsValue] = useState('');
+  const [frequency, setFrequency] = useState(DEFAULT_TIMINGS_FREQUENCY.DEFAULT_FREQUENCY);
+  const [frequencyValue, setFrequencyValue] = useState('');
+  let index = 0;
 
   function stringContainsNumber(_string: any) {
     return /\d/.test(_string);
@@ -219,8 +228,8 @@ https://drive.google.com/file/d/17Yx9W4EMT2yZ5VJDh6HfQAj4yBZz4VOo/view
 ज़ूम मीटिंग कैसे शुरू करें, यह जानने के लिए यहां क्लिक करें:
 https://drive.google.com/file/d/1PVj-GJpzrOJanQ_Cq4zlfjgA_E_JP4B1/view
 
-For any support please feel free to reach out to us on our customer support number: +918143513850
-अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर +918143513850 पर कॉल कर सकते हैं।`: "User Not Found";
+For any support please feel free to reach out to us on our customer support number: +91${QE_SUPPORT_WHATSAPP_NUMBER}
+अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर +91${QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।` : "User Not Found";
 
   const whatsappWelcome = props.tempData ? `    Hello
 We're delighted to welcome you aboard The Queen's English.
@@ -231,7 +240,7 @@ User information:
 Registered Phone Number:  ${props.tempData.phoneNumber}
 Please use your registered phone number to log in (once your classes have started).
 We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850
-Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।`: "User Not Found";
+Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर ${QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।`: "User Not Found";
 
   const copy = (text: any) => {
     window.navigator.clipboard.writeText(text);
@@ -287,9 +296,9 @@ Queen's English मे अगर आपको किसी तरह की स�
           <a>ज़ूम मीटिंग कैसे शुरू करें, यह जानने के लिए यहां क्लिक करें:</a><br />
           <a >https://drive.google.com/file/d/1PVj-GJpzrOJanQ_Cq4zlfjgA_E_JP4B1/view</a><br />
           <br></br>
-          For any support please feel free to reach out to us on our customer support number: +918143513850
+          For any support please feel free to reach out to us on our customer support number: +91{QE_SUPPORT_WHATSAPP_NUMBER}
           <br></br>
-          अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर +918143513850 पर कॉल कर सकते हैं।</p><br />
+          अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर +91{QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।</p><br />
       </div>
     )
 
@@ -324,11 +333,16 @@ Queen's English मे अगर आपको किसी तरह की स�
           I'll be your academic counsellor, and my name is {prm_firstName} {prm_lastName}.<br />
           We are ecstatic to have you join us in learning excellent English. Please find your login information for the app below, which allows you to practice spoken English with real-time feedback.<br />
           Step 1: Go to the Google Play Store and download the app using the following link: <a> https://queensenglish.co/app</a><br />
+          Zoom Link: <a href={getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+            { classCode: props?.tempData?.classCode, useNewZoomLink: !props?.tempData?.classCode ? 1 : props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: !props?.tempData?.classCode ? 1 : props?.tempData?.useAutoAttendance }, true,
+            { userCode: props?.tempData.userCode })}>{getZoomURL("GENERIC_UNIQUE_STUDENT", undefined, undefined,
+              { classCode: props?.tempData?.classCode, useNewZoomLink: !props?.tempData?.classCode ? 1 : props?.tempData?.useNewZoomLink, zoomLink: props?.tempData?.zoomLink, useAutoAttendance: !props?.tempData?.classCode ? 1 : props?.tempData?.useAutoAttendance }, true,
+              { userCode: props?.tempData.userCode })}</a> <br />
           User information:<br />
           Registered Phone Number: {phoneNumber}<br />
           Please use your registered phone number to log in (once your classes have started).<br />
           We're also very excited to share our support phone number with you. If you have a question or a problem, you can call us at 81435 13850<br />
-          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर 8143513850 पर कॉल कर सकते हैं।</p>
+          Queen's English मे अगर आपको किसी तरह की सहायता या कोर्स को लेकर कोई समयस्या हो तो आप हमारे हेल्प्लायन नम्बर {QE_SUPPORT_WHATSAPP_NUMBER} पर कॉल कर सकते हैं।</p>
       </div>
     )
 
@@ -1600,40 +1614,20 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Form.Item>
                 </Col>
 
-                {props.studentManageradd || props.studentManageredit ? (
-                  <Col span={12}>
-                    <Form.Item
-                      name="course"
-                      label="Course">
-                      <Select
-                        placeholder="Select Course"
-                      >
-                        <Option value="DISE - Group Class">DISE - Group Class</Option>
-                        <Option value="DISE - 1:1">DISE - 1:1</Option>
-                        <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-                        <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                ) : (
-                  <Col span={12}>
-                    <Form.Item
-                      name="course"
-                      label="Course"
-                      rules={[{
-                        required: true,
-                      }]}>
-                      <Select
-                        placeholder="Select Course"
-                      >
-                        <Option value="DISE - Group Class">DISE - Group Class</Option>
-                        <Option value="DISE - 1:1">DISE - 1:1</Option>
-                        <Option value="IELTS - Group Class">IELTS - Group Class</Option>
-                        <Option value="IELTS - 1:1">IELTS - 1:1</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                )}
+                <Col span={12}>
+                  <Form.Item
+                    name="course"
+                    label="Course"
+                    rules={[{
+                      required: (props.studentManageradd || props.studentManageredit) ? false : true,
+                    }]}>
+                    <Select
+                      placeholder="Select Course"
+                    >
+                      { coursesType.map(course => <Option key={course.value} value={course.value}>{course.label}</Option>) }
+                    </Select>
+                  </Form.Item>
+                </Col>
 
                 {props.studentManageradd || props.studentManageredit ? (
                   <Col span={12}>
@@ -1675,79 +1669,77 @@ Queen's English मे अगर आपको किसी तरह की स�
                   </Col>
                 )}
 
+                <Col span={12}>
+                  <Form.Item
+                    name="courseFrequency"
+                    label="Course Frequency"
+                    rules={[{
+                      required: (props.studentManageradd || props.studentManageredit) ? false : true,
+                      pattern: /^[MTWFS]*$/,
+                      message: "Enter only any of MTWTFSS days",
+                    }]}>
+                    <Select
+                      style={{ width: 300 }}
+                      placeholder="Select Course Frequency"
+                      dropdownRender={menu => (
+                        <>
+                          {menu}
+                          <Divider style={{ margin: '8px 0' }} />
+                          <Space style={{ padding: '0 8px 4px' }}>
+                            <Input
+                              placeholder="Please enter item"
+                              value={frequencyValue}
+                              onChange={(event: any) => { setFrequencyValue(event.target.value) }}
+                            />
+                            <Button type="text" icon={<PlusOutlined />}
+                              onClick={() => {
+                                setFrequency([...frequency, frequencyValue || `New item ${index++}`]);
+                                setFrequencyValue('');
+                              }}>
+                              Add item
+                            </Button>
+                          </Space>
+                        </>
+                      )}
+                      options={frequency.map(item => ({ label: item, value: item }))}
+                    />
+                  </Form.Item>
+                </Col>
 
-                {props.studentManageradd || props.studentManageredit ? (
-                  <Col span={12}>
-                    <Form.Item
-                      name="courseFrequency"
-                      label="Course Frequency">
-                      <Select
-                        placeholder="Select Course Frequency"
-                      >
-                        <Option value="MWF">MWF</Option>
-                        <Option value="TTS">TTS</Option>
-                        <Option value="SS">SS</Option>
-                        <Option value="MTWTF">MTWTF</Option>
-                        <Option value="TT">TT</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                ) : (
-                  <Col span={12}>
-                    <Form.Item
-                      name="courseFrequency"
-                      label="Course Frequency"
-                      rules={[{
-                        required: true,
-                      }]}>
-                      <Select
-                        placeholder="Select Course Frequency"
-                      >
-                        <Option value="MWF">MWF</Option>
-                        <Option value="TTS">TTS</Option>
-                        <Option value="SS">SS</Option>
-                        <Option value="MTWTF">MTWTF</Option>
-                        <Option value="TT">TT</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                )}
-
-
-                {props.studentManageradd || props.studentManageredit ? (
-                  <Col span={12}>
-                    <Form.Item
-                      name="timings"
-                      label="Timings">
-                      <Select
-                        placeholder="Select Class Timings"
-                      >
-                        <Option value="15:00">15:00</Option>
-                        <Option value="16:30">16:30</Option>
-                        <Option value="18:00">18:00</Option>
-                        <Option value="19:30">19:30</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                ) : (
-                  <Col span={12}>
-                    <Form.Item
-                      name="timings"
-                      label="Timings"
-                      rules={[{
-                        required: true,
-                      }]}>
-                      <Select
-                        placeholder="Select Class Timings"
-                      >
-                        <Option value="15:00">15:00</Option>
-                        <Option value="16:30">16:30</Option>
-                        <Option value="18:00">18:00</Option>
-                        <Option value="19:30">19:30</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                )}
+                <Col span={12}>
+                  <Form.Item
+                    name="timings"
+                    label="Timings"
+                    rules={[{
+                      required: (props.studentManageradd || props.studentManageredit) ? false : true,
+                    }]}>
+                    <Select
+                      style={{ width: 300 }}
+                      placeholder="Select Class Timings"
+                      dropdownRender={menu => (
+                        <>
+                          {menu}
+                          <Divider style={{ margin: '8px 0' }} />
+                          <Space style={{ padding: '0 8px 4px' }}>
+                            <Input
+                              placeholder="Please enter item"
+                              value={timingsValue}
+                              onChange={(event: any) => { setTimingsValue(event.target.value) }}
+                            />
+                           <Button type="text" icon={<PlusOutlined />}
+                              onClick={() => {
+                                setTimingsOption([...timingsOption, timingsValue || `New item ${index++}`]);
+                                setTimingsValue('');
+                              }}>
+                              Add item
+                            </Button>
+                          </Space>
+                        </>
+                      )}
+                      options={timingsOption.map(item => ({ label: item, value: item }))}
+                    />
+                  </Form.Item>
+                </Col>
               </Row >
 
               <Row>

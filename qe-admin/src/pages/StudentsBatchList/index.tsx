@@ -323,7 +323,7 @@ const StudentsBatchList: React.FC = () => {
       title: (
         <FormattedMessage
           id="pages.searchTable.updateForm.titlePaymentHistory"
-          defaultMessage="payment History"
+          defaultMessage="History"
         />
       ),
       dataIndex: "paymentHistory",
@@ -395,15 +395,14 @@ const StudentsBatchList: React.FC = () => {
 
       <Spin spinning={isLoading}>
         <Drawer
-          title={!visibleHistoryTab ? "Edit Student" : "Payment History"}
+          title={!visibleHistoryTab ? "Edit Student" : "History"}
           placement="right"
           onClose={onCloseEdit}
           visible={visibleEdit}
           width={1200}
           destroyOnClose>
           {!visibleHistoryTab ?
-            <Tabsedit tmpData={tmpData} studentManageredit={studentManageredit} onChange={handleFormChange} /> :
-            <HistoryTable tmpData={tmpData} />
+            <Tabsedit tmpData={tmpData} studentManageredit={studentManageredit} onChange={handleFormChange} /> : <HistoryTable tmpData={tmpData} />
           }
 
         </Drawer>

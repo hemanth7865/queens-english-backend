@@ -19,7 +19,8 @@ import {
   RAZORPAY_PAYMENT_STATUS,
   ERROR_CODES,
   SUCCESS_CODES,
-  AUTODEBIT_STATUS
+  AUTODEBIT_STATUS,
+  RAZORPAY_SUBSCRIPTION_STATUS
 } from "../helpers/Constants";
 import { RazorPayUtils } from "../utils/payment/RazorPayUtils";
 import { InstallmentService } from "./InstallmentService";
@@ -805,6 +806,9 @@ export class PaymentService {
       const transactionDetail = await this.transaDetailsRepository.findOne({
         transactionId: body.id,
       });
+      let oldData: any = {}, newData: any = {}
+      oldData.transaction = installment;
+      oldData.transactionDetails = transactionDetail;
       installment.netbankRefLink = body.netbankRefLink;
       installment.paidDate = body.paidDate;
       installment.status = body.status;
@@ -813,14 +817,29 @@ export class PaymentService {
       if (body.transactionId) {
         installment.transactionId = body.transactionId;
       }
+      newData.transaction = installment;
       await this.transactionRepository.update(
         { id: installment.id },
         installment
       );
+      newData.transactionDetails = transactionDetail;
       await this.transaDetailsRepository.update(
         { transactionId: installment.id },
         transactionDetail
       );
+      if (oldData?.transaction?.id && oldData?.transactionDetails?.id) {
+        await (await this.logger.payment(oldData, newData, {})).save();
+      } else {
+        await (
+          await this.logger.customPayment(
+            newData?.transaction?.id || "UNKNOWN",
+            "Created Payment",
+            "PAYMENT_CREATED",
+            { requestData: body, newRecord: newData, oldRecord: newData },
+            {}
+          )
+        ).save();
+      }
       return {
         success: true,
         msg: "successfully updated link",
@@ -1481,20 +1500,43 @@ export class PaymentService {
       usersLogger.info(
         "Activate Subscription: " + JSON.stringify(request)
       );
-      let installmentId = request.installmentId
-      let installment = await this.transactionRepository.find({
-        id: installmentId
-      })
-      if (isNullOrUndefined(installment)) {
+      let { installmentId, cf_subscription_id, checkInstallmentStatus } = request
+      if (!installmentId && !cf_subscription_id) {
+        return {
+          status: "error",
+          message: "Please provide valid request data",
+        };
+      }
+
+      let installment = await this.transactionRepository.find(
+        installmentId ? { id: installmentId } : { subscriptionId: cf_subscription_id }
+      )
+      if (isNullOrUndefined(installment) || installment.length <= 0) {
         usersLogger.debug("No installment available for the given id");
         return {
           status: "error",
           message: "No installment available for the given id",
         };
       }
+      if (checkInstallmentStatus && installment[0].status !== 'Installment Paid') {
+        usersLogger.debug("Installment is not Paid");
+        return {
+          status: "error",
+          message: "Installment is not paid, Can't Activate On_hold Subscription",
+        };
+      }
       let subscriptionId = installment[0]?.subscriptionId
       let subscriptionDetails = await this.cashFreeUtils.fetchCashfreeAccountDetail(subscriptionId)
-      if (subscriptionDetails?.subscription?.status !== 'ON_HOLD') {
+      if (isNullOrUndefined(subscriptionDetails)) {
+        return {
+          status: "error",
+          message: "Error in fatching Subscription Details",
+        };
+      }
+      if (subscriptionDetails?.subscription?.status !== CASHFREE_PAYMENT_STATUS.ON_HOLD) {
+        if (subscriptionDetails?.subscription?.status === CASHFREE_PAYMENT_STATUS.ACTIVE) {
+          await this.updateActiveSubscriptionOnDB(subscriptionId)
+        }
         return {
           status: "error",
           message: "Subscription is not On Hold",
@@ -1514,6 +1556,7 @@ export class PaymentService {
           message: "Error in Activating Cashfree Subscription",
         };
       }
+      await this.updateActiveSubscriptionOnDB(subscriptionId)
       usersLogger.info(
         "Activated Subscription successfully: " + JSON.stringify(request)
       );
@@ -1533,13 +1576,35 @@ export class PaymentService {
     }
   }
 
+  async updateActiveSubscriptionOnDB(subscriptionId: any) {
+    try {
+      let data = {
+        subscriptionStatus: CASHFREE_PAYMENT_STATUS.ACTIVE,
+        autodebitStatus: AUTODEBIT_STATUS.SUCCESSFUL_AD
+      }
+      let updatedData = await this.transactionRepository.update(
+        { subscriptionId: subscriptionId },
+        data
+      )
+    } catch (error) {
+      usersLogger.error(
+        "Error in Updating Subscription on DB : " +
+        error
+      );
+      return {
+        status: "error",
+        message: "Error in Updating Cashfree Subscription on DB",
+      };
+    }
+  }
+
   async checkOnHoldRecords() {
     try {
       usersLogger.error("Checking onhold / halted records");
-      let query = `installments.subscription_status IN ('ON_HOLD', 'HALTED') 
-      AND installments.subscription_type = 'Auto-Debit' 
-      AND installments.payment_status IN ('Installment Failed', 'Installment Pending') 
-      AND (installments.installment_type = 'Auto-Debit' OR installments.installment_type is null)`
+      let query = `installments.subscription_status IN ('${CASHFREE_PAYMENT_STATUS.ON_HOLD}', '${RAZORPAY_SUBSCRIPTION_STATUS.HALTED}') 
+      AND installments.subscription_type = '${SUBSCRIPTION_TYPE.AUTO_DEBIT}' 
+      AND installments.payment_status IN ('${PAYMENT_STATUS.FAILED}', '${PAYMENT_STATUS.PAID}') 
+      AND (installments.installment_type = '${SUBSCRIPTION_TYPE.AUTO_DEBIT}' OR installments.installment_type is null)`
       let getOnholdRecords = await getManager()
         .createQueryBuilder(Transactions, "installments")
         .where(
@@ -1557,6 +1622,30 @@ export class PaymentService {
       return {
         status: "success",
         message: "Successfully updated the AD status",
+      }
+    } catch (error) {
+      usersLogger.error("error" + error)
+    }
+  }
+
+  async activateAllCashfreeSubscription() {
+    try {
+      let successCount = 0, errorCount = 0;
+      usersLogger.info("Getting All Onhold Subscriptions");
+      let query = `select DISTINCT subscription_id from installments where installments.subscription_status = '${CASHFREE_PAYMENT_STATUS.ON_HOLD}' AND installments.subscription_type = '${SUBSCRIPTION_TYPE.AUTO_DEBIT}' AND installments.payment_status = '${PAYMENT_STATUS.PAID}'`
+      let getOnholdRecords = await getManager().query(query)
+
+      for (let record of getOnholdRecords) {
+        let res = await this.activateCashfreeSubscription({ cf_subscription_id: record.subscription_id })
+        if (res.status === 'success') {
+          successCount += 1;
+        } else if (res.status === 'error') {
+          errorCount += 1;
+        }
+      }
+      return {
+        "success": successCount,
+        "error": errorCount
       }
     } catch (error) {
       usersLogger.error("error" + error)

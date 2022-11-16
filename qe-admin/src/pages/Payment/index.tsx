@@ -15,6 +15,7 @@ import callDispositionStatus from "./../../../data/call_disposition.json";
 import { PaymentConstantValues, PaymentModevalues, URLPATH, AUTODEBIT_STATUS } from '@/components/Constants/constants';
 import "./payment.css";
 import BulkUpload from './Components/Upload';
+import DisplayFailureActions from './Components/DisplayFailureActions';
 
 
 /**
@@ -44,6 +45,7 @@ const TableList: React.FC = () => {
     const [upload, setUpload] = useState<boolean>(false);
     const [refreshPaymentStatus, setRefreshPaymentStatus] = useState<boolean>(false);
     const [isPaymentIssue, setIsPaymentIssue] = useState<boolean>(false);
+    const [displayReason, setDisplayReason] = useState(false);
 
 
     const intl = useIntl();
@@ -148,7 +150,8 @@ const TableList: React.FC = () => {
                 handleAPIResponse({ status: 400 }, "Reloaded status Successfully", "Failed To Reloaded status", false);
             }
         }
-
+        // Check if Any CF sub is on_hold and Installment is paid then we will activating it again
+        await activateCashfree(data, true, true)
     }
 
     const retryCashfreePayment = async (data: any) => {
@@ -165,20 +168,21 @@ const TableList: React.FC = () => {
         }
     }
 
-    const activateCashfree = async (data: any) => {
+    const activateCashfree = async (data: any, checkInstallmentStatus: boolean = false, skipApiResponse: boolean = false) => {
         try {
             const msg = await activateCashfreeSubscription({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ installmentId: data.transactionId }),
+                body: JSON.stringify({ installmentId: data.transactionId, checkInstallmentStatus }),
             });
-            handleAPIResponse(msg, "Activated Subscription successfully", "", false);
-            if (msg.status !== 400 && msg.status !== 500 && msg.status != "error") {
-                await refreshStatus(data, false)
+            if (msg.status === 'success' || !skipApiResponse) {
+                handleAPIResponse(msg, "Activated Subscription successfully", "", false);
             }
         } catch (error) {
-            handleAPIResponse({ status: 400 }, "", "Failed to Activate Subscription", false);
+            if (!skipApiResponse) {
+                handleAPIResponse({ status: 400 }, "", "Failed to Activate Subscription", false);
+            }
         }
     }
 
@@ -226,7 +230,6 @@ const TableList: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log('urlPath', window.location.pathname, window.location.href);
         if (window.location.pathname === URLPATH.PAYMENT_ISSUE) {
             setIsPaymentIssue(true);
         } else {
@@ -234,7 +237,6 @@ const TableList: React.FC = () => {
         }
     }, [])
 
-    console.log('isPaymentIssue', isPaymentIssue);
 
     const columns: ProColumns<API.RuleListItem>[] = [
         {
@@ -519,7 +521,25 @@ const TableList: React.FC = () => {
             ),
             dataIndex: 'reasonForFailure',
             hideInSearch: true,
-            width: 200
+            width: 200,
+            render: (dom, entity: any) => {
+                if (entity.reasonForFailure) {
+                    return (
+                        <div style={{ display: "flex" }}>
+                            <a
+                                onClick={() => {
+                                    setDisplayRazorpay(true);
+                                    setCurrentRow(entity);
+                                    setDisplayReason(true);
+                                }}
+                                style={{ marginLeft: 10, marginTop: 25 }}>
+                                {entity.reasonForFailure}
+                            </a>
+                        </div >
+                    )
+                }
+                return <p>{entity.reasonForFailure}</p>
+            }
         },
         {
             title: (
@@ -559,7 +579,7 @@ const TableList: React.FC = () => {
             tip: 'Paid cases are not editable',
             render: (dom, entity: any) => {
                 return (
-                    <div>
+                    <div >
                         <a
                             onClick={() => {
                                 setTempData(entity);
@@ -640,9 +660,9 @@ const TableList: React.FC = () => {
                             <SyncOutlined title='Auto Retry payment' />
                         </Typography.Link>
                         {
-                            access.canSuperAdmin && entity?.paymentMode === PaymentModevalues.CASHFREE && (
+                            access.canSuperAdmin && entity?.subscriptionStatus === 'ON_HOLD' && (
                                 <Typography.Link onClick={() => handleActivateCashfree(entity)} style={{ marginLeft: 10 }}>
-                                    <CheckCircleTwoTone title='Activate Cashfree Subscription' />
+                                    <CheckCircleTwoTone title="Activate 'On Hold' Cashfree Subscription" />
                                 </Typography.Link>
                             )
                         }
@@ -720,17 +740,17 @@ const TableList: React.FC = () => {
             </Drawer>
 
             <Drawer
-                width={600}
+                width={800}
                 visible={displayRazorpay}
                 title="Payment details"
                 onClose={() => {
+                    setDisplayReason(false);
                     setCurrentRow('');
                     setDisplayRazorpay(false);
                 }}
                 closable={true}
             >
-                <RazorpayDetails data={currentRow} />
-
+                {displayRazorpay ? <DisplayFailureActions data={currentRow} /> : <RazorpayDetails data={currentRow} />}
             </Drawer>
 
             <Modal
