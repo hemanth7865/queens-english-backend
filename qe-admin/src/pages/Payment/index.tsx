@@ -750,7 +750,7 @@ const TableList: React.FC = () => {
                 }}
                 closable={true}
             >
-                {displayRazorpay ? <DisplayFailureActions data={currentRow} /> : <RazorpayDetails data={currentRow} />}
+                {!displayReason ? <RazorpayDetails data={currentRow} /> : <DisplayFailureActions data={currentRow} />}
             </Drawer>
 
             <Modal
