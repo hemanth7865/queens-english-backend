@@ -80,16 +80,12 @@ export class InstallmentService {
     const transactionDetail = await this.transaDetailsRepository.findOne({
       transactionId: id,
     });
-    if (!isNullOrUndefined(data.subscriptionStatus)) {
-      if (type === PAYMENT_MODE.CASHFREE) {
-        transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
-      } else {
-        transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
-      }
-    }
-    else {
+    if (!isNullOrUndefined(data.subscriptionStatus) && type === PAYMENT_MODE.CASHFREE) {
+      transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
+    } else {
       transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
     }
+    console.log('type payment', transactionDetail.paymentMode)
     await this.transaDetailsRepository.update(
       { transactionId: id },
       transactionDetail,
