@@ -85,7 +85,6 @@ export class InstallmentService {
     } else {
       transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
     }
-    console.log('type payment', transactionDetail.paymentMode)
     await this.transaDetailsRepository.update(
       { transactionId: id },
       transactionDetail,
