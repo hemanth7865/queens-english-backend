@@ -24,6 +24,8 @@ export class PaymentWebhookService {
                 case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_CANCELLED:
                 case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_HALTED:
                 case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_COMPLETED:
+                case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_PAUSED:
+                case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_RESUMED:
                   this.updateSubscriptionStatus(paymentBody);
                 break;
                 case PAYMENT_WEBHOOK_EVENTS.PAYMENT_LINK_PAID:
