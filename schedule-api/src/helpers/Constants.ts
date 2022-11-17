@@ -120,5 +120,8 @@ export const AUTODEBIT_STATUS = {
 export const PAYMENT_WEBHOOK_EVENTS = {
     SUBSCRIPTION_CHARGED: 'subscription.charged',
     SUBSCRIPTION_PENDING: 'subscription.pending',
+    SUBSCRIPTION_HALTED: 'subscription.halted',
+    SUBSCRIPTION_CANCELLED: 'subscription.cancelled',
+    SUBSCRIPTION_COMPLETED: 'subscription.completed',
     PAYMENT_LINK_PAID: 'payment_link.paid'
 }

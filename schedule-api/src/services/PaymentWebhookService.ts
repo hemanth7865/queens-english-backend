@@ -21,6 +21,11 @@ export class PaymentWebhookService {
                 case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_CHARGED:
                   this.updatePaidPaymentStatus(paymentBody, true);
                 break;
+                case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_CANCELLED:
+                case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_HALTED:
+                case PAYMENT_WEBHOOK_EVENTS.SUBSCRIPTION_COMPLETED:
+                  this.updateSubscriptionStatus(paymentBody);
+                break;
                 case PAYMENT_WEBHOOK_EVENTS.PAYMENT_LINK_PAID:
                   this.updatePaidPaymentStatus(paymentBody, false);
                 break;
@@ -114,5 +119,33 @@ export class PaymentWebhookService {
           }  
         }
     }
-}
 
+    async updateSubscriptionStatus(paymentBody: any){
+      var subscription: any = {};
+      subscription = paymentBody?.payload?.subscription?.entity;
+      if(subscription){
+        var subscriptionId = subscription.id;
+        var currentMonth = moment().format("YYYY-MM-DD HH:mm:ss");
+        var params : any = {};
+        params.subscription_id = subscriptionId;
+        params.dueMonth = currentMonth.substring(0, 7);  
+        var pendingInstallment = await this.installmentService.getPendingInstallments(params);
+        if(pendingInstallment == null || pendingInstallment == undefined || pendingInstallment.length == 0){
+          usersLogger.info('no pending installments for the given sub id: '+ subscriptionId);
+          return {
+            status: "success",
+            message: "No pending installment for the given id",
+          }  
+        }
+        await this.installmentService.updateInstallment(pendingInstallment[0].id, {
+          updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
+          subscriptionStatus: subscription.status,
+        });              
+        return {
+          status: "success",
+          message: "Successfully updated the payment status"
+        }  
+      }
+    }
+
+}
