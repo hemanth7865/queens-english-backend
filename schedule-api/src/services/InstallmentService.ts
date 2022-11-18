@@ -78,16 +78,15 @@ export class InstallmentService {
     });
   }
 
-  async updateInstallment(id, data) {
+  async updateInstallment(id, data, type) {
     const oldTransaction = await this.query.findOne({ where: { id } });
     const updated = await this.query.update(id, data);
     const transactionDetail = await this.transaDetailsRepository.findOne({
       transactionId: id,
     });
-    if (!isNullOrUndefined(data.subscriptionStatus)) {
+    if (!isNullOrUndefined(data.subscriptionStatus) && type === PAYMENT_MODE.CASHFREE) {
       transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
-    }
-    else {
+    } else {
       transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
     }
     await this.transaDetailsRepository.update(
@@ -127,7 +126,8 @@ export class InstallmentService {
           paidAmount: paymentLinkDetails.amount / 100,
           paidDate: paidDate,
           updated_at: moment().format("YYYY-MM-DD HH:mm:ss")
-        });
+        },
+          PAYMENT_MODE.RAZORPAY);
         return PAYMENT_STATUS.PAID;
       } else {
         return PAYMENT_STATUS.PENDING;

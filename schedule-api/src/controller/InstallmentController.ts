@@ -7,7 +7,7 @@ import {
   getSubscriptionById as getRazorpaySubscriptionById,
 } from "../services/RazorpayService";
 import { logger } from "./../Logger.js";
-import { NULL_STRING } from "../helpers/Constants"
+import { NULL_STRING, PAYMENT_MODE } from "../helpers/Constants"
 const moment = require("moment");
 import { parse } from "csv-parse";
 
@@ -73,7 +73,7 @@ export class InstallmentController {
               data['expireBy'] = null;
             }
             logger.debug('data for update: ' + JSON.stringify(data));
-            await this.service.updateInstallment(payment.id, data);
+            await this.service.updateInstallment(payment.id, data, PAYMENT_MODE.RAZORPAY);
             result.paid++;
             logger.info(
               `InstallmentController.updateTransctionPaymentStatus: Mark Payment: ${paymentId} As Paid.`
@@ -91,7 +91,7 @@ export class InstallmentController {
               data['expireBy'] = null;
             }
             logger.debug('data for update: ' + JSON.stringify(data));
-            await this.service.updateInstallment(payment.id, data);
+            await this.service.updateInstallment(payment.id, data, PAYMENT_MODE.RAZORPAY);
           }
         } catch (e) {
           if (e?.error?.description === "The id provided does not exist") {

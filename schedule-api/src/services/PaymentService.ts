@@ -708,7 +708,7 @@ export class PaymentService {
             lastCheckedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
             updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
           };
-          await this.installmentService.updateInstallment(installment.id, data);
+          await this.installmentService.updateInstallment(installment.id, data, PAYMENT_MODE.RAZORPAY);
           result.expired++;
         }
       } catch (error) {
@@ -1026,7 +1026,8 @@ export class PaymentService {
                 usersLogger.info("data for update: " + JSON.stringify(data));
                 await this.installmentService.updateInstallment(
                   installment.id,
-                  data
+                  data,
+                  PAYMENT_MODE.CASHFREE
                 );
                 result.paid++;
                 break;
@@ -1047,7 +1048,8 @@ export class PaymentService {
                 usersLogger.info("data for update: " + JSON.stringify(data));
                 await this.installmentService.updateInstallment(
                   installment.id,
-                  data
+                  data,
+                  PAYMENT_MODE.CASHFREE
                 );
                 result.failed++;
                 break;
@@ -1132,7 +1134,8 @@ export class PaymentService {
                   usersLogger.info("data for update: " + JSON.stringify(data));
                   await this.installmentService.updateInstallment(
                     installment.id,
-                    data
+                    data,
+                    PAYMENT_MODE.CASHFREE
                   );
                   result.paid++;
                   await (
@@ -1162,7 +1165,8 @@ export class PaymentService {
                   usersLogger.info("data for update: " + JSON.stringify(data));
                   await this.installmentService.updateInstallment(
                     installment.id,
-                    data
+                    data,
+                    PAYMENT_MODE.CASHFREE
                   );
                   result.failed++;
                   await (
