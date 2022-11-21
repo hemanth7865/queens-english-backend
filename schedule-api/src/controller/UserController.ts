@@ -66,7 +66,7 @@ export class UserController {
                     usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
                     return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
-                if (oldStudentData[0].status != Status.INACTIVE && request.body.status == Status.INACTIVE) {
+                if (oldStudentData.length > 0 && oldStudentData[0].status != Status.INACTIVE && request.body.status == Status.INACTIVE) {
                     var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
                     let addDateOfInactivationRes = await getManager().query(addDateOfInactivationQuery)
                 }
