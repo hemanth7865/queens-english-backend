@@ -77,6 +77,7 @@ export class BatchController {
             excludeCurrentBatchId: request.query['excludeCurrentBatchId'],
             lessonGap: request.query['lessonGap'],
             classEndDate: request.query['classEndDate'],
+            lessonNumber: request.query['lessonNumber'],
         }
         let res;
         try {
