@@ -676,4 +676,10 @@ export const Routes = [
     action: "serve",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/batching/startclasslater-to-batching",
+    controller: BatchController,
+    action: "syncClassStartDate",
+  },
 ];

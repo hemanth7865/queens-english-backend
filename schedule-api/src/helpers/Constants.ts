@@ -29,6 +29,7 @@ export const Status = {
     ONBOARDING: "onboarding",
     ONBOARDING_ISSUE: "onboardingIssue",
     ENROLLED_CAPS: "Enrolled",
+    BATCHING: "batching",
 }
 
 export const SUBSCRIPTION_TYPE = {

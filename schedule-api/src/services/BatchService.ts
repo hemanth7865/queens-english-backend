@@ -16,15 +16,17 @@ import { TeacherView } from "../model/TeacherView";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import axios from "./../helpers/axios";
 import { getListOfLessonsIDs, getLessonByID } from "./../data/lessons";
-import { COSMOS_API } from "./../helpers/Constants";
+import { COSMOS_API, Status } from "./../helpers/Constants";
 import { v4 as uuidv4 } from "uuid";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
 import { UserZoomLink } from "../entity/UserZoomLink";
+import { Student } from "../entity/Student";
 import {
   updateBatchesTeacherCode,
   getUniqueCode,
 } from "./../utils/batch/getUniqueTeacherCode";
+import moment = require("moment");
 
 
 export class BatchService {
@@ -35,6 +37,7 @@ export class BatchService {
   private studentBatchesHistory = getRepository(StudentBatchesHistory);
   private zoomMeetingRepository = getRepository(ZoomMeeting);
   private zoomUserRepository = getRepository(ZoomUser);
+  private studentRepository = getRepository(Student);
 
 
   BatchService() { }
@@ -1110,5 +1113,16 @@ export class BatchService {
       }
     }
     return result;
+  }
+
+  async syncClassStartDate() {
+    const futureDate = moment().add(process.env.START_DATE, 'days').format("YYYY-MM-DD")
+    const students = await this.studentRepository.find({ where: { status: Status.STARTCLASSLATER } });
+    for (let s of students) {
+      if (s.classesStartDate == futureDate) {
+        await this.studentRepository.update({ id: s.id }, { status: Status.BATCHING });
+      }
+    }
+    return { success: true, data: students }
   }
 }

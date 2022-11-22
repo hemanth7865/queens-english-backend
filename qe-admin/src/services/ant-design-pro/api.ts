@@ -997,3 +997,10 @@ export async function syncStudentPaymentInfo(userId: string) {
     }
   );
 }
+
+// API to move students from startclasslater to Batching
+export async function syncClassStartDate() {
+  return request<API.RuleList>(`/be/batching/startclasslater-to-batching`, {
+    method: "GET",
+  });
+}
