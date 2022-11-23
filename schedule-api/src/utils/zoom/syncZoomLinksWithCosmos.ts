@@ -3,6 +3,7 @@ import { getZoomStartURL } from "../helpers";
 import axios from "../../helpers/axios";
 import { COSMOS_API } from "../../helpers/Constants";
 import { ZoomMeeting } from "../../entity/ZoomMeeting";
+import { BatchStudent } from "../../entity/BatchStudent";
 const { logger } = require("../../Logger.js");
 
 export async function syncZoomLinksWithCosmos(): Promise<any> {
@@ -49,7 +50,7 @@ export async function syncZoomLinksWithCosmos(): Promise<any> {
               await axios.post(COSMOS_API.STORE_SHORT_LINK, {
                 id: type + "-" + code,
                 link,
-                disabled: type === "s" && meeting.batch.useAutoAttendance == 1
+                disabled: type === "s" && meeting.batch.useAutoAttendance == 1,
               });
 
               await (
@@ -98,6 +99,11 @@ export async function syncZoomLinksWithCosmos(): Promise<any> {
          * Sync zoom meeting for old zoom link
          */
         const types = ["t", "s"];
+        const students = await createQueryBuilder(BatchStudent, "batchStudent")
+          .innerJoinAndSelect("batchStudent.student", "student")
+          .where("batchStudent.batchId = :id", { id: batch.id })
+          .getMany();
+
         for (const type of types) {
           try {
             const code = type === "t" ? batch.teacherCode : batch.classCode;
@@ -139,7 +145,58 @@ export async function syncZoomLinksWithCosmos(): Promise<any> {
                   type +
                   " error: " +
                   e.message,
-                "FAILED_TO_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
+                "FAILED_TO_SYNC_ZOOM_MEETING_" + type.toUpperCase(),
+                { error: e, message: e.message, batch },
+                this.request.user || {}
+              )
+            ).save();
+            result.failed++;
+          }
+        }
+
+        for (const student of students) {
+          const type = "us";
+          try {
+            const code = student.student.userCode;
+
+            const link = batch.zoomLink;
+
+            await axios.post(COSMOS_API.STORE_SHORT_LINK, {
+              id: type + "-" + code,
+              link,
+            });
+
+            await (
+              await this.logger.customZoom(
+                batch.batchNumber,
+                `Success Sync zoom meeting for ${batch.zoomLink} type: ${type}, code: ${code}, Batch: ${batch.batchNumber}`,
+                "SUCCESS_REDIRECT_TO_ZOOM_MEETING_" + type.toUpperCase(),
+                { batch },
+                this.request.user || {}
+              )
+            ).save();
+
+            success += 1;
+          } catch (e) {
+            console.log(e);
+            logger.error(
+              "Failed to Sync zoom meeting for " +
+                batch.batchNumber +
+                " type: " +
+                type +
+                " error: " +
+                e.message
+            );
+            await (
+              await this.logger.customZoom(
+                batch.batchNumber,
+                "Failed to Sync zoom meeting for " +
+                  batch.batchNumber +
+                  " type: " +
+                  type +
+                  " error: " +
+                  e.message,
+                "FAILED_TO_SYNC_ZOOM_MEETING_" + type.toUpperCase(),
                 { error: e, message: e.message, batch },
                 this.request.user || {}
               )
