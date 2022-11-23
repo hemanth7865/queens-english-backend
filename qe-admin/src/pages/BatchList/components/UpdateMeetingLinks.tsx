@@ -26,7 +26,6 @@ const UploadStudentsBulkWithoutRMN = () => {
                 setTotalRecords(data.length);
                 setCurrentRecord(0);
                 for (const batch of data) {
-                    setCurrentRecord((n) => n + 1);
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (batch["Batch Number"] && batch["Meeting Link"]) {
                         try {
@@ -64,6 +63,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                         message.error(`Batch Record Doesn't Have \n Batch Number Or Meeting Link: \n ${JSON.stringify(batch)}.`);
                         console.log(batch);
                     }
+                    setCurrentRecord((n) => n + 1);
                 }
                 setIsLoading(false)
             };
