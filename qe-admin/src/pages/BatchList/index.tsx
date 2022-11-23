@@ -46,6 +46,7 @@ import { LESSONS } from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
 import Students from "./components/Students";
 import View from "./components/View";
+import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
 
 const Option = Select.Option;
 
@@ -738,6 +739,7 @@ const BatchList: React.FC = () => {
             {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
             Create Batch
           </Button>,
+          <UpdateMeetingLinks></UpdateMeetingLinks>
         ]}
         request={listBatch}
         columns={columns}

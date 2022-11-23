@@ -194,9 +194,9 @@ export const getZoomURL = (
   // @ts-expect-error
   const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
 
-  if (batch?.useAutoAttendance != 1 && type === "GENERIC_UNIQUE_STUDENT") {
-    type = "GENERIC_STUDENT";
-  }
+  // if (batch?.useAutoAttendance != 1 && type === "GENERIC_UNIQUE_STUDENT") {
+  //   type = "GENERIC_STUDENT";
+  // }
 
   if (type === "GENERIC_TEACHER") {
     return `${GENERIC_ZOOM}c/t/${batch?.teacherCode}`;
