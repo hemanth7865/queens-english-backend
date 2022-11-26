@@ -178,7 +178,7 @@ const View = ({ batchData, isLoading }: Props) => {
                 </Col>
                 <Col span={16}>
 
-                  <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{classes?.zoomLink}</a></div>
+                  <div><a href={classes?.zoomLink} target="_blank">{classes?.zoomLink}</a></div>
                 </Col>
 
                 <Col span={8}>
