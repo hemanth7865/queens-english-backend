@@ -172,6 +172,21 @@ const View = ({ batchData, isLoading }: Props) => {
 
                   <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{PUBLIC_STUDENT_LINK}</a></div>
                 </Col>
+
+                <Col span={8}>
+                  <div>Old Meeting Link</div>
+                </Col>
+                <Col span={16}>
+
+                  <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{classes.zoomLink}</a></div>
+                </Col>
+
+                <Col span={8}>
+                  <div>Old Meeting Info</div>
+                </Col>
+                <Col span={16}>
+                  <div>{classes.zoomInfo}</div>
+                </Col>
               </Row>
             </TabPane>
           )
