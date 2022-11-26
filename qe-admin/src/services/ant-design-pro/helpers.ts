@@ -184,12 +184,12 @@ export const getZoomURL = (
   dynamicBasedOnZoomFalg?: boolean,
   user?: any
 ) => {
-  if (
-    dynamicBasedOnZoomFalg &&
-    (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
-  ) {
-    return batch.zoomLink;
-  }
+  // if (
+  //   dynamicBasedOnZoomFalg &&
+  //   (!batch.useNewZoomLink || !parseInt(batch.useNewZoomLink))
+  // ) {
+  //   return batch.zoomLink;
+  // }
 
   // @ts-expect-error
   const GENERIC_ZOOM = ZOOM_GENERIC_LINK || window.location.origin + "/be/";
