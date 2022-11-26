@@ -178,14 +178,14 @@ const View = ({ batchData, isLoading }: Props) => {
                 </Col>
                 <Col span={16}>
 
-                  <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{classes.zoomLink}</a></div>
+                  <div><a href={PUBLIC_STUDENT_LINK} target="_blank">{classes?.zoomLink}</a></div>
                 </Col>
 
                 <Col span={8}>
                   <div>Old Meeting Info</div>
                 </Col>
                 <Col span={16}>
-                  <div>{classes.zoomInfo}</div>
+                  <div>{classes?.zoomInfo}</div>
                 </Col>
               </Row>
             </TabPane>
