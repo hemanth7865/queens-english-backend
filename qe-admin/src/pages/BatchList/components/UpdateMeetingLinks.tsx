@@ -34,7 +34,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                             batchClass.sync_zoom_status = 0;
                             batchClass.useNewZoomLink = 0;
                             batchClass.useAutoAttendance = 0;
-                            batchClass.zoomLink = batch["Meeting Link"];
+                            batchClass.zoomLink = batch["Meeting Link"].split("http")[1] ? batch["Meeting Link"] : `https://${batch["Meeting Link"]}`;
                             if (batch["Meeting Information"]) {
                                 batchClass.zoomInfo = batch["Meeting Information"];
                             }
