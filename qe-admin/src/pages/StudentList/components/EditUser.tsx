@@ -133,6 +133,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 phoneNumber: formData.phoneNumber ? formData.phoneNumber : phoneNumber,
                 email: formData.email ? formData.email : email,
                 type: selectUserType ? selectUserType : type,
+                status: props.data.status
             }
             if (props.data) {
                 dataForm.id = props.data.id;
@@ -153,10 +154,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             } catch (error) {
                 handleAPIResponse({ status: 400 }, "User Updated Successfully", "Failed To Update User");
             }
-            props.setVisible(false)
-
-            console.log('formData', formData)
-            console.log('dataForm', dataForm)
+            props.setVisible(false);
         }
         setIsLoading(false);
         //window.location.reload()
