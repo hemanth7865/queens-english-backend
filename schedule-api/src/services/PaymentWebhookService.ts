@@ -53,7 +53,7 @@ export class PaymentWebhookService {
                         subscriptionStatus: subscription.status,
                         autodebitStatus: AUTODEBIT_STATUS.UNSUCCESSFUL_AD,
                         reasonForFailure: ''
-                      });              
+                      }, null);              
                     }
                 break;
               }
@@ -114,7 +114,7 @@ export class PaymentWebhookService {
             subscriptionStatus: isSubscription? subscription.status : '',
             autodebitStatus: isSubscription ? AUTODEBIT_STATUS.SUCCESSFUL_AD : '',
             reasonForFailure: ''
-          });              
+          }, null);              
           return {
             status: "success",
             message: "Successfully updated the payment status"
@@ -142,7 +142,7 @@ export class PaymentWebhookService {
         await this.installmentService.updateInstallment(pendingInstallment[0].id, {
           updated_at: moment().format("YYYY-MM-DD HH:mm:ss"),
           subscriptionStatus: subscription.status,
-        });              
+        }, null);              
         return {
           status: "success",
           message: "Successfully updated the payment status"
