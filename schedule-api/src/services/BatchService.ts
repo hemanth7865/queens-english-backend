@@ -576,6 +576,11 @@ export class BatchService {
           classes.meetingSettingsTracked = 0;
         }
       }
+
+      if (typeof data.useNewZoomLink != "undefined") {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
+
       if (typeof data.offlineBatch != "undefined") {
         classes.offlineBatch = parseInt(data.offlineBatch);
       }
