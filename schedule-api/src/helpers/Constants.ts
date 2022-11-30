@@ -116,3 +116,5 @@ export const AUTODEBIT_STATUS = {
     UNSUCCESSFUL_AD: 'unSuccessfullADInstallment',
     SUCCESSFUL_AD: 'successfullADInstallment'
 }
+
+export const USE_LSQ = process.env.USE_LSQ || false
