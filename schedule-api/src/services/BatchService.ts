@@ -67,6 +67,8 @@ export class BatchService {
     var batchStudent: BatchStudent[] = [];
     var students: { id: string, type: string }[] = [];
     let create: boolean = false;
+    data.sync_zoom_status = 0;
+    
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -226,14 +228,15 @@ export class BatchService {
       /**
        * Run Zoom Actions In Case If Zoom Is Enabled
        */
+      const meetingService = new ZoomMeetingService();
       if (ENABLE_ZOOM && (!data.id || !data.offlineBatch)) {
-        const meetingService = new ZoomMeetingService();
         const userZoomLink = new UserZoomLinkService();
         await meetingService.generateUpdateZoomMeetingLicenseForBatch(data);
         await userZoomLink.generateStudentsJoinLink(data);
-        await meetingService.syncZoomLinksWithCosmos();
       }
 
+      await meetingService.syncZoomLinksWithCosmos();
+      
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -576,6 +579,11 @@ export class BatchService {
           classes.meetingSettingsTracked = 0;
         }
       }
+
+      if (typeof data.useNewZoomLink != "undefined") {
+        classes.useNewZoomLink = parseInt(data.useNewZoomLink);
+      }
+
       if (typeof data.offlineBatch != "undefined") {
         classes.offlineBatch = parseInt(data.offlineBatch);
       }
