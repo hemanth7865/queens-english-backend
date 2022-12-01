@@ -1004,3 +1004,20 @@ export async function syncClassStartDate() {
     method: "GET",
   });
 }
+
+// API to get school data
+export async function listSchool(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>("/be/listSchool", {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

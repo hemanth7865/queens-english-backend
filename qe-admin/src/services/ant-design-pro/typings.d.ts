@@ -143,5 +143,12 @@ declare namespace API {
     whatsappLink?: string;
   }
 
+  type SchoolItem = {
+    id?: string;
+    schoolName?: string;
+    createdAt?: string | DateTime;
+    batchesNumber?: number;
+  }
+
   type Any = any;
 }
