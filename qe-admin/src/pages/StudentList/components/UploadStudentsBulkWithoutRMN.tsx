@@ -49,6 +49,8 @@ const UploadStudentsBulkWithoutRMN = () => {
                         if (student["RMN"]) {
                             if (student["RMN"].split("+")[1]) {
                                 phoneNumber = student["RMN"];
+                            } else if (student["RMN"].length > 10) {
+                                phoneNumber = "+" + student["RMN"]
                             } else {
                                 phoneNumber = "+91" + student["RMN"]
                             }
