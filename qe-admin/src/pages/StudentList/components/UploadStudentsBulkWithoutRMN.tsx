@@ -61,7 +61,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                             teacherName: student["Teacher Name"],
                             startLesson: student["Lesson Start"],
                             email: student["Email"] || student["Dummy number"],
-                            phoneNumber: student["RMN"] || student["Dummy number"],
+                            phoneNumber,
                             type: "student",
                             status: "active",
                             offlineStudentCode: student["Dummy number"],
