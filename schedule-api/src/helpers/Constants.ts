@@ -127,3 +127,5 @@ export const PAYMENT_WEBHOOK_EVENTS = {
     SUBSCRIPTION_RESUMED: 'subscription.resumed',
     PAYMENT_LINK_PAID: 'payment_link.paid'
 }
+
+export const USE_LSQ = process.env.USE_LSQ || false

@@ -43,10 +43,12 @@ import "antd-button-color/dist/css/style.css";
 import "./batchList.css";
 import DebounceSelect from "@/components/DebounceSelect";
 import { LESSONS } from "../../../config/lessons";
+import FREQUENCY from "../../../data/frequency.json";
 import { parseISO, format } from "date-fns";
 import Students from "./components/Students";
 import View from "./components/View";
 import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
+import { USER_STATUS } from "@/components/Constants/constants";
 
 const Option = Select.Option;
 
@@ -189,11 +191,15 @@ const BatchList: React.FC = () => {
         keyword: username
       }
     )
-      .then((body: any) =>
-        body.data.map((user: any) => ({
+      .then((body: any) => {
+        let data = body.data.filter((user: any) => {
+          return user?.status !== USER_STATUS.INACTIVE
+        })
+        return data.map((user: any) => ({
           label: `${user.name} - ${user.phoneNumber}`,
           value: user.id,
         }))
+      }
       );
   }
 
@@ -387,7 +393,7 @@ const BatchList: React.FC = () => {
         const batchData = data.data;
 
         batchData.classes.activeLessonId = batchDetailsFromCOSMOS.activeLessonId;
-        
+
         if (batchData.classes) {
           try {
             data.data.classes.lessonStartTime = dateToLocal(batchData.classes.lessonStartTime);
@@ -551,7 +557,7 @@ const BatchList: React.FC = () => {
           }
         }
         return "-";
-      }
+      },
     },
     //Active Lessons
     {
@@ -562,7 +568,32 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "lessonNumber",
+      renderFormItem: (value) => {
+        return <Select
+          allowClear
+          showSearch
+          filterOption={(input, option: any) =>
+            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }>
+          {LESSONS.map((_l) => (<Option key={_l.id} value={_l.number} label={_l.number}>{_l.number}</Option>))}
+        </Select>;
+      },
+    },
+    //frequency
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.titleFrequency"
+          defaultMessage="Frequency"
+        />
+      ),
+      dataIndex: "frequency",
       valueType: "textarea",
+      renderFormItem: (value) => {
+        return <Select allowClear>
+          {FREQUENCY.map((_l) => (<Option key={_l.label} value={_l.value} label={_l.label}>{_l.value}</Option>))}
+        </Select>;
+      },
     },
     //button
     {

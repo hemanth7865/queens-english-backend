@@ -1,7 +1,23 @@
 import { Button, message, Modal, Progress } from 'antd';
 import { useState } from 'react'
-import { getIndividualBatch, addeditbatch } from "@/services/ant-design-pro/api";
-import { csvToArray } from "@/services/ant-design-pro/helpers";
+import { deactivateStudentsInBulk } from "@/services/ant-design-pro/api";
+
+function csvToArray(str: string, delimiter: string = ",") {
+    const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
+
+    const rows = str.slice(str.indexOf("\n") + 1).split("\n").map(h => h.replace("\r", ""));
+
+    const arr = rows.map(function (row) {
+        const values = row.split(delimiter);
+        const el = headers.reduce(function (object, header, index) {
+            object[header] = values[index];
+            return object;
+        }, {});
+        return el;
+    });
+
+    return arr;
+}
 
 const UploadStudentsBulkWithoutRMN = () => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
@@ -20,50 +36,31 @@ const UploadStudentsBulkWithoutRMN = () => {
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
+                const students = [];
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
                 setTotalRecords(data.length);
                 setCurrentRecord(0);
-                for (const batch of data) {
-                    await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (batch["Batch Number"] && batch["Meeting Link"]) {
-                        try {
-                            const batchData: any = await getIndividualBatch(batch["Batch Number"]);
-                            const batchClass = batchData.data.classes;
-                            batchClass.sync_zoom_status = 0;
-                            batchClass.useNewZoomLink = 0;
-                            batchClass.useAutoAttendance = 0;
-                            batchClass.zoomLink = batch["Meeting Link"].split("http")[1] ? batch["Meeting Link"] : `https://${batch["Meeting Link"]}`;
-                            if (batch["Meeting Information"]) {
-                                batchClass.zoomInfo = batch["Meeting Information"];
-                            }
-                            const batchStudents = batchData.data.students;
-                            batchClass.students = batchStudents.map((i: any) => ({ value: i.studentId }))
-                            const addBatchRes = await addeditbatch({
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(batchClass),
-                            });
-
-                            if (addBatchRes.success) {
-                                if (addBatchRes.data[0]?.message) {
-                                    message.error(`Error: ${addBatchRes.data[0].message} For batch: \n ${JSON.stringify(batch)}.`);
-                                } else {
-                                    message.success(`Batch Record ${batch["Batch Number"]} Meeting Updated Successfully Successfully.`);
-                                }
-                            } else {
-                                message.error(`Failed to update batch: \n ${JSON.stringify(batch)}.`);
-                            }
-                        } catch (e) {
-                            message.error(`Failed to update batch: \n ${JSON.stringify(batch)}.`);
-                        }
-                    } else {
-                        message.error(`Batch Record Doesn't Have \n Batch Number Or Meeting Link: \n ${JSON.stringify(batch)}.`);
-                        console.log(batch);
-                    }
+                for (const student of data) {
                     setCurrentRecord((n) => n + 1);
+                    await new Promise((resolve, reject) => setTimeout(resolve, 100));
+                    if (student['ID']) {
+                        students.push(student['ID']);
+                    } else {
+                        message.error(`Student Record Doesn't Have \n ID: \n ${JSON.stringify(student)}.`);
+                    }
+                }
+                try {
+                    await deactivateStudentsInBulk({
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ students: students }),
+                    });
+
+                } catch (e) {
+                    message.success(`Feel free to close that page meanwhile the system is deactivating students.`);
                 }
                 setIsLoading(false)
             };
@@ -82,16 +79,18 @@ const UploadStudentsBulkWithoutRMN = () => {
                 key="primary"
                 onClick={() => setOpenUpload(true)}
             >
-                Update Batches Meeting Link
+                Deactivate Students In Bulk
             </Button>
 
             <Modal visible={openUpload} onCancel={() => setOpenUpload(false)} footer={false}>
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        Batch Number,Meeting Link,Meeting Information
+                        ID
                     </pre>
                 </code>
+
+                <div>{currentRecord == totalRecords && totalRecords > 0 ? "Feel free to close that page till deactivating students is done" : ""}</div>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
 

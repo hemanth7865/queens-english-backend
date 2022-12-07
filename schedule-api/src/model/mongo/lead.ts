@@ -72,6 +72,13 @@ const leadsSchema = new Schema<any>(
       ref: "payments",
       index: true,
     },
+    leadDetails: {
+      type: Object
+    },
+    manuallyCreated: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

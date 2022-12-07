@@ -38,6 +38,16 @@ export const getLessonByID = (lesson: string): Lesson | undefined => {
   })[0];
 };
 
+export const getLessonByNumber = (lesson: string): Lesson | undefined => {
+  return LESSONS.filter((l) => {
+    if (lesson && lesson.length > 0) {
+      return l.number === lesson;
+    }
+
+    return false;
+  })[0];
+};
+
 export type Lesson = {
   id: string;
   number: string;
