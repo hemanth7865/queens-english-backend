@@ -48,6 +48,7 @@ import { parseISO, format } from "date-fns";
 import Students from "./components/Students";
 import View from "./components/View";
 import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
+import { USER_STATUS } from "@/components/Constants/constants";
 
 const Option = Select.Option;
 
@@ -190,11 +191,15 @@ const BatchList: React.FC = () => {
         keyword: username
       }
     )
-      .then((body: any) =>
-        body.data.map((user: any) => ({
+      .then((body: any) => {
+        let data = body.data.filter((user: any) => {
+          return user?.status !== USER_STATUS.INACTIVE
+        })
+        return data.map((user: any) => ({
           label: `${user.name} - ${user.phoneNumber}`,
           value: user.id,
         }))
+      }
       );
   }
 
