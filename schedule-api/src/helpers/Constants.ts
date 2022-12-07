@@ -117,4 +117,15 @@ export const AUTODEBIT_STATUS = {
     SUCCESSFUL_AD: 'successfullADInstallment'
 }
 
+export const PAYMENT_WEBHOOK_EVENTS = {
+    SUBSCRIPTION_CHARGED: 'subscription.charged',
+    SUBSCRIPTION_PENDING: 'subscription.pending',
+    SUBSCRIPTION_HALTED: 'subscription.halted',
+    SUBSCRIPTION_CANCELLED: 'subscription.cancelled',
+    SUBSCRIPTION_COMPLETED: 'subscription.completed',
+    SUBSCRIPTION_PAUSED: 'subscription.paused',
+    SUBSCRIPTION_RESUMED: 'subscription.resumed',
+    PAYMENT_LINK_PAID: 'payment_link.paid'
+}
+
 export const USE_LSQ = process.env.USE_LSQ || false

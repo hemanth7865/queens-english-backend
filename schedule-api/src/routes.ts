@@ -676,4 +676,10 @@ export const Routes = [
     action: "serve",
     authenticate: true,
   },
+  {
+    method: "post",
+    route: "/webhook/updateRazorpayStatus",
+    controller: PaymentController,
+    action: "updateRazorpayWebhookStatus",
+  },
 ];

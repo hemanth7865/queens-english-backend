@@ -11,7 +11,7 @@ import {
 const moment = require("moment");
 const { usersLogger } = require("../Logger.js");
 import LoggerService from "./LoggerService";
-import { isDate, isNullOrUndefined } from "util";
+import { isDate, isNull, isNullOrUndefined } from "util";
 import { format } from "date-and-time";
 import { TransactionDetails } from "../entity/TransactionDetails";
 const date = require('date-and-time')
@@ -46,6 +46,10 @@ export class InstallmentService {
     if (params?.reference_id) {
       where["transactionId"] = params.reference_id;
     }
+    else if (params?.subscription_id) {
+      where["subscriptionId"] = params.subscription_id;
+      where["status"] = this.installmentStatus;
+    }
     else {
       where["transactionId"] = Like("plink_%");
       where["status"] = this.installmentStatus;
@@ -66,7 +70,7 @@ export class InstallmentService {
     if (params?.dueMonth) {
       where["dueDate"] = Like(params.dueMonth + '%');
     }
-    usersLogger.debug('where: ' + JSON.stringify(where));
+    usersLogger.info('where: ' + JSON.stringify(where));
 
     return await this.query.find({
       where,
@@ -80,11 +84,13 @@ export class InstallmentService {
     const transactionDetail = await this.transaDetailsRepository.findOne({
       transactionId: id,
     });
-    if (!isNullOrUndefined(data.subscriptionStatus) && type === PAYMENT_MODE.CASHFREE) {
-      transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
-    } else {
-      transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
-    }
+    if (!isNullOrUndefined(data.subscriptionStatus) && !isNullOrUndefined(type)) {
+      if (type === PAYMENT_MODE.CASHFREE) {
+        transactionDetail.paymentMode = PAYMENT_MODE.CASHFREE;
+      } else {
+        transactionDetail.paymentMode = PAYMENT_MODE.RAZORPAY;
+      }  
+    } 
     await this.transaDetailsRepository.update(
       { transactionId: id },
       transactionDetail,
