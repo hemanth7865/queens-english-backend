@@ -43,16 +43,25 @@ const UploadStudentsBulkWithoutRMN = () => {
                 setTotalRecords(data.length);
                 setCurrentRecord(0);
                 for (const student of data) {
-                    setCurrentRecord((n) => n + 1);
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
+                        let phoneNumber = student["Dummy number"];
+                        if (student["RMN"]) {
+                            if (student["RMN"].split("+")[1]) {
+                                phoneNumber = student["RMN"];
+                            } else if (student["RMN"].length > 10) {
+                                phoneNumber = "+" + student["RMN"]
+                            } else {
+                                phoneNumber = "+91" + student["RMN"]
+                            }
+                        }
                         const studentData = {
                             firstName: student["First Name"],
-                            lastName: student["Last Name"],
+                            lastName: student["Last Name"] || "-",
                             teacherName: student["Teacher Name"],
                             startLesson: student["Lesson Start"],
                             email: student["Email"] || student["Dummy number"],
-                            phoneNumber: student["RMN"] || student["Dummy number"],
+                            phoneNumber,
                             type: "student",
                             status: "active",
                             offlineStudentCode: student["Dummy number"],
@@ -112,6 +121,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
                         console.log(student);
                     }
+                    setCurrentRecord((n) => n + 1);
                 }
                 setIsLoading(false)
             };
@@ -143,7 +153,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number
+                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code
                     </pre>
                 </code>
 
