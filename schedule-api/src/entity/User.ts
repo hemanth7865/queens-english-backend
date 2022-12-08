@@ -101,6 +101,12 @@ export class User extends BaseEntity {
   @Column({ nullable: true, type: "boolean" })
   isSibling: boolean;
 
+      @Column({ nullable: true })
+      schoolId: string;
+
+      @Column({ nullable: true })
+      schoolCode: string;
+
   @OneToOne(() => Teacher)
   @JoinColumn()
   teacherData: Teacher;

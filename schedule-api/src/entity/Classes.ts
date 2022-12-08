@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany, PrimaryColumn } from "typeorm";
 import { BatchAvailability } from "./BatchAvailability";
 import { BatchStudent } from "./BatchStudent";
+import { School } from "./School";
 import { User } from "./User";
 import { ZoomMeeting } from "./ZoomMeeting";
 
@@ -142,4 +143,11 @@ export class Classes extends BaseEntity {
   @OneToOne(() => ZoomMeeting, (zoomMeeting) => zoomMeeting.batch)
   @JoinColumn({ name: "id" })
   meeting: User;
+
+  @OneToOne(() => School, (school) => school.id)
+  @JoinColumn({ name: "id" })
+  school: School;
+
+  @Column({ nullable: true })
+  schoolId: string;
 }

@@ -30,6 +30,7 @@ export const Status = {
     ONBOARDING_ISSUE: "onboardingIssue",
     ENROLLED_CAPS: "Enrolled",
     BATCHING: "batching",
+    ACTIVE_CAPS: "Active",
 }
 
 export const SUBSCRIPTION_TYPE = {
@@ -116,4 +117,10 @@ export const RAZORPAY_SUBSCRIPTION_STATUS = {
 export const AUTODEBIT_STATUS = {
     UNSUCCESSFUL_AD: 'unSuccessfullADInstallment',
     SUCCESSFUL_AD: 'successfullADInstallment'
+}
+
+export const OPERATION = {
+    ADD: "add",
+    UPDATE: "update",
+    DELETE: "delete",
 }

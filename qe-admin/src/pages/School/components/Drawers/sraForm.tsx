@@ -1,0 +1,84 @@
+import React, { useState } from 'react';
+import {
+    Form,
+    Input,
+    Button,
+    Select,
+    Spin,
+} from 'antd';
+import { createSRA } from '@/services/ant-design-pro/api';
+
+const { Option } = Select;
+
+const SRAForm: React.FC = () => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const onFinish = async (value: any) => {
+        const dataForm = {
+            name: value?.name,
+            email: value?.email,
+            mobile: value?.mobile,
+        };
+        console.log('data', dataForm)
+        await createSRA({
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataForm),
+        });
+    };
+
+    const [form] = Form.useForm()
+
+    return (
+        <>
+            <Spin spinning={isLoading} >
+                <Form
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 14 }}
+                    layout="horizontal"
+                    form={form}
+                    onFinish={onFinish}
+                    autoComplete="off"
+                    scrollToFirstError
+                >
+                    <Form.Item label="Name" name='name'
+                        rules={[{
+                            required: true
+                        }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Email" name='email'
+                        rules={[{
+                            required: true,
+                            type: 'email'
+                        }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Mobile" name='mobile' rules={[{ required: true, pattern: /^\+[0-9]{12}$/, message: "Enter valid number" }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Status" name='status' hidden>
+                        <Select
+                            placeholder="Select Status"
+                            allowClear
+                        >
+                            <Option value="active">Active</Option>
+                            <Option value="inactive">Inactive</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        shape="round"
+                        block
+                        style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                    >Save</Button>
+                </Form>
+            </Spin >
+        </>
+    );
+};
+
+export default SRAForm;
