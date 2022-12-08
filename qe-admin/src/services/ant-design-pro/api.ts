@@ -1006,16 +1006,6 @@ export async function deactivateStudentsInBulk(options?: {
   });
 }
 
-// Deactivate Students In Bulk
-export async function deactivateStudentsInBulk(options?: {
-  [key: string]: any;
-}) {
-  return request<any>("/be/student/deactivate/bulk", {
-    method: "POST",
-    ...(options || {}),
-  });
-}
-
 // API to move students from startclasslater to Batching
 export async function syncClassStartDate() {
   return request<API.RuleList>(`/be/batching/startclasslater-to-batching`, {
