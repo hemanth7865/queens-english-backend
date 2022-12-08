@@ -58,3 +58,14 @@ export const DEFAULT_TIMINGS_FREQUENCY = {
   DEFAULT_TIMINGS: ['15:00', '16:30', '18:00', '19:30', '20:30'],
   DEFAULT_FREQUENCY: ['MWF', 'TTS', 'SS', 'MTWTF', 'TT']
 }
+
+export const USER_STATUS = {
+  INACTIVE: "inactive",
+  ACTIVE: "active",
+  ENROLLED: "enrolled",
+  STARTCLASSLATER: "startclasslater",
+  ERROR: "error",
+  ONBOARDING: "onboarding",
+  ONBOARDING_ISSUE: "onboardingIssue",
+  ENROLLED_CAPS: "Enrolled",
+}

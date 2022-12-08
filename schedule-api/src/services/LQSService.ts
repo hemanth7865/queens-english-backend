@@ -7,11 +7,12 @@ import { LQSEntry } from "../entity/LQSEntry";
 import { Payment } from "../entity/Payment";
 import { format } from "date-and-time";
 import { randomFill } from "crypto";
-import { Constants, EMI_PAYMENT_STATUS } from "../helpers/Constants";
+import { Constants, EMI_PAYMENT_STATUS, USE_LSQ } from "../helpers/Constants";
 const { usersLogger } = require("../Logger.js");
 import { validations } from "../helpers/validations";
 import { PRManager } from "../entity/PRManager";
 import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
+import MongoLead from "../model/mongo/lead";
 
 const moment = require("moment");
 const date = require('date-and-time')
@@ -78,7 +79,7 @@ export class LQSService {
       }
     });
     // Updating latest assignment value of prm
-    if(prmsData[0]?.id){
+    if (prmsData[0]?.id){
       prmsData[0].latestAssignment = moment().valueOf();
       await this.prmRepository.update({id: prmsData[0].id}, prmsData[0]);
     }
@@ -546,81 +547,142 @@ export class LQSService {
 
   async fetchLSQData(data: any) {
     usersLogger.info("fetchLSQData :: Start")
-    const options = {
-      url: `${this.LSQ_URL}/Leads.Get?accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
-      json: true,
-      body: {
-        "Parameter": {
-          "LookupName": "ModifiedOn",
-          "LookupValue": data.LookupValue,
-          "SqlOperator": ">"
+    let options;
+    if (USE_LSQ) {
+      options = {
+        url: `${this.LSQ_URL}/Leads.Get?accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
+        json: true,
+        body: {
+          "Parameter": {
+            "LookupName": "ModifiedOn",
+            "LookupValue": data.LookupValue,
+            "SqlOperator": ">"
+          },
+          "Columns": {
+            "Include_CSV": "ProspectID, CreatedOn,ModifiedOn,Source,ProspectStage,mx_Parent_Name,LastModifiedOn, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone,mx_Trial_Type"
+          },
+          "Sorting": {
+            "ColumnName": "ModifiedOn",
+            "Direction": "1"
+          },
+          "Paging": {
+            "PageIndex": data.PageIndex,
+            "PageSize": data.PageSize
+          }
         },
-        "Columns": {
-          "Include_CSV": "ProspectID, CreatedOn,ModifiedOn,Source,ProspectStage,mx_Parent_Name,LastModifiedOn, FirstName, LastName, EmailAddress, mx_WhatsApp_Phone_Number, mx_Date_of_Birth,Phone,mx_Trial_Type"
+      };
+    } else {
+      data.PageSize = data?.PageSize || 100
+      data.PageIndex = data?.PageIndex || 0
+      options = [
+        {
+          $match: {
+            ProspectStage: LQSService.LSQ_STATUS_ENROLLED,
+            updatedAt: {
+              $gte: new Date(data.LookupValue)
+            }
+          }
         },
-        "Sorting": {
-          "ColumnName": "ModifiedOn",
-          "Direction": "1"
+        {
+          $sort: {
+            updatedAt: 1
+          }
         },
-        "Paging": {
-          "PageIndex": data.PageIndex,
-          "PageSize": data.PageSize
+        {
+          $skip: data.PageSize * data.PageIndex
+        },
+        {
+          $limit: data.PageSize
         }
-      },
-    };
+      ]
+    }
 
     var status;
     var res1 = {};
 
 
-    res1 = await axios
-      .post(options.url, options.body)
-      .then(async (res) => {
-        usersLogger.info("Fetching Mandatory Fields from Lead API ");
-        if (res.data) {
-          for (let element of res.data) {
-            usersLogger.info(element);
-            var lqsEntry = await this.lQSRepository.findOne(
-              {
-                where:
-                  { id: element.ProspectID }
-              }
-            );
-            usersLogger.info("*******");
-            usersLogger.info(element.ProspectStage.toUpperCase());
-            if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
-              !lqsEntry) {
-              if (!lqsEntry) {
-                lqsEntry = new LQSEntry();
-                lqsEntry.id = element.ProspectID;
-              }
+    if (USE_LSQ) {
+      res1 = await axios
+        .post(options.url, options.body)
+        .then(async (res) => {
+          usersLogger.info("Fetching Mandatory Fields from Lead API ");
+          if (res.data) {
+            for (let element of res.data) {
+              usersLogger.info(element);
+              var lqsEntry = await this.lQSRepository.findOne(
+                {
+                  where:
+                    { id: element.ProspectID }
+                }
+              );
+              usersLogger.info("*******");
+              usersLogger.info(element.ProspectStage.toUpperCase());
+              if (element.ProspectStage.toUpperCase() === LQSService.LSQ_STATUS_ENROLLED.toUpperCase() &&
+                !lqsEntry) {
+                if (!lqsEntry) {
+                  lqsEntry = new LQSEntry();
+                  lqsEntry.id = element.ProspectID;
+                }
 
-              usersLogger.info(element.ProspectID);
-              lqsEntry.firstName = element.FirstName;
-              lqsEntry.lastName = element.LastName;
-              lqsEntry.pfirstName = element.mx_Parent_Name;
-              lqsEntry.email = element.EmailAddress;
-              lqsEntry.phoneNumber = element.Phone;
-              lqsEntry.whatsapp = element.mx_WhatsApp_Phone_Number;
-              lqsEntry.dob = element.mx_Date_of_Birth;
-              lqsEntry.retry = parseInt(this.LSQ_RETRY);
-              lqsEntry.updated_at = new Date();
-              lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
-              lqsEntry.enrollmentType = element.mx_Trial_Type;
-              lqsEntry.created_at = new Date();
-              await this.lQSRepository.save(lqsEntry);
-            } else {
-              usersLogger.info(`Record processed or with different status id:${element.id} && LSQ record status ${element.ProspectStage}`);
+                usersLogger.info(element.ProspectID);
+                lqsEntry.firstName = element.FirstName;
+                lqsEntry.lastName = element.LastName;
+                lqsEntry.pfirstName = element.mx_Parent_Name;
+                lqsEntry.email = element.EmailAddress;
+                lqsEntry.phoneNumber = element.Phone;
+                lqsEntry.whatsapp = element.mx_WhatsApp_Phone_Number;
+                lqsEntry.dob = element.mx_Date_of_Birth;
+                lqsEntry.retry = parseInt(this.LSQ_RETRY);
+                lqsEntry.updated_at = new Date();
+                lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
+                lqsEntry.enrollmentType = element.mx_Trial_Type;
+                lqsEntry.created_at = new Date();
+                await this.lQSRepository.save(lqsEntry);
+              } else {
+                usersLogger.info(`Record processed or with different status id:${element.id} && LSQ record status ${element.ProspectStage}`);
+              }
             }
           }
+          return await res.data.filter(element => element.ProspectStage.toUpperCase() === 'ENROLLED');
+        })
+        .catch((error) => {
+          usersLogger.info(`Error while fetching Data from LQS ${error}`);
+          return { status: 400, error: error?.response?.data };
+          return Promise.reject(error);
+        });
+    } else {
+      const leads = await MongoLead.aggregate(options)
+      for (let element of leads) {
+        usersLogger.info(element);
+        var lqsEntry = await this.lQSRepository.findOne(
+          {
+            where:
+              { id: element.ProspectID }
+          }
+        );
+        usersLogger.info("*******");
+        usersLogger.info(element.ProspectStage.toUpperCase());
+        if (!lqsEntry) {
+          lqsEntry = new LQSEntry();
+          lqsEntry.id = element.ProspectID;
         }
-        return await res.data.filter(element => element.ProspectStage.toUpperCase() === 'ENROLLED');
-      })
-      .catch((error) => {
-        usersLogger.info(`Error while fetching Data from LQS ${error}`);
-        return { status: 400, error: error?.response?.data };
-        return Promise.reject(error);
-      });
+        usersLogger.info(element.ProspectID);
+        lqsEntry.firstName = element?.FirstName;
+        lqsEntry.lastName = element?.LastName;
+        lqsEntry.pfirstName = element?.mx_Parent_Name;
+        lqsEntry.email = element?.EmailAddress;
+        lqsEntry.phoneNumber = element?.Phone;
+        lqsEntry.whatsapp = element?.mx_WhatsApp_Phone_Number;
+        lqsEntry.dob = element?.leadDetails?.mx_Custom_4;
+        lqsEntry.retry = parseInt(this.LSQ_RETRY);
+        lqsEntry.updated_at = new Date();
+        lqsEntry.lsqstatus = LQSService.LSQ_STATUS_ENROLLED;
+        lqsEntry.enrollmentType = element?.mx_Trial_Type;
+        lqsEntry.created_at = new Date();
+        await this.lQSRepository.save(lqsEntry);
+      }
+      res1 = leads
+    }
 
     usersLogger.info("Updated Mandatory Fields from Lead API ");
     var lqsRecords = await this.lQSRepository.find(
@@ -642,19 +704,22 @@ export class LQSService {
       payment: Payment;
       // var url = `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`;
 
-      const options = {
-        url: `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
-        json: true,
-        body: {
-          "Parameter": {
-            "ActivityEvent": 210
+      let options
+      if (USE_LSQ) {
+        options = {
+          url: `${this.LSQ_ACTIVITY_URL}?leadId=${element.id}&accessKey=${this.LSQ_ACCESS_KEY}&secretKey=${this.LSQ_SECRETKEY}`,
+          json: true,
+          body: {
+            "Parameter": {
+              "ActivityEvent": 210
+            },
+            "Paging": {
+              "PageIndex": data.PageIndex,
+              "PageSize": data.PageSize
+            }
           },
-          "Paging": {
-            "PageIndex": data.PageIndex,
-            "PageSize": data.PageSize
-          }
-        },
-      };
+        };
+      }
 
 
       let user = await this.userRepository.findOne({
@@ -666,58 +731,109 @@ export class LQSService {
       });
       payment == null ? new Payment() : payment;
 
-      const details = await axios
-        .post(options.url, options.body)
-        .then(async (response) => {
-          element.retry = element.retry - 1;
-          if (response.data) {
-            element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+      let details;
+      if (USE_LSQ) {
+        details = await axios
+          .post(options.url, options.body)
+          .then(async (response) => {
+            element.retry = element.retry - 1;
+            if (response.data) {
+              element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+              element.updated_at = new Date();
+              this.lQSRepository.save(element);
+            }
+            return response.data;
+          })
+          .catch(error => {
+            element.lsqstatus = LQSService.LSQ_STATUS_FAILED
             element.updated_at = new Date();
             this.lQSRepository.save(element);
-          }
-          return response.data;
-        })
-        .catch(error => {
+            console.log(error);
+          })
+
+
+        if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
+          usersLogger.info("Updating ProspectActivities...");
+          var item = details?.ProspectActivities[0].ActivityFields;
+          usersLogger.info(JSON.stringify(item));
+          element.status = item.Status;
+          element.salesowner = item.Owner;
+          element.pfirstName = item.pfirstName;
+          element.dateofsale = item.mx_Custom_1;
+          element.teacherName = item.mx_Custom_2;
+          // to remove student id from lsq
+          // element.studentID = item.mx_Custom_3;
+          element.studentID = element.id;
+          element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
+          element.alternativeMobile = item.mx_Custom_5;
+          element.customerEmail = item.mx_Custom_6;
+          element.address = item.mx_Custom_7;
+          element.customerAddressState = item.mx_Custom_8;
+          element.course = item.mx_Custom_9;
+          element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
+          element.timings = item.mx_Custom_12;
+          element.startingLevel = item.mx_Custom_13;
+          element.startDate = item.mx_Custom_14;
+          element.saleType = item.mx_Custom_15;
+          element.saleamount = item.mx_Custom_16;
+          element.classessold = item.mx_Custom_17;
+          element.subscription = item.mx_Custom_18;
+          element.subscriptionNo = item.mx_Custom_19;
+          element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
+          element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
+          element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
+          element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
+          element.transactionID = item.mx_Custom_28;
+          element.bdaComments = item.mx_Custom_29;
+          element.whatsapp = item.mx_Custom_30;
+        }
+      } else {
+        try {
+          details = await MongoLead.findOne({ ProspectID: element.id })
+          element.retry = element.retry - 1;
+          element.lsqstatus = LQSService.LSQ_STATUS_SUCCESS;
+          element.updated_at = new Date();
+          this.lQSRepository.save(element);
+        } catch (error) {
           element.lsqstatus = LQSService.LSQ_STATUS_FAILED
           element.updated_at = new Date();
           this.lQSRepository.save(element);
           console.log(error);
-        })
+        }
 
-      if (details && details?.ProspectActivities.length > 0 && details?.ProspectActivities[0].ActivityFields) {
-        usersLogger.info("Updating ProspectActivities...");
-        var item = details?.ProspectActivities[0].ActivityFields;
-        usersLogger.info(JSON.stringify(item));
-        element.status = item.Status;
-        element.salesowner = item.Owner;
-        element.pfirstName = item.pfirstName;
-        element.dateofsale = item.mx_Custom_1;
-        element.teacherName = item.mx_Custom_2;
-        // to remove student id from lsq
-        // element.studentID = item.mx_Custom_3;
-        element.studentID = element.id;
-        element.dob = item.mx_Custom_4 ? item.mx_Custom_4 : null;
-        element.alternativeMobile = item.mx_Custom_5;
-        element.customerEmail = item.mx_Custom_6;
-        element.address = item.mx_Custom_7;
-        element.customerAddressState = item.mx_Custom_8;
-        element.course = item.mx_Custom_9;
-        element.courseFrequency = item.mx_Custom_10 !== "Other" ? item.mx_Custom_10 : item.mx_Custom_11;
-        element.timings = item.mx_Custom_12;
-        element.startingLevel = item.mx_Custom_13;
-        element.startDate = item.mx_Custom_14;
-        element.saleType = item.mx_Custom_15;
-        element.saleamount = item.mx_Custom_16;
-        element.classessold = item.mx_Custom_17;
-        element.subscription = item.mx_Custom_18;
-        element.subscriptionNo = item.mx_Custom_19;
-        element.emi = item.mx_Custom_20 !== "Other" ? item.mx_Custom_20 : item.mx_Custom_21;
-        element.emiMonths = item.mx_Custom_22 !== "Other" ? item.mx_Custom_22 : item.mx_Custom_23;
-        element.downpayment = item.mx_Custom_24 !== "Other" ? item.mx_Custom_24 : item.mx_Custom_25;
-        element.paymentMode = item.mx_Custom_26 !== "Other" ? item.mx_Custom_26 : item.mx_Custom_27;
-        element.transactionID = item.mx_Custom_28;
-        element.bdaComments = item.mx_Custom_29;
-        element.whatsapp = item.mx_Custom_30;
+        if (details?.leadDetails) {
+          usersLogger.info("Updating ProspectActivities...");
+          usersLogger.info(JSON.stringify(details));
+          element.status = details?.leadDetails?.Status;
+          element.pfirstName = details?.leadDetails?.mx_Custom_31;
+          element.dateofsale = details?.leadDetails?.mx_Custom_1;
+          element.teacherName = details?.leadDetails?.mx_Custom_2;
+          // to remove student id from lsq
+          // element.studentID = details.mx_Custom_3;
+          element.studentID = element.id;
+          element.dob = details?.leadDetails?.mx_Custom_4 || null;
+          element.alternativeMobile = details?.leadDetails?.mx_Custom_5;
+          element.customerEmail = details?.leadDetails?.mx_Custom_6;
+          element.address = details?.leadDetails?.mx_Custom_7;
+          element.customerAddressState = details?.leadDetails?.mx_Custom_8;
+          element.course = details?.leadDetails?.mx_Custom_9;
+          element.courseFrequency = details?.leadDetails?.mx_Custom_11;
+          element.timings = details?.leadDetails?.mx_Custom_12;
+          element.startingLevel = details?.leadDetails?.mx_Custom_13;
+          element.startDate = details?.leadDetails?.mx_Custom_14;
+          element.saleType = details?.leadDetails?.mx_Custom_15;
+          element.saleamount = details?.leadDetails?.mx_Custom_16;
+          element.classessold = details?.leadDetails?.mx_Custom_17;
+          element.subscription = details?.leadDetails?.mx_Custom_18;
+          element.subscriptionNo = details?.leadDetails?.mx_Custom_19;
+          element.emi = details?.leadDetails?.mx_Custom_21;
+          element.emiMonths = details?.leadDetails?.mx_Custom_23;
+          element.downpayment = details?.leadDetails?.mx_Custom_25;
+          element.paymentMode = details?.leadDetails?.mx_Custom_27;
+          element.transactionID = details?.leadDetails?.mx_Custom_28;
+          element.bdaComments = details?.leadDetails?.mx_Custom_29;
+          element.whatsapp = details?.leadDetails?.mx_Custom_30;
+        }
       }
 
       await this.lQSRepository.save(element);

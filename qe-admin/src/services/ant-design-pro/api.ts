@@ -430,7 +430,8 @@ export async function listCosmosBatch(
     current?: number;
     pageSize?: number;
   },
-  options?: { [key: string]: any }) {
+  options?: { [key: string]: any }
+) {
   return request<API.RuleList>(`/be/listCosmosBatch/${rowId}`, {
     method: "GET",
     params: {
@@ -961,31 +962,28 @@ export async function getInstallmentHistory(
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/logs?url=logs/all`,
-    {
-      method: "GET",
-      params: {
-        page: params.current,
-        perpage: 100,
-        refresh: 0,
-        selectedPage: "payments",
-        filters: {
-          "debug.oldRecord.transaction.studentId": {
-            "value": params.studentId,
-            "matchMode": "contains"
-          },
-          title: {
-            "value": params.title,
-            "matchMode": "contains"
-          }
+  return request<API.RuleList>(`/be/logs?url=logs/all`, {
+    method: "GET",
+    params: {
+      page: params.current,
+      perpage: 100,
+      refresh: 0,
+      selectedPage: "payments",
+      filters: {
+        "debug.oldRecord.transaction.studentId": {
+          value: params.studentId,
+          matchMode: "contains",
         },
-        sortField: "createdAt",
-        sortOrder: 1
+        title: {
+          value: params.title,
+          matchMode: "contains",
+        },
       },
-      ...(options || {}),
-    }
-  );
+      sortField: "createdAt",
+      sortOrder: 1,
+    },
+    ...(options || {}),
+  });
 }
 
 //Sync Payment And User Info
@@ -996,6 +994,26 @@ export async function syncStudentPaymentInfo(userId: string) {
       method: "POST",
     }
   );
+}
+
+// Deactivate Students In Bulk
+export async function deactivateStudentsInBulk(options?: {
+  [key: string]: any;
+}) {
+  return request<any>("/be/student/deactivate/bulk", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+// Deactivate Students In Bulk
+export async function deactivateStudentsInBulk(options?: {
+  [key: string]: any;
+}) {
+  return request<any>("/be/student/deactivate/bulk", {
+    method: "POST",
+    ...(options || {}),
+  });
 }
 
 // API to move students from startclasslater to Batching

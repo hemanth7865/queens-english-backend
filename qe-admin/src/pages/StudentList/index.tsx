@@ -17,6 +17,7 @@ import AddUser from './components/AddUser';
 import EditUser from './components/EditUser';
 import ViewStudent from './components/ViewStudent';
 import UploadStudentsBulkWithoutRMN from './components/UploadStudentsBulkWithoutRMN';
+import DeactiveStudentsInBulk from './components/DeactiveStudentsInBulk';
 
 /**
  * @en-US Add node
@@ -187,6 +188,7 @@ const TableList: React.FC = () => {
         columns={columns}
         toolBarRender={() => [
           <UploadStudentsBulkWithoutRMN />,
+          <DeactiveStudentsInBulk />,
           <Button
             type="primary"
             key="primary"

@@ -724,6 +724,11 @@ export const Routes = [
     route: "/editSRA",
     controller: SchoolController,
     action: "editSRA",
-  }
-
+  },
+  {
+    method: "post",
+    route: "/webhook/updateRazorpayStatus",
+    controller: PaymentController,
+    action: "updateRazorpayWebhookStatus",
+  },  
 ];
