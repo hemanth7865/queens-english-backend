@@ -9,6 +9,7 @@ interface DataType {
     key: React.Key;
     batchNumber: string;
     batchId: string;
+    students: any[];
 }
 
 interface ExpandedDataType {
@@ -25,39 +26,25 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
     const classes = props.tempData?.classesData?.map((item: any) => {
         return {
             ...item,
-        }
-    })
-    let students = props.tempData?.classesData?.map((item: any) => {
-        return {
-            ...item.students,
+            studentsLength: item.students.length
         }
     })
     const data: DataType[] = [];
-    let expandedData: ExpandedDataType[] = [];
     for (let i = 0; i < classes?.length; ++i) {
-        let expandedData2: any[] = [];
         data.push({
             key: i.toString(),
             ...classes[i],
         });
-        for (let j = 0; j < classes[i]?.students?.length; ++j) {
-            expandedData2.push({
-                key: j.toString(),
-                ...classes[i]?.students[j],
-            })
-        }
-        do {
-            expandedData = [...expandedData, ...expandedData2]
-        } while (!++i)
     }
-    console.log('classes', data, 'students', expandedData)
+
     const columns: TableColumnsType<DataType> = [
         { title: 'Batch Code', dataIndex: 'batchNumber', key: 'batchNumber' },
         { title: 'Batch Id', dataIndex: 'batchId', key: 'batchId' },
+        { title: 'Students', dataIndex: 'studentsLength', key: 'studentsLength' },
     ];
 
-    const expandedRowRender = (key: any) => {
-        const expandedDolumns: TableColumnsType<ExpandedDataType> = [
+    const expandedRowRender = (record: any) => {
+        const expandedColumns: TableColumnsType<ExpandedDataType> = [
             { title: 'Name', dataIndex: 'name', key: 'name' },
             { title: 'ID', dataIndex: 'id', key: 'id' },
             { title: 'Email', dataIndex: 'email', key: 'email' },
@@ -65,8 +52,9 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
             { title: 'Status', dataIndex: 'status', key: 'status' }
         ];
 
-        return <Table columns={expandedDolumns} dataSource={expandedData} pagination={false} rowKey={key} />;
+        return <Table columns={expandedColumns} dataSource={record.students} pagination={false} size='middle' />;
     };
+
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -77,9 +65,9 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
                     columns={columns}
                     expandable={{
                         expandedRowRender: (record) => {
-                            console.log('record', record)
-                            return expandedRowRender(record.key)
+                            return expandedRowRender(record)
                         },
+                        rowExpandable: (record) => record.students.length !== 0,
                     }}
                     dataSource={data}
                     size='middle'
