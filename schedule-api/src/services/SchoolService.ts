@@ -248,7 +248,7 @@ export class SchoolService {
                         }
                         let cosmosBatches = request.cosmosBatches.sendBatches;
                         if (cosmosBatches.length > 0) {
-                            if (request.cosmosBatches.removeBatches.length > 0) {
+                            if (!isNullOrUndefined(request.cosmosBatches.removeBatches)) {
                                 cosmosBatches = cosmosBatches.filter(async function (item) {
                                     return await request.cosmosBatches.removeBatches.indexOf(item) < 0;
                                 });
