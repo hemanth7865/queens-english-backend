@@ -81,9 +81,9 @@ export class BatchService {
         if (!school) {
           return { status: false, message: "School not found" };
         }
-        data.schoolName = school.schoolName;
-        data.schoolStatus = school.schoolStatus;
-        data.schoolCode = school.schoolCode;
+        data.schoolName = data.offlineBatch === 0 ? null : school.schoolName;
+        data.schoolStatus = data.offlineBatch === 0 ? null : school.schoolStatus;
+        data.schoolCode = data.offlineBatch === 0 ? null : school.schoolCode;
       }
 
       if (!data.id) {
@@ -188,10 +188,10 @@ export class BatchService {
           whatsappLink: data.whatsappLink,
           useAutoAttendance: data.useAutoAttendance,
           offlineBatch: data.offlineBatch,
-          schoolName: data.schoolName,
-          schoolId: data.schoolId,
-          schoolCode: data.schoolCode,
-          schoolStatus: data.schoolStatus
+          schoolName: data.offlineBatch === 0 ? null : data.schoolName,
+          schoolId: data.offlineBatch === 0 ? null : data.schoolId,
+          schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
+          schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus
         },
       };
 
@@ -473,8 +473,8 @@ export class BatchService {
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
       if (!isNullOrUndefined(data.schoolId)) {
-        classes.schoolId = data.schoolId;
-        classes.schoolName = await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)
+        classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
+        classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)
       }
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
@@ -536,12 +536,12 @@ export class BatchService {
               const student = await this.studentRepository.findOne({ id: element.studentId });
               const user = await this.userRepository.findOne({ id: element.studentId });
               if (student) {
-                student.schoolId = data.schoolId;
+                student.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
                 await this.studentRepository.save(student);
               }
               if (user) {
-                user.schoolId = data.schoolId;
-                user.schoolCode = await this.schoolRepository.findOne({
+                user.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
+                user.schoolCode = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({
                   id:
                     data.schoolId,
                 }).then((res) => res.schoolCode);
@@ -610,8 +610,8 @@ export class BatchService {
       // sync batch zoom link to cosmos
       classes.sync_zoom_status = 0;
       if (data.schoolId) {
-        classes.schoolId = data.schoolId;
-        classes.schoolName = await this.schoolRepository.findOne({ id: data.schoolId }).then((school) => school.schoolName);
+        classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
+        classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((school) => school.schoolName);
       }
 
       if (typeof data.useAutoAttendance != "undefined") {

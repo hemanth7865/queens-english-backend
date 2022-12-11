@@ -871,34 +871,6 @@ const BatchList: React.FC = () => {
                             />
                           </Form.Item>
                           </Col>
-                          <Col span={24}>
-                            <Form.Item
-                              name="schoolId"
-                            >
-                              <Select
-                                placeholder="Select School"
-                                onChange={(value) => {
-                                  handleFormChange({
-                                    target: {
-                                      name: "schoolId",
-                                      value: value,
-                                    },
-                                  });
-                                }}
-                                defaultValue={formData.schoolId}
-                                value={formData.schoolId}
-                                showSearch
-                                filterOption={(input, option: any) =>
-                                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                }
-                                allowClear
-                              >
-                                {
-                                  schools.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
-                                }
-                              </Select>
-                            </Form.Item>
-                          </Col>
                         <Col span={12}>
                           <Form.Item
                             name="startingLessonId"
@@ -1081,7 +1053,36 @@ const BatchList: React.FC = () => {
                               defaultValue={!createBatch ? prePop?.batchData?.classes?.offlineBatch : selectedOfflineBatch}
                             />
                           </Form.Item>
-                        </Col>
+                          </Col>
+
+                          <Col span={24} hidden={!selectedOfflineBatch}>
+                            <Form.Item
+                              name="schoolId"
+                            >
+                              <Select
+                                placeholder="Select School"
+                                onChange={(value) => {
+                                  handleFormChange({
+                                    target: {
+                                      name: "schoolId",
+                                      value: value,
+                                    },
+                                  });
+                                }}
+                                defaultValue={formData.schoolId}
+                                value={formData.schoolId}
+                                showSearch
+                                filterOption={(input, option: any) =>
+                                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                                allowClear
+                              >
+                                {
+                                  schools.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
+                                }
+                              </Select>
+                            </Form.Item>
+                          </Col>
 
                         {!selectedOfflineBatch &&
                           <Col span={24}>
