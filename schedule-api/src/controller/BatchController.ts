@@ -189,12 +189,4 @@ export class BatchController {
             return { e, name: file.name, size: file.size, type: file.type };
         }
     }
-
-    async syncClassStartDate(request: Request, response: Response, next: NextFunction) {
-        try {
-            return await this.batchService.syncClassStartDate();
-        } catch (error) {
-            return { success: false, error: error.toString() };
-        }
-    }
 }
