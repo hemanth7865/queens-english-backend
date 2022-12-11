@@ -9,7 +9,8 @@ import {
     notification
 } from 'antd';
 import { getSra, createSchool, editSchool, listBatchForSchool } from '@/services/ant-design-pro/api';
-import { CheckCircleTwoTone } from '@ant-design/icons';
+import { CheckCircleOutlined, CheckCircleTwoTone, CloseCircleOutlined, CloseCircleTwoTone } from '@ant-design/icons';
+import { create } from 'lodash';
 
 const { Option } = Select;
 
@@ -40,6 +41,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [loadingBatches, setLoadingBatches] = useState<boolean>(false);
     const [sra, setSra] = useState<any>([]);
     const [batches, setBatches] = useState<any>([]);
+    const [newData, setNewdata] = useState<any>(false);
 
     const options = sra.map((item: any) => {
         return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
@@ -51,8 +53,10 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         api.open({
             message: value.create ? value.success ? 'Created School Successfully' : 'Failed to create School' : value.success ? 'Updated School Successfully' : 'Failed to update School',
             description:
-                value.create ? value.success ? 'Created School' + value.schoolName : 'Failed to create School' + value.schoolName : value.success ? 'Updated School' + value.schoolName : 'Failed to update School' + value.schoolName,
-            icon: <CheckCircleTwoTone style={{ color: 'greem' }} />,
+                value.create ?
+                    value.success ? 'Created School' + value.schoolName : value.message ? value.message : 'Failed to create School' + value.schoolName
+                    : value.success ? 'Updated School' + value.schoolName : value.message ? value.message : 'Failed to update School' + value.schoolName,
+            icon: value.success ? <CheckCircleTwoTone twoToneColor='green' /> : <CloseCircleTwoTone twoToneColor='red' />,
         });
     };
 
@@ -71,13 +75,30 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         setLoadingBatches(true);
         const batches = await listBatchForSchool();
         setBatches(batches.data);
-        console.log(batches.data)
         setLoadingBatches(false);
     }
 
-    console.log(props.tempData)
-
     const onFinish = async (value: any) => {
+        const oldData = props.tempData;
+        setNewdata(value);
+        async function areArrEqual(arr1: any, arr2: any) {
+            if (arr1.length !== arr2.length) return false;
+            for (let i = 0; i < arr2.length; i++) {
+                if (arr1[i]?.batchNumber !== arr2[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        const sameBatches = oldData.operation === 'create' ? false : await areArrEqual(oldData.classes, value.batches)
+        const newBatches = value.batches?.map((item: any) => {
+            return item
+        })
+        const oldBatches = oldData?.classes?.map((item: any) => {
+            return item.batchNumber
+        })
+        const batchesToRemove = oldBatches?.filter((item: any) => !newBatches?.includes(item))
+        const batchesToAdd = newBatches?.filter((item: any) => !oldBatches?.includes(item))
         const dataForm = {
             id: value?.id,
             schoolName: value?.schoolName,
@@ -85,10 +106,17 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             poc: value?.poc,
             sraId: value?.sra,
             schoolStatus: value?.schoolStatus,
-            batches: value?.batches,
+            batches: sameBatches ? null : {
+                addBatches: batchesToAdd,
+                removeBatches: batchesToRemove
+            },
+            cosmosBatches: {
+                sendBatches: value?.batches,
+                removeBatches: batchesToRemove
+            }
         };
-        if (props.tempData.operation === 'edit') {
-            setIsLoading(true);
+        setIsLoading(true);
+        if (oldData.operation === 'edit') {
             const edit = await editSchool({
                 headers: {
                     "Content-Type": "application/json",
@@ -96,17 +124,16 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                 body: JSON.stringify(dataForm),
             });
             setIsLoading(false);
-            if (edit.success === true) {
-                value.success = true
-                value.create = false
-                openNotification(value)
-            } else {
+            if (edit.errorMessage) {
                 value.success = false
                 value.create = false
-                openNotification(value)
+                value.message = edit.errorMessage
+            } else {
+                value.success = true
+                value.create = false
+                value.message = edit.message
             }
         } else {
-            setIsLoading(true);
             const create = await createSchool({
                 headers: {
                     "Content-Type": "application/json",
@@ -114,36 +141,41 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                 body: JSON.stringify(dataForm),
             });
             setIsLoading(false);
-            if (create.success === true) {
-                value.success = true
-                value.create = true
-                openNotification(value)
-            } else {
+            if (create.errorMessage) {
                 value.success = false
                 value.create = true
-                openNotification(value)
+                value.message = create.errorMessage
+            } else {
+                value.success = true
+                value.create = true
+                value.message = create.message
             }
         }
+        openNotification(value);
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
     };
 
     const [form] = Form.useForm()
     const defaultValues = async () => {
         form.setFieldsValue({
-            id: props.tempData?.id,
-            schoolName: props.tempData?.schoolName,
-            schoolCode: props.tempData?.schoolCode,
-            poc: props.tempData?.poc,
-            sra: props.tempData?.sra?.name,
-            schoolStatus: props.tempData?.schoolStatus,
-            createdAt: props.tempData?.createdAt,
-            numberOfBatches: props.tempData?.classes?.length,
-            batches: props.tempData?.classes?.map((item: any) => item.batchNumber),
+            id: newData ? newData?.id : props.tempData?.id,
+            schoolName: newData ? newData?.schoolName : props.tempData?.schoolName,
+            schoolCode: newData ? newData?.schoolCode : props.tempData?.schoolCode,
+            poc: newData ? newData?.poc : props.tempData?.poc,
+            sra: newData ? newData?.sra : props.tempData?.sra?.name,
+            schoolStatus: newData ? newData?.schoolStatus : props.tempData?.schoolStatus,
+            createdAt: newData ? newData?.createdAt : props.tempData?.createdAt,
+            numberOfBatches: newData ? newData?.batches.length : props.tempData?.classes?.length,
+            batches: newData ? newData?.batches : props.tempData?.classes?.map((item: any) => item.batchNumber),
         })
     };
     useEffect(() => {
         defaultValues()
     },
         [
+            newData,
             props.tempData?.id,
             props.tempData?.schoolName,
             props.tempData?.schoolCode,
@@ -151,7 +183,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             props.tempData?.sra?.name,
             props.tempData?.schoolStatus,
             props.tempData?.createdAt,
-            props.tempData?.classes,
+            props.tempData?.classes?.length,
+            props.tempData?.classes?.map((item: any) => item.batchNumber),
         ]
     )
 
@@ -216,21 +249,16 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                                     <Select
                                         mode="multiple"
                                         placeholder="Select Batches"
-                                        optionFilterProp='label'
+                                            optionFilterProp='label'
                                     >
                                         {batches.map((item: any) => {
-                                            return <Option value={item.id} label={item.batchNumber}>{item.batchNumber}</Option>
+                                            return <Option value={item.batchNumber} label={item.batchNumber} key={item.id}>{item.batchNumber}</Option>
                                         })}
                                     </Select>
                                 </Form.Item>
                             </>
                         )}
                     </Spin>
-
-                    <Button
-                        onClick={() => { console.log(props.tempData) }}
-                        style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                    >Test</Button>
 
                     <Button
                         type="primary"

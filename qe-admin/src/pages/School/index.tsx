@@ -1,5 +1,5 @@
-import { EyeOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Drawer, Modal } from 'antd';
+import { EyeOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Drawer, Select } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -9,7 +9,6 @@ import { getSra, listSchool } from '@/services/ant-design-pro/api';
 import SchoolForm from './components/Drawers/schoolForm';
 import SRAForm from './components/Drawers/sraForm';
 import ViewDrawer from './components/Drawers/viewDrawer';
-import View from './components/Drawers/testView';
 
 export type SchoolListProps = {
     data: {}
@@ -24,24 +23,25 @@ const SchoolList: React.FC<SchoolListProps> = () => {
     const [create, setCreate] = useState<any>();
     const [edit, setEdit] = useState<any>();
     const [createSRA, setCreateSRA] = useState<any>();
-
-    // const showPromiseConfirm = async () => {
-    //     confirm({
-    //         title: 'Do you want to delete these items?',
-    //         icon: <ExclamationCircleFilled />,
-    //         content: 'When clicked the OK button, this dialog will be closed after 1 second',
-    //         async onOk() {
-    //             try {
-    //                 return await new Promise((resolve, reject) => {
-    //                     setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-    //                 });
-    //             } catch {
-    //                 return console.log('Oops errors!');
-    //             }
-    //         },
-    //         onCancel() { },
-    //     });
-    // };
+    const [sra, setSra] = useState<any>([]);
+    async function getSras() {
+        const sras = await getSra();
+        setSra(sras.data)
+    }
+    const options = sra.map((item: any) => {
+        return {
+            text: (
+                <FormattedMessage
+                    id="pages.searchTable.school.sras.active"
+                    defaultMessage={item.name}
+                    key={item.id}
+                />
+            ),
+        }
+    });
+    useEffect(() => {
+        getSras();
+    }, [])
 
     const columns: ProColumns<API.SchoolItem>[] = [
         {
@@ -110,6 +110,8 @@ const SchoolList: React.FC<SchoolListProps> = () => {
                 />
             ),
             dataIndex: "sraName",
+            valueEnum: options,
+            valueType: 'select',
         },
         {
             title: (

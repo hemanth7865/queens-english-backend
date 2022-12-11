@@ -27,6 +27,8 @@ import {
   getUniqueCode,
 } from "./../utils/batch/getUniqueTeacherCode";
 import moment = require("moment");
+import { School } from "../entity/School";
+import { isNullOrUndefined } from "util";
 
 
 export class BatchService {
@@ -38,6 +40,7 @@ export class BatchService {
   private zoomMeetingRepository = getRepository(ZoomMeeting);
   private zoomUserRepository = getRepository(ZoomUser);
   private studentRepository = getRepository(Student);
+  private schoolRepository = getRepository(School);
 
 
   BatchService() { }
@@ -73,6 +76,16 @@ export class BatchService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      if (!isNullOrUndefined(data.schoolId)) {
+        let school = await this.schoolRepository.findOne(String(data.schoolId));
+        if (!school) {
+          return { status: false, message: "School not found" };
+        }
+        data.schoolName = school.schoolName;
+        data.schoolStatus = school.schoolStatus;
+        data.schoolCode = school.schoolCode;
+      }
+
       if (!data.id) {
         data.id = uuidv4();
         create = true;
@@ -83,7 +96,8 @@ export class BatchService {
         for (const element of data.students) {
           var batchStud = new BatchStudent();
           batchStud.type = element.type;
-          if (element.value) batchStud.studentId = element.value;
+          if (element.value)
+            batchStud.studentId = element.value;
           batchStud.created_at = new Date();
           batchStud.updated_at = new Date();
           batchStud.type = "studentProfile";
@@ -173,7 +187,11 @@ export class BatchService {
           zoomInfo: data.zoomInfo,
           whatsappLink: data.whatsappLink,
           useAutoAttendance: data.useAutoAttendance,
-          offlineBatch: data.offlineBatch
+          offlineBatch: data.offlineBatch,
+          schoolName: data.schoolName,
+          schoolId: data.schoolId,
+          schoolCode: data.schoolCode,
+          schoolStatus: data.schoolStatus
         },
       };
 
@@ -205,6 +223,7 @@ export class BatchService {
         * Remove Students From Batch
         */
         await this.removeStudents(studentsChange.remove, data.id);
+
 
         await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
@@ -453,6 +472,10 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
+      if (!isNullOrUndefined(data.schoolId)) {
+        classes.schoolId = data.schoolId;
+        classes.schoolName = await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)
+      }
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
@@ -509,6 +532,22 @@ export class BatchService {
           let i = 0;
           for (const element of data.students) {
             var batchStud = new BatchStudent();
+            if (!isNullOrUndefined(data.schoolId)) {
+              const student = await this.studentRepository.findOne({ id: element.studentId });
+              const user = await this.userRepository.findOne({ id: element.studentId });
+              if (student) {
+                student.schoolId = data.schoolId;
+                await this.studentRepository.save(student);
+              }
+              if (user) {
+                user.schoolId = data.schoolId;
+                user.schoolCode = await this.schoolRepository.findOne({
+                  id:
+                    data.schoolId,
+                }).then((res) => res.schoolCode);
+                await this.userRepository.save(user);
+              }
+            }
             batchStud.type = element.type;
             batchStud.studentId = element.studentId;
             batchStud.batchId = classes.id;
@@ -570,6 +609,10 @@ export class BatchService {
       classes.createdBy = data.createdBy;
       // sync batch zoom link to cosmos
       classes.sync_zoom_status = 0;
+      if (data.schoolId) {
+        classes.schoolId = data.schoolId;
+        classes.schoolName = await this.schoolRepository.findOne({ id: data.schoolId }).then((school) => school.schoolName);
+      }
 
       if (typeof data.useAutoAttendance != "undefined") {
         classes.useAutoAttendance = parseInt(data.useAutoAttendance);
@@ -613,6 +656,19 @@ export class BatchService {
           id: student
         })
         .then(async (res) => {
+          const classes = await this.classesRepository.findOne({ id: batchId })
+          const school = await this.schoolRepository.findOne({ id: classes.schoolId })
+          const stud = await this.studentRepository.findOne({ id: student })
+          const user = await this.userRepository.findOne({ id: student })
+          if (stud) {
+            stud.schoolId = school.id;
+          }
+          if (user) {
+            user.schoolId = school.id;
+            user.schoolCode = school.schoolCode;
+          }
+          await this.studentRepository.save(stud);
+          await this.userRepository.save(user);
           let batchStud = new BatchStudent();
           batchStud.type = "studentProfile";
           batchStud.studentId = student;
@@ -633,6 +689,17 @@ export class BatchService {
       let res1 = await axios
         .delete("/api/classProfile/" + batchId + "/students/" + student)
         .then(async (res) => {
+          const stud = await this.studentRepository.findOne({ id: student })
+          const user = await this.userRepository.findOne({ id: student })
+          if (stud) {
+            stud.schoolId = null;
+          }
+          if (user) {
+            user.schoolId = null;
+            user.schoolCode = null;
+          }
+          await this.studentRepository.save(stud);
+          await this.userRepository.save(user);
           return await this.batchStudentRepository.delete({ studentId: student, batchId });
         })
         .catch((error) => {
@@ -676,6 +743,10 @@ export class BatchService {
     if (parameters.lessonNumber) {
       let activeLessonId: string | number = getLessonByNumber(parameters.lessonNumber)?.id;
       query_list.push(` classes.activeLessonId = '${activeLessonId}' `);
+    }
+
+    if (parameters.schoolName) {
+      query_list.push(` classes.schoolName like  '%${parameters.schoolName}%' `);
     }
 
     /**
@@ -862,6 +933,7 @@ export class BatchService {
       } else {
         status = "Active";
       }
+      let school = await this.schoolRepository.findOne({ where: { id: classes.schoolId } });
       let lessonNumber: string | number = getLessonByID(classes.activeLessonId)?.number;
       let view = new BatchView(
         element.id,
@@ -876,6 +948,8 @@ export class BatchService {
         students,
         classes.startingLessonId,
         classes.endingLessonId,
+        school,
+        school?.schoolName,
         classes.lessonStartTime,
         classes.lessonEndTime,
         classes.zoomLink,

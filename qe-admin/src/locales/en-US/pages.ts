@@ -79,4 +79,5 @@ export default {
   'pages.searchTable.school.view': 'View',
   'pages.searchTable.school.edit': 'Edit',
   'pages.searchTable.school.delete': 'Delete',
+  'pages.searchTable.school': 'Add School',
 };

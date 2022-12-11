@@ -150,4 +150,7 @@ export class Classes extends BaseEntity {
 
   @Column({ nullable: true })
   schoolId: string;
+
+  @Column({ nullable: true })
+  schoolName: string;
 }

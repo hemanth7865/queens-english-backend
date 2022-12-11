@@ -13,6 +13,8 @@ export class BatchView {
     studentsList: User[];
     startingLessonId: string;
     endingLessonId: string;
+    school: any;
+    schoolName: string;
     lessonStartTime: string;
     lessonEndTime: string;
     zoomLink: string;
@@ -25,7 +27,7 @@ export class BatchView {
     maxAge?: number;
     lessonNumber?: string;
 
-    public constructor(id: string, date: Date, batchId: string, createdBy: string, teacher: string, students: number, timeSlot: string, dateSlot: string, stauts: string, studentsList: User[], startingLessonId: string, endingLessonId: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string, whatsappLink?: string, minAge?: number, maxAge?: number, lessonNumber?: string) {
+    public constructor(id: string, date: Date, batchId: string, createdBy: string, teacher: string, students: number, timeSlot: string, dateSlot: string, stauts: string, studentsList: User[], startingLessonId: string, endingLessonId: string, school?: any, schoolName?: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string, whatsappLink?: string, minAge?: number, maxAge?: number, lessonNumber?: string) {
         this.id = id;
         this.date = date;
         this.batchId = batchId;
@@ -38,6 +40,8 @@ export class BatchView {
         this.studentsList = studentsList;
         this.startingLessonId = startingLessonId;
         this.endingLessonId = endingLessonId;
+        this.school = school;
+        this.schoolName = schoolName;
         this.lessonStartTime = lessonStartTime;
         this.lessonEndTime = lessonEndTime;
         this.zoomLink = zoomLink;

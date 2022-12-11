@@ -31,6 +31,7 @@ export const Status = {
     ENROLLED_CAPS: "Enrolled",
     BATCHING: "batching",
     ACTIVE_CAPS: "Active",
+    INACTIVE_CAPS: "Inactive",
 }
 
 export const SUBSCRIPTION_TYPE = {

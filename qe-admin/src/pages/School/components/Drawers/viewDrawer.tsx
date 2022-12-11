@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Spin, Table, TableColumnsType } from 'antd';
+import { ProColumns, ProColumnType } from '@ant-design/pro-table';
 
 export type ViewSchoolProps = {
     tempData: any;
