@@ -201,27 +201,38 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     autoComplete="off"
                     scrollToFirstError
                 >
-                    <Form.Item label="School Name" name='schoolName'>
+                    <Form.Item label="School Name" name='schoolName'
+                        rules={[{
+                            required: true,
+                        }]}>
                         <Input />
                     </Form.Item>
                     {props?.tempData?.operation === 'create' ? (
-                        <Form.Item label="School Code" name='schoolCode'>
+                        <Form.Item label="School Code" name='schoolCode' rules={[{
+                            required: true,
+                        }]}>
                             <Input />
                         </Form.Item>
                     ) : (
-                        <Form.Item label="School Code" name='schoolCode'>
+                            <Form.Item label="School Code" name='schoolCode' rules={[{
+                                required: true,
+                            }]}>
                             <Input disabled />
                         </Form.Item>
                     )}
                     <Form.Item label="School POC" name='poc'>
                         <Input />
                     </Form.Item>
-                    <Form.Item label="SRA" name='sra'>
+                    <Form.Item label="SRA" name='sra' rules={[{
+                        required: true,
+                    }]}>
                         <Select >{options}</Select>
                     </Form.Item>
                     {props?.tempData?.operation !== 'create' ? (
                         <>
-                            <Form.Item label="School ID" name='id'>
+                            <Form.Item label="School ID" name='id' rules={[{
+                                required: true,
+                            }]}>
                                 <Input disabled />
                             </Form.Item>
                             <Form.Item label="Created At" name='createdAt'>
@@ -230,7 +241,9 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                             <Form.Item label="Number Of Batches" name='numberOfBatches'>
                                 <Input disabled />
                             </Form.Item>
-                            <Form.Item label="Status" name='schoolStatus'>
+                            <Form.Item label="Status" name='schoolStatus' rules={[{
+                                required: true,
+                            }]}>
                                 <Select>
                                     <Select.Option value="Active">Active</Select.Option>
                                     <Select.Option value="Inactive">Inactive</Select.Option>
