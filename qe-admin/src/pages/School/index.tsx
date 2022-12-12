@@ -181,25 +181,6 @@ const SchoolList: React.FC<SchoolListProps> = () => {
                 );
             },
         },
-        {
-            title: (
-                <FormattedMessage
-                    id="pages.searchTable.school.delete"
-                    defaultMessage="Delete"
-                />
-            ),
-            dataIndex: "delete",
-            hideInSearch: true,
-            render: (dom, entity) => {
-                return (
-                    <a
-                        //onClick={() => { showPromiseConfirm(); }}
-                    >
-                        <DeleteOutlined />
-                    </a>
-                );
-            },
-        },
     ];
 
     return (
