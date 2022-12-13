@@ -167,7 +167,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             sra: newData ? newData?.sra : props.tempData?.sra?.name,
             schoolStatus: newData ? newData?.schoolStatus : props.tempData?.schoolStatus,
             createdAt: newData ? newData?.createdAt : props.tempData?.createdAt,
-            numberOfBatches: newData ? newData?.batches.length : props.tempData?.classes?.length,
+            numberOfBatches: newData ? newData?.batches?.length : props.tempData?.classes?.length,
             batches: newData ? newData?.batches : props.tempData?.classes?.map((item: any) => item.batchNumber),
         })
     };

@@ -222,7 +222,7 @@ export class SchoolService {
                 school.createdAt = new Date();
                 const newSchool = await this.schoolRepository.create(school);
                 const saveSchool = await this.schoolRepository.save(newSchool);
-                if (!isNullOrUndefined(request.batches)) {
+                if (!isNullOrUndefined(request.batches.addBatches)) {
                     for (const batch of request.batches.addBatches) {
                         const classes = await this.classesRepository.findOne({ where: { batchNumber: batch } });
                         classes.schoolId = saveSchool.id;
