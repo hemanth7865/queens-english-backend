@@ -202,6 +202,7 @@ export class SchoolService {
 
 
     async saveSchool(request: any) {
+        console.log('request', request)
         try {
             if (request.operation === OPERATION.ADD) {
                 const currentSchools = await this.schoolRepository.find();
@@ -295,7 +296,7 @@ export class SchoolService {
                 let school = await this.schoolRepository.findOne({ where: { id: request.id } });
                 school.schoolName = request.schoolName;
                 school.schoolCode = request.schoolCode;
-                school.sra = request.sra;
+                school.sraId = request.sraId;
                 school.schoolStatus = request.schoolStatus;
                 school.poc = request.poc;
                 const newSchool = await this.schoolRepository.save(school);
