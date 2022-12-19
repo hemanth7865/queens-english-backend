@@ -104,12 +104,6 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             console.log(error)
         }
     }
-    useEffect(() => {
-        setIsLoading(true);
-        getSras();
-        listBatches();
-        setIsLoading(false);
-    }, []);
 
     async function listBatches() {
         setLoadingBatches(true);
@@ -121,6 +115,15 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         }
         setLoadingBatches(false);
     }
+
+    useEffect(() => {
+        setIsLoading(true);
+        (async function loadPage() {
+            await getSras();
+            await listBatches();
+        })();
+        setIsLoading(false);
+    }, []);
 
     const onFinish = async (value: any) => {
         const oldData = props.tempData;
