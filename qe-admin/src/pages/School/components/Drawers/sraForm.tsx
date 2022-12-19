@@ -17,30 +17,51 @@ const SRAForm: React.FC = () => {
 
     const [api, contextHolder] = notification.useNotification();
 
-    const openNotification = (value: any) => {
+    async function getMessage(value: any) {
+        if (value.success) {
+            return 'Created SRA Successfully';
+        } else {
+            return 'Failed to create SRA';
+        }
+    }
+
+    async function getDescription(value: any) {
+        if (value.success) {
+            return 'Created SRA' + value.name;
+        } else {
+            return 'Failed to create SRA' + value.name;
+        }
+    }
+
+    const openNotification = async (value: any) => {
         api.open({
-            message: value.create ? value.success ? 'Created SRA Successfully' : 'Failed to create SRA' : value.success ? 'Updated SRA Successfully' : 'Failed to update SRA',
-            description:
-                value.create ? value.success ? 'Created SRA' + value.name : 'Failed to create SRA' + value.name : value.success ? 'Updated SRA' + value.name : 'Failed to update SRA' + value.name,
+            message: await getMessage(value),
+            description: await getDescription(value),
             icon: value.success ? <CheckCircleTwoTone color='green' /> : <CheckCircleTwoTone color='red' />,
         });
     };
 
     const onFinish = async (value: any) => {
         setIsLoading(true);
-        const dataForm = {
-            name: value?.name,
-            email: value?.email,
-            mobile: value?.mobile,
-        };
-        await createSRA({
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(dataForm),
-        });
-        setIsLoading(false);
-        openNotification({ success: true, create: true, name: value?.name });
+        try {
+            const dataForm = {
+                name: value?.name,
+                email: value?.email,
+                mobile: value?.mobile,
+            };
+            await createSRA({
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataForm),
+            });
+            setIsLoading(false);
+            openNotification({ success: true, create: true, name: value?.name });
+        } catch (error) {
+            setIsLoading(false);
+            console.log(error);
+            openNotification({ success: false, create: true, name: value?.name });
+        }
         setTimeout(() => {
             window.location.reload();
         }, 3000);
