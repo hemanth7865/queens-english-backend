@@ -5,12 +5,10 @@ import {
     Button,
     Select,
     Spin,
-    Alert,
     notification
 } from 'antd';
 import { getSra, createSchool, editSchool, listBatchForSchool } from '@/services/ant-design-pro/api';
-import { CheckCircleOutlined, CheckCircleTwoTone, CloseCircleOutlined, CloseCircleTwoTone } from '@ant-design/icons';
-import { create } from 'lodash';
+import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -22,7 +20,7 @@ export type SchoolFormProps = {
         schoolCode?: string,
         poc?: string,
         sra?: {
-            id?: string,
+            id: string,
             name?: string,
             email?: string,
             mobile?: string,
@@ -49,20 +47,62 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
 
     const [api, contextHolder] = notification.useNotification();
 
-    const openNotification = (value: any) => {
+    async function getMessage(value: any) {
+        if (value.create) {
+            if (value.success) {
+                return 'Created School Successfully'
+            } else {
+                return value.message ? value.message : 'Failed to create School'
+            }
+        } else {
+            if (value.success) {
+                return 'Updated School Successfully'
+            } else {
+                return value.message ? value.message : 'Failed to update School'
+            }
+        }
+    }
+
+    const onFinishFailed = (errorInfo: any) => {
+        console.log('Failed:', errorInfo);
         api.open({
-            message: value.create ? value.success ? 'Created School Successfully' : 'Failed to create School' : value.success ? 'Updated School Successfully' : 'Failed to update School',
-            description:
-                value.create ?
-                    value.success ? 'Created School' + value.schoolName : value.message ? value.message : 'Failed to create School' + value.schoolName
-                    : value.success ? 'Updated School' + value.schoolName : value.message ? value.message : 'Failed to update School' + value.schoolName,
+            message: 'Failed to Save School',
+            description: 'Failed to Save School due to a technical error. Please try again later. || Error: ' + errorInfo?.errorFields[0]?.errors[0],
+            icon: <CloseCircleTwoTone twoToneColor='red' />,
+        });
+    };
+
+    async function getDescription(value: any) {
+        if (value.create) {
+            if (value.success) {
+                return 'Created School' + value.schoolName
+            } else {
+                return value.message ? value.message : 'Failed to create School' + value.schoolName
+            }
+        } else {
+            if (value.success) {
+                return 'Updated School' + value.schoolName
+            } else {
+                return value.message ? value.message : 'Failed to update School' + value.schoolName
+            }
+        }
+    }
+
+    const openNotification = async (value: any) => {
+        api.open({
+            message: await getMessage(value),
+            description: await getDescription(value),
             icon: value.success ? <CheckCircleTwoTone twoToneColor='green' /> : <CloseCircleTwoTone twoToneColor='red' />,
         });
     };
 
     async function getSras() {
-        const sras = await getSra();
-        setSra(sras.data)
+        try {
+            const sras = await getSra();
+            setSra(sras.data)
+        } catch (error) {
+            console.log(error)
+        }
     }
     useEffect(() => {
         setIsLoading(true);
@@ -73,8 +113,12 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
 
     async function listBatches() {
         setLoadingBatches(true);
-        const batches = await listBatchForSchool();
-        setBatches(batches.data);
+        try {
+            const batches = await listBatchForSchool();
+            setBatches(batches.data);
+        } catch (error) {
+            console.log(error)
+        }
         setLoadingBatches(false);
     }
 
@@ -198,6 +242,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     layout="horizontal"
                     form={form}
                     onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
                     autoComplete="off"
                     scrollToFirstError
                 >
