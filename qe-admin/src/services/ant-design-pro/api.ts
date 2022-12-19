@@ -1,4 +1,3 @@
-// @ts-ignore
 /* eslint-disable */
 // @ts-nocheck
 import { request } from "umi";

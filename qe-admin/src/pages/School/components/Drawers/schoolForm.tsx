@@ -205,7 +205,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             schoolName: newData ? newData?.schoolName : props.tempData?.schoolName,
             schoolCode: newData ? newData?.schoolCode : props.tempData?.schoolCode,
             poc: newData ? newData?.poc : props.tempData?.poc,
-            sra: newData ? newData?.sra : props.tempData?.sra?.name,
+            sra: newData ? newData?.sra : props.tempData?.sra?.id,
             schoolStatus: newData ? newData?.schoolStatus : props.tempData?.schoolStatus,
             createdAt: newData ? newData?.createdAt : props.tempData?.createdAt,
             numberOfBatches: newData ? newData?.batches?.length : props.tempData?.classes?.length,

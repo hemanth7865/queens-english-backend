@@ -1,5 +1,5 @@
-import { EyeOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Drawer, Select } from 'antd';
+import { EyeOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Drawer } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -18,16 +18,17 @@ const SchoolList: React.FC<SchoolListProps> = () => {
     const intl = useIntl();
     const actionRef = useRef<ActionType>();
 
-    const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
     const [view, setView] = useState<any>();
     const [create, setCreate] = useState<any>();
     const [edit, setEdit] = useState<any>();
     const [createSRA, setCreateSRA] = useState<any>();
     const [sra, setSra] = useState<any>([]);
+
     async function getSras() {
         const sras = await getSra();
         setSra(sras.data)
     }
+
     const options = sra.map((item: any) => {
         return {
             text: (
