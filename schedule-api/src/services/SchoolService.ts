@@ -202,10 +202,13 @@ export class SchoolService {
 
 
     async saveSchool(request: any) {
-        console.log('request', request)
         try {
+            let school: any;
+
             if (request.operation === OPERATION.ADD) {
+
                 const currentSchools = await this.schoolRepository.find();
+
                 for (let school of currentSchools) {
                     if (request.schoolCode === school.schoolCode) {
                         return {
@@ -214,26 +217,38 @@ export class SchoolService {
                         };
                     }
                 }
-                let school = new School();
-                school.schoolName = request.schoolName;
-                school.schoolCode = request.schoolCode;
-                school.sraId = request.sraId;
-                school.schoolStatus = Status.ACTIVE_CAPS;
-                school.poc = request.poc;
+
+                school = new School();
                 school.createdAt = new Date();
-                const newSchool = await this.schoolRepository.create(school);
-                const saveSchool = await this.schoolRepository.save(newSchool);
-                if (!isNullOrUndefined(request.batches.addBatches)) {
-                    for (const batch of request.batches.addBatches) {
-                        const classes = await this.classesRepository.findOne({ where: { batchNumber: batch } });
-                        classes.schoolId = saveSchool.id;
-                        classes.schoolName = saveSchool.schoolName;
-                        await this.classesRepository.save(classes);
-                        const students = await this.batchStudentRepository.find({ where: { batchId: classes.id } });
+                request.schoolStatus = Status.ACTIVE_CAPS
+
+            } else {
+                school = await this.schoolRepository.findOne({ where: { id: request.id } });
+            }
+            school.schoolName = request.schoolName;
+            school.schoolCode = request.schoolCode;
+            school.sraId = request.sraId;
+            school.schoolStatus = request.schoolStatus;
+            school.poc = request.poc;
+            const saveSchool = await this.schoolRepository.save(school);
+
+            if (!isNullOrUndefined(request.batches)) {
+                if (!isNullOrUndefined(request.batches.addBatches) && request.batches.addBatches.length > 0) {
+
+                    for (const addbatch of request.batches.addBatches) {
+
+                        const addClasses = await this.classesRepository.findOne({ where: { batchNumber: addbatch } });
+                        const addStudents = await this.batchStudentRepository.find({ where: { batchId: addClasses.id } });
+
+                        addClasses.schoolId = saveSchool.id;
+                        addClasses.schoolName = saveSchool.schoolName;
+                        await this.classesRepository.save(addClasses);
+
                         let studentsData: any;
                         let users: any;
-                        if (students.length > 0) {
-                            for (const s of students) {
+
+                        if (addStudents.length > 0) {
+                            for (const s of addStudents) {
                                 studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
                                 if (studentsData) {
                                     studentsData.schoolId = saveSchool.id;
@@ -247,173 +262,91 @@ export class SchoolService {
                                 }
                             }
                         }
-                        let cosmosBatches = request.cosmosBatches.sendBatches;
-                        if (cosmosBatches.length > 0) {
-                            if (!isNullOrUndefined(request.cosmosBatches.removeBatches)) {
-                                cosmosBatches = cosmosBatches.filter(async function (item) {
-                                    return await request.cosmosBatches.removeBatches.indexOf(item) < 0;
-                                });
-                            }
-                            for (const cosmosBatch of cosmosBatches) {
-                                const classes = await this.classesRepository.findOne({ where: { batchNumber: cosmosBatch } });
-                                const students = await this.batchStudentRepository.find({ where: { batchId: classes.id } });
-                                let cosmosStudents = []
-                                for (let user of students) {
-                                    cosmosStudents.push({
-                                        value: user.studentId,
-                                        type: 'studentProfile'
-                                    })
-                                }
-                                try {
-                                    const cosmosData = {
-                                        ...classes,
-                                        students: cosmosStudents,
-                                        schoolCode: newSchool.schoolCode,
-                                        schoolStatus: newSchool.schoolStatus,
-                                    }
-                                    const cosmosUpdate = await this.batchService.createBatch(cosmosData)
-                                } catch (error) {
-                                    console.error(error);
-                                }
-                            }
-                        }
-                    }
-                }
-                return {
-                    success: true,
-                    data: newSchool,
-                };
-            } else if (request.operation === OPERATION.UPDATE) {
-                const currentSchools = await this.schoolRepository.find({ where: { id: Not(request.id) } });
-                for (let currentSchool of currentSchools) {
-                    if (request.schoolCode === currentSchool.schoolCode) {
-                        return {
-                            success: true,
-                            errorMessage: 'School code already exists',
-                        };
-                    }
-                }
-                let school = await this.schoolRepository.findOne({ where: { id: request.id } });
-                school.schoolName = request.schoolName;
-                school.schoolCode = request.schoolCode;
-                school.sraId = request.sraId;
-                school.schoolStatus = request.schoolStatus;
-                school.poc = request.poc;
-                const newSchool = await this.schoolRepository.save(school);
-                if (!isNullOrUndefined(request.batches)) {
-                    if (request.batches.addBatches.length > 0) {
-                        for (const batch of request.batches.addBatches) {
-                            const classes = await this.classesRepository.findOne({ where: { batchNumber: batch } });
-                            const students = await this.batchStudentRepository.find({ where: { batchId: classes.id } });
-                            classes.schoolId = newSchool.id;
-                            classes.schoolName = newSchool.schoolName;
-                            await this.classesRepository.save(classes);
-                            let studentsData: any;
-                            let users: any;
-                            if (students.length > 0) {
-                                for (const s of students) {
-                                    studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
-                                    if (studentsData) {
-                                        studentsData.schoolId = newSchool.id;
-                                        await this.studentRepository.save(studentsData);
-                                    }
-                                    users = await this.userRepository.findOne({ where: { id: s.studentId } });
-                                    if (users) {
-                                        users.schoolId = newSchool.id;
-                                        users.schoolCode = newSchool.schoolCode;
-                                        await this.userRepository.save(users);
-                                    }
-                                }
-                            }
-                            let cosmosStudents = []
-                            for (let user of students) {
-                                cosmosStudents.push({
-                                    value: user.studentId,
-                                    type: 'studentProfile'
-                                })
-                            }
-                        }
-                    }
-                    if (request.batches.removeBatches.length > 0) {
-                        for (const batch of request.batches.removeBatches) {
-                            const classes = await this.classesRepository.findOne({ where: { batchNumber: batch } });
-                            const students = await this.batchStudentRepository.find({ where: { batchId: classes.id } });
-                            classes.schoolId = null;
-                            classes.schoolName = null;
-                            await this.classesRepository.save(classes);
-                            let studentsData: any;
-                            let users: any;
-                            if (students.length > 0) {
-                                for (const s of students) {
-                                    studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
-                                    if (studentsData) {
-                                        studentsData.schoolId = null;
-                                        await this.studentRepository.save(studentsData);
-                                    }
-                                    users = await this.userRepository.findOne({ where: { id: s.studentId } });
-                                    if (users) {
-                                        users.schoolId = null;
-                                        users.schoolCode = null;
-                                        await this.userRepository.save(users);
-                                    }
-                                }
-                            }
-                            let cosmosStudents = []
-                            for (let user of students) {
-                                cosmosStudents.push({
-                                    value: user.studentId,
-                                    type: 'studentProfile'
-                                })
-                            }
-                            try {
-                                const cosmosData = {
-                                    ...classes,
-                                    students: cosmosStudents,
-                                    schoolCode: null,
-                                    schoolStatus: null,
-                                }
-                                const cosmosUpdate = await this.batchService.createBatch(cosmosData)
-                            } catch (error) {
-                                console.error(error);
-                            }
-                        }
-                    }
-                }
-                let cosmosBatches = request.cosmosBatches.sendBatches;
-                if (cosmosBatches.length > 0) {
-                    if (request.cosmosBatches.removeBatches.length > 0) {
-                        cosmosBatches = cosmosBatches.filter(async function (item) {
-                            return await request.cosmosBatches.removeBatches.indexOf(item) < 0;
-                        });
-                    }
-                    for (const cosmosBatch of cosmosBatches) {
-                        const classes = await this.classesRepository.findOne({ where: { batchNumber: cosmosBatch } });
-                        const students = await this.batchStudentRepository.find({ where: { batchId: classes.id } });
-                        let cosmosStudents = []
-                        for (let user of students) {
-                            cosmosStudents.push({
+
+                        let cosmosAddStudents = []
+
+                        for (let user of addStudents) {
+                            cosmosAddStudents.push({
                                 value: user.studentId,
                                 type: 'studentProfile'
                             })
                         }
                         try {
                             const cosmosData = {
-                                ...classes,
-                                students: cosmosStudents,
-                                schoolCode: newSchool.schoolCode,
-                                schoolStatus: newSchool.schoolStatus,
+                                ...addClasses,
+                                students: cosmosAddStudents,
+                                schoolCode: saveSchool.schoolCode,
+                                schoolStatus: saveSchool.schoolStatus,
                             }
-                            const cosmosUpdate = await this.batchService.createBatch(cosmosData)
+                            await this.batchService.createBatch(cosmosData)
                         } catch (error) {
                             console.error(error);
                         }
                     }
                 }
-                return {
-                    success: true,
-                    data: newSchool,
-                };
+
+                if (!isNullOrUndefined(request.batches.removeBatches) && request.batches.removeBatches.length > 0) {
+
+                    for (const removeBatch of request.batches.removeBatches) {
+
+                        const removeClasses = await this.classesRepository.findOne({ where: { batchNumber: removeBatch } });
+                        const removeStudents = await this.batchStudentRepository.find({ where: { batchId: removeClasses.id } });
+
+                        removeClasses.schoolId = null;
+                        removeClasses.schoolName = null;
+
+                        await this.classesRepository.save(removeClasses);
+
+                        let studentsData: any;
+                        let users: any;
+
+                        if (removeStudents.length > 0) {
+                            for (const s of removeStudents) {
+                                studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
+
+                                if (studentsData) {
+                                    studentsData.schoolId = null;
+                                    await this.studentRepository.save(studentsData);
+                                }
+
+                                users = await this.userRepository.findOne({ where: { id: s.studentId } });
+
+                                if (users) {
+                                    users.schoolId = null;
+                                    users.schoolCode = null;
+                                    await this.userRepository.save(users);
+                                }
+                            }
+                        }
+
+                        let cosmosRemoveStudents = []
+
+                        for (let user of removeStudents) {
+                            cosmosRemoveStudents.push({
+                                value: user.studentId,
+                                type: 'studentProfile'
+                            })
+                        }
+
+                        try {
+                            const cosmosData = {
+                                ...removeClasses,
+                                students: cosmosRemoveStudents,
+                                schoolCode: null,
+                                schoolStatus: null,
+                            }
+                            await this.batchService.createBatch(cosmosData)
+                        } catch (error) {
+                            console.error(error);
+                        }
+                    }
+                }
             }
+
+            return {
+                success: true,
+                data: saveSchool,
+            };
         } catch (error) {
             console.error(error);
         }
