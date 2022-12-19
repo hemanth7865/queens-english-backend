@@ -20,17 +20,15 @@ const SRAForm: React.FC = () => {
     async function getMessage(value: any) {
         if (value.success) {
             return 'Created SRA Successfully';
-        } else {
-            return 'Failed to create SRA';
         }
+        return 'Failed to create SRA';
     }
 
     async function getDescription(value: any) {
         if (value.success) {
             return 'Created SRA' + value.name;
-        } else {
-            return 'Failed to create SRA' + value.name;
         }
+        return 'Failed to create SRA' + value.name;
     }
 
     const openNotification = async (value: any) => {
@@ -55,13 +53,12 @@ const SRAForm: React.FC = () => {
                 },
                 body: JSON.stringify(dataForm),
             });
-            setIsLoading(false);
             openNotification({ success: true, create: true, name: value?.name });
         } catch (error) {
-            setIsLoading(false);
             console.log(error);
             openNotification({ success: false, create: true, name: value?.name });
         }
+        setIsLoading(false);
         setTimeout(() => {
             window.location.reload();
         }, 3000);

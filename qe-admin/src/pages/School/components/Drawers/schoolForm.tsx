@@ -51,16 +51,13 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         if (value.create) {
             if (value.success) {
                 return 'Created School Successfully'
-            } else {
-                return value.message ? value.message : 'Failed to create School'
             }
-        } else {
-            if (value.success) {
-                return 'Updated School Successfully'
-            } else {
-                return value.message ? value.message : 'Failed to update School'
-            }
+            return value.message ? value.message : 'Failed to create School'
         }
+        if (value.success) {
+            return 'Updated School Successfully'
+        }
+        return value.message ? value.message : 'Failed to update School'
     }
 
     const onFinishFailed = (errorInfo: any) => {
@@ -76,16 +73,13 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         if (value.create) {
             if (value.success) {
                 return 'Created School' + value.schoolName
-            } else {
-                return value.message ? value.message : 'Failed to create School' + value.schoolName
             }
-        } else {
-            if (value.success) {
-                return 'Updated School' + value.schoolName
-            } else {
-                return value.message ? value.message : 'Failed to update School' + value.schoolName
-            }
+            return value.message ? value.message : 'Failed to create School' + value.schoolName
         }
+        if (value.success) {
+            return 'Updated School' + value.schoolName
+        }
+        return value.message ? value.message : 'Failed to update School' + value.schoolName
     }
 
     const openNotification = async (value: any) => {
