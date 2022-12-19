@@ -200,6 +200,57 @@ export class SchoolService {
         }
     }
 
+    async saveSchooltoBatches(request: any) {
+        for (const b of request.batchesToSave) {
+
+            const batch = await this.classesRepository.findOne({ where: { batchNumber: b } });
+            const students = await this.batchStudentRepository.find({ where: { batchId: batch.id } });
+
+            batch.schoolId = request.saveSchool.id;
+            batch.schoolName = request.saveSchool.schoolName;
+            await this.classesRepository.save(batch);
+
+            let studentsData: any;
+            let users: any;
+
+            if (students.length > 0) {
+                for (const s of students) {
+                    studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
+                    if (studentsData) {
+                        studentsData.schoolId = request.saveSchool.id;
+                        await this.studentRepository.save(studentsData);
+                    }
+                    users = await this.userRepository.findOne({ where: { id: s.studentId } });
+                    if (users) {
+                        users.schoolId = request.saveSchool.id;
+                        users.schoolCode = request.saveSchool.schoolCode;
+                        await this.userRepository.save(users);
+                    }
+                }
+            }
+
+            let cosmosStudents = []
+
+            for (let user of students) {
+                cosmosStudents.push({
+                    value: user.studentId,
+                    type: 'studentProfile'
+                })
+            }
+            try {
+                const cosmosData = {
+                    ...batch,
+                    students: cosmosStudents,
+                    schoolCode: request.saveSchool.schoolCode,
+                    schoolStatus: request.saveSchool.schoolStatus,
+                }
+                await this.batchService.createBatch(cosmosData)
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+
 
     async saveSchool(request: any) {
         try {
@@ -234,112 +285,20 @@ export class SchoolService {
 
             if (!isNullOrUndefined(request.batches)) {
                 if (!isNullOrUndefined(request.batches.addBatches) && request.batches.addBatches.length > 0) {
-
-                    for (const addbatch of request.batches.addBatches) {
-
-                        const addClasses = await this.classesRepository.findOne({ where: { batchNumber: addbatch } });
-                        const addStudents = await this.batchStudentRepository.find({ where: { batchId: addClasses.id } });
-
-                        addClasses.schoolId = saveSchool.id;
-                        addClasses.schoolName = saveSchool.schoolName;
-                        await this.classesRepository.save(addClasses);
-
-                        let studentsData: any;
-                        let users: any;
-
-                        if (addStudents.length > 0) {
-                            for (const s of addStudents) {
-                                studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
-                                if (studentsData) {
-                                    studentsData.schoolId = saveSchool.id;
-                                    await this.studentRepository.save(studentsData);
-                                }
-                                users = await this.userRepository.findOne({ where: { id: s.studentId } });
-                                if (users) {
-                                    users.schoolId = saveSchool.id;
-                                    users.schoolCode = saveSchool.schoolCode;
-                                    await this.userRepository.save(users);
-                                }
-                            }
-                        }
-
-                        let cosmosAddStudents = []
-
-                        for (let user of addStudents) {
-                            cosmosAddStudents.push({
-                                value: user.studentId,
-                                type: 'studentProfile'
-                            })
-                        }
-                        try {
-                            const cosmosData = {
-                                ...addClasses,
-                                students: cosmosAddStudents,
-                                schoolCode: saveSchool.schoolCode,
-                                schoolStatus: saveSchool.schoolStatus,
-                            }
-                            await this.batchService.createBatch(cosmosData)
-                        } catch (error) {
-                            console.error(error);
-                        }
-                    }
+                    request.saveSchool = saveSchool;
+                    request.batchesToSave = request.batches.addBatches;
+                    await this.saveSchooltoBatches(request);
                 }
 
                 if (!isNullOrUndefined(request.batches.removeBatches) && request.batches.removeBatches.length > 0) {
-
-                    for (const removeBatch of request.batches.removeBatches) {
-
-                        const removeClasses = await this.classesRepository.findOne({ where: { batchNumber: removeBatch } });
-                        const removeStudents = await this.batchStudentRepository.find({ where: { batchId: removeClasses.id } });
-
-                        removeClasses.schoolId = null;
-                        removeClasses.schoolName = null;
-
-                        await this.classesRepository.save(removeClasses);
-
-                        let studentsData: any;
-                        let users: any;
-
-                        if (removeStudents.length > 0) {
-                            for (const s of removeStudents) {
-                                studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
-
-                                if (studentsData) {
-                                    studentsData.schoolId = null;
-                                    await this.studentRepository.save(studentsData);
-                                }
-
-                                users = await this.userRepository.findOne({ where: { id: s.studentId } });
-
-                                if (users) {
-                                    users.schoolId = null;
-                                    users.schoolCode = null;
-                                    await this.userRepository.save(users);
-                                }
-                            }
-                        }
-
-                        let cosmosRemoveStudents = []
-
-                        for (let user of removeStudents) {
-                            cosmosRemoveStudents.push({
-                                value: user.studentId,
-                                type: 'studentProfile'
-                            })
-                        }
-
-                        try {
-                            const cosmosData = {
-                                ...removeClasses,
-                                students: cosmosRemoveStudents,
-                                schoolCode: null,
-                                schoolStatus: null,
-                            }
-                            await this.batchService.createBatch(cosmosData)
-                        } catch (error) {
-                            console.error(error);
-                        }
-                    }
+                    request.saveSchool = {
+                        id: null,
+                        schoolName: null,
+                        schoolCode: null,
+                        schoolStatus: null
+                    };
+                    request.batchesToSave = request.batches.removeBatches;
+                    await this.saveSchooltoBatches(request);
                 }
             }
 
