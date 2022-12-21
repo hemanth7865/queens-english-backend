@@ -90,6 +90,11 @@
         access: "canSuperAdmin",
       },
       {
+        name: "School Management",
+        path: "/manage/school",
+        component: "./School",
+      },
+      {
         name: "Onboard",
         path: "/manage/dashboard",
         routes: [

@@ -1,4 +1,3 @@
-// @ts-ignore
 /* eslint-disable */
 // @ts-nocheck
 import { request } from "umi";
@@ -1002,6 +1001,101 @@ export async function deactivateStudentsInBulk(options?: {
 }) {
   return request<any>("/be/student/deactivate/bulk", {
     method: "POST",
+    ...(options || {}),
+  });
+}
+
+// API to move students from startclasslater to Batching
+export async function syncClassStartDate() {
+  return request<API.RuleList>(`/be/batching/startclasslater-to-batching`, {
+    method: "GET",
+  });
+}
+
+// API to get school data
+export async function listSchool(
+  params?: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>("/be/listSchool", {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+// API to get SRA
+export async function getSra(
+  params?: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>("/be/getSra", {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+//API to view batches without School
+export async function listBatchForSchool(
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>("/be/listBatchForSchool", {
+    method: "GET",
+    ...(options || {}),
+  });
+}
+
+// API to CREATE School
+export async function createSchool(options?: { [key: string]: any }) {
+  return request<any>("/be/createSchool", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+// API to EDIT School
+export async function editSchool(options?: { [key: string]: any }) {
+  return request<any>("/be/editSchool", {
+    method: "PUT",
+    ...(options || {}),
+  });
+}
+
+//API to save student school in Cosmos
+export async function updateStudentSchool(
+  id: string,
+  options?: { [key: string]: any }
+) {
+  console.log("option", options);
+  return request<any>(`/be/azure?url=api/users/${id}`, {
+    method: "PUT",
+    ...(options || {}),
+  });
+}
+
+// API to CREATE SRA
+export async function createSRA(options?: { [key: string]: any }) {
+  return request<any>("/be/createSRA", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+// API to EDIT SRA
+export async function editSRA(options?: { [key: string]: any }) {
+  return request<any>("/be/editSRA", {
+    method: "PUT",
     ...(options || {}),
   });
 }

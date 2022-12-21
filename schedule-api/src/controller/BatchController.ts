@@ -78,6 +78,7 @@ export class BatchController {
             lessonGap: request.query['lessonGap'],
             classEndDate: request.query['classEndDate'],
             lessonNumber: request.query['lessonNumber'],
+            schoolName: request.query['schoolName'],
         }
         let res;
         try {

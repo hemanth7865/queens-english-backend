@@ -29,6 +29,9 @@ export const Status = {
     ONBOARDING: "onboarding",
     ONBOARDING_ISSUE: "onboardingIssue",
     ENROLLED_CAPS: "Enrolled",
+    BATCHING: "batching",
+    ACTIVE_CAPS: "Active",
+    INACTIVE_CAPS: "Inactive",
 }
 
 export const SUBSCRIPTION_TYPE = {
@@ -126,6 +129,12 @@ export const PAYMENT_WEBHOOK_EVENTS = {
     SUBSCRIPTION_PAUSED: 'subscription.paused',
     SUBSCRIPTION_RESUMED: 'subscription.resumed',
     PAYMENT_LINK_PAID: 'payment_link.paid'
+}
+
+export const OPERATION = {
+    ADD: "add",
+    UPDATE: "update",
+    DELETE: "delete",
 }
 
 export const USE_LSQ = process.env.USE_LSQ || false

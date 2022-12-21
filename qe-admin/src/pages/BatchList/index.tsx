@@ -49,6 +49,7 @@ import Students from "./components/Students";
 import View from "./components/View";
 import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
 import { USER_STATUS } from "@/components/Constants/constants";
+import { listSchool } from "@/services/ant-design-pro/api";
 
 const Option = Select.Option;
 
@@ -71,6 +72,7 @@ const DEFAULT_FORM_DATA = {
   zoomInfo: "",
   zoomLink: "",
   whatsappLink: "",
+  schoolId: undefined,
 };
 
 const PREMADE_FREQUENCY: { label: string, value: string }[] = [
@@ -120,6 +122,7 @@ const BatchList: React.FC = () => {
   const [completedLessonMessage, setCompletedLessonMessage] = useState<string>('');
   const [completedLessonModal, setCompletedLessonModal] = useState(false);
   const [batchData, setBatchData] = useState<any>({});
+  const [schools, setSchools] = useState<any[]>([]);
   const intl = useIntl();
 
   const options = [];
@@ -152,6 +155,13 @@ const BatchList: React.FC = () => {
     }).catch(e => {
       console.log("error", e);
     });
+    listSchool()
+      .then((data: any) => {
+        setSchools(data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
   useEffect(() => {
@@ -162,13 +172,9 @@ const BatchList: React.FC = () => {
       .catch((error) => {
         console.log(error);
       })
-      .finally(() => {
-        console.log("leadList", leadList);
-      });
   }, []);
 
   async function fetchUserList(username: string) {
-    console.log("fetching teacher user", username);
     return listTeacherAndStudent({
       type: 'teacher',
       current: 1,
@@ -283,9 +289,9 @@ const BatchList: React.FC = () => {
         id: createBatch ? null : currentRow?.id,
         batchAvailability: [{}],
         students: [...studentList],
-        edit
+        edit,
+        schoolId: formData.schoolId,
       };
-
       setIsLoading(true);
       let currentCompletedLessons = [];
       let message = '';
@@ -406,13 +412,12 @@ const BatchList: React.FC = () => {
           setFormData({
             ...formData, classCode: batchData.classes.classCode,
             batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, useNewZoomLink: batchData.classes.useNewZoomLink,
-            useAutoAttendance: batchData.classes.useAutoAttendance, offlineBatch: batchData.classes.offlineBatch, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink
+            useAutoAttendance: batchData.classes.useAutoAttendance, offlineBatch: batchData.classes.offlineBatch, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink, schoolId: batchData.classes.schoolId
           });
           setFollowupVersion(batchData.classes.followupVersion);
           setUseNewZoomLink(batchData.classes.useNewZoomLink)
           setUseAutoAttendnace(batchData.classes.useAutoAttendance)
           setOfflineBatch(batchData.classes.offlineBatch)
-
         }
         var tempObj = {
           batchData: data.data,
@@ -504,6 +509,15 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "batchId",
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.schoolName"
+          defaultMessage="School Name"
+        />
+      ),
+      dataIndex: "schoolName",
     },
     {
       title: (
@@ -856,7 +870,7 @@ const BatchList: React.FC = () => {
                               onChange={handleFormChange}
                             />
                           </Form.Item>
-                        </Col>
+                          </Col>
                         <Col span={12}>
                           <Form.Item
                             name="startingLessonId"
@@ -881,7 +895,7 @@ const BatchList: React.FC = () => {
                               }
                             </Select>
                           </Form.Item>
-                        </Col>
+                          </Col>
                         <Col span={12}>
                           <Form.Item
                             name="endingLessonId"
@@ -907,7 +921,7 @@ const BatchList: React.FC = () => {
                               }
                             </Select>
                           </Form.Item>
-                        </Col>
+                          </Col>
                         <Col span={24}>
                           <Form.Item
                             name="dateRangePicker"
@@ -964,7 +978,6 @@ const BatchList: React.FC = () => {
                               options={[]}
                               onChange={(newValue: any) => {
                                 setTeacherName(newValue);
-                                console.log("teacherDeb", newValue);
                               }}
                               style={{
                                 width: "100%",
@@ -1040,7 +1053,36 @@ const BatchList: React.FC = () => {
                               defaultValue={!createBatch ? prePop?.batchData?.classes?.offlineBatch : selectedOfflineBatch}
                             />
                           </Form.Item>
-                        </Col>
+                          </Col>
+
+                          <Col span={24} hidden={!selectedOfflineBatch}>
+                            <Form.Item
+                              name="schoolId"
+                            >
+                              <Select
+                                placeholder="Select School"
+                                onChange={(value) => {
+                                  handleFormChange({
+                                    target: {
+                                      name: "schoolId",
+                                      value: value,
+                                    },
+                                  });
+                                }}
+                                defaultValue={formData.schoolId}
+                                value={formData.schoolId}
+                                showSearch
+                                filterOption={(input, option: any) =>
+                                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                                allowClear
+                              >
+                                {
+                                  schools.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
+                                }
+                              </Select>
+                            </Form.Item>
+                          </Col>
 
                         {!selectedOfflineBatch &&
                           <Col span={24}>

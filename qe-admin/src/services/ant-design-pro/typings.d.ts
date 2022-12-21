@@ -1,4 +1,3 @@
-// @ts-ignore
 /* eslint-disable */
 
 declare namespace API {
@@ -141,6 +140,13 @@ declare namespace API {
     zoomLink?: string;
     zoomInfo?: string;
     whatsappLink?: string;
+  }
+
+  type SchoolItem = {
+    id?: string;
+    schoolName?: string;
+    createdAt?: string | DateTime;
+    batchesNumber?: number;
   }
 
   type Any = any;

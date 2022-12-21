@@ -10,6 +10,7 @@ import { AzureProxyController } from "./controller/AzureProxyController";
 import { ZoomController } from "./controller/ZoomController";
 import { CollectionAgentController } from "./controller/CollectionAgentController";
 import { LogsProxyController } from "./controller/LogsProxyController";
+import { SchoolController } from "./controller/SchoolController";
 
 export const Routes = [
   {
@@ -677,9 +678,57 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "get",
+    route: "/batching/startclasslater-to-batching",
+    controller: BatchController,
+    action: "syncClassStartDate",
+  },
+  {
+    method: "get",
+    route: "/listSchool",
+    controller: SchoolController,
+    action: "listSchools",
+  },
+  {
+    method: "post",
+    route: "/createSchool",
+    controller: SchoolController,
+    action: "addSchool",
+  },
+  {
+    method: "put",
+    route: "/editSchool",
+    controller: SchoolController,
+    action: "editSchool",
+  },
+  {
+    method: "get",
+    route: "/getSra",
+    controller: SchoolController,
+    action: "getSra",
+  },
+  {
+    method: "get",
+    route: "/listBatchForSchool",
+    controller: SchoolController,
+    action: "listBatches",
+  },
+  {
+    method: "post",
+    route: "/createSRA",
+    controller: SchoolController,
+    action: "createSRA",
+  },
+  {
+    method: "put",
+    route: "/editSRA",
+    controller: SchoolController,
+    action: "editSRA",
+  },
+  {
     method: "post",
     route: "/webhook/updateRazorpayStatus",
     controller: PaymentController,
     action: "updateRazorpayWebhookStatus",
-  },
+  },  
 ];
