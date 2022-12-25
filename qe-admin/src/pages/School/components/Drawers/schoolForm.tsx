@@ -143,7 +143,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         const dataForm = {
             id: value?.id,
             schoolName: value?.schoolName,
-            schoolCode: value?.schoolCode,
+            schoolCode: value?.schoolCode?.toUpperCase(),
             poc: value?.poc,
             sraId: value?.sra,
             schoolStatus: value?.schoolStatus,
@@ -253,13 +253,13 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                         <Form.Item label="School Code" name='schoolCode' rules={[{
                             required: true,
                         }]}>
-                            <Input />
+                            <Input maxLength={5} minLength={3} />
                         </Form.Item>
                     ) : (
                             <Form.Item label="School Code" name='schoolCode' rules={[{
                                 required: true,
                             }]}>
-                            <Input disabled />
+                                <Input disabled maxLength={5} minLength={3} />
                         </Form.Item>
                     )}
                     <Form.Item label="School POC" name='poc'>
