@@ -1,4 +1,4 @@
-import { getRepository, getManager, createQueryBuilder, IsNull, Not, In } from "typeorm";
+import { getRepository, getManager } from "typeorm";
 import { School } from "../entity/School";
 import { SRA } from "../entity/SRA";
 import { Classes } from "../entity/Classes";
@@ -9,7 +9,6 @@ import { BatchStudent } from "../entity/BatchStudent";
 import { Student } from "../entity/Student";
 import { User } from "../entity/User";
 import { isNullOrUndefined } from "util";
-import { logger } from "./../Logger.js";
 import { BatchService } from "./BatchService";
 
 export class SchoolService {
@@ -261,7 +260,7 @@ export class SchoolService {
                 const currentSchools = await this.schoolRepository.find();
 
                 for (let school of currentSchools) {
-                    if (request.schoolCode === school.schoolCode) {
+                    if (request.schoolCode.toUpperCase() === school.schoolCode.toUpperCase()) {
                         return {
                             success: true,
                             errorMessage: 'School code already exists',
