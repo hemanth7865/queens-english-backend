@@ -648,6 +648,31 @@ export class BatchService {
     }
   }
 
+
+  async addStudentSQL(batchId: string, student: string){
+    const classes = await this.classesRepository.findOne({ id: batchId })
+    const school = await this.schoolRepository.findOne({ id: classes.schoolId })
+    const stud = await this.studentRepository.findOne({ id: student })
+    const user = await this.userRepository.findOne({ id: student })
+    if (stud && school && school.id) {
+      stud.schoolId = school.id;
+    }
+    if (user && school && school.id) {
+      user.schoolId = school.id;
+      user.schoolCode = school.schoolCode;
+    }
+    await this.studentRepository.save(stud);
+    await this.userRepository.save(user);
+    let batchStud = new BatchStudent();
+    batchStud.type = "studentProfile";
+    batchStud.studentId = student;
+    batchStud.batchId = batchId;
+    batchStud.created_at = new Date();
+    batchStud.updated_at = new Date();
+    batchStud = await this.batchStudentRepository.save(batchStud);
+    return batchStud;
+  }
+
   async addStudents(students: string[], batchId: string) {
     for (let student of students) {
       let res1 = await axios
@@ -656,29 +681,15 @@ export class BatchService {
           id: student
         })
         .then(async (res) => {
-          const classes = await this.classesRepository.findOne({ id: batchId })
-          const school = await this.schoolRepository.findOne({ id: classes.schoolId })
-          const stud = await this.studentRepository.findOne({ id: student })
-          const user = await this.userRepository.findOne({ id: student })
-          if (stud) {
-            stud.schoolId = school.id;
-          }
-          if (user) {
-            user.schoolId = school.id;
-            user.schoolCode = school.schoolCode;
-          }
-          await this.studentRepository.save(stud);
-          await this.userRepository.save(user);
-          let batchStud = new BatchStudent();
-          batchStud.type = "studentProfile";
-          batchStud.studentId = student;
-          batchStud.batchId = batchId;
-          batchStud.created_at = new Date();
-          batchStud.updated_at = new Date();
-          batchStud = await this.batchStudentRepository.save(batchStud);
-          return batchStud;
+          return await this.addStudentSQL(batchId, student);
         })
-        .catch((error) => {
+        .catch(async (error) => {
+          /**
+           * ! Temporary force add student to the batch, to fix records that are currently in a batch on CosmosDB, but not in a batch in AP.
+           */
+          if(error?.response?.data?.toLowerCase() === "Student already enrolled in class".toLowerCase()){
+            return await this.addStudentSQL(batchId, student);
+          }
           return Promise.reject(error);
         });
     }
@@ -1138,6 +1149,7 @@ export class BatchService {
       studentBatchesHistory.batchId = batchId;
       studentBatchesHistory.active = status;
       studentsBatchesHistory.push(studentBatchesHistory);
+      studentBatchesHistory.id = uuidv4();
     }
     try {
       await this.studentBatchesHistory.save(studentsBatchesHistory);
