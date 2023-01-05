@@ -55,6 +55,9 @@ const UploadStudentsBulkWithoutRMN = () => {
                                 phoneNumber = "+91" + student["RMN"]
                             }
                         }
+
+                        const loginCode = Math.floor(100000 + Math.random() * 900000);
+
                         const studentData = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"] || "-",
@@ -65,7 +68,8 @@ const UploadStudentsBulkWithoutRMN = () => {
                             type: "student",
                             status: "active",
                             offlineStudentCode: student["Dummy number"],
-                            preventAppAccess: 0
+                            preventAppAccess: 0,
+                            loginCode
                         };
 
                         const res = await addUserSchedule({
