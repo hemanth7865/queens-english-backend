@@ -1072,6 +1072,17 @@ export async function editSchool(options?: { [key: string]: any }) {
   });
 }
 
+//API to generate missing assessments for selected batch
+export async function generateMissingAssessmentsForBatch(
+  options: { [key: string]: any }
+) {
+  console.log("option", options);
+  return request<any>(`/be/azure?url=api/teacher/generate-missing-assessments`, {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
 //API to save student school in Cosmos
 export async function updateStudentSchool(
   id: string,

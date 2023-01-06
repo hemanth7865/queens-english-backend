@@ -1149,7 +1149,6 @@ export class BatchService {
       studentBatchesHistory.batchId = batchId;
       studentBatchesHistory.active = status;
       studentsBatchesHistory.push(studentBatchesHistory);
-      studentBatchesHistory.id = uuidv4();
     }
     try {
       await this.studentBatchesHistory.save(studentsBatchesHistory);
