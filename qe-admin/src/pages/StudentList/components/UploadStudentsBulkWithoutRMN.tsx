@@ -1,6 +1,7 @@
-import { Button, message, Modal, Progress } from 'antd';
-import { useState } from 'react'
+import { Button, message, Modal, Progress, Select } from 'antd';
+import { useState, useEffect } from 'react'
 import { addUserSchedule, getIndividualBatch, addeditbatch } from "@/services/ant-design-pro/api";
+import { listSchool, addBatchToSchool } from "@/services/ant-design-pro/api";
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -25,6 +26,18 @@ const UploadStudentsBulkWithoutRMN = () => {
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [currentRecord, setCurrentRecord] = useState<number>(0);
     const [notStoredUsers, setNotStoredUsers] = useState<object[]>([])
+    const [schools, setSchools] = useState<any[]>([]);
+    const [selectedSchool, setSelectedSchool] = useState<any>(null);
+
+    useEffect(() => {
+        listSchool()
+            .then((data: any) => {
+                setSchools(data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, []);
 
     const handleUpload = async (e: any) => {
         e.preventDefault();
@@ -42,6 +55,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                 }
                 setTotalRecords(data.length);
                 setCurrentRecord(0);
+                let batches: any;
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
@@ -93,6 +107,8 @@ const UploadStudentsBulkWithoutRMN = () => {
                             try {
                                 const batchData: any = await getIndividualBatch(student["Batch code"]);
                                 const batch = batchData.data.classes;
+                                batches = batchData.data.classes;
+                                console.log("batches", batches)
                                 const batchStudents = batchData.data.students;
                                 batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
                                 batch.students.push({ value: res.id })
@@ -122,6 +138,12 @@ const UploadStudentsBulkWithoutRMN = () => {
                         console.log(student);
                     }
                     setCurrentRecord((n) => n + 1);
+                }
+                if (!!selectedSchool && !!batches) {
+                    const key = 'Batch code'
+                    const batchesToAdd = [...new Map(batches.map((item: { [x: string]: any; }) =>
+                        [item[key], item])).values()];
+                    console.log("batchesToAdd", batchesToAdd)
                 }
                 setIsLoading(false)
             };
@@ -160,16 +182,30 @@ const UploadStudentsBulkWithoutRMN = () => {
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
 
                 <br />
-
+                <Select
+                    placeholder="Select School"
+                    onChange={(value) => setSelectedSchool(value)}
+                    value={selectedSchool}
+                    showSearch
+                    // filterOption={(input, option: any) =>
+                    //     option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    // }
+                    style={{ margin: "3px", display: "block" }}
+                    allowClear
+                    options={schools.map((s) => ({ value: s.id, label: `${s.schoolName} ~ ${s.schoolCode}` }))}
+                    optionLabelProp="label"
+                    optionFilterProp='label'
+                >
+                </Select>
                 <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <input type="file" name="agents" required id="file" />
-                    <Button loading={isLoading} type="primary" htmlType="submit">
+                    <Button loading={isLoading} type="primary" htmlType="submit" style={{ margin: "3px" }}>
                         Upload File
                     </Button>
                 </form>
 
-                <div style={{ textAlign: "right" }}>
+                <div style={{ textAlign: "right", margin: "3px" }}>
                     <Button type="default" onClick={() => window.location.reload()}>
                         Cancel
                     </Button>
