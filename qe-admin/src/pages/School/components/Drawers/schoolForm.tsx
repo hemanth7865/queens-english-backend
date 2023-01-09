@@ -9,6 +9,7 @@ import {
 } from 'antd';
 import { getSra, createSchool, editSchool, listBatchForSchool } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
+import UploadStudentsBulkWithoutRMN from '@/pages/StudentList/components/UploadStudentsBulkWithoutRMN';
 
 const { Option } = Select;
 
@@ -314,6 +315,11 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                             </>
                         )}
                     </Spin>
+
+                    <Form.Item label="Upload">
+                        <UploadStudentsBulkWithoutRMN school={props.tempData?.id} disableDropdown={true} />
+                    </Form.Item>
+
 
                     <Button
                         type="primary"

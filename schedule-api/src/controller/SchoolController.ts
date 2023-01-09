@@ -76,22 +76,6 @@ export class SchoolController {
         }
     }
 
-    async addBatchtoSchool(request: Request, response: Response, next: NextFunction) {
-        let res;
-        try {
-            console.log('request for addBatchtoSchool', request.body);
-            res = {
-                success: true,
-            }
-            return res
-            // request.body.operation = OPERATION.UPDATE;
-            // res = await this.schoolService.saveSchool(request.body);
-            // return res;
-        } catch (error) {
-            logger.error(error);
-        }
-    }
-
     async addSchool(request: Request, response: Response, next: NextFunction) {
         let res;
         try {
@@ -109,6 +93,16 @@ export class SchoolController {
             request.body.operation = OPERATION.UPDATE;
             res = await this.schoolService.saveSchool(request.body);
             return res;
+        } catch (error) {
+            logger.error(error);
+        }
+    }
+
+    async addBatchtoSchool(request: Request, response: Response, next: NextFunction) {
+        let res;
+        try {
+            res = await this.schoolService.saveSchooltoBatches(request.body);
+            return res
         } catch (error) {
             logger.error(error);
         }

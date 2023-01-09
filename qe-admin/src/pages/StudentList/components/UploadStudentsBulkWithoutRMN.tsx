@@ -1,7 +1,6 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch } from "@/services/ant-design-pro/api";
-import { listSchool, addBatchToSchool } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool } from "@/services/ant-design-pro/api";
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -20,7 +19,7 @@ function csvToArray(str: string, delimiter: string = ",") {
     return arr;
 }
 
-const UploadStudentsBulkWithoutRMN = () => {
+const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [totalRecords, setTotalRecords] = useState<number>(0);
@@ -37,7 +36,10 @@ const UploadStudentsBulkWithoutRMN = () => {
             .catch((error) => {
                 console.log(error);
             });
-    }, []);
+        if (props?.school) {
+            setSelectedSchool(props.school)
+        }
+    }, [props.school]);
 
     const handleUpload = async (e: any) => {
         e.preventDefault();
@@ -55,7 +57,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                 }
                 setTotalRecords(data.length);
                 setCurrentRecord(0);
-                let batches: any;
+                let batches: any[] = [];
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
@@ -107,7 +109,7 @@ const UploadStudentsBulkWithoutRMN = () => {
                             try {
                                 const batchData: any = await getIndividualBatch(student["Batch code"]);
                                 const batch = batchData.data.classes;
-                                batches = batchData.data.classes;
+                                batches.push(batchData.data.classes.id)
                                 console.log("batches", batches)
                                 const batchStudents = batchData.data.students;
                                 batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
@@ -140,10 +142,24 @@ const UploadStudentsBulkWithoutRMN = () => {
                     setCurrentRecord((n) => n + 1);
                 }
                 if (!!selectedSchool && !!batches) {
-                    const key = 'Batch code'
-                    const batchesToAdd = [...new Map(batches.map((item: { [x: string]: any; }) =>
-                        [item[key], item])).values()];
-                    console.log("batchesToAdd", batchesToAdd)
+                    const batchesToAdd = [...new Set(batches)]
+                    const school = schools.find(obj => obj.id === selectedSchool);
+                    const data = {
+                        batchesToSave: batchesToAdd,
+                        saveSchool: school,
+                        csv: true
+                    };
+                    try {
+                        const edit = await addBatchToSchool({
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(data),
+                        });
+                        console.log("edit", edit, 'data', data)
+                    } catch (e) {
+                        console.log("e", e)
+                    }
                 }
                 setIsLoading(false)
             };
@@ -162,10 +178,10 @@ const UploadStudentsBulkWithoutRMN = () => {
                 key="primary"
                 onClick={() => setOpenUpload(true)}
             >
-                Upload Students Without RMN
+                Bulk Upload Students
             </Button>
 
-            <Modal visible={openUpload} onCancel={() => setOpenUpload(false)} footer={false}>
+            <Modal visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
                 <code style={{ maxHeight: "300px", overflow: "auto" }}>
                     <pre>
                         {JSON.stringify(notStoredUsers, null, 4)}
@@ -187,14 +203,12 @@ const UploadStudentsBulkWithoutRMN = () => {
                     onChange={(value) => setSelectedSchool(value)}
                     value={selectedSchool}
                     showSearch
-                    // filterOption={(input, option: any) =>
-                    //     option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    // }
                     style={{ margin: "3px", display: "block" }}
                     allowClear
                     options={schools.map((s) => ({ value: s.id, label: `${s.schoolName} ~ ${s.schoolCode}` }))}
                     optionLabelProp="label"
                     optionFilterProp='label'
+                    disabled={props.disableDropdown}
                 >
                 </Select>
                 <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}
