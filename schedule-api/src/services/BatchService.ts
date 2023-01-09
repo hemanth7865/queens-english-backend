@@ -1230,17 +1230,30 @@ export class BatchService {
 
   async updateBatchEndDate(data: any) {
     /**Query to fetch all batch based on the date */
-    const {currentDate, updatedDate} = data;
+    const {currentDate, updatedDate, isEndDay} = data;
     const results = {
       "updated": 0,
       "notUpdated": 0,
       "updatedIds": [],
     }
     try{
-      let query = `select DISTINCT id from classes where CONCAT(YEAR(classes.classEndDate),'-',MONTH(classes.classEndDate)) = '${currentDate}'`;
+      const query = `select DISTINCT id from classes where CONCAT(YEAR(classes.classEndDate),'-',MONTH(classes.classEndDate)) = '${currentDate}'`;
       let getEndDateLists = await getManager().query(query);
-      /**Call the listBatch with the id and get the details */
-      console.log('query', query);
+      /**Get the last date */
+      if(isEndDay){
+        let lastDate;
+        if(currentDate.length === 6){
+          const finalDate = currentDate.split('');
+          const currentSplice = finalDate.splice(-1, 0, 0);
+          lastDate = finalDate.join('');
+        }else{
+          lastDate = currentDate;
+        }
+        const lastDateQuery = `select DISTINCT id from classes where classes.classEndDate LIKE '${lastDate}-31%'`;
+        const endDateList = await getManager().query(lastDateQuery);
+        getEndDateLists = getEndDateLists.concat(endDateList);
+      }
+
       for(const batches of getEndDateLists) {
         let batchInfo = await this.getBatchDetails(batches.id);
         let batchData = batchInfo.data;
@@ -1259,7 +1272,6 @@ export class BatchService {
           studentData["key"] = studentData.id;
         }
         const batch: any = { ...classes, students: students, batchAvailability: batchData.batchAvailability, edit: true};
-        console.log('batch', batch);
         await this.createBatch(batch);
         results.updated++;
         results.updatedIds.push(batch.id);
@@ -1269,9 +1281,5 @@ export class BatchService {
       console.log('error', results);
       return { message: "Bulk update error" , error: error};
     }
-
-
-
-    
   }
 }
