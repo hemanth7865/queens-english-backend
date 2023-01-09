@@ -1240,6 +1240,7 @@ export class BatchService {
       let query = `select DISTINCT id from classes where CONCAT(YEAR(classes.classEndDate),'-',MONTH(classes.classEndDate)) = '${currentDate}'`;
       let getEndDateLists = await getManager().query(query);
       /**Call the listBatch with the id and get the details */
+      console.log('query', query);
       for(const batches of getEndDateLists) {
         let batchInfo = await this.getBatchDetails(batches.id);
         let batchData = batchInfo.data;
@@ -1258,7 +1259,8 @@ export class BatchService {
           studentData["key"] = studentData.id;
         }
         const batch: any = { ...classes, students: students, batchAvailability: batchData.batchAvailability, edit: true};
-        //await this.createBatch(batch);
+        console.log('batch', batch);
+        await this.createBatch(batch);
         results.updated++;
         results.updatedIds.push(batch.id);
       }
