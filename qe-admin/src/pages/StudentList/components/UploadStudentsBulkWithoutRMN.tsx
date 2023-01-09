@@ -56,8 +56,8 @@ const UploadStudentsBulkWithoutRMN = () => {
                             }
                         }
 
-                        const loginCode = Math.floor(100000 + Math.random() * 900000);
-
+                        const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
+                        const loginCode = loginCodeNumber.toString();
                         const studentData = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"] || "-",
