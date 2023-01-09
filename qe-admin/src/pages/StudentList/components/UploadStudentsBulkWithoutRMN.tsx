@@ -110,7 +110,6 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 const batchData: any = await getIndividualBatch(student["Batch code"]);
                                 const batch = batchData.data.classes;
                                 batches.push(batchData.data.classes.id)
-                                console.log("batches", batches)
                                 const batchStudents = batchData.data.students;
                                 batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
                                 batch.students.push({ value: res.id })
@@ -137,7 +136,6 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                     } else {
                         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
-                        console.log(student);
                     }
                     setCurrentRecord((n) => n + 1);
                 }
@@ -150,13 +148,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         csv: true
                     };
                     try {
-                        const edit = await addBatchToSchool({
+                        await addBatchToSchool({
                             headers: {
                                 "Content-Type": "application/json",
                             },
                             body: JSON.stringify(data),
                         });
-                        console.log("edit", edit, 'data', data)
                     } catch (e) {
                         console.log("e", e)
                     }
