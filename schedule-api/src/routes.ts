@@ -731,4 +731,10 @@ export const Routes = [
     controller: PaymentController,
     action: "updateRazorpayWebhookStatus",
   },  
+  {
+    method: "post",
+    route: "/batch/updateDueDate",
+    controller: BatchController,
+    action: "updateBatchEndDate",
+  },
 ];
