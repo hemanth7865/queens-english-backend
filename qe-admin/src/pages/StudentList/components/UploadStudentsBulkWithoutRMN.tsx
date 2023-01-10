@@ -65,7 +65,8 @@ const UploadStudentsBulkWithoutRMN = () => {
                             type: "student",
                             status: "active",
                             offlineStudentCode: student["Dummy number"],
-                            preventAppAccess: 0
+                            preventAppAccess: 0,
+                            offlineUser: 1
                         };
 
                         const res = await addUserSchedule({
