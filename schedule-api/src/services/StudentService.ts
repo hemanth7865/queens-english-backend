@@ -160,7 +160,7 @@ export class StudentService {
     }
 
     var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
-    u.lastName, u.phoneNumber, u.gender, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
+    u.lastName, u.phoneNumber, u.gender, u.offlineUser, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
     u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age,
     CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
     CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
@@ -322,6 +322,7 @@ export class StudentService {
       );
       l.batchId = batchId;
       l.isSibling = element.isSibling;
+      l.offlineUser = element.offlineUser;
       l.classCode = batchCodes[0]?.classCode;
       l.useAutoAttendance = batchCodes[0]?.useAutoAttendance;
       l.teacherCode = batchCodes[0]?.teacherCode;

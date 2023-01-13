@@ -207,10 +207,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                         </Col>
 
                         <Col span={12}>
-                            <Form.Item name="userType">
+                            <Form.Item name="offlineUser">
                                 <Select
                                     onChange={(value) => { setOfflineUser(value) }}
-                                    disabled
                                 >
                                     <Option value="0">Online</Option>
                                     <Option value="1">Offline</Option>

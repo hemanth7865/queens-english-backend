@@ -102,7 +102,7 @@ export class User extends BaseEntity {
   isSibling: boolean;
 
   @Column({ nullable: true, type: "boolean" })
-  offlineUser: boolean;
+  offlineUser: number;
 
   @Column({ nullable: true })
   schoolId: string;

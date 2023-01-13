@@ -170,7 +170,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             lastName: props.data.lastName,
             phoneNumber: props.data.phoneNumber,
             email: props.data.email,
-            offlineUser: props.data.offlineUser,
+            offlineUser: props.data.offlineUser ? '1' : '0',
             userType: type == 'teacher' ? 'Teacher' : 'Student'
         });
     }
