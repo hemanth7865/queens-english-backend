@@ -97,4 +97,14 @@ export class SchoolController {
             logger.error(error);
         }
     }
+
+    async addBatchtoSchool(request: Request, response: Response, next: NextFunction) {
+        let res;
+        try {
+            res = await this.schoolService.saveSchooltoBatches(request.body);
+            return res
+        } catch (error) {
+            logger.error(error);
+        }
+    }
 }
