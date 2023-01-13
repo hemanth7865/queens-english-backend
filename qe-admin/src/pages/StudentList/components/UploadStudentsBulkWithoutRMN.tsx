@@ -1,6 +1,7 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
 import { useState, useEffect } from 'react'
 import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool } from "@/services/ant-design-pro/api";
+import { UploadOutlined } from '@ant-design/icons';
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -170,13 +171,29 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
     return (
         <>
-            <Button
-                type="primary"
-                key="primary"
-                onClick={() => setOpenUpload(true)}
-            >
-                Bulk Upload Students
-            </Button>
+            {props.uploadButtonStyle ? (
+                <Button
+                    type="primary"
+                    key="primary"
+                    onClick={() => setOpenUpload(true)}
+                    icon={<UploadOutlined />}
+                    style={{ color: "white", backgroundColor: "DodgerBlue", margin: "2px", height: "40px" }}
+                    shape="round"
+                    block
+                >
+                    Bulk Upload Students
+                </Button>
+            ) : (
+                <Button
+                    type="primary"
+                    key="primary"
+                    onClick={() => setOpenUpload(true)}
+                    icon={<UploadOutlined />}
+                >
+                    Bulk Upload Students
+                </Button>
+            )}
+
 
             <Modal visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
                 <code style={{ maxHeight: "300px", overflow: "auto" }}>

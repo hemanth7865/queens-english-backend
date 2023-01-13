@@ -316,19 +316,15 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                         )}
                     </Spin>
 
-                    <Form.Item label="Upload">
-                        <UploadStudentsBulkWithoutRMN school={props.tempData?.id} disableDropdown={true} />
-                    </Form.Item>
-
-
                     <Button
                         type="primary"
                         htmlType="submit"
                         shape="round"
                         block
-                        style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                        style={{ color: "white", backgroundColor: "DodgerBlue", margin: "2px" }}
                     >Save</Button>
                 </Form>
+                <UploadStudentsBulkWithoutRMN school={props.tempData?.id} disableDropdown={true} uploadButtonStyle={true} />
             </Spin >
         </>
     );
