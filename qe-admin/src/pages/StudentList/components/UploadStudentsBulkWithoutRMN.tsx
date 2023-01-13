@@ -86,7 +86,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             status: "active",
                             offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
-                            offlineUser: 1
+                            offlineUser: 1,
                             loginCode
                         };
 
