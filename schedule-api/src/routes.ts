@@ -733,6 +733,12 @@ export const Routes = [
   },  
   {
     method: "post",
+    route: "/batch/updateDueDate",
+    controller: BatchController,
+    action: "updateBatchEndDate",
+  },
+  {
+    method: "post",
     route: "/addBatchtoSchool",
     controller: SchoolController,
     action: "addBatchtoSchool",

@@ -45,3 +45,11 @@ export const compareStatusAndEMIStatus = (status, emiStatus) => {
         return true;
     }
 }
+
+export const changeBatchEndDate = (endDate, updateDate) => {
+    const newDate = endDate.split('T');
+    const dateToChange = newDate[0];
+    const endDateNumber = moment(dateToChange).format('DD');
+    const finalDate = `${updateDate}-${endDateNumber}T${newDate[1]}`;
+    return finalDate;
+}
