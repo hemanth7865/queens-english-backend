@@ -1228,6 +1228,40 @@ export class BatchService {
     return { success: true, data: students }
   }
 
+  async updateBatchActiveLesson(data: any) {
+    const cosomos_url = 'api/teacher/update-batch-active-lesson'
+    if(!data.classProfileId || !data.lessonId){
+      return { success: false, message: "Pls provide valid details" }
+    }
+
+    const classProfile = await this.classesRepository.findOne({id: data.classProfileId })
+    if(!classProfile){
+      return { success: false, message: "ClassProfile does not exist" }
+    }
+
+    const options = {
+      url: cosomos_url,
+      json: true,
+      body: data
+    };
+    let response = {
+      success: false,
+      message: ""
+    }
+    const res = await axios
+      .post(options.url, options.body)
+      .then(async (res) => {
+        const result = await this.classesRepository.update({ id: data.classProfileId }, { activeLessonId: data.lessonId });
+        response.success = true
+        response.message = "Active Lesson Updated Successfully" 
+      })
+      .catch((error) => {
+        response.success = false
+        response.message = error.response.data.message
+      });
+      return response
+  }
+
   async updateBatchEndDate(data: any) {
     /**Query to fetch all batch based on the date */
     const {currentDate, updatedDate, isEndDay} = data;
