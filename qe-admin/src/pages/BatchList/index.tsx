@@ -17,12 +17,13 @@ import {
   Modal,
   Select,
   Table,
-  Spin
+  Spin,
+  notification
 } from "antd";
 import moment from "moment";
 const { RangePicker } = DatePicker;
 import React, { useState, useRef, useEffect } from "react";
-import { useIntl, FormattedMessage } from "umi";
+import { useIntl, FormattedMessage, useAccess } from "umi";
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
@@ -50,6 +51,7 @@ import View from "./components/View";
 import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
 import { USER_STATUS } from "@/components/Constants/constants";
 import { listSchool } from "@/services/ant-design-pro/api";
+import ActiveLessonContainer from "./components/ActiveLessonContainer";
 
 const Option = Select.Option;
 
@@ -124,6 +126,9 @@ const BatchList: React.FC = () => {
   const [batchData, setBatchData] = useState<any>({});
   const [schools, setSchools] = useState<any[]>([]);
   const intl = useIntl();
+  const access = useAccess();
+
+  const [notificationCall, contextHolder] = notification.useNotification();
 
   const options = [];
   for (let i = 0; i < leadList.length; i++) {
@@ -582,16 +587,9 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "lessonNumber",
-      renderFormItem: (value) => {
-        return <Select
-          allowClear
-          showSearch
-          filterOption={(input, option: any) =>
-            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }>
-          {LESSONS.map((_l) => (<Option key={_l.id} value={_l.number} label={_l.number}>{_l.number}</Option>))}
-        </Select>;
-      },
+      render: (dom, entity) => {
+        return access.canSuperAdmin ? <ActiveLessonContainer notificationCall={notificationCall} entity={entity} /> : <>{entity?.lessonNumber}</>
+      }
     },
     //frequency
     {
@@ -744,6 +742,8 @@ const BatchList: React.FC = () => {
   const dateFormat = "YYYY-MM-DD";
 
   return (
+    <>
+    {contextHolder}
     <PageContainer>
       <ProTable<API.batchItem, API.PageParams>
         headerTitle={intl.formatMessage({
@@ -1223,6 +1223,7 @@ const BatchList: React.FC = () => {
         )}
       </Drawer>
     </PageContainer>
+    </>
   );
 };
 

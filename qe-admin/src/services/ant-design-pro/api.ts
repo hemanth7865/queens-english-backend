@@ -1110,3 +1110,11 @@ export async function editSRA(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// API to UPDATE ACTIVE LESSON
+export async function updateBatchActiveLesson(options?: { [key: string]: any }) {
+  return request<any>("/be/batch/updateBatchActiveLesson", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
