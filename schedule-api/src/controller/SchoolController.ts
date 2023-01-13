@@ -6,12 +6,14 @@ import { Classes } from "../entity/Classes";
 import { SchoolService } from "../services/SchoolService";
 import { Constants, OPERATION } from "../helpers/Constants";
 import { logger } from "./../Logger.js";
+import { UserService } from "../services/UserService";
 
 export class SchoolController {
     private schoolRepository = getRepository(School);
     private sraRepository = getRepository(SRA);
     private classesRepository = getRepository(Classes);
     private schoolService = new SchoolService();
+    private userService = new UserService();
 
     async listSchools(request: Request, response: Response, next: NextFunction) {
         var parameters = {
@@ -95,6 +97,16 @@ export class SchoolController {
             return res;
         } catch (error) {
             logger.error(error);
+        }
+    }
+
+    async getLocation(request: Request, response: Response, next: NextFunction) {
+        let res;
+        try {
+            res = await this.userService.getLocations(request.body)
+            return res;
+        } catch (error) {
+            logger.error(error)
         }
     }
 }

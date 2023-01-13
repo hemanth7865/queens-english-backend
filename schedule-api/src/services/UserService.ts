@@ -2,12 +2,13 @@ import { getRepository, Not, IsNull } from "typeorm";
 import { User } from "../entity/User";
 import { generateRandomCode } from "./../utils/batch/getUniqueTeacherCode";
 import axios from "axios";
+import { isNullOrUndefined } from "util";
 const { usersLogger } = require("../Logger.js");
 
 export class UserService {
   private usersRepository = getRepository(User);
 
-  UserService() {}
+  UserService() { }
 
   async isUserExists(
     column = "phoneNumber",
@@ -138,5 +139,37 @@ export class UserService {
     }
 
     return result;
+  }
+
+  async getLocations(request: any) {
+    const axiosPrivate = require('axios');
+    let API_URL = "";
+    let responseCountries = null;
+
+    if (isNullOrUndefined(request)) {
+      API_URL = `https://api.countrystatecity.in/v1/countries`;
+    } else if (request.country) {
+      API_URL = `https://api.countrystatecity.in/v1/countries/${request.country}/states`;
+    } else {
+      API_URL = `https://api.countrystatecity.in/v1/countries/${request.country}/states/${request.state}/cities`;
+    }
+
+    var config = {
+      method: 'get',
+      url: 'https://api.countrystatecity.in/v1/countries',
+      headers: {
+        'X-CSCAPI-KEY': process.env.CSCAPI_KEY
+      }
+    };
+
+    axiosPrivate(config)
+      .then(function (response) {
+        responseCountries = response.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+    console.log("RESPONSEcountries", responseCountries);
   }
 }

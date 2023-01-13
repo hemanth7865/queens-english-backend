@@ -7,7 +7,7 @@ import {
     Spin,
     notification
 } from 'antd';
-import { getSra, createSchool, editSchool, listBatchForSchool } from '@/services/ant-design-pro/api';
+import { getSra, createSchool, editSchool, listBatchForSchool, listLocation } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 
 const { Option } = Select;
@@ -110,11 +110,21 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         setLoadingBatches(false);
     }
 
+    async function listLocations() {
+        try {
+            const locations = await listLocation();
+            console.log("Countries", locations)
+        } catch (error) {
+            console.log("Countries", error)
+        }
+    }
+
     useEffect(() => {
         setIsLoading(true);
         (async function loadPage() {
             await getSras();
             await listBatches();
+            await listLocations();
         })();
         setIsLoading(false);
     }, []);

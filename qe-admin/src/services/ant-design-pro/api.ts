@@ -1110,3 +1110,11 @@ export async function editSRA(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+//API for getting Countries
+export async function listLocation(options?: { [key: string]: any }) {
+  return request<any>("/be/listLocations", {
+    method: "GET",
+    ...(options || {}),
+  });
+}
