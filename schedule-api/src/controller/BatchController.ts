@@ -189,4 +189,15 @@ export class BatchController {
             return { e, name: file.name, size: file.size, type: file.type };
         }
     }
+
+    async updateBatchEndDate(request: Request, response: Response, next: NextFunction) {
+        try {
+            const batch = await this.batchService.updateBatchEndDate(request.body);
+            return { "success": true, "data": batch };
+        } catch (error) {
+            console.log()
+            return { success: false, error: error.toString() };
+        }
+    }
+
 }

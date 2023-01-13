@@ -378,6 +378,7 @@ export class StudentService {
       offlineStudentCode: data.offlineStudentCode,
       preventAppAccess: data.preventAppAccess,
       offlineUser: data.offlineUser,
+      loginCode: data.loginCode
     }
 
     if (data.cacheTime) {
@@ -525,6 +526,7 @@ export class StudentService {
     user.offlineStudentCode = data.offlineStudentCode;
     user.preventAppAccess = data.preventAppAccess;
     user.offlineUser = data.offlineUser;
+    user.loginCode = data.loginCode;
 
     if (data.id) {
       user.id = data.id;

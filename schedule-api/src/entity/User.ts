@@ -110,6 +110,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   schoolCode: string;
 
+  @Column({ nullable: true })
+  loginCode: string;
+
   @OneToOne(() => Teacher)
   @JoinColumn()
   teacherData: Teacher;
