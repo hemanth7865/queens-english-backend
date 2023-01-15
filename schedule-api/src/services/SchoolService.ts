@@ -201,8 +201,13 @@ export class SchoolService {
 
     async saveSchooltoBatches(request: any) {
         for (const b of request.batchesToSave) {
+            let batch: any;
 
-            const batch = await this.classesRepository.findOne({ where: { batchNumber: b } });
+            if (!isNullOrUndefined(request.csv)) {
+                batch = await this.classesRepository.findOne({ where: { id: b } });
+            } else {
+                batch = await this.classesRepository.findOne({ where: { batchNumber: b } });
+            }
             const students = await this.batchStudentRepository.find({ where: { batchId: batch.id } });
 
             batch.schoolId = request.saveSchool.id;
@@ -247,6 +252,13 @@ export class SchoolService {
             } catch (error) {
                 console.error(error);
             }
+        }
+
+        if (!isNullOrUndefined(request.csv)) {
+            return {
+                success: true,
+                data: request.batchesToSave,
+            };
         }
     }
 

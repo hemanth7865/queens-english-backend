@@ -29,6 +29,8 @@ import {
 import moment = require("moment");
 import { School } from "../entity/School";
 import { isNullOrUndefined } from "util";
+import { changeBatchEndDate } from "./../helpers/timeStampToDate"
+
 
 
 export class BatchService {
@@ -1224,5 +1226,60 @@ export class BatchService {
       }
     }
     return { success: true, data: students }
+  }
+
+  async updateBatchEndDate(data: any) {
+    /**Query to fetch all batch based on the date */
+    const {currentDate, updatedDate, isEndDay} = data;
+    const results = {
+      "updated": 0,
+      "notUpdated": 0,
+      "updatedIds": [],
+    }
+    try{
+      const query = `select DISTINCT id from classes where CONCAT(YEAR(classes.classEndDate),'-',MONTH(classes.classEndDate)) = '${currentDate}'`;
+      let getEndDateLists = await getManager().query(query);
+      /**Get the last date */
+      if(isEndDay){
+        let lastDate;
+        if(currentDate.length === 6){
+          const finalDate = currentDate.split('');
+          const currentSplice = finalDate.splice(-1, 0, 0);
+          lastDate = finalDate.join('');
+        }else{
+          lastDate = currentDate;
+        }
+        const lastDateQuery = `select DISTINCT id from classes where classes.classEndDate LIKE '${lastDate}-31%'`;
+        const endDateList = await getManager().query(lastDateQuery);
+        getEndDateLists = getEndDateLists.concat(endDateList);
+      }
+
+      for(const batches of getEndDateLists) {
+        let batchInfo = await this.getBatchDetails(batches.id);
+        let batchData = batchInfo.data;
+        const classes = batchData.classes;
+        const students = batchData.students;
+        if(batchData.students.length === 0){
+          results.notUpdated++;
+          continue;
+        }
+        
+        /**Update the endDate and call the function */
+        const updatedClassEndDate = changeBatchEndDate(batchData.classes.classEndDate, updatedDate);
+        classes.classEndDate = updatedClassEndDate;
+        for(const studentData of students){
+          studentData["value"] = studentData.studentId;
+          studentData["key"] = studentData.id;
+        }
+        const batch: any = { ...classes, students: students, batchAvailability: batchData.batchAvailability, edit: true};
+        await this.createBatch(batch);
+        results.updated++;
+        results.updatedIds.push(batch.id);
+      }
+      return { message: "Updated enddate Successfully" , result: results};
+    }catch(error) {
+      console.log('error', results);
+      return { message: "Bulk update error" , error: error};
+    }
   }
 }

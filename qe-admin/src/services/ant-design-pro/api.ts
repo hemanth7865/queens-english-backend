@@ -1111,6 +1111,16 @@ export async function editSRA(options?: { [key: string]: any }) {
   });
 }
 
+//API to Add Batch to School
+export async function addBatchToSchool(
+  options?: { [key: string]: any }
+) {
+  return request<any>("/be/addBatchToSchool", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
 //API for getting Countries
 export async function listLocation(options?: { [key: string]: any }) {
   return request<any>("/be/listLocations", {

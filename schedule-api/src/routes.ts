@@ -732,6 +732,18 @@ export const Routes = [
     action: "updateRazorpayWebhookStatus",
   },  
   {
+    method: "post",
+    route: "/batch/updateDueDate",
+    controller: BatchController,
+    action: "updateBatchEndDate",
+  },
+  {
+    method: "post",
+    route: "/addBatchtoSchool",
+    controller: SchoolController,
+    action: "addBatchtoSchool",
+  },
+  {
     method: "get",
     route: "/listLocations",
     controller: SchoolController,
