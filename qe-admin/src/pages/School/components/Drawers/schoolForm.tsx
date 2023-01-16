@@ -32,6 +32,7 @@ export type SchoolFormProps = {
         classes?: [{ id: string, batchnumber?: string }],
         sraName?: string,
         classObject?: [{ batchId: string, batchNumber?: string, students?: any[] }],
+        location?: string;
     }
 };
 
@@ -41,6 +42,15 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [sra, setSra] = useState<any>([]);
     const [batches, setBatches] = useState<any>([]);
     const [newData, setNewdata] = useState<any>(false);
+    const [loadingCountries, setLoadingCountries] = useState<boolean>(false);
+    const [countries, setCountries] = useState<any>([]);
+    const [selectedCountry, setSelectedCountry] = useState<any>(false);
+    const [loadingStates, setLoadingStates] = useState<boolean>(false);
+    const [states, setStates] = useState<any>([]);
+    const [selectedState, setSelectedState] = useState<any>(false);
+    const [loadingCities, setLoadingCities] = useState<boolean>(false);
+    const [cities, setCities] = useState<any>([]);
+    const [selectedCity, setSelectedCity] = useState<any>(false);
 
     const options = sra.map((item: any) => {
         return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
@@ -111,12 +121,32 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         setLoadingBatches(false);
     }
 
-    async function listLocations() {
+    async function listLocations(data?: any) {
+        if (data?.country && !data?.state) {
+            setLoadingStates(true);
+        } else if (data?.state) {
+            setLoadingCities(true);
+        } else {
+            setLoadingCountries(true);
+        }
         try {
-            const locations = await listLocation();
-            console.log("Countries", locations)
+            const locations = await listLocation(data);
+            if (data?.country && !data?.state) {
+                setStates(locations);
+            } else if (data?.state) {
+                setCities(locations);
+            } else {
+                setCountries(locations);
+            }
         } catch (error) {
-            console.log("Countries", error)
+            console.log("Locations Error", error)
+        }
+        if (data?.country && !data?.state) {
+            setLoadingStates(false);
+        } else if (data?.state) {
+            setLoadingCities(false);
+        } else {
+            setLoadingCountries(false);
         }
     }
 
@@ -124,8 +154,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         setIsLoading(true);
         (async function loadPage() {
             await getSras();
-            await listBatches();
             await listLocations();
+            await listBatches();
         })();
         setIsLoading(false);
     }, []);
@@ -165,7 +195,10 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             cosmosBatches: {
                 sendBatches: value?.batches,
                 removeBatches: batchesToRemove
-            }
+            },
+            country: value?.country,
+            state: value?.state,
+            city: value?.city
         };
         setIsLoading(true);
         if (oldData.operation === 'edit') {
@@ -221,6 +254,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             createdAt: newData ? newData?.createdAt : props.tempData?.createdAt,
             numberOfBatches: newData ? newData?.batches?.length : props.tempData?.classes?.length,
             batches: newData ? newData?.batches : props.tempData?.classes?.map((item: any) => item.batchNumber),
+            location: newData ? newData?.location : props.tempData?.location,
         })
     };
     useEffect(() => {
@@ -237,6 +271,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             props.tempData?.createdAt,
             props.tempData?.classes?.length,
             props.tempData?.classes?.map((item: any) => item.batchNumber),
+            props.tempData?.location
         ]
     )
 
@@ -281,6 +316,62 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     }]}>
                         <Select >{options}</Select>
                     </Form.Item>
+                    {props?.tempData?.operation === 'create' ? (
+                        <>
+                            <Form.Item label="Country" name='country'>
+                                <Select
+                                    placeholder="Select Country"
+                                    optionFilterProp='label'
+                                    showSearch
+                                    allowClear
+                                    loading={loadingCountries}
+                                    onChange={(value, option) => { setSelectedCountry(option); listLocations({ country: option }); }}
+                                    onClear={() => { setSelectedCountry(null); setSelectedState(null); setSelectedCity(null); setStates([]); setCities([]); }}
+                                >
+                                    {countries.map((item: any) => {
+                                        return <Option value={item.name} label={item.name} key={item.id}>{item.name} ~ {item.iso2}</Option>
+                                    })}
+                                </Select>
+                            </Form.Item>
+                            {selectedCountry && !loadingStates && (
+                                <Form.Item label="State" name='state'>
+                                    <Select
+                                        placeholder="Select State"
+                                        optionFilterProp='label'
+                                        showSearch
+                                        allowClear
+                                        onChange={(value, option) => { setSelectedState(option); listLocations({ country: selectedCountry.children[2], state: option }) }}
+                                        loading={loadingStates}
+                                        onClear={() => { setSelectedState(null); setSelectedCity(null); setCities([]); }}
+                                    >
+                                        {states.map((item: any) => {
+                                            return <Option value={item.name} label={item.name} key={item.id}>{item.name} ~ {item.iso2}</Option>
+                                        })}
+                                    </Select>
+                                </Form.Item>
+                            )}
+                            {selectedState && !loadingCities && (
+                                <Form.Item label="City" name='city'>
+                                    <Select
+                                        placeholder="Select City"
+                                        optionFilterProp='label'
+                                        showSearch
+                                        allowClear
+                                        onChange={(value, option) => { setSelectedCity(option); listLocations({ country: selectedCountry.children[2], state: selectedState.children[2], city: option }) }}
+                                        loading={loadingCities}
+                                    >
+                                        {cities.map((item: any) => {
+                                            return <Option value={item.name} label={item.name} key={item.id}>{item.name}</Option>
+                                        })}
+                                    </Select>
+                                </Form.Item>
+                            )}
+                        </>
+                    ) : (
+                        <Form.Item label="Location" name='location'>
+                            <Input disabled />
+                        </Form.Item>
+                    )}
                     {props?.tempData?.operation !== 'create' ? (
                         <>
                             <Form.Item label="School ID" name='id' rules={[{

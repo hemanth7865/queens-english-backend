@@ -744,7 +744,7 @@ export const Routes = [
     action: "addBatchtoSchool",
   },
   {
-    method: "get",
+    method: "post",
     route: "/listLocations",
     controller: SchoolController,
     action: "getLocation",

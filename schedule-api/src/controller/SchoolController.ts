@@ -25,7 +25,10 @@ export class SchoolController {
             status: request.query['schoolStatus'],
             sraName: request.query['sraName'],
             schoolCode: request.query['schoolCode'],
-            poc: request.query['poc']
+            poc: request.query['poc'],
+            country: request.query['country'],
+            state: request.query['state'],
+            city: request.query['city'],
         }
         let res;
         try {
@@ -111,9 +114,25 @@ export class SchoolController {
     }
 
     async getLocation(request: Request, response: Response, next: NextFunction) {
-        let res;
+        function isEmpty(obj) {
+            return Object.keys(obj).length === 0;
+        }
+        let res: any;
+        let locationObj: any = {};
         try {
-            res = await this.userService.getLocations(request.body)
+            if (!isEmpty(request.body)) {
+                if (request.body.country && typeof request.body.country === 'object') {
+                    locationObj.country = request.body.country.children[2];
+                } else if (request.body.state && typeof request.body.state === 'object') {
+                    locationObj.state = request.body.state.children[2];
+                    locationObj.country = request.body.country
+                } else if (request.body.city && typeof request.body.city === 'object') {
+                    locationObj.city = request.body.city.children[2];
+                    locationObj.country = request.body.country
+                    locationObj.state = request.body.state
+                }
+            }
+            res = await this.userService.getLocations(locationObj)
             return res;
         } catch (error) {
             logger.error(error)

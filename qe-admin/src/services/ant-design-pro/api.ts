@@ -1122,9 +1122,12 @@ export async function addBatchToSchool(
 }
 
 //API for getting Countries
-export async function listLocation(options?: { [key: string]: any }) {
+export async function listLocation(data: any) {
   return request<any>("/be/listLocations", {
-    method: "GET",
-    ...(options || {}),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
 }

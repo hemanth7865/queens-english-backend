@@ -142,34 +142,40 @@ export class UserService {
   }
 
   async getLocations(request: any) {
-    const axiosPrivate = require('axios');
-    let API_URL = "";
-    let responseCountries = null;
 
-    if (isNullOrUndefined(request)) {
+    function isEmpty(obj) {
+      return Object.keys(obj).length === 0;
+    }
+
+    const axiosPvt = require('axios')
+
+    let API_URL = "https://api.countrystatecity.in/v1/countries";
+    let res = [];
+
+    if (isEmpty(request)) {
       API_URL = `https://api.countrystatecity.in/v1/countries`;
-    } else if (request.country) {
+    } else if (request.country && !request.state) {
       API_URL = `https://api.countrystatecity.in/v1/countries/${request.country}/states`;
-    } else {
+    } else if (request.country && request.state) {
       API_URL = `https://api.countrystatecity.in/v1/countries/${request.country}/states/${request.state}/cities`;
     }
 
-    var config = {
+    const config = {
       method: 'get',
-      url: 'https://api.countrystatecity.in/v1/countries',
+      url: API_URL,
       headers: {
         'X-CSCAPI-KEY': process.env.CSCAPI_KEY
       }
     };
 
-    axiosPrivate(config)
+    await axiosPvt(config)
       .then(function (response) {
-        responseCountries = response.data;
+        res = response.data;
       })
       .catch(function (error) {
         console.log(error);
       });
 
-    console.log("RESPONSEcountries", responseCountries);
+    return res;
   }
 }
