@@ -169,7 +169,7 @@ export class BatchService {
           id: data.id,
           type: data.type,
           batchNumber: data.batchNumber,
-          teacherId: data.teacherId,
+          teacherId: data?.teacherId || null,
           classStartDate: data.classStartDate,
           classEndDate: data.classEndDate,
           lessonStartTime: data.lessonStartTime,
@@ -452,7 +452,7 @@ export class BatchService {
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
-      classes.teacherId = data.teacherId;
+      classes.teacherId = data?.teacherId || null;
       classes.id = data.id;
 
       classes.startingLessonId = data.startingLessonId;
@@ -491,7 +491,7 @@ export class BatchService {
       classes.updated_at = new Date();
 
       classes = await this.classesRepository.save(classes);
-      if (data.teacherId) {
+      if (data?.teacherId) {
         var quer = `select id, firstName, lastName from user where (id like '%${data.teacherId}%')`;
         var details = await getManager().query(quer);
         if (details.length > 0 && details[0].firstName && details[0].lastName)
@@ -897,11 +897,11 @@ export class BatchService {
     var results = await getManager().query(quer);
     let studentCount = [];
     let students = [];
-    let name = "";
     const count = await getManager().query(`select count(classes.id) as total, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from classes 
     ${query_string} ${havingQuery};`);
 
     for (const element of results) {
+      let name = "";
       students = [];
       studentCount = await getManager()
         .createQueryBuilder(BatchStudent, "batchStudent")
