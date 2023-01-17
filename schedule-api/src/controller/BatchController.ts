@@ -200,14 +200,4 @@ export class BatchController {
         }
     }
 
-    async updateBatchActiveLesson(request: Request, response: Response, next: NextFunction) {
-        try {
-            const res = await this.batchService.updateBatchActiveLesson(request.body);
-            return {"success": true, "data": res}
-        } catch (error) {
-            console.log()
-            return { success: false, error: error.toString() };
-        }
-    }
-
 }

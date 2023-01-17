@@ -737,10 +737,4 @@ export const Routes = [
     controller: BatchController,
     action: "updateBatchEndDate",
   },
-  {
-    method: "post",
-    route: "/batch/updateBatchActiveLesson",
-    controller: BatchController,
-    action: "updateBatchActiveLesson",
-  },
 ];
