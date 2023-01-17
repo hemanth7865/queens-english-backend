@@ -152,8 +152,6 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                             }
                         }
 
-                        console.log('BATCH DATA --->>', batchData)
-
                         const res = await addeditbatch({
                             headers: {
                                 "Content-Type": "application/json",
