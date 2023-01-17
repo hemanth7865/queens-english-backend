@@ -200,4 +200,14 @@ export class BatchController {
         }
     }
 
+    async checkStudentBatches(request: Request, response: Response, next: NextFunction) {
+        let isPresent;
+        try {
+            isPresent = await this.batchService.checkStudentBatches(request.body.students, request.body.data);
+        } catch (error) {
+            console.log('error in student batches', error);
+        }
+        return { "success": true, "data": [isPresent], "total": 1 }
+    }
+
 }
