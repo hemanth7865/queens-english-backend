@@ -1,4 +1,4 @@
-import { updateBatchActiveLesson } from '@/services/ant-design-pro/api'
+import { addeditbatch, getIndividualBatch } from '@/services/ant-design-pro/api'
 import { LESSONS } from '../../../../config/lessons'
 import { useEffect, useState } from 'react'
 import {
@@ -27,35 +27,105 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
         setFilteredLesson(actualLesson)
     }, [])
 
-    const handleSubmit = async () => {
-        setLoading(true)
-        try {
-            let selectedLessonDetails = LESSONS.filter((_l) => _l.number === lesson)[0]!
-            const res = await updateBatchActiveLesson({
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ classProfileId: entity.id, lessonId: selectedLessonDetails.id }),
-            });
-            console.log(res)
-            notificationCall.open({
-                message: res?.data?.message,
-                icon: res.data.success ? <CheckCircleTwoTone color='green' /> : <CloseCircleTwoTone twoToneColor='red' />
-            });
-            if (!res?.data?.success) {
-                cancel()
+    const getFormData = async (rowval: any) => {
+        const selectedLessonDetails = LESSONS.filter((_l) => _l.number === lesson)[0]!
+        return await getIndividualBatch(rowval.id)
+            .then((data: any) => {
+                const batchData = data.data;
+                const dataObject: any = {}
+
+                dataObject.id = batchData.classes.id;
+                dataObject.batchAvailability = [{}]
+
+                let reformatData: any[] = batchData?.students.map((elem: any) => {
+                    elem.value = elem.studentId
+                    elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
+                    elem.key = elem.id
+                    return elem
+                }) || []
+
+                dataObject.students = [...reformatData]
+                dataObject.edit = true;
+                dataObject.schoolId = batchData?.classes?.schoolId;
+
+                dataObject.activeLessonId = selectedLessonDetails?.id;
+                dataObject.classCode = batchData?.classes?.classCode || "";
+                dataObject.batchNumber = batchData.classes.batchNumber;
+                dataObject.zoomLink = batchData?.classes?.zoomLink || "";
+                dataObject.zoomInfo = batchData?.classes?.zoomInfo || "";
+                dataObject.whatsappLink = batchData?.classes?.whatsappLink || "";
+
+                dataObject.teacherId = batchData?.classes?.teacherId;
+                dataObject.startingLessonId = batchData?.classes?.startingLessonId;
+                dataObject.endingLessonId = batchData?.classes?.endingLessonId;
+                dataObject.classStartDate = batchData?.classes?.classStartDate;
+                dataObject.classEndDate = batchData?.classes?.classEndDate;
+                dataObject.lessonStartTime = batchData?.classes?.lessonStartTime;
+                dataObject.lessonEndTime = batchData?.classes?.lessonEndTime;
+                dataObject.ageGroup = batchData?.classes?.ageGroup;
+                dataObject.frequency = batchData?.classes?.frequency;
+                dataObject.useNewZoomLink = batchData?.classes?.useNewZoomLink;
+                dataObject.useAutoAttendance = batchData?.classes?.useAutoAttendance;
+                dataObject.offlineBatch = batchData?.classes?.offlineBatch;
+                dataObject.followupVersion = batchData?.classes?.followupVersion;
+                dataObject.followupVersion = batchData?.classes?.followupVersion;
+
+                return dataObject;
+            })
+            .catch((error) => {
+                console.log(error);
+                return false;
+            })
+    };
+
+    const createEditBatch = async (data?: any) => {
+        const msg = await addeditbatch({
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (msg.success) {
+            if (msg.data[0]?.message) {
+                notificationCall.open({
+                    message: msg.data[0].message || "Some error occured",
+                    icon: <CloseCircleTwoTone twoToneColor='red' />
+                });
             } else {
+                notificationCall.open({
+                    message: "Batch Active Lesson Updated Successfully.",
+                    icon: <CheckCircleTwoTone color='green' />
+                });
+                setLoading(false);
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
             }
-        } catch (error: any) {
-            notificationCall.open({
-                message: typeof error?.message === 'string' ? error?.message : "Something went wrong",
-                icon: <CloseCircleTwoTone twoToneColor='red' />,
-            });
         }
-        setLoading(false)
+    }
+
+    const handleSubmit = async () => {
+        try {
+            setLoading(true);
+            const dataForm = await getFormData(entity)
+            if (!dataForm) {
+                notificationCall.open({
+                    message: "Something went wrong, while fetching batch data.",
+                    icon: <CloseCircleTwoTone twoToneColor='red' />
+                });
+                setLoading(false);
+                return;
+            }
+            await createEditBatch(dataForm);
+            setLoading(false);
+        } catch (error: any) {
+            setLoading(false);
+            notificationCall.open({
+                message: error.message || "Something went wrong",
+                icon: <CloseCircleTwoTone twoToneColor='red' />
+            });
+        };
     }
 
     return (
