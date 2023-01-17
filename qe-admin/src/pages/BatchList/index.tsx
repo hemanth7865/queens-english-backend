@@ -50,6 +50,7 @@ import View from "./components/View";
 import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
 import { USER_STATUS } from "@/components/Constants/constants";
 import { listSchool } from "@/services/ant-design-pro/api";
+import BulkUploadBatchesOfSchool from "./components/BulkUploadBatchesOfSchool";
 
 const Option = Select.Option;
 
@@ -756,6 +757,7 @@ const BatchList: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
+          <BulkUploadBatchesOfSchool />,
           <Button
             type="primary"
             key="primary"
