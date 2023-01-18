@@ -8,6 +8,9 @@ import { BatchService } from "./BatchService";
 import axios from "axios";
 import { Student } from "../entity/Student";
 import { UserService } from "./UserService";
+import { School } from "../entity/School";
+import { Classes } from "../entity/Classes";
+import { BatchStudent } from "../entity/BatchStudent";
 const { usersLogger } = require("../Logger.js");
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -19,6 +22,10 @@ export class TeacherService {
   private teacherRepository = getRepository(Teacher);
   private COSMOS_URL = process.env.COSMOS_URL;
   private COSMOS_CODE = process.env.COSMOS_CODE;
+  private schoolRepository = getRepository(School);
+  private classesRepository = getRepository(Classes);
+  private batchStudentRepository = getRepository(BatchStudent);
+  private studentRepository = getRepository(Student);
 
 
   TeacherService() { }
@@ -763,6 +770,44 @@ export class TeacherService {
           studentOrTeacherId.push(element.batchId);
         });
       }
+
+      const user = await this.usersRepository.findOne({ where: { id: element.id } });
+      const school = await this.schoolRepository.findOne({ where: { id: user.schoolId } });
+      const classes = await this.classesRepository.find({ where: { teacherId: element.id } });
+      let classesData: any[] = [];
+      let batchStudents: any[] = [];
+      let classesLength = classes.length + 1;
+      for (const c of classes) {
+        let classObject: any[] = [];
+        let studentArray: any[] = [];
+        batchStudents = await this.batchStudentRepository.find({ where: { batchId: c.id } });
+        let batchStudentlength = batchStudents.length + 1;
+        for (const student of batchStudents) {
+          let user = await this.usersRepository.findOne({ where: { id: student.studentId } });
+          let s = await this.studentRepository.findOne({ where: { id: student.studentId } });
+          let studentObject: any[] = [];
+          studentObject.push({
+            id: user.id,
+            name: s?.studentName ?? user?.firstName + ' ' + user?.lastName,
+            email: user?.email ?? user?.customerEmail,
+            mobile: user?.phoneNumber,
+            status: s?.status,
+            schoolId: user?.schoolId ?? s?.schoolId
+          })
+          do {
+            studentArray = [...studentArray, ...studentObject]
+          } while (!--batchStudentlength)
+        }
+        classObject.push({
+          batchId: c.id,
+          batchNumber: c.batchNumber,
+          students: studentArray
+        })
+        do {
+          classesData = [...classesData, ...classObject]
+        } while (!--classesLength)
+      }
+
       var l = new LeadView(
         element.id,
         element.id,
@@ -782,6 +827,9 @@ export class TeacherService {
         element.dob
       );
       l.isSibling = element.isSibling;
+      l.schoolName = school?.schoolName;
+      l.school = school;
+      l.classesData = classesData;
       leadView.push(l);
     }
 
