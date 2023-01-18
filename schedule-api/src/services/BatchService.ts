@@ -193,7 +193,8 @@ export class BatchService {
           schoolName: data.offlineBatch === 0 ? null : data.schoolName,
           schoolId: data.offlineBatch === 0 ? null : data.schoolId,
           schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
-          schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus
+          schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
+          status: data?.status || null
         },
       };
 
@@ -474,6 +475,7 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
+      classes.status = data.status || null;
       if (!isNullOrUndefined(data.schoolId)) {
         classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
         classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)

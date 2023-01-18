@@ -96,7 +96,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                 // let batches: any[] = [];
                 for (const batch of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (batch["Batch code"] && batch["Start date"] && batch["End date"] && batch["Starting Lesson"] && batch["Ending Lesson"] && batch["Lesson start time"] && batch["Lesson end time"]) {
+                    if (batch["Batch code"] && batch["Start date"] && batch["End date"] && batch["Starting Lesson"] && batch["Ending Lesson"] && batch["Lesson start time"] && batch["Lesson end time"] && batch["Active"]) {
 
                         let classStartDate = getDate(batch["Start date"])
                         let classEndDate = getDate(batch["End date"])
@@ -145,6 +145,10 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                             batchData.schoolId = selectedSchool
                         }
 
+                        if (batch["Active"] && batch["Active"] !== "" && batch["Active"].toLowerCase() !== 'true') {
+                            batchData.status = 4
+                        }
+
                         if (batch["Teacher"] && batch["Teacher"] !== "") {
                             const res = await teacherBatches({ current: 1, pageSize: 1, phoneNumber: batch["Teacher"] })
                             if (res.data && res.data?.length != 0) {
@@ -172,7 +176,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         }
 
                     } else {
-                        message.error(`Batch Record Doesn't Have \n Batch code Or Start date Or End date Or Starting Lesson Or Ending Lesson Or Lesson start time Or Lesson end time : \n ${JSON.stringify(batch)}.`);
+                        message.error(`Batch Record Doesn't Have \n Batch code Or Start date Or End date Or Starting Lesson Or Ending Lesson Or Lesson start time Or Lesson end time Or Active: \n ${JSON.stringify(batch)}.`);
                     }
                     setCurrentRecord((n) => n + 1);
                 }
@@ -224,6 +228,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                                 <th>Lesson start time</th>
                                 <th>Lesson end time</th>
                                 <th>Teacher</th>
+                                <th>Active</th>
                             </tr>
                             <tr>
                                 <td>QE1234</td>
@@ -234,6 +239,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                                 <td>15:30</td>
                                 <td>17:00</td>
                                 <td>1234567890</td>
+                                <td>true</td>
                             </tr>
                         </table>
                     </pre>
