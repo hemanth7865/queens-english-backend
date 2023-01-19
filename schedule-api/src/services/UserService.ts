@@ -149,15 +149,15 @@ export class UserService {
 
     const axiosPvt = require('axios')
 
-    let API_URL = "https://api.countrystatecity.in/v1/countries";
+    let API_URL = process.env.CSCAPI_URL;
     let res = [];
 
     if (isEmpty(request)) {
-      API_URL = `https://api.countrystatecity.in/v1/countries`;
+      API_URL = process.env.CSCAPI_URL;
     } else if (request.country && !request.state) {
-      API_URL = `https://api.countrystatecity.in/v1/countries/${request.country}/states`;
+      API_URL = `${process.env.CSCAPI_URL}/${request.country}/states`;
     } else if (request.country && request.state) {
-      API_URL = `https://api.countrystatecity.in/v1/countries/${request.country}/states/${request.state}/cities`;
+      API_URL = `${process.env.CSCAPI_URL}/${request.country}/states/${request.state}/cities`;
     }
 
     const config = {
