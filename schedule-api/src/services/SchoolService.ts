@@ -209,6 +209,8 @@ export class SchoolService {
                 batch = await this.classesRepository.findOne({ where: { batchNumber: b } });
             }
             const students = await this.batchStudentRepository.find({ where: { batchId: batch.id } });
+            //Teacher Update
+            await this.userRepository.update({ id: batch.teacherId }, { schoolId: request.saveSchool.id, schoolCode: request.saveSchool.schoolCode });
 
             batch.schoolId = request.saveSchool.id;
             batch.schoolName = request.saveSchool.schoolName;
