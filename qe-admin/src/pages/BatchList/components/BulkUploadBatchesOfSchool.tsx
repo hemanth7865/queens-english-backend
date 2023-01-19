@@ -102,12 +102,14 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         let classEndDate = getDate(batch["End date"])
                         if (!classStartDate || !classEndDate) {
                             message.error(`Invalid Start or End date format : \n ${JSON.stringify(batch)}.`);
+                            setCurrentRecord((n) => n + 1);
                             continue;
                         }
                         let startingLessonId = getLessonIdByNumber(batch["Starting Lesson"])
                         let endingLessonId = getLessonIdByNumber(batch["Ending Lesson"])
                         if (!startingLessonId || !endingLessonId) {
                             message.error(`Invalid Starting Lesson or Ending Lesson : \n ${JSON.stringify(batch)}.`);
+                            setCurrentRecord((n) => n + 1);
                             continue;
                         }
 
@@ -115,6 +117,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         let lessonEndTime = getTime(batch["Lesson end time"])
                         if (!lessonStartTime || !lessonEndTime) {
                             message.error(`Invalid Lesson Starting or Lesson Ending Time : \n ${JSON.stringify(batch)}.`);
+                            setCurrentRecord((n) => n + 1);
                             continue;
                         }
 
@@ -150,9 +153,15 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         }
 
                         if (batch["Teacher"] && batch["Teacher"] !== "") {
-                            const res = await teacherBatches({ current: 1, pageSize: 1, phoneNumber: batch["Teacher"] })
-                            if (res.data && res.data?.length != 0) {
-                                batchData.teacherId = res.data[0]?.id
+                            if (batch["Teacher"].length < 8) {
+                                message.error(`Invalid Teacher Mobile Number: \n ${JSON.stringify(batch)}.`);
+                                setCurrentRecord((n) => n + 1);
+                                continue;
+                            } else {
+                                const res = await teacherBatches({ current: 1, pageSize: 1, phoneNumber: batch["Teacher"] })
+                                if (res.data && res.data?.length != 0) {
+                                    batchData.teacherId = res.data[0]?.id
+                                }
                             }
                         }
 

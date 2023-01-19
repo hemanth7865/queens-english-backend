@@ -22,7 +22,7 @@ import {
 import moment from "moment";
 const { RangePicker } = DatePicker;
 import React, { useState, useRef, useEffect } from "react";
-import { useIntl, FormattedMessage } from "umi";
+import { useIntl, FormattedMessage, useAccess } from "umi";
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
@@ -125,6 +125,7 @@ const BatchList: React.FC = () => {
   const [batchData, setBatchData] = useState<any>({});
   const [schools, setSchools] = useState<any[]>([]);
   const intl = useIntl();
+  const access = useAccess();
 
   const options = [];
   for (let i = 0; i < leadList.length; i++) {
@@ -757,7 +758,7 @@ const BatchList: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <BulkUploadBatchesOfSchool />,
+          access.canSuperAdmin ? <BulkUploadBatchesOfSchool /> : <></>,
           <Button
             type="primary"
             key="primary"
