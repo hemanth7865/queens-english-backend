@@ -106,26 +106,28 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
     }
 
     const handleSubmit = async () => {
-        try {
-            setLoading(true);
-            const dataForm = await getFormData(entity)
-            if (!dataForm) {
+        if (confirm('Are you sure you want to change active lesson ?')) {
+            try {
+                setLoading(true);
+                const dataForm = await getFormData(entity)
+                if (!dataForm) {
+                    notificationCall.open({
+                        message: "Something went wrong, while fetching batch data.",
+                        icon: <CloseCircleTwoTone twoToneColor='red' />
+                    });
+                    setLoading(false);
+                    return;
+                }
+                await createEditBatch(dataForm);
+                setLoading(false);
+            } catch (error: any) {
+                setLoading(false);
                 notificationCall.open({
-                    message: "Something went wrong, while fetching batch data.",
+                    message: error.message || "Something went wrong",
                     icon: <CloseCircleTwoTone twoToneColor='red' />
                 });
-                setLoading(false);
-                return;
-            }
-            await createEditBatch(dataForm);
-            setLoading(false);
-        } catch (error: any) {
-            setLoading(false);
-            notificationCall.open({
-                message: error.message || "Something went wrong",
-                icon: <CloseCircleTwoTone twoToneColor='red' />
-            });
-        };
+            };
+        }
     }
 
     return (
