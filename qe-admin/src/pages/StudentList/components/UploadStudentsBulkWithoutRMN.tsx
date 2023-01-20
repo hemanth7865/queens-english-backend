@@ -115,19 +115,14 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 const batchData: any = await getIndividualBatch(student["Batch code"]);
 
                                 /*Check if the student is already in a batch*/
-                                const checkStudentBatch = await checkStudentInBatch({
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ students: [{ id: res.id, type: "student" }], data: { id: batchData.data.classes.id } }),
-                                });
+                                const checkStudentBatch = await checkStudentInBatch({ students: [{ id: res.id, type: "student" }], data: { id: batchData.data.classes.id } });
                                 /**Remove the student from the batch and add to the batch */
-                                if (checkStudentBatch.data) {
+                                if (checkStudentBatch.data && checkStudentBatch.success && checkStudentBatch.data[0]) {
                                     const rebatchAddStudent = await rebatchStudent(res.id, batchData.data.classes.id);
                                     if (rebatchAddStudent.status === false || rebatchAddStudent.status === 400) {
                                         message.error(`Error: in rebatching For Student: \n ${JSON.stringify(student)}.`);
                                     } else {
-                                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
+                                        message.success(`Student ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
                                     }
                                     continue;
                                 }
