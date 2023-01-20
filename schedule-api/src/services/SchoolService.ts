@@ -149,13 +149,9 @@ export class SchoolService {
 
             const sra = await this.sraRepository.findOne({ where: { id: element.sraId } });
             let location = "";
-            if (element.country && element.state && element.city) {
-                location = `${element.country}, ${element.state}, ${element.city}`;
-            } else if (element.country && element.state && !element.city) {
-                location = `${element.country}, ${element.state}`;
-            } else if (element.country && !element.state && !element.city) {
-                location = `${element.country}`;
-            }
+            if (element.country) location += element.country
+            if (element.state) location += ', ' + element.state
+            if (element.city) location += ', ' + element.city
 
             let s = new SchoolView(
                 element.id,
