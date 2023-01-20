@@ -22,6 +22,8 @@ function csvToArray(str: string, delimiter: string = ",") {
     return arr;
 }
 
+const dateFromat = 'YYYY-MM-DDTHH:mm:ss.000Z'
+
 const BulkUploadBatchesOfSchool = (props: any) => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -98,25 +100,40 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (batch["Batch code"] && batch["Start date"] && batch["End date"] && batch["Starting Lesson"] && batch["Ending Lesson"] && batch["Lesson start time"] && batch["Lesson end time"] && batch["Active"]) {
 
-                        let classStartDate = getDate(batch["Start date"])
-                        let classEndDate = getDate(batch["End date"])
-                        if (!classStartDate || !classEndDate) {
-                            message.error(`Invalid Start or End date format : \n ${JSON.stringify(batch)}.`);
+                        let classStartDate: any = getDate(batch["Start date"])
+                        let classEndDate: any = getDate(batch["End date"])
+                        const isEndDateBeforeStartDate = moment(classEndDate, dateFromat).isBefore(moment(classStartDate, dateFromat))
+                        if (!classStartDate || !classEndDate || isEndDateBeforeStartDate) {
+                            let msg = `Invalid Start or End date format : \n ${JSON.stringify(batch)}.`
+                            if (isEndDateBeforeStartDate) {
+                                msg = `Class end date should not be lesser than the Class start date : \n ${JSON.stringify(batch)}.`
+                            }
+                            message.error(msg);
                             setCurrentRecord((n) => n + 1);
                             continue;
                         }
                         let startingLessonId = getLessonIdByNumber(batch["Starting Lesson"])
                         let endingLessonId = getLessonIdByNumber(batch["Ending Lesson"])
-                        if (!startingLessonId || !endingLessonId) {
-                            message.error(`Invalid Starting Lesson or Ending Lesson : \n ${JSON.stringify(batch)}.`);
+                        const isEndLessonBeforeStartLesson = parseInt(batch["Starting Lesson"]) > parseInt(batch["Ending Lesson"])
+                        if (isEndLessonBeforeStartLesson || !startingLessonId || !endingLessonId) {
+                            let msg = `Invalid Starting Lesson or Ending Lesson : \n ${JSON.stringify(batch)}.`
+                            if (isEndLessonBeforeStartLesson) {
+                                msg = `Starting Lesson should not be greater than ending lesson : \n ${JSON.stringify(batch)}.`
+                            }
+                            message.error(msg);
                             setCurrentRecord((n) => n + 1);
                             continue;
                         }
 
-                        let lessonStartTime = getTime(batch["Lesson start time"])
-                        let lessonEndTime = getTime(batch["Lesson end time"])
-                        if (!lessonStartTime || !lessonEndTime) {
-                            message.error(`Invalid Lesson Starting or Lesson Ending Time : \n ${JSON.stringify(batch)}.`);
+                        let lessonStartTime: any = getTime(batch["Lesson start time"])
+                        let lessonEndTime: any = getTime(batch["Lesson end time"])
+                        const isEndTimeBeforeStartTime = moment(lessonEndTime, dateFromat).isBefore(moment(lessonStartTime, dateFromat))
+                        if (isEndTimeBeforeStartTime || !lessonStartTime || !lessonEndTime) {
+                            let msg = `Invalid Lesson Starting or Lesson Ending Time : \n ${JSON.stringify(batch)}.`
+                            if (isEndTimeBeforeStartTime) {
+                                msg = `Lesson Starting Time should not more than Lesson Ending Time : \n ${JSON.stringify(batch)}.`
+                            }
+                            message.error(msg);
                             setCurrentRecord((n) => n + 1);
                             continue;
                         }
@@ -149,6 +166,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         }
 
                         if (batch["Active"] && batch["Active"] !== "" && batch["Active"].toLowerCase() !== 'true') {
+                            // status as 4 indicate that batch is Inactive
                             batchData.status = 4
                         }
 
