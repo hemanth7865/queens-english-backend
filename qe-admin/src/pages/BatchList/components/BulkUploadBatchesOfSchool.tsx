@@ -43,25 +43,16 @@ const BulkUploadBatchesOfSchool = (props: any) => {
             });
     }, []);
 
-    const getDate = (data: any) => {
-        const date = moment(data, 'DD-MM-YYYY').format('YYYY-MM-DDTHH:mm:ss')
+    const getDateOrTime = (data: any, format: any) => {
+        const date = moment(data, format).format('YYYY-MM-DDTHH:mm:ss')
         if (date === "Invalid date") {
             return false
         }
         const proposedDate = date + ".000Z"
-        if (!(moment(proposedDate).isValid())) {
-            return false
+        if (moment(proposedDate).isValid()) {
+            return proposedDate
         }
-        return proposedDate;
-    }
-
-    const getTime = (data: any) => {
-        const date = moment(data, "HH:mm").utc().format("YYYY-MM-DDTHH:mm:ss")
-        const proposedTime = date + ".000Z"
-        if (!(moment(proposedTime).isValid())) {
-            return false
-        }
-        return proposedTime
+        return false
     }
 
     const getLessonIdByNumber = (data: any) => {
@@ -80,6 +71,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
     }
 
     const handleUpload = async (e: any) => {
+        setNotStoredBatches([])
         e.preventDefault();
         setIsLoading(true)
         try {
@@ -89,7 +81,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
 
             reader.onload = async function (e: any) {
                 const text = e.target.result;
-                const data = csvToArray(text);
+                const data: any = csvToArray(text);
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
@@ -100,40 +92,70 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (batch["Batch code"] && batch["Start date"] && batch["End date"] && batch["Starting Lesson"] && batch["Ending Lesson"] && batch["Lesson start time"] && batch["Lesson end time"] && batch["Active"]) {
 
-                        let classStartDate: any = getDate(batch["Start date"])
-                        let classEndDate: any = getDate(batch["End date"])
+                        let haveAnyError = false
+                        let errors: string[] = []
+
+                        let classStartDate: any = getDateOrTime(batch["Start date"], 'DD-MM-YYYY')
+                        let classEndDate: any = getDateOrTime(batch["End date"], 'DD-MM-YYYY')
                         const isEndDateBeforeStartDate = moment(classEndDate, dateFromat).isBefore(moment(classStartDate, dateFromat))
                         if (!classStartDate || !classEndDate || isEndDateBeforeStartDate) {
-                            let msg = `Invalid Start or End date format : \n ${JSON.stringify(batch)}.`
-                            if (isEndDateBeforeStartDate) {
-                                msg = `Class end date should not be lesser than the Class start date : \n ${JSON.stringify(batch)}.`
+                            haveAnyError = true
+                            if (!classStartDate) {
+                                errors.push(`Invalid Class Start date : ${batch["Start date"]}`)
                             }
-                            message.error(msg);
-                            setCurrentRecord((n) => n + 1);
-                            continue;
+                            if (!classEndDate) {
+                                errors.push(`Invalid Class End date : ${batch["End date"]}`)
+                            }
+                            if (isEndDateBeforeStartDate) {
+                                errors.push('Class end date should not be lesser than the Class start date.')
+                            }
                         }
                         let startingLessonId = getLessonIdByNumber(batch["Starting Lesson"])
                         let endingLessonId = getLessonIdByNumber(batch["Ending Lesson"])
                         const isEndLessonBeforeStartLesson = parseInt(batch["Starting Lesson"]) > parseInt(batch["Ending Lesson"])
                         if (isEndLessonBeforeStartLesson || !startingLessonId || !endingLessonId) {
-                            let msg = `Invalid Starting Lesson or Ending Lesson : \n ${JSON.stringify(batch)}.`
-                            if (isEndLessonBeforeStartLesson) {
-                                msg = `Starting Lesson should not be greater than ending lesson : \n ${JSON.stringify(batch)}.`
+                            haveAnyError = true
+                            if (!startingLessonId) {
+                                errors.push(`Invalid Start Lesson Number : ${batch["Starting Lesson"]}`)
                             }
-                            message.error(msg);
-                            setCurrentRecord((n) => n + 1);
-                            continue;
+                            if (!endingLessonId) {
+                                errors.push(`Invalid End Lesson Number : ${batch["Ending Lesson"]}`)
+                            }
+                            if (isEndLessonBeforeStartLesson) {
+                                errors.push('Starting Lesson should not be greater than ending lesson.')
+                            }
                         }
 
-                        let lessonStartTime: any = getTime(batch["Lesson start time"])
-                        let lessonEndTime: any = getTime(batch["Lesson end time"])
+                        let lessonStartTime: any = getDateOrTime(batch["Lesson start time"], "HH:mm")
+                        let lessonEndTime: any = getDateOrTime(batch["Lesson end time"], "HH:mm")
                         const isEndTimeBeforeStartTime = moment(lessonEndTime, dateFromat).isBefore(moment(lessonStartTime, dateFromat))
                         if (isEndTimeBeforeStartTime || !lessonStartTime || !lessonEndTime) {
-                            let msg = `Invalid Lesson Starting or Lesson Ending Time : \n ${JSON.stringify(batch)}.`
-                            if (isEndTimeBeforeStartTime) {
-                                msg = `Lesson Starting Time should not more than Lesson Ending Time : \n ${JSON.stringify(batch)}.`
+                            haveAnyError = true
+                            if (!lessonStartTime) {
+                                errors.push(`Invalid Lesson Start Time : ${batch["Lesson start time"]}`)
                             }
-                            message.error(msg);
+                            if (!lessonEndTime) {
+                                errors.push(`Invalid Lesson End Time : ${batch["Lesson end time"]}`)
+                            }
+                            if (isEndTimeBeforeStartTime) {
+                                errors.push('Lesson Starting Time should not more than Lesson Ending Time.')
+                            }
+                        }
+
+                        if (batch["Teacher"] && batch["Teacher"] !== "" && batch["Teacher"].length < 8) {
+                            haveAnyError = true
+                            errors.push(`Invalid Teacher Mobile Number: ${batch["Teacher"]}`);
+                        }
+
+                        if (haveAnyError) {
+                            setNotStoredBatches((d) => {
+                                const obj = {
+                                    "Batch code": batch["Batch code"],
+                                    "Error Messages": errors
+                                }
+                                d.push(obj);
+                                return d;
+                            })
                             setCurrentRecord((n) => n + 1);
                             continue;
                         }
@@ -171,15 +193,9 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         }
 
                         if (batch["Teacher"] && batch["Teacher"] !== "") {
-                            if (batch["Teacher"].length < 8) {
-                                message.error(`Invalid Teacher Mobile Number: \n ${JSON.stringify(batch)}.`);
-                                setCurrentRecord((n) => n + 1);
-                                continue;
-                            } else {
-                                const res = await teacherBatches({ current: 1, pageSize: 1, phoneNumber: batch["Teacher"] })
-                                if (res.data && res.data?.length != 0) {
-                                    batchData.teacherId = res.data[0]?.id
-                                }
+                            const res = await teacherBatches({ current: 1, pageSize: 1, phoneNumber: batch["Teacher"] })
+                            if (res.data && res.data?.length != 0) {
+                                batchData.teacherId = res.data[0]?.id
                             }
                         }
 
@@ -193,17 +209,24 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         if (res.success) {
                             if (res.data[0]?.message) {
                                 setNotStoredBatches((d) => {
-                                    d.push({ batchData, res });
+                                    const obj = {
+                                        "Batch code": batchData.batchNumber,
+                                        "Error Messages": res.data[0]?.message
+                                    }
+                                    d.push(obj);
                                     return d;
                                 })
-                                message.error(`${batchData.batchNumber} -- ${res.data[0].message}`);
                             } else {
                                 message.success(`Batch ${batchData.batchNumber} Created Successfully.`);
                             }
                         }
 
                     } else {
-                        message.error(`Batch Record Doesn't Have \n Batch code Or Start date Or End date Or Starting Lesson Or Ending Lesson Or Lesson start time Or Lesson end time Or Active: \n ${JSON.stringify(batch)}.`);
+                        setNotStoredBatches((d) => {
+                            batch["Error Message"] = `Batch Record Doesn't Have : Batch code Or Start date Or End date Or Starting Lesson Or Ending Lesson Or Lesson start time Or Lesson end time Or Active`
+                            d.push(batch)
+                            return d;
+                        })
                     }
                     setCurrentRecord((n) => n + 1);
                 }
@@ -228,12 +251,15 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                 Bulk Upload Batches
             </Button>
 
-            <Modal visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
-                <code style={{ maxHeight: "300px", overflow: "auto" }}>
-                    <pre>
-                        {JSON.stringify(notStoredBatches, null, 4)}
-                    </pre>
-                </code>
+            <Modal width={"80%"} visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
+                {notStoredBatches.length > 0 && (
+                    <code style={{ maxHeight: "300px", overflow: "auto" }}>
+                        <p style={{ color: 'red', fontWeight: 'bold' }}>Errors : </p>
+                        <pre>
+                            {JSON.stringify(notStoredBatches, null, 4)}
+                        </pre>
+                    </code>
+                )}
 
                 <code>
                     File must be CSV and in this format:
