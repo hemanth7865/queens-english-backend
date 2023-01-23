@@ -107,7 +107,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                                 errors.push(`Invalid Class End date : ${batch["End date"]}`)
                             }
                             if (isEndDateBeforeStartDate) {
-                                errors.push('Class end date should not be lesser than the Class start date.')
+                                errors.push('Class end date should not be lesser than the Class start date')
                             }
                         }
                         let startingLessonId = getLessonIdByNumber(batch["Starting Lesson"])
@@ -122,7 +122,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                                 errors.push(`Invalid End Lesson Number : ${batch["Ending Lesson"]}`)
                             }
                             if (isEndLessonBeforeStartLesson) {
-                                errors.push('Starting Lesson should not be greater than ending lesson.')
+                                errors.push('Starting Lesson should not be greater than ending lesson')
                             }
                         }
 
@@ -138,7 +138,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                                 errors.push(`Invalid Lesson End Time : ${batch["Lesson end time"]}`)
                             }
                             if (isEndTimeBeforeStartTime) {
-                                errors.push('Lesson Starting Time should not more than Lesson Ending Time.')
+                                errors.push('Lesson Starting Time should not more than Lesson Ending Time')
                             }
                         }
 
@@ -211,7 +211,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                                 setNotStoredBatches((d) => {
                                     const obj = {
                                         "Batch code": batchData.batchNumber,
-                                        "Error Messages": res.data[0]?.message
+                                        "Error Messages": [res.data[0]?.message]
                                     }
                                     d.push(obj);
                                     return d;
@@ -223,7 +223,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
 
                     } else {
                         setNotStoredBatches((d) => {
-                            batch["Error Message"] = `Batch Record Doesn't Have : Batch code Or Start date Or End date Or Starting Lesson Or Ending Lesson Or Lesson start time Or Lesson end time Or Active`
+                            batch["Error Messages"] = [`Batch Record Doesn't Have : Batch code Or Start date Or End date Or Starting Lesson Or Ending Lesson Or Lesson start time Or Lesson end time Or Active`]
                             d.push(batch)
                             return d;
                         })
@@ -251,13 +251,28 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                 Bulk Upload Batches
             </Button>
 
-            <Modal width={"80%"} visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
+            <Modal width={"70%"} visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
                 {notStoredBatches.length > 0 && (
-                    <code style={{ maxHeight: "300px", overflow: "auto" }}>
+                    <code style={{ maxHeight: "300px" }}>
                         <p style={{ color: 'red', fontWeight: 'bold' }}>Errors : </p>
-                        <pre>
-                            {JSON.stringify(notStoredBatches, null, 4)}
-                        </pre>
+                        <div>
+                            {notStoredBatches.map((e) => {
+                                return <div style={{
+                                    wordWrap: "break-word"
+                                }}>
+                                    <div style={{ display: 'flex' }}>
+                                        <p style={{ whiteSpace: 'nowrap' }}>
+                                            {e["Batch code"]} :
+                                        </p>
+                                        <p>
+                                            {Array.isArray(e["Error Messages"]) && e["Error Messages"]?.map((error: any, index) => {
+                                                return error + (e["Error Messages"]?.length - 1 === index ? "." : ", ")
+                                            })}
+                                        </p>
+                                    </div>
+                                </div>
+                            })}
+                        </div>
                     </code>
                 )}
 
@@ -312,18 +327,19 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                     optionLabelProp="label"
                     optionFilterProp='label'
                 />
-                <form id="uploadForm" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <form id="uploadForm" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload} style={{ marginTop: "5px" }}>
                     <input type="file" name="agents" required id="file" />
-                    <Button loading={isLoading} type="primary" htmlType="submit" style={{ margin: "3px" }}>
-                        Upload File
-                    </Button>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "3px" }}>
+                        <Button loading={isLoading} type="primary" htmlType="submit">
+                            Upload File
+                        </Button>
+                        <Button type="default" onClick={() => window.location.reload()}>
+                            Cancel
+                        </Button>
+                    </div>
                 </form>
 
                 <div style={{ textAlign: "right", margin: "3px" }}>
-                    <Button type="default" onClick={() => window.location.reload()}>
-                        Cancel
-                    </Button>
                 </div>
             </Modal>
         </>
