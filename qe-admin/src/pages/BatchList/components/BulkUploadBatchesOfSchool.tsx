@@ -44,7 +44,11 @@ const BulkUploadBatchesOfSchool = (props: any) => {
     }, []);
 
     const getDateOrTime = (data: any, format: any) => {
-        const date = moment(data, format).format('YYYY-MM-DDTHH:mm:ss')
+        const isForTime = format === "HH:mm"
+        if ((isForTime && data.indexOf(":") === -1) || (!isForTime && data.indexOf("-") === -1)) {
+            return false
+        }
+        const date = isForTime ? moment(data, format).utc().format('YYYY-MM-DDTHH:mm:ss') : moment(data, format).format('YYYY-MM-DDTHH:mm:ss')
         if (date === "Invalid date") {
             return false
         }
