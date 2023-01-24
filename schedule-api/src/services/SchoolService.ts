@@ -73,6 +73,15 @@ export class SchoolService {
             const createdAt = parameters.createdAt.split('/').reverse().join('-');
             query_list.push(` createdAt like '%${createdAt}%' `);
         }
+        if (parameters.country) {
+            query_list.push(` country like '%${parameters.country}%' `);
+        }
+        if (parameters.state) {
+            query_list.push(` state like '%${parameters.state}%' `);
+        }
+        if (parameters.city) {
+            query_list.push(` city like '%${parameters.city}%' `);
+        }
 
         if (query_list.length > 0) {
             query_string = "where ";
@@ -139,6 +148,11 @@ export class SchoolService {
             }
 
             const sra = await this.sraRepository.findOne({ where: { id: element.sraId } });
+            let location = "";
+            if (element.country) location += element.country
+            if (element.state) location += ', ' + element.state
+            if (element.city) location += ', ' + element.city
+
             let s = new SchoolView(
                 element.id,
                 element.schoolName,
@@ -151,6 +165,7 @@ export class SchoolService {
                 element.createdAt.toLocaleDateString('en-IN'),
                 element.schoolStatus,
                 classes.length,
+                location
             );
             schoolView.push(s);
         }
@@ -294,6 +309,9 @@ export class SchoolService {
             school.sraId = request.sraId;
             school.schoolStatus = request.schoolStatus;
             school.poc = request.poc;
+            school.country = request.country;
+            school.state = request.state;
+            school.city = request.city;
             const saveSchool = await this.schoolRepository.save(school);
 
             if (!isNullOrUndefined(request.batches)) {

@@ -749,4 +749,10 @@ export const Routes = [
     controller: BatchController,
     action: "checkStudentBatches"
   },
+  {
+    method: "post",
+    route: "/listLocations",
+    controller: SchoolController,
+    action: "getLocation",
+  }
 ];

@@ -1134,3 +1134,14 @@ export async function checkStudentInBatch(
     ...(options || {}),
   });
 }
+
+//API for getting Countries
+export async function listLocation(data: any) {
+  return request<any>("/be/listLocations", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}

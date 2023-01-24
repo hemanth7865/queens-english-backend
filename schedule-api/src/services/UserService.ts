@@ -2,12 +2,13 @@ import { getRepository, Not, IsNull } from "typeorm";
 import { User } from "../entity/User";
 import { generateRandomCode } from "./../utils/batch/getUniqueTeacherCode";
 import axios from "axios";
+import { isNullOrUndefined } from "util";
 const { usersLogger } = require("../Logger.js");
 
 export class UserService {
   private usersRepository = getRepository(User);
 
-  UserService() {}
+  UserService() { }
 
   async isUserExists(
     column = "phoneNumber",
@@ -138,5 +139,43 @@ export class UserService {
     }
 
     return result;
+  }
+
+  async getLocations(request: any) {
+
+    function isEmpty(obj) {
+      return Object.keys(obj).length === 0;
+    }
+
+    const axiosPvt = require('axios')
+
+    let API_URL = process.env.CSCAPI_URL;
+    let res = [];
+
+    if (isEmpty(request)) {
+      API_URL = process.env.CSCAPI_URL;
+    } else if (request.country && !request.state) {
+      API_URL = `${process.env.CSCAPI_URL}/${request.country}/states`;
+    } else if (request.country && request.state) {
+      API_URL = `${process.env.CSCAPI_URL}/${request.country}/states/${request.state}/cities`;
+    }
+
+    const config = {
+      method: 'get',
+      url: API_URL,
+      headers: {
+        'X-CSCAPI-KEY': process.env.CSCAPI_KEY
+      }
+    };
+
+    await axiosPvt(config)
+      .then(function (response) {
+        res = response.data;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+    return res;
   }
 }
