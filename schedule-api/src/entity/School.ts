@@ -27,4 +27,10 @@ export class School extends BaseEntity {
     createdAt: Date;
     @Column({ 'nullable': true })
     schoolStatus: string;
+    @Column({ 'nullable': true })
+    country: string;
+    @Column({ 'nullable': true })
+    state: string;
+    @Column({ 'nullable': true })
+    city: string;
 }

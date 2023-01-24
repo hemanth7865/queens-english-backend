@@ -13,8 +13,9 @@ export class SchoolView {
     createdAt?: Date | string;
     schoolStatus?: string;
     numberOfBatches?: number;
+    location?: string;
 
-    public constructor(id: string, schoolName?: string, schoolCode?: string, poc?: string, sraName?: string, sra?: SRA, classes?: Classes[], classesData?: any[], createdAt?: Date | string, schoolStatus?: string, numberOfBatches?: number) {
+    public constructor(id: string, schoolName?: string, schoolCode?: string, poc?: string, sraName?: string, sra?: SRA, classes?: Classes[], classesData?: any[], createdAt?: Date | string, schoolStatus?: string, numberOfBatches?: number, location?: string) {
         this.id = id;
         this.schoolName = schoolName;
         this.schoolCode = schoolCode;
@@ -26,6 +27,7 @@ export class SchoolView {
         this.createdAt = createdAt;
         this.schoolStatus = schoolStatus;
         this.numberOfBatches = numberOfBatches;
+        this.location = location;
     }
 
 }

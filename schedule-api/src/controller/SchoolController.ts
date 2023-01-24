@@ -6,12 +6,14 @@ import { Classes } from "../entity/Classes";
 import { SchoolService } from "../services/SchoolService";
 import { Constants, OPERATION } from "../helpers/Constants";
 import { logger } from "./../Logger.js";
+import { UserService } from "../services/UserService";
 
 export class SchoolController {
     private schoolRepository = getRepository(School);
     private sraRepository = getRepository(SRA);
     private classesRepository = getRepository(Classes);
     private schoolService = new SchoolService();
+    private userService = new UserService();
 
     async listSchools(request: Request, response: Response, next: NextFunction) {
         var parameters = {
@@ -23,7 +25,10 @@ export class SchoolController {
             status: request.query['schoolStatus'],
             sraName: request.query['sraName'],
             schoolCode: request.query['schoolCode'],
-            poc: request.query['poc']
+            poc: request.query['poc'],
+            country: request.query['country'],
+            state: request.query['state'],
+            city: request.query['city'],
         }
         let res;
         try {
@@ -105,6 +110,32 @@ export class SchoolController {
             return res
         } catch (error) {
             logger.error(error);
+        }
+    }
+
+    async getLocation(request: Request, response: Response, next: NextFunction) {
+        function isEmpty(obj) {
+            return Object.keys(obj).length === 0;
+        }
+        let res: any;
+        let locationObj: any = {};
+        try {
+            if (!isEmpty(request.body)) {
+                if (request.body.country && typeof request.body.country === 'object') {
+                    locationObj.country = request.body.country.children[2];
+                } else if (request.body.state && typeof request.body.state === 'object') {
+                    locationObj.state = request.body.state.children[2];
+                    locationObj.country = request.body.country
+                } else if (request.body.city && typeof request.body.city === 'object') {
+                    locationObj.city = request.body.city.children[2];
+                    locationObj.country = request.body.country
+                    locationObj.state = request.body.state
+                }
+            }
+            res = await this.userService.getLocations(locationObj)
+            return res;
+        } catch (error) {
+            logger.error(error)
         }
     }
 }
