@@ -17,7 +17,8 @@ import {
   Modal,
   Select,
   Table,
-  Spin
+  Spin,
+  notification
 } from "antd";
 import moment from "moment";
 const { RangePicker } = DatePicker;
@@ -51,6 +52,7 @@ import UpdateMeetingLinks from "./components/UpdateMeetingLinks";
 import { USER_STATUS } from "@/components/Constants/constants";
 import { listSchool } from "@/services/ant-design-pro/api";
 import BulkUploadBatchesOfSchool from "./components/BulkUploadBatchesOfSchool";
+import ActiveLessonContainer from "./components/ActiveLessonContainer";
 
 const Option = Select.Option;
 
@@ -126,6 +128,7 @@ const BatchList: React.FC = () => {
   const [schools, setSchools] = useState<any[]>([]);
   const intl = useIntl();
   const access = useAccess();
+  const [notificationCall, contextHolder] = notification.useNotification();
 
   const options = [];
   for (let i = 0; i < leadList.length; i++) {
@@ -584,16 +587,9 @@ const BatchList: React.FC = () => {
         />
       ),
       dataIndex: "lessonNumber",
-      renderFormItem: (value) => {
-        return <Select
-          allowClear
-          showSearch
-          filterOption={(input, option: any) =>
-            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }>
-          {LESSONS.map((_l) => (<Option key={_l.id} value={_l.number} label={_l.number}>{_l.number}</Option>))}
-        </Select>;
-      },
+      render: (dom, entity) => {
+        return access.canSuperAdmin ? <ActiveLessonContainer notificationCall={notificationCall} entity={entity} /> : <>{entity?.lessonNumber}</>
+      }
     },
     //frequency
     {
@@ -746,316 +742,318 @@ const BatchList: React.FC = () => {
   const dateFormat = "YYYY-MM-DD";
 
   return (
-    <PageContainer>
-      <ProTable<API.batchItem, API.PageParams>
-        headerTitle={intl.formatMessage({
-          id: "pages.searchTable.title",
-          defaultMessage: "BatchList",
-        })}
-        actionRef={actionRef}
-        rowKey="key"
-        search={{
-          labelWidth: 120,
-        }}
-        toolBarRender={() => [
-          access.canSuperAdmin ? <BulkUploadBatchesOfSchool /> : <></>,
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              /**
-               * Clean up and show edit form
-               */
-              setShowDetail(true);
-              setAddTeacher(true);
-              setCreateBatch(true);
-              setAddTeacherComponent(false);
-              setRenderEdit(true);
-              setEdit(false);
-              setFormData(DEFAULT_FORM_DATA);
-              setTeacherName([]);
-              setStudentList([]);
-              setLeadList([]);
-              setStartLesson(undefined);
-              setEndLesson(undefined);
-              setSelectedFrequency(undefined);
-              setFollowupVersion("v2");
-              setTimeRange([]);
-              setClassDateRange([]);
-            }}
-          >
-            {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
-            Create Batch
-          </Button>,
-          <UpdateMeetingLinks></UpdateMeetingLinks>
-        ]}
-        request={listBatch}
-        columns={columns}
-        //the checkbox
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
-      />
-      <Modal
-        title="Delete?"
-        visible={deleteConfirmModal}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <p>Are you sure you want to delete the current batch?</p>
-      </Modal>
+    <>
+      {contextHolder}
+      <PageContainer>
+        <ProTable<API.batchItem, API.PageParams>
+          headerTitle={intl.formatMessage({
+            id: "pages.searchTable.title",
+            defaultMessage: "BatchList",
+          })}
+          actionRef={actionRef}
+          rowKey="key"
+          search={{
+            labelWidth: 120,
+          }}
+          toolBarRender={() => [
+            access.canSuperAdmin ? <BulkUploadBatchesOfSchool /> : <></>,
+            <Button
+              type="primary"
+              key="primary"
+              onClick={() => {
+                /**
+                 * Clean up and show edit form
+                 */
+                setShowDetail(true);
+                setAddTeacher(true);
+                setCreateBatch(true);
+                setAddTeacherComponent(false);
+                setRenderEdit(true);
+                setEdit(false);
+                setFormData(DEFAULT_FORM_DATA);
+                setTeacherName([]);
+                setStudentList([]);
+                setLeadList([]);
+                setStartLesson(undefined);
+                setEndLesson(undefined);
+                setSelectedFrequency(undefined);
+                setFollowupVersion("v2");
+                setTimeRange([]);
+                setClassDateRange([]);
+              }}
+            >
+              {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
+              Create Batch
+            </Button>,
+            <UpdateMeetingLinks></UpdateMeetingLinks>
+          ]}
+          request={listBatch}
+          columns={columns}
+          //the checkbox
+          rowSelection={{
+            onChange: (_, selectedRows) => {
+              setSelectedRows(selectedRows);
+            },
+          }}
+        />
+        <Modal
+          title="Delete?"
+          visible={deleteConfirmModal}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <p>Are you sure you want to delete the current batch?</p>
+        </Modal>
 
-      <Modal
-        title="Lesson Status"
-        visible={completedLessonModal}
-        onOk={handleLessonOk}
-        onCancel={handleLessonCancel}
-        footer={[
-          <Button key="back" onClick={handleLessonCancel}>
-            Keep Same Status
-          </Button>,
-          <Button key="submit" type="primary" onClick={handleLessonOk}>
-            Reset All Status
-          </Button>,
-        ]}
-      >
-        <p>Following lessons are already completed in this batch</p>
-        <p>
-          {completedLessonMessage}
-        </p>
-      </Modal>
-      <Drawer
-        width={addTeacherComponent ? 1400 : 600}
-        visible={showDetail}
-        onClose={() => {
-          setCurrentRow(undefined);
-          setShowDetail(false);
-          setAddTeacherComponent(false);
-          setRenderEdit(false)
-          setPrePop({})
-        }}
-        closable={true}
-      >
-        {" "}
-        {addTeacherComponent ? (
-          // <TeacherBatchList />
-          <></>
-        ) : (
-          <>
-            {addTeacher ? (
-              <>
-                {createBatch ? (
-                  <div style={{ fontWeight: 700, marginBottom: "20px" }}>
-                    Create Batch
-                  </div>
-                ) : (
-                  <div style={{ fontWeight: 700, marginBottom: "20px" }}>
-                    Edit Batch
-                  </div>
-                )}
-                {renderEdit ?
-                  <Spin spinning={isLoading}>
-                    <Form onFinish={handleFormSubmitEdit}>
-                      <Row>
-                        <Col span={24}>
-                          <Form.Item
-                            name="batchNumber"
-                            rules={[{ required: true, message: "Batch Number" }]}
-                          >
-                            <Input
-                              type="text"
-                              placeholder="Batch Number"
+        <Modal
+          title="Lesson Status"
+          visible={completedLessonModal}
+          onOk={handleLessonOk}
+          onCancel={handleLessonCancel}
+          footer={[
+            <Button key="back" onClick={handleLessonCancel}>
+              Keep Same Status
+            </Button>,
+            <Button key="submit" type="primary" onClick={handleLessonOk}>
+              Reset All Status
+            </Button>,
+          ]}
+        >
+          <p>Following lessons are already completed in this batch</p>
+          <p>
+            {completedLessonMessage}
+          </p>
+        </Modal>
+        <Drawer
+          width={addTeacherComponent ? 1400 : 600}
+          visible={showDetail}
+          onClose={() => {
+            setCurrentRow(undefined);
+            setShowDetail(false);
+            setAddTeacherComponent(false);
+            setRenderEdit(false)
+            setPrePop({})
+          }}
+          closable={true}
+        >
+          {" "}
+          {addTeacherComponent ? (
+            // <TeacherBatchList />
+            <></>
+          ) : (
+            <>
+              {addTeacher ? (
+                <>
+                  {createBatch ? (
+                    <div style={{ fontWeight: 700, marginBottom: "20px" }}>
+                      Create Batch
+                    </div>
+                  ) : (
+                    <div style={{ fontWeight: 700, marginBottom: "20px" }}>
+                      Edit Batch
+                    </div>
+                  )}
+                  {renderEdit ?
+                    <Spin spinning={isLoading}>
+                      <Form onFinish={handleFormSubmitEdit}>
+                        <Row>
+                          <Col span={24}>
+                            <Form.Item
                               name="batchNumber"
-                              value={formData.batchNumber}
-                              defaultValue={formData.batchNumber}
-                              onChange={handleFormChange}
-                            />
-                          </Form.Item>
-                          </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name="startingLessonId"
-                            rules={[
-                              { required: true, message: "Starting Lesson Id" },
-                            ]}
-                          >
-                            <Select
-                              placeholder="Starting Lesson"
-                              onChange={(value) => {
-                                setStartLesson(value)
-                              }}
-                              defaultValue={startLesson}
-                              value={formData.startingLessonId}
-                              showSearch
-                              filterOption={(input, option: any) =>
-                                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                              }
+                              rules={[{ required: true, message: "Batch Number" }]}
                             >
-                              {
-                                LESSONS.map((_l) => (<Option key={_l.id} value={_l.id} label={_l.number}>{_l.number}</Option>))
-                              }
-                            </Select>
-                          </Form.Item>
+                              <Input
+                                type="text"
+                                placeholder="Batch Number"
+                                name="batchNumber"
+                                value={formData.batchNumber}
+                                defaultValue={formData.batchNumber}
+                                onChange={handleFormChange}
+                              />
+                            </Form.Item>
                           </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name="endingLessonId"
-                            rules={[
-                              { required: true, message: "Ending Lesson Id" },
-                            ]}
-                          >
-                            <Select
-                              placeholder="Ending Lesson"
-                              onChange={(value) => {
-                                setEndLesson(value)
-                              }}
-                              value={endLesson}
-                              defaultValue={endLesson}
-                              showSearch
-                              filterOption={(input, option: any) =>
-                                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                              }
+                          <Col span={12}>
+                            <Form.Item
+                              name="startingLessonId"
+                              rules={[
+                                { required: true, message: "Starting Lesson Id" },
+                              ]}
                             >
-                              {
-
-                                LESSONS.map((_l) => (<Option key={_l.id} value={_l.id} label={_l.number}>{_l.number}</Option>))
-                              }
-                            </Select>
-                          </Form.Item>
+                              <Select
+                                placeholder="Starting Lesson"
+                                onChange={(value) => {
+                                  setStartLesson(value)
+                                }}
+                                defaultValue={startLesson}
+                                value={formData.startingLessonId}
+                                showSearch
+                                filterOption={(input, option: any) =>
+                                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                              >
+                                {
+                                  LESSONS.map((_l) => (<Option key={_l.id} value={_l.id} label={_l.number}>{_l.number}</Option>))
+                                }
+                              </Select>
+                            </Form.Item>
                           </Col>
-                        <Col span={24}>
-                          <Form.Item
-                            name="dateRangePicker"
-                            rules={[{ required: true, message: "Batch Date" }]}
-                          >
-                            {console.log("prePopRender", prePop)}
-                            <RangePicker
-                              style={{ width: "551px" }}
-                              onChange={(value, e) => { handleClassDateRange(value) }}
-                              defaultValue={
-                                prePop?.batchData?.classes?.classEndDate?.length > 0 && prePop?.batchData?.classes?.classStartDate?.length ? [
-                                  moment(prePop.batchData.classes.classStartDate.split("T")[0], dateFormat),
-                                  moment(prePop.batchData.classes.classEndDate.split("T")[0], dateFormat),
-                                ] : classDateRange}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={24}>
-                          <Form.Item
-                            name="BatchTime"
-                            rules={[{ required: true, message: "Batch Time" }]}
-                          > {currentRow ? console.log(prePop) : ''}
-                            <TimePicker.RangePicker
-                              format={"HH:mm"}
-                              disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i : 1)}
+                          <Col span={12}>
+                            <Form.Item
+                              name="endingLessonId"
+                              rules={[
+                                { required: true, message: "Ending Lesson Id" },
+                              ]}
+                            >
+                              <Select
+                                placeholder="Ending Lesson"
+                                onChange={(value) => {
+                                  setEndLesson(value)
+                                }}
+                                value={endLesson}
+                                defaultValue={endLesson}
+                                showSearch
+                                filterOption={(input, option: any) =>
+                                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
+                              >
+                                {
 
-                              defaultValue={
-                                prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
+                                  LESSONS.map((_l) => (<Option key={_l.id} value={_l.id} label={_l.number}>{_l.number}</Option>))
+                                }
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                          <Col span={24}>
+                            <Form.Item
+                              name="dateRangePicker"
+                              rules={[{ required: true, message: "Batch Date" }]}
+                            >
+                              {console.log("prePopRender", prePop)}
+                              <RangePicker
+                                style={{ width: "551px" }}
+                                onChange={(value, e) => { handleClassDateRange(value) }}
+                                defaultValue={
+                                  prePop?.batchData?.classes?.classEndDate?.length > 0 && prePop?.batchData?.classes?.classStartDate?.length ? [
+                                    moment(prePop.batchData.classes.classStartDate.split("T")[0], dateFormat),
+                                    moment(prePop.batchData.classes.classEndDate.split("T")[0], dateFormat),
+                                  ] : classDateRange}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={24}>
+                            <Form.Item
+                              name="BatchTime"
+                              rules={[{ required: true, message: "Batch Time" }]}
+                            > {currentRow ? console.log(prePop) : ''}
+                              <TimePicker.RangePicker
+                                format={"HH:mm"}
+                                disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i : 1)}
+
+                                defaultValue={
+                                  prePop?.batchData?.classes?.lessonEndTime?.length > 0 && prePop?.batchData?.classes?.lessonStartTime?.length ?
+                                    [
+                                      moment(prePop?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
+                                      moment(prePop?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")
+                                    ] : timeRange
+                                }
+                                onChange={(value, e) => handleTimeRange(value)}
+                                style={{ width: "551px" }}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={16}>
+                            <Form.Item
+                              name="teacherId"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter your id",
+                                },
+                              ]}
+                            >
+                              <DebounceSelect
+                                showSearch
+                                value={teacherName}
+                                placeholder="Select teacher"
+                                fetchOptions={fetchUserList}
+                                options={[]}
+                                onChange={(newValue: any) => {
+                                  setTeacherName(newValue);
+                                }}
+                                style={{
+                                  width: "100%",
+                                }}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col offset={1} span={7}>
+                            <Button
+                              onClick={() => {
+                                setAddTeacherComponent(true);
+                              }}
+                              type="primary"
+                            >
+                              Add New Teacher
+                            </Button>
+                          </Col>
+
+                          <Col span={24}>
+                            <Form.Item
+                              name="frequency"
+                              rules={[
+                                { required: true, message: "Select Frequency" },
+                              ]}
+                            >
+                              <Select
+                                placeholder="Batch Frequency"
+                                maxTagCount={1}
+                                onChange={(v) => setSelectedFrequency(v)}
+                                value={selectedFrequency}
+                                options={PREMADE_FREQUENCY}
+                                defaultValue={!createBatch ? prePop?.batchData?.classes?.frequency : selectedFrequency}
+                              />
+                            </Form.Item>
+                          </Col>
+
+                          <Col span={24}>
+                            <Form.Item
+                              name="useNewZoomLink"
+                            >
+                              <Select
+                                placeholder="Use The New Zoom Link."
+                                maxTagCount={1}
+                                onChange={(v) => setUseNewZoomLink(v)}
+                                value={selectedUseNewZoomLink}
+                                options={
                                   [
-                                    moment(prePop?.batchData?.classes?.lessonStartTime.split("T")[1], "HH:mm"),
-                                    moment(prePop?.batchData?.classes?.lessonEndTime.split("T")[1], "HH:mm")
-                                  ] : timeRange
-                              }
-                              onChange={(value, e) => handleTimeRange(value)}
-                              style={{ width: "551px" }}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col span={16}>
-                          <Form.Item
-                            name="teacherId"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter your id",
-                              },
-                            ]}
-                          >
-                            <DebounceSelect
-                              showSearch
-                              value={teacherName}
-                              placeholder="Select teacher"
-                              fetchOptions={fetchUserList}
-                              options={[]}
-                              onChange={(newValue: any) => {
-                                setTeacherName(newValue);
-                              }}
-                              style={{
-                                width: "100%",
-                              }}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col offset={1} span={7}>
-                          <Button
-                            onClick={() => {
-                              setAddTeacherComponent(true);
-                            }}
-                            type="primary"
-                          >
-                            Add New Teacher
-                          </Button>
-                        </Col>
-
-                        <Col span={24}>
-                          <Form.Item
-                            name="frequency"
-                            rules={[
-                              { required: true, message: "Select Frequency" },
-                            ]}
-                          >
-                            <Select
-                              placeholder="Batch Frequency"
-                              maxTagCount={1}
-                              onChange={(v) => setSelectedFrequency(v)}
-                              value={selectedFrequency}
-                              options={PREMADE_FREQUENCY}
-                              defaultValue={!createBatch ? prePop?.batchData?.classes?.frequency : selectedFrequency}
-                            />
-                          </Form.Item>
-                        </Col>
-
-                        <Col span={24}>
-                          <Form.Item
-                            name="useNewZoomLink"
-                          >
-                            <Select
-                              placeholder="Use The New Zoom Link."
-                              maxTagCount={1}
-                              onChange={(v) => setUseNewZoomLink(v)}
-                              value={selectedUseNewZoomLink}
-                              options={
-                                [
-                                  { label: "Use New Zoom Meeting", value: 1 },
-                                  { label: "Use Old Zoom Meeting", value: 0 },
-                                ]
-                              }
-                              defaultValue={!createBatch ? prePop?.batchData?.classes?.useNewZoomLink : selectedUseNewZoomLink}
-                            />
-                          </Form.Item>
-                        </Col>
+                                    { label: "Use New Zoom Meeting", value: 1 },
+                                    { label: "Use Old Zoom Meeting", value: 0 },
+                                  ]
+                                }
+                                defaultValue={!createBatch ? prePop?.batchData?.classes?.useNewZoomLink : selectedUseNewZoomLink}
+                              />
+                            </Form.Item>
+                          </Col>
 
 
-                        <Col span={24}>
-                          <Form.Item
-                            name="offlineBatch"
-                          >
-                            <Select
-                              placeholder="Offline Batch."
-                              maxTagCount={1}
-                              onChange={(v) => setOfflineBatch(v)}
-                              value={selectedOfflineBatch}
-                              options={
-                                [
-                                  { label: "Offline Batch.", value: 1 },
-                                  { label: "Online Batch.", value: 0 },
-                                ]
-                              }
-                              defaultValue={!createBatch ? prePop?.batchData?.classes?.offlineBatch : selectedOfflineBatch}
-                            />
-                          </Form.Item>
+                          <Col span={24}>
+                            <Form.Item
+                              name="offlineBatch"
+                            >
+                              <Select
+                                placeholder="Offline Batch."
+                                maxTagCount={1}
+                                onChange={(v) => setOfflineBatch(v)}
+                                value={selectedOfflineBatch}
+                                options={
+                                  [
+                                    { label: "Offline Batch.", value: 1 },
+                                    { label: "Online Batch.", value: 0 },
+                                  ]
+                                }
+                                defaultValue={!createBatch ? prePop?.batchData?.classes?.offlineBatch : selectedOfflineBatch}
+                              />
+                            </Form.Item>
                           </Col>
 
                           <Col span={24} hidden={!selectedOfflineBatch}>
@@ -1087,145 +1085,146 @@ const BatchList: React.FC = () => {
                             </Form.Item>
                           </Col>
 
-                        {!selectedOfflineBatch &&
+                          {!selectedOfflineBatch &&
+                            <Col span={24}>
+                              <Form.Item
+                                name="useAutoAttendance"
+                              >
+                                <Select
+                                  placeholder="Use Auto Attendance Tracker."
+                                  maxTagCount={1}
+                                  onChange={(v) => setUseAutoAttendnace(v)}
+                                  value={selectedUseAutoAttendnace}
+                                  options={
+                                    [
+                                      { label: "Use Auto Attendance Tracker.", value: 1 },
+                                      { label: "Don't Use Auto Attendance Tracker.", value: 0 },
+                                    ]
+                                  }
+                                  defaultValue={!createBatch ? prePop?.batchData?.classes?.useAutoAttendance : selectedUseAutoAttendnace}
+                                />
+                              </Form.Item>
+                            </Col>
+                          }
+
                           <Col span={24}>
                             <Form.Item
-                              name="useAutoAttendance"
+                              name="zoomLink"
+                              rules={[{ required: true, message: "Zoom Link" }]}
                             >
-                              <Select
-                                placeholder="Use Auto Attendance Tracker."
-                                maxTagCount={1}
-                                onChange={(v) => setUseAutoAttendnace(v)}
-                                value={selectedUseAutoAttendnace}
-                                options={
-                                  [
-                                    { label: "Use Auto Attendance Tracker.", value: 1 },
-                                    { label: "Don't Use Auto Attendance Tracker.", value: 0 },
-                                  ]
-                                }
-                                defaultValue={!createBatch ? prePop?.batchData?.classes?.useAutoAttendance : selectedUseAutoAttendnace}
+                              <Input
+                                type="text"
+                                placeholder="Zoom Link"
+                                name="zoomLink"
+                                value={formData.zoomLink}
+                                defaultValue={formData.zoomLink}
+                                onChange={handleFormChange}
                               />
                             </Form.Item>
                           </Col>
-                        }
 
-                        <Col span={24}>
-                          <Form.Item
-                            name="zoomLink"
-                            rules={[{ required: true, message: "Zoom Link" }]}
-                          >
-                            <Input
-                              type="text"
-                              placeholder="Zoom Link"
-                              name="zoomLink"
-                              value={formData.zoomLink}
-                              defaultValue={formData.zoomLink}
-                              onChange={handleFormChange}
-                            />
-                          </Form.Item>
-                        </Col>
-
-                        <Col span={24}>
-                          <Form.Item
-                            name="zoomInfo"
-                            rules={[{ required: true, message: "Zoom Information" }]}
-                          >
-                            <Input
-                              type="text"
-                              placeholder="Zoom Information"
+                          <Col span={24}>
+                            <Form.Item
                               name="zoomInfo"
-                              value={formData.zoomInfo}
-                              defaultValue={formData.zoomInfo}
-                              onChange={handleFormChange}
-                            />
-                          </Form.Item>
-                        </Col>
+                              rules={[{ required: true, message: "Zoom Information" }]}
+                            >
+                              <Input
+                                type="text"
+                                placeholder="Zoom Information"
+                                name="zoomInfo"
+                                value={formData.zoomInfo}
+                                defaultValue={formData.zoomInfo}
+                                onChange={handleFormChange}
+                              />
+                            </Form.Item>
+                          </Col>
 
-                        <Col span={24}>
-                          <Form.Item
-                            name="whatsappLink"
-                            rules={[{ required: true, message: "Whatsapp Link" }]}
-                          >
-                            <Input
-                              type="text"
-                              placeholder="Whatsapp Link"
+                          <Col span={24}>
+                            <Form.Item
                               name="whatsappLink"
-                              value={formData.whatsappLink}
-                              defaultValue={formData.whatsappLink}
-                              onChange={handleFormChange}
+                              rules={[{ required: true, message: "Whatsapp Link" }]}
+                            >
+                              <Input
+                                type="text"
+                                placeholder="Whatsapp Link"
+                                name="whatsappLink"
+                                value={formData.whatsappLink}
+                                defaultValue={formData.whatsappLink}
+                                onChange={handleFormChange}
+                              />
+                            </Form.Item>
+                          </Col>
+
+                          <Col span={24}>
+                            {studentList ?
+                              <DebounceSelect
+                                showSearch
+                                value={[]}
+                                placeholder="Select students"
+                                fetchOptions={fetchStudentList}
+                                // options = {currentRow?.id?studentList:[]}
+                                // defaultValue={currentRow?.id?studentList:[]}
+                                onChange={(newValue: any) => {
+                                  if (!studentList.filter(i => i.value === newValue.value)[0]) {
+                                    setStudentList([...studentList, newValue]);
+                                  }
+                                }}
+                                style={{
+                                  width: "100%",
+                                }}
+                              /> : <></>}
+                          </Col>
+
+                          <Col span={24}>
+                            <Students
+                              value={studentList}
+                              options={currentRow?.id ? studentList : []}
+                              defaultValue={currentRow?.id ? studentList : []}
+                              onChange={(newValue: any[]) => {
+                                setStudentList(newValue);
+                              }}
                             />
-                          </Form.Item>
-                        </Col>
+                          </Col>
 
-                        <Col span={24}>
-                          {studentList ?
-                            <DebounceSelect
-                              showSearch
-                              value={[]}
-                              placeholder="Select students"
-                              fetchOptions={fetchStudentList}
-                              // options = {currentRow?.id?studentList:[]}
-                              // defaultValue={currentRow?.id?studentList:[]}
-                              onChange={(newValue: any) => {
-                                if (!studentList.filter(i => i.value === newValue.value)[0]) {
-                                  setStudentList([...studentList, newValue]);
-                                }
-                              }}
-                              style={{
-                                width: "100%",
-                              }}
-                            /> : <></>}
-                        </Col>
-
-                        <Col span={24}>
-                          <Students
-                            value={studentList}
-                            options={currentRow?.id ? studentList : []}
-                            defaultValue={currentRow?.id ? studentList : []}
-                            onChange={(newValue: any[]) => {
-                              setStudentList(newValue);
-                            }}
-                          />
-                        </Col>
-
-                        <Col span={24}>
-                          <Button
-                            // size="large"
-                            style={{ width: "551px" }}
-                            type="primary"
-                            onClick={handleFormSubmitEdit}
-                          >
-                            Save
-                          </Button>
-                        </Col>
-                      </Row>
-                    </Form></Spin> : ''
-                }
-              </>
-            ) : (
-              <>
-                {currentRow?.name && (
-                  <ProDescriptions<API.RuleListItem>
-                    column={2}
-                    title={currentRow?.name}
-                    request={async () => ({
-                      data: currentRow || {},
-                    })}
-                    params={{
-                      id: currentRow?.name,
-                    }}
-                    columns={
-                      columns as ProDescriptionsItemProps<API.RuleListItem>[]
-                    }
-                  />
-                )}
-                <View batchData={tempData} isLoading={isLoading} />
-              </>
-            )}
-          </>
-        )}
-      </Drawer>
-    </PageContainer>
+                          <Col span={24}>
+                            <Button
+                              // size="large"
+                              style={{ width: "551px" }}
+                              type="primary"
+                              onClick={handleFormSubmitEdit}
+                            >
+                              Save
+                            </Button>
+                          </Col>
+                        </Row>
+                      </Form></Spin> : ''
+                  }
+                </>
+              ) : (
+                <>
+                  {currentRow?.name && (
+                    <ProDescriptions<API.RuleListItem>
+                      column={2}
+                      title={currentRow?.name}
+                      request={async () => ({
+                        data: currentRow || {},
+                      })}
+                      params={{
+                        id: currentRow?.name,
+                      }}
+                      columns={
+                        columns as ProDescriptionsItemProps<API.RuleListItem>[]
+                      }
+                    />
+                  )}
+                  <View batchData={tempData} isLoading={isLoading} />
+                </>
+              )}
+            </>
+          )}
+        </Drawer>
+      </PageContainer>
+    </>
   );
 };
 

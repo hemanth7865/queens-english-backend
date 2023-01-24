@@ -1,10 +1,8 @@
-// @ts-nocheck
 import {
   PlusOutlined,
   DeleteOutlined,
   EyeOutlined,
   ClockCircleOutlined,
-  UploadOutlined,
   EditOutlined,
   MinusCircleOutlined
 } from "@ant-design/icons";
@@ -18,36 +16,21 @@ import {
   Row,
   Select,
   DatePicker,
-  Modal,
   Checkbox,
   TimePicker,
   Tooltip,
-  Upload,
-  RangePicker,
   notification,
-  Alert,
   Space,
-  Spin
+  Spin,
+  Tabs
 } from "antd";
 import React, { useState, useRef, useEffect } from "react";
 import { useIntl, FormattedMessage } from "umi";
-import * as CountryList from 'country-list';
-import {
-  isPossiblePhoneNumber,
-  isValidPhoneNumber,
-  validatePhoneNumberLength,
-  parsePhoneNumber,
-  getCountryCallingCode
-} from 'libphonenumber-js';
 
-import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
+import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
-import { ModalForm, ProFormText, ProFormTextArea } from "@ant-design/pro-form";
-import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
-import ProDescriptions from "@ant-design/pro-descriptions";
-import type { FormValueType } from "./components/UpdateForm";
-import UpdateForm from "./components/UpdateForm";
+
 import {
   teacherBatches,
   addTeacherSchedule,
@@ -59,44 +42,19 @@ import {
   handleAPIResponse
 } from "@/services/ant-design-pro/helpers";
 
-import Icon from "@ant-design/icons";
 import "./index.css";
-import Availability from "./availability";
 import moment from "moment";
-import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
-
-
-const DEFAULT_COUNTRY_CODE_NUMBER = "91";
-const allCountries = CountryList.getData()
-
-const defaultCountry = allCountries.filter(country => country.name === 'India')
+import ViewDrawer from '../School/components/Drawers/viewDrawer';
 
 const TeacherBatchList: React.FC = () => {
-  /**
-   * @en-US Pop-up window of new window
-   * @zh-CN 新建窗口的弹窗
-   *  */
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  /**
-   * @en-US The pop-up window of the distribution update window
-   * @zh-CN 分布更新窗口的弹窗
-   * */
-  const [updateModalVisible, handleUpdateModalVisible] =
-    useState<boolean>(false);
-  //teacher side show - add
-
-  //multi drawer - edit
-  // const [childrenDrawer, setchildrenDrawer] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
-  const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
-  //form states
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -124,9 +82,6 @@ const TeacherBatchList: React.FC = () => {
   });
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [tempDataView, setTempDataView] = useState({});
   const [selectCountryCode, setSelectCountryCode] = useState(91)
   const [selectCountry, setSelectCountry] = useState('')
@@ -134,18 +89,13 @@ const TeacherBatchList: React.FC = () => {
 
   //state for select option
   const [selectValue, setSelectValue] = useState("");
-  const [selectTeacher, setSelectTeacher] = useState("");
   const [selectStatus, setSelectStatus] = useState("");
-
-  //state for adding images
-  const [uploadResume, setUploadResume] = useState();
-
-  const [selectLead1, setSelectLead1] = useState([]);
 
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [dateBirth, setDateOfBirth] = useState("");
+  const [currentRow, setCurrentRow] = useState<any>(null);
 
   //add drawer
   const showDrawer = () => {
@@ -156,52 +106,12 @@ const TeacherBatchList: React.FC = () => {
     seteditvisible(false);
   };
 
-  const handleMobileChangeCountry = (e) => {
+  const handleMobileChangeCountry = (e: { target: { value: React.SetStateAction<string>; }; }) => {
     setPhoneNumber(e.target.value);
   }
 
-  const handleMobileChange = (event) => {
-    const number = event.target.value
-    const message = isValidPhoneNumber(number, selectCountry ? selectCountry : 'IN')
-    console.log('msg', message, msg)
-    const msg = validatePhoneNumberLength(number, selectCountry ? selectCountry : 'IN')
-    if (msg === 'TOO_LONG') {
-      setError('Phone number is too long')
-    } else if (msg === 'TOO_SHORT') {
-      setError('Phone number is too short')
-    } else if (msg === 'NOT_A_NUMBER') {
-      setError('Not a Number')
-    } else if (msg === 'INVALID_COUNTRY') {
-      setError('Please Select country first')
-    } else if (msg === undefined) {
-      setError('')
-    } else {
-      setError('Phone number is Invalid')
-    }
-
-    console.log("phoneNumber", number, message, event.target.name);
-
-    if (message === true && msg === undefined) {
-      console.log(`valid mobile number for ${selectCountry}`)
-      setFormData((value) => ({
-        ...value,
-        [event.target.name]: number
-      }))
-    }
-    if (message === false && msg === undefined) {
-      setError('Enter a valid Mobile Number')
-    }
-    //console.log(validatePhoneNumberLength(number, 'IN'))
-
-  }
-
-
   const showDrawerEdit = () => {
-    setVisibleEdit(true);
     seteditvisible(true);
-  };
-  const onCloseEdit = () => {
-    setVisibleEdit(false);
   };
 
   /**
@@ -210,7 +120,7 @@ const TeacherBatchList: React.FC = () => {
    * */
   const intl = useIntl();
 
-  const handleOneView = async (id) => {
+  const handleOneView = async (id: any) => {
     try {
       let msg = await teacherBatchesView(id);
       if (msg.status === "ok") {
@@ -223,8 +133,6 @@ const TeacherBatchList: React.FC = () => {
     }
   };
 
-  // console.log('viewone', viewOne)
-  console.log("tempdateview", tempDataView);
   const columns: ProColumns<API.RuleListItem>[] = [
     //date
     {
@@ -256,6 +164,15 @@ const TeacherBatchList: React.FC = () => {
         />
       ),
       dataIndex: "name",
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.schoolTeacher"
+          defaultMessage="School"
+        />
+      ),
+      dataIndex: "schoolName",
     },
     {
       title: (
@@ -408,13 +325,13 @@ const TeacherBatchList: React.FC = () => {
       renderFormItem: (value) => {
         return (
           <Select mode="tags">
-            <Option value="1">Monday</Option>
-            <Option value="2">Tuesday</Option>
-            <Option value="3">Wednesday</Option>
-            <Option value="4">Thursday</Option>
-            <Option value="5">Friday</Option>
-            <Option value="6">Saturday</Option>
-            <Option value="7">Sunday</Option>
+            <Select.Option value="1">Monday</Select.Option>
+            <Select.Option value="2">Tuesday</Select.Option>
+            <Select.Option value="3">Wednesday</Select.Option>
+            <Select.Option value="4">Thursday</Select.Option>
+            <Select.Option value="5">Friday</Select.Option>
+            <Select.Option value="6">Saturday</Select.Option>
+            <Select.Option value="7">Sunday</Select.Option>
           </Select>
         );
       },
@@ -438,9 +355,8 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log("entity", entity);
-              handleOneView(entity.leadId);
               setCurrentRow(entity);
+              handleOneView(entity.leadId);
               setShowDetail(true);
             }}
           >
@@ -463,10 +379,9 @@ const TeacherBatchList: React.FC = () => {
         return (
           <a
             onClick={() => {
-              console.log("entity", entity);
+              setCurrentRow(entity);
               setShowDetail(true);
               handleOneView(entity.leadId);
-              setCurrentRow(entity);
               showDrawerEdit();
             }}
           >
@@ -494,7 +409,7 @@ const TeacherBatchList: React.FC = () => {
     },
   ];
 
-  const handleFormChange = (e, value) => {
+  const handleFormChange = (e: { target: { name: any; value: any; }; }, value: any) => {
     setFormData((value) => ({
       ...value,
       [e.target.name]: e.target.value,
@@ -502,12 +417,10 @@ const TeacherBatchList: React.FC = () => {
     // console.log('input one');
   };
 
-  const handleSelectChange = (value) => {
+  const handleSelectChange = (value: React.SetStateAction<string>) => {
     console.log("status", value);
     setSelectValue(value);
   };
-
-  const dateFormat = "HH:mm:ss";
 
   const handleFormSubmit = async () => {
     console.log("form submitted");
@@ -516,7 +429,6 @@ const TeacherBatchList: React.FC = () => {
       delete e.user_key;
     });
     const leadArray = [...leadTotal, ...leadAvailabilities]
-    var code = selectCountryCode ? selectCountryCode : '91';
     const dataForm = {
       teacherId: formData.teacherId,
       firstName: formData.firstName,
@@ -567,20 +479,6 @@ const TeacherBatchList: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleCountry = (value) => {
-    console.log('selected country', value)
-    if (value) {
-      const code = CountryList.getCode(value)
-      const codeNumber = getCountryCallingCode(code)
-      console.log('code', code, codeNumber)
-      setSelectCountry(code)
-      setSelectCountryCode(codeNumber)
-    }
-  }
-  console.log('country', selectCountry, selectCountryCode)
-
-
-
   const handleFormSubmitEdit = async () => {
     setIsLoading(true);
     leadTotal.forEach((e) => {
@@ -617,13 +515,13 @@ const TeacherBatchList: React.FC = () => {
           qualification: formData.education
             ? formData.education
             : tempDataView.teacher &&
-            tempDataView.teacher.map(function (lead, i) {
+            tempDataView.teacher.map(function (lead: { qualification: any; }, i: any) {
               return lead.qualification;
             }),
           totalexp: formData.experience
             ? formData.experience
             : tempDataView.teacher &&
-            tempDataView.teacher.map(function (lead, i) {
+            tempDataView.teacher.map(function (lead: { totalexp: any; }, i: any) {
               return lead.totalexp;
             }),
           video: formData.videoProfile,
@@ -631,7 +529,7 @@ const TeacherBatchList: React.FC = () => {
           joiningdate: dateJoining
             ? dateJoining
             : tempDataView.teacher &&
-            tempDataView.teacher.map(function (lead, i) {
+            tempDataView.teacher.map(function (lead: { joiningdate: any; }, i: any) {
               return lead.joiningdate;
             }),
           ratings: 1,
@@ -666,13 +564,13 @@ const TeacherBatchList: React.FC = () => {
     setIsLoading(false);
   };
 
-  let leadAvailabilities = [];
-  let leadTotal = [];
-  let extraWeek = [];
+  let leadAvailabilities: { start_slot: any; end_slot: any; weekday: any; start_date: string; }[] = [];
+  let leadTotal: any[] = [];
+  let extraWeek: { start_slot: any; end_slot: any; weekday: any; start_date: any; }[] = [];
   console.log('LA', leadAvailabilities, leadTotal, extraWeek)
 
   //lead availability
-  const WeekdayAvailability = (props) => {
+  const WeekdayAvailability = (props: { weekday: React.SetStateAction<{ weekday: string; }>; tempData: any[]; week: {} | null | undefined; }) => {
     const [value, setValue] = useState({
       start_slot: "",
       end_slot: "",
@@ -691,11 +589,11 @@ const TeacherBatchList: React.FC = () => {
     let slotStart, slotEnd;
     let leadSlot;
 
-    let slotStartRepeat = [];
+    let slotStartRepeat: { slotStart: any; slotEnd: any; }[] = [];
     let slotEndRepeat = [];
     if (dataLead) {
       if (dataLead.length > 1) {
-        dataLead.map((data) => {
+        dataLead.map((data: string) => {
           data = data.toString();
           slotStart = data.split(",")[0].slice(4);
           slotEnd = data.split(",")[1];
@@ -734,7 +632,7 @@ const TeacherBatchList: React.FC = () => {
         <Col span={7}>
           {dataLead ?
             props.tempData.length > 1 ? (
-              props.tempData.map((items) => {
+              props.tempData.map((items: any) => {
                 return <Col style={{ marginLeft: -5, margin: 7 }}>
                   <Checkbox
                     name="extra"
@@ -799,7 +697,7 @@ const TeacherBatchList: React.FC = () => {
   };
 
 
-  const ExtraWeekdayAvailability = (props) => {
+  const ExtraWeekdayAvailability = (props: { id: any; }) => {
     const [value, setValue] = useState({
       start_slot: "",
       end_slot: "",
@@ -807,7 +705,7 @@ const TeacherBatchList: React.FC = () => {
     const [value1, setValue1] = useState({})
     const [weeknumber, setWeekNumber] = useState({})
 
-    function handleChange(value) {
+    function handleChange(value: React.SetStateAction<{}>) {
       setWeekNumber(value)
     }
 
@@ -819,8 +717,6 @@ const TeacherBatchList: React.FC = () => {
       user_key: props.id
     };
 
-    let slotStart, slotEnd;
-    let leadSlot;
     if (
       leadWeekAvailability.start_slot &&
       leadWeekAvailability.end_slot &&
@@ -847,13 +743,13 @@ const TeacherBatchList: React.FC = () => {
         </Col>
         <Col span={6}>
           <Select onChange={handleChange}>
-            <Option value={1}>Monday</Option>
-            <Option value={2}>Tuesday</Option>
-            <Option value={3}>Wednesday</Option>
-            <Option value={4}>Thursady</Option>
-            <Option value={5}>Friday</Option>
-            <Option value={6}>Saturday</Option>
-            <Option value={7}>Sunday</Option>
+            <Select.Option value={1}>Monday</Select.Option>
+            <Select.Option value={2}>Tuesday</Select.Option>
+            <Select.Option value={3}>Wednesday</Select.Option>
+            <Select.Option value={4}>Thursady</Select.Option>
+            <Select.Option value={5}>Friday</Select.Option>
+            <Select.Option value={6}>Saturday</Select.Option>
+            <Select.Option value={7}>Sunday</Select.Option>
           </Select>
         </Col>
         <Col span={1}></Col>
@@ -878,32 +774,32 @@ const TeacherBatchList: React.FC = () => {
       .split(" , ")
       .toString()
       .split(" ");
-    monday = timeSlots.filter((lead) => {
+    monday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Mon");
     });
-    tuesday = timeSlots.filter((lead) => {
+    tuesday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Tue");
     });
-    wednesday = timeSlots.filter((lead) => {
+    wednesday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Wed");
     });
-    thursday = timeSlots.filter((lead) => {
+    thursday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Thu");
     });
-    friday = timeSlots.filter((lead) => {
+    friday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Fri");
     });
-    saturday = timeSlots.filter((lead) => {
+    saturday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Sat");
     });
-    sunday = timeSlots.filter((lead) => {
+    sunday = timeSlots.filter((lead: string) => {
       return lead.startsWith("Sun");
     });
   }
   //console.log('timeslots', timeSlots)
 
   //delete teacher
-  const openNotification = (id) => {
+  const openNotification = (id: any) => {
     const key = id;
     const btn = (
       <Button type="primary" size="small" onClick={() => deleteTeacher(key)}>
@@ -919,7 +815,7 @@ const TeacherBatchList: React.FC = () => {
     });
   };
 
-  const deleteTeacher = async (id) => {
+  const deleteTeacher = async (id: any) => {
     console.log("clicked delete teacher");
     try {
       let msg = await teacherRemove(id, {
@@ -944,7 +840,7 @@ const TeacherBatchList: React.FC = () => {
       lastName: tempDataView.lastName,
       joiningDate: moment(
         tempDataView.teacher &&
-        tempDataView.teacher.map(function (lead, i) {
+        tempDataView.teacher.map(function (lead: { joiningdate: any; }, i: any) {
           return lead.joiningdate;
         }),
         "YYYY/MM/DD"
@@ -959,16 +855,17 @@ const TeacherBatchList: React.FC = () => {
       category: tempDataView.category,
       qualification:
         tempDataView.teacher &&
-        tempDataView.teacher.map(function (lead, i) {
+        tempDataView.teacher.map(function (lead: { qualification: any; }, i: any) {
           return lead.qualification;
         }),
       totalExperience:
         tempDataView.teacher &&
-        tempDataView.teacher.map(function (lead, i) {
+        tempDataView.teacher.map(function (lead: { totalexp: any; }, i: any) {
           return lead.totalexp;
         }),
       teacherType: "teacher",
       languageKnown: tempDataView.languages,
+      schoolName: tempDataView.schoolName,
     });
   };
   useEffect(() => {
@@ -1085,9 +982,9 @@ const TeacherBatchList: React.FC = () => {
                         name="gender"
                         onChange={handleSelectChange}
                       >
-                        <Option value="Male">Male</Option>
-                        <Option value="Female">Female</Option>
-                        <Option value="Not Applicable">Not Applicable</Option>
+                        <Select.Option value="Male">Male</Select.Option>
+                        <Select.Option value="Female">Female</Select.Option>
+                        <Select.Option value="Not Applicable">Not Applicable</Select.Option>
                       </Select>
                     </Form.Item>
                   </Col>
@@ -1201,9 +1098,9 @@ const TeacherBatchList: React.FC = () => {
                           setSelectStatus(value);
                         }}
                       >
-                        <Option value="1">Active</Option>
-                        <Option value="2">Leave</Option>
-                        <Option value="3">On Hold</Option>
+                        <Select.Option value="1">Active</Select.Option>
+                        <Select.Option value="2">Leave</Select.Option>
+                        <Select.Option value="3">On Hold</Select.Option>
                       </Select>
                     </Form.Item>
                   </Col>
@@ -1268,455 +1165,461 @@ const TeacherBatchList: React.FC = () => {
         width={780}
         visible={showDetail}
         onClose={() => {
-          setCurrentRow(undefined);
           setShowDetail(false);
           seteditvisible(false);
         }}
         closable={true}
       >
-        {!editvisible ? (
-          <>
-            <Row>
-              <Col
-                style={{
-                  fontWeight: 900,
-                  alignContent: "center",
-                  alignItems: "center",
-                }}
-                span={24}
-              >
-                <center>
-                  <h2 style={{ color: "blue" }}>View Teacher</h2>
-                </center>
-              </Col>
-            </Row>
-            <Row style={{ fontWeight: 500 }} gutter={(40, 60)}>
-              <Col span={7}>Photo</Col>
-              <Col span={6}>
-                <p>Name</p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.firstName + " " + tempDataView.lastName}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Joining Date </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {tempDataView.teacher &&
-                    tempDataView.teacher.map(function (lead, i) {
-                      return <span>{lead.joiningdate}</span>;
-                    })}
-                </p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Start Date </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.startDate}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Date of Birth </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.dob}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Gender </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.gender}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Phone Number </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.phoneNumber}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>WhatsApp </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.whatsapp}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Email </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.email}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Address </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.address}</p>
-              </Col>
-
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Category </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.category}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Education </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {tempDataView.teacher &&
-                    tempDataView.teacher.map(function (lead, i) {
-                      return <span>{lead.qualification}</span>;
-                    })}
-                </p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Experiance </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {tempDataView.teacher &&
-                    tempDataView.teacher.map(function (lead, i) {
-                      return <span>{lead.totalexp + " Years"} </span>;
-                    })}
-                </p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Teacher Type </p>
-              </Col>
-              <Col span={11}>
-                <p>Teacher</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Languages Known </p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.languages}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Resume </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {" "}
-                  {tempDataView.teacher &&
-                    tempDataView.teacher.map(function (lead, i) {
-                      return <span>{lead.resume}</span>;
-                    })}
-                </p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p> Video Profile </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {tempDataView.teacher &&
-                    tempDataView.teacher.map(function (lead, i) {
-                      return <span>{lead.video}</span>;
-                    })}
-                </p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Certificates </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {tempDataView.teacher &&
-                    tempDataView.teacher.map(function (lead, i) {
-                      return <span>{lead.Certificates}</span>;
-                    })}
-                </p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Availabilty During the Week</p>
-              </Col>
-              <Col span={11}>
-                <p>{tempDataView.slots}</p>
-              </Col>
-              <Col span={7}></Col>
-              <Col span={6}>
-                <p>Status </p>
-              </Col>
-              <Col span={11}>
-                <p>
-                  {tempDataView.status == 1 ? (
-                    <div>{"Active"} </div>
-                  ) : tempDataView.status == 3 ? (
-                    <div>{"OnHold"} </div>
-                  ) : tempDataView.status == 2 ? (
-                    <div>{"Leave"} </div>
-                  ) : (
-                    <div>{"In Active"} </div>
-                  )}
-                </p>
-              </Col>
-            </Row>
-            <br />
-            <Row>
-              <Col span={10}></Col>
-              <Col span={12}>
-                <Button type="primary" onClick={showDrawerEdit}>
-                  {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
-                  Edit Teacher
-                </Button>
-              </Col>
-            </Row>
-          </>
-        ) : (
-          <Spin spinning={isLoading}>
-            <Form onFinish={handleFormSubmitEdit} form={form}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item name="firstName">
-                    <Input name="firstName" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="lastName">
-                    <Input name="lastName" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-
-                {/* joining and start date */}
-
-                <Col span={12}>
-                  <Form.Item name="joiningDate">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "350px" }}
-                      onChange={(date, dateString) => {
-                        setDateJoining(dateString);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="startDate">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "350px" }}
-                      onChange={(date, dateString) => {
-                        setDateStart(dateString);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* Date of Birth and gender */}
-
-                <Col span={12}>
-                  <Form.Item name="dateOfBirth">
-                    <DatePicker
-                      format="YYYY/MM/DD"
-                      style={{ width: "350px" }}
-                      onChange={(date, dateString) => {
-                        setDateOfBirth(dateString);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="gender">
-                    <Select name="gender" onChange={handleSelectChange}>
-                      <Option value="Male">Male</Option>
-                      <Option value="Female">Female</Option>
-                      <Option value="Not Applicable">Not Applicable</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-
-                {/* Mobile and Whatsup */}
-                <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} />
-
-                <Col span={12}>
-                  <Form.Item name="whatsApp">
-                    <Input name="whatsapp" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-
-                {/* Email and address */}
-
-                <Col span={12}>
-                  <Form.Item name="email">
-                    <Input name="email" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="address">
-                    <Input name="address" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-
-                {/* Nationality and category */}
-
-                <Col span={12}>
-                  <Form.Item name="category">
-                    <Input name="category" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-
-                {/* Education/Qualification and total experience */}
-
-                <Col span={12}>
-                  <Form.Item name="qualification">
-                    <Input name="education" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="totalExperience">
-                    <Input name="experience" onChange={handleFormChange} />
-                  </Form.Item>
-                </Col>
-
-                {/* Teacher Type and Language Known */}
-                <Col span={12}>
-                  <Form.Item name="languageKnown">
-                    <Input
-                      name="languagesKnown"
-                      onChange={handleFormChange}
-                      placeholder={"Languages Known"}
-                    />
-                  </Form.Item>
-                </Col>
-
-                {/* upload resume and upload video profile */}
-
-                {/* status */}
-
-                <Col span={12}>
-                  <Form.Item name="status">
-                    <Select
-                      defaultValue={
-                        tempDataView.statusId == 1
-                          ? "Active"
-                          : tempDataView.statusId == 3
-                            ? "OnHold"
-                            : tempDataView.statusId == 2
-                              ? "Leave"
-                              : "In Active"
-                      }
-                      onChange={(value) => {
-                        setSelectStatus(value);
-                      }}
-                    >
-                      <Option value="1">Active</Option>
-                      <Option value="2">Leave</Option>
-                      <Option value="3">On Hold</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              {/* Availability */}
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Week Availability</label>
-                    <WeekdayAvailability
-                      weekday={1}
-                      week="Monday"
-                      tempData={monday}
-                    />
-                    <WeekdayAvailability
-                      weekday={2}
-                      week="Tuesday"
-                      tempData={tuesday}
-                    />
-                    <WeekdayAvailability
-                      weekday={3}
-                      week="Wednesday"
-                      tempData={wednesday}
-                    />
-                    <WeekdayAvailability
-                      weekday={4}
-                      week="Thursday"
-                      tempData={thursday}
-                    />
-                    <WeekdayAvailability
-                      weekday={5}
-                      week="Friday"
-                      tempData={friday}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="leadAvailability">
-                    <label>Weekend Availability</label>
-                    <WeekdayAvailability
-                      weekday={6}
-                      week="Saturday"
-                      tempData={saturday}
-                    />
-                    <WeekdayAvailability
-                      weekday={7}
-                      week="Sunday"
-                      tempData={sunday}
-                    />
-                    <Form.List name="users">
-                      {(fields, { add, remove }) => (
-                        <>
-                          {fields.map(({ key, name, ...restField }) => (
-
-                            <Space key={key} style={{ display: 'flex' }} align="baseline">
-                              {console.log('key', key)}
-                              <Form.Item
-                                {...restField}
-                              >
-                                <ExtraWeekdayAvailability key={key} />
-                              </Form.Item>
-                              <MinusCircleOutlined onClick={() => remove(name)} />
-                            </Space>
-                          ))}
-                          <Form.Item>
-                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                              Extra Availability
-                            </Button>
-                          </Form.Item>
-                        </>
-                      )}
-                    </Form.List>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row>
-                <Col span={8}>
-                  <Input
-                    type="submit"
-                    value="Save Changes"
-                    style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                  />
-                </Col>
-                <Col span={8}></Col>
-                <Col span={8}>
-                  <Button
-                    onClick={() => {
-                      openNotification(tempDataView.id);
+        <Tabs>
+          <Tabs.TabPane tab="Teacher Details" key="1">
+            {!editvisible ? (
+              <>
+                <Row>
+                  <Col
+                    style={{
+                      fontWeight: 900,
+                      alignContent: "center",
+                      alignItems: "center",
                     }}
-                    block
-                    type="primary"
+                    span={24}
                   >
-                    Delete
-                  </Button>
-                </Col>
-              </Row>
-            </Form>
-          </Spin>
-        )}
+                    <center>
+                      <h2 style={{ color: "blue" }}>View Teacher</h2>
+                    </center>
+                  </Col>
+                </Row>
+                <Row style={{ fontWeight: 500 }} gutter={(40, 60)}>
+                  <Col span={7}>Photo</Col>
+                  <Col span={6}>
+                    <p>Name</p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.firstName + " " + tempDataView.lastName}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Joining Date </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead: { joiningdate: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, i: any) {
+                          return <span>{lead.joiningdate}</span>;
+                        })}
+                    </p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Start Date </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.startDate}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Date of Birth </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.dob}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Gender </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.gender}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Phone Number </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.phoneNumber}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>WhatsApp </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.whatsapp}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Email </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.email}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Address </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.address}</p>
+                  </Col>
+
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Category </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.category}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Education </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead: { qualification: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, i: any) {
+                          return <span>{lead.qualification}</span>;
+                        })}
+                    </p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Experiance </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead: { totalexp: string; }, i: any) {
+                          return <span>{lead.totalexp + " Years"} </span>;
+                        })}
+                    </p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Teacher Type </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>Teacher</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Languages Known </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.languages}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Resume </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {" "}
+                      {tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead: { resume: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, i: any) {
+                          return <span>{lead.resume}</span>;
+                        })}
+                    </p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p> Video Profile </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead: { video: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, i: any) {
+                          return <span>{lead.video}</span>;
+                        })}
+                    </p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Certificates </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {tempDataView.teacher &&
+                        tempDataView.teacher.map(function (lead: { Certificates: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, i: any) {
+                          return <span>{lead.Certificates}</span>;
+                        })}
+                    </p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Availabilty During the Week</p>
+                  </Col>
+                  <Col span={11}>
+                    <p>{tempDataView.slots}</p>
+                  </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>Status </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {tempDataView.status == 1 ? (
+                        <div>{"Active"} </div>
+                      ) : tempDataView.status == 3 ? (
+                        <div>{"OnHold"} </div>
+                      ) : tempDataView.status == 2 ? (
+                        <div>{"Leave"} </div>
+                      ) : (
+                        <div>{"In Active"} </div>
+                      )}
+                    </p>
+                  </Col>
+                </Row>
+                <br />
+                <Row>
+                  <Col span={10}></Col>
+                  <Col span={12}>
+                    <Button type="primary" onClick={showDrawerEdit}>
+                      {/* <FormattedMessage id="pages.searchTable.addTeacher" defaultMessage="Add Teacher" /> */}
+                      Edit Teacher
+                    </Button>
+                  </Col>
+                </Row>
+              </>
+            ) : (
+              <Spin spinning={isLoading}>
+                <Form onFinish={handleFormSubmitEdit} form={form}>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="firstName">
+                        <Input name="firstName" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="lastName">
+                        <Input name="lastName" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
+
+                      {/* joining and start date */}
+
+                      <Col span={12}>
+                        <Form.Item name="joiningDate">
+                          <DatePicker
+                            format="YYYY/MM/DD"
+                            style={{ width: "350px" }}
+                            onChange={(date, dateString) => {
+                              setDateJoining(dateString);
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item name="startDate">
+                          <DatePicker
+                            format="YYYY/MM/DD"
+                            style={{ width: "350px" }}
+                            onChange={(date, dateString) => {
+                              setDateStart(dateString);
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Date of Birth and gender */}
+
+                      <Col span={12}>
+                        <Form.Item name="dateOfBirth">
+                          <DatePicker
+                            format="YYYY/MM/DD"
+                            style={{ width: "350px" }}
+                            onChange={(date, dateString) => {
+                              setDateOfBirth(dateString);
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item name="gender">
+                          <Select name="gender" onChange={handleSelectChange}>
+                            <Select.Option value="Male">Male</Select.Option>
+                            <Select.Option value="Female">Female</Select.Option>
+                            <Select.Option value="Not Applicable">Not Applicable</Select.Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+
+                      {/* Mobile and Whatsup */}
+                      <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} />
+
+                      <Col span={12}>
+                        <Form.Item name="whatsApp">
+                          <Input name="whatsapp" onChange={handleFormChange} />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Email and address */}
+
+                      <Col span={12}>
+                        <Form.Item name="email">
+                          <Input name="email" onChange={handleFormChange} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item name="address">
+                          <Input name="address" onChange={handleFormChange} />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Nationality and category */}
+
+                      <Col span={12}>
+                        <Form.Item name="category">
+                          <Input name="category" onChange={handleFormChange} />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Education/Qualification and total experience */}
+
+                      <Col span={12}>
+                        <Form.Item name="qualification">
+                          <Input name="education" onChange={handleFormChange} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                        <Form.Item name="totalExperience">
+                          <Input name="experience" onChange={handleFormChange} />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Teacher Type and Language Known */}
+                      <Col span={12}>
+                        <Form.Item name="languageKnown">
+                          <Input
+                            name="languagesKnown"
+                            onChange={handleFormChange}
+                            placeholder={"Languages Known"}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* upload resume and upload video profile */}
+
+                      {/* status */}
+
+                      <Col span={12}>
+                        <Form.Item name="status">
+                          <Select
+                            defaultValue={
+                              tempDataView.statusId == 1
+                                ? "Active"
+                                : tempDataView.statusId == 3
+                                  ? "OnHold"
+                                  : tempDataView.statusId == 2
+                                    ? "Leave"
+                                    : "In Active"
+                            }
+                            onChange={(value) => {
+                              setSelectStatus(value);
+                            }}
+                          >
+                            <Select.Option value="1">Active</Select.Option>
+                            <Select.Option value="2">Leave</Select.Option>
+                            <Select.Option value="3">On Hold</Select.Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    {/* Availability */}
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Form.Item name="leadAvailability">
+                          <label>Week Availability</label>
+                          <WeekdayAvailability
+                            weekday={1}
+                            week="Monday"
+                            tempData={monday}
+                          />
+                          <WeekdayAvailability
+                            weekday={2}
+                            week="Tuesday"
+                            tempData={tuesday}
+                          />
+                          <WeekdayAvailability
+                            weekday={3}
+                            week="Wednesday"
+                            tempData={wednesday}
+                          />
+                          <WeekdayAvailability
+                            weekday={4}
+                            week="Thursday"
+                            tempData={thursday}
+                          />
+                          <WeekdayAvailability
+                            weekday={5}
+                            week="Friday"
+                            tempData={friday}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item name="leadAvailability">
+                          <label>Weekend Availability</label>
+                          <WeekdayAvailability
+                            weekday={6}
+                            week="Saturday"
+                            tempData={saturday}
+                          />
+                          <WeekdayAvailability
+                            weekday={7}
+                            week="Sunday"
+                            tempData={sunday}
+                          />
+                          <Form.List name="users">
+                            {(fields, { add, remove }) => (
+                              <>
+                                {fields.map(({ key, name, ...restField }) => (
+
+                                  <Space key={key} style={{ display: 'flex' }} align="baseline">
+                                    {console.log('key', key)}
+                                    <Form.Item
+                                      {...restField}
+                                    >
+                                      <ExtraWeekdayAvailability key={key} />
+                                    </Form.Item>
+                                    <MinusCircleOutlined onClick={() => remove(name)} />
+                                  </Space>
+                                ))}
+                              <Form.Item>
+                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                  Extra Availability
+                                </Button>
+                              </Form.Item>
+                            </>
+                          )}
+                        </Form.List>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>
+                      <Input
+                        type="submit"
+                        value="Save Changes"
+                        style={{ color: "white", backgroundColor: "DodgerBlue" }}
+                      />
+                    </Col>
+                    <Col span={8}></Col>
+                    <Col span={8}>
+                      <Button
+                        onClick={() => {
+                          openNotification(tempDataView.id);
+                        }}
+                        block
+                        type="primary"
+                      >
+                        Delete
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form>
+              </Spin>
+            )}
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Batch Details" key="2">
+            <ViewDrawer tempData={currentRow} />
+          </Tabs.TabPane>
+        </Tabs>
       </Drawer>
     </PageContainer>
   );
