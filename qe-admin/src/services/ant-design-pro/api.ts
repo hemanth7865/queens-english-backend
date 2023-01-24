@@ -1121,6 +1121,20 @@ export async function addBatchToSchool(
   });
 }
 
+//API POST - TO CHECK THE STUDENT ALREADY IN A BATCH
+export async function checkStudentInBatch(
+  data?: any,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/be/batch/checkStudent", {
+    method: "GET",
+    params: {
+      data
+    },
+    ...(options || {}),
+  });
+}
+
 //API for getting Countries
 export async function listLocation(data: any) {
   return request<any>("/be/listLocations", {
