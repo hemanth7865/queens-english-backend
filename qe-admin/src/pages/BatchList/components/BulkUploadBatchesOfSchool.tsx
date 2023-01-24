@@ -4,23 +4,7 @@ import { addeditbatch, listSchool, teacherBatches } from "@/services/ant-design-
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
-
-function csvToArray(str: string, delimiter: string = ",") {
-    const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
-
-    const rows = str.slice(str.indexOf("\n") + 1).split("\n").map(h => h.replace("\r", ""));
-
-    const arr = rows.map(function (row) {
-        const values = row.split(delimiter);
-        const el = headers.reduce(function (object, header, index) {
-            object[header] = values[index];
-            return object;
-        }, {});
-        return el;
-    });
-
-    return arr;
-}
+import { csvToArray } from '@/services/ant-design-pro/helpers';
 
 const dateFromat = 'YYYY-MM-DDTHH:mm:ss.000Z'
 
