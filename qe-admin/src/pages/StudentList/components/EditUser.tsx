@@ -26,7 +26,7 @@ const { Option } = Select
 
 const EditUser: React.FC<EditUserProps> = (props) => {
     //console.log('data', props.data, props.visible, props.setVisible)
-    const { firstName, lastName, email, phoneNumber, type, key } = props.data ? props.data : ''
+    const { firstName, lastName, email, phoneNumber, type, key, offlineUser } = props.data ? props.data : ''
     // console.log('first', firstName, lastName, email, type, key)
     const [formData, setFormData] = useState({
         firstName: '',
@@ -36,6 +36,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     })
 
     const [selectUserType, setSelectUserType] = useState('')
+    const [selectOfflineUser, setOfflineUser] = useState('0')
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('')
     const [selectCountryCode, setSelectCountryCode] = useState('')
@@ -133,6 +134,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 phoneNumber: formData.phoneNumber ? formData.phoneNumber : phoneNumber,
                 email: formData.email ? formData.email : email,
                 type: selectUserType ? selectUserType : type,
+                offlineUser: selectOfflineUser,
                 status: props.data.status
             }
             if (props.data) {
@@ -168,12 +170,13 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             lastName: props.data.lastName,
             phoneNumber: props.data.phoneNumber,
             email: props.data.email,
+            offlineUser: props.data.offlineUser ? '1' : '0',
             userType: type == 'teacher' ? 'Teacher' : 'Student'
         });
     }
     useEffect(() => {
         defaultValues();
-    }, [firstName, lastName, phoneNumber, email, type])
+    }, [firstName, lastName, phoneNumber, email, type, offlineUser])
 
     return (
         <div>
@@ -255,6 +258,16 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                                 >
                                     <Option value="teacher">Teacher</Option>
                                     <Option value="student">Student</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="offlineUser">
+                                <Select
+                                    onChange={(value) => { setOfflineUser(value) }}
+                                >
+                                    <Option value="0">Online</Option>
+                                    <Option value="1">Offline</Option>
                                 </Select>
                             </Form.Item>
                         </Col>

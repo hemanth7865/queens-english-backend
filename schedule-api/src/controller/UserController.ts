@@ -56,7 +56,7 @@ export class UserController {
                 // TODO: Reuse studentService Object.
                 const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
 
-                if (request.body.status.toLowerCase() === 'enrolled' || request.body.status === 'startclasslater') {
+                if (request.body.status?.toLowerCase() === 'enrolled' || request.body.status === 'startclasslater') {
                     const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
                     if (validatingStudent.status == 'Error') {
                         return { status: 400, errors: [validatingStudent.message] };

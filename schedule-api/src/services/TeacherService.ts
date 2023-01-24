@@ -332,7 +332,7 @@ export class TeacherService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      const options = {
+      const options: any = {
         url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
         json: true,
         body: {
@@ -344,6 +344,10 @@ export class TeacherService {
           phoneNumber: data.phoneNumber,
         },
       };
+
+      if(typeof data.offlineUser !== 'undefined'){
+        options.body.offlineUser = data.offlineUser
+      }
 
       if (data.id) {
         options.body["id"] = data.id;
@@ -480,6 +484,11 @@ export class TeacherService {
       user.gender = data.gender;
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
+      
+      if(typeof data.offlineUser !== 'undefined'){
+        user.offlineUser = data.offlineUser
+      }
+
       if (data.status) {
         user.status = data.status;
       }

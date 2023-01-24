@@ -27,6 +27,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     })
 
     const [selectUserType, setSelectUserType] = useState('')
+    const [selectOfflineUser, setOfflineUser] = useState('0')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('IN')
@@ -102,6 +103,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     phoneNumber: '+' + code + formData.phoneNumber,
                     email: formData.email,
                     type: selectUserType,
+                    offlineUser: selectOfflineUser,
                     status: "active",
                 }
             } else {
@@ -110,6 +112,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     lastName: formData.lastName,
                     phoneNumber: '+' + code + formData.phoneNumber,
                     email: formData.email,
+                    offlineUser: selectOfflineUser,
                     type: selectUserType,
                 }
             }
@@ -199,6 +202,17 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                                 >
                                     <Option value="teacher">Teacher</Option>
                                     <Option value="student">Student</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={12}>
+                            <Form.Item name="offlineUser">
+                                <Select
+                                    onChange={(value) => { setOfflineUser(value) }}
+                                >
+                                    <Option value="0">Online</Option>
+                                    <Option value="1">Offline</Option>
                                 </Select>
                             </Form.Item>
                         </Col>

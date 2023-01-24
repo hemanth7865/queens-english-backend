@@ -155,6 +155,7 @@ const Studentdetailsedit: React.FC<StudentdetailseditProps> = (props) => {
       salesowner: stringContainsNumber(value.lsq_user_name) ? value.lsq_user_name : value.lsq_user_id,
       age: value.dob == null || value.age == 'NaN' ? null : moment(new Date()).diff(moment(value.dob, "YYYY-MM-DD"), 'years', true).toFixed(0),
       gender: value.gender,
+      offlineUser: value.offlineUser,
       batchesClassesStartDate: !value.batchesClassesStartDate || value.batchesClassesStartDate == "Invalid date" ? null : moment(value.batchesClassesStartDate, "YYYY-MM-DD").format("YYYY-MM-DD"),
       enrollmentType: value.enrollmentType,
       payment: !props.studentManageradd ? [{
@@ -420,6 +421,7 @@ Queen's English मे अगर आपको किसी तरह की स�
         plantype: props.tempData.plantype,
         duedate: props.tempData.duedate ? moment(props.tempData.duedate).format("YYYY-MM-DD") : props.tempData.duedate,
         gender: props.tempData.gender,
+        offlineUser: props.tempData.offlineUser ? "1": "0",
         notes: props.tempData.notes,
         onboardingIssueReason: props.tempData.onboardingIssueReason,
         batchesClassesStartDate: props.tempData.batchesClassesStartDate ? moment(props.tempData.batchesClassesStartDate).toISOString(true).split('T')[0] : props.tempData.batchesClassesStartDate,
@@ -486,6 +488,7 @@ Queen's English मे अगर आपको किसी तरह की स�
       !props.studentManageradd ? props.tempData.duedate : null,
       !props.studentManageradd ? props.tempData.comments : '',
       !props.studentManageradd ? props.tempData.gender : '',
+      !props.studentManageradd ? props.tempData.offlineStudent : '0',
       !props.studentManageradd ? props.tempData.notes : '',
       !props.studentManageradd ? props.tempData.onboardingIssueReason : '',
       !props.studentManageradd ? props.tempData.batchesClassesStartDate : null,
@@ -593,6 +596,17 @@ Queen's English मे अगर आपको किसी तरह की स�
               </Col>
             ) : ('')
             }
+
+            <Col span={12}>
+              <Form.Item name="offlineUser" label="Offline Student">
+                <Select
+                  onChange={onChange}
+                >
+                  <Option value="0">Online</Option>
+                  <Option value="1">Offline</Option>
+                </Select>
+              </Form.Item>
+            </Col>
 
             <Col span={12}>
               <Form.Item
