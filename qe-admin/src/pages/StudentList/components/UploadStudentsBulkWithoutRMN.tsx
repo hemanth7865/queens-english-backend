@@ -1,6 +1,6 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 
 function csvToArray(str: string, delimiter: string = ",") {
@@ -113,6 +113,20 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         if (student["Batch code"]) {
                             try {
                                 const batchData: any = await getIndividualBatch(student["Batch code"]);
+
+                                /*Check if the student is already in a batch*/
+                                const checkStudentBatch = await checkStudentInBatch({ students: [{ id: res.id, type: "student" }], data: { id: batchData.data.classes.id } });
+                                /**Remove the student from the batch and add to the batch */
+                                if (checkStudentBatch.data && checkStudentBatch.success && checkStudentBatch.data[0]) {
+                                    const rebatchAddStudent = await rebatchStudent(res.id, batchData.data.classes.id);
+                                    if (rebatchAddStudent.status === false || rebatchAddStudent.status === 400) {
+                                        message.error(`Error: in rebatching For Student: \n ${JSON.stringify(student)}.`);
+                                    } else {
+                                        message.success(`Student ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
+                                    }
+                                    continue;
+                                }
+
                                 const batch = batchData.data.classes;
                                 batches.push(batchData.data.classes.id)
                                 const batchStudents = batchData.data.students;

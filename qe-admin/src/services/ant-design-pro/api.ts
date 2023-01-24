@@ -1120,3 +1120,17 @@ export async function addBatchToSchool(
     ...(options || {}),
   });
 }
+
+//API POST - TO CHECK THE STUDENT ALREADY IN A BATCH
+export async function checkStudentInBatch(
+  data?: any,
+  options?: { [key: string]: any }
+) {
+  return request<any>("/be/batch/checkStudent", {
+    method: "GET",
+    params: {
+      data
+    },
+    ...(options || {}),
+  });
+}
