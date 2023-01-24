@@ -169,7 +169,7 @@ export class BatchService {
           id: data.id,
           type: data.type,
           batchNumber: data.batchNumber,
-          teacherId: data.teacherId,
+          teacherId: data?.teacherId || null,
           classStartDate: data.classStartDate,
           classEndDate: data.classEndDate,
           lessonStartTime: data.lessonStartTime,
@@ -193,7 +193,8 @@ export class BatchService {
           schoolName: data.offlineBatch === 0 ? null : data.schoolName,
           schoolId: data.offlineBatch === 0 ? null : data.schoolId,
           schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
-          schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus
+          schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
+          status: data?.status || null
         },
       };
 
@@ -452,7 +453,7 @@ export class BatchService {
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
-      classes.teacherId = data.teacherId;
+      classes.teacherId = data?.teacherId || null;
       classes.id = data.id;
 
       classes.startingLessonId = data.startingLessonId;
@@ -474,6 +475,7 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
+      classes.status = data.status || null;
       if (!isNullOrUndefined(data.schoolId)) {
         classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
         classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)
@@ -491,7 +493,7 @@ export class BatchService {
       classes.updated_at = new Date();
 
       classes = await this.classesRepository.save(classes);
-      if (data.teacherId) {
+      if (data?.teacherId) {
         var quer = `select id, firstName, lastName from user where (id like '%${data.teacherId}%')`;
         var details = await getManager().query(quer);
         if (details.length > 0 && details[0].firstName && details[0].lastName)
@@ -902,6 +904,7 @@ export class BatchService {
     ${query_string} ${havingQuery};`);
 
     for (const element of results) {
+      name = "";
       students = [];
       studentCount = await getManager()
         .createQueryBuilder(BatchStudent, "batchStudent")
