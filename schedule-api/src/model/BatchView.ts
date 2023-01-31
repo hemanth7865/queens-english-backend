@@ -9,7 +9,7 @@ export class BatchView {
     students: number;
     timeSlot: string;
     dateSlot: string;
-    status: string;
+    status: number;
     studentsList: User[];
     startingLessonId: string;
     endingLessonId: string;
@@ -27,7 +27,7 @@ export class BatchView {
     maxAge?: number;
     lessonNumber?: string;
 
-    public constructor(id: string, date: Date, batchId: string, createdBy: string, teacher: string, students: number, timeSlot: string, dateSlot: string, stauts: string, studentsList: User[], startingLessonId: string, endingLessonId: string, school?: any, schoolName?: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string, whatsappLink?: string, minAge?: number, maxAge?: number, lessonNumber?: string) {
+    public constructor(id: string, date: Date, batchId: string, createdBy: string, teacher: string, students: number, timeSlot: string, dateSlot: string, stauts: number, studentsList: User[], startingLessonId: string, endingLessonId: string, school?: any, schoolName?: string, lessonStartTime?: string, lessonEndTime?: string, zoomLink?: string, zoomInfo?: string, frequency?: string, whatsappLink?: string, minAge?: number, maxAge?: number, lessonNumber?: string) {
         this.id = id;
         this.date = date;
         this.batchId = batchId;

@@ -176,8 +176,8 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         }
 
                         if (batch["Active"] && batch["Active"] !== "" && batch["Active"].toLowerCase() !== 'true') {
-                            // status as 4 indicate that batch is Inactive
-                            batchData.status = 4
+                            // status as 0 indicate that batch is Inactive
+                            batchData.status = 0
                         }
 
                         if (batch["Teacher"] && batch["Teacher"] !== "") {

@@ -86,6 +86,13 @@ const PREMADE_FREQUENCY: { label: string, value: string }[] = [
   { label: "TT", value: "TT" }
 ];
 
+const STATUS_ACTIVE: string = "Active"
+const STATUS_IN_ACTIVE: string = "In Active"
+const BATCH_STATUS: { label: string, value: number }[] = [
+  { value: 0, label: STATUS_IN_ACTIVE },
+  { value: 1, label: STATUS_ACTIVE },
+];
+
 const BatchList: React.FC = () => {
   const url = new URL(window.location.href);
 
@@ -109,6 +116,7 @@ const BatchList: React.FC = () => {
   const [startLesson, setStartLesson] = useState(getParam('startLesson') || undefined);
   const [endLesson, setEndLesson] = useState(undefined);
   const [selectedFrequency, setSelectedFrequency] = useState(getParam('frequency') || undefined);
+  const [selectedStatus, setSelectedStatus] = useState<number>();
   const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(0);
   const [selectedUseAutoAttendnace, setUseAutoAttendnace] = useState(getParam('useAutoAttendance') || 0);
   const [selectedOfflineBatch, setOfflineBatch] = useState(getParam('offlineBatch') || 0);
@@ -290,7 +298,7 @@ const BatchList: React.FC = () => {
         offlineBatch: selectedOfflineBatch,
         followupVersion: followupVersion,
         activeLessonId: prePop?.batchData?.classes?.activeLessonId ? prePop?.batchData?.classes?.activeLessonId : startLesson,
-
+        status: selectedStatus,
         id: createBatch ? null : currentRow?.id,
         batchAvailability: [{}],
         students: [...studentList],
@@ -423,6 +431,7 @@ const BatchList: React.FC = () => {
           setUseNewZoomLink(batchData.classes.useNewZoomLink)
           setUseAutoAttendnace(batchData.classes.useAutoAttendance)
           setOfflineBatch(batchData.classes.offlineBatch)
+          setSelectedStatus(batchData.classes.status === 0 ? 0 : 1)
         }
         var tempObj = {
           batchData: data.data,
@@ -620,47 +629,20 @@ const BatchList: React.FC = () => {
       valueEnum: {
         0: {
           text: (
-
-            <Button type="default">
-              <FormattedMessage
-                id="pages.searchTable.nameStatus.upcoming"
-                defaultMessage="Upcoming"
-              />
-            </Button>
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.inActive"
+              defaultMessage={STATUS_IN_ACTIVE}
+            />
           ),
         },
         1: {
           text: (
-
-            <Button type="default">
-              <FormattedMessage
-                id="pages.searchTable.nameStatus.ongoing"
-                defaultMessage="Ongoing"
-              />
-            </Button>
+            <FormattedMessage
+              id="pages.searchTable.nameStatus.active"
+              defaultMessage={STATUS_ACTIVE}
+            />
           ),
-        },
-        2: {
-          text: (
-            <Button type="default">
-              <FormattedMessage
-                id="pages.searchTable.nameStatus.completed"
-                defaultMessage="Completed"
-              />
-            </Button>
-          ),
-        },
-        3: {
-          text: (
-
-            <Button type="default">
-              <FormattedMessage
-                id="pages.searchTable.nameStatus.cancelled"
-                defaultMessage="Cancelled"
-              />
-            </Button>
-          ),
-        },
+        }
       },
     },
     //view
@@ -780,6 +762,7 @@ const BatchList: React.FC = () => {
                 setFollowupVersion("v2");
                 setTimeRange([]);
                 setClassDateRange([]);
+                setSelectedStatus(undefined);
               }}
             >
               {/* <Button type="primary" key="primary" onClick={showDrawer}> */}
@@ -1138,6 +1121,25 @@ const BatchList: React.FC = () => {
                               />
                             </Form.Item>
                           </Col>
+
+                          {access.canSuperAdmin && !createBatch && (
+                            <Col span={24}>
+                              <Form.Item
+                                name="status"
+                                rules={[
+                                  { required: true, message: "Select Status" },
+                                ]}
+                              >
+                                <Select
+                                  placeholder="Status"
+                                  onChange={(v) => setSelectedStatus(v)}
+                                  value={selectedStatus}
+                                  options={BATCH_STATUS}
+                                  defaultValue={selectedStatus}
+                                />
+                              </Form.Item>
+                            </Col>
+                          )}
 
                           <Col span={24}>
                             <Form.Item

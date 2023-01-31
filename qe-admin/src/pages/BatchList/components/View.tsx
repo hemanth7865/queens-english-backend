@@ -170,7 +170,7 @@ const View = ({ batchData, isLoading }: Props) => {
                 <div>Status</div>
               </Col>
               <Col span={16}>
-                <div> {classes?.status == 4 ? "In Active" : "Active"}</div>
+                <div> {classes?.status == 0 ? "In Active" : "Active"}</div>
               </Col>
 
               <Col span={8}>
