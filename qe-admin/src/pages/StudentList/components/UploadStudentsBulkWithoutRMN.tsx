@@ -62,7 +62,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             async function handleBatching() {
                 const batchesInCsv = [...new Set(batches)];
-                setTotalRecords(studentsUploaded.length + batchesInCsv.length + 1);
+                setTotalRecords(studentsUploaded.length + batchesInCsv.length);
                 let success = false;
 
                 try {
@@ -88,8 +88,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
                         if (batchData.data) {
-                            const [{ student: dontNeed, created_at: dontNeed2, ...otherProps }] = batchData.data.students
-                            const batchStudents = [otherProps];
+                            const batchStudents = [];
+                            if (batchData.data.students.length > 0) {
+                                const [{ student: dontNeed, created_at: dontNeed2, ...otherProps }] = batchData.data.students
+                                batchStudents.push(otherProps);
+                            }
                             const studentsToAdd = studentsFinal.filter((student) => student.batchCode == batch);
                             for (const student of studentsToAdd) {
                                 batchStudents.push({
@@ -132,6 +135,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
+                data.pop();
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
