@@ -407,7 +407,6 @@ export async function listBatch(
   },
   options?: { [key: string]: any }
 ) {
-  console.log("lbp", params);
   return request<API.RuleList>("/be/listBatch", {
     method: "GET",
     params: {
@@ -526,7 +525,6 @@ export async function allAssessment(
   },
   options?: { [key: string]: any }
 ) {
-  console.log("assessment", options);
   return request<API.AssessmentList>(`/be/azure?url=api/studentAssessment`, {
     method: "GET",
     params: {

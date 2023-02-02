@@ -68,9 +68,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 try {
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
-                        const checkStudentBatch = await checkStudentInBatch({ students: studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber), data: { id: batchData.data.classes.id } });
-                        if (checkStudentBatch.data.length > 0) {
-                            studentsAlreadyInBatch.push(...checkStudentBatch.data);
+                        const studentsToCheck = studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber)
+                        if (studentsToCheck.length > 0) {
+                            const checkStudentBatch = await checkStudentInBatch({ students: studentsToCheck, data: { id: batchData.data.classes.id } });
+                            if (checkStudentBatch.data.length > 0) {
+                                studentsAlreadyInBatch.push(...checkStudentBatch.data);
+                            }
                         }
                     }
 
