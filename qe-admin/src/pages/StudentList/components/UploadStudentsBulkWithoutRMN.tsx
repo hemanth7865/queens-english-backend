@@ -86,7 +86,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         const batchData: any = await getIndividualBatch(batch);
                         const { students, ...otherProps } = batchData.data.classes;
                         if (batchData.data) {
-                            const batchStudents = [];
+                            const batchStudents = [...students.map((student: any) => { return { key: student.id, label: `${student.firstName} ${student.lastName} - ${student.offlineStudentCode}`, value: student.id } })];
                             const studentsToAdd = studentsFinal.filter((student) => student.batchCode == batch);
                             for (const student of studentsToAdd) {
                                 batchStudents.push({
