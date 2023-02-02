@@ -715,27 +715,34 @@ export class BatchService {
   }
 
   async removeStudents(students: string[], batchId: string) {
-    for (let student of students) {
-      let res1 = await axios
-        .delete("/api/classProfile/" + batchId + "/students/" + student)
-        .then(async (res) => {
-          const stud = await this.studentRepository.findOne({ id: student })
-          const user = await this.userRepository.findOne({ id: student })
-          if (stud) {
-            stud.schoolId = null;
-          }
-          if (user) {
-            user.schoolId = null;
-            user.schoolCode = null;
-          }
-          await this.studentRepository.save(stud);
-          await this.userRepository.save(user);
-          return await this.batchStudentRepository.delete({ studentId: student, batchId });
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        });
+    const studs = [...new Set(students)];
+    for (const student of studs) {
+      try {
+        await axios
+          .delete("/api/classProfile/" + batchId + "/students/" + student)
+          .then(async () => {
+            const stud = await this.studentRepository.findOne({ id: student })
+            const user = await this.userRepository.findOne({ id: student })
+            if (stud) {
+              stud.schoolId = null;
+            }
+            if (user) {
+              user.schoolId = null;
+              user.schoolCode = null;
+            }
+            await this.studentRepository.save(stud);
+            await this.userRepository.save(user);
+            await this.batchStudentRepository.delete({ studentId: student, batchId });
+          })
+          .catch((error) => {
+            return Promise.reject(error);
+          });
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
     }
+    return true;
   }
 
   async listBatch(request: Request, parameters) {

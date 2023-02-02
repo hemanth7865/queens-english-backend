@@ -754,5 +754,11 @@ export const Routes = [
     route: "/listLocations",
     controller: SchoolController,
     action: "getLocation",
+  },
+  {
+    method: "put",
+    route: "/bulkRemoveStudentsFromBatch",
+    controller: BatchController,
+    action: "bulkRemoveStudentsFromBatch",
   }
 ];

@@ -209,4 +209,12 @@ export class BatchController {
         }
     }
 
+    async bulkRemoveStudentsFromBatch(request: Request, response: Response, next: NextFunction) {
+        try {
+            return await this.batchService.removeStudents(request.body.students, request.body.batchId);
+        } catch (error) {
+            return { success: false, error: error.toString() };
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 
 function csvToArray(str: string, delimiter: string = ",") {
@@ -75,8 +75,10 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     }
 
                     if (studentsAlreadyInBatch.length !== 0) {
-                        for (const student of studentsAlreadyInBatch) {
-                            await rebatchStudent(student.student.id, student.batch.id);
+                        const batches = [...new Set(studentsAlreadyInBatch.map((student) => student.batch.id))];
+                        for (const batch of batches) {
+                            const students = studentsAlreadyInBatch.filter((student) => student.batch.id === batch).map((student) => student.student.id);
+                            await bulkRemoveBatchStudents({ students, batch });
                         }
                     }
 

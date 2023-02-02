@@ -1126,3 +1126,14 @@ export async function listLocation(data: any) {
     body: JSON.stringify(data),
   });
 }
+
+//API to bulk remove students from batch
+export async function bulkRemoveBatchStudents(data: any) {
+  return request<any>("/be/bulkRemoveStudentsFromBatch", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
