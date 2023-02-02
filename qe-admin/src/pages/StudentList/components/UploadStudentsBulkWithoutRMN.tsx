@@ -62,14 +62,14 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             async function handleBatching() {
                 const batchesInCsv = [...new Set(batches)];
-                setTotalRecords(studentsUploaded.length + batchesInCsv.length);
+                setTotalRecords(studentsUploaded.length + batchesInCsv.length + 1);
                 let success = false;
 
                 try {
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
                         const checkStudentBatch = await checkStudentInBatch({ students: studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber), data: { id: batchData.data.classes.id } });
-                        if (checkStudentBatch.data) {
+                        if (checkStudentBatch.data.length > 0) {
                             studentsAlreadyInBatch.push(...checkStudentBatch.data);
                         }
                     }
@@ -84,9 +84,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
-                        const { students, ...otherProps } = batchData.data.classes;
                         if (batchData.data) {
-                            const batchStudents = [...students.map((student: any) => { return { key: student.id, label: `${student.firstName} ${student.lastName} - ${student.offlineStudentCode}`, value: student.id } })];
+                            const [{ student: dontNeed, created_at: dontNeed2, ...otherProps }] = batchData.data.students
+                            const batchStudents = [otherProps];
                             const studentsToAdd = studentsFinal.filter((student) => student.batchCode == batch);
                             for (const student of studentsToAdd) {
                                 batchStudents.push({
@@ -100,7 +100,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                     "Content-Type": "application/json",
                                 },
                                 body: JSON.stringify({
-                                    ...otherProps,
+                                    ...batchData.data.classes,
                                     csvUpload: true,
                                     students: batchStudents,
                                 }),

@@ -148,9 +148,7 @@ export class BatchController {
 
 
     async remove(request: Request, response: Response, next: NextFunction) {
-        console.log("Delete Batch");
         try {
-            console.log('request.params.id' + request.params.id);
             let classesToRemove = await this.classesRepository.findOne(request.params.id);
             classesToRemove.status = 4;
             return this.classesRepository.save(classesToRemove);
@@ -211,7 +209,7 @@ export class BatchController {
 
     async bulkRemoveStudentsFromBatch(request: Request, response: Response, next: NextFunction) {
         try {
-            return await this.batchService.removeStudents(request.body.students, request.body.batchId);
+            return await this.batchService.removeStudents(request.body.students, request.body.batch);
         } catch (error) {
             return { success: false, error: error.toString() };
         }

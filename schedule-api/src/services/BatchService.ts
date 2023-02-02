@@ -328,7 +328,6 @@ export class BatchService {
 
   async checkStudentBatches(students: any, data: Classes): Promise<any> {
     const result = [];
-
     for (const student of students) {
       const batch = await this.batchStudentRepository.findOne({ studentId: student.id, batchId: Not(data.id) })
       if (batch) {
