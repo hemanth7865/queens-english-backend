@@ -153,7 +153,6 @@ export async function teacherBatches(
   },
   options?: { [key: string]: any }
 ) {
-  console.log("option", params);
   return request<API.RuleList>("/be/leadsview", {
     method: "GET",
     params: {
@@ -308,7 +307,6 @@ export async function updateRule(options?: { [key: string]: any }) {
 
 /** 新建规则 POST /api/rule */
 export async function addRule(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/api/rule", {
     method: "POST",
     ...(options || {}),
@@ -317,7 +315,6 @@ export async function addRule(options?: { [key: string]: any }) {
 
 /** POST /be/leads */
 export async function addTeacherSchedule(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/leads", {
     method: "POST",
     ...(options || {}),
@@ -325,7 +322,6 @@ export async function addTeacherSchedule(options?: { [key: string]: any }) {
 }
 
 export async function updateUserStatus(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/leads/update/status", {
     method: "POST",
     ...(options || {}),
@@ -334,7 +330,6 @@ export async function updateUserStatus(options?: { [key: string]: any }) {
 
 /** POST /be/leads */
 export async function addUserSchedule(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/leads", {
     method: "POST",
     ...(options || {}),
@@ -343,7 +338,6 @@ export async function addUserSchedule(options?: { [key: string]: any }) {
 
 /** EDIT /be/leads */
 export async function editTeacherSchedule(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/leads", {
     method: "POST",
     ...(options || {}),
@@ -460,7 +454,6 @@ export async function getTeacherLessons(
 
 //ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
 export async function addeditbatch(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/createBatch", {
     method: "POST",
     ...(options || {}),
@@ -514,7 +507,6 @@ export async function detailsAssessment(
 
 //PUT - ASSESSMENT DETAILS
 export async function putAssessment(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>(`/be/azure?url=api/studentAssessment`, {
     method: "PUT",
     ...(options || {}),
@@ -649,7 +641,6 @@ export async function getAllPayment(
 
 //edit payment
 export async function editPayment(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/paymentDetails", {
     method: "POST",
     ...(options || {}),
@@ -658,7 +649,6 @@ export async function editPayment(options?: { [key: string]: any }) {
 
 //regenerate razorpay link
 export async function regeneratePaymentLink(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/regeneratePaymentLink", {
     method: "POST",
     ...(options || {}),
@@ -667,7 +657,6 @@ export async function regeneratePaymentLink(options?: { [key: string]: any }) {
 
 //Add Net Banking details
 export async function editNetBanking(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/uploadNetBankingResource", {
     method: "POST",
     ...(options || {}),
@@ -681,7 +670,6 @@ export async function refreshRazorpayStatus(
   refreshLink: boolean,
   options?: { [key: string]: any }
 ) {
-  console.log("option", options);
   return request<any>(
     `/be/update-installment-status?installment_id=${transactionId}&reference_id=${reference_id}&refreshLink=${refreshLink}`,
     {
@@ -693,7 +681,6 @@ export async function refreshRazorpayStatus(
 
 //Refresh status - autodebit
 export async function refreshAutoDebitStatus(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>(`/be/updateAutoDebitStatus`, {
     method: "POST",
     ...(options || {}),
@@ -702,7 +689,6 @@ export async function refreshAutoDebitStatus(options?: { [key: string]: any }) {
 
 //Get details of all payment - autodebit
 export async function getAllAutoDebitStatus(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>(`/be/fetchAutoDebitDetails`, {
     method: "POST",
     ...(options || {}),
@@ -711,7 +697,6 @@ export async function getAllAutoDebitStatus(options?: { [key: string]: any }) {
 
 //retry auto-debit payment
 export async function retryAutodebitPayment(options?: { [key: string]: any }) {
-  console.log("option", options);
   return request<any>("/be/retryAutoDebitPayment", {
     method: "POST",
     ...(options || {}),
@@ -881,7 +866,6 @@ export async function updateAssessment(
   id: string,
   options?: { [key: string]: any }
 ) {
-  console.log("option", options);
   return request<any>(`/be/azure?url=api/classAttendance/${id}`, {
     method: "PUT",
     ...(options || {}),
@@ -1076,7 +1060,6 @@ export async function editSchool(options?: { [key: string]: any }) {
 export async function generateMissingAssessmentsForBatch(
   options: { [key: string]: any }
 ) {
-  console.log("option", options);
   return request<any>(`/be/azure?url=api/teacher/generate-missing-assessments`, {
     method: "POST",
     ...(options || {}),
@@ -1088,7 +1071,6 @@ export async function updateStudentSchool(
   id: string,
   options?: { [key: string]: any }
 ) {
-  console.log("option", options);
   return request<any>(`/be/azure?url=api/users/${id}`, {
     method: "PUT",
     ...(options || {}),
@@ -1124,14 +1106,13 @@ export async function addBatchToSchool(
 //API POST - TO CHECK THE STUDENT ALREADY IN A BATCH
 export async function checkStudentInBatch(
   data?: any,
-  options?: { [key: string]: any }
 ) {
   return request<any>("/be/batch/checkStudent", {
-    method: "GET",
-    params: {
-      data
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-    ...(options || {}),
+    body: JSON.stringify(data),
   });
 }
 

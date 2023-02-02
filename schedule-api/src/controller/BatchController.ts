@@ -28,7 +28,6 @@ export class BatchController {
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("rebatch batch");
         if (!request.body.studentId || !request.body.batchId) {
             return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
         }
@@ -203,9 +202,8 @@ export class BatchController {
     async checkStudentBatches(request: Request, response: Response, next: NextFunction) {
         let isPresent;
         try {
-            const value = JSON.parse(request.query.data);
-            isPresent = await this.batchService.checkStudentBatches(value["students"], value["data"]);
-            return { success: true, data: [isPresent], total: 1 }
+            isPresent = await this.batchService.checkStudentBatches(request.body.students, request.body.data);
+            return { success: true, data: isPresent, total: 1 }
         } catch (error) {
             return { success: false, error: error.toString() };
         }

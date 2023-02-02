@@ -50,15 +50,90 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             const reader = new FileReader();
 
+            const studentsAdded: any[] = [];
+
+            const studentsUploaded: any[] = [];
+
+            const studentsFinal: any[] = [];
+
+            const studentsAlreadyInBatch: any[] = [];
+
+            let batches: any[] = [];
+
+            async function handleBatching() {
+                const batchesInCsv = [...new Set(batches)];
+                setTotalRecords(studentsUploaded.length + batchesInCsv.length);
+                let success = false;
+
+                try {
+                    for (const batch of batchesInCsv) {
+                        const batchData: any = await getIndividualBatch(batch);
+                        const checkStudentBatch = await checkStudentInBatch({ students: studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber), data: { id: batchData.data.classes.id } });
+                        if (checkStudentBatch.data) {
+                            studentsAlreadyInBatch.push(...checkStudentBatch.data);
+                        }
+                    }
+
+                    if (studentsAlreadyInBatch.length !== 0) {
+                        for (const student of studentsAlreadyInBatch) {
+                            await rebatchStudent(student.student.id, student.batch.id);
+                        }
+                    }
+
+                    for (const batch of batchesInCsv) {
+                        const batchData: any = await getIndividualBatch(batch);
+                        const { students, ...otherProps } = batchData.data.classes;
+                        if (batchData.data) {
+                            const batchStudents = [];
+                            const studentsToAdd = studentsFinal.filter((student) => student.batchCode == batch);
+                            for (const student of studentsToAdd) {
+                                batchStudents.push({
+                                    key: student.id,
+                                    label: `${student.firstName} ${student.lastName} - ${student.offlineStudentCode}`,
+                                    value: student.id,
+                                });
+                            }
+                            const addBatchRes = await addeditbatch({
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    ...otherProps,
+                                    csvUpload: true,
+                                    students: batchStudents,
+                                }),
+                            });
+                            if (addBatchRes.success) {
+                                if (addBatchRes.data[0]?.message) {
+                                    message.error(`Error: ${addBatchRes.data[0].message} For Batch: ${batch}.`);
+                                } else {
+                                    message.success(`Students added Successfully to Batch: ${batch}.`).then(() => message.destroy("info"));
+                                }
+                            } else {
+                                message.error(`Failed to add students to Batch:${batch}.`);
+                            }
+                        }
+                        setCurrentRecord((n) => n + 1)
+                    }
+                    success = true;
+                    setCurrentRecord((n) => n + 1)
+                } catch (error) {
+                    console.log(error);
+                    success = false;
+                }
+                return success;
+            }
+
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
+                data.pop();
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
-                setTotalRecords(data.length);
+                setTotalRecords(data.length + 1);
                 setCurrentRecord(0);
-                let batches: any[] = [];
+
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
@@ -87,9 +162,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
                             offlineUser: 1,
+                            batchCode: student["Batch code"],
                             loginCode
                         };
 
+                        studentsUploaded.push(studentData);
+                        batches.push(student["Batch code"]);
                         const res = await addUserSchedule({
                             headers: {
                                 "Content-Type": "application/json",
@@ -104,62 +182,39 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             })
                             message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
                             continue;
+                        } else {
+                            studentsAdded.push(res);
+                            message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
                         }
-
-                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
-
-                        /**
-                         * Add student to batch
-                         */
-                        if (student["Batch code"]) {
-                            try {
-                                const batchData: any = await getIndividualBatch(student["Batch code"]);
-
-                                /*Check if the student is already in a batch*/
-                                const checkStudentBatch = await checkStudentInBatch({ students: [{ id: res.id, type: "student" }], data: { id: batchData.data.classes.id } });
-                                /**Remove the student from the batch and add to the batch */
-                                if (checkStudentBatch.data && checkStudentBatch.success && checkStudentBatch.data[0]) {
-                                    const rebatchAddStudent = await rebatchStudent(res.id, batchData.data.classes.id);
-                                    if (rebatchAddStudent.status === false || rebatchAddStudent.status === 400) {
-                                        message.error(`Error: in rebatching For Student: \n ${JSON.stringify(student)}.`);
-                                    } else {
-                                        message.success(`Student ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
-                                    }
-                                    continue;
-                                }
-
-                                const batch = batchData.data.classes;
-                                batches.push(batchData.data.classes.id)
-                                const batchStudents = batchData.data.students;
-                                batch.students = batchStudents.map((i: any) => ({ value: i.studentId }))
-                                batch.students.push({ value: res.id })
-                                const addBatchRes = await addeditbatch({
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(batch),
-                                });
-
-                                if (addBatchRes.success) {
-                                    if (addBatchRes.data[0]?.message) {
-                                        message.error(`Error: ${addBatchRes.data[0].message} For Student: \n ${JSON.stringify(student)}.`);
-                                    } else {
-                                        message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Add To Batch ${student["Batch code"]} Successfully.`);
-                                    }
-                                } else {
-                                    message.error(`Failed to add student to batch For Student: \n ${JSON.stringify(student)}.`);
-                                }
-                            } catch (e) {
-                                message.error(`Failed to add batch for student: \n ${JSON.stringify(student)}.`);
-                            }
-                        }
-
                     } else {
                         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
                     }
                     setCurrentRecord((n) => n + 1);
                 }
-                if (!!selectedSchool && !!batches) {
+
+                for (const studentAdded of studentsAdded) {
+                    studentsUploaded.filter((student) => {
+                        if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
+                            studentsFinal.push({ ...student, id: studentAdded.id });
+                        }
+                    });
+                }
+
+                if (batches.length > 0 && studentsFinal.length > 0) {
+                    try {
+                        message.loading("Adding Students to their respective batches", 5)
+                        const batching = await handleBatching();
+                        if (batching) {
+                            message.success("All Students added to their respective batches")
+                        } else {
+                            message.error("Error in adding students to their respective batches")
+                        }
+                    } catch (e) {
+                        message.error("Error in adding students to their respective batches, please check console for more details")
+                    }
+                }
+
+                if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
                     const batchesToAdd = [...new Set(batches)]
                     const school = schools.find(obj => obj.id === selectedSchool);
                     const data = {
