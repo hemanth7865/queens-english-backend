@@ -489,19 +489,20 @@ export class PaymentService {
 
   async createBulkPaymentsLink(limit: any, dueMonth: string) {
     // var currentMonth = date.format(new Date(), "YYYY-MM") + '%';
+    const currentMonth = moment(dueMonth).format("YYYY-MM") + '%';
     usersLogger.info("due month: " + dueMonth + " limit: " + limit);
     var installmentsWithoutLinks = await getRepository(Transactions)
       .createQueryBuilder("transactions")
       .where(
         "((transactions.paymentLink is null or transactions.paymentLink = '') and (transactions.transactionId is null or transactions.transactionId = '')) and transactions.subscriptionType = :subscriptionType and transactions.dueDate like :dueMonth and transactions.status = :status",
-        { subscriptionType: SUBSCRIPTION_TYPE.MANUAL, dueMonth: dueMonth, status: PAYMENT_STATUS.PENDING }
+        { subscriptionType: SUBSCRIPTION_TYPE.MANUAL, dueMonth: currentMonth, status: PAYMENT_STATUS.PENDING }
       )
       .limit(limit)
       .getMany();
     usersLogger.info(
       "installments without links: " + installmentsWithoutLinks.length
     );
-
+    
     await this.createPaymentLinkForSpecificInstallments(
       installmentsWithoutLinks
     );
