@@ -123,6 +123,7 @@ export class BatchService {
       data.classEndDate = this.fixDate(data.classEndDate);
       data.lessonStartTime = this.fixDate(data.lessonStartTime);
       data.lessonEndTime = this.fixDate(data.lessonEndTime);
+      data.status = data.status === 0 ? 0 : 1
 
       const dateValidate = [
         moment(data.classStartDate).format("YYYY-MM-DD"),
@@ -194,7 +195,7 @@ export class BatchService {
           schoolId: data.offlineBatch === 0 ? null : data.schoolId,
           schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
           schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
-          status: data?.status || null
+          status: data.status
         },
       };
 
@@ -475,7 +476,7 @@ export class BatchService {
       classes.zoomLink = data.zoomLink;
       classes.whatsappLink = data.whatsappLink;
       classes.zoomInfo = data.zoomInfo;
-      classes.status = data.status || null;
+      classes.status = data.status == 0 ? 0 : 1;
       if (!isNullOrUndefined(data.schoolId)) {
         classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
         classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)
@@ -611,6 +612,7 @@ export class BatchService {
       classes.zoomInfo = data.zoomInfo;
       classes.whatsappLink = data.whatsappLink;
       classes.createdBy = data.createdBy;
+      classes.status = data.status;
       // sync batch zoom link to cosmos
       classes.sync_zoom_status = 0;
       if (data.schoolId) {
@@ -944,11 +946,7 @@ export class BatchService {
         endTime = "";
       }
 
-      if (classes.status == 4) {
-        status = "In Active";
-      } else {
-        status = "Active";
-      }
+      status = classes.status == 0 ? 0 : 1 ;
       let school = await this.schoolRepository.findOne({ where: { id: classes.schoolId } });
       let lessonNumber: string | number = getLessonByID(classes.activeLessonId)?.number;
       let view = new BatchView(
