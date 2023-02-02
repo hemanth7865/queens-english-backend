@@ -68,6 +68,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 try {
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
+                        if (!batchData.data.classes) {
+                            batchesInCsv.splice(batchesInCsv.indexOf(batch), 1);
+                            message.error(`Batch ${batch} not found. Please create the batch first.`);
+                            continue;
+                        }
                         const studentsToCheck = studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber)
                         if (studentsToCheck.length > 0) {
                             const checkStudentBatch = await checkStudentInBatch({ students: studentsToCheck, data: { id: batchData.data.classes.id } });
@@ -87,7 +92,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
-                        if (batchData.data) {
+                        if (batchData.data.classes) {
                             const batchStudents: any[] = [];
                             console.log("batchStudentsInitial", batchStudents);
                             if (batchData.data.students.length > 0) {
@@ -293,6 +298,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     <pre>
                         First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code
                     </pre>
+                    <p style={{ color: "red" }}>
+                        *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
+                    </p>
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
