@@ -28,7 +28,6 @@ export class BatchController {
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
-        console.log("rebatch batch");
         if (!request.body.studentId || !request.body.batchId) {
             return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
         }
@@ -149,9 +148,7 @@ export class BatchController {
 
 
     async remove(request: Request, response: Response, next: NextFunction) {
-        console.log("Delete Batch");
         try {
-            console.log('request.params.id' + request.params.id);
             let classesToRemove = await this.classesRepository.findOne(request.params.id);
             classesToRemove.status = 4;
             return this.classesRepository.save(classesToRemove);
@@ -201,11 +198,19 @@ export class BatchController {
     }
 
     async checkStudentBatches(request: Request, response: Response, next: NextFunction) {
-        let isPresent;
+        const data = JSON.parse(request.query.data);
+        let isPresent: any;
         try {
-            const value = JSON.parse(request.query.data);
-            isPresent = await this.batchService.checkStudentBatches(value["students"], value["data"]);
-            return { success: true, data: [isPresent], total: 1 }
+            isPresent = await this.batchService.checkStudentBatches(data.students, data.data);
+            return { success: true, data: isPresent, total: 1 }
+        } catch (error) {
+            return { success: false, error: error.toString() };
+        }
+    }
+
+    async bulkRemoveStudentsFromBatch(request: Request, response: Response, next: NextFunction) {
+        try {
+            return await this.batchService.removeStudents(request.body.students, request.body.batch);
         } catch (error) {
             return { success: false, error: error.toString() };
         }

@@ -1,4 +1,4 @@
-import { Any, getConnection, getRepository } from "typeorm";
+import { Any, getConnection, getRepository, Not } from "typeorm";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../entity/User";
 import { Teacher as Teacher } from "../entity/Teacher";
@@ -138,10 +138,10 @@ export class BatchService {
 
       let alreadyExists;
 
-      let studentHasBatch: boolean | string = !force ? await this.checkStudentBatches(students, data) : false;
+      let studentHasBatch: boolean | string = !force ? await this.checkStudentsBatches(students, data) : false;
 
       if (studentHasBatch) {
-        return { status: false, message: studentHasBatch };
+        return { status: false, message: "One or more students is in another batch" };
       }
 
       if (create) {
@@ -314,17 +314,31 @@ export class BatchService {
     return result;
   }
 
-  async checkStudentBatches(students: { id: string, type: string }[], data: Classes): Promise<boolean | string> {
-    let result: boolean | string = false;
+  async checkStudentsBatches(students: any, data: any): Promise<any> {
+    let result = false;
+    if (data.csvUpload) {
+      result = false
+    } else {
+      const checkBatches = await this.checkStudentBatches(students, data);
+      if (checkBatches.length > 0) {
+        result = true;
+      }
+    }
+    return result;
+  }
 
-    for (let student of students) {
-      const batch = await this.batchStudentRepository.createQueryBuilder("batchStudent").where("batchStudent.studentId = :val AND batchStudent.batchId != :batchId", { val: student.id, batchId: data.id }).getOne();
-
+  async checkStudentBatches(students: any, data: Classes): Promise<any> {
+    const result = [];
+    for (const student of students) {
+      const batch = await this.batchStudentRepository.findOne({ studentId: student.id, batchId: Not(data.id) })
       if (batch) {
-        let batchData = await this.classesRepository.findOne({ id: batch.batchId });
-        let user = await this.userRepository.findOne({ id: batch.studentId });
-        result = `Student ${user?.firstName} ${user?.lastName} - ${user?.phoneNumber} Already In Batch ${batchData.batchNumber}`;
-        break;
+        const batchData = await this.classesRepository.findOne({ id: batch.batchId });
+        const user = await this.userRepository.findOne({ id: batch.studentId });
+        result.push({
+          message: `Student ${user?.firstName} ${user?.lastName} - ${user?.phoneNumber} Already In Batch ${batchData.batchNumber}`,
+          batch: batchData,
+          student: user
+        });
       }
     }
 
@@ -702,27 +716,34 @@ export class BatchService {
   }
 
   async removeStudents(students: string[], batchId: string) {
-    for (let student of students) {
-      let res1 = await axios
-        .delete("/api/classProfile/" + batchId + "/students/" + student)
-        .then(async (res) => {
-          const stud = await this.studentRepository.findOne({ id: student })
-          const user = await this.userRepository.findOne({ id: student })
-          if (stud) {
-            stud.schoolId = null;
-          }
-          if (user) {
-            user.schoolId = null;
-            user.schoolCode = null;
-          }
-          await this.studentRepository.save(stud);
-          await this.userRepository.save(user);
-          return await this.batchStudentRepository.delete({ studentId: student, batchId });
-        })
-        .catch((error) => {
-          return Promise.reject(error);
-        });
+    const studs = [...new Set(students)];
+    for (const student of studs) {
+      try {
+        await axios
+          .delete("/api/classProfile/" + batchId + "/students/" + student)
+          .then(async () => {
+            const stud = await this.studentRepository.findOne({ id: student })
+            const user = await this.userRepository.findOne({ id: student })
+            if (stud) {
+              stud.schoolId = null;
+            }
+            if (user) {
+              user.schoolId = null;
+              user.schoolCode = null;
+            }
+            await this.studentRepository.save(stud);
+            await this.userRepository.save(user);
+            await this.batchStudentRepository.delete({ studentId: student, batchId });
+          })
+          .catch((error) => {
+            return Promise.reject(error);
+          });
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
     }
+    return true;
   }
 
   async listBatch(request: Request, parameters) {
