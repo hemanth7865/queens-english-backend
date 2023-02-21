@@ -507,6 +507,9 @@ export class TeacherService {
       user.languages = data.languages;
       user.created_at = new Date();
       user.updated_at = new Date();
+      if (data.schoolId) {
+        user.schoolId = data.schoolId
+      }
       // console.log("user", user);
       user = await this.usersRepository.save(user);
       return user;

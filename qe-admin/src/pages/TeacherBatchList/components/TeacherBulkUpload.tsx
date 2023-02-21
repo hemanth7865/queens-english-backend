@@ -110,6 +110,10 @@ const TeacherBulkUpload = () => {
                             whatsapp: ""
                         }
 
+                        if (selectedSchool) {
+                            teacherData.schoolId = selectedSchool
+                        }
+
                         const res = await addTeacherSchedule({
                             headers: {
                                 "Content-Type": "application/json",
