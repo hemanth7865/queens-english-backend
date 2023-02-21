@@ -47,6 +47,7 @@ import moment from "moment";
 import { parse, format } from "date-fns";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import ViewDrawer from '../School/components/Drawers/viewDrawer';
+import TeacherBulkUpload from "./components/TeacherBulkUpload";
 
 const TeacherBatchList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -242,7 +243,7 @@ const TeacherBatchList: React.FC = () => {
           ),
           status: "On Hold",
         },
-        4: {
+        0: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.onhold"
@@ -445,19 +446,19 @@ const TeacherBatchList: React.FC = () => {
       type: "teacher",
       photo: formData.photo,
       batchCode: formData.batchCode,
-      lead: [
-        {
-          resume: uploadResume,
-          qualification: formData.education,
-          totalexp: formData.experience,
-          video: formData.videoProfile,
-          certificates: formData.certificate,
-          joiningdate: dateJoining,
-          ratings: 1,
-          classestaken: 10,
-          teachertype: formData.teacherType,
-        },
-      ],
+      // lead: [
+      //   {
+      //     resume: uploadResume,
+      //     qualification: formData.education,
+      //     totalexp: formData.experience,
+      //     video: formData.videoProfile,
+      //     certificates: formData.certificate,
+      //     joiningdate: dateJoining,
+      //     ratings: 1,
+      //     classestaken: 10,
+      //     teachertype: formData.teacherType,
+      //   },
+      // ],
       status: selectStatus,
       leadAvailability: leadArray,
     };
@@ -888,6 +889,7 @@ const TeacherBatchList: React.FC = () => {
         request={teacherBatches}
         columns={columns}
         toolBarRender={() => [
+          <TeacherBulkUpload />,
           <Button type="primary" key="primary" onClick={showDrawer}>
             Add Teacher
           </Button>,
@@ -1098,6 +1100,7 @@ const TeacherBatchList: React.FC = () => {
                           setSelectStatus(value);
                         }}
                       >
+                        <Select.Option value="0">In Active</Select.Option>
                         <Select.Option value="1">Active</Select.Option>
                         <Select.Option value="2">Leave</Select.Option>
                         <Select.Option value="3">On Hold</Select.Option>
@@ -1513,6 +1516,7 @@ const TeacherBatchList: React.FC = () => {
                               setSelectStatus(value);
                             }}
                           >
+                            <Select.Option value="0">In Active</Select.Option>
                             <Select.Option value="1">Active</Select.Option>
                             <Select.Option value="2">Leave</Select.Option>
                             <Select.Option value="3">On Hold</Select.Option>

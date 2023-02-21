@@ -339,7 +339,7 @@ export class TeacherService {
           type: data.type,
           email: data.email,
           firstName: data.firstName,
-          lastName: data.lastName,
+          lastName: data.lastName || " ",
           isAdministrator: false,
           phoneNumber: data.phoneNumber,
         },
