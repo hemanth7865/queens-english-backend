@@ -324,6 +324,8 @@ export class TeacherService {
 
 
   async saveTeacher(data: any) {
+    data.email = data?.email || " "
+    data.lastName = data?.lastName || " "
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
@@ -339,7 +341,7 @@ export class TeacherService {
           type: data.type,
           email: data.email,
           firstName: data.firstName,
-          lastName: data.lastName || " ",
+          lastName: data.lastName,
           isAdministrator: false,
           phoneNumber: data.phoneNumber,
         },
