@@ -1136,3 +1136,28 @@ export async function bulkRemoveBatchStudents(data: any) {
     body: JSON.stringify(data),
   });
 }
+
+export async function getAssessmentQuestions(
+  params?: {
+    current?: number;
+    pageSize?: number;
+    assessmentId?: string;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.AssessmentList>(`/be/azure?url=api/assessmentQuestions`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+export async function getLesson(
+  id?: string,
+) {
+  return request<API.AssessmentList>(`/be/azure?url=api/lesson/${id}`, {
+    method: "GET"
+  });
+}
