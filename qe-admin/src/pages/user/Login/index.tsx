@@ -50,7 +50,7 @@ const Login: React.FC = () => {
   };
 
   const handleGoogleLogin = async (credentialResponse: { credential: string }) => {
-    const decoded: any = await jwt_decode(credentialResponse.credential);
+    const decoded: any = jwt_decode(credentialResponse.credential);
     await handleSubmit(decoded);
   };
 
