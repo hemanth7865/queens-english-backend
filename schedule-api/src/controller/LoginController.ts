@@ -16,11 +16,10 @@ export class LoginController {
           select: ["firstname", "lastname", "email", "phone", "role"],
           where: { email: req.email },
         });
-        console.log("foundGoogleUser", foundGoogleUser);
-                if (foundGoogleUser) {
+        if (foundGoogleUser) {
           const tokenPayload = {
             email: foundGoogleUser.email,
-            imageUrl: req.imageUrl,
+            imageUrl: req.picture,
             expiry: new Date().getTime() + 24 * 60 * 60,
           };
           const sessionToken = new JWSTokenHandler().signToken(
