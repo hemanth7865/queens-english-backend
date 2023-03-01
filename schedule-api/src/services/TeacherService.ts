@@ -628,7 +628,6 @@ export class TeacherService {
 
     const schoolName = parameters.schoolName;
     if (schoolName) {
-      console.log("school name is ", schoolName)
       query_string = query_string + ` and s.schoolName like '%${schoolName}%'`
       query_list.push(` s.schoolName like '%${schoolName}%'`);
     }
