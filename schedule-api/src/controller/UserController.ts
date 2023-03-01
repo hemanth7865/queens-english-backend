@@ -159,10 +159,8 @@ export class UserController {
             prm: request.query['prm'],
             frequency: request.query['frequency'],
             autoSearch: request.query['autoSearch'],
+            schoolName: request.query['schoolName'],
         }
-
-        console.log('requestr', request.query['email'])
-
 
         var studentService = new StudentService();
         var user;
