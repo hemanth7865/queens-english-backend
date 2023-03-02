@@ -16,8 +16,8 @@ interface DataType {
 
 const View: React.FC<ViewProps> = ({ data }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [lessonScriptData, setLessonScriptData] = useState<any>();
-    const [lessonDetails, setLessonDetails] = useState();
+    const [lessonScriptData, setLessonScriptData] = useState<API.lessonScripts>();
+    const [lessonDetails, setLessonDetails] = useState<API.LessonScriptExercise[]>();
 
     useEffect(() => {
         setIsLoading(true)
@@ -61,13 +61,13 @@ const View: React.FC<ViewProps> = ({ data }) => {
                     </Row>
                 </>
             }
-            renderItem={(item: any, index) => {
+            renderItem={(item: API.LessonScriptExerciseSection, index) => {
                 return <Card title={`Section ${index + 1}`} style={{ marginTop: 20, borderRadius: 15 }}>
                     <Row>
-                        <Col span={6}><b>Type</b><h4>{item.type.toUpperCase()}</h4></Col>
+                        <Col span={6}><b>Type</b><h4>{item?.type?.toUpperCase()}</h4></Col>
                         <Col span={18}>
-                            {item.type === SECTION_TYPES.IMAGE && <Image width={200} src={getUrl(item.image)} />}
-                            {item.type === SECTION_TYPES.DESCRIPTION && <div dangerouslySetInnerHTML={{ __html: item.description }} />}
+                            {item.type === SECTION_TYPES.IMAGE && item.image && <Image width={200} src={getUrl(item.image)} />}
+                            {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div dangerouslySetInnerHTML={{ __html: item.description }} />}
                         </Col>
                     </Row>
                 </Card>
