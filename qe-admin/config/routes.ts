@@ -35,6 +35,12 @@
         component: "./TeacherBatchList",
       },
       {
+        name: "Lessons",
+        path: "/manage/lessons",
+        component: "./Lessons",
+        access: "canSuperAdmin",
+      },
+      {
         name: "User",
         path: "/manage/UserBatch",
         component: "./StudentList",
