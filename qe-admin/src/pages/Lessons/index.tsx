@@ -12,7 +12,8 @@ import { useIntl, FormattedMessage } from "umi";
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
-import { getAllLessonScripts } from "@/services/ant-design-pro/api"
+import { getAllLessonScripts, deleteLessonScriptById } from "@/services/ant-design-pro/api";
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
 import "./index.css";
 
@@ -26,7 +27,19 @@ const Lessons: React.FC = () => {
 
     }, []);
 
-    const columns: ProColumns<API.SchoolItem>[] = [
+    const handleDelete = async (id: string, number: string) => {
+        try {
+            if (confirm(`Are you sure to delete lesson script ${number} ?`)) {
+                const msg = await deleteLessonScriptById({ id });
+                handleAPIResponse(msg, `Successfully deleted lesson Script ${number}`, "", false);
+                actionRef.current?.reload();
+            }
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "", `Failed to delete the lesson Script ${number}`, false);
+        }
+    }
+
+    const columns: ProColumns<API.lessonScripts>[] = [
         {
             title: (
                 <FormattedMessage
@@ -103,8 +116,7 @@ const Lessons: React.FC = () => {
             hideInSearch: true,
             render: (dom, entity) => {
                 return (
-                    <a
-                    >
+                    <a onClick={() => { handleDelete(entity.id!, entity.number!) }} >
                         <DeleteOutlined />
                     </a>
                 );
@@ -124,8 +136,8 @@ const Lessons: React.FC = () => {
                 search={{
                     labelWidth: 120,
                 }}
-                columns={columns}
                 request={getAllLessonScripts}
+                columns={columns}
                 toolBarRender={() => [
                     <Button
                         type="primary"

@@ -1156,3 +1156,20 @@ export async function getAllLessonScripts(
     }
   );
 }
+
+//API - DELETE LESSON SCRIPT BY ID
+export async function deleteLessonScriptById(
+  params: { id: string },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "DELETE",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}
