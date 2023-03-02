@@ -9,9 +9,7 @@ import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
 import styles from './index.less';
-import { GoogleLogin } from '@react-oauth/google';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import jwt_decode from "jwt-decode";
+import GoogleLogin from 'react-google-login';
 
 const LoginMessage: React.FC<{
   content: string;
@@ -49,11 +47,6 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = async (credentialResponse: { credential: string }) => {
-    const decoded: any = jwt_decode(credentialResponse.credential);
-    await handleSubmit(decoded);
-  };
-
   const handleSubmit = async (values: API.LoginParams) => {
     try {
       const msg = await login({ ...values, type });
@@ -81,6 +74,16 @@ const Login: React.FC = () => {
     }
   };
   const { status, type: loginType } = userLoginState;
+
+  const onLoginSuccess = async (res: any) => {
+    console.log('Login Success:', res.profileObj);
+    handleSubmit(res.profileObj as API.LoginParams);
+  };
+
+  const onLoginFailure = (res: any) => {
+    console.log('Login Failed:', res);
+  };
+
 
   return (
     <div className={styles.container}>
@@ -192,23 +195,18 @@ const Login: React.FC = () => {
             {
               // @ts-expect-error
               GOOGLE_CLIENT_ID ? (
-                <div style={{ padding: '10px', alignItems: "center" }}>
-                  <GoogleOAuthProvider
-                  // @ts-expect-error
-                    clientId={GOOGLE_CLIENT_ID}>
-                    <GoogleLogin
-                      onSuccess={credentialResponse => {
-                        handleGoogleLogin(credentialResponse);
-                      }}
-                      onError={() => {
-                        console.log('Login Failed');
-                      }}
-                    />
-                  </GoogleOAuthProvider>
+                <div >
+                  <GoogleLogin
+                    // @ts-expect-error
+                    clientId={GOOGLE_CLIENT_ID}
+                    buttonText="Sign in with Google"
+                    onSuccess={onLoginSuccess}
+                    onFailure={onLoginFailure}
+                    cookiePolicy={'single_host_origin'}
+                  />
                 </div>
               ) : (
-                  <div>
-                  </div>
+                null
               )}
           </LoginForm>
         </div>

@@ -11,54 +11,45 @@ export class LoginController {
     const req = request.body;
 
     if (req.email) {
-      if (req.email_verified) {
-        try {
-          const foundGoogleUser = await this.adminRepository.findOne({
-            select: ["firstname", "lastname", "email", "phone", "role"],
-            where: { email: req.email },
-          });
-          if (foundGoogleUser) {
-            const tokenPayload = {
-              email: foundGoogleUser.email,
-              imageUrl: req.picture,
-              expiry: new Date().getTime() + 24 * 60 * 60,
-            };
-            const sessionToken = new JWSTokenHandler().signToken(
-              JSON.stringify(tokenPayload)
-            );
+      try {
+        const foundGoogleUser = await this.adminRepository.findOne({
+          select: ["firstname", "lastname", "email", "phone", "role"],
+          where: { email: req.email },
+        });
+        console.log("foundGoogleUser", foundGoogleUser);
+                if (foundGoogleUser) {
+          const tokenPayload = {
+            email: foundGoogleUser.email,
+            imageUrl: req.imageUrl,
+            expiry: new Date().getTime() + 24 * 60 * 60,
+          };
+          const sessionToken = new JWSTokenHandler().signToken(
+            JSON.stringify(tokenPayload)
+          );
 
-            const options = {
-              maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
-              httpOnly: true,
-              signed: true,
-            };
+          const options = {
+            maxAge: 1000 * 60 * 60 * 24, // would expire after 1 day
+            httpOnly: true,
+            signed: true,
+          };
 
-            response.cookie("qe-admin-token", sessionToken, options);
+          response.cookie("qe-admin-token", sessionToken, options);
 
-            response
-              .status(200)
-              .send({
-                status: "ok",
-                type: "account",
-                currentAuthority: "Admin",
-                token: sessionToken,
-                imageUrl: req.imageUrl,
-              })
-              .end();
-          }
-        } catch (e) {
-          console.log("error", e);
           response
-            .status(500)
+            .status(200)
             .send({
-              status: "failed",
+              status: "ok",
               type: "account",
+              currentAuthority: "Admin",
+              token: sessionToken,
+              imageUrl: req.imageUrl,
             })
             .end();
         }
-      } else {
+      } catch (e) {
+        console.log("error", e);
         response
-          .status(401)
+          .status(500)
           .send({
             status: "failed",
             type: "account",
