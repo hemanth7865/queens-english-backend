@@ -13,23 +13,32 @@ import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
 import { Drawer } from 'antd';
-import View from "./Components/View";
-import { getAllLessonScripts, deleteLessonScriptById } from "@/services/ant-design-pro/api";
+import View from "./components/View";
+import { getAllLessonScripts, deleteLessonScriptById, getAllLessons } from "@/services/ant-design-pro/api";
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
 
 import "./index.css";
+import CreateEdit from "./components/CreateEdit";
 
 const Lessons: React.FC = () => {
     const intl = useIntl();
     const actionRef = useRef<ActionType>();
     const [view, setView] = useState(false);
     const [viewData, setViewData] = useState();
+    const [create, setCreate] = useState<boolean>(false);
+    const [edit, setEdit] = useState<boolean>(false);
+    const [lessons, setLessons] = useState<any[]>([]);
+    const [key, setKey] = useState(0);
 
 
+    const fetchAllLessons = async () => {
+        const data = await getAllLessons({})
+        setLessons(data)
+    }
 
     useEffect(() => {
-
+        fetchAllLessons()
     }, []);
 
     const handleDelete = async (id: string, number: string) => {
@@ -152,6 +161,9 @@ const Lessons: React.FC = () => {
                         <Button
                             type="primary"
                             key="primary"
+                            onClick={() => {
+                                setCreate(true)
+                            }}
                         >
                             <PlusOutlined /> Create Lesson
                         </Button>,
@@ -167,6 +179,20 @@ const Lessons: React.FC = () => {
                 width={600}
             >
                 <View data={viewData} />
+            </Drawer>
+            <Drawer
+                visible={create || edit}
+                onClose={() => {
+                    setView(false);
+                    setViewData(undefined);
+                    setCreate(false);
+                    setEdit(false);
+                    setKey(key + 1)
+                }}
+                width={800}
+            >
+                <h2>{create ? "Create Lesson Script" : "Edit Lesson Script"}</h2>
+                <CreateEdit create lessons={lessons} key={key} />
             </Drawer>
         </>
     );
