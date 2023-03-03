@@ -64,11 +64,8 @@ const View: React.FC<ViewProps> = ({ data }) => {
             renderItem={(item: API.LessonScriptExerciseSection, index) => {
                 return <Card title={`Section ${index + 1}`} style={{ marginTop: 20, borderRadius: 15 }}>
                     <Row>
-                        <Col span={6}><b>Type</b><h4>{item?.type?.toUpperCase()}</h4></Col>
-                        <Col span={18}>
-                            {item.type === SECTION_TYPES.IMAGE && item.image && <Image width={200} src={getUrl(item.image)} />}
-                            {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div dangerouslySetInnerHTML={{ __html: item.description }} />}
-                        </Col>
+                        {item.type === SECTION_TYPES.IMAGE && item.image && <Image width={200} src={getUrl(item.image)} />}
+                        {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div dangerouslySetInnerHTML={{ __html: item.description }} />}
                     </Row>
                 </Card>
             }
