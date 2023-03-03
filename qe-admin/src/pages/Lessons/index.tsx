@@ -7,19 +7,24 @@ import {
 import {
     Button
 } from "antd";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useIntl, FormattedMessage } from "umi";
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
+import { Drawer } from 'antd';
+import View from "./Components/View";
 import { getAllLessonScripts, deleteLessonScriptById } from "@/services/ant-design-pro/api";
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+
 
 import "./index.css";
 
 const Lessons: React.FC = () => {
     const intl = useIntl();
     const actionRef = useRef<ActionType>();
+    const [view, setView] = useState(false);
+    const [viewData, setViewData] = useState();
 
 
 
@@ -81,6 +86,10 @@ const Lessons: React.FC = () => {
             render: (dom, entity) => {
                 return (
                     <a
+                        onClick={() => {
+                            setViewData(entity)
+                            setView(true)
+                        }}
                     >
                         <EyeOutlined />
                     </a>
@@ -125,29 +134,41 @@ const Lessons: React.FC = () => {
     ];
 
     return (
-        <PageContainer>
-            <ProTable<API.RuleListItem, API.PageParams>
-                headerTitle={intl.formatMessage({
-                    id: 'pages.searchTable.titleLesson',
-                    defaultMessage: 'Lesson Management',
-                })}
-                actionRef={actionRef}
-                rowKey="key"
-                search={{
-                    labelWidth: 120,
+        <>
+            <PageContainer>
+                <ProTable<API.RuleListItem, API.PageParams>
+                    headerTitle={intl.formatMessage({
+                        id: 'pages.searchTable.titleLesson',
+                        defaultMessage: 'Lesson Script Management',
+                    })}
+                    actionRef={actionRef}
+                    rowKey="key"
+                    search={{
+                        labelWidth: 120,
+                    }}
+                    columns={columns}
+                    request={getAllLessonScripts}
+                    toolBarRender={() => [
+                        <Button
+                            type="primary"
+                            key="primary"
+                        >
+                            <PlusOutlined /> Create Lesson
+                        </Button>,
+                    ]}
+                />
+            </PageContainer>
+            <Drawer
+                visible={view}
+                onClose={() => {
+                    setView(false);
+                    setViewData(undefined);
                 }}
-                request={getAllLessonScripts}
-                columns={columns}
-                toolBarRender={() => [
-                    <Button
-                        type="primary"
-                        key="primary"
-                    >
-                        <PlusOutlined /> Create Lesson
-                    </Button>,
-                ]}
-            />
-        </PageContainer>
+                width={600}
+            >
+                <View data={viewData} />
+            </Drawer>
+        </>
     );
 };
 
