@@ -30,6 +30,7 @@ import { useIntl, FormattedMessage } from "umi";
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
+import LessonForm from './components/lessonForm';
 
 import {
   teacherBatches,
@@ -53,7 +54,7 @@ const Lessons: React.FC = () => {
   const actionRef = useRef<ActionType>();
 
   const [isLoading, setIsLoading] = useState(false)
-
+  const [create, setCreate] = useState<any>();
   
   useEffect(() => {
     
@@ -163,11 +164,20 @@ const Lessons: React.FC = () => {
           <Button
               type="primary"
               key="primary"
+              onClick={() => {
+                setCreate({ operation: 'create' });
+              }}
           >
               <PlusOutlined /> Create Lesson
           </Button>,
       ]}
       />
+      <Drawer visible={!!create} onClose={() => {
+            setCreate(null);
+        }} width='60%'>
+            <h1>Create School</h1>
+            <LessonForm tempData={create} />
+      </Drawer>
     </PageContainer>
   );
 };
