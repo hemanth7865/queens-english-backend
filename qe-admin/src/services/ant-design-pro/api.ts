@@ -1136,3 +1136,40 @@ export async function bulkRemoveBatchStudents(data: any) {
     body: JSON.stringify(data),
   });
 }
+
+//API - GET LESSON SCRIPT 
+export async function getAllLessonScripts(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}
+
+//API - DELETE LESSON SCRIPT BY ID
+export async function deleteLessonScriptById(
+  params: { id: string },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "DELETE",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}

@@ -1,185 +1,207 @@
 import {
-  PlusOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  ClockCircleOutlined,
-  EditOutlined,
-  MinusCircleOutlined
+    PlusOutlined,
+    DeleteOutlined,
+    EyeOutlined,
+    EditOutlined,
 } from "@ant-design/icons";
 import {
-  Button,
-  message,
-  Input,
-  Drawer,
-  Form,
-  Col,
-  Row,
-  Select,
-  DatePicker,
-  Checkbox,
-  TimePicker,
-  Tooltip,
-  notification,
-  Space,
-  Spin,
-  Tabs
+    Button
 } from "antd";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useIntl, FormattedMessage } from "umi";
-
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
 import LessonForm from './components/lessonForm';
+import { Drawer } from 'antd';
+import View from "./components/View";
+import { getAllLessonScripts, deleteLessonScriptById, getAllLessons } from "@/services/ant-design-pro/api";
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
-import {
-  teacherBatches,
-  addTeacherSchedule,
-  teacherBatchesView,
-  teacherRemove,
-} from "@/services/ant-design-pro/api";
-
-import {
-  handleAPIResponse
-} from "@/services/ant-design-pro/helpers";
 
 import "./index.css";
-import moment from "moment";
-import { parse, format } from "date-fns";
-import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
-import ViewDrawer from '../School/components/Drawers/viewDrawer';
+import CreateEdit from "./components/CreateEdit";
 
 const Lessons: React.FC = () => {
-  const intl = useIntl();
-  const actionRef = useRef<ActionType>();
+    const intl = useIntl();
+    const actionRef = useRef<ActionType>();
+    const [view, setView] = useState(false);
+    const [viewData, setViewData] = useState();
+    const [create, setCreate] = useState<boolean>(false);
+    const [edit, setEdit] = useState<boolean>(false);
+    const [lessons, setLessons] = useState<any[]>([]);
+    const [key, setKey] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false)
-  const [create, setCreate] = useState<any>();
   
   useEffect(() => {
     
   }, []);
 
-  const columns: ProColumns<API.SchoolItem>[] = [
-    {
-        title: (
-            <FormattedMessage
-                id="pages.searchTable.lesson.lessonName"
-                defaultMessage="Lesson Name"
-            />
-        ),
-        dataIndex: "lessonName",
-        copyable: true,
-    },
-    {
-        title: (
-            <FormattedMessage
-                id="pages.searchTable.lesson.createdAt"
-                defaultMessage="Created At"
-            />
-        ),
-        dataIndex: "createdAt",
-        copyable: true,
-    },
-    {
-        title: (
-            <FormattedMessage
-                id="pages.searchTable.lesson.modifiedAt"
-                defaultMessage="Modified At"
-            />
-        ),
-        dataIndex: "modifiedAt",
-        copyable: true,
-    },
-    {
-        title: (
-            <FormattedMessage
-                id="pages.searchTable.school.view"
-                defaultMessage="View"
-            />
-        ),
-        dataIndex: "view",
-        hideInSearch: true,
-        render: (dom, entity) => {
-            return (
-                <a
-                >
-                    <EyeOutlined />
-                </a>
-            );
-        },
-    },
-    {
-        title: (
-            <FormattedMessage
-                id="pages.searchTable.school.edit"
-                defaultMessage="Edit"
-            />
-        ),
-        dataIndex: "edit",
-        hideInSearch: true,
-        render: (dom, entity) => {
-            return (
-                <a
-                >
-                    <EditOutlined />
-                </a>
-            );
-        },
-    },
-    {
-      title: (
-          <FormattedMessage
-              id="pages.searchTable.school.delete"
-              defaultMessage="Delete"
-          />
-      ),
-      dataIndex: "delete",
-      hideInSearch: true,
-      render: (dom, entity) => {
-          return (
-              <a
-              >
-                  <DeleteOutlined />
-              </a>
-          );
-      },
-    },
-];
+    const fetchAllLessons = async () => {
+        const data = await getAllLessons({})
+        setLessons(data)
+    }
 
-  return (
-    <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
-        headerTitle={intl.formatMessage({
-          id: 'pages.searchTable.titleLesson',
-          defaultMessage: 'Lesson Management',
-      })}
-      actionRef={actionRef}
-      rowKey="key"
-      search={{
-          labelWidth: 120,
-      }}
-      columns={columns}
-      toolBarRender={() => [
-          <Button
-              type="primary"
-              key="primary"
-              onClick={() => {
-                setCreate({ operation: 'create' });
-              }}
-          >
-              <PlusOutlined /> Create Lesson
-          </Button>,
-      ]}
-      />
-      <Drawer visible={!!create} onClose={() => {
-            setCreate(null);
-        }} width='60%'>
-            <h1>Create School</h1>
-            <LessonForm tempData={create} />
-      </Drawer>
-    </PageContainer>
-  );
+    useEffect(() => {
+        fetchAllLessons()
+    }, []);
+
+    const handleDelete = async (id: string, number: string) => {
+        try {
+            if (confirm(`Are you sure to delete lesson script ${number} ?`)) {
+                const msg = await deleteLessonScriptById({ id });
+                handleAPIResponse(msg, `Successfully deleted lesson Script ${number}`, "", false);
+                actionRef.current?.reload();
+            }
+        } catch (error) {
+            handleAPIResponse({ status: 400 }, "", `Failed to delete the lesson Script ${number}`, false);
+        }
+    }
+
+    const columns: ProColumns<API.lessonScripts>[] = [
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.lesson.lessonName"
+                    defaultMessage="Lesson Number"
+                />
+            ),
+            dataIndex: "number"
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.lesson.createdAt"
+                    defaultMessage="Created At"
+                />
+            ),
+            dataIndex: "createdAt",
+            hideInSearch: true
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.lesson.modifiedAt"
+                    defaultMessage="Modified At"
+                />
+            ),
+            dataIndex: "modifiedAt",
+            hideInSearch: true
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.school.view"
+                    defaultMessage="View"
+                />
+            ),
+            dataIndex: "view",
+            hideInSearch: true,
+            render: (dom, entity) => {
+                return (
+                    <a
+                        onClick={() => {
+                            setViewData(entity)
+                            setView(true)
+                        }}
+                    >
+                        <EyeOutlined />
+                    </a>
+                );
+            },
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.school.edit"
+                    defaultMessage="Edit"
+                />
+            ),
+            dataIndex: "edit",
+            hideInSearch: true,
+            render: (dom, entity) => {
+                return (
+                    <a
+                    >
+                        <EditOutlined />
+                    </a>
+                );
+            },
+        },
+        {
+            title: (
+                <FormattedMessage
+                    id="pages.searchTable.school.delete"
+                    defaultMessage="Delete"
+                />
+            ),
+            dataIndex: "delete",
+            hideInSearch: true,
+            render: (dom, entity) => {
+                return (
+                    <a onClick={() => { handleDelete(entity.id!, entity.number!) }} >
+                        <DeleteOutlined />
+                    </a>
+                );
+            },
+        },
+    ];
+
+    return (
+        <>
+            <PageContainer>
+                <ProTable<API.RuleListItem, API.PageParams>
+                    headerTitle={intl.formatMessage({
+                        id: 'pages.searchTable.titleLesson',
+                        defaultMessage: 'Lesson Script Management',
+                    })}
+                    actionRef={actionRef}
+                    rowKey="key"
+                    search={{
+                        labelWidth: 120,
+                    }}
+                    columns={columns}
+                    request={getAllLessonScripts}
+                    toolBarRender={() => [
+                        <Button
+                            type="primary"
+                            key="primary"
+                            onClick={() => {
+                                setCreate(true)
+                            }}
+                        >
+                            <PlusOutlined /> Create Lesson
+                        </Button>,
+                    ]}
+                />
+            </PageContainer>
+            <Drawer
+                visible={view}
+                onClose={() => {
+                    setView(false);
+                    setViewData(undefined);
+                }}
+                width={600}
+            >
+                <View data={viewData} />
+            </Drawer>
+            <Drawer
+                visible={create || edit}
+                onClose={() => {
+                    setView(false);
+                    setViewData(undefined);
+                    setCreate(false);
+                    setEdit(false);
+                    setKey(key + 1)
+                }}
+                width={800}
+            >
+                <h2>{create ? "Create Lesson Script" : "Edit Lesson Script"}</h2>
+                <CreateEdit create lessons={lessons} key={key} />
+            </Drawer>
+        </>
+    );
 };
 
 export default Lessons;
