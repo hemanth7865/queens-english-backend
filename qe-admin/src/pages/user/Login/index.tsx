@@ -9,7 +9,9 @@ import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
 import styles from './index.less';
-import GoogleLogin from 'react-google-login';
+import { GoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import jwt_decode from "jwt-decode";
 
 const LoginMessage: React.FC<{
   content: string;
@@ -45,6 +47,11 @@ const Login: React.FC = () => {
         currentUser: userInfo,
       }));
     }
+  };
+
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    const decoded: any = jwt_decode(credentialResponse.credential);
+    await handleSubmit(decoded);
   };
 
   const handleSubmit = async (values: API.LoginParams) => {
@@ -195,18 +202,23 @@ const Login: React.FC = () => {
             {
               // @ts-expect-error
               GOOGLE_CLIENT_ID ? (
-                <div >
-                  <GoogleLogin
+                <div style={{ padding: '10px', alignItems: "center" }}>
+                  <GoogleOAuthProvider
                     // @ts-expect-error
-                    clientId={GOOGLE_CLIENT_ID}
-                    buttonText="Sign in with Google"
-                    onSuccess={onLoginSuccess}
-                    onFailure={onLoginFailure}
-                    cookiePolicy={'single_host_origin'}
-                  />
+                    clientId={GOOGLE_CLIENT_ID}>
+                    <GoogleLogin
+                      onSuccess={credentialResponse => {
+                        handleGoogleLogin(credentialResponse);
+                      }}
+                      onError={() => {
+                        console.log('Login Failed');
+                      }}
+                    />
+                  </GoogleOAuthProvider>
                 </div>
               ) : (
-                null
+                  <div>
+                  </div>
               )}
           </LoginForm>
         </div>

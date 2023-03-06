@@ -7,7 +7,6 @@ import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 import { outLogin } from '@/services/ant-design-pro/api';
 import type { MenuInfo } from 'rc-menu/lib/interface';
-import { GoogleLogout } from 'react-google-login';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -72,22 +71,10 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-      {
-        // @ts-expect-error
-        currentUser.avatar && GOOGLE_CLIENT_ID ? (
-        <Menu.Item key="logout">
-          <GoogleLogout
-            // @ts-expect-error
-            clientId={GOOGLE_CLIENT_ID}
-            buttonText="Logout"
-          />
-        </Menu.Item>
-      ) : (
         <Menu.Item key="logout">
           <LogoutOutlined />
           Logout
-        </Menu.Item>
-      )}
+      </Menu.Item>
     </Menu>
   );
   return (
