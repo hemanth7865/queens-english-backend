@@ -2,7 +2,7 @@ import {
   LockOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Alert, message, Tabs } from 'antd';
+import { Alert, Button, message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import { ProFormCheckbox, ProFormText, LoginForm } from '@ant-design/pro-form';
 import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
@@ -81,16 +81,6 @@ const Login: React.FC = () => {
     }
   };
   const { status, type: loginType } = userLoginState;
-
-  const onLoginSuccess = async (res: any) => {
-    console.log('Login Success:', res.profileObj);
-    handleSubmit(res.profileObj as API.LoginParams);
-  };
-
-  const onLoginFailure = (res: any) => {
-    console.log('Login Failed:', res);
-  };
-
 
   return (
     <div className={styles.container}>
@@ -199,27 +189,33 @@ const Login: React.FC = () => {
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="Remember me" />
               </ProFormCheckbox>
             </div>
-            {
-              // @ts-expect-error
-              GOOGLE_CLIENT_ID ? (
-                <div style={{ padding: '10px', alignItems: "center" }}>
-                  <GoogleOAuthProvider
-                    // @ts-expect-error
-                    clientId={GOOGLE_CLIENT_ID}>
-                    <GoogleLogin
-                      onSuccess={credentialResponse => {
-                        handleGoogleLogin(credentialResponse);
-                      }}
-                      onError={() => {
-                        console.log('Login Failed');
-                      }}
-                    />
-                  </GoogleOAuthProvider>
-                </div>
-              ) : (
+            <Button type="primary" htmlType='submit' style={{ display: "block", width: "100%", borderRadius: "16px" }}>
+              Login
+            </Button>
+            <div>
+              {
+                // @ts-expect-error
+                GOOGLE_CLIENT_ID ? (
+                  <div style={{ marginTop: "5px", marginBottom: "6px", marginLeft: "18%" }}>
+                    <GoogleOAuthProvider
+                      // @ts-expect-error
+                      clientId={GOOGLE_CLIENT_ID}>
+                      <GoogleLogin
+                        onSuccess={credentialResponse => {
+                          handleGoogleLogin(credentialResponse);
+                        }}
+                        onError={() => {
+                          console.log('Login Failed');
+                        }}
+                        shape="pill"
+                      />
+                    </GoogleOAuthProvider>
+                  </div>
+                ) : (
                   <div>
                   </div>
-              )}
+                )}
+            </div>
           </LoginForm>
         </div>
 
