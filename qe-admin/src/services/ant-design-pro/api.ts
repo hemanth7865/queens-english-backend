@@ -1139,9 +1139,12 @@ export async function bulkRemoveBatchStudents(data: any) {
 
 export async function getAssessmentQuestions(
   params?: {
-    current?: number;
-    pageSize?: number;
+    setNumber?: string;
     assessmentId?: string;
+    id?: string;
+    name?: string;
+    lessonNumber?: string;
+    lessonId?: string;
   },
   options?: { [key: string]: any }
 ) {
