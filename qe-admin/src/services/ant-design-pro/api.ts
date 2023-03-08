@@ -1164,3 +1164,12 @@ export async function getLesson(
     method: "GET"
   });
 }
+
+export async function updateAssessmentContent(
+  options?: { [key: string]: any }
+) {
+  return request<any>(`/be/azure?url=api/assessmentQuestions`, {
+    method: "PUT",
+    ...(options || {}),
+  });
+}

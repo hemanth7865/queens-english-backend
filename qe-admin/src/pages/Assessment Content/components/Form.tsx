@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, notification, Spin, Card, Col, Row, Tabs } from "antd";
-import { getAssessmentQuestions, putAssessment, getLesson } from "@/services/ant-design-pro/api";
+import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
 import Assessments from "../../../../data/assessmentsUAT.json";
+import "./form.css"
 
 export type AssessmentContentQuestion = [
   {
@@ -9,7 +10,8 @@ export type AssessmentContentQuestion = [
     question: string;
     answer: string;
     type: string;
-    imageUrl?: string;
+    imageUrl?: any;
+    uri?: string;
   }
 ];
 
@@ -32,34 +34,118 @@ const { TabPane } = Tabs;
 
 const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
+  let setNumber = ""
   const [assessment, setAssessment] = useState<any>({});
-  const [setNumber, setSetNumber] = useState<any>("");
   const [isLoading, setIsLoading] = useState<any>(false);
   const [questionCards, setQuestionCards] = useState<any>([]);
+  const [hideImageURL, sethideImageURL] = useState(true)
+  const typeOptions = [{ value: 'text', label: 'text' }, { value: 'image', label: 'image' }]
+
+  const handleQuestionChange = (value: string, index: number) => {
+    if (props.assessmentData) {
+      props.assessmentData.assessmentQuestion[index].question = value;
+    } else {
+      setAssessment({ ...assessment, assessmentQuestion: [{ ...assessment.assessmentQuestion, question: value }] })
+    }
+  }
+
+  const handleAnswerChange = (value: any, index: number) => {
+    if (props.assessmentData) {
+      props.assessmentData.assessmentQuestion[index].answer = value;
+    } else {
+      setAssessment({ ...assessment, assessmentQuestion: [{ ...assessment.assessmentQuestion, answer: value }] })
+    }
+  }
+
+  const handleImageChange = (value: any, index: number) => {
+    if (props.assessmentData) {
+      props.assessmentData.assessmentQuestion[index].imageUrl = value;
+    } else {
+      setAssessment({ ...assessment, assessmentQuestion: [{ ...assessment.assessmentQuestion, imageUrl: value }] })
+    }
+  }
+
+  const handleTypeChange = (value: any, index: number) => {
+    if (value === "image") {
+      sethideImageURL(false)
+    }
+    if (props.assessmentData) {
+      props.assessmentData.assessmentQuestion[index].type = value;
+    } else {
+      setAssessment({ ...assessment, assessmentQuestion: [{ ...assessment.assessmentQuestion, type: value }] })
+    }
+  }
+
+  const modifyQuestionCard = async (question: string, answer: string, type: string, imageUrl: string, index: number) => {
+    if (!question || !answer || !type) {
+      notification.error({
+        message: "Error",
+        description: "Please fill all the fields",
+      });
+      return;
+    } else if (type === "image" && !imageUrl) {
+      notification.error({
+        message: "Error",
+        description: "Please enter the image url",
+      });
+      return;
+    }
+
+    setAssessment({ ...assessment, assessmentQuestion: [{ number: index + 1, question: question, answer: answer, type: type, imageUrl: imageUrl }] })
+  }
+
+  const handleAddQuestionCard = () => {
+    const alreadyPresentQuestions = questionCards;
+    setQuestionCards(
+      [...alreadyPresentQuestions,
+      <Card key={alreadyPresentQuestions.length + 1} title={`Question ${alreadyPresentQuestions.length + 1}`} style={{ width: 300, margin: 10 }}>
+        <Input placeholder="Enter Question" />
+        <Input placeholder="Enter Answer" />
+        <Select
+          placeholder="Select Question Type"
+          allowClear
+          options={typeOptions}
+        />
+        <Input placeholder="Enter Image URL" hidden={hideImageURL} />
+        <Button onClick={() => modifyQuestionCard()}>Add Question</Button>
+      </Card>
+      ])
+  }
 
   useEffect(() => {
     if (props.assessmentData) {
+      for (let i = 0; i < props.assessmentData.assessmentQuestion.length; i++) {
+        if (props.assessmentData.assessmentQuestion[i].type === "image") {
+          // Need to add logic to get the image from the assets folder
+        }
+      }
       setQuestionCards(props.assessmentData.assessmentQuestion.map((question: any, index: number) => (
-        <Card title={`Question ${index + 1}`} style={{ width: 300, margin: 10 }}>
-          <Input defaultValue={question.question} />
-          <Input defaultValue={question.answer} />
+        <Card key={index + 1} title={`Question ${index + 1}`} style={{ width: 300, margin: 10 }}>
+          {
+            question.type === "image" && <img src={question.uri} className="question-image" />
+          }
+          <Input defaultValue={question.question} onChange={(e) => handleQuestionChange(e.target.value, index)} />
+          <Input defaultValue={question.answer} onChange={(e) => handleAnswerChange(e.target.value, index)} />
         </Card>
-      )));
+      )))
     }
-  }, [props.assessmentData]);
+  }
+    , [props.assessmentData]);
 
   async function setToCreate(data: any) {
     setIsLoading(true);
-    const existingSets = await getAssessmentQuestions({ current: 1, pageSize: 10, assessmentId: data.value });
-    setSetNumber(`${existingSets.data.length + 1}`);
-    await getAssessmentDetails(data, existingSets);
+    const existingSets = await getAssessmentQuestions();
+    const sets = existingSets.data.filter(({ assessmentId }) => assessmentId === data.value);
+    if (sets.length < 9) {
+      setNumber = `0${sets.length + 1}`;
+    } else {
+      setNumber = `${sets.length + 1}`;
+    }
+    await getAssessmentDetails(data);
     setIsLoading(false);
   }
 
-  async function getAssessmentDetails(data: any, existingSets?: any) {
-    if (existingSets.data.length > 0) {
-      setAssessment(existingSets.data[0]);
-    } else {
+  async function getAssessmentDetails(data: any) {
       const lesson = await getLesson(JSON.stringify(data.lessonNumber));
       const assessmentData = {
         lessonNumber: data.lessonNumber.toString(),
@@ -67,11 +153,10 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
         name: data.assessmentName,
         assessmentId: data.value,
         setNumber: setNumber,
-        id: `${data.value}-${setNumber}`
+        id: `${data.value}-${setNumber}`,
+        assessmentQuestion: questionCards
       }
-      setAssessment(assessmentData);
-      console.log("asssessmentData", assessmentData, "assessment", assessment);
-    }
+    setAssessment(assessmentData);
   }
 
   const assessmentOptions = Assessments.map((assessment) => (
@@ -84,23 +169,23 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       description:
         '',
     });
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
   };
 
   const onFinish = async (values: any) => {
+    console.log(assessment)
     const data = {
-      setNumber: values.setNumber,
-      assessmentId: values.assessmentId,
-      assessmentQuestion: values.assessmentQuestion,
-      id: values.id,
-      name: values.name,
-      lessonNumber: values.lessonNumber,
-      lessonId: values.lessonId
+      setNumber: props.assessmentData.setNumber ? props.assessmentData.setNumber : setNumber,
+      assessmentId: props.assessmentData.assessmentId,
+      assessmentQuestion: props.assessmentData.assessmentQuestion,
+      id: props.assessmentData.id,
+      name: props.assessmentData.name,
+      lessonNumber: props.assessmentData.lessonNumber,
+      lessonId: props.assessmentData.lessonId,
+      operation: "update"
     };
+    console.log("data", data)
     try {
-      const msg = await putAssessment({
+      const msg = await updateAssessmentContent({
         headers: {
           "Content-Type": "application/json",
         },
@@ -146,7 +231,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     >
       {props.operationType === "create" ? (
         <>
-          <Tabs defaultActiveKey="1">
+          <Tabs defaultActiveKey="1" >
             <TabPane tab="Assessment Details" key="1">
               <Form.Item
                 label="Select Assessment"
@@ -166,7 +251,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="Set Number"
                   name="setNumber"
-                  rules={[{ required: true, message: "Please input lesson number!" }]}
                   getValueProps={() => {
                     return {
                       value: assessment.setNumber,
@@ -179,7 +263,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="Lesson Number"
                   name="lessonNumber"
-                  rules={[{ required: true, message: "Please input lesson number!" }]}
                   getValueProps={() => {
                     return {
                       value: assessment.lessonNumber,
@@ -192,7 +275,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="Name"
                   name="name"
-                  rules={[{ required: true, message: "Please input name!" }]}
                   getValueProps={() => {
                     return {
                       value: assessment.name,
@@ -205,7 +287,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="ID"
                   name="id"
-                  rules={[{ required: true, message: "Please input ID!" }]}
                   getValueProps={() => {
                     return {
                       value: assessment.id,
@@ -218,7 +299,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="Lesson ID"
                   name="lessonId"
-                  rules={[{ required: true, message: "Please input lesson ID!" }]}
                   getValueProps={() => {
                     return {
                       value: assessment.lessonId,
@@ -234,73 +314,26 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="Assessment Question"
                   name="assessmentQuestion"
-                  rules={[{ required: true, message: "Please input assessment question!" }]}
                 >
                   {questionCards}
+                  <Button onClick={handleAddQuestionCard}>+ Add</Button>
                 </Form.Item>
               </Spin>
             </TabPane>
           </Tabs>
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Button type="primary" htmlType="submit" block>
+              Submit
+            </Button>
+          </Form.Item>
         </>
       ) : (
         <>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="Assessment Details" key="1">
-              <div align="center">
-                <Form.Item
-                  label="Assessment ID"
-                  name="assessmentId"
-                  rules={[{ required: true, message: "Please input assessment ID!" }]}
-                >
-                  <Input disabled />
-                </Form.Item>
-
-                <Form.Item
-                  label="Set Number"
-                  name="setNumber"
-                  rules={[{ required: true, message: "Please input set number!" }]}
-                >
-                  <Input disabled />
-                </Form.Item>
-
-                <Form.Item
-                  label="Lesson Number"
-                  name="lessonNumber"
-                  rules={[{ required: true, message: "Please input lesson number!" }]}
-                >
-                  <Input disabled />
-                </Form.Item>
-
-                <Form.Item
-                  label="Name"
-                  name="name"
-                  rules={[{ required: true, message: "Please input name!" }]}
-                >
-                  <Input disabled />
-                </Form.Item>
-
-                <Form.Item
-                  label="ID"
-                  name="id"
-                  rules={[{ required: true, message: "Please input ID!" }]}
-                >
-                  <Input disabled />
-                </Form.Item>
-
-                <Form.Item
-                  label="Lesson ID"
-                  name="lessonId"
-                  rules={[{ required: true, message: "Please input lesson ID!" }]}
-                >
-                  <Input disabled />
-                </Form.Item>
-              </div>
-            </TabPane>
+            <Tabs defaultActiveKey="1">
             <TabPane tab="Assessment Questions" key="2">
               <Form.Item
                 label="Assessment Question"
-                name="assessmentQuestion"
-                rules={[{ required: true, message: "Please input assessment question!" }]}
+                  name="assessmentQuestion"
               >
                 {questionCards}
               </Form.Item>
