@@ -4,6 +4,7 @@ import { LoadingOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/
 import { Button, Col, Form, Input, Row, Select, Space, Spin } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import React, { useState, useEffect } from "react";
+import RichEditor from "./RichEditor";
 
 interface CreateEditProps {
     create: boolean
@@ -51,7 +52,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                 {sections.map((section, index2) => (
                                     <Space
                                         key={section.key}
-                                        style={{ display: "flex", marginBottom: 8 }}
+                                        style={{ display: "flex", flexDirection: "column", marginBottom: 8 }}
                                         align="start"
                                     >
                                         <Form.Item
@@ -93,7 +94,8 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                                 }
                                             ]}
                                         >
-                                            <TextArea rows={4} placeholder="Enter Description" />
+                                            {/* <TextArea rows={4} placeholder="Enter Description" /> */}
+                                            <RichEditor key={section.key}></RichEditor>
                                         </Form.Item>
 
 

@@ -1173,3 +1173,21 @@ export async function deleteLessonScriptById(
     }
   );
 }
+
+
+//API - Upload Images
+export async function uploadImages(
+  params: { id: string },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript/uploadImages`,
+    {
+      method: "POST",
+      params: {
+        ...params,
+      },
+      ...(options || {}),
+    }
+  );
+}
