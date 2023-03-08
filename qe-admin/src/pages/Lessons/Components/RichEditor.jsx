@@ -10,6 +10,8 @@ const RichEditor = () => {
                 toolbarCustomButtons={[<UploadImage />]}
                 toolbar={{
                     image: {
+                        urlEnabled: false,
+                        uploadEnabled: false,
                     }
                 }}
             />
