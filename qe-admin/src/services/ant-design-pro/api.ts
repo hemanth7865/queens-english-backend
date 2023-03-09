@@ -1142,6 +1142,7 @@ export async function getAllLessonScripts(
   params: {
     current?: number;
     pageSize?: number;
+    id?: string;
   },
   options?: { [key: string]: any }
 ) {
@@ -1156,6 +1157,49 @@ export async function getAllLessonScripts(
     }
   );
 }
+
+//API - CREATE LESSON SCRIPT 
+export async function createLessonScript(
+  params: {},
+  data: any,
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "POST",
+      
+      params: {
+        ...params,
+      },
+      headers: { "Content-Type": "application/json" },
+      data,
+      ...(options || {}),
+    }
+  );
+}
+
+//API - Edit LESSON SCRIPT 
+export async function updateLessonScript(
+  params: {},
+  data: any,
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "PUT",
+      
+      params: {
+        ...params,
+      },
+      headers: { "Content-Type": "application/json" },
+      data,
+      ...(options || {}),
+    }
+  );
+}
+
 
 //API - DELETE LESSON SCRIPT BY ID
 export async function deleteLessonScriptById(
@@ -1172,4 +1216,19 @@ export async function deleteLessonScriptById(
       ...(options || {}),
     }
   );
+}
+
+
+//API - Upload Images
+export async function uploadImagesStorage(
+  params: { path: string },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(`/be/upload/images`, {
+    method: "POST",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
 }

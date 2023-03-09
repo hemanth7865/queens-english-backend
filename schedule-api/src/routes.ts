@@ -11,6 +11,7 @@ import { ZoomController } from "./controller/ZoomController";
 import { CollectionAgentController } from "./controller/CollectionAgentController";
 import { LogsProxyController } from "./controller/LogsProxyController";
 import { SchoolController } from "./controller/SchoolController";
+import { UploadFilesController } from "./controller/UploadFilesController";
 
 export const Routes = [
   {
@@ -185,7 +186,6 @@ export const Routes = [
     controller: BatchController,
     action: "getCosmosBatch",
     authenticate: true,
-    
   },
   {
     method: "get",
@@ -413,6 +413,13 @@ export const Routes = [
     route: "/azure",
     controller: AzureProxyController,
     action: "serve",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/upload/images",
+    controller: UploadFilesController,
+    action: "uploadImages",
     authenticate: true,
   },
 
@@ -668,7 +675,7 @@ export const Routes = [
     method: "post",
     route: "/activateAllOnHoldCashfreeSubscription",
     controller: PaymentController,
-    action: "activateAllOnHoldCashfreeSubscription"
+    action: "activateAllOnHoldCashfreeSubscription",
   },
   {
     method: "all",
@@ -730,7 +737,7 @@ export const Routes = [
     route: "/webhook/updateRazorpayStatus",
     controller: PaymentController,
     action: "updateRazorpayWebhookStatus",
-  },  
+  },
   {
     method: "post",
     route: "/batch/updateDueDate",
@@ -747,7 +754,7 @@ export const Routes = [
     method: "get",
     route: "/batch/checkStudent",
     controller: BatchController,
-    action: "checkStudentBatches"
+    action: "checkStudentBatches",
   },
   {
     method: "post",
@@ -760,5 +767,5 @@ export const Routes = [
     route: "/bulkRemoveStudentsFromBatch",
     controller: BatchController,
     action: "bulkRemoveStudentsFromBatch",
-  }
+  },
 ];
