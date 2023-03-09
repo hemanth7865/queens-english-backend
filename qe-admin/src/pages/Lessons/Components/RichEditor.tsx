@@ -6,10 +6,10 @@ import ReactDOMServer from 'react-dom/server';
 
 
 /*
- * Custom toolbar component including insertStar button and dropdowns
+ * Custom toolbar component
  */
-const CustomEditorToolbar = ({ images, setImages, section }: any) => (
-    <div id={"toolbar" + section.key}>
+const CustomEditorToolbar = ({ images, setImages, sectionKey }: any) => (
+    <div id={"toolbar" + sectionKey}>
         <select
             title='header'
             className="ql-header"
@@ -35,12 +35,14 @@ const CustomEditorToolbar = ({ images, setImages, section }: any) => (
             <option value="#d0d1d2"></option>
             <option selected></option>
         </select>
+        <button title="strike" className="ql-strike"></button>
+        <button title="link" className="ql-link"></button>
         <button title="underline" className="ql-underline"></button>
         <button title="blockquote" className="ql-blockquote"></button>
         <button title="code-block" className="ql-code-block"></button>
         <span className="ql-formats">
-            <button type="button" title="list" className="ql-list" value="ordered"> </button>
-            <button type="button" title="list" className="ql-list" value="bullet"> </button>
+            <button type="button" title="ordered list" className="ql-list" value="ordered"> </button>
+            <button type="button" title="bullet list" className="ql-list" value="bullet"> </button>
         </span>
         <button title="images" className="ql-images">
             <UploadImage images={images} setImages={setImages} />
@@ -48,9 +50,14 @@ const CustomEditorToolbar = ({ images, setImages, section }: any) => (
     </div>
 );
 
-const RichEditor = ({ section }: any) => {
-    console.log(section);
-    const [editorState, setEditorState] = useState("");
+type Props = {
+    sectionKey: string;
+    onChange: (data: string) => any;
+    defaultValue: string;
+}
+
+const RichEditor = ({ sectionKey, onChange, defaultValue }: Props) => {
+    const [editorState, setEditorState] = useState<string>(defaultValue);
     const [images, setImages] = useState<string[]>([])
     const editorRef = useRef<null | ReactQuill>(null);
 
@@ -64,13 +71,13 @@ const RichEditor = ({ section }: any) => {
 
     useEffect(() => {
         if (editorState) {
-            console.log(editorState);
+            onChange(editorState);
         }
     }, [editorState]);
 
     return (
         <div style={{ width: "100%" }} id="LessonScriptEditor">
-            <CustomEditorToolbar images={images} setImages={setImages} section={section}></CustomEditorToolbar>
+            <CustomEditorToolbar images={images} setImages={setImages} sectionKey={sectionKey}></CustomEditorToolbar>
             <ReactQuill theme="snow" value={editorState} onChange={setEditorState} ref={editorRef} formats={[
                 'header',
                 'font',
@@ -80,6 +87,7 @@ const RichEditor = ({ section }: any) => {
                 'underline',
                 'strike',
                 'blockquote',
+                'code-block',
                 'list',
                 'bullet',
                 'indent',
@@ -88,7 +96,7 @@ const RichEditor = ({ section }: any) => {
                 'color',
             ]} modules={{
                 toolbar: {
-                    container: "#toolbar" + section.key,
+                    container: "#toolbar" + sectionKey,
                 }
             }} />
         </div>

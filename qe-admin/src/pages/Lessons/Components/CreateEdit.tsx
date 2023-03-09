@@ -1,27 +1,44 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
-import { getAllLessonScripts } from "@/services/ant-design-pro/api";
+import { getAllLessonScripts, createLessonScript } from "@/services/ant-design-pro/api";
 import { LoadingOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Row, Select, Space, Spin } from "antd";
-import TextArea from "antd/lib/input/TextArea";
+import { Button, Col, Form, Input, Row, Select, Spin, notification } from "antd";
 import React, { useState, useEffect } from "react";
 import RichEditor from "./RichEditor";
+// @ts-expect-error
+import { v4 as uuid } from "uuid";
 
 interface CreateEditProps {
     create: boolean
     lessons: any[]
 };
 
+type Section = {
+    type: string;
+    description: string;
+    key: string;
+}
+
+type Exercise = {
+    heading: string;
+    subHeading: string;
+    key: string;
+    sections: Section[]
+}
+
 const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
     const [options, setOptions] = useState<any[]>([])
     const [selectedLessonId, setSelectedLessonId] = useState<any>()
     const [alreadyExist, setAlreadyExist] = useState<boolean>(false);
     const [loading, setLoading] = useState(false)
+    const [fromData, setFormData] = useState<Exercise[]>([])
+    const [update, setUpdate] = useState<number>(0);
+    const [edit, setEdit] = useState<boolean>(false);
 
     const [form] = Form.useForm();
 
     useEffect(() => {
         const lessonData = lessons.map((lesson) => {
-            return { label: lesson.number, value: lesson.id + '-' + lesson.number }
+            return { label: lesson.number, value: lesson.id + '__' + lesson.number }
         })
         setOptions(lessonData)
     }, [lessons])
@@ -31,7 +48,8 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
         (async () => {
             setLoading(true)
             if (selectedLessonId) {
-                const data = await getAllLessonScripts({ id: selectedLessonId, pageSize: 1 })
+                const [lessonId] = selectedLessonId.split("__");
+                const data = await getAllLessonScripts({ id: lessonId, pageSize: 1 })
                 if (data.data?.length !== 0) {
                     setAlreadyExist(true)
                 } else {
@@ -42,94 +60,111 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
         })()
     }, [selectedLessonId])
 
-    const SectionForm = (props) => {
-        return (
-            <>
-                <Form.List name={[props.fieldKey, "sections"]}>
-                    {(sections, { add, remove }) => {
-                        return (
-                            <div>
-                                {sections.map((section, index2) => (
-                                    <Space
-                                        key={section.key}
-                                        style={{ display: "flex", flexDirection: "column", marginBottom: 8 }}
-                                        align="start"
-                                        id="spaceContainer"
-                                    >
-                                        {/* <Form.Item
-                                            // name={"aar"}
-                                            {...section}
-                                            name={[section.name, "type"]}
-                                            fieldKey={[section.fieldKey, "type"]}
-                                            key={index2}
-                                            // noStyle
-                                            rules={[
-                                                {
-                                                    required: true,
-                                                    message: "Type Missing"
-                                                }
-                                            ]}
-                                        >
-                                            <Select placeholder="Please select a Type">
-                                                {
-                                                    Object
-                                                        .keys(SECTION_TYPES)
-                                                        .map(key => (
-                                                            <Option value={SECTION_TYPES[key]}>{key}</Option>
-                                                        ))
-                                                }
-                                            </Select>
-                                        </Form.Item> */}
+    const onSubmit = async (e: any) => {
+        setLoading(true);
+        try {
+            if (!selectedLessonId) {
+                throw new Error("Please Select A Lesson");
+            }
 
-                                        <Form.Item
-                                            // name={"aar"}
-                                            {...section}
-                                            name={[section.name, "description"]}
-                                            fieldKey={[section.fieldKey, "description"]}
-                                            key={index2}
-                                            noStyle
-                                            style={{ width: "100%" }}
-                                            rules={[
-                                                {
-                                                    required: true,
-                                                    message: "Description Missing"
-                                                }
-                                            ]}
-                                        >
-                                            {/* <TextArea rows={4} placeholder="Enter Description" /> */}
-                                            <RichEditor key={section.key} section={section}></RichEditor>
-                                        </Form.Item>
+            const [lessonId, lessonNumber] = selectedLessonId.split("__");
+
+            const lesson = lessons.find((lesson) => lesson.id === lessonId);
+
+            if (!lesson) {
+                throw new Error("Selected Lesson Not Found");
+            }
+
+            const data = {
+                id: lessonId,
+                lessonId,
+                lessonDetails: fromData,
+                number: lessonNumber
+            }
+
+            notification.success({ message: "Please Wait Update/Creating Lesson Script" });
+
+            if (!edit) {
+                const result: any = await createLessonScript({}, JSON.stringify(data));
+
+                if (result.error) {
+                    notification.error({ message: "Failed to create/update lesson", description: result.msg });
+                }
+                console.log(result);
+            }
 
 
-
-                                        <MinusCircleOutlined
-                                            onClick={() => {
-                                                remove(section.name);
-                                            }}
-                                        />
-                                    </Space>
-                                ))}
-                                <Form.Item>
-                                    <Button
-                                        type="dashed"
-                                        onClick={() => {
-                                            add();
-                                        }}
-                                    >
-                                        <PlusOutlined /> Add Section
-                                    </Button>
-                                </Form.Item>
-                            </div>
-                        );
-                    }}
-                </Form.List>
-            </>
-        );
-    };
-
-    const onSubmit = (e: any) => {
-        console.log('DATA ---->>', e)
+        } catch (e: any) {
+            notification.error({ message: "Failed to Update/Create Lesson Script", description: e.message });
+        }
+        setLoading(false);
     }
+
+    const addExercise = () => {
+        setFormData((data) => {
+            data[data.length] = {
+                heading: "",
+                subHeading: "",
+                key: uuid(),
+                sections: []
+            };
+
+            return data;
+        })
+
+        setUpdate((u) => u + 1);
+    }
+
+    const removeExercise = (index: number) => {
+        setFormData((data) => {
+            data = data.filter((v, i) => i !== index);
+            return data;
+        })
+
+        setUpdate((u) => u + 1);
+    }
+
+    const updateExerciseData = (index: number, column: string, d: any) => {
+        setFormData((data) => {
+            data[index][column] = d;
+            return data;
+        })
+    }
+
+
+    const addSection = (parentIndex: number) => {
+        setFormData((data) => {
+            const sections = data[parentIndex].sections;
+            data[parentIndex].sections[sections.length] = {
+                description: "",
+                type: SECTION_TYPES.DESCRIPTION,
+                key: uuid(),
+            };
+
+            return data;
+        })
+
+        setUpdate((u) => u + 1);
+    }
+
+    const removeSection = (parentIndex: number, index: number) => {
+        setFormData((data) => {
+            const sections = data[parentIndex].sections.filter((v: Section, i: number) => i !== index);
+            data[parentIndex].sections = sections;
+            return data;
+        })
+
+        setUpdate((u) => u + 1);
+    }
+
+    const updateSectionData = (parentIndex: number, index: number, column: string, d: any) => {
+        setFormData((data) => {
+            data[parentIndex].sections[index][column] = d;
+            return data;
+        })
+    }
+
+    console.log('fromData', fromData);
 
     return (
         <>
@@ -162,71 +197,87 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
 
                 {!loading && !alreadyExist &&
                     // Add fields to add headings and sections
-                    <Form onFinish={(e) => onSubmit(e)} style={{ marginTop: 20 }}>
-                        {/* This is the Dynamic Exercise Adder */}
-                        <Form.List name="exercises">
-                            {(fields, { add, remove }) => {
+                    <Form onFinish={(e) => onSubmit(e)} style={{ marginTop: 20 }} form={form} key={update}>
+                        {
+                            fromData.map((exercise, index) => {
                                 return (
-                                    <div>
-                                        {fields.map((field, index) => {
-                                            return (
-                                                <Row
-                                                    key={field.key}
-                                                    style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
-                                                >
-                                                    <Row style={{ justifyContent: 'space-between' }}>
+                                    <Row
+                                        key={exercise.key}
+                                        style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+                                    >
+                                        <Row style={{ justifyContent: 'space-between' }}>
 
-                                                        <h3>{`Exercise ${index + 1}`}</h3>
-                                                        <Form.Item
-                                                            {...field}
-                                                            name={[field.name, "heading"]}
-                                                            fieldKey={[field.fieldKey, "heading"]}
-                                                            rules={[
-                                                                { required: true, message: "Missing Heading" }
-                                                            ]}
-                                                        >
-                                                            <Input placeholder="Enter Heading" />
-                                                        </Form.Item>
+                                            <h3>{`Exercise ${index + 1}`}</h3>
+                                            <Form.Item
+                                                rules={[
+                                                    { required: true, message: "Missing Heading" }
+                                                ]}
+                                            >
+                                                <Input defaultValue={exercise.heading} placeholder="Enter Heading" onChange={(e) => updateExerciseData(index, 'heading', e.target.value)} />
+                                            </Form.Item>
 
-                                                        <Form.Item
-                                                            {...field}
-                                                            name={[field.name, "subHeading"]}
-                                                            fieldKey={[field.fieldKey, "subHeading"]}
-                                                            initialValue={''}
-                                                        >
-                                                            <Input placeholder="Enter Sub Heading" />
-                                                        </Form.Item>
-                                                        <MinusCircleOutlined
-                                                            onClick={() => {
-                                                                remove(field.name);
-                                                                console.log('Removed -->>', field);
-                                                            }}
-                                                        />
-                                                    </Row>
+                                            <Form.Item>
+                                                <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
+                                            </Form.Item>
+                                            <MinusCircleOutlined
+                                                onClick={() => {
+                                                    removeExercise(index);
+                                                }}
+                                            />
+                                        </Row>
 
-                                                    {/* This is the Dynamic Section Adder */}
-                                                    <Form.Item>
-                                                        <SectionForm fieldKey={field.name} />
-                                                    </Form.Item>
-                                                </Row>
-                                            )
-                                        })}
+                                        {
+                                            exercise.sections.map((section, sectionIndex) => {
+                                                return (
+                                                    <div key={section.key} style={{ marginBottom: 10 }}>
+                                                        <h4>{`Section ${sectionIndex + 1}`}</h4>
+                                                        <Row gutter={10}>
+                                                            <Col flex={1}>
+                                                                <RichEditor key={section.key} sectionKey={section.key}
+                                                                    onChange={(data: string) => updateSectionData(index, sectionIndex, 'description', data)}
+                                                                    defaultValue={section.description}></RichEditor>
+                                                            </Col>
 
-                                        <Button
-                                            type="dashed"
-                                            onClick={() => {
-                                                add();
-                                            }}
-                                            block
-                                        >
-                                            <PlusOutlined /> Add Exercise
-                                        </Button>
-                                    </div>
-                                );
+                                                            <Col>
+                                                                <MinusCircleOutlined
+                                                                    onClick={() => {
+                                                                        removeSection(index, sectionIndex);
+                                                                    }}
+                                                                />
+                                                            </Col>
+                                                        </Row>
+                                                    </div>
+                                                )
+                                            })
+                                        }
+
+                                        <Form.Item>
+                                            <Button
+                                                type="dashed"
+                                                onClick={() => {
+                                                    addSection(index);
+                                                }}
+                                            >
+                                                <PlusOutlined /> Add Section
+                                            </Button>
+                                        </Form.Item>
+                                    </Row>
+                                )
+                            })
+                        }
+
+                        {/* This is the Dynamic Exercise Adder */}
+                        <Button
+                            type="dashed"
+                            onClick={() => {
+                                addExercise();
                             }}
-                        </Form.List>
+                            block
+                        >
+                            <PlusOutlined /> Add Exercise
+                        </Button>
                         <Button type="primary" htmlType="submit">
-                            Next
+                            Submit
                         </Button>
                     </Form>
                 }

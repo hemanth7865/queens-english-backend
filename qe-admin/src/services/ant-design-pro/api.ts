@@ -1142,6 +1142,7 @@ export async function getAllLessonScripts(
   params: {
     current?: number;
     pageSize?: number;
+    id?: string;
   },
   options?: { [key: string]: any }
 ) {
@@ -1152,6 +1153,27 @@ export async function getAllLessonScripts(
       params: {
         ...params,
       },
+      ...(options || {}),
+    }
+  );
+}
+
+//API - CREATE LESSON SCRIPT 
+export async function createLessonScript(
+  params: {},
+  data: any,
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "POST",
+      
+      params: {
+        ...params,
+      },
+      headers: { "Content-Type": "application/json" },
+      data,
       ...(options || {}),
     }
   );
