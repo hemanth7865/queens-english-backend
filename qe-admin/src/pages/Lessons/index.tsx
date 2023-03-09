@@ -16,6 +16,7 @@ import { Drawer } from 'antd';
 import View from "./components/View";
 import { getAllLessonScripts, deleteLessonScriptById, getAllLessons } from "@/services/ant-design-pro/api";
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import "./Components/editor.css";
 
 
 import "./index.css";

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import "./editor.css";
 import { notification } from "antd";
 import { uploadImagesStorage } from "@/services/ant-design-pro/api";
 import { getImageURL } from "@/services/ant-design-pro/helpers";
