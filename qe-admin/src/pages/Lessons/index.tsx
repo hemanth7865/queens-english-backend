@@ -203,7 +203,7 @@ const Lessons: React.FC = () => {
                 width={800}
             >
                 <h2>{create ? "Create Lesson Script" : "Edit Lesson Script"}</h2>
-                <CreateEdit create lessons={lessons} key={key} finishUpdateEdit={finishUpdateEdit} edit={edit} />
+                <CreateEdit lessons={lessons} key={key} finishUpdateEdit={finishUpdateEdit} edit={edit} />
             </Drawer>
         </>
     );
