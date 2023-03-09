@@ -1,5 +1,5 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
-import { getAllLessonScripts, createLessonScript } from "@/services/ant-design-pro/api";
+import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
 import { LoadingOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select, Spin, notification } from "antd";
 import React, { useState, useEffect } from "react";
@@ -8,8 +8,9 @@ import RichEditor from "./RichEditor";
 import { v4 as uuid } from "uuid";
 
 interface CreateEditProps {
-    create: boolean
-    lessons: any[]
+    edit: any,
+    lessons: any[],
+    finishUpdateEdit: () => any
 };
 
 type Section = {
@@ -25,14 +26,13 @@ type Exercise = {
     sections: Section[]
 }
 
-const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
+const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit }) => {
     const [options, setOptions] = useState<any[]>([])
-    const [selectedLessonId, setSelectedLessonId] = useState<any>()
+    const [selectedLessonId, setSelectedLessonId] = useState<any>(edit.lessonId || null)
     const [alreadyExist, setAlreadyExist] = useState<boolean>(false);
     const [loading, setLoading] = useState(false)
     const [fromData, setFormData] = useState<Exercise[]>([])
     const [update, setUpdate] = useState<number>(0);
-    const [edit, setEdit] = useState<boolean>(false);
 
     const [form] = Form.useForm();
 
@@ -44,13 +44,22 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
     }, [lessons])
 
     useEffect(() => {
+        if (edit) {
+            const id = edit.lessonId + "__" + edit.number;
+            if (id !== selectedLessonId) {
+                setSelectedLessonId(id);
+                return;
+            }
+        }
         // Check if lessonScript is already available
         (async () => {
             setLoading(true)
             if (selectedLessonId) {
                 const [lessonId] = selectedLessonId.split("__");
-                const data = await getAllLessonScripts({ id: lessonId, pageSize: 1 })
+                const data: any = await getAllLessonScripts({ id: lessonId, pageSize: 1 })
                 if (data.data?.length !== 0) {
+                    const existingLesson = data.data[0];
+                    setFormData(existingLesson.lessonDetails);
                     setAlreadyExist(true)
                 } else {
                     setAlreadyExist(false)
@@ -58,7 +67,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
             }
             setLoading(false)
         })()
-    }, [selectedLessonId])
+    }, [selectedLessonId, edit])
 
     const onSubmit = async (e: any) => {
         setLoading(true);
@@ -88,12 +97,21 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                 const result: any = await createLessonScript({}, JSON.stringify(data));
 
                 if (result.error) {
-                    notification.error({ message: "Failed to create/update lesson", description: result.msg });
+                    notification.error({ message: "Failed to create lesson", description: result.msg });
+                } else {
+                    notification.success({ message: "Success Creating Lesson Script" });
+                    finishUpdateEdit();
                 }
-                console.log(result);
+            } else {
+                const result: any = await updateLessonScript({}, JSON.stringify(data));
+
+                if (result.error) {
+                    notification.error({ message: "Failed to update lesson", description: result.msg });
+                } else {
+                    notification.success({ message: "Success Updating Lesson Script" });
+                    finishUpdateEdit();
+                }
             }
-
-
         } catch (e: any) {
             notification.error({ message: "Failed to Update/Create Lesson Script", description: e.message });
         }
@@ -177,6 +195,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                 setSelectedLessonId(item)
                             }}
                             options={options}
+                            value={selectedLessonId}
                             style={{
                                 width: '100%'
                             }}
@@ -189,13 +208,8 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                         <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
                     </Row>
                 }
-                {!loading && alreadyExist &&
-                    <Row style={{ height: 200, alignItems: 'center', background: "rgba(0, 0, 0, 0.02)", borderRadius: 10, marginTop: 20, justifyContent: 'center' }} >
-                        <h3>Lesson script is already exist for selected lesson.</h3>
-                    </Row>
-                }
 
-                {!loading && !alreadyExist &&
+                {!loading &&
                     // Add fields to add headings and sections
                     <Form onFinish={(e) => onSubmit(e)} style={{ marginTop: 20 }} form={form} key={update}>
                         {

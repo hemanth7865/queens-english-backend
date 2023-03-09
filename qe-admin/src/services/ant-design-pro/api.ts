@@ -1179,6 +1179,28 @@ export async function createLessonScript(
   );
 }
 
+//API - Edit LESSON SCRIPT 
+export async function updateLessonScript(
+  params: {},
+  data: any,
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(
+    `/be/azure?url=api/lessonScript`,
+    {
+      method: "PUT",
+      
+      params: {
+        ...params,
+      },
+      headers: { "Content-Type": "application/json" },
+      data,
+      ...(options || {}),
+    }
+  );
+}
+
+
 //API - DELETE LESSON SCRIPT BY ID
 export async function deleteLessonScriptById(
   params: { id: string },

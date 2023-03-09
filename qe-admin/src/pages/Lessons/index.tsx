@@ -27,7 +27,7 @@ const Lessons: React.FC = () => {
     const [view, setView] = useState(false);
     const [viewData, setViewData] = useState();
     const [create, setCreate] = useState<boolean>(false);
-    const [edit, setEdit] = useState<boolean>(false);
+    const [edit, setEdit] = useState<any>(false);
     const [lessons, setLessons] = useState<any[]>([]);
     const [key, setKey] = useState(0);
 
@@ -117,6 +117,9 @@ const Lessons: React.FC = () => {
             render: (dom, entity) => {
                 return (
                     <a
+                        onClick={() => {
+                            setEdit(entity);
+                        }}
                     >
                         <EditOutlined />
                     </a>
@@ -142,6 +145,12 @@ const Lessons: React.FC = () => {
         },
     ];
 
+    const finishUpdateEdit = () => {
+        actionRef.current?.reload();
+        setCreate(false);
+        setEdit(false);
+    }
+
     return (
         <>
             <PageContainer>
@@ -163,6 +172,7 @@ const Lessons: React.FC = () => {
                             key="primary"
                             onClick={() => {
                                 setCreate(true)
+                                setEdit(false);
                             }}
                         >
                             <PlusOutlined /> Create Lesson
@@ -192,7 +202,7 @@ const Lessons: React.FC = () => {
                 width={800}
             >
                 <h2>{create ? "Create Lesson Script" : "Edit Lesson Script"}</h2>
-                <CreateEdit create lessons={lessons} key={key} />
+                <CreateEdit create lessons={lessons} key={key} finishUpdateEdit={finishUpdateEdit} edit={edit} />
             </Drawer>
         </>
     );
