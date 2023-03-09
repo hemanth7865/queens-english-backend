@@ -10,3 +10,20 @@
   overflow: hidden;
   opacity: 0;
 }
+
+#spaceContainer .ant-space-item {
+  width: 100%;
+}
+
+#LessonScriptEditor .ql-editor > p:first-child {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  justify-content: center;
+  width: 100%;
+}
+
+#LessonScriptEditor .ql-editor > p img {
+  flex: 1;
+  max-width: 200px;
+}

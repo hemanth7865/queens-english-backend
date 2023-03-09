@@ -11,20 +11,20 @@ export class UploadFilesController {
       const containerPath = `assets/images-uploads${
         query.path ? "/" + query.path : ""
       }`;
+
+      if (!Array.isArray(request.files.images)) {
+        request.files.images = [request.files.images];
+      }
       for (let image of request.files.images) {
         const fileName = uuid() + image.name;
         const blobContainerClient = await getBlobClient(containerPath);
         const blockBlobClient =
           blobContainerClient.getBlockBlobClient(fileName);
 
-        console.log(fileName, image);
-
         await blockBlobClient.upload(image.data, image.data.byteLength);
 
         images.push(containerPath + "/" + fileName);
       }
-
-      console.log(images);
 
       return {
         images,

@@ -247,3 +247,8 @@ export function csvToArray(str: string, delimiter: string = ",") {
 
   return arr;
 }
+
+export const getImageURL = (image: string) => {
+  // @ts-expect-error
+  return BLOB_URL + image + BLOB_SAS;
+};

@@ -54,8 +54,9 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                         key={section.key}
                                         style={{ display: "flex", flexDirection: "column", marginBottom: 8 }}
                                         align="start"
+                                        id="spaceContainer"
                                     >
-                                        <Form.Item
+                                        {/* <Form.Item
                                             // name={"aar"}
                                             {...section}
                                             name={[section.name, "type"]}
@@ -78,7 +79,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                                         ))
                                                 }
                                             </Select>
-                                        </Form.Item>
+                                        </Form.Item> */}
 
                                         <Form.Item
                                             // name={"aar"}
@@ -86,7 +87,8 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                             name={[section.name, "description"]}
                                             fieldKey={[section.fieldKey, "description"]}
                                             key={index2}
-                                            // noStyle
+                                            noStyle
+                                            style={{ width: "100%" }}
                                             rules={[
                                                 {
                                                     required: true,
@@ -95,7 +97,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ create, lessons }) => {
                                             ]}
                                         >
                                             {/* <TextArea rows={4} placeholder="Enter Description" /> */}
-                                            <RichEditor key={section.key}></RichEditor>
+                                            <RichEditor key={section.key} section={section}></RichEditor>
                                         </Form.Item>
 
 
