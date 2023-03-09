@@ -26,10 +26,10 @@ const Lessons: React.FC = () => {
     const intl = useIntl();
     const actionRef = useRef<ActionType>();
     const [view, setView] = useState(false);
-    const [viewData, setViewData] = useState();
+    const [viewData, setViewData] = useState<any>();
     const [create, setCreate] = useState<boolean>(false);
     const [edit, setEdit] = useState<any>(false);
-    const [lessons, setLessons] = useState<any[]>([]);
+    const [lessons, setLessons] = useState<any>([]);
     const [key, setKey] = useState(0);
 
 

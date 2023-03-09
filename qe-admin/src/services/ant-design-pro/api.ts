@@ -843,7 +843,7 @@ export async function getAllLessons(
   params: {
     current?: number; // page
     pageSize?: number; // size
-    lessonId: string;
+    lessonId?: string;
   },
   options?: { [key: string]: any }
 ) {

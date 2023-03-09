@@ -190,7 +190,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                     <Col span={8}><h3>Select Lesson : </h3></Col>
                     <Col span={16}>
                         <Select
-                            onChange={(item) => {
+                            onChange={(item: any) => {
                                 setSelectedLessonId(item)
                             }}
                             options={options}
