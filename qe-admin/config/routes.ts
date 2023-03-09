@@ -1,4 +1,4 @@
-﻿export default [
+export default [
   {
     path: "/user",
     layout: false,
