@@ -1,6 +1,7 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
 import { Card, Col, Image, List, Row, Spin, Table, TableColumnsType } from "antd";
 import React, { useState, useEffect } from "react";
+import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 
 interface ViewProps {
     data: any
@@ -65,7 +66,7 @@ const View: React.FC<ViewProps> = ({ data }) => {
                 return <Card title={`Section ${index + 1}`} style={{ marginTop: 20, borderRadius: 15 }}>
                     <Row>
                         {item.type === SECTION_TYPES.IMAGE && item.image && <Image width={200} src={getUrl(item.image)} />}
-                        {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: item.description }} />}
+                        {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(item.description) }} />}
                     </Row>
                 </Card>
             }

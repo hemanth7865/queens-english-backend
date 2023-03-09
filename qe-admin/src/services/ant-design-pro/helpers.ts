@@ -252,3 +252,27 @@ export const getImageURL = (image: string) => {
   // @ts-expect-error
   return BLOB_URL + image + BLOB_SAS;
 };
+
+export const updateImageSasBlob = (html: string): string => {
+  const regex =
+    /(?<hostGroup>\<img src=.http.:\/?\/.+?\/)(?<contentGroup>.+?)(?<sasGroup>\?.+?"|')/g;
+  const results: any = [...html.matchAll(regex)];
+
+  if (!results) {
+    return html;
+  }
+  for (let result of results) {
+    if (!result) {
+      continue;
+    }
+    const { hostGroup, contentGroup, sasGroup } = result.groups;
+    if (!hostGroup || !contentGroup || !sasGroup) {
+      continue;
+    }
+    // @ts-expect-error
+    html = html.replaceAll(hostGroup, `<img src="${BLOB_URL}`);
+    // @ts-expect-error
+    html = html.replaceAll(sasGroup, `${BLOB_SAS}"`);
+  }
+  return html;
+};

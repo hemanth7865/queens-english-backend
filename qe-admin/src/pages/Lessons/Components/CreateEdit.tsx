@@ -1,5 +1,6 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
 import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
+import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 import { LoadingOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select, Spin, notification } from "antd";
 import React, { useState, useEffect } from "react";
@@ -249,7 +250,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                             <Col flex={1}>
                                                                 <RichEditor key={section.key} sectionKey={section.key}
                                                                     onChange={(data: string) => updateSectionData(index, sectionIndex, 'description', data)}
-                                                                    defaultValue={section.description}></RichEditor>
+                                                                    defaultValue={updateImageSasBlob(section.description)}></RichEditor>
                                                             </Col>
 
                                                             <Col>
