@@ -183,8 +183,6 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
         })
     }
 
-    console.log('fromData', fromData);
-
     return (
         <>
             <div>

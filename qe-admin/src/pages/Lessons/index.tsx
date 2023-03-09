@@ -158,7 +158,7 @@ const Lessons: React.FC = () => {
                 <ProTable<API.RuleListItem, API.PageParams>
                     headerTitle={intl.formatMessage({
                         id: 'pages.searchTable.titleLesson',
-                        defaultMessage: 'Lesson Script Management 00',
+                        defaultMessage: 'Lesson Script Management',
                     })}
                     actionRef={actionRef}
                     rowKey="key"
