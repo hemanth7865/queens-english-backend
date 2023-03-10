@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, notification, Spin, Card, Col, Row, Tabs } from "antd";
 import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
+import QuestionCard from "./QuestionCard";
 import Assessments from "../../../../data/assessmentsUAT.json";
 import "./form.css"
 
@@ -76,22 +77,8 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     }
   }
 
-  const modifyQuestionCard = async (question: string, answer: string, type: string, imageUrl: string, index: number) => {
-    if (!question || !answer || !type) {
-      notification.error({
-        message: "Error",
-        description: "Please fill all the fields",
-      });
-      return;
-    } else if (type === "image" && !imageUrl) {
-      notification.error({
-        message: "Error",
-        description: "Please enter the image url",
-      });
-      return;
-    }
-
-    setAssessment({ ...assessment, assessmentQuestion: [{ number: index + 1, question: question, answer: answer, type: type, imageUrl: imageUrl }] })
+  const modifyQuestionCard = async (data: { question: string, answer: string, type: string, imageUrl: string, index: number }) => {
+    setAssessment({ ...assessment, assessmentQuestion: [{ number: data.index + 1, question: data.question, answer: data.answer, type: data.type, imageUrl: data.imageUrl }] })
   }
 
   const handleAddQuestionCard = () => {
@@ -107,7 +94,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           options={typeOptions}
         />
         <Input placeholder="Enter Image URL" hidden={hideImageURL} />
-        <Button onClick={() => modifyQuestionCard()}>Add Question</Button>
+        <Button onClick={(data) => modifyQuestionCard(data)}>Add Question</Button>
       </Card>
       ])
   }
@@ -119,14 +106,17 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           // Need to add logic to get the image from the assets folder
         }
       }
-      setQuestionCards(props.assessmentData.assessmentQuestion.map((question: any, index: number) => (
-        <Card key={index + 1} title={`Question ${index + 1}`} style={{ width: 300, margin: 10 }}>
-          {
-            question.type === "image" && <img src={question.uri} className="question-image" />
-          }
-          <Input defaultValue={question.question} onChange={(e) => handleQuestionChange(e.target.value, index)} />
-          <Input defaultValue={question.answer} onChange={(e) => handleAnswerChange(e.target.value, index)} />
-        </Card>
+      setQuestionCards(props.assessmentData.assessmentQuestion.map((question: any, index: number, array) => (
+        <QuestionCard
+          index={index}
+          question={question.question}
+          answer={question.answer}
+          type={question.type}
+          imageUrl={question.imageUrl}
+          handleContentChange={(returnedData) => modifyQuestionCard(returnedData)}
+          operationType={props.operationType}
+          array={array}
+        />
       )))
     }
   }
@@ -312,7 +302,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
             <TabPane tab="Assessment Questions" key="2">
               <Spin spinning={isLoading}>
                 <Form.Item
-                  label="Assessment Question"
                   name="assessmentQuestion"
                 >
                   {questionCards}
@@ -330,20 +319,17 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       ) : (
         <>
             <Tabs defaultActiveKey="1">
-            <TabPane tab="Assessment Questions" key="2">
-              <Form.Item
-                label="Assessment Question"
-                  name="assessmentQuestion"
-              >
+              <TabPane tab="Assessment Questions" key="2" style={{
+                display: "grid",
+                justifyContent: "center",
+                alignItems: "center"
+              }}>
                 {questionCards}
-              </Form.Item>
             </TabPane>
-          </Tabs>
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit" block>
+            </Tabs>
+            <Button type="primary" htmlType="submit" block shape="round">
               Submit
             </Button>
-          </Form.Item>
         </>
       )
       }

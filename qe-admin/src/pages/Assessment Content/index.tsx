@@ -157,7 +157,7 @@ const AssessmentContentTable: React.FC = () => {
             </div>
           ]}
         />
-        <Drawer visible={visible} onClose={() => { setVisible(false); setData(undefined); }} destroyOnClose width={720} title="Add Assessment Content">
+        <Drawer open={visible} onClose={() => { setVisible(false); setData(undefined); }} destroyOnClose width={720} title="Add Assessment Content">
           <AssessmentContentForm assessmentData={data} operationType={operation} />
         </Drawer>
       </>
