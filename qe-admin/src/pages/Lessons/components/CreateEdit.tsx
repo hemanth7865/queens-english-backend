@@ -35,7 +35,7 @@ function initialFormData() {
             key: uuid(),
             sections: [
                 {
-                    type: "description",
+                    type: SECTION_TYPES.DESCRIPTION,
                     description: "",
                     key: uuid()
                 }
