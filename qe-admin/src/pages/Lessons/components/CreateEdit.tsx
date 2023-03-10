@@ -27,27 +27,30 @@ type Exercise = {
     sections: Section[]
 }
 
-const initialFormData = () => [
-    {
-        heading: "",
-        subHeading: "",
-        key: uuid(),
-        sections: [
-            {
-                type: "description",
-                description: "",
-                key: uuid()
-            }
-        ]
-    }
-]
+function initialFormData() {
+    const initialData: Exercise[] = [
+        {
+            heading: "",
+            subHeading: "",
+            key: uuid(),
+            sections: [
+                {
+                    type: "description",
+                    description: "",
+                    key: uuid()
+                }
+            ]
+        }
+    ]
+    return initialData
+}
 
 const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit }) => {
     const [options, setOptions] = useState<any[]>([])
     const [selectedLessonId, setSelectedLessonId] = useState<any>(edit.lessonId || null)
     const [alreadyExist, setAlreadyExist] = useState<boolean>(false);
     const [loading, setLoading] = useState(false)
-    const [fromData, setFormData] = useState<Exercise[]>(initialFormData())
+    const [fromData, setFormData] = useState<Exercise[]>([])
     const [update, setUpdate] = useState<number>(0);
 
     const [form] = Form.useForm();
@@ -60,13 +63,14 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
     }, [lessons])
 
     useEffect(() => {
-        setFormData(initialFormData())
         if (edit) {
             const id = edit.lessonId + "__" + edit.number;
             if (id !== selectedLessonId) {
                 setSelectedLessonId(id);
                 return;
             }
+        } else {
+            setFormData(initialFormData())
         }
         // Check if lessonScript is already available
         (async () => {
@@ -214,7 +218,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                             style={{
                                 width: '100%'
                             }}
-                            disabled={edit}
+                            disabled={!!edit}
                         />
                     </Col>
                 </Row>
