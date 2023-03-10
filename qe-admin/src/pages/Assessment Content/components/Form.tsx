@@ -299,22 +299,20 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 </Form.Item>
               </Spin>
             </TabPane>
-            <TabPane tab="Assessment Questions" key="2">
+            <TabPane tab="Assessment Questions" key="2" style={{
+              display: "grid",
+              justifyContent: "center",
+              alignItems: "center"
+            }}>
               <Spin spinning={isLoading}>
-                <Form.Item
-                  name="assessmentQuestion"
-                >
                   {questionCards}
-                  <Button onClick={handleAddQuestionCard}>+ Add</Button>
-                </Form.Item>
+                <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px", backgroundColor: "black", color: "white" }} block shape="round">+ Add Question</Button>
               </Spin>
             </TabPane>
           </Tabs>
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block shape="round">
               Submit
-            </Button>
-          </Form.Item>
+          </Button>
         </>
       ) : (
         <>
@@ -325,7 +323,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 alignItems: "center"
               }}>
                 {questionCards}
-                <Button onClick={handleAddQuestionCard}>+ Add</Button>
+                <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px", backgroundColor: "black", color: "white" }} block shape="round">+ Add Question</Button>
             </TabPane>
             </Tabs>
             <Button type="primary" htmlType="submit" block shape="round">
