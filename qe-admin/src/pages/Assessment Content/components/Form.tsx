@@ -325,6 +325,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 alignItems: "center"
               }}>
                 {questionCards}
+                <Button onClick={handleAddQuestionCard}>+ Add</Button>
             </TabPane>
             </Tabs>
             <Button type="primary" htmlType="submit" block shape="round">
