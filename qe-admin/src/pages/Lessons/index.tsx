@@ -78,10 +78,10 @@ const Lessons: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.lesson.modifiedAt"
-                    defaultMessage="Modified At"
+                    defaultMessage="Updated At"
                 />
             ),
-            dataIndex: "modifiedAt",
+            dataIndex: "updatedAt",
             hideInSearch: true
         },
         {
@@ -172,6 +172,7 @@ const Lessons: React.FC = () => {
                             type="primary"
                             key="primary"
                             onClick={() => {
+                                setKey(key + 1)
                                 setCreate(true)
                                 setEdit(false);
                             }}
