@@ -29,6 +29,8 @@ export type AssessmentContentFormType = {
 export type AssessmentContentFormProps = {
   assessmentData: AssessmentContentFormType | undefined;
   operationType: "create" | "update";
+  actionRef: any;
+  handleDrawerVisiblity: (visible: boolean) => void;
 };
 
 const { TabPane } = Tabs;
@@ -185,6 +187,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       operation: "update"
     };
     try {
+      setIsLoading(true);
       const msg = await updateAssessmentContent({
         headers: {
           "Content-Type": "application/json",
@@ -194,9 +197,15 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       if (msg.status === "ok") {
         console.log("API sucessfull", msg);
       }
+      setIsLoading(false);
+      props.handleDrawerVisiblity(false);
       openNotificationWithIcon('success')
+      if (props.actionRef.current) {
+        props.actionRef.current.reload();
+      }
     } catch (error) {
       console.log("API error", error);
+      setIsLoading(false);
       openNotificationWithIcon('error')
     }
   };
