@@ -1139,13 +1139,15 @@ export async function bulkRemoveBatchStudents(data: any) {
 
 export async function getAssessmentQuestions(
   params?: {
-    setNumber?: string;
-    assessmentId?: string;
-    id?: string;
-    name?: string;
-    lessonNumber?: string;
-    lessonId?: string;
+    pageSize?: number;
+    current?: number;
+    keyword?: string;
   },
+  sort?: {
+    field?: string;
+    order?: number;
+  },
+  filter?: { [key: string]: any; },
   options?: { [key: string]: any }
 ) {
   return request<API.AssessmentList>(`/be/azure?url=api/assessmentQuestions`, {
@@ -1153,6 +1155,8 @@ export async function getAssessmentQuestions(
     params: {
       ...params,
     },
+    ...(sort || {}),
+    ...(filter || {}),
     ...(options || {}),
   });
 }

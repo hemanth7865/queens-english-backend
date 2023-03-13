@@ -1,6 +1,6 @@
-import { CloseCircleOutlined, CloseOutlined } from '@ant-design/icons';
-import { Button, Card, Input, Select, Form, Image, Divider } from 'antd';
-import React from 'react';
+import { CloseOutlined } from '@ant-design/icons';
+import { Card, Input, Select, Form } from 'antd';
+import React, { useEffect } from 'react';
 
 const typeOptions = [{ value: 'word', label: 'word' }, { value: 'image', label: 'image' }]
 
@@ -10,19 +10,28 @@ export type QuestionCardProps = {
     answer: string;
     type: string;
     index: number;
-    array: any;
+    number: string;
+    handleContentChange: (value: any) => void;
+    handleCardRemove: (value: any) => void;
     imageUrl?: string;
-    handleContentChange?: (value: any) => void;
 };
 
 const QuestionCard: React.FC<QuestionCardProps> = (props) => {
     const [form] = Form.useForm();
-    const [assessment, setAssessment] = React.useState({ assessmentQuestion: [] });
     const [hideImageURL, setHideImageURL] = React.useState(props.type === "image" ? false : true);
-    const [question, setQuestion] = React.useState(props.question);
-    const [answer, setAnswer] = React.useState(props.answer);
-    const [type, setType] = React.useState(props.type);
-    const [imageUrl, setImageUrl] = React.useState(props.imageUrl);
+
+    const defaultValues = () => {
+        form.setFieldsValue({
+            question: props.question ? props.question : "",
+            type: props.type ? props.type : "",
+            answer: props.answer ? props.answer : "",
+            imageUrl: props.imageUrl ? props.imageUrl : "",
+        });
+    };
+
+    useEffect(() => {
+        defaultValues();
+    }, [props.type, props.operationType, props.question, props.answer, props.imageUrl]);
 
     async function onFinish(values: any) {
         console.log(values);
@@ -32,21 +41,16 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
         console.log('Failed:', errorInfo);
     }
 
-    async function removeQuestionCard(questionCard: any) {
-        props.array.splice(questionCard.index, 1)
-    }
-
-    console.log("props", props.array)
-
     return (
-        <Card title={`Question Number ${props.index + 1}`} style={{ width: 400, margin: "10px" }}
-            extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => removeQuestionCard(props)} />}
+        <Card title={`Question Number ${props.number}`} style={{ width: 400, margin: "10px" }}
+            extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => props.handleCardRemove(props)} />}
             cover={
                 <img
                     alt="example"
                     src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
                 />
             }
+            key={props.index}
         >
             <Form
                 name="studentdetails"
@@ -61,18 +65,19 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                 onFinishFailed={onFinishFailed}
                 autoComplete="off"
                 scrollToFirstError
+                key={props.index}
             >
                 <Form.Item
                     label="Question"
                     name="question"
                 >
-                    <Input placeholder="Enter Question" defaultValue={question} onChange={(e) => setQuestion(e.target.value)} />
+                    <Input placeholder="Enter Question" onChange={(e) => props.handleContentChange({ question: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
                 <Form.Item
                     label="Answer"
                     name="answer"
                 >
-                    <Input placeholder="Enter Answer" defaultValue={answer} onChange={(e) => setAnswer(e.target.value)} />
+                    <Input placeholder="Enter Answer" onChange={(e) => props.handleContentChange({ answer: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
                 <Form.Item
                     label="Question Type"
@@ -82,24 +87,16 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                         placeholder="Select Question Type"
                         allowClear
                         options={typeOptions}
-                        defaultValue={type}
-                        onChange={(value) => {
-                            setType(value);
-                            if (value === "image") {
-                                setHideImageURL(false);
-                            } else {
-                                setHideImageURL(true);
-                            }
-                        }} />
+                        onSelect={(value) => { props.handleContentChange({ type: value, number: props.number, index: props.index }); setHideImageURL(value === "image" ? false : true); }}
+                    />
                 </Form.Item>
                 <Form.Item
                     label="Image URL"
                     name="imageUrl"
                     hidden={hideImageURL}
                 >
-                    <Input placeholder="Enter Image URL" defaultValue={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                    <Input placeholder="Enter Image URL" onChange={(e) => props.handleContentChange({ imageUrl: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
-                <Button type="primary" style={{ display: "block" }} shape="round" block onClick={() => console.log(props)}>{props.operationType === "update" ? "Update Question" : "Create Question"}</Button>
             </Form>
         </Card >
     );
