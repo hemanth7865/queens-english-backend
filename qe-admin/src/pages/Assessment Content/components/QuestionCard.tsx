@@ -1,6 +1,7 @@
-import { CloseOutlined } from '@ant-design/icons';
-import { Card, Input, Select, Form } from 'antd';
+import { CloseOutlined, EditOutlined, EyeOutlined, PlusCircleOutlined, PlusSquareFilled } from '@ant-design/icons';
+import { Card, Input, Select, Form, Space } from 'antd';
 import React, { useEffect } from 'react';
+import './form.css';
 
 const typeOptions = [{ value: 'word', label: 'word' }, { value: 'image', label: 'image' }]
 
@@ -43,12 +44,30 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
 
     return (
         <Card title={`Question Number ${props.number}`} style={{ width: 400, margin: "10px" }}
-            extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => props.handleCardRemove(props)} />}
+            extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => props.handleCardRemove(props)} title="Remove Question" />}
             cover={
-                <img
-                    alt="example"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-                />
+                props.type === "image" && props.imageUrl ?
+                    <>
+                        <img
+                            alt="example"
+                            src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+                            className='image' />
+                        <div className="image_overlay">
+                            <Space size="small">
+                                <div className="image_remove">
+                                    <CloseOutlined style={{ cursor: "pointer", marginInline: "20px" }} title="Remove Image" />
+                                </div>
+                                <div className="image_edit">
+                                    <EditOutlined style={{ cursor: "pointer", marginInline: "20px" }} title="Change Image" />
+                                </div>
+                            </Space>
+                        </div>
+                    </>
+                    :
+                    <>
+                        <PlusSquareFilled style={{ marginLeft: "1px", marginTop: "25px", fontSize: '25px', cursor: "pointer" }} title="Add Image" />
+                    </>
+
             }
             key={props.index}
         >

@@ -1,3 +1,24 @@
  .question-image {
      object-fit: cover;
  }
+.image_overlay {
+    padding-inline: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    transition: opacity 0.25s ease-in-out;
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: 43%;
+    opacity: 0;
+    top: 10%;
+}
+
+.image_overlay:hover {
+    opacity: 1;
+}
+
+.image {}
