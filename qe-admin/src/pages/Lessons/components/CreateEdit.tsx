@@ -2,7 +2,7 @@ import { SECTION_TYPES } from "@/components/Constants/constants";
 import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
 import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 import { LoadingOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Row, Select, Spin, notification } from "antd";
+import { Button, Col, Form, Input, Row, Select, Spin, notification, Tabs, Divider } from "antd";
 import React, { useState, useEffect } from "react";
 import RichEditor from "./RichEditor";
 // @ts-expect-error
@@ -26,6 +26,8 @@ type Exercise = {
     key: string;
     sections: Section[]
 }
+
+const { TabPane } = Tabs;
 
 function initialFormData() {
     const initialData: Exercise[] = [
@@ -90,7 +92,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
         })()
     }, [selectedLessonId, edit])
 
-    const onSubmit = async (e: any) => {
+    const onSubmit = async () => {
         setLoading(true);
         try {
             if (!selectedLessonId) {
@@ -207,125 +209,183 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
 
     return (
         <>
-            <div>
-                <Row>
-                    <Col span={8}><h3>Select Lesson : </h3></Col>
-                    <Col span={16}>
-                        <Select
-                            onChange={(item: any) => {
-                                setSelectedLessonId(item)
-                            }}
-                            options={options}
-                            value={selectedLessonId}
-                            style={{
-                                width: '100%'
-                            }}
-                            disabled={!!edit}
-                        />
-                    </Col>
-                </Row>
-
-                {selectedLessonId && loading &&
-                    <Row style={{ height: 200, alignItems: 'center', background: "rgba(0, 0, 0, 0.02)", borderRadius: 10, marginTop: 20, justifyContent: 'center' }} >
-                        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-                    </Row>
-                }
-
-                {selectedLessonId && !loading &&
-                    (
-                        !edit && alreadyExist ? (
-                            <Row style={{ height: 200, alignItems: 'center', background: "rgba(0, 0, 0, 0.02)", borderRadius: 10, marginTop: 20, justifyContent: 'center' }} >
-                                <h3>Lesson script is already exist for selected lesson.</h3>
-                            </Row>
-                        ) : (
-                            // Add fields to add headings and sections
-                            <Form onFinish={(e) => onSubmit(e)} style={{ marginTop: 20 }} form={form} key={update}>
-                                {
-                                    fromData.map((exercise, index) => {
-                                        return (
-                                            <Row
-                                                key={exercise.key}
-                                                style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
-                                            >
-                                                <Row style={{ justifyContent: 'space-between' }}>
-
-                                                    <h3>{`Exercise ${index + 1}`}</h3>
-                                                    <Form.Item
-                                                        rules={[
-                                                            { required: true, message: "Missing Heading" }
-                                                        ]}
-                                                    >
-                                                        <Input defaultValue={exercise.heading} placeholder="Enter Heading" onChange={(e) => updateExerciseData(index, 'heading', e.target.value)} />
-                                                    </Form.Item>
-
-                                                    <Form.Item>
-                                                        <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
-                                                    </Form.Item>
-                                                    <MinusCircleOutlined
-                                                        onClick={() => {
-                                                            removeExercise(index);
-                                                        }}
-                                                    />
-                                                </Row>
-
-                                                {
-                                                    exercise.sections.map((section, sectionIndex) => {
-                                                        return (
-                                                            <div key={section.key} style={{ marginBottom: 10 }}>
-                                                                <h4>{`Section ${sectionIndex + 1}`}</h4>
-                                                                <Row gutter={10}>
-                                                                    <Col flex={1}>
-                                                                        <RichEditor key={section.key} sectionKey={section.key}
-                                                                            onChange={(data: string) => updateSectionData(index, sectionIndex, 'description', data)}
-                                                                            defaultValue={updateImageSasBlob(section.description)}></RichEditor>
-                                                                    </Col>
-
-                                                                    <Col>
-                                                                        <MinusCircleOutlined
-                                                                            onClick={() => {
-                                                                                removeSection(index, sectionIndex);
-                                                                            }}
-                                                                        />
-                                                                    </Col>
-                                                                </Row>
-                                                            </div>
-                                                        )
-                                                    })
-                                                }
-
-                                                <Form.Item>
-                                                    <Button
-                                                        type="dashed"
-                                                        onClick={() => {
-                                                            addSection(index);
-                                                        }}
-                                                    >
-                                                        <PlusOutlined /> Add Section
-                                                    </Button>
-                                                </Form.Item>
-                                            </Row>
-                                        )
-                                    })
-                                }
-
-                                {/* This is the Dynamic Exercise Adder */}
-                                <Button
-                                    type="dashed"
-                                    onClick={() => {
-                                        addExercise();
+            <Tabs defaultActiveKey="1" onTabClick={() => { setUpdate((u) => u + 1) }}>
+                <TabPane tab={edit ? "Edit" : "Create"} key="1">
+                    <div>
+                        <h2>{edit ? "Edit Lesson Script" : "Create Lesson Script"}</h2>
+                        <Row>
+                            <Col span={8}><h3>Select Lesson : </h3></Col>
+                            <Col span={16}>
+                                <Select
+                                    onChange={(item: any) => {
+                                        setSelectedLessonId(item)
                                     }}
-                                    block
-                                >
-                                    <PlusOutlined /> Add Exercise
-                                </Button>
-                                <Button type="primary" htmlType="submit">
-                                    Submit
-                                </Button>
-                            </Form>
-                        )
-                    )
-                }
-            </div>
+                                    options={options}
+                                    value={selectedLessonId}
+                                    style={{
+                                        width: '100%'
+                                    }}
+                                    disabled={!!edit}
+                                />
+                            </Col>
+                        </Row>
+
+                        {selectedLessonId && loading &&
+                            <Row style={{ height: 200, alignItems: 'center', background: "rgba(0, 0, 0, 0.02)", borderRadius: 10, marginTop: 20, justifyContent: 'center' }} >
+                                <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+                            </Row>
+                        }
+
+                        {selectedLessonId && !loading &&
+                            (
+                                !edit && alreadyExist ? (
+                                    <Row style={{ height: 200, alignItems: 'center', background: "rgba(0, 0, 0, 0.02)", borderRadius: 10, marginTop: 20, justifyContent: 'center' }} >
+                                        <h3>Lesson script is already exist for selected lesson.</h3>
+                                    </Row>
+                                ) : (
+                                    // Add fields to add headings and sections
+                                    <Form onFinish={onSubmit} style={{ marginTop: 20 }} form={form} key={update}>
+                                        {
+                                            fromData.map((exercise, index) => {
+                                                return (
+                                                    <Row
+                                                        key={exercise.key}
+                                                        style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+                                                    >
+                                                        <Row style={{ justifyContent: 'space-between' }}>
+
+                                                            <h3>{`Exercise ${index + 1}`}</h3>
+                                                            <Form.Item
+                                                                rules={[
+                                                                    { required: true, message: "Missing Heading" }
+                                                                ]}
+                                                            >
+                                                                <Input defaultValue={exercise.heading} placeholder="Enter Heading" onChange={(e) => updateExerciseData(index, 'heading', e.target.value)} />
+                                                            </Form.Item>
+
+                                                            <Form.Item>
+                                                                <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
+                                                            </Form.Item>
+                                                            <MinusCircleOutlined
+                                                                onClick={() => {
+                                                                    removeExercise(index);
+                                                                }}
+                                                            />
+                                                        </Row>
+
+                                                        {
+                                                            exercise.sections.map((section, sectionIndex) => {
+                                                                return (
+                                                                    <div key={section.key} style={{ marginBottom: 10 }}>
+                                                                        <h4>{`Section ${sectionIndex + 1}`}</h4>
+                                                                        <Row gutter={10}>
+                                                                            <Col flex={1}>
+                                                                                <RichEditor key={section.key} sectionKey={section.key}
+                                                                                    onChange={(data: string) => updateSectionData(index, sectionIndex, 'description', data)}
+                                                                                    defaultValue={updateImageSasBlob(section.description)}></RichEditor>
+                                                                            </Col>
+
+                                                                            <Col>
+                                                                                <MinusCircleOutlined
+                                                                                    onClick={() => {
+                                                                                        removeSection(index, sectionIndex);
+                                                                                    }}
+                                                                                />
+                                                                            </Col>
+                                                                        </Row>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        }
+
+                                                        <Form.Item>
+                                                            <Button
+                                                                type="dashed"
+                                                                onClick={() => {
+                                                                    addSection(index);
+                                                                }}
+                                                            >
+                                                                <PlusOutlined /> Add Section
+                                                            </Button>
+                                                        </Form.Item>
+                                                    </Row>
+                                                )
+                                            })
+                                        }
+
+                                        {/* This is the Dynamic Exercise Adder */}
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => {
+                                                addExercise();
+                                            }}
+                                            block
+                                        >
+                                            <PlusOutlined /> Add Exercise
+                                        </Button>
+                                        <Button type="primary" htmlType="submit">
+                                            Submit
+                                        </Button>
+                                    </Form>
+                                )
+                            )
+                        }
+                    </div>
+                </TabPane>
+                <TabPane tab={"Preview"} key="2">
+                    <Col style={{
+                        width: "65%",
+                        margin: "5px auto",
+                        padding: 15,
+                        borderRadius: 5,
+                        boxShadow: "0px 10px 50px -30px rgba(0,0,0,0.2)",
+                        border: "1px solid #efefef"
+                    }} >
+                        {fromData.map((exercise, index) => {
+                            return (
+                                <Col>
+                                    <Row>
+                                        <Col
+                                            span={8}
+                                            style={{
+                                                fontSize: 22
+                                            }}
+                                        ><i style={{ fontSize: 32 }}>E</i>xercise {index + 1}</Col>
+                                        <Col
+                                            span={16}
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'flex-end',
+                                                alignItems: 'end'
+                                            }}
+                                        >
+                                            <Row
+                                                style={{
+                                                    fontSize: 18,
+                                                    color: "#8C2132",
+                                                    fontWeight: "bold",
+                                                    textAlign: 'right'
+                                                }}
+                                            >{exercise.heading?.toUpperCase()}</Row>
+                                            {exercise?.subHeading && exercise.subHeading.trim() !== "" && <Row
+                                                style={{ fontSize: 14, textAlign: 'right' }}
+                                            >{exercise.subHeading}</Row>}
+                                        </Col>
+                                    </Row>
+                                    <div style={{ margin: "8px 0", borderRadius: 3, height: 5, width: "100%", backgroundColor: "#186E98" }} />
+                                    {exercise?.sections?.map((section) => {
+                                        return <Row>
+                                            {section.type === SECTION_TYPES.DESCRIPTION && section.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(section.description) }} />}
+                                        </Row>
+                                    })}
+                                    <Divider />
+                                </Col>
+                            )
+                        })}
+                    </Col>
+                </TabPane>
+            </Tabs>
         </>
     );
 };
