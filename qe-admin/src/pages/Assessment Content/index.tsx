@@ -6,6 +6,7 @@ import ProTable from "@ant-design/pro-table";
 import { getAssessmentQuestions } from "@/services/ant-design-pro/api";
 import { Button, Drawer, Tabs } from "antd";
 import AssessmentContentForm from "./components/Form";
+import { EditOutlined } from "@ant-design/icons";
 
 export type AssessmentContentFormType = {
   setNumber: string;
@@ -53,7 +54,6 @@ const AssessmentContentTable: React.FC = () => {
         />
       ),
       dataIndex: "name",
-      hideInSearch: true,
     },
     {
       title: (
@@ -96,16 +96,15 @@ const AssessmentContentTable: React.FC = () => {
       ),
       dataIndex: "lessonId",
       copyable: true,
-      hideInSearch: true,
     },
     {
       title: (
         <FormattedMessage
           id="pages.searchTable.assessmentContent.edit"
-          defaultMessage="Edit"
+          defaultMessage="Actions"
         />
       ),
-      dataIndex: "option",
+      dataIndex: "actions",
       valueType: "option",
       render: (_, record) => (
         <>
@@ -120,7 +119,7 @@ const AssessmentContentTable: React.FC = () => {
                 setOperation("update");
               }}
             >
-              Edit
+              <EditOutlined title="Edit Assessment Questions" />
             </a>
           </Access>
         </>
