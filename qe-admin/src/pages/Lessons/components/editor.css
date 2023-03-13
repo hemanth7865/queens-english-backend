@@ -16,6 +16,7 @@
 }
 
 #ViewLessonScriptData {
+  overflow-wrap: break-word;
   width: 100%;
 }
 
@@ -26,6 +27,7 @@
   align-items: end;
   justify-content: center;
   width: 100%;
+  flex-wrap: wrap;
 }
 
 #LessonScriptEditor .ql-editor > p img,
