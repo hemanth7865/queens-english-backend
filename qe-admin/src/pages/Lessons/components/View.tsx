@@ -40,15 +40,6 @@ const View: React.FC<ViewProps> = ({ data }) => {
     }, [lessonScriptData])
 
     const expandedRowRender = (record: any) => {
-        const getUrl = (assetPath: string, blobUrl: string = BLOB_URL, blobSas: string = BLOB_SAS) => {
-            if (blobUrl.endsWith("/")) {
-                blobUrl = blobUrl.slice(0, -1);
-            }
-            if (assetPath.startsWith("/")) {
-                assetPath = assetPath.slice(1);
-            }
-            return `${blobUrl}/${assetPath}${blobSas}`;
-        }
         return <List
             dataSource={record.sections}
             itemLayout="vertical"
@@ -65,7 +56,6 @@ const View: React.FC<ViewProps> = ({ data }) => {
             renderItem={(item: API.LessonScriptExerciseSection, index) => {
                 return <Card title={`Section ${index + 1}`} style={{ marginTop: 20, borderRadius: 15 }}>
                     <Row>
-                        {item.type === SECTION_TYPES.IMAGE && item.image && <Image width={200} src={getUrl(item.image)} />}
                         {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(item.description) }} />}
                     </Row>
                 </Card>
