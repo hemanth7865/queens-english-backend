@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, notification, Spin, Card, Col, Row, Tabs } from "antd";
+import { Form, Input, Button, Select, notification, Spin, Tabs } from "antd";
 import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
 import QuestionCard from "./QuestionCard";
 import Assessments from "../../../../data/assessmentsUAT.json";
@@ -112,11 +112,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   }
 
   useEffect(() => {
-    // for (let i = 0; i < props.assessmentData.assessmentQuestion.length; i++) {
-    //   if (props.assessmentData.assessmentQuestion[i].type === "image") {
-    //     // Need to add logic to get the image from the assets folder
-    //   }
-    // }
     if (props.operationType === "update") {
       setAssessment(props.assessmentData);
     }
