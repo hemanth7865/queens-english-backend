@@ -86,7 +86,6 @@ const AssessmentContentTable: React.FC = () => {
       ),
       dataIndex: "assessmentId",
       copyable: true,
-      hideInSearch: true,
     },
     {
       title: (
