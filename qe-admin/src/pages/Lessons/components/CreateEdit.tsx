@@ -323,9 +323,6 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                         >
                                             <PlusOutlined /> Add Exercise
                                         </Button>
-                                        <Button type="primary" htmlType="submit">
-                                            Submit
-                                        </Button>
                                     </Form>
                                 )
                             )
@@ -386,6 +383,9 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                     </Col>
                 </TabPane>
             </Tabs>
+            <Button type="primary" disabled={!selectedLessonId || loading || (!edit && alreadyExist)} onClick={() => form.submit()}>
+                Submit
+            </Button>
         </>
     );
 };
