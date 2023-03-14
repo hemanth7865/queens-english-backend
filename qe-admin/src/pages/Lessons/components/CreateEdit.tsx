@@ -109,9 +109,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                 id: lessonId,
                 lessonId,
                 lessonDetails: fromData,
-                number: lessonNumber,
-                createdAt: edit?.createdAt ? edit.createdAt : "",
-                updatedAt: edit?.updatedAt ? edit.updatedAt : ""
+                number: lessonNumber
             }
 
             notification.success({ message: "Please Wait Update/Creating Lesson Script" });
