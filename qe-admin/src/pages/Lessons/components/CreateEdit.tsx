@@ -1,8 +1,8 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
 import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
 import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
-import { LoadingOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Row, Select, Spin, notification } from "antd";
+import { LoadingOutlined, PlusOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { Button, Col, Form, Input, Row, Select, Spin, notification, Popconfirm } from "antd";
 import React, { useState, useEffect } from "react";
 import RichEditor from "./RichEditor";
 // @ts-expect-error
@@ -247,7 +247,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                             >
                                                 <Row style={{ justifyContent: 'space-between' }}>
 
-                                                    <h3>{`Exercise ${index + 1}`}</h3>
+                                                    <h2>{`Exercise ${index + 1}`}</h2>
                                                     <Form.Item
                                                         rules={[
                                                             { required: true, message: "Missing Heading" }
@@ -259,11 +259,17 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                     <Form.Item>
                                                         <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
                                                     </Form.Item>
-                                                    <MinusCircleOutlined
-                                                        onClick={() => {
+                                                    <Popconfirm
+                                                        placement="topLeft"
+                                                        title={"Are you sure you want to delete this exercise?"}
+                                                        onConfirm={() => {
                                                             removeExercise(index);
                                                         }}
-                                                    />
+                                                        okText="Yes"
+                                                        cancelText="No"
+                                                    >
+                                                        <CloseCircleOutlined />
+                                                    </Popconfirm>
                                                 </Row>
 
                                                 {
@@ -279,11 +285,17 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                                     </Col>
 
                                                                     <Col>
-                                                                        <MinusCircleOutlined
-                                                                            onClick={() => {
+                                                                        <Popconfirm
+                                                                            placement="topLeft"
+                                                                            title={"Are you sure you want to delete this Section?"}
+                                                                            onConfirm={() => {
                                                                                 removeSection(index, sectionIndex);
                                                                             }}
-                                                                        />
+                                                                            okText="Yes"
+                                                                            cancelText="No"
+                                                                        >
+                                                                            <CloseCircleOutlined />
+                                                                        </Popconfirm>
                                                                     </Col>
                                                                 </Row>
                                                             </div>
