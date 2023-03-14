@@ -21,4 +21,13 @@
     opacity: 1;
 }
 
-.image {}
+div.ant-upload {
+    width: 400px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2px;
+    position: relative;
+    border: dodgerblue 1px dashed;
+}

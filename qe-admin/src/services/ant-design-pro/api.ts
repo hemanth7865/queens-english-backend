@@ -1177,3 +1177,16 @@ export async function updateAssessmentContent(
     ...(options || {}),
   });
 }
+
+export async function uploadImagesStorage(
+  params: { path: string, fileLocation?: string, type?: string },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>(`/be/upload/images`, {
+    method: "POST",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

@@ -3,6 +3,7 @@ import { Form, Input, Button, Select, notification, Spin, Tabs } from "antd";
 import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
 import QuestionCard from "./QuestionCard";
 import Assessments from "../../../../data/assessmentsUAT.json";
+import { uploadImagesStorage } from '@/services/ant-design-pro/api';
 import "./form.css"
 
 export type AssessmentContentQuestion = [
@@ -44,6 +45,11 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
   const [assessmentQuestionsArray, setAssessmentQuestionsArray] = useState<any>(props.assessmentData?.assessmentQuestion ? props.assessmentData.assessmentQuestion : []);
+  const [imagesToUpload, setImageToUpload] = useState<any>([]);
+
+  function setImagesToUpload(images: any) {
+    setImageToUpload((imagesToUpload: any) => [...imagesToUpload, { data: images.data, name: images.name, size: images.data.size }]);
+  }
 
   function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string) {
     const originalAssessment = assessment;
@@ -129,6 +135,10 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           operationType={props.operationType}
           handleCardRemove={(index) => handleRemoveQuestionCard(index)}
           handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number)}
+          assessmentName={props.assessmentData?.name}
+          setNumber={props.assessmentData?.setNumber}
+          imagesToUpload={imagesToUpload}
+          setImagestoUpload={(images: any) => setImagesToUpload(images)}
         />
       ))
     ))
@@ -196,6 +206,23 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       });
       if (msg.status === "ok") {
         console.log("API sucessfull", msg);
+      }
+      console.log("imagesToUpload", imagesToUpload)
+      if (imagesToUpload.length > 0) {
+        const result: any = await uploadImagesStorage(
+          {
+            fileLocation: "assessment-questions",
+            type: "assessment-question-image",
+            path: `${values.name}/${values.setNumber}`,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(imagesToUpload),
+          }
+        );
+        console.log("result", result);
       }
       setIsLoading(false);
       props.handleDrawerVisiblity(false);

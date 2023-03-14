@@ -11,6 +11,7 @@ import { ZoomController } from "./controller/ZoomController";
 import { CollectionAgentController } from "./controller/CollectionAgentController";
 import { LogsProxyController } from "./controller/LogsProxyController";
 import { SchoolController } from "./controller/SchoolController";
+import { UploadFilesController } from "./controller/UploadFilesController";
 
 export const Routes = [
   {
@@ -413,6 +414,13 @@ export const Routes = [
     route: "/azure",
     controller: AzureProxyController,
     action: "serve",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/upload/images",
+    controller: UploadFilesController,
+    action: "uploadImages",
     authenticate: true,
   },
 
