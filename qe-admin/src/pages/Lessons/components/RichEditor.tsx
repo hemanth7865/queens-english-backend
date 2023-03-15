@@ -23,7 +23,6 @@ const CustomEditorToolbar = ({ images, setImages, sectionKey }: any) => (
             <option selected></option>
         </select>
         <select title="font" className="ql-font"><option></option><option value="serif"></option><option value="monospace"></option></select>
-        <select className="ql-size" title="size"><option value="small"></option><option></option><option value="large"></option><option value="huge"></option></select>
         <button title="bold" className="ql-bold"></button>
         <button title="italic" className="ql-italic"></button>
         <select title="color" className="ql-color">
@@ -81,7 +80,6 @@ const RichEditor = ({ sectionKey, onChange, defaultValue }: Props) => {
             <ReactQuill theme="snow" value={editorState} onChange={setEditorState} ref={editorRef} formats={[
                 'header',
                 'font',
-                'size',
                 'bold',
                 'italic',
                 'underline',
