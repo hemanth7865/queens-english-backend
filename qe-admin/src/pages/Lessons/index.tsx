@@ -22,6 +22,7 @@ import "./components/editor.css";
 
 import "./index.css";
 import CreateEdit from "./components/CreateEdit";
+import moment from "moment";
 
 const Lessons: React.FC = () => {
     const intl = useIntl();
@@ -78,7 +79,12 @@ const Lessons: React.FC = () => {
                 />
             ),
             dataIndex: "createdAt",
-            hideInSearch: true
+            hideInSearch: true,
+            render: (dom, entity) => {
+                return (
+                    moment(entity?.createdAt).format('YYYY-MM-DD HH:mm:ss')
+                );
+            },
         },
         {
             title: (
@@ -88,7 +94,12 @@ const Lessons: React.FC = () => {
                 />
             ),
             dataIndex: "updatedAt",
-            hideInSearch: true
+            hideInSearch: true,
+            render: (dom, entity) => {
+                return (
+                    moment(entity?.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+                );
+            },
         },
         {
             title: (

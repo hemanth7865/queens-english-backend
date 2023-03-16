@@ -168,7 +168,7 @@ declare namespace API {
     lessonId?: string;
     lessonDetails?: LessonScriptExercise [];
     createdAt?: string | DateTime;
-    modifiedAt?: string | DateTime;
+    updatedAt?: string | DateTime;
   }
 
   type Any = any;
