@@ -210,6 +210,8 @@ const Lessons: React.FC = () => {
                 <View data={viewData} />
             </Drawer>
             <Drawer
+                title={create ? 'Create' : 'Edit'}
+                placement="right"
                 visible={create || edit}
                 onClose={() => {
                     setView(false);
