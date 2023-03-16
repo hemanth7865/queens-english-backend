@@ -17,6 +17,7 @@ import { Drawer } from 'antd';
 import View from "./components/View";
 import { getAllLessonScripts, deleteLessonScriptById, getAllLessons } from "@/services/ant-design-pro/api";
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import "./components/editor.css";
 
 
 import "./index.css";
@@ -26,10 +27,10 @@ const Lessons: React.FC = () => {
     const intl = useIntl();
     const actionRef = useRef<ActionType>();
     const [view, setView] = useState(false);
-    const [viewData, setViewData] = useState();
+    const [viewData, setViewData] = useState<any>();
     const [create, setCreate] = useState<boolean>(false);
-    const [edit, setEdit] = useState<boolean>(false);
-    const [lessons, setLessons] = useState<any[]>([]);
+    const [edit, setEdit] = useState<any>(false);
+    const [lessons, setLessons] = useState<any>([]);
     const [key, setKey] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false)
@@ -83,10 +84,10 @@ const Lessons: React.FC = () => {
             title: (
                 <FormattedMessage
                     id="pages.searchTable.lesson.modifiedAt"
-                    defaultMessage="Modified At"
+                    defaultMessage="Updated At"
                 />
             ),
-            dataIndex: "modifiedAt",
+            dataIndex: "updatedAt",
             hideInSearch: true
         },
         {
@@ -123,6 +124,9 @@ const Lessons: React.FC = () => {
             render: (dom, entity) => {
                 return (
                     <a
+                        onClick={() => {
+                            setEdit(entity);
+                        }}
                     >
                         <EditOutlined />
                     </a>
@@ -148,6 +152,12 @@ const Lessons: React.FC = () => {
         },
     ];
 
+    const finishUpdateEdit = () => {
+        actionRef.current?.reload();
+        setCreate(false);
+        setEdit(false);
+    }
+
     return (
         <>
             <PageContainer>
@@ -168,7 +178,9 @@ const Lessons: React.FC = () => {
                             type="primary"
                             key="primary"
                             onClick={() => {
+                                setKey(key + 1)
                                 setCreate(true)
+                                setEdit(false);
                             }}
                         >
                             <PlusOutlined /> Create Lesson
@@ -197,8 +209,7 @@ const Lessons: React.FC = () => {
                 }}
                 width={800}
             >
-                <h2>{create ? "Create Lesson Script" : "Edit Lesson Script"}</h2>
-                <CreateEdit create lessons={lessons} key={key} />
+                <CreateEdit lessons={lessons} key={key} finishUpdateEdit={finishUpdateEdit} edit={edit} />
             </Drawer>
         </>
     );
