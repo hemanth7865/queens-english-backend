@@ -53,3 +53,7 @@ ul, ol {
 .anticon-close-circle {
   color: #9d2525;
 }
+
+#mobileDevice {
+  margin-top: -40px;
+}
