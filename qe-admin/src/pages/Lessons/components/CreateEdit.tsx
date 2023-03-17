@@ -2,11 +2,12 @@ import { SECTION_TYPES } from "@/components/Constants/constants";
 import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
 import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 import { LoadingOutlined, CloseCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Row, Select, Spin, notification, Tabs, Divider, Popconfirm } from "antd";
+import { Button, Col, Form, Input, Row, Select, Spin, notification, Tabs, Popconfirm } from "antd";
 import React, { useState, useEffect } from "react";
 import RichEditor from "./RichEditor";
 // @ts-expect-error
 import { v4 as uuid } from "uuid";
+import Preview from "./Preview";
 
 interface CreateEditProps {
     edit: any,
@@ -340,57 +341,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                     </div>
                 </TabPane>
                 <TabPane tab={"Preview"} key="2">
-                    <Col style={{
-                        width: "65%",
-                        margin: "5px auto",
-                        padding: 15,
-                        borderRadius: 5,
-                        boxShadow: "0px 10px 50px -30px rgba(0,0,0,0.2)",
-                        border: "1px solid #efefef"
-                    }} >
-                        {fromData.map((exercise, index) => {
-                            return (
-                                <Col>
-                                    <Row>
-                                        <Col
-                                            span={8}
-                                            style={{
-                                                fontSize: 22
-                                            }}
-                                        ><i style={{ fontSize: 32 }}>E</i>xercise {index + 1}</Col>
-                                        <Col
-                                            span={16}
-                                            style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'flex-end',
-                                                alignItems: 'end'
-                                            }}
-                                        >
-                                            <Row
-                                                style={{
-                                                    fontSize: 18,
-                                                    color: "#8C2132",
-                                                    fontWeight: "bold",
-                                                    textAlign: 'right'
-                                                }}
-                                            >{exercise.heading?.toUpperCase()}</Row>
-                                            {exercise?.subHeading && exercise.subHeading.trim() !== "" && <Row
-                                                style={{ fontSize: 14, textAlign: 'right' }}
-                                            >{exercise.subHeading}</Row>}
-                                        </Col>
-                                    </Row>
-                                    <div style={{ margin: "8px 0", borderRadius: 3, height: 5, width: "100%", backgroundColor: "#186E98" }} />
-                                    {exercise?.sections?.map((section) => {
-                                        return <Row>
-                                            {section.type === SECTION_TYPES.DESCRIPTION && section.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(section.description) }} />}
-                                        </Row>
-                                    })}
-                                    <Divider />
-                                </Col>
-                            )
-                        })}
-                    </Col>
+                    <Preview formData={fromData} />
                 </TabPane>
             </Tabs>
             <Button type="primary" disabled={!selectedLessonId || loading || (!edit && alreadyExist)} onClick={() => form.submit()}>
