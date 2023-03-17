@@ -35,6 +35,12 @@ export default [
         component: "./TeacherBatchList",
       },
       {
+        name: "Lessons Scripts",
+        path: "/manage/lessonsScripts",
+        component: "./Lessons",
+        access: "canSuperAdmin",
+      },
+      {
         name: "User",
         path: "/manage/UserBatch",
         component: "./StudentList",

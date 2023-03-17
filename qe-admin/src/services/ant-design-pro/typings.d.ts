@@ -149,5 +149,27 @@ declare namespace API {
     batchesNumber?: number;
   }
 
+  /**Lesson scripts type */
+  type LessonScriptExerciseSection = {
+    type?: string ;
+    image?: string;
+    description?: string;
+  }
+
+  type LessonScriptExercise =  {
+    heading?: string;
+    subHeading?: string;
+    sections?: LessonScriptExerciseSection[];
+  }
+
+  type lessonScripts = {
+    id?: string;
+    number?: string;
+    lessonId?: string;
+    lessonDetails?: LessonScriptExercise [];
+    createdAt?: string | DateTime;
+    updatedAt?: string | DateTime;
+  }
+
   type Any = any;
 }

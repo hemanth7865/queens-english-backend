@@ -69,3 +69,8 @@ export const USER_STATUS = {
   ONBOARDING_ISSUE: "onboardingIssue",
   ENROLLED_CAPS: "Enrolled",
 }
+
+export const SECTION_TYPES = {
+  IMAGE: 'image',
+  DESCRIPTION: 'description'
+}
