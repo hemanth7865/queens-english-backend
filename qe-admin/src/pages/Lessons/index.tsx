@@ -12,7 +12,6 @@ import { useIntl, FormattedMessage } from "umi";
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
-import LessonForm from './components/lessonForm';
 import { Drawer } from 'antd';
 import View from "./components/View";
 import { getAllLessonScripts, deleteLessonScriptById, getAllLessons } from "@/services/ant-design-pro/api";
@@ -33,12 +32,6 @@ const Lessons: React.FC = () => {
     const [edit, setEdit] = useState<any>(false);
     const [lessons, setLessons] = useState<any>([]);
     const [key, setKey] = useState(0);
-
-  const [isLoading, setIsLoading] = useState(false)
-  
-  useEffect(() => {
-    
-  }, []);
 
     const fetchAllLessons = async () => {
         const data = await getAllLessons({})
