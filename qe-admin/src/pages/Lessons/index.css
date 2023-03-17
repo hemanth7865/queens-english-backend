@@ -25,6 +25,35 @@ input[type='date']:valid::before {
   border: 1px solid #ccc;
 }
 
+ul, ol {
+  list-style: revert;
+}
+
+.exerciseContainer {
+  border: 1px solid #ccc;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.sectionContainer {
+  border: 1px dotted #cecbff;
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  font-weight: 600;
+}
+
+.ant-btn {
+  margin-top: 0.5em;
+}
+
+.anticon-close-circle {
+  color: #9d2525;
+}
+
 #mobileDevice {
   margin-top: -40px;
 }

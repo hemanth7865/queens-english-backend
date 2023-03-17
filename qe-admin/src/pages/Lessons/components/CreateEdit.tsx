@@ -1,7 +1,7 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
 import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
 import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
-import { LoadingOutlined, CloseCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { LoadingOutlined, CloseCircleOutlined, CloseCircleFilled, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Select, Spin, notification, Tabs, Popconfirm } from "antd";
 import React, { useState, useEffect } from "react";
 import RichEditor from "./RichEditor";
@@ -211,7 +211,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
             <Tabs defaultActiveKey="1" onTabClick={() => { setUpdate((u) => u + 1) }}>
                 <TabPane tab={edit ? "Edit" : "Create"} key="1">
                     <div>
-                        <h2>{edit ? "Edit Lesson Script" : "Create Lesson Script"}</h2>
+                        {/* <h2>{edit ? "Edit Lesson Script" : "Create Lesson Script"}</h2> */}
                         <Row>
                             <Col span={8}><h3>Select Lesson : </h3></Col>
                             <Col span={16}>
@@ -249,6 +249,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                 return (
                                                     <Row
                                                         key={exercise.key}
+                                                        className="exerciseContainer"
                                                         style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
                                                     >
                                                         <Row style={{ justifyContent: 'space-between' }}>
@@ -274,22 +275,18 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                                 okText="Yes"
                                                                 cancelText="No"
                                                             >
-                                                                <CloseCircleOutlined />
+                                                                <CloseCircleFilled />
                                                             </Popconfirm>
                                                         </Row>
 
                                                         {
                                                             exercise.sections.map((section, sectionIndex) => {
                                                                 return (
-                                                                    <div key={section.key} style={{ marginBottom: 10 }}>
-                                                                        <h4>{`Section ${sectionIndex + 1}`}</h4>
+                                                                    <div key={section.key} className="sectionContainer" style={{ marginBottom: 10 }}>
                                                                         <Row gutter={10}>
                                                                             <Col flex={1}>
-                                                                                <RichEditor key={section.key} sectionKey={section.key}
-                                                                                    onChange={(data: string) => updateSectionData(index, sectionIndex, 'description', data)}
-                                                                                    defaultValue={updateImageSasBlob(section.description)}></RichEditor>
+                                                                                <h4>{`Section ${sectionIndex + 1}`}</h4>
                                                                             </Col>
-
                                                                             <Col>
                                                                                 <Popconfirm
                                                                                     placement="topLeft"
@@ -302,6 +299,13 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                                                 >
                                                                                     <CloseCircleOutlined />
                                                                                 </Popconfirm>
+                                                                            </Col>
+                                                                        </Row>
+                                                                        <Row gutter={10}>
+                                                                            <Col flex={1}>
+                                                                                <RichEditor key={section.key} sectionKey={section.key}
+                                                                                    onChange={(data: string) => updateSectionData(index, sectionIndex, 'description', data)}
+                                                                                    defaultValue={updateImageSasBlob(section.description)}></RichEditor>
                                                                             </Col>
                                                                         </Row>
                                                                     </div>

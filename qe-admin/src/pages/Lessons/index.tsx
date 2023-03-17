@@ -33,7 +33,6 @@ const Lessons: React.FC = () => {
     const [lessons, setLessons] = useState<any>([]);
     const [key, setKey] = useState(0);
 
-
     const fetchAllLessons = async () => {
         const data = await getAllLessons({})
         setLessons(data)
@@ -204,6 +203,8 @@ const Lessons: React.FC = () => {
                 <View data={viewData} />
             </Drawer>
             <Drawer
+                title={create ? 'Create' : 'Edit'}
+                placement="right"
                 visible={create || edit}
                 onClose={() => {
                     setView(false);
