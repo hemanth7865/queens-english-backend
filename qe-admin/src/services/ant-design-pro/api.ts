@@ -1218,21 +1218,6 @@ export async function deleteLessonScriptById(
   );
 }
 
-
-//API - Upload Images
-export async function uploadImagesStorage(
-  params: { path: string },
-  options?: { [key: string]: any }
-) {
-  return request<API.RuleList>(`/be/upload/images`, {
-    method: "POST",
-    params: {
-      ...params,
-    },
-    ...(options || {}),
-  });
-}
-
 export async function getAssessmentQuestions(
   params?: {
     pageSize?: number;
