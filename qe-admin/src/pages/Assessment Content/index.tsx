@@ -4,9 +4,9 @@ import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
 import { getAssessmentQuestions } from "@/services/ant-design-pro/api";
-import { Button, Drawer, Tabs } from "antd";
+import { Button, Drawer } from "antd";
 import AssessmentContentForm from "./components/Form";
-import { EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 export type AssessmentContentFormType = {
   setNumber: string;
@@ -25,8 +25,6 @@ export type AssessmentContentFormType = {
   lessonNumber: string;
   lessonId: string;
 };
-
-const { TabPane } = Tabs;
 
 const AssessmentContentTable: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -63,7 +61,6 @@ const AssessmentContentTable: React.FC = () => {
         />
       ),
       dataIndex: "setNumber",
-      hideInSearch: true,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => a.setNumber.localeCompare(b.setNumber),
     },
@@ -86,6 +83,8 @@ const AssessmentContentTable: React.FC = () => {
       ),
       dataIndex: "assessmentId",
       copyable: true,
+      hideInSearch: true,
+      hideInTable: true,
     },
     {
       title: (
@@ -96,6 +95,8 @@ const AssessmentContentTable: React.FC = () => {
       ),
       dataIndex: "lessonId",
       copyable: true,
+      hideInSearch: true,
+      hideInTable: true,
     },
     {
       title: (
@@ -112,15 +113,13 @@ const AssessmentContentTable: React.FC = () => {
             accessible={access.canSuperAdmin}
             fallback={<div> </div>}
           >
-            <a
-              onClick={() => {
+            <EditOutlined title="Edit Assessment Questions" onClick={() => {
                 setVisible(true);
                 setData(record);
                 setOperation("update");
               }}
-            >
-              <EditOutlined title="Edit Assessment Questions" />
-            </a>
+              style={{ marginRight: 16, color: "dodgerblue" }} />
+            <DeleteOutlined title="Delete Assessment Questions" disabled />
           </Access>
         </>
       ),
@@ -149,13 +148,13 @@ const AssessmentContentTable: React.FC = () => {
                 fallback={<div> </div>}
               >
                 <Button type="primary" onClick={() => { setVisible(true); setOperation("create"); }}>
-                  Add Assessment Questions
+                  + Add Assessment Set
                 </Button>
               </Access>
             </div>
           ]}
         />
-        <Drawer open={visible} onClose={() => { setVisible(false); setData(undefined); }} destroyOnClose width={720} title="Add Assessment Content">
+        <Drawer open={visible} onClose={() => { setVisible(false); setData(undefined); }} destroyOnClose width={1300} title="Add Assessment Content">
           <AssessmentContentForm assessmentData={data} operationType={operation} actionRef={actionRef} handleDrawerVisiblity={(visibility: boolean | ((prevState: boolean) => boolean)) => setVisible(visibility)} />
         </Drawer>
       </>

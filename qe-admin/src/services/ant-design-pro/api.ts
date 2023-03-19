@@ -1179,7 +1179,7 @@ export async function updateAssessmentContent(
 }
 
 export async function uploadImagesStorage(
-  params: { path: string, fileLocation?: string, type?: string },
+  params: { path: string, fileLocation?: string, type?: string, name?: string },
   options?: { [key: string]: any }
 ) {
   return request<API.RuleList>(`/be/upload/images`, {

@@ -1,4 +1,4 @@
-import { CloseOutlined, EditOutlined } from '@ant-design/icons';
+import { CloseOutlined } from '@ant-design/icons';
 import { Card, Input, Select, Form } from 'antd';
 import React, { useEffect } from 'react';
 import './form.css';
@@ -19,14 +19,14 @@ export type QuestionCardProps = {
     imageUrl?: string;
     assessmentName?: string;
     setNumber?: string;
-    imagesToUpload?: any[];
-    setImagestoUpload: (imagesToUpload: any) => void;
+    update: number
+    setIsLoading: (value: boolean) => void;
+    key?: number;
 };
 
 const QuestionCard: React.FC<QuestionCardProps> = (props) => {
     const [form] = Form.useForm();
-    const [hideImageURL, setHideImageURL] = React.useState(props.type === "image" ? false : true);
-    const [imageURI, setImageURI] = React.useState("");
+    const [imageURI, setImageURI] = React.useState<any>(props.imageUrl ? getImageURL(props.imageUrl) : undefined);
 
     const defaultValues = () => {
         form.setFieldsValue({
@@ -41,34 +41,26 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
         defaultValues();
         if (props.imageUrl) {
             setImageURI(getImageURL(props.imageUrl));
+        } else {
+            setImageURI(undefined);
         }
-    }, [props.type, props.operationType, props.question, props.answer, props.imageUrl]);
-
-    async function onFinish(values: any) {
-        console.log(values);
-    }
-
-    async function onFinishFailed(errorInfo: any) {
-        console.log('Failed:', errorInfo);
-    }
+    }, [props.update]);
 
     return (
-        <Card title={`Question Number ${props.number}`} style={{ width: 400, margin: "10px" }}
+        <Card title={`Question Number ${props.number}`} style={{ width: 400, margin: "5px", borderRadius: "15px", boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)" }}
             extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => props.handleCardRemove(props)} title="Remove Question" />}
-            cover={<ImageUploader imageUrl={imageURI} questionNumber={props.number} data={props} imagesToUpload={props.imagesToUpload} setImagestoUpload={(imagesToUpload) => props.setImagestoUpload(imagesToUpload)} />}
-            key={props.index}
+            cover={<ImageUploader imageURI={imageURI} setImageURI={data => setImageURI(data)} questionNumber={props.number} data={props} handleContentChange={(data) => props.handleContentChange(data)} update={props.update} />}
+            key={props.key}
         >
             <Form
                 name="studentdetails"
                 form={form}
                 labelCol={{
-                    span: 7,
+                    span: 6,
                 }}
                 wrapperCol={{
-                    span: 16,
+                    span: 17,
                 }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 autoComplete="off"
                 scrollToFirstError
                 key={props.index}
@@ -76,33 +68,46 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                 <Form.Item
                     label="Question"
                     name="question"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Please enter Question!',
+                        }
+                    ]}
                 >
                     <Input placeholder="Enter Question" onChange={(e) => props.handleContentChange({ question: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
                 <Form.Item
                     label="Answer"
                     name="answer"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Please enter Answer!',
+                        }
+                    ]}
                 >
                     <Input placeholder="Enter Answer" onChange={(e) => props.handleContentChange({ answer: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
                 <Form.Item
-                    label="Question Type"
+                    label="Type"
                     name="type"
+                    tooltip="To change the Question Type just add or remove the image."
+                    hidden
                 >
                     <Select
+                        disabled
                         placeholder="Select Question Type"
                         allowClear
                         options={typeOptions}
-                        onSelect={(value) => { props.handleContentChange({ type: value, number: props.number, index: props.index }); setHideImageURL(value === "image" ? false : true); }}
+                        onSelect={(value) => { props.handleContentChange({ type: value, number: props.number, index: props.index }); }}
                     />
                 </Form.Item>
                 <Form.Item
                     label="Image URL"
                     name="imageUrl"
-                    hidden={hideImageURL}
-                    tooltip="To edit or remove the image from the question please use the buttons below"
                 >
-                    <Input placeholder="Enter Image URL" onChange={(e) => props.handleContentChange({ imageUrl: e.target.value, number: props.number, index: props.index })} />
+                    <Input disabled placeholder="Enter Image URL" onChange={(e) => props.handleContentChange({ imageUrl: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
             </Form>
         </Card >

@@ -3,7 +3,6 @@ import { Form, Input, Button, Select, notification, Spin, Tabs } from "antd";
 import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
 import QuestionCard from "./QuestionCard";
 import Assessments from "../../../../data/assessmentsUAT.json";
-import { uploadImagesStorage } from '@/services/ant-design-pro/api';
 import "./form.css"
 
 export type AssessmentContentQuestion = [
@@ -39,19 +38,13 @@ const { TabPane } = Tabs;
 const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const [form] = Form.useForm();
-  let setNumber = ""
-  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [{ number: "", question: "", answer: "", type: "", imageUrl: "" }], id: "", name: "", lessonNumber: "", lessonId: "" });
+  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "" });
   const [isLoading, setIsLoading] = useState<any>(false);
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
-  const [assessmentQuestionsArray, setAssessmentQuestionsArray] = useState<any>(props.assessmentData?.assessmentQuestion ? props.assessmentData.assessmentQuestion : []);
-  const [imagesToUpload, setImageToUpload] = useState<any>([]);
+  const [update, setUpdate] = useState<any>(0);
 
-  function setImagesToUpload(images: any) {
-    setImageToUpload((imagesToUpload: any) => [...imagesToUpload, { data: images.data, name: images.name, size: images.data.size }]);
-  }
-
-  function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string) {
+  function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean) {
     const originalAssessment = assessment;
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
 
@@ -80,85 +73,106 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     if (number) {
       updatedAssessmentQuestion[index].number = number;
     }
+    if (imageRemove) {
+      updatedAssessmentQuestion[index].imageUrl = undefined;
+    }
 
     originalAssessment.assessmentQuestion = updatedAssessmentQuestion;
 
-    setAssessmentQuestionsArray(updatedAssessmentQuestion);
-    setAssessment(originalAssessment);
+    setAssessment({ ...assessment, assessmentQuestion: updatedAssessmentQuestion });
     form.setFieldsValue(originalAssessment);
+    setUpdate(update + 1);
+  }
+
+  async function removeEmptyQuestions() {
+    const originalAssessment = assessment;
+    const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
+    const filteredQuestions = await updatedAssessmentQuestion.filter((question: any) => question.question !== "" || question.answer !== "");
+    originalAssessment.assessmentQuestion = filteredQuestions;
+    setAssessment({ ...assessment, assessmentQuestion: filteredQuestions });
+    form.setFieldsValue(originalAssessment);
+    for (let i = 0; i < filteredQuestions.length; i++) {
+      if (Number(filteredQuestions[i].number) !== i + 1) {
+        return false
+      }
+    }
+    return filteredQuestions;
   }
 
   const handleRemoveQuestionCard = (questionCard: any) => {
-    setAssessmentQuestionsArray(assessmentQuestionsArray.filter((item: any) => item.number !== questionCard.number));
+    setAssessment({ ...assessment, assessmentQuestion: assessment.assessmentQuestion.filter((item: any) => item.number !== questionCard.number) });
+    setUpdate(update + 1);
   };
 
   const handleAddQuestionCard = () => {
-    const alreadyPresentQuestions = assessmentQuestionsArray;
+    const alreadyPresentQuestions = assessment.assessmentQuestion;
     if (!alreadyPresentQuestions) {
-      setAssessmentQuestionsArray([
-        {
-          number: "1",
-          question: "",
-          answer: "",
-          type: "",
-          imageUrl: ""
-        }
-      ])
-    } else {
-      setAssessmentQuestionsArray((assessmentQuestion: any) => (
-        [...assessmentQuestion,
-        {
-          number: assessmentQuestion.length + 1,
-          question: "",
-          answer: "",
-          type: "",
-          imageUrl: ""
-        }
+      setAssessment({
+        ...assessment, assessmentQuestion: [
+          {
+            number: "1",
+            question: "",
+            answer: "",
+            type: "word",
+            imageUrl: ""
+          }
         ]
-      ))
+      })
+      setUpdate(update + 1);
+    } else {
+      setAssessment({
+        ...assessment,
+        assessmentQuestion: [
+          ...assessment.assessmentQuestion,
+          {
+            number: assessment.assessmentQuestion.length + 1,
+            question: "",
+            answer: "",
+            type: "word",
+            imageUrl: ""
+          }
+        ]
+      })
+      setUpdate(update + 1);
     }
   }
 
   useEffect(() => {
-    if (props.operationType === "update") {
-      setAssessment(props.assessmentData);
-    }
     setQuestionCards(() => (
-      assessmentQuestionsArray.map((question: any, index: number) => (
+      assessment.assessmentQuestion.map((question: any, index: number) => (
         <QuestionCard
           index={index}
           number={question.number}
           question={question.question}
           answer={question.answer}
           type={question.type}
-          imageUrl={question.imageUrl}
+          imageUrl={question.imageUrl ? question.imageUrl : undefined}
           operationType={props.operationType}
           handleCardRemove={(index) => handleRemoveQuestionCard(index)}
-          handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number)}
-          assessmentName={props.assessmentData?.name}
-          setNumber={props.assessmentData?.setNumber}
-          imagesToUpload={imagesToUpload}
-          setImagestoUpload={(images: any) => setImagesToUpload(images)}
+          handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number, returnedData?.imageRemove)}
+          assessmentName={assessment.name}
+          setNumber={assessment.setNumber}
+          update={update}
+          setIsLoading={(data) => setIsLoading(data)}
+          key={index}
         />
       ))
     ))
-  }, [assessmentQuestionsArray, assessment]);
+  }, [update]);
 
   async function setToCreate(data: any) {
     setIsLoading(true);
     const existingSets = await getAssessmentQuestions();
     const sets = existingSets.data.filter(({ assessmentId }) => assessmentId === data.value);
-    if (sets.length < 9) {
-      setNumber = `0${sets.length + 1}`;
-    } else {
-      setNumber = `${sets.length + 1}`;
-    }
-    await getAssessmentDetails(data);
+    setAssessment({ ...assessment, setNumber: `0${sets.length + 1}` });
+    form.setFieldsValue({ setNumber: `0${sets.length + 1}` });
+    await getAssessmentDetails(data, `0${sets.length + 1}`);
+    setUpdate(update + 1);
     setDisableQuestionsTab(false);
     setIsLoading(false);
   }
 
-  async function getAssessmentDetails(data: any) {
+  async function getAssessmentDetails(data: any, setNumber: string) {
     const lesson = await getLesson(JSON.stringify(data.lessonNumber));
       const assessmentData = {
         lessonNumber: data.lessonNumber.toString(),
@@ -167,7 +181,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
         assessmentId: data.value,
         setNumber: setNumber,
         id: `${data.value}-${setNumber}`,
-        assessmentQuestion: assessmentQuestionsArray
+        assessmentQuestion: assessment.assessmentQuestion
       }
     setAssessment(assessmentData);
     form.setFieldsValue(assessmentData);
@@ -177,19 +191,32 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     { label: `${assessment.name} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue }
   ));
 
-  const openNotificationWithIcon = (type: string) => {
+  const openNotificationWithIcon = (type: string, errorType?: string) => {
     notification[type]({
-      message: type == 'error' ? 'Failed to update assessment questions!' : 'Successfully updated assessment questions!',
+      message: type == 'error' && errorType === "excessQuestions" ? 'Error: Add only upto 15 Questions' : type == 'error' && errorType === "missingQuestions" ? 'Error: Question numbers are not in sequence' : type == 'error' && errorType === "noQuestions" ? 'Error: Need atleast one question in the set' : type == 'error' ? 'Failed to update assessment questions!' : 'Successfully updated assessment questions!',
       description:
         '',
     });
   };
 
   const onFinish = async (values: any) => {
+    const filteredQuestionsArray = await removeEmptyQuestions();
+    if (filteredQuestionsArray.length > 15) {
+      openNotificationWithIcon('error', 'excessQuestions')
+      return;
+    }
+    if (filteredQuestionsArray.length < 1) {
+      openNotificationWithIcon('error', 'noQuestions')
+      return;
+    }
+    if (!filteredQuestionsArray) {
+      openNotificationWithIcon('error', 'missingQuestions')
+      return;
+    }
     const data = {
       setNumber: values.setNumber,
       assessmentId: values.assessmentId,
-      assessmentQuestion: assessmentQuestionsArray,
+      assessmentQuestion: filteredQuestionsArray,
       id: values.id,
       name: values.name,
       lessonNumber: values.lessonNumber,
@@ -198,32 +225,12 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     };
     try {
       setIsLoading(true);
-      const msg = await updateAssessmentContent({
+      await updateAssessmentContent({
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-      if (msg.status === "ok") {
-        console.log("API sucessfull", msg);
-      }
-      console.log("imagesToUpload", imagesToUpload)
-      if (imagesToUpload.length > 0) {
-        const result: any = await uploadImagesStorage(
-          {
-            fileLocation: "assessment-questions",
-            type: "assessment-question-image",
-            path: `${values.name}/${values.setNumber}`,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(imagesToUpload),
-          }
-        );
-        console.log("result", result);
-      }
       setIsLoading(false);
       props.handleDrawerVisiblity(false);
       openNotificationWithIcon('success')
@@ -239,19 +246,19 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const defaultValues = () => {
     form.setFieldsValue({
-      setNumber: props.assessmentData?.setNumber ?? "",
-      assessmentId: props.assessmentData?.assessmentId ?? "",
-      assessmentQuestion: props.assessmentData?.assessmentQuestion ?? assessmentQuestionsArray,
-      id: props.assessmentData?.id ?? "",
-      name: props.assessmentData?.name ?? "",
-      lessonNumber: props.assessmentData?.lessonNumber ?? "",
-      lessonId: props.assessmentData?.lessonId ?? "",
+      setNumber: assessment.setNumber ?? "",
+      assessmentId: assessment.assessmentId ?? "",
+      assessmentQuestion: assessment.assessmentQuestion ?? assessment.assessmentQuestion,
+      id: assessment.id ?? "",
+      name: assessment.name ?? "",
+      lessonNumber: assessment.lessonNumber ?? "",
+      lessonId: assessment.lessonId ?? "",
     });
   };
 
   useEffect(() => {
     defaultValues();
-  }, [props.assessmentData?.id]);
+  }, [assessment.id]);
 
   return (
     <>
@@ -321,43 +328,21 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
               </Spin>
             </Form >
             </TabPane>
-            <TabPane tab="Assessment Questions" key="2" style={{
-              display: "grid",
-              justifyContent: "center",
-              alignItems: "center"
-          }}
+          <TabPane tab="Assessment Questions" key="2"
             disabled={props.operationType === 'create' ? disableQuestionsTab : false}
-            forceRender >
-              <Spin spinning={isLoading}>
-                  {questionCards}
-                <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px", backgroundColor: "black", color: "white" }} block shape="round">+ Add Question</Button>
-              </Spin>
-            </TabPane>
-          </Tabs>
-        <Button type="primary" htmlType="submit" block shape="round" form="assessmentQuestionsForm" key="submit">
-              Submit
-          </Button>
-        </>
-
-      {/* <>
-            <Tabs defaultActiveKey="1">
-              <TabPane tab="Assessment Questions" key="1" style={{
-                display: "grid",
-                justifyContent: "center",
-                alignItems: "center"
-              }}
-                forceRender >
-                <Spin spinning={isLoading}>
-                  {questionCards}
-                  <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px", backgroundColor: "black", color: "white" }} block shape="round">+ Add Question</Button>
-                </Spin>
-              </TabPane>
-            </Tabs>
+            forceRender>
+            <Spin spinning={isLoading}>
+              <div className="question-cards">
+                {questionCards}
+              </div>
+              <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px", backgroundColor: "black", color: "white" }} block shape="round" hidden={assessment.assessmentQuestion.length >= 15}>+ Add Question</Button>
+            </Spin>
             <Button type="primary" htmlType="submit" block shape="round" form="assessmentQuestionsForm" key="submit">
               Submit
             </Button>
-          </> */}
-
+          </TabPane>
+        </Tabs>
+      </>
     </>
   );
 };
