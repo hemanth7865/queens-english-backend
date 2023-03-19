@@ -344,6 +344,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                     message: 'Status cannot be empty!',
                   }
                 ]}
+                tooltip="This will only save the status in the backend, the frontend implementation is not done yet so the set will be visible to the students"
               >
                 <Select
                   disabled
