@@ -24,6 +24,7 @@ export type AssessmentContentFormType = {
   name: string;
   lessonNumber: string;
   lessonId: string;
+  status?: string;
 };
 
 export type AssessmentContentFormProps = {
@@ -38,13 +39,14 @@ const { TabPane } = Tabs;
 const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const [form] = Form.useForm();
-  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", status: "active" });
+  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", status: "Active" });
   const [isLoading, setIsLoading] = useState<any>(false);
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
   const [update, setUpdate] = useState<any>(0);
-  const statusOptions = [{ value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }, { value: "notset", label: "Not Set" }];
-
+  const [status, setStatus] = useState<any>(props.assessmentData ? props.assessmentData?.status : "Not Set");
+  const statusOptions = [{ value: "Active", label: "Active" }, { value: "Inactive", label: "Inactive" }, { value: "Not Set", label: "Not Set", disabled: true }];
+  console.log("status", status, "props", props.assessmentData?.status)
   function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean) {
     const originalAssessment = assessment;
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
@@ -223,8 +225,9 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       lessonNumber: values.lessonNumber,
       lessonId: values.lessonId,
       operation: "update",
-      status: values.status
+      status: status
     };
+    console.log("values", values, "data", data)
     try {
       setIsLoading(true);
       await updateAssessmentContent({
@@ -255,7 +258,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       name: assessment.name ?? "",
       lessonNumber: assessment.lessonNumber ?? "",
       lessonId: assessment.lessonId ?? "",
-      status: assessment.status ?? "notset",
+      status: assessment.status ?? "Not Set",
     });
   };
 
@@ -344,12 +347,14 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                     message: 'Status cannot be empty!',
                   }
                 ]}
-                tooltip="This will only save the status in the backend, the frontend implementation is not done yet so the set will be visible to the students"
+                tooltip="This will only save the status in the backend, the frontend implementation for app is not done yet so the set will be visible to the students in the mobile app even if set to inactive or not set."
               >
                 <Select
-                  disabled
                   placeholder="Select Status of Set"
                   options={statusOptions}
+                  onSelect={(value) => { setStatus(value) }}
+                  value={status}
+                  defaultValue={props.assessmentData?.status ?? "Not Set"}
                 />
               </Form.Item>
               <div className="question-cards">
