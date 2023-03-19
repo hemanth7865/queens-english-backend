@@ -106,6 +106,7 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                 <Form.Item
                     label="Image URL"
                     name="imageUrl"
+                    hidden
                 >
                     <Input disabled placeholder="Enter Image URL" onChange={(e) => props.handleContentChange({ imageUrl: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>

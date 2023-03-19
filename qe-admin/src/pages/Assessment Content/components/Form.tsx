@@ -38,11 +38,12 @@ const { TabPane } = Tabs;
 const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const [form] = Form.useForm();
-  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "" });
+  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", status: "active" });
   const [isLoading, setIsLoading] = useState<any>(false);
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
   const [update, setUpdate] = useState<any>(0);
+  const statusOptions = [{ value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }, { value: "notset", label: "Not Set" }];
 
   function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean) {
     const originalAssessment = assessment;
@@ -221,7 +222,8 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       name: values.name,
       lessonNumber: values.lessonNumber,
       lessonId: values.lessonId,
-      operation: "update"
+      operation: "update",
+      status: values.status
     };
     try {
       setIsLoading(true);
@@ -253,6 +255,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       name: assessment.name ?? "",
       lessonNumber: assessment.lessonNumber ?? "",
       lessonId: assessment.lessonId ?? "",
+      status: assessment.status ?? "notset",
     });
   };
 
@@ -332,6 +335,22 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
             disabled={props.operationType === 'create' ? disableQuestionsTab : false}
             forceRender>
             <Spin spinning={isLoading}>
+              <Form.Item
+                label="Status"
+                name="status"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Status cannot be empty!',
+                  }
+                ]}
+              >
+                <Select
+                  disabled
+                  placeholder="Select Status of Set"
+                  options={statusOptions}
+                />
+              </Form.Item>
               <div className="question-cards">
                 {questionCards}
               </div>
