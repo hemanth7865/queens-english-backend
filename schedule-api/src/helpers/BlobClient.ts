@@ -3,7 +3,7 @@ import { BlobServiceClient, StorageSharedKeyCredential } from '@azure/storage-bl
 const account = process.env.STORAGE_ACCOUNT_NAME || '';
 const accountKey = process.env.STORAGE_ACCOUNT_KEY || '';
 
-export const getBlobClient = (path: string) => {
+export const getBlobClient = (path:string) => {
     const sharedKeyCredential = new StorageSharedKeyCredential(account, accountKey);
 
     const blobServiceClient = new BlobServiceClient(

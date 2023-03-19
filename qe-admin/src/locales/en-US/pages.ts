@@ -68,6 +68,7 @@ export default {
   'pages.searchTable.batchDeletion': 'bacth deletion',
   'pages.searchTable.batchApproval': 'batch approval',
   'pages.searchTable.titleSchool': 'School Management',
+  'pages.searchTable.titleLesson': 'Lesson Management',
   'pages.searchTable.school.name': 'School Name',
   'pages.searchTable.school.id': 'School ID',
   'pages.searchTable.school.createdAt': 'Created At',
