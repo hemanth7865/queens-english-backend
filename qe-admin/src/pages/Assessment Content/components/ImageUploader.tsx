@@ -69,8 +69,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = (props: any) => {
         setLoading(false);
     };
 
-    console.log("ImageUploader", props.data, props.imageURI)
-
     return (
         <>
             <Spin spinning={loading}>
