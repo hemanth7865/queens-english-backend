@@ -46,7 +46,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   const [update, setUpdate] = useState<any>(0);
   const [status, setStatus] = useState<any>(props.assessmentData ? props.assessmentData?.status : "Not Set");
   const statusOptions = [{ value: "Active", label: "Active" }, { value: "Inactive", label: "Inactive" }, { value: "Not Set", label: "Not Set", disabled: true }];
-  console.log("status", status, "props", props.assessmentData?.status)
+
   function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean) {
     const originalAssessment = assessment;
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
@@ -227,7 +227,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       operation: "update",
       status: status
     };
-    console.log("values", values, "data", data)
+
     try {
       setIsLoading(true);
       await updateAssessmentContent({

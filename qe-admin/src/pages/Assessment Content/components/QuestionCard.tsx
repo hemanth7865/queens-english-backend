@@ -1,5 +1,5 @@
 import { CloseOutlined } from '@ant-design/icons';
-import { Card, Input, Select, Form } from 'antd';
+import { Card, Input, Select, Form, Modal } from 'antd';
 import React, { useEffect } from 'react';
 import './form.css';
 import { getImageURL } from '@/services/ant-design-pro/helpers';
@@ -27,6 +27,7 @@ export type QuestionCardProps = {
 const QuestionCard: React.FC<QuestionCardProps> = (props) => {
     const [form] = Form.useForm();
     const [imageURI, setImageURI] = React.useState<any>(props.imageUrl ? getImageURL(props.imageUrl) : undefined);
+    const [openModal, setOpenModal] = React.useState<any>(false);
 
     const defaultValues = () => {
         form.setFieldsValue({
@@ -48,7 +49,7 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
 
     return (
         <Card title={`Question Number ${props.number}`} style={{ width: 400, margin: "5px", borderRadius: "15px", boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)" }}
-            extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => props.handleCardRemove(props)} title="Remove Question" />}
+            extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => setOpenModal(true)} title="Remove Question" />}
             cover={<ImageUploader imageURI={imageURI} setImageURI={data => setImageURI(data)} questionNumber={props.number} data={props} handleContentChange={(data) => props.handleContentChange(data)} update={props.update} />}
             key={props.key}
         >
@@ -111,6 +112,17 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                     <Input disabled placeholder="Enter Image URL" onChange={(e) => props.handleContentChange({ imageUrl: e.target.value, number: props.number, index: props.index })} />
                 </Form.Item>
             </Form>
+            <Modal
+                title="Modal"
+                open={openModal}
+                onOk={() => { props.handleCardRemove(props); setOpenModal(false); }}
+                onCancel={() => setOpenModal(false)}
+                okText="Delete Question"
+                cancelText="Cancel"
+            >
+                Are you sure you want to delete this question ?
+                <p style={{ color: "red", fontSize: "1" }}>Deleting question can cause question sequence issues, you can edit the question instead !</p>
+            </Modal>
         </Card >
     );
 };
