@@ -11,7 +11,7 @@ export type AssessmentContentQuestion = [
     question: string;
     answer: string;
     type: string;
-    imageUrl?: any;
+    imageUrl?: string;
     uri?: string;
   }
 ];
@@ -98,8 +98,26 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
     const filteredQuestions = await updatedAssessmentQuestion.filter((question: any) => question.question && question.answer !== "" || undefined || null);
     originalAssessment.assessmentQuestion = filteredQuestions;
-    setAssessment({ ...assessment, assessmentQuestion: filteredQuestions });
-    form.setFieldsValue(originalAssessment);
+    const updatedAssessment = {
+      ...originalAssessment,
+      assessmentQuestion: filteredQuestions.map((question: {
+        number: string;
+        question: string;
+        answer: string;
+        type: string;
+        imageUrl?: string;
+      }) => {
+        if (question.type === "image") {
+          return {
+            ...question,
+            imageUrl: `/${question.imageUrl}`
+          };
+        }
+        return question;
+      })
+    };
+    setAssessment(updatedAssessment);
+    form.setFieldsValue(updatedAssessment);
     for (let i = 0; i < filteredQuestions.length; i++) {
       if (Number(filteredQuestions[i].number) !== i + 1) {
         return false
@@ -155,7 +173,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           question={question.question}
           answer={question.answer}
           type={question.type}
-          imageUrl={question.imageUrl ? question.imageUrl : undefined}
+          imageUrl={question.imageUrl ? question.imageUrl.substring(1) : undefined}
           operationType={props.operationType}
           handleCardRemove={(index) => handleRemoveQuestionCard(index)}
           handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number, returnedData?.imageRemove, returnedData?.questionRemove, returnedData?.answerRemove)}
