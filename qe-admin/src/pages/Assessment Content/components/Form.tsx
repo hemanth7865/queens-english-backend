@@ -47,7 +47,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   const [status, setStatus] = useState<any>(props.assessmentData ? props.assessmentData?.status : "Not Set");
   const statusOptions = [{ value: "Active", label: "Active" }, { value: "Inactive", label: "Inactive" }, { value: "Not Set", label: "Not Set", disabled: true }];
 
-  function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean) {
+  function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean, questionRemove?: boolean, answerRemove?: boolean) {
     const originalAssessment = assessment;
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
 
@@ -79,6 +79,12 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     if (imageRemove) {
       updatedAssessmentQuestion[index].imageUrl = undefined;
     }
+    if (questionRemove) {
+      updatedAssessmentQuestion[index].question = undefined;
+    }
+    if (answerRemove) {
+      updatedAssessmentQuestion[index].answer = undefined;
+    }
 
     originalAssessment.assessmentQuestion = updatedAssessmentQuestion;
 
@@ -90,7 +96,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   async function removeEmptyQuestions() {
     const originalAssessment = assessment;
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
-    const filteredQuestions = await updatedAssessmentQuestion.filter((question: any) => question.question !== "" || question.answer !== "");
+    const filteredQuestions = await updatedAssessmentQuestion.filter((question: any) => question.question && question.answer !== "" || undefined || null);
     originalAssessment.assessmentQuestion = filteredQuestions;
     setAssessment({ ...assessment, assessmentQuestion: filteredQuestions });
     form.setFieldsValue(originalAssessment);
@@ -152,7 +158,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           imageUrl={question.imageUrl ? question.imageUrl : undefined}
           operationType={props.operationType}
           handleCardRemove={(index) => handleRemoveQuestionCard(index)}
-          handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number, returnedData?.imageRemove)}
+          handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number, returnedData?.imageRemove, returnedData?.questionRemove, returnedData?.answerRemove)}
           assessmentName={assessment.name}
           setNumber={assessment.setNumber}
           update={update}
@@ -196,7 +202,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const openNotificationWithIcon = (type: string, errorType?: string) => {
     notification[type]({
-      message: type == 'error' && errorType === "excessQuestions" ? 'Error: Add only upto 15 Questions' : type == 'error' && errorType === "missingQuestions" ? 'Error: Question numbers are not in sequence' : type == 'error' && errorType === "noQuestions" ? 'Error: Need atleast one question in the set' : type == 'error' ? 'Failed to update assessment questions!' : 'Successfully updated assessment questions!',
+      message: type == 'error' && errorType === "excessQuestions" ? 'Error: Add only upto 15 Questions' : type == 'error' && errorType === "missingQuestions" ? 'Error: Question numbers are not in sequence or the question/answer in middle are empty' : type == 'error' && errorType === "noQuestions" ? 'Error: Need atleast one question in the set' : type == 'error' ? 'Failed to update assessment questions!' : 'Successfully updated assessment questions!',
       description:
         '',
     });

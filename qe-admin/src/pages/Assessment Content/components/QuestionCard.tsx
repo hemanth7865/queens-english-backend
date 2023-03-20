@@ -76,7 +76,7 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                         }
                     ]}
                 >
-                    <Input placeholder="Enter Question" onChange={(e) => props.handleContentChange({ question: e.target.value, number: props.number, index: props.index })} />
+                    <Input placeholder="Enter Question" onChange={(e) => props.handleContentChange({ question: e.target.value, number: props.number, index: props.index, questionRemove: e.target.value.length === 0 ? true : false })} />
                 </Form.Item>
                 <Form.Item
                     label="Answer"
@@ -88,8 +88,9 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                         }
                     ]}
                 >
-                    <Input placeholder="Enter Answer" onChange={(e) => props.handleContentChange({ answer: e.target.value, number: props.number, index: props.index })} />
+                    <Input placeholder="Enter Answer" onChange={(e) => props.handleContentChange({ answer: e.target.value, number: props.number, index: props.index, answerRemove: e.target.value.length === 0 ? true : false })} />
                 </Form.Item>
+                <p hidden={!props.question || !props.answer ? false : true}><small style={{ color: "red" }}>Leaving a question/answer empty will remove the question entirely upon form submit</small></p>
                 <Form.Item
                     label="Type"
                     name="type"
