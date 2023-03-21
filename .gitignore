@@ -14,8 +14,10 @@ qe-admin/data/prms.json
 qe-admin/data/collection_agent.json
 qe-admin/data/call_disposition.json
 qe-admin/data/assessments.json
+qe-admin/package-lock.json
 .vscode/settings.json
 package-lock.json
 .sample
 schedule-api/ormlogs.log
 schedule-api/src/data/lessonsList.ts
+schedule-api/package-lock.json
