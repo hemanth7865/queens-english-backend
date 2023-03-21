@@ -199,7 +199,6 @@ export class BatchController {
 
     async checkStudentBatches(request: Request, response: Response, next: NextFunction) {
         const data = request.body;
-        console.log("data", data)
         let isPresent: any;
         try {
             isPresent = await this.batchService.checkStudentBatches(data.students, data.id);
