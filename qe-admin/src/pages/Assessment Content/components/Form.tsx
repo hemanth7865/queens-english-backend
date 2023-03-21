@@ -190,7 +190,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   async function setToCreate(data: any) {
     setIsLoading(true);
     const existingSets = await getAssessmentQuestions();
-    const sets = existingSets.data.filter(({ assessmentId }) => assessmentId === data.value);
+    const sets = existingSets.data.filter(({ assessmentId }: AssessmentContentFormType) => assessmentId === data.value);
     setAssessment({ ...assessment, setNumber: `0${sets.length + 1}` });
     form.setFieldsValue({ setNumber: `0${sets.length + 1}` });
     await getAssessmentDetails(data, `0${sets.length + 1}`);
