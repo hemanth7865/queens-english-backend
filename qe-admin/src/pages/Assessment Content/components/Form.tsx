@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, notification, Spin, Tabs } from "antd";
 import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
 import QuestionCard from "./QuestionCard";
-import Assessments from "../../../../data/assessmentsUAT.json";
+import Assessments from "../../../../data/assessments.json";
 import "./form.css"
 
 export type AssessmentContentQuestion = [
