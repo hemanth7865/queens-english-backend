@@ -1107,11 +1107,11 @@ export async function checkStudentInBatch(
   options?: { [key: string]: any }
 ) {
   return request<any>("/be/batch/checkStudent", {
-    method: "GET",
-    params: {
-      data
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
     },
-    ...(options || {}),
+    body: JSON.stringify(data)
   });
 }
 

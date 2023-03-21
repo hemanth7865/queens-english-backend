@@ -137,6 +137,7 @@ const BatchList: React.FC = () => {
   const intl = useIntl();
   const access = useAccess();
   const [notificationCall, contextHolder] = notification.useNotification();
+  const [schoolsLoading, setSchoolsLoading] = useState(false);
 
   const options = [];
   for (let i = 0; i < leadList.length; i++) {
@@ -168,6 +169,7 @@ const BatchList: React.FC = () => {
     }).catch(e => {
       console.log("error", e);
     });
+    setSchoolsLoading(true);
     listSchool()
       .then((data: any) => {
         setSchools(data.data);
@@ -175,6 +177,7 @@ const BatchList: React.FC = () => {
       .catch((error) => {
         console.log(error);
       });
+    setSchoolsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -1059,8 +1062,9 @@ const BatchList: React.FC = () => {
                                 filterOption={(input, option: any) =>
                                   option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                 }
-                                allowClear
-                              >
+                                  allowClear
+                                  loading={schoolsLoading}
+                                >
                                 {
                                   schools.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
                                 }
