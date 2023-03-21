@@ -198,7 +198,7 @@ export class BatchController {
     }
 
     async checkStudentBatches(request: Request, response: Response, next: NextFunction) {
-        const data = JSON.parse(request.body);
+        const data = request.body;
         console.log("data", data)
         let isPresent: any;
         try {
