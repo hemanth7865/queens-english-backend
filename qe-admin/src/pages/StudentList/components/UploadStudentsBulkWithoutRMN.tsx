@@ -28,8 +28,10 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [notStoredUsers, setNotStoredUsers] = useState<object[]>([])
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
+    const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        setSchoolsLoading(true);
         listSchool()
             .then((data: any) => {
                 setSchools(data.data);
@@ -40,6 +42,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
         if (props?.school) {
             setSelectedSchool(props.school)
         }
+        setSchoolsLoading(false);
     }, [props.school]);
 
     const handleUpload = async (e: any) => {
@@ -75,7 +78,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         }
                         const studentsToCheck = studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber)
                         if (studentsToCheck.length > 0) {
-                            const checkStudentBatch = await checkStudentInBatch({ students: studentsToCheck, data: { id: batchData.data.classes.id } });
+                            const data = { students: studentsToCheck, id: batchData.data.classes.id }
+                            const checkStudentBatch = await checkStudentInBatch(data);
                             if (checkStudentBatch.data.length > 0) {
                                 studentsAlreadyInBatch.push(...checkStudentBatch.data);
                             }
@@ -313,6 +317,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     optionLabelProp="label"
                     optionFilterProp='label'
                     disabled={props.disableDropdown}
+                    loading={schoolsLoading}
                 >
                 </Select>
                 <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}

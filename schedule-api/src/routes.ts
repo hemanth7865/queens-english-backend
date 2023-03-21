@@ -751,7 +751,7 @@ export const Routes = [
     action: "addBatchtoSchool",
   },
   {
-    method: "get",
+    method: "put",
     route: "/batch/checkStudent",
     controller: BatchController,
     action: "checkStudentBatches",
