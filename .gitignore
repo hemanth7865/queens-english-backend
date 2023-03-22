@@ -19,3 +19,5 @@ qe-admin/data/assessments.json
 schedule-api/ormlogs.log
 schedule-api/src/data/lessonsList.ts
 package-lock.json
+qe-admin/package-lock.json
+schedule-api/package-lock.json
