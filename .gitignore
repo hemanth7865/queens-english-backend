@@ -19,5 +19,3 @@ package-lock.json
 .sample
 schedule-api/ormlogs.log
 schedule-api/src/data/lessonsList.ts
-# schedule-api/package-lock.json
-# qe-admin/package-lock.json
