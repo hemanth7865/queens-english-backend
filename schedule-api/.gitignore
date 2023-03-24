@@ -11,3 +11,4 @@ database/connections
 !database/connections/.gitkeep
 src/commands/result.txt
 src/data/lessonsList.ts
+package-lock.json

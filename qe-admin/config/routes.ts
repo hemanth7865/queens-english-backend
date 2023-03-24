@@ -52,9 +52,20 @@ export default [
         component: "./StudentsBatchList",
       },
       {
-        name: "Assessment",
-        path: "/manage/assessment",
-        component: "./NewAssessment",
+        name: "Assessment Management",
+        path: "/manage/assessmentManager",
+        routes: [
+          {
+            name: "Student's Assessments",
+            path: "/manage/assessmentManager/studentsAssessments",
+            component: "./NewAssessment",
+          },
+          {
+            name: "Assessment Content",
+            path: "/manage/assessmentManager/assessmentContent",
+            component: "./Assessment Content",
+          },
+        ]
       },
       {
         name: "Payment Management",

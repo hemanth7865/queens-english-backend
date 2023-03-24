@@ -1218,10 +1218,49 @@ export async function deleteLessonScriptById(
   );
 }
 
+export async function getAssessmentQuestions(
+  params?: {
+    pageSize?: number;
+    current?: number;
+    keyword?: string;
+  },
+  sort?: {
+    field?: string;
+    order?: number;
+  },
+  filter?: { [key: string]: any; },
+  options?: { [key: string]: any }
+) {
+  return request<API.AssessmentList>(`/be/azure?url=api/assessmentQuestions`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(sort || {}),
+    ...(filter || {}),
+    ...(options || {}),
+  });
+}
 
-//API - Upload Images
+export async function getLesson(
+  id?: string,
+) {
+  return request<API.AssessmentList>(`/be/azure?url=api/lesson/${id}`, {
+    method: "GET"
+  });
+}
+
+export async function updateAssessmentContent(
+  options?: { [key: string]: any }
+) {
+  return request<any>(`/be/azure?url=api/assessmentQuestions`, {
+    method: "PUT",
+    ...(options || {}),
+  });
+}
+
 export async function uploadImagesStorage(
-  params: { path: string },
+  params: { path: string, fileLocation?: string, type?: string, name?: string },
   options?: { [key: string]: any }
 ) {
   return request<API.RuleList>(`/be/upload/images`, {
