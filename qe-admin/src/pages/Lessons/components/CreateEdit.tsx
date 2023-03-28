@@ -8,6 +8,7 @@ import RichEditor from "./RichEditor";
 // @ts-expect-error
 import { v4 as uuid } from "uuid";
 import Preview from "./Preview";
+import ImageUploader from "./ImageUploader";
 
 interface CreateEditProps {
     edit: any,
@@ -26,6 +27,7 @@ type Exercise = {
     subHeading: string;
     key: string;
     sections: Section[]
+    image?: string;
 }
 
 const { TabPane } = Tabs;
@@ -206,6 +208,22 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
         })
     }
 
+    const addImage = (index: number, url: string) => {
+        setFormData((data) => {
+            data[index].image = url;
+            return data;
+        })
+        setUpdate((u) => u + 1);
+    }
+
+    const removeImage = (index: number) => {
+        setFormData((data) => {
+            data[index].image = undefined;
+            return data;
+        })
+        setUpdate((u) => u + 1);
+    }
+
     return (
         <>
             <Tabs defaultActiveKey="1" onTabClick={() => { setUpdate((u) => u + 1) }}>
@@ -277,6 +295,10 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                             >
                                                                 <CloseCircleFilled />
                                                             </Popconfirm>
+                                                        </Row>
+
+                                                        <Row style={{ justifyContent: 'center' }}>
+                                                            <ImageUploader imageURI={exercise.image} exerciseNumber={index} addImage={addImage} removeImage={removeImage} />
                                                         </Row>
 
                                                         {

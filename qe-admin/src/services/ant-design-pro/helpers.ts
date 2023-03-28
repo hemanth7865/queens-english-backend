@@ -248,9 +248,25 @@ export function csvToArray(str: string, delimiter: string = ",") {
   return arr;
 }
 
-export const getImageURL = (image: string) => {
+export const getImageURL = (image: string | undefined) => {
+  if (!image) return;
+  if (image.startsWith("http")) return image;
   // @ts-expect-error
-  return BLOB_URL + image + BLOB_SAS;
+  return joinAssets(BLOB_URL, BLOB_SAS, image);
+};
+
+export const joinAssets = (
+  blobUrl: string,
+  blobSas: string,
+  assetPath: string
+) => {
+  if (blobUrl.endsWith("/")) {
+    blobUrl = blobUrl.slice(0, -1);
+  }
+  if (assetPath.startsWith("/")) {
+    assetPath = assetPath.slice(1);
+  }
+  return `${blobUrl}/${assetPath}${blobSas}`;
 };
 
 export const updateImageSasBlob = (html: string): string => {
