@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { Modal, notification, Spin } from 'antd';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 import { uploadImagesStorage } from '@/services/ant-design-pro/api';
@@ -118,7 +118,8 @@ const ImageUploader = (props: ImageUploaderProps) => {
                             <div className='image'>
                                 <label className="custom-file-upload" title='Upload New Image'>
                                     <input type="file" name="uploadImage" accept="image/png" onChange={uploadImages} style={{ marginTop: "25px", marginLeft: "110px" }} ref={uploadRef} />
-                                    Upload Image
+                                    <UploadOutlined style={{ fontSize: 25 }} />
+                                    Click to Upload
                                 </label>
                             </div>
                     }
