@@ -20,7 +20,7 @@
   width: 100%;
 }
 
-#LessonScriptEditor .ql-editor > p:first-child,
+/* #LessonScriptEditor .ql-editor > p:first-child,
 #ViewLessonScriptData > p:first-child {
   display: flex;
   gap: 10px;
@@ -28,7 +28,7 @@
   justify-content: center;
   width: 100%;
   flex-wrap: wrap;
-}
+} */
 
 #LessonScriptEditor .ql-editor > p img,
 #ViewLessonScriptData > p img {
