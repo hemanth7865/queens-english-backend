@@ -2,6 +2,7 @@ import { SECTION_TYPES } from "@/components/Constants/constants";
 import { Card, Col, Image, List, Row, Spin, Table, TableColumnsType } from "antd";
 import React, { useState, useEffect } from "react";
 import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
+import { getAllLessonScripts } from "@/services/ant-design-pro/api";
 
 interface ViewProps {
     data: any
@@ -20,10 +21,22 @@ const View: React.FC<ViewProps> = ({ data }) => {
     const [lessonScriptData, setLessonScriptData] = useState<API.lessonScripts>();
     const [lessonDetails, setLessonDetails] = useState<API.LessonScriptExercise[]>();
 
-    useEffect(() => {
+
+    const fetchLessonData = async () => {
         setIsLoading(true)
-        setLessonScriptData(data)
+        if (data && data.id) {
+            const [lessonId] = data.id.split("__");
+            const response: any = await getAllLessonScripts({ id: lessonId, pageSize: 1 })
+            if (response.data?.length !== 0) {
+                const existingLesson = response.data[0];
+                setLessonScriptData(existingLesson)
+            }
+        }
         setIsLoading(false)
+    }
+
+    useEffect(() => {
+        fetchLessonData();
     }, [data])
 
     useEffect(() => {
