@@ -1,7 +1,7 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
-import { Card, Col, Image, List, Row, Spin, Table, TableColumnsType } from "antd";
+import { Card, Col, Divider, Image, List, Row, Spin, Table, TableColumnsType } from "antd";
 import React, { useState, useEffect } from "react";
-import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
+import { getImageURL, updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 
 interface ViewProps {
     data: any
@@ -51,6 +51,20 @@ const View: React.FC<ViewProps> = ({ data }) => {
                         <Col span={12}> <b>Heading</b> <h3>{record.heading}</h3> </Col>
                         <Col span={12}> <b>SubHeading</b> <h4>{record.subHeading}</h4> </Col>
                     </Row>
+                    {record.image && (
+                        <>
+                            <Divider />
+                            <Row justify={"center"}>
+                                <Image
+                                    width={150}
+                                    height={150}
+                                    src={getImageURL(record.image)}
+                                    alt="exercise-image"
+                                    style={{ objectFit: 'contain' }}
+                                />
+                            </Row>
+                        </>
+                    )}
                 </>
             }
             renderItem={(item: API.LessonScriptExerciseSection, index) => {

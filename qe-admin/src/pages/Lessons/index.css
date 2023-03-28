@@ -108,7 +108,7 @@ div.ant-upload {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 150px;
   margin-bottom: 10px;
   padding: 6px 12px;
   border: dashed 1px #ccc;
