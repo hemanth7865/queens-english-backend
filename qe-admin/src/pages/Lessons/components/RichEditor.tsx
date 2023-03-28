@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import UploadImage, { ImagesData } from "./UploadImage";
+import ReactDOMServer from 'react-dom/server';
 
 
 /*
@@ -41,6 +43,9 @@ const CustomEditorToolbar = ({ images, setImages, sectionKey }: any) => (
             <button type="button" title="ordered list" className="ql-list" value="ordered"> </button>
             <button type="button" title="bullet list" className="ql-list" value="bullet"> </button>
         </span>
+        <button title="images" className="ql-images">
+            <UploadImage images={images} setImages={setImages} />
+        </button>
     </div>
 );
 
@@ -52,7 +57,16 @@ type Props = {
 
 const RichEditor = ({ sectionKey, onChange, defaultValue }: Props) => {
     const [editorState, setEditorState] = useState<string>(defaultValue);
+    const [images, setImages] = useState<string[]>([])
     const editorRef = useRef<null | ReactQuill>(null);
+
+    useEffect(() => {
+        if (images.length > 0) {
+            const imagesHTML = ReactDOMServer.renderToString(<ImagesData images={images} />);
+            setEditorState((state) => imagesHTML + state);
+        }
+        console.log(images);
+    }, [images]);
 
     useEffect(() => {
         if (editorState) {
@@ -62,7 +76,7 @@ const RichEditor = ({ sectionKey, onChange, defaultValue }: Props) => {
 
     return (
         <div style={{ width: "100%" }} id="LessonScriptEditor">
-            <CustomEditorToolbar sectionKey={sectionKey}></CustomEditorToolbar>
+            <CustomEditorToolbar images={images} setImages={setImages} sectionKey={sectionKey}></CustomEditorToolbar>
             <ReactQuill theme="snow" value={editorState} onChange={setEditorState} ref={editorRef} formats={[
                 'header',
                 'font',
