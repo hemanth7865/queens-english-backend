@@ -98,7 +98,7 @@ const ImageUploader = (props: ImageUploaderProps) => {
                             <div className='image'>
                                 <img
                                     src={getImageURL(props.imageURI)}
-                                    alt="question-image"
+                                    alt="exercise-image"
                                     className="image_image"
                                 />
                                 <div className="image_overlay">
