@@ -38,7 +38,6 @@ export default [
         name: "Lessons Scripts",
         path: "/manage/lessonsScripts",
         component: "./Lessons",
-        access: "canSuperAdmin",
       },
       {
         name: "User",
@@ -65,7 +64,7 @@ export default [
             path: "/manage/assessmentManager/assessmentContent",
             component: "./Assessment Content",
           },
-        ]
+        ],
       },
       {
         name: "Payment Management",
@@ -81,7 +80,7 @@ export default [
             path: "/manage/paymentDashboard/paymentIssue",
             component: "./Payment",
           },
-        ]
+        ],
       },
       {
         name: "Collection Agents",

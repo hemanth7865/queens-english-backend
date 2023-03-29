@@ -1,6 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import { request } from "umi";
+import { getImageURL } from "./helpers";
 
 const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
@@ -1029,9 +1030,7 @@ export async function getSra(
 }
 
 //API to view batches without School
-export async function listBatchForSchool(
-  options?: { [key: string]: any }
-) {
+export async function listBatchForSchool(options?: { [key: string]: any }) {
   return request<API.RuleList>("/be/listBatchForSchool", {
     method: "GET",
     ...(options || {}),
@@ -1055,13 +1054,16 @@ export async function editSchool(options?: { [key: string]: any }) {
 }
 
 //API to generate missing assessments for selected batch
-export async function generateMissingAssessmentsForBatch(
-  options: { [key: string]: any }
-) {
-  return request<any>(`/be/azure?url=api/teacher/generate-missing-assessments`, {
-    method: "POST",
-    ...(options || {}),
-  });
+export async function generateMissingAssessmentsForBatch(options: {
+  [key: string]: any;
+}) {
+  return request<any>(
+    `/be/azure?url=api/teacher/generate-missing-assessments`,
+    {
+      method: "POST",
+      ...(options || {}),
+    }
+  );
 }
 
 //API to save student school in Cosmos
@@ -1092,9 +1094,7 @@ export async function editSRA(options?: { [key: string]: any }) {
 }
 
 //API to Add Batch to School
-export async function addBatchToSchool(
-  options?: { [key: string]: any }
-) {
+export async function addBatchToSchool(options?: { [key: string]: any }) {
   return request<any>("/be/addBatchToSchool", {
     method: "POST",
     ...(options || {}),
@@ -1111,7 +1111,7 @@ export async function checkStudentInBatch(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
 }
 
@@ -1137,7 +1137,7 @@ export async function bulkRemoveBatchStudents(data: any) {
   });
 }
 
-//API - GET LESSON SCRIPT 
+//API - GET LESSON SCRIPT
 export async function getAllLessonScripts(
   params: {
     current?: number;
@@ -1146,76 +1146,91 @@ export async function getAllLessonScripts(
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/azure?url=api/lessonScript`,
-    {
-      method: "GET",
-      params: {
-        ...params,
-      },
-      ...(options || {}),
+  const requestRes = request<API.RuleList>(`/be/azure?url=api/lessonScript`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+  if (params.id) {
+    const response = await requestRes;
+    console.log(response);
+    if (response.data?.length !== 0) {
+      const lessonScript = response.data[0];
+      if (!lessonScript.lessonDetails) {
+        lessonScript.lessonDetails = [];
+      }
+      if (
+        lessonScript.payloadPath &&
+        typeof lessonScript.payloadPath === "string"
+      ) {
+        const payloadPath = getImageURL(lessonScript.payloadPath);
+        const lessonDetails = await loadJSONFile(payloadPath);
+        lessonScript.lessonDetails = lessonDetails;
+        response.data[0] = lessonScript;
+      }
     }
-  );
+
+    return response;
+  }
+  return request<API.RuleList>(`/be/azure?url=api/lessonScript`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
 }
 
-//API - CREATE LESSON SCRIPT 
+//API - CREATE LESSON SCRIPT
 export async function createLessonScript(
   params: {},
   data: any,
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/azure?url=api/lessonScript`,
-    {
-      method: "POST",
-      
-      params: {
-        ...params,
-      },
-      headers: { "Content-Type": "application/json" },
-      data,
-      ...(options || {}),
-    }
-  );
+  return request<API.RuleList>(`/be/azure?url=api/lessonScript`, {
+    method: "POST",
+
+    params: {
+      ...params,
+    },
+    headers: { "Content-Type": "application/json" },
+    data,
+    ...(options || {}),
+  });
 }
 
-//API - Edit LESSON SCRIPT 
+//API - Edit LESSON SCRIPT
 export async function updateLessonScript(
   params: {},
   data: any,
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/azure?url=api/lessonScript`,
-    {
-      method: "PUT",
-      
-      params: {
-        ...params,
-      },
-      headers: { "Content-Type": "application/json" },
-      data,
-      ...(options || {}),
-    }
-  );
-}
+  return request<API.RuleList>(`/be/azure?url=api/lessonScript`, {
+    method: "PUT",
 
+    params: {
+      ...params,
+    },
+    headers: { "Content-Type": "application/json" },
+    data,
+    ...(options || {}),
+  });
+}
 
 //API - DELETE LESSON SCRIPT BY ID
 export async function deleteLessonScriptById(
   params: { id: string },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(
-    `/be/azure?url=api/lessonScript`,
-    {
-      method: "DELETE",
-      params: {
-        ...params,
-      },
-      ...(options || {}),
-    }
-  );
+  return request<API.RuleList>(`/be/azure?url=api/lessonScript`, {
+    method: "DELETE",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
 }
 
 export async function getAssessmentQuestions(
@@ -1228,7 +1243,7 @@ export async function getAssessmentQuestions(
     field?: string;
     order?: number;
   },
-  filter?: { [key: string]: any; },
+  filter?: { [key: string]: any },
   options?: { [key: string]: any }
 ) {
   return request<API.AssessmentList>(`/be/azure?url=api/assessmentQuestions`, {
@@ -1242,17 +1257,15 @@ export async function getAssessmentQuestions(
   });
 }
 
-export async function getLesson(
-  id?: string,
-) {
+export async function getLesson(id?: string) {
   return request<API.AssessmentList>(`/be/azure?url=api/lesson/${id}`, {
-    method: "GET"
+    method: "GET",
   });
 }
 
-export async function updateAssessmentContent(
-  options?: { [key: string]: any }
-) {
+export async function updateAssessmentContent(options?: {
+  [key: string]: any;
+}) {
   return request<any>(`/be/azure?url=api/assessmentQuestions`, {
     method: "PUT",
     ...(options || {}),
@@ -1260,7 +1273,7 @@ export async function updateAssessmentContent(
 }
 
 export async function uploadImagesStorage(
-  params: { path: string, fileLocation?: string, type?: string, name?: string },
+  params: { path: string; fileLocation?: string; type?: string; name?: string },
   options?: { [key: string]: any }
 ) {
   return request<API.RuleList>(`/be/upload/images`, {
@@ -1269,5 +1282,11 @@ export async function uploadImagesStorage(
       ...params,
     },
     ...(options || {}),
+  });
+}
+
+export async function loadJSONFile(url: string) {
+  return request<API.RuleList>(`/be/fileProxy?url=${url}`, {
+    method: "GET",
   });
 }
