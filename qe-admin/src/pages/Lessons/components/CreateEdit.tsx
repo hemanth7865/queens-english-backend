@@ -61,7 +61,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
     const [form] = Form.useForm();
 
     useEffect(() => {
-        const lessonData = lessons.map((lesson) => {
+        const lessonData = lessons?.map((lesson) => {
             return { label: lesson.number, value: lesson.id + '__' + lesson.number }
         })
         setOptions(lessonData)
@@ -263,7 +263,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                     // Add fields to add headings and sections
                                     <Form onFinish={onSubmit} style={{ marginTop: 20 }} form={form} key={update}>
                                         {
-                                            fromData.map((exercise, index) => {
+                                            fromData?.map((exercise, index) => {
                                                 return (
                                                     <Row
                                                         key={exercise.key}
@@ -302,7 +302,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                         </Row>
 
                                                         {
-                                                            exercise.sections.map((section, sectionIndex) => {
+                                                            exercise?.sections?.map((section, sectionIndex) => {
                                                                 return (
                                                                     <div key={section.key} className="sectionContainer" style={{ marginBottom: 10 }}>
                                                                         <Row gutter={10}>
