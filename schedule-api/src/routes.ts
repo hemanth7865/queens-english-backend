@@ -416,6 +416,13 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "all",
+    route: "/fileProxy",
+    controller: AzureProxyController,
+    action: "fileProxy",
+    authenticate: true,
+  },
+  {
     method: "post",
     route: "/upload/images",
     controller: UploadFilesController,
