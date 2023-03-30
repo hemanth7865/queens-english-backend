@@ -16,18 +16,18 @@
 }
 
 #ViewLessonScriptData {
-  overflow-wrap: break-word;
   width: 100%;
+  overflow-wrap: break-word;
 }
 
 #LessonScriptEditor .ql-editor > p:first-child,
 #ViewLessonScriptData > p:first-child {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: end;
   justify-content: center;
   width: 100%;
-  flex-wrap: wrap;
 }
 
 #LessonScriptEditor .ql-editor > p img,

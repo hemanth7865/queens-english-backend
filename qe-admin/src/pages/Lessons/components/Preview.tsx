@@ -1,5 +1,5 @@
 import { SECTION_TYPES } from '@/components/Constants/constants'
-import { updateImageSasBlob } from '@/services/ant-design-pro/helpers'
+import { getImageURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
 import { Col, Divider, Row, Select } from 'antd'
 import { useState } from 'react';
 import { DeviceFrameset } from 'react-device-frameset'
@@ -16,6 +16,7 @@ type Exercise = {
     subHeading: string;
     key: string;
     sections: Section[]
+    image?: string;
 }
 
 const devices = [
@@ -99,6 +100,17 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                     </Col>
                                 </Row>
                                 <div style={{ margin: "8px 0", borderRadius: 3, height: 5, width: "100%", backgroundColor: "#186E98" }} />
+                                {exercise?.image && (
+                                    <Row>
+                                        <div className='image'>
+                                            <img
+                                                src={getImageURL(exercise.image)}
+                                                alt="exercise-image"
+                                                className="image_image"
+                                            />
+                                        </div>
+                                    </Row>
+                                )}
                                 {exercise?.sections?.map((section) => {
                                     return <Row>
                                         {section.type === SECTION_TYPES.DESCRIPTION && section.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(section.description) }} />}

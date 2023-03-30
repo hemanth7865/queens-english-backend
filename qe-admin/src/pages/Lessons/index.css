@@ -1,12 +1,12 @@
 /* date */
-input[type='date']::before {
+input[type="date"]::before {
   margin-right: 0.5em;
   color: #aaa;
   content: attr(placeholder) !important;
 }
-input[type='date']:focus::before,
-input[type='date']:valid::before {
-  content: '';
+input[type="date"]:focus::before,
+input[type="date"]:valid::before {
+  content: "";
 }
 
 .inputfile {
@@ -25,20 +25,21 @@ input[type='date']:valid::before {
   border: 1px solid #ccc;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: revert;
 }
 
 .exerciseContainer {
-  border: 1px solid #ccc;
-  padding: 0.5em;
-  border-radius: 0.5em;
   margin-bottom: 0.5em;
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
 }
 
 .sectionContainer {
-  border: 1px dotted #cecbff;
   padding: 0.5em;
+  border: 1px dotted #cecbff;
   border-radius: 0.5em;
 }
 
@@ -56,4 +57,77 @@ ul, ol {
 
 #mobileDevice {
   margin-top: -40px;
+}
+
+.question-image {
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 150px;
+  margin: 10px 0;
+}
+
+.image_overlay {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 100%;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.image_overlay:hover {
+  opacity: 1;
+}
+
+div.ant-upload {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.custom-file-upload input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border: dashed 1px #ccc;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.custom-file-upload:hover {
+  color: dodgerblue;
+  border: dashed 1px dodgerblue;
+}
+
+.overlay-props {
+  margin: 10px;
+  padding: 10px;
+}
+
+.overlay-props:hover {
+  color: dodgerblue;
 }
