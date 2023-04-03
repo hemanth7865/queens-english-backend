@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { PlusOutlined, ClockCircleOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
 import { NotificationInstance as RCNotificationInstance } from 'rc-notification/lib/Notification';
-import { Button, message, Input, Drawer, Tooltip } from 'antd';
+import { Button, message, Input, Drawer, Tooltip, Row } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
@@ -145,6 +145,21 @@ const TableList: React.FC = () => {
           status: "Student",
         },
       },
+    },
+
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.schoolName"
+          defaultMessage="School Name"
+        />
+      ),
+      dataIndex: "schoolName",
+      render: (dom, entity) => {
+        return <Row justify={'space-between'}>
+          <span>{entity?.school?.schoolName}</span>
+        </Row>
+      }
     },
 
     {
