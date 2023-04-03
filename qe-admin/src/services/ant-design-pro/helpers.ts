@@ -26,7 +26,12 @@ export const handleAPIResponse = (
   failed: string,
   reload: boolean = true
 ) => {
-  if (msg.status === 400 || msg.status === 500 || msg.status == "error") {
+  if (
+    msg.status === 400 ||
+    msg.status === 500 ||
+    msg.status === 501 ||
+    msg.status == "error"
+  ) {
     if (Array.isArray(msg.errors)) {
       for (let m of msg.errors) {
         openNotificationWithIcon("error", m, false);
