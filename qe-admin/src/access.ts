@@ -9,8 +9,9 @@ export default function access(initialState: {
     canAdmin: currentUser?.role == "admin",
     canSuperAdmin: currentUser?.role == "superadmin",
     canManage:
-      currentUser?.role == "admin" || currentUser?.role == "superadmin",
+      currentUser?.role == "admin" || currentUser?.role == "superadmin" || currentUser?.role == "programmanager",
     canTeacher: currentUser?.role == "teacher",
     canZoomManage: currentUser?.role == "zoom",
+    canProgramManager: currentUser?.role == "programmanager",
   };
 }
