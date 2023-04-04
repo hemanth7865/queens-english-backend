@@ -27,11 +27,7 @@ const CustomEditorToolbar = ({ images, setImages, sectionKey }: any) => (
         <button title="italic" className="ql-italic"></button>
         <select title="color" className="ql-color">
             <option value="red"></option>
-            <option value="green"></option>
             <option value="blue"></option>
-            <option value="orange"></option>
-            <option value="violet"></option>
-            <option value="#d0d1d2"></option>
             <option selected></option>
         </select>
         <button title="strike" className="ql-strike"></button>
