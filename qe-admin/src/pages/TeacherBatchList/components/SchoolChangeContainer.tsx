@@ -129,7 +129,7 @@ const SchoolChangeContainer: React.FC<UpdateFormProps> = ({ teacher, schools }) 
                 {error && <h4 style={{ color: 'red' }}>{error}</h4>}
                 <form id="uploadForm" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleSubmit} style={{ marginTop: 10 }}>
                     <Button disabled={isLoading} loading={isLoading} onSubmit={handleSubmit} type="primary" htmlType="submit" style={{ marginRight: 10 }}>
-                        Upload File
+                        Update School
                     </Button>
                     <Button type="default" onClick={handleOnClose}>
                         Cancel
