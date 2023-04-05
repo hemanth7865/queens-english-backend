@@ -14,6 +14,7 @@ import {
 } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { useAccess } from 'umi';
 
 export type EditUserProps = {
     data: {};
@@ -44,6 +45,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const [schools, setSchools] = useState([])
     const [selectedSchool, setSelectSchool] = useState()
     const [reload, setReload] = useState(0)
+    const access = useAccess();
 
     useEffect(() => {
         listSchool()
@@ -293,9 +295,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" }]}>
+                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" && access.canSuperAdmin }]}>
                                 <Select
-                                    disabled={selectOfflineUser === "0"}
+                                    disabled={selectOfflineUser === "0" || !access.canSuperAdmin}
                                     placeholder="Select School"
                                     defaultValue={selectedSchool}
                                     value={selectedSchool}

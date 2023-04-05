@@ -1129,6 +1129,7 @@ const TeacherBatchList: React.FC = () => {
                         onChange={(value) => {
                           setSelectedSchool(value);
                         }}
+                        disabled={!access.canSuperAdmin}
                       >
                         {schools.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
                       </Select>
@@ -1561,6 +1562,7 @@ const TeacherBatchList: React.FC = () => {
                           onChange={(value) => {
                             setSelectedSchool(value)
                           }}
+                          disabled={!access.canSuperAdmin}
                         >
                           {schools.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
                         </Select>

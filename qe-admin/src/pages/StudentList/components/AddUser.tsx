@@ -8,6 +8,7 @@ import * as CountryList from 'country-list'
 import { addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { useAccess } from 'umi';
 
 //console.log('ccc', CountryList)
 
@@ -34,6 +35,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [selectCountry, setSelectCountry] = useState('IN')
     const [selectCountryCode, setSelectCountryCode] = useState(91)
     const [schools, setSchools] = useState([])
+    const access = useAccess();
 
     useEffect(() => {
         listSchool()
@@ -234,9 +236,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                         </Col>
 
                         <Col span={12}>
-                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" }]}>
+                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" || access.canSuperAdmin }]}>
                                 <Select
-                                    disabled={selectOfflineUser === "0"}
+                                    disabled={selectOfflineUser === "0" || !access.canSuperAdmin}
                                     placeholder="Select School"
                                     onChange={(value) => { setSelectSchool(value) }}
                                 >
