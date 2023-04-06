@@ -40,7 +40,8 @@ import {
 } from "@/services/ant-design-pro/api";
 
 import {
-  handleAPIResponse
+  fetchSchoolsFromStorage,
+  handleAPIResponse, storeSchoolsIntoLocalStorage
 } from "@/services/ant-design-pro/helpers";
 
 import "./index.css";
@@ -57,7 +58,7 @@ const TeacherBatchList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
-  const [schools, setSchools] = useState<any[]>([]);
+  const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage());
   const access = useAccess();
 
   const [formData, setFormData] = useState({
@@ -105,14 +106,17 @@ const TeacherBatchList: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<any>(null);
 
   useEffect(() => {
-    listSchool()
-      .then((data: any) => {
-        setSchools(data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+    if (schools.length === 0) {
+      listSchool()
+        .then((data: any) => {
+          setSchools(data.data);
+          storeSchoolsIntoLocalStorage(data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [schools]);
 
   //add drawer
   const showDrawer = () => {

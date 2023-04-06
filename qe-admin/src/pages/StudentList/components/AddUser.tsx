@@ -6,7 +6,7 @@ import {
 } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
 import { addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
-import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { fetchSchoolsFromStorage, handleAPIResponse, storeSchoolsIntoLocalStorage } from "@/services/ant-design-pro/helpers";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import { useAccess } from 'umi';
 
@@ -34,18 +34,21 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('IN')
     const [selectCountryCode, setSelectCountryCode] = useState(91)
-    const [schools, setSchools] = useState([])
+    const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
     const access = useAccess();
 
     useEffect(() => {
-        listSchool()
-            .then((data: any) => {
-                setSchools(data.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }, []);
+        if (schools.length === 0) {
+            listSchool()
+                .then((data: any) => {
+                    setSchools(data.data);
+                    storeSchoolsIntoLocalStorage(data.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+    }, [schools]);
 
     const allCountries = CountryList.getData()
 

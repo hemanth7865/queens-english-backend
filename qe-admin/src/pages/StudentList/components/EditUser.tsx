@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin } from 'antd';
 import moment from "moment";
 import { studentBatches, addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
-import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { fetchSchoolsFromStorage, handleAPIResponse, storeSchoolsIntoLocalStorage } from "@/services/ant-design-pro/helpers";
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -42,20 +42,23 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const [selectCountry, setSelectCountry] = useState('')
     const [selectCountryCode, setSelectCountryCode] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [schools, setSchools] = useState([])
+    const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
     const [selectedSchool, setSelectSchool] = useState()
     const [reload, setReload] = useState(0)
     const access = useAccess();
 
     useEffect(() => {
-        listSchool()
-            .then((data: any) => {
-                setSchools(data.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }, []);
+        if (schools.length === 0) {
+            listSchool()
+                .then((data: any) => {
+                    setSchools(data.data);
+                    storeSchoolsIntoLocalStorage(data.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+    }, [schools]);
 
     const refresh = () => setReload((e) => e + 1)
     const allCountries = CountryList.getData()

@@ -12,6 +12,7 @@ import styles from './index.less';
 import { GoogleLogin } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import jwt_decode from "jwt-decode";
+import { storeSchoolsIntoLocalStorage } from '@/services/ant-design-pro/helpers';
 
 const LoginMessage: React.FC<{
   content: string;
@@ -41,6 +42,7 @@ const Login: React.FC = () => {
         name: `${userInfo.firstname} ${userInfo.lastname}`
       };
     }
+    storeSchoolsIntoLocalStorage()
     if (userInfo) {
       await setInitialState((s) => ({
         ...s,
