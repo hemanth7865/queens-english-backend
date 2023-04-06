@@ -320,3 +320,7 @@ export const fetchSchoolsFromStorage = () => {
   const schools = localStorage.getItem("eq-schools");
   return JSON.parse(schools || "[]");
 };
+
+export const removeSchoolsFromStorage = () => {
+  localStorage.removeItem("eq-schools");
+};
