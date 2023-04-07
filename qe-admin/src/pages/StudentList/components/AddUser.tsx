@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Row, Col, Select, Spin } from 'antd'
 import {
     isValidPhoneNumber,
     validatePhoneNumberLength,
 } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
-import { addUserSchedule } from "@/services/ant-design-pro/api";
-import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
+import { fetchSchoolsFromStorage, handleAPIResponse, storeSchoolsIntoLocalStorage } from "@/services/ant-design-pro/helpers";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { useAccess } from 'umi';
 
 //console.log('ccc', CountryList)
 
@@ -27,11 +28,27 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     })
 
     const [selectUserType, setSelectUserType] = useState('')
+    const [selectedSchool, setSelectSchool] = useState()
     const [selectOfflineUser, setOfflineUser] = useState('0')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('IN')
     const [selectCountryCode, setSelectCountryCode] = useState(91)
+    const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
+    const access = useAccess();
+
+    useEffect(() => {
+        if (schools.length === 0) {
+            listSchool()
+                .then((data: any) => {
+                    setSchools(data.data);
+                    storeSchoolsIntoLocalStorage(data.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+    }, [schools]);
 
     const allCountries = CountryList.getData()
 
@@ -95,7 +112,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         var code = selectCountryCode ? selectCountryCode : '91';
         setIsLoading(true)
         if (!error) {
-            let dataForm
+            let dataForm: any
             if (selectUserType === "student") {
                 dataForm = {
                     firstName: formData.firstName,
@@ -115,6 +132,10 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     offlineUser: selectOfflineUser,
                     type: selectUserType,
                 }
+            }
+
+            if (selectOfflineUser === "1") {
+                dataForm.schoolId = selectedSchool
             }
 
             try {
@@ -213,6 +234,18 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                                 >
                                     <Option value="0">Online</Option>
                                     <Option value="1">Offline</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={12}>
+                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" || access.canSuperAdmin }]}>
+                                <Select
+                                    disabled={selectOfflineUser === "0" || !access.canSuperAdmin}
+                                    placeholder="Select School"
+                                    onChange={(value) => { setSelectSchool(value) }}
+                                >
+                                    {schools?.map((s: any) => (<Select.Option value={s?.id}>{`${s?.schoolName} ~ ${s?.schoolCode}`}</Select.Option>))}
                                 </Select>
                             </Form.Item>
                         </Col>

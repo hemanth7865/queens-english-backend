@@ -25,7 +25,7 @@ import {
   Tabs
 } from "antd";
 import React, { useState, useRef, useEffect } from "react";
-import { useIntl, FormattedMessage } from "umi";
+import { useIntl, FormattedMessage, useAccess } from "umi";
 
 import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
@@ -36,10 +36,12 @@ import {
   addTeacherSchedule,
   teacherBatchesView,
   teacherRemove,
+  listSchool,
 } from "@/services/ant-design-pro/api";
 
 import {
-  handleAPIResponse
+  fetchSchoolsFromStorage,
+  handleAPIResponse, storeSchoolsIntoLocalStorage
 } from "@/services/ant-design-pro/helpers";
 
 import "./index.css";
@@ -48,6 +50,7 @@ import { parse, format } from "date-fns";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import ViewDrawer from '../School/components/Drawers/viewDrawer';
 import TeacherBulkUpload from "./components/TeacherBulkUpload";
+import SchoolChangeContainer from "./components/SchoolChangeContainer";
 
 const TeacherBatchList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -55,6 +58,8 @@ const TeacherBatchList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
+  const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage());
+  const access = useAccess();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -83,14 +88,16 @@ const TeacherBatchList: React.FC = () => {
   });
 
   const actionRef = useRef<ActionType>();
-  const [tempDataView, setTempDataView] = useState({});
+  const [tempDataView, setTempDataView] = useState<any>({});
   const [selectCountryCode, setSelectCountryCode] = useState(91)
   const [selectCountry, setSelectCountry] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [key, setKey] = useState(0);
 
   //state for select option
   const [selectValue, setSelectValue] = useState("");
   const [selectStatus, setSelectStatus] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState("");
 
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
@@ -98,8 +105,22 @@ const TeacherBatchList: React.FC = () => {
   const [dateBirth, setDateOfBirth] = useState("");
   const [currentRow, setCurrentRow] = useState<any>(null);
 
+  useEffect(() => {
+    if (schools.length === 0) {
+      listSchool()
+        .then((data: any) => {
+          setSchools(data.data);
+          storeSchoolsIntoLocalStorage(data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [schools]);
+
   //add drawer
   const showDrawer = () => {
+    setKey((e) => e + 1)
     setVisible(true);
   };
   const onClose = () => {
@@ -112,6 +133,7 @@ const TeacherBatchList: React.FC = () => {
   }
 
   const showDrawerEdit = () => {
+    setKey((e) => e + 1)
     seteditvisible(true);
   };
 
@@ -128,6 +150,7 @@ const TeacherBatchList: React.FC = () => {
         console.log("API call successfull", msg);
       }
       setTempDataView(msg.data);
+      setKey((e) => e + 1)
       console.log("view one", msg);
     } catch (error) {
       console.log("error", error);
@@ -174,6 +197,14 @@ const TeacherBatchList: React.FC = () => {
         />
       ),
       dataIndex: "schoolName",
+      render: (dom, entity) => {
+        return <Row justify={'space-between'}>
+          <span>{entity?.schoolName}</span>
+          {access.canSuperAdmin ? (<>
+            <SchoolChangeContainer teacher={entity} schools={schools} />
+          </>) : null}
+        </Row>
+      }
     },
     {
       title: (
@@ -204,6 +235,7 @@ const TeacherBatchList: React.FC = () => {
         />
       ),
       dataIndex: "totalexp",
+      hideInTable: true,
     },
     //status
     {
@@ -263,6 +295,7 @@ const TeacherBatchList: React.FC = () => {
         />
       ),
       dataIndex: "classesTaken",
+      hideInTable: true,
     },
     //ratings
     {
@@ -273,6 +306,7 @@ const TeacherBatchList: React.FC = () => {
         />
       ),
       dataIndex: "ratings",
+      hideInTable: true,
     },
     //time slots
     {
@@ -290,6 +324,7 @@ const TeacherBatchList: React.FC = () => {
           </Tooltip>
         );
       },
+      hideInTable: true,
       renderFormItem: (value) => {
         return <TimePicker.RangePicker format="HH:mm" />;
       },
@@ -460,6 +495,7 @@ const TeacherBatchList: React.FC = () => {
       //   },
       // ],
       status: selectStatus,
+      schoolId: selectedSchool,
       leadAvailability: leadArray,
     };
     // async (values: API.LoginParams) => {
@@ -501,7 +537,6 @@ const TeacherBatchList: React.FC = () => {
       email: formData.email ? formData.email : tempDataView.email,
       address: formData.address ? formData.address : tempDataView.address,
       whatsapp: formData.whatsapp ? formData.whatsapp : tempDataView.whatsapp,
-      status: formData.status,
       gender: selectValue ? selectValue : tempDataView.gender,
       category: formData.category ? formData.category : tempDataView.category,
       languages: formData.languagesKnown
@@ -539,6 +574,7 @@ const TeacherBatchList: React.FC = () => {
         },
       ],
       status: selectStatus ? selectStatus : tempDataView.status,
+      schoolId: selectedSchool ? selectedSchool : tempDataView.schoolId,
       leadAvailability: leadArray,
     };
     // async (values: API.LoginParams) => {
@@ -548,7 +584,6 @@ const TeacherBatchList: React.FC = () => {
     }
     try {
       // 登录
-      console.log("data", dataForm);
       const msg = await addTeacherSchedule({
         headers: {
           "Content-Type": "application/json",
@@ -1090,6 +1125,21 @@ const TeacherBatchList: React.FC = () => {
                     </Form.Item>
                   </Col>
 
+                  {/* For selecting schools while adding teacher */}
+                  <Col span={12}>
+                    <Form.Item name="schoolId">
+                      <Select
+                        placeholder="School"
+                        onChange={(value) => {
+                          setSelectedSchool(value);
+                        }}
+                        disabled={!access.canSuperAdmin}
+                      >
+                        {schools.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+
                   {/* status */}
 
                   <Col span={24}>
@@ -1367,6 +1417,15 @@ const TeacherBatchList: React.FC = () => {
                       )}
                     </p>
                   </Col>
+                  <Col span={7}></Col>
+                  <Col span={6}>
+                    <p>School </p>
+                  </Col>
+                  <Col span={11}>
+                    <p>
+                      {schools?.filter(e => e?.id === tempDataView?.schoolId)[0]!?.schoolName}
+                    </p>
+                  </Col>
                 </Row>
                 <br />
                 <Row>
@@ -1381,7 +1440,7 @@ const TeacherBatchList: React.FC = () => {
               </>
             ) : (
               <Spin spinning={isLoading}>
-                <Form onFinish={handleFormSubmitEdit} form={form}>
+                <Form onFinish={handleFormSubmitEdit} form={form} key={key}>
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item name="firstName">
@@ -1394,196 +1453,212 @@ const TeacherBatchList: React.FC = () => {
                       </Form.Item>
                     </Col>
 
-                      {/* joining and start date */}
+                    {/* joining and start date */}
 
-                      <Col span={12}>
-                        <Form.Item name="joiningDate">
-                          <DatePicker
-                            format="YYYY/MM/DD"
-                            style={{ width: "350px" }}
-                            onChange={(date, dateString) => {
-                              setDateJoining(dateString);
-                            }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="startDate">
-                          <DatePicker
-                            format="YYYY/MM/DD"
-                            style={{ width: "350px" }}
-                            onChange={(date, dateString) => {
-                              setDateStart(dateString);
-                            }}
-                          />
-                        </Form.Item>
-                      </Col>
+                    <Col span={12}>
+                      <Form.Item name="joiningDate">
+                        <DatePicker
+                          format="YYYY/MM/DD"
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDateJoining(dateString);
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="startDate">
+                        <DatePicker
+                          format="YYYY/MM/DD"
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDateStart(dateString);
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
 
-                      {/* Date of Birth and gender */}
+                    {/* Date of Birth and gender */}
 
-                      <Col span={12}>
-                        <Form.Item name="dateOfBirth">
-                          <DatePicker
-                            format="YYYY/MM/DD"
-                            style={{ width: "350px" }}
-                            onChange={(date, dateString) => {
-                              setDateOfBirth(dateString);
-                            }}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="gender">
-                          <Select name="gender" onChange={handleSelectChange}>
-                            <Select.Option value="Male">Male</Select.Option>
-                            <Select.Option value="Female">Female</Select.Option>
-                            <Select.Option value="Not Applicable">Not Applicable</Select.Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
+                    <Col span={12}>
+                      <Form.Item name="dateOfBirth">
+                        <DatePicker
+                          format="YYYY/MM/DD"
+                          style={{ width: "350px" }}
+                          onChange={(date, dateString) => {
+                            setDateOfBirth(dateString);
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="gender">
+                        <Select name="gender" onChange={handleSelectChange}>
+                          <Select.Option value="Male">Male</Select.Option>
+                          <Select.Option value="Female">Female</Select.Option>
+                          <Select.Option value="Not Applicable">Not Applicable</Select.Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
 
-                      {/* Mobile and Whatsup */}
-                      <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} />
+                    {/* Mobile and Whatsup */}
+                    <PhoneNumberCountrySelect handleMobileChange={handleFormChange} edit={true} defaultValue={tempDataView?.phoneNumber} />
 
-                      <Col span={12}>
-                        <Form.Item name="whatsApp">
-                          <Input name="whatsapp" onChange={handleFormChange} />
-                        </Form.Item>
-                      </Col>
+                    <Col span={12}>
+                      <Form.Item name="whatsApp">
+                        <Input name="whatsapp" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
 
-                      {/* Email and address */}
+                    {/* Email and address */}
 
-                      <Col span={12}>
-                        <Form.Item name="email">
-                          <Input name="email" onChange={handleFormChange} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="address">
-                          <Input name="address" onChange={handleFormChange} />
-                        </Form.Item>
-                      </Col>
+                    <Col span={12}>
+                      <Form.Item name="email">
+                        <Input name="email" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="address">
+                        <Input name="address" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
 
-                      {/* Nationality and category */}
+                    {/* Nationality and category */}
 
-                      <Col span={12}>
-                        <Form.Item name="category">
-                          <Input name="category" onChange={handleFormChange} />
-                        </Form.Item>
-                      </Col>
+                    <Col span={12}>
+                      <Form.Item name="category">
+                        <Input name="category" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
 
-                      {/* Education/Qualification and total experience */}
+                    {/* Education/Qualification and total experience */}
 
-                      <Col span={12}>
-                        <Form.Item name="qualification">
-                          <Input name="education" onChange={handleFormChange} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={24}>
-                        <Form.Item name="totalExperience">
-                          <Input name="experience" onChange={handleFormChange} />
-                        </Form.Item>
-                      </Col>
+                    <Col span={12}>
+                      <Form.Item name="qualification">
+                        <Input name="education" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item name="totalExperience">
+                        <Input name="experience" onChange={handleFormChange} />
+                      </Form.Item>
+                    </Col>
 
-                      {/* Teacher Type and Language Known */}
-                      <Col span={12}>
-                        <Form.Item name="languageKnown">
-                          <Input
-                            name="languagesKnown"
-                            onChange={handleFormChange}
-                            placeholder={"Languages Known"}
-                          />
-                        </Form.Item>
-                      </Col>
+                    {/* Teacher Type and Language Known */}
+                    <Col span={12}>
+                      <Form.Item name="languageKnown">
+                        <Input
+                          name="languagesKnown"
+                          onChange={handleFormChange}
+                          placeholder={"Languages Known"}
+                        />
+                      </Form.Item>
+                    </Col>
 
-                      {/* upload resume and upload video profile */}
+                    {/* upload resume and upload video profile */}
 
-                      {/* status */}
+                    {/* School */}
+                    <Col span={12}>
+                      <Form.Item name="schoolId">
+                        <Select
+                          defaultValue={tempDataView.schoolId}
+                          value={tempDataView.schoolId}
+                          onChange={(value) => {
+                            setSelectedSchool(value)
+                          }}
+                          disabled={!access.canSuperAdmin}
+                        >
+                          {schools.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
 
-                      <Col span={12}>
-                        <Form.Item name="status">
-                          <Select
-                            defaultValue={
-                              tempDataView.statusId == 1
-                                ? "Active"
-                                : tempDataView.statusId == 3
-                                  ? "OnHold"
-                                  : tempDataView.statusId == 2
-                                    ? "Leave"
-                                    : "In Active"
-                            }
-                            onChange={(value) => {
-                              setSelectStatus(value);
-                            }}
-                          >
-                            <Select.Option value="0">In Active</Select.Option>
-                            <Select.Option value="1">Active</Select.Option>
-                            <Select.Option value="2">Leave</Select.Option>
-                            <Select.Option value="3">On Hold</Select.Option>
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    {/* Availability */}
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="leadAvailability">
-                          <label>Week Availability</label>
-                          <WeekdayAvailability
-                            weekday={1}
-                            week="Monday"
-                            tempData={monday}
-                          />
-                          <WeekdayAvailability
-                            weekday={2}
-                            week="Tuesday"
-                            tempData={tuesday}
-                          />
-                          <WeekdayAvailability
-                            weekday={3}
-                            week="Wednesday"
-                            tempData={wednesday}
-                          />
-                          <WeekdayAvailability
-                            weekday={4}
-                            week="Thursday"
-                            tempData={thursday}
-                          />
-                          <WeekdayAvailability
-                            weekday={5}
-                            week="Friday"
-                            tempData={friday}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item name="leadAvailability">
-                          <label>Weekend Availability</label>
-                          <WeekdayAvailability
-                            weekday={6}
-                            week="Saturday"
-                            tempData={saturday}
-                          />
-                          <WeekdayAvailability
-                            weekday={7}
-                            week="Sunday"
-                            tempData={sunday}
-                          />
-                          <Form.List name="users">
-                            {(fields, { add, remove }) => (
-                              <>
-                                {fields.map(({ key, name, ...restField }) => (
+                    {/* status */}
 
-                                  <Space key={key} style={{ display: 'flex' }} align="baseline">
-                                    {console.log('key', key)}
-                                    <Form.Item
-                                      {...restField}
-                                    >
-                                      <ExtraWeekdayAvailability key={key} />
-                                    </Form.Item>
-                                    <MinusCircleOutlined onClick={() => remove(name)} />
-                                  </Space>
-                                ))}
+                    <Col span={12}>
+                      <Form.Item name="status">
+                        <Select
+                          defaultValue={
+                            tempDataView.statusId == 1
+                              ? "Active"
+                              : tempDataView.statusId == 3
+                                ? "OnHold"
+                                : tempDataView.statusId == 2
+                                  ? "Leave"
+                                  : "In Active"
+                          }
+                          onChange={(value) => {
+                            setSelectStatus(value);
+                          }}
+                        >
+                          <Select.Option value="0">In Active</Select.Option>
+                          <Select.Option value="1">Active</Select.Option>
+                          <Select.Option value="2">Leave</Select.Option>
+                          <Select.Option value="3">On Hold</Select.Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  {/* Availability */}
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="leadAvailability">
+                        <label>Week Availability</label>
+                        <WeekdayAvailability
+                          weekday={1}
+                          week="Monday"
+                          tempData={monday}
+                        />
+                        <WeekdayAvailability
+                          weekday={2}
+                          week="Tuesday"
+                          tempData={tuesday}
+                        />
+                        <WeekdayAvailability
+                          weekday={3}
+                          week="Wednesday"
+                          tempData={wednesday}
+                        />
+                        <WeekdayAvailability
+                          weekday={4}
+                          week="Thursday"
+                          tempData={thursday}
+                        />
+                        <WeekdayAvailability
+                          weekday={5}
+                          week="Friday"
+                          tempData={friday}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="leadAvailability">
+                        <label>Weekend Availability</label>
+                        <WeekdayAvailability
+                          weekday={6}
+                          week="Saturday"
+                          tempData={saturday}
+                        />
+                        <WeekdayAvailability
+                          weekday={7}
+                          week="Sunday"
+                          tempData={sunday}
+                        />
+                        <Form.List name="users">
+                          {(fields, { add, remove }) => (
+                            <>
+                              {fields.map(({ key, name, ...restField }) => (
+
+                                <Space key={key} style={{ display: 'flex' }} align="baseline">
+                                  {console.log('key', key)}
+                                  <Form.Item
+                                    {...restField}
+                                  >
+                                    <ExtraWeekdayAvailability key={key} />
+                                  </Form.Item>
+                                  <MinusCircleOutlined onClick={() => remove(name)} />
+                                </Space>
+                              ))}
                               <Form.Item>
                                 <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
                                   Extra Availability

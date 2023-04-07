@@ -651,6 +651,11 @@ export class StudentService {
     student.onboardingIssueReason = data.onboardingIssueReason;
     student.enrollmentType = data.enrollmentType;
 
+    if (data?.schoolId) {
+      user.schoolId = data.schoolId
+      student.schoolId = data.schoolId
+    }
+
     if (create) {
       const lqsClient = new LQSService();
       student.prm_id = parseInt(await (await lqsClient.getPRMsAvailability())[0].id);

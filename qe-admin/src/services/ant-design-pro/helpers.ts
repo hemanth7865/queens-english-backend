@@ -3,6 +3,7 @@ import { LESSONS, Lesson } from "../../../config/lessons";
 import { parseISO, format } from "date-fns";
 import moment from "moment";
 import type ZoomTypes from "./types/zoom";
+import { listSchool } from "./api";
 
 export const openNotificationWithIcon = (
   type: string,
@@ -26,7 +27,12 @@ export const handleAPIResponse = (
   failed: string,
   reload: boolean = true
 ) => {
-  if (msg.status === 400 || msg.status === 500 || msg.status == "error") {
+  if (
+    msg.status === 400 ||
+    msg.status === 500 ||
+    msg.status === 501 ||
+    msg.status == "error"
+  ) {
     if (Array.isArray(msg.errors)) {
       for (let m of msg.errors) {
         openNotificationWithIcon("error", m, false);
@@ -291,4 +297,30 @@ export const updateImageSasBlob = (html: string): string => {
     html = html.replaceAll(sasGroup, `${BLOB_SAS}"`);
   }
   return html;
+};
+
+export const storeSchoolsIntoLocalStorage = async (data?: any[]) => {
+  let schools = [];
+  if (data && data.length > 0) {
+    schools = data;
+  } else {
+    schools = await listSchool()
+      .then((data: any) => data.data)
+      .catch((error: any) => []);
+  }
+  schools = schools.map((e: any) => ({
+    id: e?.id,
+    schoolName: e?.schoolName,
+    schoolCode: e?.schoolCode,
+  }));
+  localStorage.setItem("eq-schools", JSON.stringify(schools));
+};
+
+export const fetchSchoolsFromStorage = () => {
+  const schools = localStorage.getItem("eq-schools");
+  return JSON.parse(schools || "[]");
+};
+
+export const removeSchoolsFromStorage = () => {
+  localStorage.removeItem("eq-schools");
 };
