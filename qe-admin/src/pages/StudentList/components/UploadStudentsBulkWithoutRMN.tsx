@@ -148,7 +148,6 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             reader.onload = async function (e: any) {
                 const text = e.target.result;
                 const data = csvToArray(text);
-                data.pop();
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }

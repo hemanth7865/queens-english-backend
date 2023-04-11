@@ -7,6 +7,7 @@ import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
 import { outLogin } from '@/services/ant-design-pro/api';
 import type { MenuInfo } from 'rc-menu/lib/interface';
+import { removeSchoolsFromStorage } from '@/services/ant-design-pro/helpers';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -38,6 +39,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     (event: MenuInfo) => {
       const { key } = event;
       if (key === 'logout') {
+        removeSchoolsFromStorage()
         setInitialState((s) => ({ ...s, currentUser: undefined }));
         loginOut();
         return;
@@ -71,9 +73,9 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
 
   const menuHeaderDropdown = (
     <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-        <Menu.Item key="logout">
-          <LogoutOutlined />
-          Logout
+      <Menu.Item key="logout">
+        <LogoutOutlined />
+        Logout
       </Menu.Item>
     </Menu>
   );

@@ -449,15 +449,15 @@ export class TeacherService {
           availability.start_date = element.startDate ? element.startDate : null;
           availability.start_slot = element.start_slot;
           console.log("start slot" + element.start_slot);
-          if (element.start_slot) {
-            let time = element.start_slot.split(":");
+          if (element?.start_slot) {
+            let time = element?.start_slot?.split(":");
             availability.start_slot = time[0];
             console.log("time is ", time);
             availability.start_min = time[1];
             availability.startMin = time[0] * 60 + time[1];
           }
-          if (element.end_slot) {
-            let time = element.end_slot.split(":");
+          if (element?.end_slot) {
+            let time = element?.end_slot?.split(":");
             availability.end_slot = time[0];
             availability.end_min = time[1];
             availability.endMin = time[0] * 60 + time[1];
@@ -775,7 +775,7 @@ export class TeacherService {
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
           console.log("batchdode", element);
-          studentOrTeacherId.push(element.batchCode);
+          studentOrTeacherId.push(element.batchNumber);
         });
       } else {
         var quer =
@@ -785,7 +785,7 @@ export class TeacherService {
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
           console.log("batchcodeTeacher", element);
-          studentOrTeacherId.push(element.batchId);
+          studentOrTeacherId.push(element.batchNumber);
         });
       }
 

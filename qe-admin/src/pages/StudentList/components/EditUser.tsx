@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin } from 'antd';
 import moment from "moment";
-import { studentBatches, addUserSchedule } from "@/services/ant-design-pro/api";
-import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { studentBatches, addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
+import { fetchSchoolsFromStorage, handleAPIResponse, storeSchoolsIntoLocalStorage } from "@/services/ant-design-pro/helpers";
 import {
     isPossiblePhoneNumber,
     isValidPhoneNumber,
@@ -14,6 +14,7 @@ import {
 } from 'libphonenumber-js'
 import * as CountryList from 'country-list'
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { useAccess } from 'umi';
 
 export type EditUserProps = {
     data: {};
@@ -36,12 +37,30 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     })
 
     const [selectUserType, setSelectUserType] = useState('')
-    const [selectOfflineUser, setOfflineUser] = useState('0')
+    const [selectOfflineUser, setOfflineUser] = useState(props.data.offlineUser ? '1' : '0')
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('')
     const [selectCountryCode, setSelectCountryCode] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
+    const [selectedSchool, setSelectSchool] = useState()
+    const [reload, setReload] = useState(0)
+    const access = useAccess();
 
+    useEffect(() => {
+        if (schools.length === 0) {
+            listSchool()
+                .then((data: any) => {
+                    setSchools(data.data);
+                    storeSchoolsIntoLocalStorage(data.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+    }, [schools]);
+
+    const refresh = () => setReload((e) => e + 1)
     const allCountries = CountryList.getData()
     const allCountryCodes = getCountries()
     const [clearCache, setClearCache] = useState(false);
@@ -128,7 +147,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
         console.log('form submitted')
         var code = selectCountryCode ? selectCountryCode : '91';
         if (!error) {
-            let dataForm = {
+            let dataForm: any = {
                 firstName: formData.firstName ? formData.firstName : props.data.firstName,
                 lastName: formData.lastName ? formData.lastName : lastName,
                 phoneNumber: formData.phoneNumber ? formData.phoneNumber : phoneNumber,
@@ -136,6 +155,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                 type: selectUserType ? selectUserType : type,
                 offlineUser: selectOfflineUser,
                 status: props.data.status
+            }
+            if (selectOfflineUser === "1") {
+                dataForm.schoolId = selectedSchool
             }
             if (props.data) {
                 dataForm.id = props.data.id;
@@ -173,6 +195,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
             offlineUser: props.data.offlineUser ? '1' : '0',
             userType: type == 'teacher' ? 'Teacher' : 'Student'
         });
+        setOfflineUser(props.data.offlineUser ? '1' : '0')
+        setSelectSchool(props.data.schoolId)
+        refresh()
     }
     useEffect(() => {
         defaultValues();
@@ -185,6 +210,7 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                     form={form}
                     onFinish={onFinish}
                     validateMessages={validateMessages}
+                    key={reload}
                 >
                     <Row gutter={16}>
                         <Col span={12}>
@@ -268,6 +294,19 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                                 >
                                     <Option value="0">Online</Option>
                                     <Option value="1">Offline</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" && access.canSuperAdmin }]}>
+                                <Select
+                                    disabled={selectOfflineUser === "0" || !access.canSuperAdmin}
+                                    placeholder="Select School"
+                                    defaultValue={selectedSchool}
+                                    value={selectedSchool}
+                                    onChange={(value) => { setSelectSchool(value) }}
+                                >
+                                    {schools?.map((s: any) => (<Select.Option value={s?.id}>{`${s?.schoolName} ~ ${s?.schoolCode}`}</Select.Option>))}
                                 </Select>
                             </Form.Item>
                         </Col>
