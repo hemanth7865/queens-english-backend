@@ -1,4 +1,5 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
+import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
 import { addTeacherSchedule, listSchool } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
@@ -12,6 +13,9 @@ const TeacherBulkUpload = () => {
     const [notStoredTeachers, setNotStoredTeachers] = useState<object[]>([])
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
+
+    //Role Based Access
+    const access = useAccess();
 
     useEffect(() => {
         listSchool()
@@ -153,14 +157,16 @@ const TeacherBulkUpload = () => {
 
     return (
         <>
-            <Button
-                type="primary"
-                key="primary"
-                onClick={() => setOpenUpload(true)}
-                icon={<UploadOutlined />}
-            >
-                Bulk Upload Teachers
-            </Button>
+            {access.canSuperAdmin && (
+                <Button
+                    type="primary"
+                    key="primary"
+                    onClick={() => setOpenUpload(true)}
+                    icon={<UploadOutlined />}
+                >
+                    Bulk Upload Teachers
+                </Button>
+            )}
 
             <Modal width={'75%'} visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
                 {notStoredTeachers.length > 0 && (

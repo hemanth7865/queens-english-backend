@@ -10,6 +10,7 @@ const typeOptions = [{ value: 'word', label: 'word' }, { value: 'image', label: 
 export type QuestionCardProps = {
     operationType: "create" | "update";
     question: string;
+    instruction: string;
     answer: string;
     type: string;
     index: number;
@@ -31,10 +32,11 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
 
     const defaultValues = () => {
         form.setFieldsValue({
-            question: props.question ? props.question : "",
-            type: props.type ? props.type : "",
-            answer: props.answer ? props.answer : "",
-            imageUrl: props.imageUrl ? props.imageUrl : "",
+            question: props.question ?? "",
+            instruction: props.instruction ?? "",
+            type: props.type ?? "",
+            answer: props.answer ?? "",
+            imageUrl: props.imageUrl ?? "",
         });
     };
 
@@ -72,11 +74,23 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                     rules={[
                         {
                             required: true,
-                            message: 'Please enter Question!',
+                            message: 'Please enter Question',
                         }
                     ]}
                 >
                     <Input placeholder="Enter Question" onChange={(e) => props.handleContentChange({ question: e.target.value, number: props.number, index: props.index, questionRemove: e.target.value.length === 0 ? true : false })} />
+                </Form.Item>
+                <Form.Item
+                    label="Instruction"
+                    name="instruction"
+                    rules={[
+                        {
+                            required: false,
+                            message: 'Please Enter Teacher Instruction',
+                        }
+                    ]}
+                >
+                    <Input placeholder="Enter Teacher Instruction" onChange={(e) => props.handleContentChange({ instruction: e.target.value, number: props.number, index: props.index, instructionRemove: e.target.value.length === 0 ? true : false })} />
                 </Form.Item>
                 <Form.Item
                     label="Answer"

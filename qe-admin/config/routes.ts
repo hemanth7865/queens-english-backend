@@ -1,4 +1,4 @@
-export default [
+﻿export default [
   {
     path: "/user",
     layout: false,
@@ -43,7 +43,7 @@ export default [
         name: "User",
         path: "/manage/UserBatch",
         component: "./StudentList",
-        access: "canSuperAdmin",
+        access: "canSuperAdmin, canProgramManager",
       },
       {
         name: "Student",

@@ -15,6 +15,7 @@ export type AssessmentContentFormType = {
     {
       number: string;
       question: string;
+      instruction: string;
       answer: string;
       type: string;
       imageUrl?: string;

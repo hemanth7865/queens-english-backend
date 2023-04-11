@@ -47,7 +47,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   const [status, setStatus] = useState<any>(props.assessmentData ? props.assessmentData?.status : "Not Set");
   const statusOptions = [{ value: "Active", label: "Active" }, { value: "Inactive", label: "Inactive" }, { value: "Not Set", label: "Not Set", disabled: true }];
 
-  function editAssessmentQuestion(index: number, question?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean, questionRemove?: boolean, answerRemove?: boolean) {
+  function editAssessmentQuestion(index: number, question?: string, instruction?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean, questionRemove?: boolean, instructionRemove?: boolean, answerRemove?: boolean) {
     const originalAssessment = assessment;
     const updatedAssessmentQuestion = originalAssessment.assessmentQuestion;
 
@@ -55,6 +55,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       updatedAssessmentQuestion[index] = {
         number: "",
         question: "",
+        instruction: "",
         answer: "",
         type: "",
         imageUrl: ""
@@ -63,6 +64,9 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
     if (question) {
       updatedAssessmentQuestion[index].question = question;
+    }
+    if (instruction) {
+      updatedAssessmentQuestion[index].instruction = instruction;
     }
     if (answer) {
       updatedAssessmentQuestion[index].answer = answer;
@@ -81,6 +85,9 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     }
     if (questionRemove) {
       updatedAssessmentQuestion[index].question = undefined;
+    }
+    if (instructionRemove) {
+      updatedAssessmentQuestion[index].instruction = undefined;
     }
     if (answerRemove) {
       updatedAssessmentQuestion[index].answer = undefined;
@@ -103,6 +110,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       assessmentQuestion: filteredQuestions.map((question: {
         number: string;
         question: string;
+        instruction: string,
         answer: string;
         type: string;
         imageUrl?: string;
@@ -139,6 +147,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           {
             number: "1",
             question: "",
+            instruction: "",
             answer: "",
             type: "word",
             imageUrl: ""
@@ -154,6 +163,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           {
             number: assessment.assessmentQuestion.length + 1,
             question: "",
+            instruction: "",
             answer: "",
             type: "word",
             imageUrl: ""
@@ -171,12 +181,13 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
           index={index}
           number={question.number}
           question={question.question}
+          instruction={question.instruction}
           answer={question.answer}
           type={question.type}
           imageUrl={question.imageUrl ? question.imageUrl.substring(1) : undefined}
           operationType={props.operationType}
           handleCardRemove={(index) => handleRemoveQuestionCard(index)}
-          handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number, returnedData?.imageRemove, returnedData?.questionRemove, returnedData?.answerRemove)}
+          handleContentChange={(returnedData) => editAssessmentQuestion(returnedData.index, returnedData?.question, returnedData?.instruction, returnedData?.answer, returnedData?.type, returnedData?.imageUrl, returnedData?.number, returnedData?.imageRemove, returnedData?.questionRemove, returnedData?.instructionRemove, returnedData?.answerRemove)}
           assessmentName={assessment.name}
           setNumber={assessment.setNumber}
           update={update}

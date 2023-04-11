@@ -1,4 +1,5 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
+import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
 import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
@@ -29,6 +30,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
     const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
+
+    //Role Based Access
+    const access = useAccess();
 
     useEffect(() => {
         setSchoolsLoading(true);
@@ -261,29 +265,32 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
     return (
         <>
-            {props.uploadButtonStyle ? (
-                <Button
-                    type="primary"
-                    key="primary"
-                    onClick={() => setOpenUpload(true)}
-                    icon={<UploadOutlined />}
-                    style={{ color: "white", backgroundColor: "DodgerBlue", margin: "2px", height: "40px" }}
-                    shape="round"
-                    block
-                >
-                    Bulk Upload Students
-                </Button>
-            ) : (
-                <Button
-                    type="primary"
-                    key="primary"
-                    onClick={() => setOpenUpload(true)}
-                    icon={<UploadOutlined />}
-                >
-                    Bulk Upload Students
-                </Button>
+            {access.canSuperAdmin && (
+                <>
+                    {props.uploadButtonStyle ? (
+                        <Button
+                            type="primary"
+                            key="primary"
+                            onClick={() => setOpenUpload(true)}
+                            icon={<UploadOutlined />}
+                            style={{ color: "white", backgroundColor: "DodgerBlue", margin: "2px", height: "40px" }}
+                            shape="round"
+                            block
+                        >
+                            Bulk Upload Students
+                        </Button>
+                    ) : (
+                        <Button
+                            type="primary"
+                            key="primary"
+                            onClick={() => setOpenUpload(true)}
+                            icon={<UploadOutlined />}
+                        >
+                            Bulk Upload Students
+                        </Button>
+                    )}
+                </>
             )}
-
 
             <Modal visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
                 <code style={{ maxHeight: "300px", overflow: "auto" }}>
