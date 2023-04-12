@@ -44,8 +44,8 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
   const [update, setUpdate] = useState<any>(0);
-  const [status, setStatus] = useState<any>(props.assessmentData ? props.assessmentData?.status : "Not Set");
-  const statusOptions = [{ value: "Active", label: "Active" }, { value: "Inactive", label: "Inactive" }, { value: "Not Set", label: "Not Set", disabled: true }];
+  const [status, setStatus] = useState<boolean>(true);
+  const statusOptions = [{ value: true, label: "Active" }, { value: false, label: "Inactive" }];
 
   function editAssessmentQuestion(index: number, question?: string, instruction?: string, answer?: string, type?: string, imageUrl?: string, number?: string, imageRemove?: boolean, questionRemove?: boolean, instructionRemove?: boolean, answerRemove?: boolean) {
     const originalAssessment = assessment;
@@ -212,15 +212,15 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   async function getAssessmentDetails(data: any, setNumber: string) {
     const lesson = await getLesson(JSON.stringify(data.lessonNumber));
-      const assessmentData = {
-        lessonNumber: data.lessonNumber.toString(),
-        lessonId: lesson.id,
-        name: data.assessmentName,
-        assessmentId: data.value,
-        setNumber: setNumber,
-        id: `${data.value}-${setNumber}`,
-        assessmentQuestion: assessment.assessmentQuestion
-      }
+    const assessmentData = {
+      lessonNumber: data.lessonNumber.toString(),
+      lessonId: lesson.id,
+      name: data.assessmentName,
+      assessmentId: data.value,
+      setNumber: setNumber,
+      id: `${data.value}-${setNumber}`,
+      assessmentQuestion: assessment.assessmentQuestion
+    }
     setAssessment(assessmentData);
     form.setFieldsValue(assessmentData);
   }
@@ -260,7 +260,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       lessonNumber: values.lessonNumber,
       lessonId: values.lessonId,
       operation: "update",
-      status: status
+      active: status
     };
 
     try {
@@ -368,7 +368,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 </Form.Item>
               </Spin>
             </Form >
-            </TabPane>
+          </TabPane>
           <TabPane tab="Assessment Questions" key="2"
             disabled={props.operationType === 'create' ? disableQuestionsTab : false}
             forceRender>
