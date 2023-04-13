@@ -7,10 +7,10 @@ import {
 } from "@/services/ant-design-pro/helpers";
 
 import {
-  generateMissingAssessmentsForBatch
+  generateMissingAssessmentsForBatch, updateCosmosBatch
 } from "@/services/ant-design-pro/api";
 
-import { CheckCircleTwoTone } from '@ant-design/icons';
+import { CheckCircleTwoTone, CloseCircleTwoTone, HourglassTwoTone, } from '@ant-design/icons';
 
 interface Props {
   batchData: any;
@@ -86,10 +86,29 @@ const View = ({ batchData, isLoading, USE_JSON_LESSONSCRIPT }: Props) => {
     setLoading(false);
   };
 
-  const handleJsonChange = () => {
+  const handleJsonChange = async () => {
     if (confirm("Are you sure you want to switch?")) {
       setLoading(true)
-      setJsonLessonScriptStatus((e) => !e)
+      const tempData = { ...batchData?.cosmosBatchData, useJsonLessonScript: !jsonLessonScriptStatus }
+      notificationCall.open({
+        message: `Updating Json LessonScript Switch of ${batchData?.cosmosBatchData?.batchNumber} batch.`,
+        icon: <HourglassTwoTone />
+      });
+
+      await updateCosmosBatch(tempData).then((e) => {
+        setJsonLessonScriptStatus((e) => !e)
+        notificationCall.open({
+          message: `Json LessonScript Switch of ${batchData?.cosmosBatchData?.batchNumber} batch Updated successfully.`,
+          icon: <CheckCircleTwoTone />
+        });
+      }).catch((error) => {
+        notificationCall.open({
+          message: `Updating of Json LessonScript switch for ${batchData?.cosmosBatchData?.batchNumber} batch failed.`,
+          description: typeof error.message === 'string' ? error.message : "Something went wrong",
+          icon: <CloseCircleTwoTone />,
+        });
+      })
+
       setLoading(false)
     }
   }
