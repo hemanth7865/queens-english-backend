@@ -288,6 +288,27 @@ export class BatchService {
     return data?.data?.result ? data?.data?.result[0] : null;
   }
 
+  async updateCosmosBatch(batchData: any): Promise<any> {
+    const cosmos_url = "/api/classProfile/" + batchData.id;
+
+    const options = {
+      url: cosmos_url,
+      json: true,
+      body: batchData,
+    };
+    const res1: any = await axios
+      .put(options.url, options.body)
+      .then(()=>{
+        return Promise.resolve("ClassProfile Updated Successfully.")
+      })
+      .catch((error) => {
+        // console.log(error);
+        return Promise.reject(error);
+      });
+
+    return res1;
+  }
+
   async deleteBatch(data: any) {
     const alreadyExists: any = await this.batchExists(data, 'id');
     if (!alreadyExists?.id) {
