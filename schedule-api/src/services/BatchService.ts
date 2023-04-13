@@ -163,7 +163,7 @@ export class BatchService {
             data.useJsonLessonScript = cosmosBatch.useJsonLessonScript;
           }
           if (!data.lessonScriptStatus) {
-            data.lessonScriptStatus = cosmosBatch.lessonScriptStatus || [];
+            data.lessonScriptStatus = cosmosBatch.lessonScriptStatus;
           }
         }
         if (!alreadyExists?.id) {
@@ -205,7 +205,7 @@ export class BatchService {
           schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
           status: data.status,
           useJsonLessonScript: data.useJsonLessonScript,
-          lessonScriptStatus: data.lessonScriptStatus
+          lessonScriptStatus: data.lessonScriptStatus || []
         },
       };
 
