@@ -1263,6 +1263,12 @@ export async function getLesson(id?: string) {
   });
 }
 
+export async function getAzureApiConfigs() {
+  return request<API.AssessmentList>(`/be/azure?url=api/config/`, {
+    method: "GET",
+  });
+}
+
 export async function updateAssessmentContent(options?: {
   [key: string]: any;
 }) {
