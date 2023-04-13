@@ -24,7 +24,7 @@ export type AssessmentContentFormType = {
   name: string;
   lessonNumber: string;
   lessonId: string;
-  status?: string;
+  active?: boolean;
 };
 
 export type AssessmentContentFormProps = {
@@ -39,7 +39,7 @@ const { TabPane } = Tabs;
 const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const [form] = Form.useForm();
-  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", status: "Active" });
+  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", active: true });
   const [isLoading, setIsLoading] = useState<any>(false);
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
@@ -216,6 +216,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       lessonNumber: data.lessonNumber.toString(),
       lessonId: lesson.id,
       name: data.assessmentName,
+      displayName: data.displayName,
       assessmentId: data.value,
       setNumber: setNumber,
       id: `${data.value}-${setNumber}`,
@@ -227,7 +228,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const assessmentOptions = Assessments.filter((assessment) => assessment.active)
     .map((assessment) => (
-      { label: `${assessment.name} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue }
+      { label: `${assessment.displayName} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue, displayName: assessment.displayName }
     ));
 
 
@@ -259,6 +260,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       assessmentQuestion: filteredQuestionsArray,
       id: values.id,
       name: values.name,
+      displayName: values.displayName,
       lessonNumber: values.lessonNumber,
       lessonId: values.lessonId,
       operation: "update",
@@ -350,7 +352,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
                 <Form.Item
                   label="Name"
-                  name="name"
+                  name="displayName"
                 >
                   <Input disabled />
                 </Form.Item>
@@ -391,7 +393,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                   options={statusOptions}
                   onSelect={(value) => { setStatus(value) }}
                   value={status}
-                  defaultValue={props.assessmentData?.status ?? "Not Set"}
+                  defaultValue={props.assessmentData?.active ?? true}
                 />
               </Form.Item>
               <div className="question-cards">

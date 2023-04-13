@@ -52,7 +52,7 @@ const AssessmentContentTable: React.FC = () => {
           defaultMessage="Name"
         />
       ),
-      dataIndex: "name",
+      dataIndex: "displayName",
     },
     {
       title: (
