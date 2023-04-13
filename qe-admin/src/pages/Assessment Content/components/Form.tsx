@@ -226,8 +226,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     form.setFieldsValue(assessmentData);
   }
 
-  const assessmentOptions = Assessments.filter((assessment) => assessment.active)
-    .map((assessment) => (
+  const assessmentOptions = Assessments.filter((assessment) => assessment.active).map((assessment) => (
       { label: `${assessment.displayName} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue, displayName: assessment.displayName }
     ));
 
@@ -332,6 +331,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                   clearIcon
                   onChange={(value, option) => { setToCreate(option); }}
                   disabled={props.operationType === "create" ? false : true}
+                  onClick={() => { console.log("Assessments", Assessments); console.log("assessmentOptions", assessmentOptions) }}
                 />
               </Form.Item>
 
