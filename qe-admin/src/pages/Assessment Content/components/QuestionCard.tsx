@@ -50,7 +50,7 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
     }, [props.update]);
 
     return (
-        <Card title={`Question Number ${props.number}`} style={{ width: 400, margin: "5px", borderRadius: "15px", boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)" }}
+        <Card title={`Question Number ${props.index + 1}`} style={{ width: 400, margin: "5px", borderRadius: "15px", boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)" }}
             extra={<CloseOutlined style={{ cursor: "pointer" }} onClick={() => setOpenModal(true)} title="Remove Question" />}
             cover={<ImageUploader imageURI={imageURI} setImageURI={data => setImageURI(data)} questionNumber={props.number} data={props} handleContentChange={(data) => props.handleContentChange(data)} update={props.update} />}
             key={props.key}
@@ -104,7 +104,7 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                 >
                     <Input placeholder="Enter Answer" onChange={(e) => props.handleContentChange({ answer: e.target.value, number: props.number, index: props.index, answerRemove: e.target.value.length === 0 ? true : false })} />
                 </Form.Item>
-                <p hidden={!props.question || !props.answer ? false : true}><small style={{ color: "red" }}>Leaving a question/answer empty will remove the question entirely upon form submit</small></p>
+                <p hidden={!props.question || !props.answer ? false : true}><small style={{ color: "red" }}>Leaving mandatory field empty will remove the question entirely upon form submit</small></p>
                 <Form.Item
                     label="Type"
                     name="type"
