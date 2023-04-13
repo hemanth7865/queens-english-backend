@@ -331,7 +331,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                   clearIcon
                   onChange={(value, option) => { setToCreate(option); }}
                   disabled={props.operationType === "create" ? false : true}
-                  onClick={() => { console.log("Assessments", Assessments); console.log("assessmentOptions", assessmentOptions) }}
                 />
               </Form.Item>
 
