@@ -225,9 +225,11 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     form.setFieldsValue(assessmentData);
   }
 
-  const assessmentOptions = Assessments.map((assessment) => (
-    { label: `${assessment.name} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue }
-  ));
+  const assessmentOptions = Assessments.filter((assessment) => assessment.active)
+    .map((assessment) => (
+      { label: `${assessment.name} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue }
+    ));
+
 
   const openNotificationWithIcon = (type: string, errorType?: string) => {
     notification[type]({
