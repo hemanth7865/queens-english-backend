@@ -266,17 +266,14 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       active: status
     };
 
-    console.log("data", data)
-
     try {
       setIsLoading(true);
-      const api = await updateAssessmentContent({
+      await updateAssessmentContent({
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-      console.log("api", api)
       setIsLoading(false);
       props.handleDrawerVisiblity(false);
       openNotificationWithIcon('success')
