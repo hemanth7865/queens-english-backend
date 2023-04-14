@@ -222,7 +222,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       id: `${data.value}-${setNumber}`,
       assessmentQuestion: assessment.assessmentQuestion
     }
-    console.log("After Get DATA", assessmentData)
     setAssessment(assessmentData);
     form.setFieldsValue(assessmentData);
   }
@@ -266,8 +265,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       operation: "update",
       active: status
     };
-
-    console.log("data", data);
 
     try {
       setIsLoading(true);
