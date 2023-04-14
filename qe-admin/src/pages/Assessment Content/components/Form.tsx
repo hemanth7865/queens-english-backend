@@ -350,6 +350,14 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 </Form.Item>
 
                 <Form.Item
+                  label="Internal Name"
+                  name="name"
+                  hidden
+                >
+                  <Input />
+                </Form.Item>
+
+                <Form.Item
                   label="Name"
                   name="displayName"
                 >
