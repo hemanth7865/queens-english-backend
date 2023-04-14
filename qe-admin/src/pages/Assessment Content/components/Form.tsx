@@ -222,6 +222,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       id: `${data.value}-${setNumber}`,
       assessmentQuestion: assessment.assessmentQuestion
     }
+    console.log("After Get DATA", assessmentData)
     setAssessment(assessmentData);
     form.setFieldsValue(assessmentData);
   }
@@ -282,7 +283,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       if (props.actionRef.current) {
         props.actionRef.current.reload();
       }
-      setAssessment({ setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", status: "Active" });
+      setAssessment({ setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", active: true, displayName: "" });
     } catch (error) {
       console.log("API error", error);
       setIsLoading(false);
