@@ -136,7 +136,6 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
                 cancelText="Cancel"
             >
                 Are you sure you want to delete this question ?
-                <p style={{ color: "red", fontSize: "1" }}>Deleting question can cause question sequence issues, you can edit the question instead !</p>
             </Modal>
         </Card >
     );
