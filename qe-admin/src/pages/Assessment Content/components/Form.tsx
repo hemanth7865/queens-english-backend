@@ -39,7 +39,7 @@ const { TabPane } = Tabs;
 const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const [form] = Form.useForm();
-  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", active: true });
+  const [assessment, setAssessment] = useState<any>(props.assessmentData ? props.assessmentData : { setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", active: true, displayName: "" });
   const [isLoading, setIsLoading] = useState<any>(false);
   const [questionCards, setQuestionCards] = useState<any>([]);
   const [disableQuestionsTab, setDisableQuestionsTab] = useState<any>(true);
@@ -141,7 +141,8 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     const alreadyPresentQuestions = assessment.assessmentQuestion;
     if (!alreadyPresentQuestions) {
       setAssessment({
-        ...assessment, assessmentQuestion: [
+        ...assessment,
+        assessmentQuestion: [
           {
             number: "1",
             question: "",
@@ -156,7 +157,8 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     } else {
       setAssessment({
         ...assessment,
-        assessmentQuestion: [
+        assessmentQuestion:
+          [
           ...assessment.assessmentQuestion,
           {
             number: assessment.assessmentQuestion.length + 1,
@@ -278,7 +280,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       if (props.actionRef.current) {
         props.actionRef.current.reload();
       }
-      setAssessment({ setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", status: "Active" });
+      setAssessment({ setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", active: true, displayName: "" });
     } catch (error) {
       console.log("API error", error);
       setIsLoading(false);
@@ -293,6 +295,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       assessmentQuestion: assessment.assessmentQuestion ?? assessment.assessmentQuestion,
       id: assessment.id ?? "",
       name: assessment.name ?? "",
+      displayName: assessment.displayName ?? "",
       lessonNumber: assessment.lessonNumber ?? "",
       lessonId: assessment.lessonId ?? "",
       status: assessment.status ?? "Not Set",
@@ -344,6 +347,13 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
                 <Form.Item
                   label="Lesson Number"
                   name="lessonNumber"
+                >
+                  <Input disabled />
+                </Form.Item>
+
+                <Form.Item
+                  label="Internal Name"
+                  name="name"
                 >
                   <Input disabled />
                 </Form.Item>
