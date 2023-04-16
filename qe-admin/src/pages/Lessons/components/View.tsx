@@ -54,6 +54,7 @@ const View: React.FC<ViewProps> = ({ data }) => {
 
     const expandedRowRender = (record: any) => {
         return <List
+        className="exerciseContainer"
             dataSource={record.sections}
             itemLayout="vertical"
             size="default"
@@ -61,11 +62,13 @@ const View: React.FC<ViewProps> = ({ data }) => {
             header={
                 <>
                     <Row>
-                        <Col span={12}> <b>Heading</b> <h3>{record.heading}</h3> </Col>
-                        <Col span={12}> <b>SubHeading</b> <h4>{record.subHeading}</h4> </Col>
+                        <Col span={12}> <b>Heading</b> <h5>{record.heading}</h5> </Col>
+                        <Col span={6}> <b>New Heading</b> <h5>{record.newHeading ? 'Yes': 'No'}</h5> </Col>
+                        <Col span={6}> <b>SubHeading</b> <h5>{record.subHeading}</h5> </Col>
                     </Row>
                     {record.image && (
                         <>
+                        test
                             <Divider />
                             <Row justify={"center"}>
                                 <Image
@@ -81,7 +84,7 @@ const View: React.FC<ViewProps> = ({ data }) => {
                 </>
             }
             renderItem={(item: API.LessonScriptExerciseSection, index) => {
-                return <Card title={`Section ${index + 1}`} style={{ marginTop: 20, borderRadius: 15 }}>
+                return <Card title={`Section ${index + 1}`} style={{ marginTop: 5, borderRadius: 15 }}>
                     <Row>
                         {item.type === SECTION_TYPES.DESCRIPTION && item.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(item.description) }} />}
                     </Row>

@@ -134,3 +134,27 @@ div.ant-upload {
 .headingContainer .ant-form-item{
   margin-bottom: 2px;
 }
+
+.exerciseContainer .ant-card-head {
+  background: rgb(235, 234, 234);
+  border-radius: 15px 15px 0px 0px;
+  font-size: 1em;
+  padding: 0 8px;
+  min-height: 30px;
+}
+.exerciseContainer .ant-card-head-title, .exerciseContainer .ant-card-extra{
+  padding: 8px 0;
+}
+.exerciseContainer .ant-form-item {
+  margin-bottom: 1em;
+}
+.exerciseContainer .ant-card-body {
+  padding: 8px;
+}
+.exerciseContainer h5 {
+  color: #9d2525
+}
+.exerciseContainer .ant-list-header {
+  padding: 4px 0px;
+  border-width: 0px;
+}
