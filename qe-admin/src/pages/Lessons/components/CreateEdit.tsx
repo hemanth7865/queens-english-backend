@@ -2,7 +2,7 @@ import { SECTION_TYPES } from "@/components/Constants/constants";
 import { getAllLessonScripts, createLessonScript, updateLessonScript } from "@/services/ant-design-pro/api";
 import { updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 import { LoadingOutlined, CloseCircleOutlined, CloseCircleFilled, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Input, Row, Select, Spin, notification, Tabs, Popconfirm } from "antd";
+import { Button, Col, Form, Input, Checkbox, Row, Select, Spin, notification, Tabs, Popconfirm } from "antd";
 import React, { useState, useEffect } from "react";
 import RichEditor from "./RichEditor";
 // @ts-expect-error
@@ -24,6 +24,7 @@ type Section = {
 
 type Exercise = {
     heading: string;
+    newHeading: boolean;
     subHeading: string;
     key: string;
     sections: Section[]
@@ -36,6 +37,7 @@ function initialFormData() {
     const initialData: Exercise[] = [
         {
             heading: "",
+            newHeading: true,
             subHeading: "",
             key: uuid(),
             sections: [
@@ -148,6 +150,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
         setFormData((data) => {
             data[data.length] = {
                 heading: "",
+                newHeading: true,
                 subHeading: "",
                 key: uuid(),
                 sections: []
@@ -270,20 +273,31 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                         className="exerciseContainer"
                                                         style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
                                                     >
-                                                        <Row style={{ justifyContent: 'space-between' }}>
+                                                        <Row style={{ justifyContent: 'space-between', flexFlow: 'row' }}>
 
                                                             <h2>{`Exercise ${index + 1}`}</h2>
-                                                            <Form.Item
-                                                                rules={[
-                                                                    { required: true, message: "Missing Heading" }
-                                                                ]}
-                                                            >
-                                                                <Input defaultValue={exercise.heading} placeholder="Enter Heading" onChange={(e) => updateExerciseData(index, 'heading', e.target.value)} />
-                                                            </Form.Item>
-
-                                                            <Form.Item>
-                                                                <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
-                                                            </Form.Item>
+                                                            <span className="headingContainer" style={{width: '50%', margin: '0px 0.5em'}}>
+                                                                <Form.Item
+                                                                    rules={[
+                                                                        { required: true, message: "Missing Heading" }
+                                                                    ]}
+                                                                >
+                                                                    <Input defaultValue={exercise.heading} placeholder="Enter Heading" onChange={(e) => updateExerciseData(index, 'heading', e.target.value)} />
+                                                                </Form.Item>
+                                                                <Form.Item name="isAccepted">
+                                                                    <Checkbox
+                                                                    defaultChecked={exercise.newHeading}
+                                                                    onChange={(e) => {
+                                                                        exercise.newHeading = !exercise.newHeading}
+                                                                    }>
+                                                                    New Heading - {exercise.newHeading}</Checkbox>
+                                                                </Form.Item>
+                                                            </span>
+                                                            <span style={{width: '30%', margin: '0px 0.5em'}}>
+                                                                <Form.Item>
+                                                                    <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
+                                                                </Form.Item>
+                                                            </span>
                                                             <Popconfirm
                                                                 placement="topLeft"
                                                                 title={"Are you sure you want to delete this exercise?"}
@@ -336,8 +350,9 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                         }
 
                                                         <Form.Item>
-                                                            <Button
+                                                            <Button style={{fontWeight: 'bold', color: '#1e90ff'}}
                                                                 type="dashed"
+                                                                shape="round"
                                                                 onClick={() => {
                                                                     addSection(index);
                                                                 }}
@@ -352,11 +367,13 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
 
                                         {/* This is the Dynamic Exercise Adder */}
                                         <Button
+                                        style={{fontWeight: 'bold', color: '#1e90ff'}}
                                             type="dashed"
                                             onClick={() => {
                                                 addExercise();
                                             }}
                                             block
+                                            shape="round"
                                         >
                                             <PlusOutlined /> Add Exercise
                                         </Button>
@@ -370,7 +387,9 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                     <Preview formData={fromData} />
                 </TabPane>
             </Tabs>
-            <Button type="primary" disabled={!selectedLessonId || loading || (!edit && alreadyExist)} onClick={() => form.submit()}>
+            <Button
+            style={{fontWeight: 'bold'}}
+            type="primary" block shape="round" disabled={!selectedLessonId || loading || (!edit && alreadyExist)} onClick={() => form.submit()}>
                 Submit
             </Button>
         </>

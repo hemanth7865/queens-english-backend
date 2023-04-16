@@ -120,7 +120,7 @@ div.ant-upload {
 
 .custom-file-upload:hover {
   color: dodgerblue;
-  border: dashed 1px dodgerblue;
+  border: dashed 1px #1e90ff;
 }
 
 .overlay-props {
@@ -130,4 +130,7 @@ div.ant-upload {
 
 .overlay-props:hover {
   color: dodgerblue;
+}
+.headingContainer .ant-form-item{
+  margin-bottom: 2px;
 }
