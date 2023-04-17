@@ -76,7 +76,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = (props: any) => {
                     {
                         props.imageURI ?
                             <div className='image'>
-                                <img src={`${props.imageURI}&timestamp=${new Date().getTime()}`} alt="question-image" className="image_image" />
+                                <img
+                                    src={
+                                        props.imageURI.includes('?')
+                                            ? `${props.imageURI}&timestamp=${new Date().getTime()}`
+                                            : `${props.imageURI}?timestamp=${new Date().getTime()}`
+                                    }
+                                    alt="question-image"
+                                    className="image_image"
+                                />
                                 <div className="image_overlay">
                                     <EyeOutlined onClick={() => onPreview({
                                         url: props.imageURI,
