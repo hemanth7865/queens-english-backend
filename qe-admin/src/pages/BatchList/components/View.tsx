@@ -1,4 +1,4 @@
-import { Col, Row, Table, Spin, Tabs, notification, Button } from "antd";
+import { Col, Row, Table, Spin, Tabs, notification, Button, Switch } from "antd";
 import { useState, useEffect } from "react";
 import { LESSONS } from "../../../../config/lessons";
 import { parseISO, format } from "date-fns";
@@ -7,21 +7,23 @@ import {
 } from "@/services/ant-design-pro/helpers";
 
 import {
-  generateMissingAssessmentsForBatch
+  generateMissingAssessmentsForBatch, updateCosmosBatch
 } from "@/services/ant-design-pro/api";
 
-import { CheckCircleTwoTone } from '@ant-design/icons';
+import { CheckCircleTwoTone, CloseCircleTwoTone, HourglassTwoTone, } from '@ant-design/icons';
 
 interface Props {
   batchData: any;
-  isLoading: boolean
+  isLoading: boolean;
+  USE_JSON_LESSONSCRIPT: boolean;
 }
 
 const { TabPane } = Tabs;
 
-const View = ({ batchData, isLoading }: Props) => {
+const View = ({ batchData, isLoading, USE_JSON_LESSONSCRIPT }: Props) => {
   const [loading, setLoading] = useState<boolean>(isLoading);
   const [notificationCall, contextHolder] = notification.useNotification();
+  const [jsonLessonScriptStatus, setJsonLessonScriptStatus] = useState(false);
 
   useEffect(() => {
     setLoading(isLoading);
@@ -39,6 +41,15 @@ const View = ({ batchData, isLoading }: Props) => {
   const classes = batchData?.classes;
   const zoomMeeting = batchData?.zoomMeeting;
   const zoomUser = batchData?.zoomUser;
+
+  useEffect(() => {
+    if (batchData?.cosmosBatchData) {
+      const isGlobalJsonEnabled = USE_JSON_LESSONSCRIPT;
+      const isBatchLevelJsonEnabled = batchData?.cosmosBatchData?.useJsonLessonScript === true;
+      const isBatchLevelJsonUndefined = batchData?.cosmosBatchData?.useJsonLessonScript === undefined;
+      setJsonLessonScriptStatus(((isGlobalJsonEnabled && isBatchLevelJsonUndefined) || isBatchLevelJsonEnabled) ? true : false);
+    }
+  }, [batchData, USE_JSON_LESSONSCRIPT])
 
   const GENERIC_TEACHER_LINK = getZoomURL("GENERIC_TEACHER", zoomMeeting, zoomUser, classes);
   const GENERIC_STUDENT_LINK = getZoomURL("GENERIC_STUDENT", zoomMeeting, zoomUser, classes);
@@ -74,6 +85,33 @@ const View = ({ batchData, isLoading }: Props) => {
     }
     setLoading(false);
   };
+
+  const handleLessonScriptSwitch = async () => {
+    if (confirm("Are you sure you want to switch?")) {
+      setLoading(true)
+      const tempData = { ...batchData?.cosmosBatchData, useJsonLessonScript: !jsonLessonScriptStatus }
+      notificationCall.open({
+        message: `Updating Json LessonScript Switch of ${batchData?.cosmosBatchData?.batchNumber} batch.`,
+        icon: <HourglassTwoTone />
+      });
+
+      await updateCosmosBatch(tempData).then((e) => {
+        setJsonLessonScriptStatus((e) => !e)
+        notificationCall.open({
+          message: `Json LessonScript Switch of ${batchData?.cosmosBatchData?.batchNumber} batch Updated successfully.`,
+          icon: <CheckCircleTwoTone />
+        });
+      }).catch((error) => {
+        notificationCall.open({
+          message: `Updating of Json LessonScript switch for ${batchData?.cosmosBatchData?.batchNumber} batch failed.`,
+          description: typeof error.message === 'string' ? error.message : "Something went wrong",
+          icon: <CloseCircleTwoTone />,
+        });
+      })
+
+      setLoading(false)
+    }
+  }
 
 
   return (
@@ -184,6 +222,12 @@ const View = ({ batchData, isLoading }: Props) => {
               </Col>
               <Col span={16}>
                 <div><Button onClick={onCreateMissingAssessments}>Generate Missing Assessments</Button></div>
+              </Col>
+              <Col span={8}>
+                <div>Use JSON LessonScripts</div>
+              </Col>
+              <Col span={16}>
+                <div><Switch checkedChildren="True" unCheckedChildren="False" checked={jsonLessonScriptStatus} onChange={handleLessonScriptSwitch} /></div>
               </Col>
 
 

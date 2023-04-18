@@ -38,6 +38,7 @@ import {
   getIndividualBatch,
   deleteBatch,
   resetLessonStatus,
+  getAzureApiConfigs,
 } from "@/services/ant-design-pro/api";
 import "antd/dist/antd.css";
 import "antd-button-color/dist/css/style.css";
@@ -138,6 +139,7 @@ const BatchList: React.FC = () => {
   const access = useAccess();
   const [notificationCall, contextHolder] = notification.useNotification();
   const [schoolsLoading, setSchoolsLoading] = useState(false);
+  const [_useJsonLessonScripts, _setUseJsonLessonScripts] = useState<boolean>(false);
 
   const options = [];
   for (let i = 0; i < leadList.length; i++) {
@@ -181,6 +183,7 @@ const BatchList: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    loadConfigs()
     listTeacherAndStudent()
       .then((data: any) => {
         setLeadList(data?.data);
@@ -189,6 +192,12 @@ const BatchList: React.FC = () => {
         console.log(error);
       })
   }, []);
+
+  const loadConfigs = async () => {
+    await getAzureApiConfigs().then((e) => {
+      _setUseJsonLessonScripts(e.USE_JSON_LESSONSCRIPT)
+    })
+  }
 
   async function fetchUserList(username: string) {
     return listTeacherAndStudent({
@@ -490,11 +499,13 @@ const BatchList: React.FC = () => {
       });
   };
 
-  const viewBatch = (id: string) => {
+  const viewBatch = async (id: string) => {
     setIsLoading(true);
     setShowDetail(true);
+    const batchDetailsFromCOSMOS = await listCosmosBatch(id);
     getIndividualBatch(id).then((data: any) => {
       setCurrentRow(data.data);
+      data.data.cosmosBatchData = batchDetailsFromCOSMOS;
       setTempData(data.data);
       setAddTeacher(false);
     }).catch((error) => {
@@ -663,8 +674,8 @@ const BatchList: React.FC = () => {
       render: (dom, entity) => {
         return (
           <a
-            onClick={() => {
-              viewBatch(entity.id)
+            onClick={async () => {
+              await viewBatch(entity.id)
             }}
           >
             <EyeOutlined />
@@ -1062,9 +1073,9 @@ const BatchList: React.FC = () => {
                                 filterOption={(input, option: any) =>
                                   option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                 }
-                                  allowClear
-                                  loading={schoolsLoading}
-                                >
+                                allowClear
+                                loading={schoolsLoading}
+                              >
                                 {
                                   schools.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
                                 }
@@ -1223,7 +1234,7 @@ const BatchList: React.FC = () => {
                       }
                     />
                   )}
-                  <View batchData={tempData} isLoading={isLoading} />
+                  <View batchData={tempData} isLoading={isLoading} USE_JSON_LESSONSCRIPT={_useJsonLessonScripts} />
                 </>
               )}
             </>
