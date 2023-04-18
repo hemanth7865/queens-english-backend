@@ -14,6 +14,10 @@ export class School extends BaseEntity {
     schoolName: string;
     @Column()
     schoolCode: string;
+    @Column()
+    locationCode: string;
+    @Column()
+    schoolId: string;
     @Column({ 'nullable': true })
     poc: string;
     @Column()
