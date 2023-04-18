@@ -46,6 +46,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = (props: any) => {
     };
 
     const handleImageChange = async (e: any) => {
+        if (e.target.files[0].size > 204800) {
+            alert("Please upload an image of less than 200 KB");
+            return;
+        }
         setLoading(true);
         const form = new FormData();
         form.append('images', e.target.files[0]);
