@@ -52,6 +52,9 @@ export class SchoolService {
         if (parameters.schoolCode) {
             query_list.push(` schoolCode like '%${parameters.schoolCode}%' `);
         }
+        if (parameters.locationCode) {
+            query_list.push(` locationCode like '%${parameters.locationCode}%' `);
+        }
         if (parameters.sraName) {
             let sras: any[] = [];
             const data = await this.getAllSra();

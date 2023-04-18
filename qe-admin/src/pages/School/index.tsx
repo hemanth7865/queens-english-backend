@@ -68,6 +68,16 @@ const SchoolList: React.FC<SchoolListProps> = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.school.schoolCode"
+                    defaultMessage="Location Code"
+                />
+            ),
+            dataIndex: "locationCode",
+            copyable: true,
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.school.id"
                     defaultMessage="School ID"
                 />

@@ -25,6 +25,7 @@ export class SchoolController {
             status: request.query['schoolStatus'],
             sraName: request.query['sraName'],
             schoolCode: request.query['schoolCode'],
+            locationCode: request.query['locationCode'],
             poc: request.query['poc'],
             country: request.query['country'],
             state: request.query['state'],
