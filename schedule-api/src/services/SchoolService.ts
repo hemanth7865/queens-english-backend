@@ -177,10 +177,16 @@ export class SchoolService {
             );
             schoolView.push(s);
         }
+
+        // Fetching total school count for pagination to work
+        const query = "SELECT count(*) as totalSchools FROM school";
+        let totalSchools = await getManager().query(query);
+        totalSchools = totalSchools[0]?.totalSchools
+
         return {
             success: true,
             data: schoolView,
-            total: schools.length,
+            total: totalSchools || schools.length,
             current: current,
             pageSize: pageSize,
         };
