@@ -46,6 +46,9 @@ export class SchoolService {
         if (parameters.id) {
             query_list.push(` id = '${parameters.id}' `);
         }
+        if (parameters.schoolId) {
+            query_list.push(` schoolId = '${parameters.schoolId}' `);
+        }
         if (parameters.schoolName) {
             query_list.push(` schoolName like '%${parameters.schoolName}%' `);
         }

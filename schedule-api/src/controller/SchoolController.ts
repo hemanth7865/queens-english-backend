@@ -20,6 +20,7 @@ export class SchoolController {
             current: request.query['current'],
             pageSize: request.query['pageSize'],
             id: request.query['id'],
+            schoolId: request.query['schoolId'],
             schoolName: request.query['schoolName'],
             createdAt: request.query['createdAt'],
             status: request.query['schoolStatus'],
