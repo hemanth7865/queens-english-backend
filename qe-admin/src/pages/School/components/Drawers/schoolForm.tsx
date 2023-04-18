@@ -299,13 +299,13 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                         <Form.Item label="School Code" name='schoolCode' rules={[{
                             required: true,
                         }]}>
-                            <Input maxLength={5} minLength={3} />
+                            <Input maxLength={4} minLength={4} />
                         </Form.Item>
                     ) : (
-                            <Form.Item label="School Code" name='schoolCode' rules={[{
-                                required: true,
-                            }]}>
-                                <Input disabled maxLength={5} minLength={3} />
+                        <Form.Item label="School Code" name='schoolCode' rules={[{
+                            required: true,
+                        }]}>
+                            <Input disabled maxLength={5} minLength={3} />
                         </Form.Item>
                     )}
                     <Form.Item label="School POC" name='poc'>
@@ -406,7 +406,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                                     <Select
                                         mode="multiple"
                                         placeholder="Select Batches"
-                                            optionFilterProp='label'
+                                        optionFilterProp='label'
                                     >
                                         {batches.map((item: any) => {
                                             return <Option value={item.batchNumber} label={item.batchNumber} key={item.id}>{item.batchNumber}</Option>
