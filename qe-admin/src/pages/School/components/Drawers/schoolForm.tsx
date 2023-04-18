@@ -19,6 +19,8 @@ export type SchoolFormProps = {
         id?: string,
         schoolName?: string,
         schoolCode?: string,
+        locationCode?: string,
+        schoolId?: string,
         poc?: string,
         sra?: {
             id: string,
@@ -185,6 +187,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             id: value?.id,
             schoolName: value?.schoolName,
             schoolCode: value?.schoolCode?.toUpperCase(),
+            locationCode: value?.locationCode?.toUpperCase(),
+            schoolId: value?.schoolCode?.toUpperCase() + value?.locationCode?.toUpperCase(),
             poc: value?.poc,
             sraId: value?.sra,
             schoolStatus: value?.schoolStatus,
@@ -248,6 +252,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             id: newData ? newData?.id : props.tempData?.id,
             schoolName: newData ? newData?.schoolName : props.tempData?.schoolName,
             schoolCode: newData ? newData?.schoolCode : props.tempData?.schoolCode,
+            locationCode: newData ? newData?.locationCode : props.tempData?.locationCode,
+            schoolId: newData ? newData?.schoolId : props.tempData?.schoolId,
             poc: newData ? newData?.poc : props.tempData?.poc,
             sra: newData ? newData?.sra : props.tempData?.sra?.id,
             schoolStatus: newData ? newData?.schoolStatus : props.tempData?.schoolStatus,
@@ -265,6 +271,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             props.tempData?.id,
             props.tempData?.schoolName,
             props.tempData?.schoolCode,
+            props.tempData?.locationCode,
+            props.tempData?.schoolId,
             props.tempData?.poc,
             props.tempData?.sra?.name,
             props.tempData?.schoolStatus,
@@ -306,6 +314,19 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                             required: true,
                         }]}>
                             <Input disabled maxLength={5} minLength={3} />
+                        </Form.Item>
+                    )}
+                    {props?.tempData?.operation === 'create' ? (
+                        <Form.Item label="Location Code" name='locationCode' rules={[{
+                            required: false,
+                        }]}>
+                            <Input maxLength={3} minLength={3} />
+                        </Form.Item>
+                    ) : (
+                        <Form.Item label="Location Code" name='locationCode' rules={[{
+                            required: false,
+                        }]}>
+                            <Input maxLength={3} minLength={3} />
                         </Form.Item>
                     )}
                     <Form.Item label="School POC" name='poc'>
