@@ -155,8 +155,10 @@ export class SchoolService {
 
             let s = new SchoolView(
                 element.id,
+                element.schoolId,
                 element.schoolName,
                 element.schoolCode,
+                element.locationCode,
                 element.poc,
                 sra.name,
                 sra,
@@ -306,6 +308,8 @@ export class SchoolService {
             }
             school.schoolName = request.schoolName;
             school.schoolCode = request.schoolCode;
+            school.locationCode = request.locationCode;
+            school.schoolId = request.schoolCode + (request.locationCode ?? '');
             school.sraId = request.sraId;
             school.schoolStatus = request.schoolStatus;
             school.poc = request.poc;
