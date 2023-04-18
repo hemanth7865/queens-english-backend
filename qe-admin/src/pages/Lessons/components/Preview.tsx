@@ -13,6 +13,7 @@ type Section = {
 
 type Exercise = {
     heading: string;
+    newHeading: boolean;
     subHeading: string;
     key: string;
     sections: Section[]
@@ -74,7 +75,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                     <Col
                                         span={10}
                                         style={{
-                                            fontSize: 20
+                                            fontSize: '1em'
                                         }}
                                     ><i style={{ fontSize: 30 }}>E</i>xercise {index + 1}</Col>
                                     <Col
@@ -88,14 +89,14 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                     >
                                         <Row
                                             style={{
-                                                fontSize: 18,
-                                                color: "#8C2132",
+                                                fontSize: '1em',
+                                                color: exercise?.newHeading ? "#8C2132" : '#000',
                                                 fontWeight: "bold",
                                                 textAlign: 'right'
                                             }}
                                         >{exercise.heading?.toUpperCase()}</Row>
                                         {exercise?.subHeading && exercise.subHeading.trim() !== "" && <Row
-                                            style={{ fontSize: 14, textAlign: 'right' }}
+                                            style={{ fontSize: '0.8em', textAlign: 'right' }}
                                         >{exercise.subHeading}</Row>}
                                     </Col>
                                 </Row>
