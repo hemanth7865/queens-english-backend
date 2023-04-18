@@ -86,7 +86,7 @@ const View = ({ batchData, isLoading, USE_JSON_LESSONSCRIPT }: Props) => {
     setLoading(false);
   };
 
-  const handleJsonChange = async () => {
+  const handleLessonScriptSwitch = async () => {
     if (confirm("Are you sure you want to switch?")) {
       setLoading(true)
       const tempData = { ...batchData?.cosmosBatchData, useJsonLessonScript: !jsonLessonScriptStatus }
@@ -227,7 +227,7 @@ const View = ({ batchData, isLoading, USE_JSON_LESSONSCRIPT }: Props) => {
                 <div>Use JSON LessonScripts</div>
               </Col>
               <Col span={16}>
-                <div><Switch checkedChildren="True" unCheckedChildren="False" checked={jsonLessonScriptStatus} onChange={handleJsonChange} /></div>
+                <div><Switch checkedChildren="True" unCheckedChildren="False" checked={jsonLessonScriptStatus} onChange={handleLessonScriptSwitch} /></div>
               </Col>
 
 
