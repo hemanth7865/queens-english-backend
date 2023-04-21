@@ -306,12 +306,22 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     {props?.tempData?.operation === 'create' ? (
                         <Form.Item label="School Code" name='schoolCode' rules={[{
                             required: true,
+                        }, {
+                            validator: (_, value) =>
+                                !value.includes(" ")
+                                    ? Promise.resolve()
+                                    : Promise.reject(new Error("No spaces allowed"))
                         }]}>
                             <Input maxLength={4} minLength={4} />
                         </Form.Item>
                     ) : (
                         <Form.Item label="School Code" name='schoolCode' rules={[{
                             required: true,
+                        }, {
+                            validator: (_, value) =>
+                                !value.includes(" ")
+                                    ? Promise.resolve()
+                                    : Promise.reject(new Error("No spaces allowed"))
                         }]}>
                             <Input disabled maxLength={5} minLength={3} />
                         </Form.Item>
@@ -319,12 +329,22 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     {props?.tempData?.operation === 'create' ? (
                         <Form.Item label="Location Code" name='locationCode' rules={[{
                             required: false,
+                        }, {
+                            validator: (_, value) =>
+                                !value.includes(" ")
+                                    ? Promise.resolve()
+                                    : Promise.reject(new Error("No spaces allowed"))
                         }]}>
                             <Input maxLength={3} minLength={3} />
                         </Form.Item>
                     ) : (
                         <Form.Item label="Location Code" name='locationCode' rules={[{
                             required: false,
+                        }, {
+                            validator: (_, value) =>
+                                !value.includes(" ")
+                                    ? Promise.resolve()
+                                    : Promise.reject(new Error("No spaces allowed"))
                         }]}>
                             <Input maxLength={3} minLength={3} />
                         </Form.Item>
