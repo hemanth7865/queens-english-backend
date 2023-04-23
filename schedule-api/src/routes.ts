@@ -181,6 +181,13 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "put",
+    route: "/updateCosmosBatch",
+    controller: BatchController,
+    action: "updateCosmosBatch",
+    authenticate: true,
+  },
+  {
     method: "get",
     route: "/listBatch/:id",
     controller: BatchController,

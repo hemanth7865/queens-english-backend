@@ -298,9 +298,9 @@ const EditUser: React.FC<EditUserProps> = (props) => {
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" && access.canSuperAdmin }]}>
+                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" }]}>
                                 <Select
-                                    disabled={selectOfflineUser === "0" || !access.canSuperAdmin}
+                                    disabled={selectOfflineUser === "0"}
                                     placeholder="Select School"
                                     defaultValue={selectedSchool}
                                     value={selectedSchool}

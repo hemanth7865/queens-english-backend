@@ -153,9 +153,17 @@ export class BatchService {
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
         const cosmosBatch = await this.getCosmosBatch(data.id);
-        if (cosmosBatch && !data.activeLessonId) {
-          if (cosmosBatch.activeLessonId) {
-            data.activeLessonId = cosmosBatch.activeLessonId;
+        if (cosmosBatch) {
+          if(!data.activeLessonId){
+            if (cosmosBatch.activeLessonId) {
+              data.activeLessonId = cosmosBatch.activeLessonId;
+            }
+          }
+          if (typeof data.useJsonLessonScript === "undefined" || data.useJsonLessonScript === undefined) {
+            data.useJsonLessonScript = cosmosBatch.useJsonLessonScript;
+          }
+          if (!data.lessonScriptStatus) {
+            data.lessonScriptStatus = cosmosBatch.lessonScriptStatus;
           }
         }
         if (!alreadyExists?.id) {
@@ -195,7 +203,9 @@ export class BatchService {
           schoolId: data.offlineBatch === 0 ? null : data.schoolId,
           schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
           schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
-          status: data.status
+          status: data.status,
+          useJsonLessonScript: data.useJsonLessonScript,
+          lessonScriptStatus: data.lessonScriptStatus || []
         },
       };
 
@@ -276,6 +286,27 @@ export class BatchService {
     const data: any = await axios.get(cosomos_url);
 
     return data?.data?.result ? data?.data?.result[0] : null;
+  }
+
+  async updateCosmosBatch(batchData: any): Promise<any> {
+    const cosmos_url = "/api/classProfile/" + batchData.id;
+
+    const options = {
+      url: cosmos_url,
+      json: true,
+      body: batchData,
+    };
+    const res1: any = await axios
+      .put(options.url, options.body)
+      .then(()=>{
+        return Promise.resolve("ClassProfile Updated Successfully.")
+      })
+      .catch((error) => {
+        // console.log(error);
+        return Promise.reject(error);
+      });
+
+    return res1;
   }
 
   async deleteBatch(data: any) {

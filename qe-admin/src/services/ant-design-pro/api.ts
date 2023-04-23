@@ -435,6 +435,17 @@ export async function listCosmosBatch(
   });
 }
 
+// get individual batch from COSMOS DB
+export async function updateCosmosBatch(data: any) {
+  return request<API.RuleList>(`/be/updateCosmosBatch/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+
 // Get the lessons that are stored in the COSMOS DB for the particular batch
 export async function getTeacherLessons(
   id: string,
@@ -1260,6 +1271,13 @@ export async function getAssessmentQuestions(
 
 export async function getLesson(id?: string) {
   return request<API.AssessmentList>(`/be/azure?url=api/lesson/${id}`, {
+    method: "GET",
+  });
+}
+
+// Fetch azure api config data.
+export async function getAzureApiConfigs() {
+  return request<API.AssessmentList>(`/be/azure?url=api/config/`, {
     method: "GET",
   });
 }
