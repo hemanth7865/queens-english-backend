@@ -578,9 +578,9 @@ export class TeacherService {
     }
 
     const offlineUser = parameters.offlineUser;
-    if(offlineUser) {
+    if(offlineUser <= 1) {
       query_string = query_string + ` and u.offlineUser = ${offlineUser}`;
-      query_list.push(` u.offlineUser like '%${offlineUser}%'  `);
+      query_list.push(` u.offlineUser = ${offlineUser}  `);
       console.log("offlineUser ", offlineUser);
     }
 
