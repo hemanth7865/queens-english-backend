@@ -776,7 +776,7 @@ const BatchList: React.FC = () => {
             </Button>,
             <UpdateMeetingLinks></UpdateMeetingLinks>
           ]}
-          request={params => listBatch({ ...params, offlineBatch: url.toString().indexOf('/school/') >=0 ? 1 : undefined })}
+          request={params => listBatch({ ...params, offlineBatch: url.toString().indexOf('/school/') >= 0 ? 1 : 0 })}
           columns={columns}
           //the checkbox
           rowSelection={{
