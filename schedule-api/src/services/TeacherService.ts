@@ -577,6 +577,13 @@ export class TeacherService {
       console.log("user type ", type);
     }
 
+    const offlineUser = parameters.offlineUser;
+    if(offlineUser) {
+      query_string = query_string + ` and u.offlineUser = ${offlineUser}`;
+      query_list.push(` u.offlineUser like '%${offlineUser}%'  `);
+      console.log("offlineUser ", offlineUser);
+    }
+
     var totalexp = parameters.totalexp;
     if (totalexp) {
       totalexp = parseFloat(totalexp);
@@ -774,7 +781,6 @@ export class TeacherService {
           "');";
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
-          console.log("batchdode", element);
           studentOrTeacherId.push(element.batchNumber);
         });
       } else {
@@ -784,7 +790,6 @@ export class TeacherService {
           "';";
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
-          console.log("batchcodeTeacher", element);
           studentOrTeacherId.push(element.batchNumber);
         });
       }

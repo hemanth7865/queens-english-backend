@@ -53,6 +53,8 @@ import TeacherBulkUpload from "./components/TeacherBulkUpload";
 import SchoolChangeContainer from "./components/SchoolChangeContainer";
 
 const TeacherBatchList: React.FC = () => {
+  const url = new URL(window.location.href);
+
   const [isLoading, setIsLoading] = useState(false)
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
@@ -921,7 +923,8 @@ const TeacherBatchList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
-        request={teacherBatches}
+        //request={teacherBatches}
+        request={params => teacherBatches({ ...params, offlineUser: url.toString().indexOf('/school/') >= 0 ? 1 : 0 })}
         columns={columns}
         toolBarRender={() => [
           <TeacherBulkUpload />,
