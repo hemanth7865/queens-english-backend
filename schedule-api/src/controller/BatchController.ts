@@ -78,6 +78,7 @@ export class BatchController {
             classEndDate: request.query['classEndDate'],
             lessonNumber: request.query['lessonNumber'],
             schoolName: request.query['schoolName'],
+            offlineBatch: request.query['offlineBatch'],
         }
         let res;
         try {

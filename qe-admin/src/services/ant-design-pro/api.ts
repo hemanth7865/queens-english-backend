@@ -405,6 +405,7 @@ export async function listBatch(
     lessonEndTime?: string;
     classStartDate?: string;
     excludedTeacher?: string;
+    offlineBatch?: number;
   },
   options?: { [key: string]: any }
 ) {
