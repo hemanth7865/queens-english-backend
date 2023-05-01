@@ -46,11 +46,17 @@ export class SchoolService {
         if (parameters.id) {
             query_list.push(` id = '${parameters.id}' `);
         }
+        if (parameters.schoolId) {
+            query_list.push(` schoolId = '${parameters.schoolId}' `);
+        }
         if (parameters.schoolName) {
             query_list.push(` schoolName like '%${parameters.schoolName}%' `);
         }
         if (parameters.schoolCode) {
             query_list.push(` schoolCode like '%${parameters.schoolCode}%' `);
+        }
+        if (parameters.locationCode) {
+            query_list.push(` locationCode like '%${parameters.locationCode}%' `);
         }
         if (parameters.sraName) {
             let sras: any[] = [];
@@ -155,8 +161,10 @@ export class SchoolService {
 
             let s = new SchoolView(
                 element.id,
+                element.schoolId,
                 element.schoolName,
                 element.schoolCode,
+                element.locationCode,
                 element.poc,
                 sra.name,
                 sra,
@@ -169,10 +177,16 @@ export class SchoolService {
             );
             schoolView.push(s);
         }
+
+        // Fetching total school count for pagination to work
+        const query = "SELECT count(*) as totalSchools FROM school";
+        let totalSchools = await getManager().query(query);
+        totalSchools = totalSchools[0]?.totalSchools
+
         return {
             success: true,
             data: schoolView,
-            total: schools.length,
+            total: totalSchools || schools.length,
             current: current,
             pageSize: pageSize,
         };
@@ -306,6 +320,8 @@ export class SchoolService {
             }
             school.schoolName = request.schoolName;
             school.schoolCode = request.schoolCode;
+            school.locationCode = request.locationCode;
+            school.schoolId = request.schoolCode + (request.locationCode ?? '');
             school.sraId = request.sraId;
             school.schoolStatus = request.schoolStatus;
             school.poc = request.poc;

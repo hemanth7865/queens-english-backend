@@ -1,5 +1,5 @@
 import { EyeOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Typography } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -9,6 +9,7 @@ import { getSra, listSchool } from '@/services/ant-design-pro/api';
 import SchoolForm from './components/Drawers/schoolForm';
 import SRAForm from './components/Drawers/sraForm';
 import ViewDrawer from './components/Drawers/viewDrawer';
+const { Text } = Typography;
 
 export type SchoolListProps = {
     data: {}
@@ -68,12 +69,24 @@ const SchoolList: React.FC<SchoolListProps> = () => {
         {
             title: (
                 <FormattedMessage
+                    id="pages.searchTable.school.schoolCode"
+                    defaultMessage="Location Code"
+                />
+            ),
+            dataIndex: "locationCode",
+            copyable: true,
+            render: (_, entity: any) => entity?.locationCode ? <Text copyable>{entity?.locationCode}</Text> : 'NA',
+        },
+        {
+            title: (
+                <FormattedMessage
                     id="pages.searchTable.school.id"
                     defaultMessage="School ID"
                 />
             ),
-            dataIndex: "id",
+            dataIndex: "schoolId",
             copyable: true,
+            render: (_, entity: any) => entity?.schoolId ? <Text copyable>{entity?.schoolId}</Text> : 'NA',
         },
         {
             title: (
