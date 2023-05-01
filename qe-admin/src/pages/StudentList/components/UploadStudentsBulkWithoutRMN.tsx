@@ -1,4 +1,4 @@
-import { Button, message, Modal, Progress, Select } from 'antd';
+import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
 import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
 import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents } from "@/services/ant-design-pro/api";
@@ -316,6 +316,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     placeholder="Select School"
                     onChange={(value) => setSelectedSchool(value)}
                     value={selectedSchool}
+                    defaultValue={selectedSchool}
                     showSearch
                     style={{ margin: "3px", display: "block" }}
                     allowClear
@@ -329,9 +330,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <input type="file" name="agents" required id="file" />
-                    <Button loading={isLoading} type="primary" htmlType="submit" style={{ margin: "3px" }}>
-                        Upload File
-                    </Button>
+                    <Tooltip title={!!!selectedSchool ? "Please Select School" : null}>
+                        <Button loading={isLoading} type="primary" htmlType="submit" style={{ margin: "3px" }} disabled={!!!selectedSchool}>
+                            Upload File
+                        </Button>
+                    </Tooltip>
                 </form>
 
                 <div style={{ textAlign: "right", margin: "3px" }}>
