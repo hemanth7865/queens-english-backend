@@ -144,6 +144,7 @@ export class BatchService {
         return { status: false, message: "One or more students is in another batch" };
       }
 
+      let cosmosBatch:any = {};
       if (create) {
         data.classCode = await getUniqueCode("classCode");
         alreadyExists = await this.batchExists(data);
@@ -152,7 +153,7 @@ export class BatchService {
         }
       } else if (!create) {
         alreadyExists = await this.batchExists(data, 'id');
-        const cosmosBatch = await this.getCosmosBatch(data.id);
+        cosmosBatch = await this.getCosmosBatch(data.id);
         if (cosmosBatch) {
           if(!data.activeLessonId){
             if (cosmosBatch.activeLessonId) {
@@ -161,9 +162,6 @@ export class BatchService {
           }
           if (typeof data.useJsonLessonScript === "undefined" || data.useJsonLessonScript === undefined) {
             data.useJsonLessonScript = cosmosBatch.useJsonLessonScript;
-          }
-          if (!data.lessonScriptStatus) {
-            data.lessonScriptStatus = cosmosBatch.lessonScriptStatus;
           }
         }
         if (!alreadyExists?.id) {
@@ -175,6 +173,7 @@ export class BatchService {
         url: cosomos_url,
         json: true,
         body: {
+          ...cosmosBatch,
           id: data.id,
           type: data.type,
           batchNumber: data.batchNumber,
@@ -204,10 +203,11 @@ export class BatchService {
           schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
           schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
           status: data.status,
-          useJsonLessonScript: data.useJsonLessonScript,
-          lessonScriptStatus: data.lessonScriptStatus || []
+          useJsonLessonScript: data.useJsonLessonScript
         },
       };
+
+      console.log('OPTIONS ---->>', options)
 
       var res1 = {};
       if (!data.id || create) {
