@@ -41,6 +41,16 @@ export class SchoolController {
         }
     }
 
+    async getAvailableStudentIds(request: Request, response: Response, next: NextFunction) {
+        let res;
+        try {
+            res = await this.schoolService.getAvailableStudentIds(request.body);
+            return res;
+        } catch (error) {
+            logger.error(error);
+        }
+    }
+
     async createSRA(request: Request, response: Response, next: NextFunction) {
         let res;
         try {

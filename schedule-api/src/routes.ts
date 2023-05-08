@@ -782,4 +782,10 @@ export const Routes = [
     controller: BatchController,
     action: "bulkRemoveStudentsFromBatch",
   },
+  {
+    method: "get",
+    route: "/getAvailableStudentIds",
+    controller: SchoolController,
+    action: "getAvailableStudentIds",
+  },
 ];

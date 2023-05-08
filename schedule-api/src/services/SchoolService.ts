@@ -1,4 +1,4 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, Like } from "typeorm";
 import { School } from "../entity/School";
 import { SRA } from "../entity/SRA";
 import { Classes } from "../entity/Classes";
@@ -357,5 +357,52 @@ export class SchoolService {
             console.error(error);
         }
     }
+
+    async getAvailableStudentIds(request: { schoolId: string; count?: number }) {
+        let { schoolId, count } = request;
+        if (!schoolId || schoolId?.trim() === "") {
+          return {
+            success: false,
+            errorMessage: "Please provide schoolId",
+          };
+        }
+    
+        if (!count) count = 1;
+    
+        const school = await this.schoolRepository.findOne({
+          where: { id: schoolId },
+        });
+        if (!schoolId) {
+          return {
+            success: false,
+            errorMessage: "School does not exists with provided schoolId",
+          };
+        }
+    
+        const existingStudentIds = await this.studentRepository.find({
+          select: ["studentID"],
+          where: {
+            schoolId: schoolId,
+            studentID: Like(`${school.schoolCode}____`),
+          },
+        });
+    
+        const result = [];
+        const existingIDSet = new Set(existingStudentIds.map((e) => e.studentID));
+    
+        let i = 1;
+        while (result.length < count && i <= 9999) {
+          const newID: any = `${school.schoolCode}${i.toString().padStart(4, "0")}`;
+          if (!existingIDSet.has(newID)) {
+            result.push(newID);
+          }
+          i++;
+        }
+    
+        return {
+          success: true,
+          data: result,
+        };
+      }
 
 }
