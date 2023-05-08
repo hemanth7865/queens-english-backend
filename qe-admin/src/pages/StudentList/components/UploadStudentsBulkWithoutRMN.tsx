@@ -1,7 +1,7 @@
 import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
 import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents, getAvailableStudentIds } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 
 function csvToArray(str: string, delimiter: string = ",") {
@@ -154,6 +154,17 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 setTotalRecords(data.length + 1);
                 setCurrentRecord(0);
 
+                let availableStudentIds = [];
+                let currentIndex = 0;
+                try {
+                    const response = await getAvailableStudentIds({ schoolId: selectedSchool, count: data.length })
+                    if (response.success === false) throw new Error(response.errorMessage)
+                    availableStudentIds = response.data;
+                } catch (error: any) {
+                    setIsLoading(false)
+                    return;
+                }
+
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
@@ -170,7 +181,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                         const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
                         const loginCode = loginCodeNumber.toString();
-                        const studentData = {
+                        const studentData: any = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"] || "-",
                             teacherName: student["Teacher Name"],
@@ -185,6 +196,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             batchCode: student["Batch code"],
                             loginCode
                         };
+                        if (student["Roll No"] && student["Roll No"].trim().length > 0) {
+                            studentData.studentID = student["Roll No"]
+                        } else {
+                            studentData.studentID = availableStudentIds[currentIndex]
+                            currentIndex += 1;
+                        }
 
                         studentsUploaded.push(studentData);
                         batches.push(student["Batch code"]);
@@ -302,7 +319,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code
+                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code, Roll No
                     </pre>
                     <p style={{ color: "red" }}>
                         *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
