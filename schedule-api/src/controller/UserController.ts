@@ -54,17 +54,12 @@ export class UserController {
                 let oldStudentDataQuery = `SELECT * FROM student where id = '${request.body.id}'`;
                 let oldStudentData = await getManager().query(oldStudentDataQuery);
                 // TODO: Reuse studentService Object.
-                const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
 
                 if (request.body.status?.toLowerCase() === 'enrolled' || request.body.status === 'startclasslater') {
                     const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
                     if (validatingStudent.status == 'Error') {
                         return { status: 400, errors: [validatingStudent.message] };
                     }
-                }
-                if (leadIDExists) {
-                    usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
-                    return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
                 if (oldStudentData.length > 0 && oldStudentData[0].status !== Status.INACTIVE && request.body.status === Status.INACTIVE) {
                     var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`

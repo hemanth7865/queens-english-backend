@@ -382,7 +382,6 @@ export class SchoolService {
         const existingStudentIds = await this.studentRepository.find({
           select: ["studentID"],
           where: {
-            schoolId: schoolId,
             studentID: Like(`${school.schoolCode}____`),
           },
         });

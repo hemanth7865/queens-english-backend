@@ -44,7 +44,7 @@ export class SchoolController {
     async getAvailableStudentIds(request: Request, response: Response, next: NextFunction) {
         let res;
         try {
-            res = await this.schoolService.getAvailableStudentIds(request.body);
+            res = await this.schoolService.getAvailableStudentIds(request.query);
             return res;
         } catch (error) {
             logger.error(error);
