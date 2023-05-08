@@ -345,6 +345,20 @@ export async function editTeacherSchedule(options?: { [key: string]: any }) {
   });
 }
 
+/** GET /be/leads */
+export async function getAvailableStudentIds(data: {
+  schoolId: string;
+  count?: number;
+}) {
+  return request<any>("/be/getAvailableStudentIds", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: data,
+  });
+}
+
 /** 删除规则 DELETE /api/rule */
 export async function removeRule(options?: { [key: string]: any }) {
   return request<Record<string, any>>("/api/rule", {
