@@ -788,4 +788,10 @@ export const Routes = [
     controller: SchoolController,
     action: "getAvailableStudentIds",
   },
+  {
+    method: "post",
+    route: "/updateStudentIdsToNewFormat",
+    controller: SchoolController,
+    action: "updateStudentIdsToNewFormat",
+  },
 ];

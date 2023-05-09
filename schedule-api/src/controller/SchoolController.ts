@@ -150,4 +150,18 @@ export class SchoolController {
             logger.error(error)
         }
     }
+
+    async updateStudentIdsToNewFormat(
+        request: Request,
+        response: Response,
+        next: NextFunction
+      ) {
+        let res: any;
+        try {
+          res = await this.schoolService.updateStudentIdsToNewFormat();
+          return res;
+        } catch (error) {
+          logger.error(error);
+        }
+      }
 }

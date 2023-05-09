@@ -404,4 +404,68 @@ export class SchoolService {
         };
       }
 
+    async updateStudentIdsToNewFormat() {
+        let updatedStudents = [];
+        let errors = [];
+
+        // Fetching all schools
+        let schools: any = await this.schoolRepository.find({
+            select: ["id", "schoolCode"],
+        });
+
+        for (const school of schools) {
+            // Fetching all students linked with this school
+            const studentQuery = `SELECT student.* FROM batch_students
+            INNER JOIN classes ON batch_students.batchId = classes.id
+            INNER JOIN student ON batch_students.studentId = student.id
+            WHERE classes.schoolId = "${school.id}"`;
+
+            let studentsData = await getManager().query(studentQuery);
+            if (studentsData.length === 0) continue;
+
+            //   Fetching available ids
+            let availableStudentIds: any = [];
+            try {
+                const response = await this.getAvailableStudentIds({
+                    schoolId: school.id,
+                    count: studentsData.length,
+                });
+                if (response.success === false) throw new Error(response.errorMessage);
+                availableStudentIds = response.data;
+            } catch (error) {
+                errors.push(error.message);
+            }
+
+            let idCount = 0;
+            for (const student of studentsData) {
+                // Checking if we don't have any incorrect student to update
+                if (
+                    !student.id ||
+                    (student.studentID &&
+                    student.studentID?.startsWith(school.schoolCode))
+                ) {
+                    continue;
+                }
+                const updatedStudentId = availableStudentIds[idCount];
+                idCount += 1;
+
+                // Updating student ID
+                const updateQuery = `UPDATE student SET student.studentID = "${updatedStudentId}" WHERE student.id = "${student.id}"`;
+                await getManager().query(updateQuery);
+                updatedStudents.push({
+                    id: student.id,
+                    previousStudentId: student.studentID,
+                    updatedStudentId: updatedStudentId,
+                });
+            }
+        }
+
+        return {
+            success: true,
+            total: updatedStudents.length,
+            updatedStudents,
+            errors,
+        };
+    }
+
 }
