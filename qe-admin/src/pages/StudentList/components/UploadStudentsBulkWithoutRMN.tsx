@@ -181,7 +181,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                         const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
                         const loginCode = loginCodeNumber.toString();
-                        const studentData: any = {
+                        const studentData = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"] || "-",
                             teacherName: student["Teacher Name"],
@@ -194,14 +194,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             preventAppAccess: 0,
                             offlineUser: 1,
                             batchCode: student["Batch code"],
-                            loginCode
+                            loginCode,
+                            studentID: availableStudentIds[currentIndex]
                         };
-                        if (student["Roll No"] && student["Roll No"].trim().length > 0) {
-                            studentData.studentID = student["Roll No"]
-                        } else {
-                            studentData.studentID = availableStudentIds[currentIndex]
-                            currentIndex += 1;
-                        }
+
+                        currentIndex += 1;
 
                         studentsUploaded.push(studentData);
                         batches.push(student["Batch code"]);
@@ -319,7 +316,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code, Roll No
+                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code
                     </pre>
                     <p style={{ color: "red" }}>
                         *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
