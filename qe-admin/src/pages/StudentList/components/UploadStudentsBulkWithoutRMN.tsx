@@ -292,7 +292,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 </>
             )}
 
-            <Modal visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
+            <Modal width={"70%"} visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
                 <code style={{ maxHeight: "300px", overflow: "auto" }}>
                     <pre>
                         {JSON.stringify(notStoredUsers, null, 4)}
