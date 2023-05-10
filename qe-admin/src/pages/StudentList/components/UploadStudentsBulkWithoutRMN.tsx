@@ -90,13 +90,13 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         }
                     }
 
-                    if (studentsAlreadyInBatch.length !== 0) {
-                        const batches = [...new Set(studentsAlreadyInBatch.map((student) => student.batch.id))];
-                        for (const batch of batches) {
-                            const students = studentsAlreadyInBatch.filter((student) => student.batch.id === batch).map((student) => student.student.id);
-                            await bulkRemoveBatchStudents({ students, batch });
-                        }
-                    }
+                    // if (studentsAlreadyInBatch.length !== 0) {
+                    //     const batches = [...new Set(studentsAlreadyInBatch.map((student) => student.batch.id))];
+                    //     for (const batch of batches) {
+                    //         const students = studentsAlreadyInBatch.filter((student) => student.batch.id === batch).map((student) => student.student.id);
+                    //         await bulkRemoveBatchStudents({ students, batch });
+                    //     }
+                    // }
 
                     for (const batch of batchesInCsv) {
                         const batchData: any = await getIndividualBatch(batch);
