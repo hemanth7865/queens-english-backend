@@ -177,63 +177,66 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     return true;
                 })
 
-                // for (const student of data) {
-                //     await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                //     if (student["First Name"] && student["Dummy number"]) {
-                //         let phoneNumber = student["Dummy number"];
-                //         if (student["RMN"]) {
-                //             if (student["RMN"].split("+")[1]) {
-                //                 phoneNumber = student["RMN"];
-                //             } else if (student["RMN"].length > 10) {
-                //                 phoneNumber = "+" + student["RMN"]
-                //             } else {
-                //                 phoneNumber = "+91" + student["RMN"]
-                //             }
-                //         }
+                for (const student of data) {
+                    await new Promise((resolve, reject) => setTimeout(resolve, 100));
+                    if (student["First Name"] && student["Dummy number"]) {
+                        let phoneNumber = student["Dummy number"];
+                        if (student["RMN"]) {
+                            if (student["RMN"].split("+")[1]) {
+                                phoneNumber = student["RMN"];
+                            } else if (student["RMN"].length > 10) {
+                                phoneNumber = "+" + student["RMN"]
+                            } else {
+                                phoneNumber = "+91" + student["RMN"]
+                            }
+                        }
 
-                //         const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
-                //         const loginCode = loginCodeNumber.toString();
-                //         const studentData = {
-                //             firstName: student["First Name"],
-                //             lastName: student["Last Name"] || "-",
-                //             teacherName: student["Teacher Name"],
-                //             startLesson: student["Lesson Start"],
-                //             email: student["Email"] || student["Dummy number"],
-                //             phoneNumber,
-                //             type: "student",
-                //             status: "active",
-                //             offlineStudentCode: student["Dummy number"],
-                //             preventAppAccess: 0,
-                //             offlineUser: 1,
-                //             batchCode: student["Batch code"],
-                //             loginCode
-                //         };
+                        const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
+                        const loginCode = loginCodeNumber.toString();
+                        const studentData = {
+                            firstName: student["First Name"],
+                            lastName: student["Last Name"] || "-",
+                            middleName: student["Middle Name"] || "-",
+                            classSection: student["Class section"] || "-",
+                            teacherName: student["Teacher Name"],
+                            startLesson: student["Lesson Start"],
+                            email: student["Email"] || student["Dummy number"],
+                            phoneNumber,
+                            type: "student",
+                            status: "active",
+                            offlineStudentCode: student["Dummy number"],
+                            preventAppAccess: 0,
+                            offlineUser: 1,
+                            batchCode: student["Batch code"],
+                            loginCode
+                        };
 
-                //         studentsUploaded.push(studentData);
-                //         batches.push(student["Batch code"]);
-                //         const res = await addUserSchedule({
-                //             headers: {
-                //                 "Content-Type": "application/json",
-                //             },
-                //             body: JSON.stringify(studentData),
-                //         });
+                        studentsUploaded.push(studentData);
+                        batches.push(student["Batch code"]);
+                        const res = await addUserSchedule({
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(studentData),
+                        });
+                        console.log('RESPONSE', res)
 
-                //         if (!res.id) {
-                //             setNotStoredUsers((d) => {
-                //                 d.push({ studentData, res });
-                //                 return d;
-                //             })
-                //             message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
-                //             continue;
-                //         } else {
-                //             studentsAdded.push(res);
-                //             message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
-                //         }
-                //     } else {
-                //         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
-                //     }
-                //     setCurrentRecord((n) => n + 1);
-                // }
+                        if (!res.id) {
+                            setErrors((prev) => [...prev, { student, "Error Message": res?.errors[0] }])
+                            setNotStoredUsers((d) => {
+                                d.push({ studentData, res });
+                                return d;
+                            })
+                            message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
+                            continue;
+                        } else {
+                            studentsAdded.push(res);
+                        }
+                    } else {
+                        message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
+                    }
+                    setCurrentRecord((n) => n + 1);
+                }
 
                 // for (const studentAdded of studentsAdded) {
                 //     studentsUploaded.filter((student) => {
@@ -285,6 +288,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             setIsLoading(false)
         }
     }
+
+    console.log(errors)
 
     return (
         <>
