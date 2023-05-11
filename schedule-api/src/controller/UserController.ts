@@ -35,6 +35,7 @@ export class UserController {
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         this.studentService.request = request;
+        const cosmosSync = request.query.cosmosSync !== "false";
 
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
@@ -136,7 +137,7 @@ export class UserController {
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
                 prevBatchedStudent = await getManager().query(prevBatchedStudentquery);
-                resp = await this.studentService.saveStudentDetails(request.body);
+                resp = await this.studentService.saveStudentDetails(request.body, cosmosSync);
             }
             else {
                 resp = await this.teacherService.saveTeacher(request.body);

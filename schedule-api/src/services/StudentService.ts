@@ -22,6 +22,7 @@ import { deactivateStudents } from "./../utils/student/deactivateStudents";
 import { validateStudentStatus } from "./../utils/student/validateUpdateStatus";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import LoggerService from "./LoggerService";
+import { getUniqueUserCode } from "../utils/student/getUniqueUserCode";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -341,7 +342,7 @@ export class StudentService {
     };
   }
 
-  async saveStudentDetails(data: any) {
+  async saveStudentDetails(data: any, cosmosSync:boolean = true) {
     let response;
     usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
@@ -411,32 +412,49 @@ export class StudentService {
 
       let response;
       if (!data.id) {
-        response = await axios
-          .post(options.url, options.body)
-          .then(async (res) => {
-            usersLogger.info(
-              `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
-            );
-            usersLogger.info(`Update oracle DB:  ${data.phoneNumber}`);
-            data.id = res.data.id;
-            if (res.status == 400) {
-              usersLogger.error(`Error while updating student : ${res.data}`);
-              return { status: 400, data: res.data };
-            } else {
-              usersLogger.info(`Data id from cosmos is ${data.id}`);
-              var user = await this.saveStudentSQL(data, data.id, true);
+        if (cosmosSync) {
+          response = await axios
+            .post(options.url, options.body)
+            .then(async (res) => {
               usersLogger.info(
-                `Successfully registered user: ${data.phoneNumber}`
+                `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
               );
-              return user;
-            }
-          })
-          .catch((error) => {
+              usersLogger.info(`Update oracle DB:  ${data.phoneNumber}`);
+              data.id = res.data.id;
+              if (res.status == 400) {
+                usersLogger.error(`Error while updating student : ${res.data}`);
+                return { status: 400, data: res.data };
+              } else {
+                usersLogger.info(`Data id from cosmos is ${data.id}`);
+                var user = await this.saveStudentSQL(data, data.id, true);
+                usersLogger.info(
+                  `Successfully registered user: ${data.phoneNumber}`
+                );
+                return user;
+              }
+            })
+            .catch((error) => {
+              usersLogger.info(
+                `Error while updating student : ${error.response.data}`
+              );
+              return { status: 400, data: error.response.data };
+            });
+        } else {
+          try {
+            data.id = await getUniqueUserCode("id")
+            usersLogger.info(`Data id created manually from admin portal is : ${data.id}`);
+            var user = await this.saveStudentSQL(data, data.id, true);
+            usersLogger.info(
+              `Successfully registered user: ${data.phoneNumber}`
+            );
+            response = user;
+          } catch (error) {
             usersLogger.info(
               `Error while updating student : ${error.response.data}`
             );
-            return { status: 400, data: error.response.data };
-          });
+            response = { status: 400, data: error.response.data };
+          }
+        }
       } else {
         usersLogger.info(`Update Request`);
         response = await axios
