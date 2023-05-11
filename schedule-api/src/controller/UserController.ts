@@ -51,6 +51,52 @@ export class UserController {
 
         try {
             if (request.body.type === 'student') {
+                if (!request.body.id) {
+                    const isDuplicate = (a: any, b: any, column: string) => {
+                      return (
+                        a[column] && b[column] && a[column].trim() === b[column].trim()
+                      );
+                    };
+          
+                    const alreadyExistsQuery = `
+                          SELECT * FROM user
+                          WHERE user.firstName LIKE '%${request.body.firstName}%' AND
+                          user.lastName LIKE '%${request.body.lastName}%' AND
+                          user.middleName LIKE '%${request.body.middleName}%'
+                      `;
+                    let similarUserData = await getManager().query(alreadyExistsQuery);
+                    similarUserData = await Promise.all(
+                      similarUserData.map(async (user) => {
+                        const query = `SELECT classSection FROM student WHERE id = '${user.id}'`;
+                        const studentData = await getManager().query(query);
+                        if (
+                          studentData.length > 0 &&
+                          studentData[0].classSection &&
+                          studentData[0].classSection !== "-"
+                        )
+                          return { ...user, classSection: studentData[0].classSection };
+                        return user;
+                      })
+                    );
+                    if (similarUserData.length > 0) {
+                      const similarStudent = similarUserData.find((user) => {
+                        return (
+                          isDuplicate(request.body, user, "firstName") &&
+                          isDuplicate(request.body, user, "lastName") &&
+                          isDuplicate(request.body, user, "middleName") &&
+                          isDuplicate(request.body, user, "classSection")
+                        );
+                      });
+                      if (similarStudent) {
+                        return {
+                          status: 400,
+                          errors: [
+                            "Student already exists with given Firstname, Lastname, Middle name and Class Section",
+                          ],
+                        };
+                      }
+                    }
+                }
                 let oldStudentDataQuery = `SELECT * FROM student where id = '${request.body.id}'`;
                 let oldStudentData = await getManager().query(oldStudentDataQuery);
                 // TODO: Reuse studentService Object.
