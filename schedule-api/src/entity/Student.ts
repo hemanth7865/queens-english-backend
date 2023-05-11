@@ -13,10 +13,9 @@ import {
 } from "typeorm";
 import { CollectionAgent } from "./CollectionAgent";
 
-
 @Entity("student")
 export class Student extends BaseEntity {
-  Student() { }
+  Student() {}
   @PrimaryGeneratedColumn("uuid")
   id: string;
   @Column({ nullable: true })
@@ -127,6 +126,8 @@ export class Student extends BaseEntity {
   reasonInSAV: string;
   @Column({ type: "text" })
   enrollmentType: string;
+  @Column({ type: "text" })
+  classSection: string;
   @Column({ nullable: true, type: "date" })
   assesmentDate: Date;
 
