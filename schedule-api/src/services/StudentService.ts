@@ -368,6 +368,7 @@ export class StudentService {
       type: data.type,
       email: data.email,
       firstName: data.firstName,
+      middleName: data.middleName,
       lastName: data.lastName,
       isAdministrator: false,
       phoneNumber: data.phoneNumber,
@@ -515,6 +516,7 @@ export class StudentService {
     let user = new User();
     user.firstName = data.firstName;
     user.lastName = data.lastName;
+    user.middleName = data?.middleName || "-";
     user.gender = data.gender;
     user.phoneNumber = data.phoneNumber;
     user.email = data.email;
@@ -607,6 +609,7 @@ export class StudentService {
     student.studentID = data.studentID;
     student.days = data.days;
     student.alternativeMobile = data.alternativeMobile;
+    student.classSection = data.classSection || "-"
 
     student.startDate = getDateOutOfDateTime(data.startDate);
     student.endDate = data.endDate;
