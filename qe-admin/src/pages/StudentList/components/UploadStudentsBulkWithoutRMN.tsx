@@ -30,6 +30,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
     const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
+    const [errors, setErrors] = useState<any[]>([]);
 
     //Role Based Access
     const access = useAccess();
@@ -147,112 +148,134 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             reader.onload = async function (e: any) {
                 const text = e.target.result;
-                const data = csvToArray(text);
+                let data = csvToArray(text);
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
+                setErrors([]);
                 setTotalRecords(data.length + 1);
                 setCurrentRecord(0);
 
-                for (const student of data) {
-                    await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (student["First Name"] && student["Dummy number"]) {
-                        let phoneNumber = student["Dummy number"];
-                        if (student["RMN"]) {
-                            if (student["RMN"].split("+")[1]) {
-                                phoneNumber = student["RMN"];
-                            } else if (student["RMN"].length > 10) {
-                                phoneNumber = "+" + student["RMN"]
-                            } else {
-                                phoneNumber = "+91" + student["RMN"]
-                            }
-                        }
+                const isDuplicate = (a: any, b: any, column: string) => {
+                    return a[column] && b[column] && a[column].trim() === b[column].trim()
+                }
 
-                        const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
-                        const loginCode = loginCodeNumber.toString();
-                        const studentData = {
-                            firstName: student["First Name"],
-                            lastName: student["Last Name"] || "-",
-                            teacherName: student["Teacher Name"],
-                            startLesson: student["Lesson Start"],
-                            email: student["Email"] || student["Dummy number"],
-                            phoneNumber,
-                            type: "student",
-                            status: "active",
-                            offlineStudentCode: student["Dummy number"],
-                            preventAppAccess: 0,
-                            offlineUser: 1,
-                            batchCode: student["Batch code"],
-                            loginCode
-                        };
-
-                        studentsUploaded.push(studentData);
-                        batches.push(student["Batch code"]);
-                        const res = await addUserSchedule({
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(studentData),
-                        });
-
-                        if (!res.id) {
-                            setNotStoredUsers((d) => {
-                                d.push({ studentData, res });
-                                return d;
-                            })
-                            message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
-                            continue;
-                        } else {
-                            studentsAdded.push(res);
-                            message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
-                        }
-                    } else {
-                        message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
+                data = data.filter((a, indexA) => {
+                    const isSame = data.find((b, indexB) => {
+                        if (indexA === indexB) return false;
+                        return (
+                            isDuplicate(a, b, "First Name") &&
+                            isDuplicate(a, b, "Last Name") &&
+                            isDuplicate(a, b, "Middle Name") &&
+                            isDuplicate(a, b, "Class section")
+                        )
+                    })
+                    if (isSame) {
+                        setErrors((prev) => [...prev, { student: a, "Error Message": "Duplicate data in same CSV Upload" }])
+                        return false;
                     }
-                    setCurrentRecord((n) => n + 1);
-                }
+                    return true;
+                })
 
-                for (const studentAdded of studentsAdded) {
-                    studentsUploaded.filter((student) => {
-                        if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
-                            studentsFinal.push({ ...student, id: studentAdded.id });
-                        }
-                    });
-                }
+                // for (const student of data) {
+                //     await new Promise((resolve, reject) => setTimeout(resolve, 100));
+                //     if (student["First Name"] && student["Dummy number"]) {
+                //         let phoneNumber = student["Dummy number"];
+                //         if (student["RMN"]) {
+                //             if (student["RMN"].split("+")[1]) {
+                //                 phoneNumber = student["RMN"];
+                //             } else if (student["RMN"].length > 10) {
+                //                 phoneNumber = "+" + student["RMN"]
+                //             } else {
+                //                 phoneNumber = "+91" + student["RMN"]
+                //             }
+                //         }
 
-                if (batches.length > 0 && studentsFinal.length > 0) {
-                    try {
-                        message.loading("Adding Students to their respective batches", 5)
-                        const batching = await handleBatching();
-                        if (batching) {
-                            message.success("All Students added to their respective batches")
-                        } else {
-                            message.error("Error in adding students to their respective batches")
-                        }
-                    } catch (e) {
-                        message.error("Error in adding students to their respective batches, please check console for more details")
-                    }
-                }
+                //         const loginCodeNumber = Math.floor(100000 + Math.random() * 900000);
+                //         const loginCode = loginCodeNumber.toString();
+                //         const studentData = {
+                //             firstName: student["First Name"],
+                //             lastName: student["Last Name"] || "-",
+                //             teacherName: student["Teacher Name"],
+                //             startLesson: student["Lesson Start"],
+                //             email: student["Email"] || student["Dummy number"],
+                //             phoneNumber,
+                //             type: "student",
+                //             status: "active",
+                //             offlineStudentCode: student["Dummy number"],
+                //             preventAppAccess: 0,
+                //             offlineUser: 1,
+                //             batchCode: student["Batch code"],
+                //             loginCode
+                //         };
 
-                if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
-                    const batchesToAdd = [...new Set(batches)]
-                    const school = schools.find(obj => obj.id === selectedSchool);
-                    const data = {
-                        batchesToSave: batchesToAdd,
-                        saveSchool: school,
-                        csv: true
-                    };
-                    try {
-                        await addBatchToSchool({
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(data),
-                        });
-                    } catch (e) {
-                        console.log("e", e)
-                    }
-                }
+                //         studentsUploaded.push(studentData);
+                //         batches.push(student["Batch code"]);
+                //         const res = await addUserSchedule({
+                //             headers: {
+                //                 "Content-Type": "application/json",
+                //             },
+                //             body: JSON.stringify(studentData),
+                //         });
+
+                //         if (!res.id) {
+                //             setNotStoredUsers((d) => {
+                //                 d.push({ studentData, res });
+                //                 return d;
+                //             })
+                //             message.error(`Student Record Not Saved: \n ${JSON.stringify(student)}.`);
+                //             continue;
+                //         } else {
+                //             studentsAdded.push(res);
+                //             message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
+                //         }
+                //     } else {
+                //         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
+                //     }
+                //     setCurrentRecord((n) => n + 1);
+                // }
+
+                // for (const studentAdded of studentsAdded) {
+                //     studentsUploaded.filter((student) => {
+                //         if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
+                //             studentsFinal.push({ ...student, id: studentAdded.id });
+                //         }
+                //     });
+                // }
+
+                // if (batches.length > 0 && studentsFinal.length > 0) {
+                //     try {
+                //         message.loading("Adding Students to their respective batches", 5)
+                //         const batching = await handleBatching();
+                //         if (batching) {
+                //             message.success("All Students added to their respective batches")
+                //         } else {
+                //             message.error("Error in adding students to their respective batches")
+                //         }
+                //     } catch (e) {
+                //         message.error("Error in adding students to their respective batches, please check console for more details")
+                //     }
+                // }
+
+                // if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
+                //     const batchesToAdd = [...new Set(batches)]
+                //     const school = schools.find(obj => obj.id === selectedSchool);
+                //     const data = {
+                //         batchesToSave: batchesToAdd,
+                //         saveSchool: school,
+                //         csv: true
+                //     };
+                //     try {
+                //         await addBatchToSchool({
+                //             headers: {
+                //                 "Content-Type": "application/json",
+                //             },
+                //             body: JSON.stringify(data),
+                //         });
+                //     } catch (e) {
+                //         console.log("e", e)
+                //     }
+                // }
                 setIsLoading(false)
             };
 
@@ -302,7 +325,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code
+                        First Name, Last Name, Middle name, RMN, Email, Teacher Name, Dummy number, Class section
                     </pre>
                     <p style={{ color: "red" }}>
                         *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
