@@ -218,8 +218,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 "Content-Type": "application/json",
                             },
                             body: JSON.stringify(studentData),
+                            params: { cosmosSync: false }
                         });
-                        console.log('RESPONSE', res)
 
                         if (!res.id) {
                             setErrors((prev) => [...prev, { student, "Error Message": res?.errors[0] }])
@@ -288,8 +288,6 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             setIsLoading(false)
         }
     }
-
-    console.log(errors)
 
     return (
         <>
