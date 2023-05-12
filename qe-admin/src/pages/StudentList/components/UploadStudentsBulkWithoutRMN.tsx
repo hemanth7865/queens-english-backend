@@ -64,6 +64,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             const studentsFinal: any[] = [];
 
+            const finalStudentsIds: string[] = [];
+
             const studentsAlreadyInBatch: any[] = [];
 
             let batches: any[] = [];
@@ -238,13 +240,19 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     setCurrentRecord((n) => n + 1);
                 }
 
-                // for (const studentAdded of studentsAdded) {
-                //     studentsUploaded.filter((student) => {
-                //         if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
-                //             studentsFinal.push({ ...student, id: studentAdded.id });
-                //         }
-                //     });
-                // }
+                for (const studentAdded of studentsAdded) {
+                    studentsUploaded.filter((student) => {
+                        if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
+                            finalStudentsIds.push(studentAdded.id);
+                            studentsFinal.push({ ...student, id: studentAdded.id });
+                        }
+                    });
+                }
+
+                // Ids of the new created students
+                console.log(finalStudentsIds)
+
+
 
                 // if (batches.length > 0 && studentsFinal.length > 0) {
                 //     try {
