@@ -40,16 +40,6 @@ export class UserController {
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
         let resp;
 
-        // Not checking for mobile no now while creating users
-        // if (!request.body.isSibling && !request.body.offlineStudentCode) {
-        //     const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
-        //     if (userExists) {
-        //         usersLogger.info(`User With That Number Was Found ${userExists?.id}`);
-        //         return { status: 400, errors: ['User already exists with given phoneNumber'] };
-        //     }
-        // }
-
-
         try {
             if (request.body.type === 'student') {
                 let oldStudentDataQuery = `SELECT * FROM student where id = '${request.body.id}'`;

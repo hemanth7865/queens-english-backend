@@ -207,8 +207,6 @@ export class BatchService {
         },
       };
 
-      console.log('OPTIONS ---->>', options)
-
       var res1 = {};
       if (!data.id || create) {
         res1 = await axios
