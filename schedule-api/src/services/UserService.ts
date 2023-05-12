@@ -79,7 +79,8 @@ export class UserService {
     }
   }
 
-  async generateUsersCode(): Promise<any> {
+  async generateUsersCode(data?:{ id:string, cosmosSync:boolean }): Promise<any> {
+    const doCosmosSync = !(data.cosmosSync === false)
     const result = {
       success: 0,
       error: 0,
@@ -113,6 +114,8 @@ export class UserService {
             },
           };
 
+          // Do cosmos sync when its enabled or when its not enabled and id that passed as arg is not same as any other user id.
+          if(doCosmosSync || (user?.id !== data?.id)) {
           await axios
             .put(cosmosUpdate.url, cosmosUpdate.body)
             .then(async (res) => {
@@ -126,6 +129,11 @@ export class UserService {
                 "Failed to update user on cosmos " + error.response.data
               );
             });
+          } else {
+            // When cosmosSync is false
+            await this.usersRepository.update(user.id, user);
+            result.success += 1;
+          }
         } catch (e) {
           result.error += 1;
           usersLogger.error(e.message);

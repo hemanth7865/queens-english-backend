@@ -22,7 +22,7 @@ import { deactivateStudents } from "./../utils/student/deactivateStudents";
 import { validateStudentStatus } from "./../utils/student/validateUpdateStatus";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import LoggerService from "./LoggerService";
-import { getUniqueUserCode } from "../utils/student/getUniqueUserCode";
+import { getUniqueUserID } from "../utils/student/getUniqueUserId";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -441,9 +441,9 @@ export class StudentService {
             });
         } else {
           try {
-            data.id = await getUniqueUserCode("id")
+            data.id = await getUniqueUserID("id")
             usersLogger.info(`Data id created manually from admin portal is : ${data.id}`);
-            var user = await this.saveStudentSQL(data, data.id, true);
+            var user = await this.saveStudentSQL(data, data.id, true, cosmosSync);
             usersLogger.info(
               `Successfully registered user: ${data.phoneNumber}`
             );
@@ -740,7 +740,7 @@ export class StudentService {
     }
   }
 
-  async saveStudentSQL(data: any, id, create = false) {
+  async saveStudentSQL(data: any, id, create = false, cosmosSync = true) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
@@ -801,7 +801,7 @@ export class StudentService {
       if (
         process.env.AUTO_RUN_GENERATE_STUDENT_CODE_DYNAMICALLY !== "NOT_ALLOWED"
       ) {
-        await userSerivce.generateUsersCode();
+        await userSerivce.generateUsersCode({ id, cosmosSync });
       }
 
       return { ...user };
