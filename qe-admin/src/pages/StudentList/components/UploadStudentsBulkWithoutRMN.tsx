@@ -266,7 +266,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             preventAppAccess: 0,
                             offlineUser: 1,
                             batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
-                            loginCode
+                            loginCode,
+                            schoolId: selectedSchool
                         };
 
                         studentsUploaded.push(studentData);
@@ -359,25 +360,25 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     }
                 }
 
-                // if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
-                //     const batchesToAdd = [...new Set(batches)]
-                //     const school = schools.find(obj => obj.id === selectedSchool);
-                //     const data = {
-                //         batchesToSave: batchesToAdd,
-                //         saveSchool: school,
-                //         csv: true
-                //     };
-                //     try {
-                //         await addBatchToSchool({
-                //             headers: {
-                //                 "Content-Type": "application/json",
-                //             },
-                //             body: JSON.stringify(data),
-                //         });
-                //     } catch (e) {
-                //         console.log("e", e)
-                //     }
-                // }
+                if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
+                    const batchesToAdd = [...new Set(batches)]
+                    const school = schools.find(obj => obj.id === selectedSchool);
+                    const data = {
+                        batchesToSave: batchesToAdd,
+                        saveSchool: school,
+                        csv: true
+                    };
+                    try {
+                        await addBatchToSchool({
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(data),
+                        });
+                    } catch (e) {
+                        console.log("e", e)
+                    }
+                }
                 setIsLoading(false)
             };
 

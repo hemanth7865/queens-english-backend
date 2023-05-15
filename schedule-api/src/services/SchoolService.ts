@@ -252,14 +252,18 @@ export class SchoolService {
                 for (const s of students) {
                     studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
                     if (studentsData) {
-                        studentsData.schoolId = request.saveSchool.id;
-                        await this.studentRepository.save(studentsData);
+                        if (studentsData.schoolId != request.saveSchool.id) {
+                            studentsData.schoolId = request.saveSchool.id;
+                            await this.studentRepository.save(studentsData);
+                        }
                     }
                     users = await this.userRepository.findOne({ where: { id: s.studentId } });
                     if (users) {
-                        users.schoolId = request.saveSchool.id;
-                        users.schoolCode = request.saveSchool.schoolCode;
-                        await this.userRepository.save(users);
+                        if (users.schoolId != request.saveSchool.id || users.schoolCode != request.saveSchool.schoolCode) {
+                            users.schoolId = request.saveSchool.id;
+                            users.schoolCode = request.saveSchool.schoolCode;
+                            await this.userRepository.save(users);
+                        }
                     }
                 }
             }
