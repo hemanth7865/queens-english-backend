@@ -184,6 +184,10 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 }
                             } else {
                                 message.error(`Failed to add students to Batch:${batch}.`);
+                                setErrors((prev) => [
+                                    ...prev,
+                                    ...batchStudents.map((student) => ({ student, "Error Message": `Failed to add students to Batch:${batch}.` }))
+                                ])
                             }
                         }
                         setCurrentRecord((n) => n + 1)
