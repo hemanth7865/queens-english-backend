@@ -337,6 +337,14 @@ export async function addUserSchedule(options?: { [key: string]: any }) {
   });
 }
 
+/** POST /be/syncStudentsToCosmos */
+export async function syncStudentsToCosmos(options?: { [key: string]: any }) {
+  return request<any>("/be/syncStudentsToCosmos", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
 /** EDIT /be/leads */
 export async function editTeacherSchedule(options?: { [key: string]: any }) {
   return request<any>("/be/leads", {

@@ -718,6 +718,98 @@ export class StudentService {
     return { student, payments, user, studentAvailability };
   }
 
+  async syncStudentsToCosmosDB(studentIds: string[]) {
+    const errors: {
+      student?: User;
+      studentId: string;
+      "Error Message": string;
+    }[] = [];
+    const getCosmosBody = (user: User) => {
+      const cosmosUserBody: any = {
+        id: user.id,
+        type: user.type,
+        email: user.email,
+        firstName: user.firstName,
+        middleName: user.middleName,
+        lastName: user.lastName,
+        isAdministrator: false,
+        phoneNumber: user.phoneNumber,
+        userCode: user.userCode,
+        status: user.status,
+        offlineStudentCode: user.offlineStudentCode,
+        preventAppAccess: user.preventAppAccess,
+        offlineUser: user.offlineUser,
+        loginCode: user.loginCode,
+      };
+      return cosmosUserBody;
+    };
+
+    const cosmosStudents = [];
+    for (const studentId of studentIds) {
+      const query = `SELECT * FROM user WHERE user.id = '${studentId}'`;
+      try {
+        const response = await getManager().query(query);
+        if (response[0]) {
+          cosmosStudents.push(getCosmosBody(response[0]));
+        } else {
+          errors.push({
+            studentId,
+            "Error Message":
+              "Didn't found any record from provided student id.",
+          });
+        }
+      } catch (error) {
+        errors.push({
+          studentId,
+          "Error Message":
+            "Something went wrong while fetching student details from mysql using id.",
+        });
+      }
+    }
+
+    const options = {
+      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&multiple=true`,
+      json: true,
+      body: cosmosStudents,
+    };
+
+    await axios.post(options.url, options.body).then(async (res) => {
+      const notValidUsers = res.data.notValidUsers;
+      const resErrors = res.data.errors;
+      notValidUsers.forEach((invalidUser) => {
+        errors.push({
+          studentId: invalidUser?.id,
+          student: invalidUser,
+          "Error Message": "Please provide a valid user",
+        });
+      });
+
+      resErrors.forEach((error) => {
+        errors.push({
+          studentId: error?.student?.id,
+          student: error.student,
+          "Error Message": "Something went wrong, pls try again",
+        });
+      });
+
+      // Removing students from mysql which have any error either from mysql or cosmos db.
+      for (const error of errors) {
+        if (error?.studentId) {
+          const deleteQueries = [
+            `DELETE FROM user WHERE user.id = '${error.studentId}'`,
+            `DELETE FROM student WHERE student.id = '${error.studentId}'`,
+          ];
+          for (const query of deleteQueries) {
+            try {
+              await getManager().query(query);
+            } catch (_) {}
+          }
+        }
+      }
+    });
+    return { status: 200, errors };
+  }
+
   async updateStudentBatchHistoy(studentId: string, batchId: string, classStartDate: any) {
     let studentBatchHistory = new StudentBatchesHistory();
     studentBatchHistory.studentId = studentId;

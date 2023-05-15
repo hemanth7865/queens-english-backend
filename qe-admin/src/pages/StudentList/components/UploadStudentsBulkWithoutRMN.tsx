@@ -1,7 +1,7 @@
 import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
 import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents, syncStudentsToCosmos } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 
 function csvToArray(str: string, delimiter: string = ",") {
@@ -22,6 +22,7 @@ function csvToArray(str: string, delimiter: string = ",") {
 }
 
 const UploadStudentsBulkWithoutRMN = (props: any) => {
+    const [statusMessage, setStatusMessage] = useState<string>("");
     const [openUpload, setOpenUpload] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [totalRecords, setTotalRecords] = useState<number>(0);
@@ -53,6 +54,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const handleUpload = async (e: any) => {
         e.preventDefault();
         setIsLoading(true)
+        setStatusMessage("");
         try {
             const file: any = document.getElementById("file");
 
@@ -72,7 +74,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             async function handleBatching() {
                 const batchesInCsv = [...new Set(batches)];
-                setTotalRecords(studentsUploaded.length + batchesInCsv.length);
+                setTotalRecords((studentsUploaded.length * 2) + batchesInCsv.length);
                 let success = false;
 
                 try {
@@ -155,13 +157,15 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     throw new Error("Failed to parse CSV File");
                 }
                 setErrors([]);
-                setTotalRecords(data.length + 1);
+                setTotalRecords((data.length + 1) * 2);
                 setCurrentRecord(0);
+                setStatusMessage("Process Started...")
 
                 const isDuplicate = (a: any, b: any, column: string) => {
                     return a[column] && b[column] && a[column].trim() === b[column].trim()
                 }
 
+                setStatusMessage("Finding Duplicate Students within CSV...")
                 data = data.filter((a, indexA) => {
                     const isSame = data.find((b, indexB) => {
                         if (indexA === indexB) return false;
@@ -179,6 +183,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     return true;
                 })
 
+                setStatusMessage("Creating Students in MYSQL...")
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
@@ -214,7 +219,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         };
 
                         studentsUploaded.push(studentData);
-                        batches.push(student["Batch code"]);
+                        if (student["Class section"]) {
+                            batches.push(`${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`);
+                        }
                         const res = await addUserSchedule({
                             headers: {
                                 "Content-Type": "application/json",
@@ -249,11 +256,45 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     });
                 }
 
-                // Ids of the new created students
-                console.log(finalStudentsIds)
+                setStatusMessage("Creating Students in CosmosDB...")
+                // Passing Ids of the new created students
+                try {
+                    const res = await syncStudentsToCosmos({
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(finalStudentsIds)
+                    })
+                    console.log('res', res)
 
+                    // Setting errors and showing it to the users
+                    if (res.errors.length > 0) {
+                        res.errors.forEach((error: { student?: any, studentId: string, "Error Message": string }) => {
+                            setErrors((prev) => [
+                                ...prev,
+                                {
+                                    student: studentsFinal.find((stud) => stud.id === error?.studentId),
+                                    "Error Message": error["Error Message"]
+                                }
+                            ])
 
+                            setNotStoredUsers((prev) => [
+                                ...prev,
+                                {
+                                    studentData: error?.student || studentsFinal.find((stud) => stud.id === error?.studentId),
+                                    "Error Message": error["Error Message"]
+                                }
+                            ])
+                            studentsFinal.filter((stud) => stud.id !== error.studentId)
+                        })
+                    }
+                } catch (error) {
+                    console.log('error', error)
+                }
 
+                setCurrentRecord((n) => n * 2);
+
+                console.log('BATCHES ---->>', batches)
                 // if (batches.length > 0 && studentsFinal.length > 0) {
                 //     try {
                 //         message.loading("Adding Students to their respective batches", 5)
@@ -344,7 +385,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
-
+                {statusMessage !== "" && (<span style={{ paddingLeft: 10 }}>{statusMessage}</span>)}
+                <br />
                 <br />
                 <Select
                     placeholder="Select School"

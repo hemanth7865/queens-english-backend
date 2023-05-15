@@ -534,4 +534,20 @@ export class UserController {
         }
         return resp;
     }
+
+    async syncStudentsToCosmos(
+      request: Request,
+      response: Response,
+      next: NextFunction
+    ) {
+      let resp;
+      try {
+        usersLogger.info("Sync Student To Cosmos");
+        resp = await this.studentService.syncStudentsToCosmosDB(request.body);
+      } catch (error) {
+        usersLogger.error("Sync Student Payment Info Error: " + error.message);
+        resp = { status: 400, error: error.message };
+      }
+      return resp;
+    }
 }
