@@ -3,6 +3,8 @@ import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
 import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents, syncStudentsToCosmos } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import { LESSONS } from '../../../../config/lessons';
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -35,6 +37,21 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
     //Role Based Access
     const access = useAccess();
+
+    const getLessonIdByNumber = (data: any) => {
+        let lessonNumber = parseInt(data).toString()
+        if (lessonNumber.length === 1) {
+            lessonNumber = "0" + lessonNumber
+        }
+        const lesson = LESSONS.filter((lesson) => {
+            return lesson.number === lessonNumber
+        })
+
+        if (lesson.length === 0) {
+            return false
+        }
+        return lesson[0]?.id
+    }
 
     useEffect(() => {
         setSchoolsLoading(true);
@@ -79,15 +96,45 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 try {
                     for (const batch of batchesInCsv) {
-                        const batchData: any = await getIndividualBatch(batch);
-                        if (!batchData.data.classes) {
-                            batchesInCsv.splice(batchesInCsv.indexOf(batch), 1);
-                            message.error(`Batch ${batch} not found. Please create the batch first.`);
-                            continue;
+                        let batchData: any = await getIndividualBatch(batch);
+                        let classes = batchData.data.classes;
+                        if (!classes) {
+                            message.loading(`Creating Batch : ${batch}`, 5)
+                            const batchBody: any = {
+                                batchNumber: batch,
+                                classStartDate: moment().format('YYYY-MM-DDTHH:mm:ss'),
+                                classEndDate: moment().add(1, 'year').format('YYYY-MM-DDTHH:mm:ss'),
+                                edit: false,
+                                startingLessonId: getLessonIdByNumber(1),
+                                endingLessonId: getLessonIdByNumber(100),
+                                activeLessonId: getLessonIdByNumber(1),
+                                followupVersion: "v2",
+                                lessonStartTime: moment("15:30", "HH:mm").utc().format('YYYY-MM-DDTHH:mm:ss'),
+                                lessonEndTime: moment("17:00", "HH:mm").utc().format('YYYY-MM-DDTHH:mm:ss'),
+                                students: [],
+                                useAutoAttendance: 0,
+                                useNewZoomLink: 0,
+                                whatsappLink: "",
+                                zoomInfo: "",
+                                zoomLink: "",
+                                classCode: "",
+                                ageGroup: "",
+                                batchAvailability: [{}],
+                                offlineBatch: 1,
+                                schoolId: selectedSchool
+                            }
+                            const res = await addeditbatch({
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(batchBody)
+                            })
+                            classes = res.data[0]
+                            message.success(`Batch created successfully: ${batch}.`)
                         }
-                        const studentsToCheck = studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber)
+                        const studentsToCheck = studentsFinal.filter(student => student.batchCode == classes.batchNumber)
                         if (studentsToCheck.length > 0) {
-                            const data = { students: studentsToCheck, id: batchData.data.classes.id }
+                            const data = { students: studentsToCheck, id: classes.id }
                             const checkStudentBatch = await checkStudentInBatch(data);
                             if (checkStudentBatch.data.length > 0) {
                                 studentsAlreadyInBatch.push(...checkStudentBatch.data);
@@ -183,7 +230,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     return true;
                 })
 
-                setStatusMessage("Creating Students in MYSQL...")
+                setStatusMessage("Creating Students in MYSQL .....")
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"] && student["Dummy number"]) {
@@ -214,7 +261,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
                             offlineUser: 1,
-                            batchCode: student["Batch code"],
+                            batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
                             loginCode
                         };
 
@@ -256,7 +303,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     });
                 }
 
-                setStatusMessage("Creating Students in CosmosDB...")
+                setStatusMessage("Creating Students in CosmosDB .....")
                 // Passing Ids of the new created students
                 try {
                     const res = await syncStudentsToCosmos({
@@ -294,20 +341,19 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 setCurrentRecord((n) => n * 2);
 
-                console.log('BATCHES ---->>', batches)
-                // if (batches.length > 0 && studentsFinal.length > 0) {
-                //     try {
-                //         message.loading("Adding Students to their respective batches", 5)
-                //         const batching = await handleBatching();
-                //         if (batching) {
-                //             message.success("All Students added to their respective batches")
-                //         } else {
-                //             message.error("Error in adding students to their respective batches")
-                //         }
-                //     } catch (e) {
-                //         message.error("Error in adding students to their respective batches, please check console for more details")
-                //     }
-                // }
+                if (batches.length > 0 && studentsFinal.length > 0) {
+                    try {
+                        message.loading("Adding Students to their respective batches", 5)
+                        const batching = await handleBatching();
+                        if (batching) {
+                            message.success("All Students added to their respective batches")
+                        } else {
+                            message.error("Error in adding students to their respective batches")
+                        }
+                    } catch (e) {
+                        message.error("Error in adding students to their respective batches, please check console for more details")
+                    }
+                }
 
                 // if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
                 //     const batchesToAdd = [...new Set(batches)]
