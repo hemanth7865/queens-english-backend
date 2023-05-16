@@ -88,6 +88,7 @@ const callback = (key) => {
 const StudentsBatchList: React.FC = () => {
   //Role Based Access
   const access = useAccess();
+  const url = new URL(window.location.href);
 
   //props for drawer
   const [tmpData, setTmpData] = useState<any>();
@@ -367,7 +368,7 @@ const StudentsBatchList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
-        request={studentsBatches}
+        request={params => studentsBatches({ ...params, offlineUser: url.toString().indexOf('/school/') >= 0 ? 1 : 0 })}
         columns={columns}
         toolBarRender={() => [
           <div>

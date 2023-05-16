@@ -818,6 +818,9 @@ export class BatchService {
       query_list.push(` classes.schoolName like  '%${parameters.schoolName}%' `);
     }
 
+    if (parameters.offlineBatch) {
+      query_list.push(` classes.offlineBatch =  '${parameters.offlineBatch}' `);
+    }
     /**
      * TODO: Make Logic More Simpler
      */

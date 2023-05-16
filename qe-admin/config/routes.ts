@@ -25,6 +25,32 @@
     access: "canManage",
     routes: [
       {
+        name: "School Management",
+        path: "/manage/school",
+        routes: [
+          {
+            name: "School",
+            path: "/manage/school/schoolList",
+            component: "./School",
+          },
+          {
+            name: "Batch",
+            path: "/manage/school/batch",
+            component: "./BatchList",
+          },
+          {
+            name: "Teacher",
+            path: "/manage/school/teacherBatch",
+            component: "./TeacherBatchList",
+          },
+          {
+            name: "Student",
+            path: "/manage/school/StudentBatch",
+            component: "./StudentsBatchList",
+          },
+        ]
+      },
+      {
         name: "Batch",
         path: "/manage/batch",
         component: "./BatchList",
@@ -104,11 +130,6 @@
         path: "/manage/lessons",
         component: "./LessonsList",
         access: "canSuperAdmin",
-      },
-      {
-        name: "School Management",
-        path: "/manage/school",
-        component: "./School",
       },
       {
         name: "Onboard",
