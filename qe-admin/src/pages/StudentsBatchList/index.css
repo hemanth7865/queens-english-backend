@@ -25,3 +25,14 @@ input[type='date']:valid::before {
   border: 1px solid #ccc;
 }
 
+.ant-drawer-body {
+  padding: 2px 8px;
+}
+/*8ac9ff*/
+.batchDetailsTable thead>tr>th{
+  background: #8ac9ff !important;
+  padding: 4px !important;
+}
+.batchDetailsTable .ant-table-cell {
+  text-align: center;
+}

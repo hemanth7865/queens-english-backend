@@ -78,6 +78,7 @@ import access from "@/access";
 import { AlignType } from 'rc-table/lib/interface';
 import Tabsedit from "@/components/Formedit/tabs";
 import HistoryTable from "@/components/HistoryTab/tableView";
+import ReBatch from "@/components/Student/rebatch";
 
 const { TabPane } = Tabs;
 
@@ -98,6 +99,13 @@ const StudentsBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [visibleHistoryTab, setVisibleHistoryTab] = useState<boolean>(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedStudentData, setSelectedStudentData] = useState<any>()
+  const [reassignModal, setReassignModal] = useState<boolean>(false);
+
+  const showReassignBatchModal = () => {
+    setReassignModal(true)
+  }
 
   //add drawer
   const showDrawer = () => {
@@ -106,6 +114,7 @@ const StudentsBatchList: React.FC = () => {
     setstudentManageredit(false);
   };
   const onClose = () => {
+    setReassignModal(false);
     setVisible(false);
     seteditvisible(false);
   };
@@ -375,22 +384,53 @@ const StudentsBatchList: React.FC = () => {
               accessible={access.canSuperAdmin}
               fallback={<div> </div>}
             >
+              <Button type="primary" key="primary" style={{ marginRight: '5px' }}
+                disabled={selectedRowKeys.length === 0}
+                onClick={showReassignBatchModal}
+                onChange={setstudentManageradd(true)}>
+                Re-Batch Student
+              </Button>
+
               <Button type="primary" key="primary" onClick={showDrawer} onChange={setstudentManageradd(true)}>
                 Add Student
               </Button>
             </Access>
           </div>,
-          <Drawer
-            title="Add Student"
-            placement="right"
-            onClose={onClose}
-            visible={visible}
-            width={1100}
-            destroyOnClose
-          >
-            <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
-          </Drawer>
+          <>
+            <Drawer
+              title="Add Student"
+              placement="right"
+              onClose={onClose}
+              visible={visible}
+              width={1100}
+              destroyOnClose
+            >
+              <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
+            </Drawer>
+
+            <Drawer
+              title="Re-Batch Student"
+              placement="right"
+              onClose={onClose}
+              visible={reassignModal}
+              width={1100}
+              destroyOnClose
+            >
+              <ReBatch selectedStudentData={selectedStudentData} reassignModal={reassignModal}/>
+            </Drawer>
+          </>
         ]}
+        rowKey={(record) => record.id}
+        pagination={{ position: ['topRight', 'bottomRight'] }}
+        //the checkbox
+        rowSelection={{
+          preserveSelectedRowKeys: true,
+          onChange: (selectedRows, record) => {
+            console.log("record", record);
+            setSelectedRowKeys(selectedRows);
+            setSelectedStudentData(record);
+          },
+        }}
       />
 
       <Spin spinning={isLoading}>

@@ -818,6 +818,13 @@ export class BatchService {
       query_list.push(` classes.schoolName like  '%${parameters.schoolName}%' `);
     }
 
+    if (parameters.offlineBatch) {
+      query_list.push(` classes.offlineBatch =  '${parameters.offlineBatch}' `);
+    }
+
+    if (parameters.schoolId) {
+      query_list.push(` classes.schoolId =  '${parameters.schoolId}' `);
+    }
     /**
      * TODO: Make Logic More Simpler
      */
@@ -1149,7 +1156,7 @@ export class BatchService {
     return ids;
   }
 
-  async reBatch({ batchId, studentId }: { batchId: string, studentId: string }) {
+  async reBatch({ batchId, studentId, bulkRebatch }: { batchId: string, studentId: string, bulkRebatch?: boolean }) {
     let studentService = new StudentService();
     let activeBatches = await studentService.getStudentActiveBatches(studentId, true);
     /**
@@ -1192,7 +1199,7 @@ export class BatchService {
       delete batch.teacher;
     }
 
-    const result = await this.createBatch(batch);
+    const result = await this.createBatch(batch, bulkRebatch);
     return result;
   }
 

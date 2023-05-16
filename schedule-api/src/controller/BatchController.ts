@@ -41,6 +41,25 @@ export class BatchController {
         return batch;
     }
 
+    async bulkReBatchStudents(request: Request, response: Response, next: NextFunction) {
+        var resp = [];
+        const studentIds = request.body.studentIds;
+        await Promise.all(studentIds.map(async (studentId: string) => {
+            resp.push(await this.reBatch({
+                body: {
+                    studentId: studentId,
+                    batchId: request.body.batchId,
+                    bulkRebatch: request.body.bulkRebatch ? request.body.bulkRebatch : false,
+                }
+            }, response, next));
+        }));
+        
+        return {
+            "success": true,
+            "data": resp, "total": 1
+        }
+
+    }
 
     async deleteBatch(request: Request, response: Response, next: NextFunction) {
         var batch;
@@ -78,6 +97,8 @@ export class BatchController {
             classEndDate: request.query['classEndDate'],
             lessonNumber: request.query['lessonNumber'],
             schoolName: request.query['schoolName'],
+            offlineBatch: request.query['offlineBatch'],
+            schoolId: request.query['schoolId']
         }
         let res;
         try {

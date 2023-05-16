@@ -405,6 +405,8 @@ export async function listBatch(
     lessonEndTime?: string;
     classStartDate?: string;
     excludedTeacher?: string;
+    offlineBatch?: number;
+    schoolId?: string;
   },
   options?: { [key: string]: any }
 ) {
@@ -466,6 +468,14 @@ export async function getTeacherLessons(
 //ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
 export async function addeditbatch(options?: { [key: string]: any }) {
   return request<any>("/be/createBatch", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+//Bulk reassign of students to another batch
+export async function bulkReBatchStudents(options?: { [key: string]: any }) {
+  return request<any>("/be/bulkReBatchStudents", {
     method: "POST",
     ...(options || {}),
   });
