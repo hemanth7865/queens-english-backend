@@ -236,7 +236,7 @@ export class BatchService {
         /**
         * Remove Students From Batch
         */
-        await this.removeStudents(studentsChange.remove, data.id);
+        // await this.removeStudents(studentsChange.remove, data.id);
 
 
         await this.addStudentsBatchesHistory(studentsChange.add, data.id);
