@@ -38,6 +38,17 @@ export class UserController {
 
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
+
+        const both = request.query?.both === "true"
+
+        if (!both && !request.body.isSibling && !request.body.offlineStudentCode) {
+            const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
+            if (userExists) {
+                usersLogger.info(`User With That Number Was Found ${userExists?.id}`);
+                return { status: 400, errors: ['User already exists with given phoneNumber'] };
+            }
+        }
+
         let resp;
 
         try {

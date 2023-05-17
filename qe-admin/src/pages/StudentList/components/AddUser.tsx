@@ -118,7 +118,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
-    const addStudentTeacher = async (userType: string) => {
+    const addStudentTeacher = async (userType: string, both: boolean = false) => {
         var code = selectCountryCode ? selectCountryCode : '91';
         setIsLoading(true)
         if (!error) {
@@ -150,6 +150,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
             try {
                 const msg = await addUserSchedule({
+                    params: {
+                        both
+                    },
                     headers: {
                         "Content-Type": "application/json",
                     },
@@ -165,8 +168,8 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
     const onFinish = async () => {
         if (selectUserType === BothUser.value) {
-            await addStudentTeacher(TeacherUser.value)
-            await addStudentTeacher(StudentUser.value)
+            await addStudentTeacher(TeacherUser.value, true)
+            await addStudentTeacher(StudentUser.value, true)
         } else {
             await addStudentTeacher(selectUserType)
         }
