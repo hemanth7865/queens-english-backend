@@ -5,6 +5,8 @@ import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatch
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
+import { downloadCSV } from '@/services/ant-design-pro/downloadCSV';
+import { SPREADSHEETS } from '../../../../config/constants';
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -34,6 +36,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
     const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
     const [errors, setErrors] = useState<any[]>([]);
+    const [reload, setReload] = useState<number>(0);
 
     //Role Based Access
     const access = useAccess();
@@ -67,6 +70,14 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
         }
         setSchoolsLoading(false);
     }, [props.school]);
+
+    const downloadErrorsCSV = () => {
+        downloadCSV(errors.map((error) => ({ ...error.student, Error: error["Error Message"] })))
+    }
+
+    useEffect(() => {
+        downloadErrorsCSV();
+    }, [reload])
 
     const handleUpload = async (e: any) => {
         e.preventDefault();
@@ -308,42 +319,43 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     });
                 }
 
-                setStatusMessage("Creating Students in CosmosDB .....")
-                // Passing Ids of the new created students
-                try {
-                    const res = await syncStudentsToCosmos({
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(finalStudentsIds)
-                    })
-                    console.log('res', res)
+                if (finalStudentsIds.length > 0) {
 
-                    // Setting errors and showing it to the users
-                    if (res.errors.length > 0) {
-                        res.errors.forEach((error: { student?: any, studentId: string, "Error Message": string }) => {
-                            setErrors((prev) => [
-                                ...prev,
-                                {
-                                    student: studentsFinal.find((stud) => stud.id === error?.studentId),
-                                    "Error Message": error["Error Message"]
-                                }
-                            ])
-
-                            setNotStoredUsers((prev) => [
-                                ...prev,
-                                {
-                                    studentData: error?.student || studentsFinal.find((stud) => stud.id === error?.studentId),
-                                    "Error Message": error["Error Message"]
-                                }
-                            ])
-                            studentsFinal.filter((stud) => stud.id !== error.studentId)
+                    setStatusMessage("Creating Students in CosmosDB .....")
+                    // Passing Ids of the new created students
+                    try {
+                        const res = await syncStudentsToCosmos({
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(finalStudentsIds)
                         })
-                    }
-                } catch (error) {
-                    console.log('error', error)
-                }
 
+                        // Setting errors and showing it to the users
+                        if (res.errors.length > 0) {
+                            res.errors.forEach((error: { student?: any, studentId: string, "Error Message": string }) => {
+                                setErrors((prev) => [
+                                    ...prev,
+                                    {
+                                        student: studentsFinal.find((stud) => stud.id === error?.studentId),
+                                        "Error Message": error["Error Message"]
+                                    }
+                                ])
+
+                                setNotStoredUsers((prev) => [
+                                    ...prev,
+                                    {
+                                        studentData: error?.student || studentsFinal.find((stud) => stud.id === error?.studentId),
+                                        "Error Message": error["Error Message"]
+                                    }
+                                ])
+                                studentsFinal.filter((stud) => stud.id !== error.studentId)
+                            })
+                        }
+                    } catch (error) {
+                        console.log('error', error)
+                    }
+                }
                 setCurrentRecord((n) => n * 2);
 
                 if (batches.length > 0 && studentsFinal.length > 0) {
@@ -379,7 +391,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         console.log("e", e)
                     }
                 }
+
                 setIsLoading(false)
+                setReload(e => e + 1)
             };
 
             reader.readAsText(file.files[0]);
@@ -419,6 +433,16 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             )}
 
             <Modal visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
+
+                {errors.length > 0 && (
+                    <div style={{ marginLeft: 10 }}>
+                        <span>Bulk upload errors : </span><br />
+                        <Button onClick={() => { downloadErrorsCSV() }} loading={isLoading} type="primary" style={{ margin: "3px" }} shape="round">
+                            Download Bulk Upload Errors CSV
+                        </Button>
+                    </div>
+                )}
+
                 <code style={{ maxHeight: "300px", overflow: "auto" }}>
                     <pre>
                         {JSON.stringify(notStoredUsers, null, 4)}
@@ -436,8 +460,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
-                {statusMessage !== "" && (<span style={{ paddingLeft: 10 }}>{statusMessage}</span>)}
+                {statusMessage !== "" && (<><span style={{ paddingLeft: 10 }}>{statusMessage}</span> <br /></>)}
                 <br />
+                <Button target='_blank' href={SPREADSHEETS.STUDENT_BULK_UPLOAD} type="dashed" htmlType="submit" style={{ fontWeight: 'bold', margin: "3px" }}>
+                    Open Bulk Upload spreadsheet format.
+                </Button>
                 <br />
                 <Select
                     placeholder="Select School"

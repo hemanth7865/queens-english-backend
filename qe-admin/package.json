@@ -60,6 +60,7 @@
     "antd-button-color": "^1.0.4",
     "classnames": "^2.2.6",
     "country-list": "^2.2.0",
+    "file-saver": "^2.0.5",
     "google-libphonenumber": "^3.2.25",
     "install": "^0.13.0",
     "jwt-decode": "^3.1.2",
