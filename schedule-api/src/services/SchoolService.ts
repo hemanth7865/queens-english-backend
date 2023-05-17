@@ -404,25 +404,41 @@ export class SchoolService {
         };
       }
 
-    async updateStudentIdsToNewFormat() {
+    async updateStudentIdsToNewFormat(schoolCode: string) {
+        if(!schoolCode || schoolCode?.trim() === ''){
+            return {
+                success: false,
+                message: "Please provide a valid school code"
+            }
+        }
         let updatedStudents = [];
         let errors = [];
 
         // Fetching all schools
-        let schools: any = await this.schoolRepository.find({
+        let schoolResponse: any = await this.schoolRepository.find({
             select: ["id", "schoolCode"],
+            where: {
+                schoolCode: schoolCode
+            }
         });
 
-        for (const school of schools) {
-            // Fetching all students linked with this school
-            const studentQuery = `SELECT student.* FROM batch_students
-            INNER JOIN classes ON batch_students.batchId = classes.id
-            INNER JOIN student ON batch_students.studentId = student.id
-            WHERE classes.schoolId = "${school.id}"`;
+        if (schoolResponse.length === 0) {
+            return {
+                success: false,
+                message: "Please provide a valid school code"
+            }
+        }
 
-            let studentsData = await getManager().query(studentQuery);
-            if (studentsData.length === 0) continue;
+        const school = schoolResponse[0]
 
+        // Fetching all students linked with this school
+        const studentQuery = `SELECT student.* FROM batch_students
+        INNER JOIN classes ON batch_students.batchId = classes.id
+        INNER JOIN student ON batch_students.studentId = student.id
+        WHERE classes.schoolId = "${school.id}"`;
+
+        let studentsData = await getManager().query(studentQuery);
+        if (studentsData.length > 0 ) {
             //   Fetching available ids
             let availableStudentIds: any = [];
             try {

@@ -157,8 +157,9 @@ export class SchoolController {
         next: NextFunction
       ) {
         let res: any;
+        const schoolCode = request.query.schoolCode;
         try {
-          res = await this.schoolService.updateStudentIdsToNewFormat();
+          res = await this.schoolService.updateStudentIdsToNewFormat(schoolCode);
           return res;
         } catch (error) {
           logger.error(error);
