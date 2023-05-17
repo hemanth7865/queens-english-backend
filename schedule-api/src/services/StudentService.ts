@@ -344,7 +344,8 @@ export class StudentService {
     };
   }
 
-  async saveStudentDetails(data: any) {
+  async saveStudentDetails(data: any, query?: { both: boolean }) {
+    const both = query?.both;
     let response;
     usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
@@ -389,7 +390,7 @@ export class StudentService {
     }
 
     const options = {
-      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
+      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&both=${both}`,
       json: true,
       body: cosmosUserBody,
     };

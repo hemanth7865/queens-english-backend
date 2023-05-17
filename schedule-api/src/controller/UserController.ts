@@ -39,7 +39,8 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        const both = request.query?.both === "true"
+        request.query.both = request.query?.both === "true"
+        const both = request.query.both
 
         if (!both && !request.body.isSibling && !request.body.offlineStudentCode) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
@@ -92,10 +93,10 @@ export class UserController {
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
                 prevBatchedStudent = await getManager().query(prevBatchedStudentquery);
-                resp = await this.studentService.saveStudentDetails(request.body);
+                resp = await this.studentService.saveStudentDetails(request.body, request.query);
             }
             else {
-                resp = await this.teacherService.saveTeacher(request.body);
+                resp = await this.teacherService.saveTeacher(request.body, request.query);
             }
 
         } catch (error) {

@@ -322,7 +322,8 @@ export class TeacherService {
   }
 
 
-  async saveTeacher(data: any) {
+  async saveTeacher(data: any, query?: { both: boolean }) {
+    const both = query?.both;
     data.email = data?.email || " "
     data.lastName = data?.lastName || " "
     const connection = getConnection();
@@ -334,7 +335,7 @@ export class TeacherService {
       await queryRunner.startTransaction();
 
       const options: any = {
-        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
+        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&both=${both}`,
         json: true,
         body: {
           type: data.type,
