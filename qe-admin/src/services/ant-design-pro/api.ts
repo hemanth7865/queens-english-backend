@@ -151,6 +151,7 @@ export async function teacherBatches(
     current?: number;
     /** 页面的容量 */
     pageSize?: number;
+    offlineUser?: number;
   },
   options?: { [key: string]: any }
 ) {
@@ -405,6 +406,7 @@ export async function listBatch(
     lessonEndTime?: string;
     classStartDate?: string;
     excludedTeacher?: string;
+    offlineBatch?: number;
   },
   options?: { [key: string]: any }
 ) {

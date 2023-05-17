@@ -162,6 +162,7 @@ export class UserController {
             frequency: request.query['frequency'],
             autoSearch: request.query['autoSearch'],
             schoolName: request.query['schoolName'],
+            offlineUser: parseInt(request.query['offlineUser']),
         }
 
         var studentService = new StudentService();
@@ -177,7 +178,6 @@ export class UserController {
         } catch (error) {
             console.log(error);
         }
-        // console.log('res[][', resp)
         return resp;
     }
 
