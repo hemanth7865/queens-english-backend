@@ -463,7 +463,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 {statusMessage !== "" && (<><span style={{ paddingLeft: 10 }}>{statusMessage}</span> <br /></>)}
                 <br />
                 <Button target='_blank' href={SPREADSHEETS.STUDENT_BULK_UPLOAD} type="dashed" htmlType="submit" style={{ fontWeight: 'bold', margin: "3px" }}>
-                    Open Bulk Upload spreadsheet format.
+                    Open Student Bulk Upload spreadsheet format.
                 </Button>
                 <br />
                 <Select
