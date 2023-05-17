@@ -354,17 +354,19 @@ export class StudentService {
       if (!data.userCode && oldUser && oldUser.userCode) {
         data.userCode = oldUser.userCode;
       }
-    }else if(data.offlineStudentCode){
-      oldUser = await this.usersRepository.findOne({offlineStudentCode: data.offlineStudentCode});
-      if(!data.userCode && oldUser && oldUser.userCode){
-        data.userCode = oldUser.userCode;
-      }
-
-      if(oldUser){
-        data.id = oldUser.id;
-      }
     }
+    // else if(data.offlineStudentCode){
+    //   oldUser = await this.usersRepository.findOne({offlineStudentCode: data.offlineStudentCode});
+    //   if(!data.userCode && oldUser && oldUser.userCode){
+    //     data.userCode = oldUser.userCode;
+    //   }
 
+    //   if(oldUser){
+    //     data.id = oldUser.id;
+    //   }
+    // }
+
+    // TODO: Add student id to sync it with cosmosDB
     const cosmosUserBody: any = {
       type: data.type,
       email: data.email,
@@ -377,7 +379,7 @@ export class StudentService {
       batchesClassesStartDate: data.batchesClassesStartDate,
       userCode: data.userCode,
       status: data.status,
-      offlineStudentCode: data.offlineStudentCode,
+      // offlineStudentCode: data.offlineStudentCode,
       preventAppAccess: data.preventAppAccess,
       offlineUser: data.offlineUser,
       loginCode: data.loginCode
@@ -536,14 +538,14 @@ export class StudentService {
     user.lastName = data.lastName;
     user.middleName = data?.middleName || "-";
     user.gender = data.gender;
-    user.phoneNumber = data.phoneNumber;
+    user.phoneNumber = data?.phoneNumber;
     user.email = data.email;
     user.type = data.type;
     user.customerEmail = data.customerEmail;
     user.alternativeMobile = data.alternativeMobile;
     user.isSibling = data.isSibling;
     user.state = data.state;
-    user.offlineStudentCode = data.offlineStudentCode;
+    // user.offlineStudentCode = data.offlineStudentCode;
     user.preventAppAccess = data.preventAppAccess;
     user.offlineUser = data.offlineUser;
     user.loginCode = data.loginCode;
@@ -724,6 +726,8 @@ export class StudentService {
       studentId: string;
       "Error Message": string;
     }[] = [];
+
+    // TODO: Add student id to sync it with cosmosDB
     const getCosmosBody = (user: User) => {
       const cosmosUserBody: any = {
         id: user.id,
@@ -736,7 +740,7 @@ export class StudentService {
         phoneNumber: user.phoneNumber,
         userCode: user.userCode,
         status: user.status,
-        offlineStudentCode: user.offlineStudentCode,
+        // offlineStudentCode: user.offlineStudentCode,
         preventAppAccess: user.preventAppAccess,
         offlineUser: user.offlineUser,
         loginCode: user.loginCode,

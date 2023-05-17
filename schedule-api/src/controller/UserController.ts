@@ -40,7 +40,7 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        if (!request.body.isSibling && !request.body.offlineStudentCode) {
+        if (!request.body.isSibling && !request.body.offlineStudentCode && request.body.phoneNumber) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
             var resp;
             if (userExists) {
@@ -82,10 +82,10 @@ export class UserController {
                     if (similarUserData.length > 0) {
                       const similarStudent = similarUserData.find((user) => {
                         return (
+                          isDuplicate(request.body, user, "classSection") &&
                           isDuplicate(request.body, user, "firstName") &&
                           isDuplicate(request.body, user, "lastName") &&
-                          isDuplicate(request.body, user, "middleName") &&
-                          isDuplicate(request.body, user, "classSection")
+                          isDuplicate(request.body, user, "middleName")
                         );
                       });
                       if (similarStudent) {

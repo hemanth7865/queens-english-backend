@@ -1,7 +1,7 @@
 import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
-import { Access, useAccess } from "umi";
+import { useAccess } from "umi";
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents, syncStudentsToCosmos } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, bulkRemoveBatchStudents, syncStudentsToCosmos } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
@@ -248,8 +248,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 setStatusMessage("Creating Students in MYSQL .....")
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (student["First Name"] && student["Dummy number"]) {
-                        let phoneNumber = student["Dummy number"];
+                    if (student["First Name"]) {
+                        let phoneNumber = student["RMN"];
                         if (student["RMN"]) {
                             if (student["RMN"].split("+")[1]) {
                                 phoneNumber = student["RMN"];
@@ -269,17 +269,19 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             classSection: student["Class section"] || "-",
                             teacherName: student["Teacher Name"],
                             startLesson: student["Lesson Start"],
-                            email: student["Email"] || student["Dummy number"],
+                            email: student["Email"] || phoneNumber,
                             phoneNumber,
                             type: "student",
                             status: "active",
-                            offlineStudentCode: student["Dummy number"],
+                            // offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
                             offlineUser: 1,
                             batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
                             loginCode,
                             schoolId: selectedSchool
                         };
+
+                        // TODO : Give phone number a value of studentID if phoneNumber is not exists.
 
                         studentsUploaded.push(studentData);
                         if (student["Class section"]) {
@@ -312,7 +314,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 for (const studentAdded of studentsAdded) {
                     studentsUploaded.filter((student) => {
-                        if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
+                        // TODO : Check studentID instead of offlineStudentCode or any firstName/lastName
+                        if (student.firstName == studentAdded.firstName && student.lastName == studentAdded.lastName) {
                             finalStudentsIds.push(studentAdded.id);
                             studentsFinal.push({ ...student, id: studentAdded.id });
                         }
@@ -452,7 +455,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name, Last Name, Middle name, RMN, Email, Teacher Name, Dummy number, Class section
+                        First Name, Last Name, Middle name, RMN, Email, Teacher Name, Class section
                     </pre>
                     <p style={{ color: "red" }}>
                         *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
