@@ -163,14 +163,6 @@ const BatchList: React.FC = () => {
 
   //listbatches
   useEffect(() => {
-    listBatch({
-      current: 1,
-      pageSize: 20
-    }).then((msg: any) => {
-      setTempData(msg.data);
-    }).catch(e => {
-      console.log("error", e);
-    });
     setSchoolsLoading(true);
     listSchool()
       .then((data: any) => {
@@ -784,7 +776,7 @@ const BatchList: React.FC = () => {
             </Button>,
             <UpdateMeetingLinks></UpdateMeetingLinks>
           ]}
-          request={listBatch}
+          request={params => listBatch({ ...params, offlineBatch: url.toString().indexOf('/school/') >= 0 ? 1 : 0 })}
           columns={columns}
           //the checkbox
           rowSelection={{
@@ -925,7 +917,6 @@ const BatchList: React.FC = () => {
                               name="dateRangePicker"
                               rules={[{ required: true, message: "Batch Date" }]}
                             >
-                              {console.log("prePopRender", prePop)}
                               <RangePicker
                                 style={{ width: "551px" }}
                                 onChange={(value, e) => { handleClassDateRange(value) }}

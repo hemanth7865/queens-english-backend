@@ -322,7 +322,8 @@ export class TeacherService {
   }
 
 
-  async saveTeacher(data: any) {
+  async saveTeacher(data: any, query?: { ignoreDuplicateCheck: boolean }) {
+    const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
     data.email = data?.email || " "
     data.lastName = data?.lastName || " "
     const connection = getConnection();
@@ -334,7 +335,7 @@ export class TeacherService {
       await queryRunner.startTransaction();
 
       const options: any = {
-        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
+        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&ignoreDuplicateCheck=${ignoreDuplicateCheck}`,
         json: true,
         body: {
           type: data.type,
@@ -577,6 +578,13 @@ export class TeacherService {
       console.log("user type ", type);
     }
 
+    const offlineUser = parameters.offlineUser;
+    if(offlineUser <= 1) {
+      query_string = query_string + ` and u.offlineUser = ${offlineUser}`;
+      query_list.push(` u.offlineUser = ${offlineUser}  `);
+      console.log("offlineUser ", offlineUser);
+    }
+
     var totalexp = parameters.totalexp;
     if (totalexp) {
       totalexp = parseFloat(totalexp);
@@ -774,7 +782,6 @@ export class TeacherService {
           "');";
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
-          console.log("batchdode", element);
           studentOrTeacherId.push(element.batchNumber);
         });
       } else {
@@ -784,7 +791,6 @@ export class TeacherService {
           "';";
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
-          console.log("batchcodeTeacher", element);
           studentOrTeacherId.push(element.batchNumber);
         });
       }

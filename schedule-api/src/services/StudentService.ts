@@ -101,6 +101,12 @@ export class StudentService {
       console.log("user type ", type);
     }
 
+    const offlineUser = parameters.offlineUser;
+    if(offlineUser <= 1) {
+      query_list.push(` u.offlineUser = ${offlineUser}  `);
+      console.log("offlineUser ", offlineUser);
+    }
+
     if (parameters.studentID) {
       query_list.push(` s.studentID like '%${parameters.studentID}%'  `);
     }
@@ -205,7 +211,6 @@ export class StudentService {
 
         batchCodes = await getManager().query(quer);
         batchCodes.forEach((element) => {
-          console.log("batchCode", element);
           studentOrTeacherId.push(element.batchNumber);
           zoomLinkBatch.push(element.zoomLink);
           zoomInfoBatch.push(element.zoomInfo);
@@ -228,8 +233,6 @@ export class StudentService {
         lsq_user_info = await this.lsq_userRepository.findOne(
           element.salesowner
         );
-
-        console.log("lsq", lsq_user_info, element.salesowner);
       }
 
       if (element.dob) {
@@ -342,7 +345,9 @@ export class StudentService {
     };
   }
 
-  async saveStudentDetails(data: any, cosmosSync:boolean = true) {
+  async saveStudentDetails(data: any, query?: { ignoreDuplicateCheck?: boolean, cosmosSync?: boolean }) {
+    const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
+    const cosmosSync = query?.cosmosSync;
     let response;
     usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
@@ -390,7 +395,7 @@ export class StudentService {
     }
 
     const options = {
-      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
+      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&ignoreDuplicateCheck=${ignoreDuplicateCheck}`,
       json: true,
       body: cosmosUserBody,
     };

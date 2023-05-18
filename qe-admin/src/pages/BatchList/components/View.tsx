@@ -294,7 +294,7 @@ const View = ({ batchData, isLoading, USE_JSON_LESSONSCRIPT }: Props) => {
           }
           <TabPane tab="Students" key="3">
             <div className="title">Students</div>
-            <Table style={{ width: "100%" }} dataSource={batchData?.students?.map((i: any) => i.student)} columns={[
+            <Table className="viewStudentTable" style={{ width: "100%" }} dataSource={batchData?.students?.map((i: any) => i.student)} columns={[
               {
                 title: "First Name",
                 dataIndex: "firstName",

@@ -35,20 +35,23 @@ export class UserController {
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         this.studentService.request = request;
-        const cosmosSync = request.query.cosmosSync !== "false";
+        request.query.cosmosSync = request.query?.cosmosSync !== "false";
+        request.query.ignoreDuplicateCheck = request.query?.ignoreDuplicateCheck === "true"
 
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        if (!request.body.isSibling && !request.body.offlineStudentCode && request.body.phoneNumber) {
+        const ignoreDuplicateCheck = request.query.ignoreDuplicateCheck
+
+        if (!ignoreDuplicateCheck && !request.body.isSibling && !request.body.offlineStudentCode && request.body.phoneNumber) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
-            var resp;
             if (userExists) {
                 usersLogger.info(`User With That Number Was Found ${userExists?.id}`);
                 return { status: 400, errors: ['User already exists with given phoneNumber'] };
             }
         }
 
+        let resp;
 
         try {
             if (request.body.type === 'student') {
@@ -137,10 +140,10 @@ export class UserController {
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
                 prevBatchedStudent = await getManager().query(prevBatchedStudentquery);
-                resp = await this.studentService.saveStudentDetails(request.body, cosmosSync);
+                resp = await this.studentService.saveStudentDetails(request.body, request.query);
             }
             else {
-                resp = await this.teacherService.saveTeacher(request.body);
+                resp = await this.teacherService.saveTeacher(request.body, request.query);
             }
 
         } catch (error) {
@@ -207,6 +210,7 @@ export class UserController {
             frequency: request.query['frequency'],
             autoSearch: request.query['autoSearch'],
             schoolName: request.query['schoolName'],
+            offlineUser: parseInt(request.query['offlineUser']),
         }
 
         var studentService = new StudentService();
@@ -222,7 +226,6 @@ export class UserController {
         } catch (error) {
             console.log(error);
         }
-        // console.log('res[][', resp)
         return resp;
     }
 
