@@ -151,6 +151,7 @@ export async function teacherBatches(
     current?: number;
     /** 页面的容量 */
     pageSize?: number;
+    offlineUser?: number;
   },
   options?: { [key: string]: any }
 ) {

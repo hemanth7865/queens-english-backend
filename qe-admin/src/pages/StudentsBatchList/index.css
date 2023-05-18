@@ -36,3 +36,8 @@ input[type='date']:valid::before {
 .batchDetailsTable .ant-table-cell {
   text-align: center;
 }
+.ant-pro-table-alert {
+  padding-bottom: 0px !important;
+  width: 50% !important;
+  position: absolute;
+}

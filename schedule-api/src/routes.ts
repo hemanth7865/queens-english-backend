@@ -169,13 +169,6 @@ export const Routes = [
   },
   {
     method: "get",
-    route: "/listBatch",
-    controller: BatchController,
-    action: "listBatch",
-    authenticate: true,
-  },
-  {
-    method: "get",
     route: "/listclass",
     controller: BatchController,
     action: "getClasses",
