@@ -28,8 +28,8 @@ export class BatchController {
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
-        if (!request.body.studentId || !request.body.batchId) {
-            return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
+        if (!request.body.studentId) {
+            return { status: 400, errors: ['Please Provide Correct Student Information'] };
         }
         var batch;
         try {
@@ -50,6 +50,7 @@ export class BatchController {
                     studentId: studentId,
                     batchId: request.body.batchId,
                     bulkRebatch: request.body.bulkRebatch ? request.body.bulkRebatch : false,
+                    removeFromBatch: request.body.removeFromBatch
                 }
             }, response, next));
         }));

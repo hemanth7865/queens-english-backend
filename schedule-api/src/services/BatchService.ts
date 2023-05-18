@@ -233,10 +233,12 @@ export class BatchService {
          */
         await this.addStudents(studentsChange.add, data.id);
 
+        if (force || (data?.edit && studentsChange.remove.length > 0)) {
         /**
         * Remove Students From Batch
         */
-        // await this.removeStudents(studentsChange.remove, data.id);
+        await this.removeStudents(studentsChange.remove, data.id);
+        }
 
 
         await this.addStudentsBatchesHistory(studentsChange.add, data.id);
@@ -1156,7 +1158,7 @@ export class BatchService {
     return ids;
   }
 
-  async reBatch({ batchId, studentId, bulkRebatch }: { batchId: string, studentId: string, bulkRebatch?: boolean }) {
+  async reBatch({ studentId, batchId, bulkRebatch, removeFromBatch }: { studentId: string, batchId?: string, bulkRebatch?: boolean, removeFromBatch?: boolean }) {
     let studentService = new StudentService();
     let activeBatches = await studentService.getStudentActiveBatches(studentId, true);
     /**
@@ -1178,28 +1180,29 @@ export class BatchService {
       let res = await this.createBatch(batch, true);
     }
 
-    /**
-     * Add Student To Batch
-     */
-    let batchDetails = await this.getBatchDetails(batchId);
+    let result = {}
+    /** Add Student To Batch */
+    if (!removeFromBatch) {
+      let batchDetails = await this.getBatchDetails(batchId);
 
-    const batch: any = { ...batchDetails.data.classes, batchAvailability: [{}], students: batchDetails.data.students, edit: true };
+      const batch: any = { ...batchDetails.data.classes, batchAvailability: [{}], students: batchDetails.data.students, edit: true };
 
-    const studentsIDs = [];
-    batch.students = batch.students.map((student: BatchStudent) => {
-      studentsIDs.push(student.studentId);
-      return { value: student.studentId };
-    });
+      const studentsIDs = [];
+      batch.students = batch.students.map((student: BatchStudent) => {
+        studentsIDs.push(student.studentId);
+        return { value: student.studentId };
+      });
 
-    if (!studentsIDs.includes(studentId)) {
-      batch.students.push({ value: studentId });
+      if (!studentsIDs.includes(studentId)) {
+        batch.students.push({ value: studentId });
+      }
+
+      if (batch.teacher) {
+        delete batch.teacher;
+      }
+
+      result = await this.createBatch(batch, bulkRebatch);
     }
-
-    if (batch.teacher) {
-      delete batch.teacher;
-    }
-
-    const result = await this.createBatch(batch, bulkRebatch);
     return result;
   }
 

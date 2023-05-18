@@ -149,6 +149,17 @@ const StudentsBatchList: React.FC = () => {
     {
       title: (
         <FormattedMessage
+          id="pages.searchTable.schoolName"
+          defaultMessage="School Name"
+        />
+      ),
+      dataIndex: 'schoolName',
+      hideInTable: url.toString().indexOf('/school/') < 0,
+      // hideInSearch: true,
+    },
+    {
+      title: (
+        <FormattedMessage
           id="pages.searchTable.titlemobile"
           defaultMessage="Primary Mobile No"
         />
@@ -184,6 +195,7 @@ const StudentsBatchList: React.FC = () => {
         />
       ),
       dataIndex: 'id',
+      hideInTable: url.toString().indexOf('/school/') >= 0,
       copyable: true,
       // hideInSearch: true,
     },
@@ -215,6 +227,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Age"
         />
       ),
+      hideInTable: url.toString().indexOf('/school/') >= 0,
       dataIndex: 'age',
       //hideInSearch: true,
     },
@@ -385,12 +398,14 @@ const StudentsBatchList: React.FC = () => {
               accessible={access.canSuperAdmin}
               fallback={<div> </div>}
             >
+              {url.toString().indexOf('/school/') >= 0 &&
               <Button type="primary" key="primary" style={{ marginRight: '5px' }}
                 disabled={selectedRowKeys.length === 0}
                 onClick={showReassignBatchModal}
                 onChange={setstudentManageradd(true)}>
                 Re-Batch Student
               </Button>
+              }
 
               <Button type="primary" key="primary" onClick={showDrawer} onChange={setstudentManageradd(true)}>
                 Add Student
@@ -425,9 +440,13 @@ const StudentsBatchList: React.FC = () => {
         pagination={{ position: ['topRight', 'bottomRight'] }}
         //the checkbox
         rowSelection={{
+          getCheckboxProps: () => {
+            if (url.toString().indexOf('/school/') < 0) {
+              return {disabled: true}
+            }
+          },
           preserveSelectedRowKeys: true,
           onChange: (selectedRows, record) => {
-            console.log("record", record);
             setSelectedRowKeys(selectedRows);
             setSelectedStudentData(record);
           },

@@ -171,7 +171,8 @@ export class StudentService {
     CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
     CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
     s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
-    s.salesDataFilled, s.reasonInSAV, s.enrollmentType, CONVERT_TZ(s.dateOfInactivation, @@session.time_zone, '+11:00') as dateOfInactivation from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
+    s.salesDataFilled, s.reasonInSAV, s.enrollmentType, CONVERT_TZ(s.dateOfInactivation, @@session.time_zone, '+11:00') as dateOfInactivation, sc.schoolName as schoolName, sc.id as schoolId 
+    from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
     ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
@@ -201,7 +202,7 @@ export class StudentService {
 
       if (type == "student") {
         var quer =
-          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, classCode, teacherCode, useNewZoomLink, useAutoAttendance from classes where id IN (select batchId from batch_students where studentId='" +
+          "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, classCode, teacherCode, useNewZoomLink, useAutoAttendance, offlineBatch, schoolName, schoolId from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
         var quer2 = "select batchId from batch_students where studentId='" +
@@ -226,7 +227,6 @@ export class StudentService {
           "select * from payment where id = '" + element.id + "';";
 
         payment = await getManager().query(paymentQuer);
-        console.log(`PRM id is ${element.prm_id}`);
 
         prm_info = await this.prmRepository.findOne(element.prm_id);
         lsq_user_info = await this.lsq_userRepository.findOne(
@@ -332,6 +332,7 @@ export class StudentService {
       l.useNewZoomLink = batchCodes[0]?.useNewZoomLink;
       l.batchesHistory = batchesHistory;
       l.userCode = element.userCode;
+      l.schoolName = element.schoolName;
       leadView.push(l);
     }
 

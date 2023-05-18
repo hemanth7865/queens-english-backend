@@ -51,14 +51,25 @@
         ]
       },
       {
-        name: "Batch",
-        path: "/manage/batch",
-        component: "./BatchList",
-      },
-      {
-        name: "Teacher",
-        path: "/manage/teacherBatch",
-        component: "./TeacherBatchList",
+        name: "Online Classes",
+        path: "/manage/offline",
+        routes: [
+          {
+            name: "Batch",
+            path: "/manage/offline/batch",
+            component: "./BatchList",
+          },
+          {
+            name: "Teacher",
+            path: "/manage/offline/teacherBatch",
+            component: "./TeacherBatchList",
+          },
+          {
+            name: "Student",
+            path: "/manage/offline/StudentBatch",
+            component: "./StudentsBatchList",
+          },
+        ]
       },
       {
         name: "Lessons Scripts",
@@ -70,11 +81,6 @@
         path: "/manage/UserBatch",
         component: "./StudentList",
         access: "canSuperAdmin, canProgramManager",
-      },
-      {
-        name: "Student",
-        path: "/manage/StudentBatch",
-        component: "./StudentsBatchList",
       },
       {
         name: "Assessment Management",
@@ -197,7 +203,7 @@
   },
   {
     path: "/",
-    redirect: "/manage/StudentBatch",
+    redirect: "/manage/school/StudentBatch",
   },
   {
     component: "./404",

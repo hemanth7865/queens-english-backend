@@ -15,6 +15,7 @@ const ReBatch: React.FC<Props> = (props) => {
   const [selectedSchool, setSelectedSchool] = useState<any>(null);
   const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>([]);
+  const [removeFromBatch, setRemoveFromBatch] = useState<boolean>(false);
 
   const [form] = Form.useForm()
 
@@ -68,7 +69,8 @@ const ReBatch: React.FC<Props> = (props) => {
     const dataToSend = {
       bulkRebatch: true,
       studentIds: studentIds,
-      batchId: selectedBatch[0].id
+      batchId: selectedBatch.length > 0 ? selectedBatch[0].id : '',
+      removeFromBatch: removeFromBatch
     }
 
     const batchCall: any = await bulkReBatchStudents({
@@ -78,7 +80,6 @@ const ReBatch: React.FC<Props> = (props) => {
       body: JSON.stringify(dataToSend)
     })
 
-    console.log("batchCall", batchCall);
     if (batchCall.success) {
       message.success("Batch Created/Update Successfully.");
       setTimeout(() => {
@@ -134,12 +135,34 @@ const ReBatch: React.FC<Props> = (props) => {
         <Table dataSource={props.selectedStudentData} columns={columns} />
         <Divider style={{ margin: '8px 0' }} />
         <Row gutter={16}>
-          <Col span={12}>
+          <Col span={8}>
+            <Form.Item
+              name="batchId"
+              label="Remove from batch">
+              <Select
+                defaultValue={false}
+                onChange={(value) => {
+                  setRemoveFromBatch(value);
+                  if (value) {
+                    setSelectedSchool([]);
+                    setSelectedBatch([]);
+                  }
+                }}
+                value={removeFromBatch}
+                options={[
+                  { value: true, label: 'Yes' },
+                  { value: false, label: 'No' },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
             <Form.Item
               name="schoolId"
               label="School Name">
               <Select
                 placeholder="Select School"
+                disabled={removeFromBatch}
                 onChange={(value) => updateSchool(value)}
                 value={selectedSchool}
                 showSearch
@@ -151,12 +174,13 @@ const ReBatch: React.FC<Props> = (props) => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item
               name="batchId"
               label="Batch Name">
               <Select
                 placeholder="Select Batch"
+                disabled={removeFromBatch}
                 onChange={(value) => updateBatchDetails(value)}
                 value={selectedBatch}
                 showSearch
@@ -170,10 +194,11 @@ const ReBatch: React.FC<Props> = (props) => {
           </Col>
         </Row>
 
-        {selectedBatch.length > 0 &&
+        {(selectedBatch.length > 0 || removeFromBatch) &&
           <>
-            <Table className="batchDetailsTable" dataSource={selectedBatch} columns={batchColumns} pagination={false} />
-
+            {selectedBatch.length > 0 &&
+              <Table className="batchDetailsTable" dataSource={selectedBatch} columns={batchColumns} pagination={false} />
+            }
             <Row gutter={16} style={{ marginTop: '2em' }}>
               <Col span={4}></Col>
               <Col span={16}>
@@ -185,7 +210,7 @@ const ReBatch: React.FC<Props> = (props) => {
                   shape="round"
                   block
                   style={{ color: "white", backgroundColor: "DodgerBlue" }}
-                >Assign for {selectedBatch[0].batchId}</Button>
+                >{removeFromBatch ? `Remove Students from Batch` : `Assign for ${selectedBatch[0].batchId}`}</Button>
               </Col>
             </Row>
           </>
