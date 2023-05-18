@@ -39,10 +39,10 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        request.query.both = request.query?.both === "true"
-        const both = request.query.both
+        request.query.ignoreDuplicateCheck = request.query?.ignoreDuplicateCheck === "true"
+        const ignoreDuplicateCheck = request.query.ignoreDuplicateCheck
 
-        if (!both && !request.body.isSibling && !request.body.offlineStudentCode) {
+        if (!ignoreDuplicateCheck && !request.body.isSibling && !request.body.offlineStudentCode) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
             if (userExists) {
                 usersLogger.info(`User With That Number Was Found ${userExists?.id}`);

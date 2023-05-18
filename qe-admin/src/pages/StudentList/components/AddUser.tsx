@@ -118,7 +118,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
-    const addStudentTeacher = async (userType: string, both: boolean = false) => {
+    const addStudentTeacher = async (userType: string, ignoreDuplicateCheck: boolean = false) => {
         var code = selectCountryCode ? selectCountryCode : '91';
         setIsLoading(true)
         if (!error) {
@@ -151,7 +151,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
             try {
                 const msg = await addUserSchedule({
                     params: {
-                        both
+                        ignoreDuplicateCheck
                     },
                     headers: {
                         "Content-Type": "application/json",

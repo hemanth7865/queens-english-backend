@@ -322,8 +322,8 @@ export class TeacherService {
   }
 
 
-  async saveTeacher(data: any, query?: { both: boolean }) {
-    const both = query?.both;
+  async saveTeacher(data: any, query?: { ignoreDuplicateCheck: boolean }) {
+    const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
     data.email = data?.email || " "
     data.lastName = data?.lastName || " "
     const connection = getConnection();
@@ -335,7 +335,7 @@ export class TeacherService {
       await queryRunner.startTransaction();
 
       const options: any = {
-        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&both=${both}`,
+        url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&ignoreDuplicateCheck=${ignoreDuplicateCheck}`,
         json: true,
         body: {
           type: data.type,
