@@ -39,15 +39,18 @@ export class UserController {
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        if (!request.body.isSibling && !request.body.offlineStudentCode) {
+        request.query.ignoreDuplicateCheck = request.query?.ignoreDuplicateCheck === "true"
+        const ignoreDuplicateCheck = request.query.ignoreDuplicateCheck
+
+        if (!ignoreDuplicateCheck && !request.body.isSibling && !request.body.offlineStudentCode) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
-            var resp;
             if (userExists) {
                 usersLogger.info(`User With That Number Was Found ${userExists?.id}`);
                 return { status: 400, errors: ['User already exists with given phoneNumber'] };
             }
         }
 
+        let resp;
 
         try {
             if (request.body.type === 'student') {
@@ -90,10 +93,10 @@ export class UserController {
                 let prevBatchedStudent: any[] = [];
                 var prevBatchedStudentquery = `UPDATE student SET prevBatchedStudent = CASE WHEN prevBatchedStudent = true THEN true WHEN status = 'active' THEN true ELSE false END WHERE id='${request.body.id}'`;
                 prevBatchedStudent = await getManager().query(prevBatchedStudentquery);
-                resp = await this.studentService.saveStudentDetails(request.body);
+                resp = await this.studentService.saveStudentDetails(request.body, request.query);
             }
             else {
-                resp = await this.teacherService.saveTeacher(request.body);
+                resp = await this.teacherService.saveTeacher(request.body, request.query);
             }
 
         } catch (error) {
