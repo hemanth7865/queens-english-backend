@@ -98,6 +98,8 @@ export class LeadView {
   schoolName?: string;
   school?: any;
   classesData?: any;
+  password?: string;
+  classSection?: string;
 
   public constructor(id: string, leadId: string, date: string, name: string, experience: string, mobile: string, email: string, status: string, classestaken: number,
     ratings: number, slots: string, leadType: number, type: string, batchCode: string, studentID: string, dob?: string | Date, whatsapp?: string, address?: string,

@@ -168,7 +168,7 @@ export class StudentService {
 
     var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name ${PRMSelect}, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
     u.lastName, u.phoneNumber, u.gender, u.offlineUser, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
-    u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classType, s.age,
+    u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classSection, s.password, s.classType, s.age,
     CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
     CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
     s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
@@ -186,6 +186,7 @@ export class StudentService {
     console.log("results size", results.length);
 
     for (const element of results) {
+      console.log("ELEMENT", element)
       let slotsResult: any[] = [];
       let batchCodes: any[] = [];
       let batchIds: any[] = [];
@@ -333,6 +334,8 @@ export class StudentService {
       l.useNewZoomLink = batchCodes[0]?.useNewZoomLink;
       l.batchesHistory = batchesHistory;
       l.userCode = element.userCode;
+      l.classSection = element.classSection;
+      l.password = element.password;
       leadView.push(l);
     }
 
@@ -387,7 +390,9 @@ export class StudentService {
       // offlineStudentCode: data.offlineStudentCode,
       preventAppAccess: data.preventAppAccess,
       offlineUser: data.offlineUser,
-      loginCode: data.loginCode
+      loginCode: data.loginCode,
+      studentID: data.studentID,
+      password: data.password
     }
 
     if (data.cacheTime) {
@@ -634,7 +639,8 @@ export class StudentService {
     student.studentID = data.studentID;
     student.days = data.days;
     student.alternativeMobile = data.alternativeMobile;
-    student.classSection = data.classSection || "-"
+    student.classSection = data.classSection || "-";
+    student.password = data.password;
 
     student.startDate = getDateOutOfDateTime(data.startDate);
     student.endDate = data.endDate;
@@ -733,7 +739,7 @@ export class StudentService {
     }[] = [];
 
     // TODO: Add student id to sync it with cosmosDB
-    const getCosmosBody = (user: User) => {
+    const getCosmosBody = (user: any) => {
       const cosmosUserBody: any = {
         id: user.id,
         type: user.type,
@@ -749,13 +755,15 @@ export class StudentService {
         preventAppAccess: user.preventAppAccess,
         offlineUser: user.offlineUser,
         loginCode: user.loginCode,
+        studentID: user.studentID,
+        password: user.password
       };
       return cosmosUserBody;
     };
 
     const cosmosStudents = [];
     for (const studentId of studentIds) {
-      const query = `SELECT * FROM user WHERE user.id = '${studentId}'`;
+      const query = `SELECT * FROM user LEFT JOIN student on student.id = user.id WHERE user.id = '${studentId}'`;
       try {
         const response = await getManager().query(query);
         if (response[0]) {
