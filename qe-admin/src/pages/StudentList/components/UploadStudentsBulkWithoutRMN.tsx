@@ -1,7 +1,9 @@
 import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
 import { useAccess } from "umi";
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, bulkRemoveBatchStudents, syncStudentsToCosmos } from "@/services/ant-design-pro/api";
+
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents, syncStudentsToCosmos, getAvailableStudentIds } from "@/services/ant-design-pro/api";
+
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
@@ -223,6 +225,17 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 setCurrentRecord(0);
                 setStatusMessage("Process Started...")
 
+                let availableStudentIds = [];
+                let currentIndex = 0;
+                try {
+                    const response = await getAvailableStudentIds({ schoolId: selectedSchool, count: data.length })
+                    if (response.success === false) throw new Error(response.errorMessage)
+                    availableStudentIds = response.data;
+                } catch (error: any) {
+                    setIsLoading(false)
+                    return;
+                }
+
                 const isDuplicate = (a: any, b: any, column: string) => {
                     return a[column] && b[column] && a[column].trim() === b[column].trim()
                 }
@@ -246,6 +259,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 })
 
                 setStatusMessage("Creating Students in MYSQL .....")
+
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
                     if (student["First Name"]) {
@@ -278,10 +292,13 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             offlineUser: 1,
                             batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
                             loginCode,
+                            studentID: availableStudentIds[currentIndex],
                             schoolId: selectedSchool
                         };
+                        currentIndex += 1;
 
                         // TODO : Give phone number a value of studentID if phoneNumber is not exists.
+
 
                         studentsUploaded.push(studentData);
                         if (student["Class section"]) {

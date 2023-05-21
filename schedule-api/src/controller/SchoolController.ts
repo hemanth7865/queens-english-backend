@@ -41,6 +41,16 @@ export class SchoolController {
         }
     }
 
+    async getAvailableStudentIds(request: Request, response: Response, next: NextFunction) {
+        let res;
+        try {
+            res = await this.schoolService.getAvailableStudentIds(request.query);
+            return res;
+        } catch (error) {
+            logger.error(error);
+        }
+    }
+
     async createSRA(request: Request, response: Response, next: NextFunction) {
         let res;
         try {
@@ -140,4 +150,19 @@ export class SchoolController {
             logger.error(error)
         }
     }
+
+    async updateStudentIdsToNewFormat(
+        request: Request,
+        response: Response,
+        next: NextFunction
+      ) {
+        let res: any;
+        const schoolCode = request.query.schoolCode;
+        try {
+          res = await this.schoolService.updateStudentIdsToNewFormat(schoolCode);
+          return res;
+        } catch (error) {
+          logger.error(error);
+        }
+      }
 }

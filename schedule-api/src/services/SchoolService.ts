@@ -1,4 +1,4 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, Like } from "typeorm";
 import { School } from "../entity/School";
 import { SRA } from "../entity/SRA";
 import { Classes } from "../entity/Classes";
@@ -360,6 +360,132 @@ export class SchoolService {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    async getAvailableStudentIds(request: { schoolId: string; count?: number }) {
+        let { schoolId, count } = request;
+        if (!schoolId || schoolId?.trim() === "") {
+          return {
+            success: false,
+            errorMessage: "Please provide schoolId",
+          };
+        }
+    
+        if (!count) count = 1;
+    
+        const school = await this.schoolRepository.findOne({
+          where: { id: schoolId },
+        });
+        if (!schoolId) {
+          return {
+            success: false,
+            errorMessage: "School does not exists with provided schoolId",
+          };
+        }
+    
+        const existingStudentIds = await this.studentRepository.find({
+          select: ["studentID"],
+          where: {
+            studentID: Like(`${school.schoolCode}____`),
+          },
+        });
+    
+        const result = [];
+        const existingIDSet = new Set(existingStudentIds.map((e) => e.studentID));
+    
+        let i = 1;
+        while (result.length < count && i <= 9999) {
+          const newID: any = `${school.schoolCode}${i.toString().padStart(4, "0")}`;
+          if (!existingIDSet.has(newID)) {
+            result.push(newID);
+          }
+          i++;
+        }
+    
+        return {
+          success: true,
+          data: result,
+        };
+      }
+
+    async updateStudentIdsToNewFormat(schoolCode: string) {
+        if(!schoolCode || schoolCode?.trim() === ''){
+            return {
+                success: false,
+                message: "Please provide a valid school code"
+            }
+        }
+        let updatedStudents = [];
+        let errors = [];
+
+        // Fetching all schools
+        let schoolResponse: any = await this.schoolRepository.find({
+            select: ["id", "schoolCode"],
+            where: {
+                schoolCode: schoolCode
+            }
+        });
+
+        if (schoolResponse.length === 0) {
+            return {
+                success: false,
+                message: "Please provide a valid school code"
+            }
+        }
+
+        const school = schoolResponse[0]
+
+        // Fetching all students linked with this school
+        const studentQuery = `SELECT student.* FROM batch_students
+        INNER JOIN classes ON batch_students.batchId = classes.id
+        INNER JOIN student ON batch_students.studentId = student.id
+        WHERE classes.schoolId = "${school.id}"`;
+
+        let studentsData = await getManager().query(studentQuery);
+        if (studentsData.length > 0 ) {
+            //   Fetching available ids
+            let availableStudentIds: any = [];
+            try {
+                const response = await this.getAvailableStudentIds({
+                    schoolId: school.id,
+                    count: studentsData.length,
+                });
+                if (response.success === false) throw new Error(response.errorMessage);
+                availableStudentIds = response.data;
+            } catch (error) {
+                errors.push(error.message);
+            }
+
+            let idCount = 0;
+            for (const student of studentsData) {
+                // Checking if we don't have any incorrect student to update
+                if (
+                    !student.id ||
+                    (student.studentID &&
+                    student.studentID?.startsWith(school.schoolCode))
+                ) {
+                    continue;
+                }
+                const updatedStudentId = availableStudentIds[idCount];
+                idCount += 1;
+
+                // Updating student ID
+                const updateQuery = `UPDATE student SET student.studentID = "${updatedStudentId}" WHERE student.id = "${student.id}"`;
+                await getManager().query(updateQuery);
+                updatedStudents.push({
+                    id: student.id,
+                    previousStudentId: student.studentID,
+                    updatedStudentId: updatedStudentId,
+                });
+            }
+        }
+
+        return {
+            success: true,
+            total: updatedStudents.length,
+            updatedStudents,
+            errors,
+        };
     }
 
 }
