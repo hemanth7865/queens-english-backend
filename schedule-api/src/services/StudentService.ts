@@ -374,7 +374,6 @@ export class StudentService {
     //   }
     // }
 
-    // TODO: Add student id to sync it with cosmosDB
     const cosmosUserBody: any = {
       type: data.type,
       email: data.email,

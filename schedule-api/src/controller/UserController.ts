@@ -16,6 +16,8 @@ import { BatchController } from "./BatchController";
 import { Status } from "../helpers/Constants";
 import Referrer from "../model/Referrer";
 import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
+import { SchoolService } from "../services/SchoolService";
+import { getRandomNumber } from "../helpers";
 
 export class UserController {
 
@@ -25,6 +27,7 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
+    private schoolService = new SchoolService();
     private userService = new UserService();
     private batchService = new BatchService();
     private batchController = new BatchController();
@@ -99,6 +102,12 @@ export class UserController {
                           ],
                         };
                       }
+                    }
+                    if(!request?.body?.studentID && request?.body?.schoolId){
+                        request.body.studentID = await (await this.schoolService.getAvailableStudentIds({schoolId: request.body.schoolId, count: 1})).data[0]
+                    }
+                    if(!request?.body?.password && request?.body?.schoolId) {
+                        request.body.password = getRandomNumber(6)
                     }
                 }
                 let oldStudentDataQuery = `SELECT * FROM student where id = '${request.body.id}'`;
