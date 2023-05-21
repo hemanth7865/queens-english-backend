@@ -1,8 +1,12 @@
 import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
-import { Access, useAccess } from "umi";
+import { useAccess } from "umi";
 import { useState, useEffect } from 'react'
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, bulkRemoveBatchStudents, syncStudentsToCosmos } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import { LESSONS } from '../../../../config/lessons';
+import { downloadCSV } from '@/services/ant-design-pro/downloadCSV';
+import { SPREADSHEETS } from '../../../../config/constants';
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -22,6 +26,7 @@ function csvToArray(str: string, delimiter: string = ",") {
 }
 
 const UploadStudentsBulkWithoutRMN = (props: any) => {
+    const [statusMessage, setStatusMessage] = useState<string>("");
     const [openUpload, setOpenUpload] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [totalRecords, setTotalRecords] = useState<number>(0);
@@ -30,9 +35,26 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
     const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
+    const [errors, setErrors] = useState<any[]>([]);
+    const [reload, setReload] = useState<number>(0);
 
     //Role Based Access
     const access = useAccess();
+
+    const getLessonIdByNumber = (data: any) => {
+        let lessonNumber = parseInt(data).toString()
+        if (lessonNumber.length === 1) {
+            lessonNumber = "0" + lessonNumber
+        }
+        const lesson = LESSONS.filter((lesson) => {
+            return lesson.number === lessonNumber
+        })
+
+        if (lesson.length === 0) {
+            return false
+        }
+        return lesson[0]?.id
+    }
 
     useEffect(() => {
         setSchoolsLoading(true);
@@ -49,9 +71,18 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
         setSchoolsLoading(false);
     }, [props.school]);
 
+    const downloadErrorsCSV = () => {
+        downloadCSV(errors.map((error) => ({ ...error.student, Error: error["Error Message"] })))
+    }
+
+    useEffect(() => {
+        downloadErrorsCSV();
+    }, [reload])
+
     const handleUpload = async (e: any) => {
         e.preventDefault();
         setIsLoading(true)
+        setStatusMessage("");
         try {
             const file: any = document.getElementById("file");
 
@@ -63,26 +94,58 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             const studentsFinal: any[] = [];
 
+            const finalStudentsIds: string[] = [];
+
             const studentsAlreadyInBatch: any[] = [];
 
             let batches: any[] = [];
 
             async function handleBatching() {
                 const batchesInCsv = [...new Set(batches)];
-                setTotalRecords(studentsUploaded.length + batchesInCsv.length);
+                setTotalRecords((studentsUploaded.length * 2) + batchesInCsv.length);
                 let success = false;
 
                 try {
                     for (const batch of batchesInCsv) {
-                        const batchData: any = await getIndividualBatch(batch);
-                        if (!batchData.data.classes) {
-                            batchesInCsv.splice(batchesInCsv.indexOf(batch), 1);
-                            message.error(`Batch ${batch} not found. Please create the batch first.`);
-                            continue;
+                        let batchData: any = await getIndividualBatch(batch);
+                        let classes = batchData.data.classes;
+                        if (!classes) {
+                            message.loading(`Creating Batch : ${batch}`, 5)
+                            const batchBody: any = {
+                                batchNumber: batch,
+                                classStartDate: moment().format('YYYY-MM-DDTHH:mm:ss'),
+                                classEndDate: moment().add(1, 'year').format('YYYY-MM-DDTHH:mm:ss'),
+                                edit: false,
+                                startingLessonId: getLessonIdByNumber(1),
+                                endingLessonId: getLessonIdByNumber(100),
+                                activeLessonId: getLessonIdByNumber(1),
+                                followupVersion: "v2",
+                                lessonStartTime: moment("15:30", "HH:mm").utc().format('YYYY-MM-DDTHH:mm:ss'),
+                                lessonEndTime: moment("17:00", "HH:mm").utc().format('YYYY-MM-DDTHH:mm:ss'),
+                                students: [],
+                                useAutoAttendance: 0,
+                                useNewZoomLink: 0,
+                                whatsappLink: "",
+                                zoomInfo: "",
+                                zoomLink: "",
+                                classCode: "",
+                                ageGroup: "",
+                                batchAvailability: [{}],
+                                offlineBatch: 1,
+                                schoolId: selectedSchool
+                            }
+                            const res = await addeditbatch({
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(batchBody)
+                            })
+                            classes = res.data[0]
+                            message.success(`Batch created successfully: ${batch}.`)
                         }
-                        const studentsToCheck = studentsFinal.filter(student => student.batchCode == batchData.data.classes.batchNumber)
+                        const studentsToCheck = studentsFinal.filter(student => student.batchCode == classes.batchNumber)
                         if (studentsToCheck.length > 0) {
-                            const data = { students: studentsToCheck, id: batchData.data.classes.id }
+                            const data = { students: studentsToCheck, id: classes.id }
                             const checkStudentBatch = await checkStudentInBatch(data);
                             if (checkStudentBatch.data.length > 0) {
                                 studentsAlreadyInBatch.push(...checkStudentBatch.data);
@@ -132,6 +195,10 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 }
                             } else {
                                 message.error(`Failed to add students to Batch:${batch}.`);
+                                setErrors((prev) => [
+                                    ...prev,
+                                    ...batchStudents.map((student) => ({ student, "Error Message": `Failed to add students to Batch:${batch}.` }))
+                                ])
                             }
                         }
                         setCurrentRecord((n) => n + 1)
@@ -147,17 +214,42 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
             reader.onload = async function (e: any) {
                 const text = e.target.result;
-                const data = csvToArray(text);
+                let data = csvToArray(text);
                 if (!Array.isArray(data)) {
                     throw new Error("Failed to parse CSV File");
                 }
-                setTotalRecords(data.length + 1);
+                setErrors([]);
+                setTotalRecords((data.length + 1) * 2);
                 setCurrentRecord(0);
+                setStatusMessage("Process Started...")
 
+                const isDuplicate = (a: any, b: any, column: string) => {
+                    return a[column] && b[column] && a[column].trim() === b[column].trim()
+                }
+
+                setStatusMessage("Finding Duplicate Students within CSV...")
+                data = data.filter((a, indexA) => {
+                    const isSame = data.find((b, indexB) => {
+                        if (indexA === indexB) return false;
+                        return (
+                            isDuplicate(a, b, "First Name") &&
+                            isDuplicate(a, b, "Last Name") &&
+                            isDuplicate(a, b, "Middle Name") &&
+                            isDuplicate(a, b, "Class section")
+                        )
+                    })
+                    if (isSame) {
+                        setErrors((prev) => [...prev, { student: a, "Error Message": "Duplicate data in same CSV Upload" }])
+                        return false;
+                    }
+                    return true;
+                })
+
+                setStatusMessage("Creating Students in MYSQL .....")
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (student["First Name"] && student["Dummy number"]) {
-                        let phoneNumber = student["Dummy number"];
+                    if (student["First Name"]) {
+                        let phoneNumber = student["RMN"];
                         if (student["RMN"]) {
                             if (student["RMN"].split("+")[1]) {
                                 phoneNumber = student["RMN"];
@@ -173,29 +265,38 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         const studentData = {
                             firstName: student["First Name"],
                             lastName: student["Last Name"] || "-",
+                            middleName: student["Middle Name"] || "-",
+                            classSection: student["Class section"] || "-",
                             teacherName: student["Teacher Name"],
                             startLesson: student["Lesson Start"],
-                            email: student["Email"] || student["Dummy number"],
+                            email: student["Email"] || phoneNumber,
                             phoneNumber,
                             type: "student",
                             status: "active",
-                            offlineStudentCode: student["Dummy number"],
+                            // offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
                             offlineUser: 1,
-                            batchCode: student["Batch code"],
-                            loginCode
+                            batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
+                            loginCode,
+                            schoolId: selectedSchool
                         };
 
+                        // TODO : Give phone number a value of studentID if phoneNumber is not exists.
+
                         studentsUploaded.push(studentData);
-                        batches.push(student["Batch code"]);
+                        if (student["Class section"]) {
+                            batches.push(`${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`);
+                        }
                         const res = await addUserSchedule({
                             headers: {
                                 "Content-Type": "application/json",
                             },
                             body: JSON.stringify(studentData),
+                            params: { cosmosSync: false }
                         });
 
                         if (!res.id) {
+                            setErrors((prev) => [...prev, { student, "Error Message": res?.errors[0] }])
                             setNotStoredUsers((d) => {
                                 d.push({ studentData, res });
                                 return d;
@@ -204,7 +305,6 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             continue;
                         } else {
                             studentsAdded.push(res);
-                            message.success(`Student Record ${student["First Name"]} ${student["Last Name"]} Created Successfully.`);
                         }
                     } else {
                         message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
@@ -214,11 +314,52 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 for (const studentAdded of studentsAdded) {
                     studentsUploaded.filter((student) => {
-                        if (student.offlineStudentCode == studentAdded.offlineStudentCode) {
+                        // TODO : Check studentID instead of offlineStudentCode or any firstName/lastName
+                        if (student.firstName == studentAdded.firstName && student.lastName == studentAdded.lastName) {
+                            finalStudentsIds.push(studentAdded.id);
                             studentsFinal.push({ ...student, id: studentAdded.id });
                         }
                     });
                 }
+
+                if (finalStudentsIds.length > 0) {
+
+                    setStatusMessage("Creating Students in CosmosDB .....")
+                    // Passing Ids of the new created students
+                    try {
+                        const res = await syncStudentsToCosmos({
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(finalStudentsIds)
+                        })
+
+                        // Setting errors and showing it to the users
+                        if (res.errors.length > 0) {
+                            res.errors.forEach((error: { student?: any, studentId: string, "Error Message": string }) => {
+                                setErrors((prev) => [
+                                    ...prev,
+                                    {
+                                        student: studentsFinal.find((stud) => stud.id === error?.studentId),
+                                        "Error Message": error["Error Message"]
+                                    }
+                                ])
+
+                                setNotStoredUsers((prev) => [
+                                    ...prev,
+                                    {
+                                        studentData: error?.student || studentsFinal.find((stud) => stud.id === error?.studentId),
+                                        "Error Message": error["Error Message"]
+                                    }
+                                ])
+                                studentsFinal.filter((stud) => stud.id !== error.studentId)
+                            })
+                        }
+                    } catch (error) {
+                        console.log('error', error)
+                    }
+                }
+                setCurrentRecord((n) => n * 2);
 
                 if (batches.length > 0 && studentsFinal.length > 0) {
                     try {
@@ -253,7 +394,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         console.log("e", e)
                     }
                 }
+
                 setIsLoading(false)
+                setReload(e => e + 1)
             };
 
             reader.readAsText(file.files[0]);
@@ -293,6 +436,16 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             )}
 
             <Modal width={"70%"} visible={openUpload} onCancel={() => { setOpenUpload(false), setSelectedSchool(null) }} footer={false}>
+
+                {errors.length > 0 && (
+                    <div style={{ marginLeft: 10 }}>
+                        <span>Bulk upload errors : </span><br />
+                        <Button onClick={() => { downloadErrorsCSV() }} loading={isLoading} type="primary" style={{ margin: "3px" }} shape="round">
+                            Download Bulk Upload Errors CSV
+                        </Button>
+                    </div>
+                )}
+
                 <code style={{ maxHeight: "300px", overflow: "auto" }}>
                     <pre>
                         {JSON.stringify(notStoredUsers, null, 4)}
@@ -302,7 +455,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 <code>
                     File must be CSV and in this format:
                     <pre>
-                        First Name,Last Name, RMN, Email, Teacher Name, Dummy number, Batch code
+                        First Name, Last Name, Middle name, RMN, Email, Teacher Name, Class section
                     </pre>
                     <p style={{ color: "red" }}>
                         *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
@@ -310,7 +463,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
-
+                {statusMessage !== "" && (<><span style={{ paddingLeft: 10 }}>{statusMessage}</span> <br /></>)}
+                <br />
+                <Button target='_blank' href={SPREADSHEETS.STUDENT_BULK_UPLOAD} type="dashed" htmlType="submit" style={{ fontWeight: 'bold', margin: "3px" }}>
+                    Open Student Bulk Upload spreadsheet format.
+                </Button>
                 <br />
                 <Select
                     placeholder="Select School"

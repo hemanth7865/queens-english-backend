@@ -19,6 +19,16 @@ export type AddUserProps = {
 
 const { Option } = Select
 
+const StudentUser = { text: "Student", value: "student" }
+const TeacherUser = { text: "Teacher", value: "teacher" }
+const BothUser = { text: "Both", value: "both" }
+
+const userTypes = [
+    StudentUser,
+    TeacherUser,
+    BothUser,
+]
+
 const AddUser: React.FC<AddUserProps> = (props) => {
     const [formData, setFormData] = useState({
         firstName: '',
@@ -108,18 +118,18 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         }))
     }
 
-    const onFinish = async () => {
+    const addStudentTeacher = async (userType: string, ignoreDuplicateCheck: boolean = false) => {
         var code = selectCountryCode ? selectCountryCode : '91';
         setIsLoading(true)
         if (!error) {
             let dataForm: any
-            if (selectUserType === "student") {
+            if (userType === StudentUser.value) {
                 dataForm = {
                     firstName: formData.firstName,
                     lastName: formData.lastName,
                     phoneNumber: '+' + code + formData.phoneNumber,
                     email: formData.email,
-                    type: selectUserType,
+                    type: userType,
                     offlineUser: selectOfflineUser,
                     status: "active",
                 }
@@ -130,7 +140,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                     phoneNumber: '+' + code + formData.phoneNumber,
                     email: formData.email,
                     offlineUser: selectOfflineUser,
-                    type: selectUserType,
+                    type: userType,
                 }
             }
 
@@ -140,18 +150,30 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
             try {
                 const msg = await addUserSchedule({
+                    params: {
+                        ignoreDuplicateCheck
+                    },
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(dataForm),
                 });
-                handleAPIResponse(msg, "User Added Successfully", "Failed To Add User");
+                handleAPIResponse(msg, "User Added Successfully", "Failed To Add User", false);
             } catch (error) {
-                handleAPIResponse({ status: 400 }, "User Added Successfully", "Failed To Add User");
+                handleAPIResponse({ status: 400 }, "User Added Successfully", "Failed To Add User", false);
             }
-            props.setVisible(false)
         }
         setIsLoading(false);
+    }
+
+    const onFinish = async () => {
+        if (selectUserType === BothUser.value) {
+            await addStudentTeacher(TeacherUser.value, true)
+            await addStudentTeacher(StudentUser.value, true)
+        } else {
+            await addStudentTeacher(selectUserType)
+        }
+        props.setVisible(false)
     }
 
     return (
@@ -221,8 +243,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                                     placeholder="User Type"
                                     onChange={(value) => { setSelectUserType(value) }}
                                 >
-                                    <Option value="teacher">Teacher</Option>
-                                    <Option value="student">Student</Option>
+                                    {userTypes.map(userType => (<Option value={userType.value}>{userType.text}</Option>))}
                                 </Select>
                             </Form.Item>
                         </Col>

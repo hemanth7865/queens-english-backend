@@ -22,6 +22,7 @@ import { deactivateStudents } from "./../utils/student/deactivateStudents";
 import { validateStudentStatus } from "./../utils/student/validateUpdateStatus";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
 import LoggerService from "./LoggerService";
+import { getUniqueUserID } from "../utils/student/getUniqueUserId";
 
 export class StudentService {
   private usersRepository = getRepository(User);
@@ -345,7 +346,9 @@ export class StudentService {
     };
   }
 
-  async saveStudentDetails(data: any) {
+  async saveStudentDetails(data: any, query?: { ignoreDuplicateCheck?: boolean, cosmosSync?: boolean }) {
+    const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
+    const cosmosSync = query?.cosmosSync;
     let response;
     usersLogger.info("Start::UserController::Register Student");
     const connection = getConnection();
@@ -357,21 +360,24 @@ export class StudentService {
       if (!data.userCode && oldUser && oldUser.userCode) {
         data.userCode = oldUser.userCode;
       }
-    }else if(data.offlineStudentCode){
-      oldUser = await this.usersRepository.findOne({offlineStudentCode: data.offlineStudentCode});
-      if(!data.userCode && oldUser && oldUser.userCode){
-        data.userCode = oldUser.userCode;
-      }
-
-      if(oldUser){
-        data.id = oldUser.id;
-      }
     }
+    // else if(data.offlineStudentCode){
+    //   oldUser = await this.usersRepository.findOne({offlineStudentCode: data.offlineStudentCode});
+    //   if(!data.userCode && oldUser && oldUser.userCode){
+    //     data.userCode = oldUser.userCode;
+    //   }
 
+    //   if(oldUser){
+    //     data.id = oldUser.id;
+    //   }
+    // }
+
+    // TODO: Add student id to sync it with cosmosDB
     const cosmosUserBody: any = {
       type: data.type,
       email: data.email,
       firstName: data.firstName,
+      middleName: data.middleName,
       lastName: data.lastName,
       isAdministrator: false,
       phoneNumber: data.phoneNumber,
@@ -379,7 +385,7 @@ export class StudentService {
       batchesClassesStartDate: data.batchesClassesStartDate,
       userCode: data.userCode,
       status: data.status,
-      offlineStudentCode: data.offlineStudentCode,
+      // offlineStudentCode: data.offlineStudentCode,
       preventAppAccess: data.preventAppAccess,
       offlineUser: data.offlineUser,
       loginCode: data.loginCode
@@ -390,7 +396,7 @@ export class StudentService {
     }
 
     const options = {
-      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}`,
+      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&ignoreDuplicateCheck=${ignoreDuplicateCheck}`,
       json: true,
       body: cosmosUserBody,
     };
@@ -414,32 +420,49 @@ export class StudentService {
 
       let response;
       if (!data.id) {
-        response = await axios
-          .post(options.url, options.body)
-          .then(async (res) => {
-            usersLogger.info(
-              `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
-            );
-            usersLogger.info(`Update oracle DB:  ${data.phoneNumber}`);
-            data.id = res.data.id;
-            if (res.status == 400) {
-              usersLogger.error(`Error while updating student : ${res.data}`);
-              return { status: 400, data: res.data };
-            } else {
-              usersLogger.info(`Data id from cosmos is ${data.id}`);
-              var user = await this.saveStudentSQL(data, data.id, true);
+        if (cosmosSync) {
+          response = await axios
+            .post(options.url, options.body)
+            .then(async (res) => {
               usersLogger.info(
-                `Successfully registered user: ${data.phoneNumber}`
+                `Successfully inserted request in cosmos db:  ${data.phoneNumber}`
               );
-              return user;
-            }
-          })
-          .catch((error) => {
+              usersLogger.info(`Update oracle DB:  ${data.phoneNumber}`);
+              data.id = res.data.id;
+              if (res.status == 400) {
+                usersLogger.error(`Error while updating student : ${res.data}`);
+                return { status: 400, data: res.data };
+              } else {
+                usersLogger.info(`Data id from cosmos is ${data.id}`);
+                var user = await this.saveStudentSQL(data, data.id, true);
+                usersLogger.info(
+                  `Successfully registered user: ${data.phoneNumber}`
+                );
+                return user;
+              }
+            })
+            .catch((error) => {
+              usersLogger.info(
+                `Error while updating student : ${error.response.data}`
+              );
+              return { status: 400, data: error.response.data };
+            });
+        } else {
+          try {
+            data.id = await getUniqueUserID("id")
+            usersLogger.info(`Data id created manually from admin portal is : ${data.id}`);
+            var user = await this.saveStudentSQL(data, data.id, true, cosmosSync);
+            usersLogger.info(
+              `Successfully registered user: ${data.phoneNumber}`
+            );
+            response = user;
+          } catch (error) {
             usersLogger.info(
               `Error while updating student : ${error.response.data}`
             );
-            return { status: 400, data: error.response.data };
-          });
+            response = { status: 400, data: error.response.data };
+          }
+        }
       } else {
         usersLogger.info(`Update Request`);
         response = await axios
@@ -519,15 +542,16 @@ export class StudentService {
     let user = new User();
     user.firstName = data.firstName;
     user.lastName = data.lastName;
+    user.middleName = data?.middleName || "-";
     user.gender = data.gender;
-    user.phoneNumber = data.phoneNumber;
+    user.phoneNumber = data?.phoneNumber;
     user.email = data.email;
     user.type = data.type;
     user.customerEmail = data.customerEmail;
     user.alternativeMobile = data.alternativeMobile;
     user.isSibling = data.isSibling;
     user.state = data.state;
-    user.offlineStudentCode = data.offlineStudentCode;
+    // user.offlineStudentCode = data.offlineStudentCode;
     user.preventAppAccess = data.preventAppAccess;
     user.offlineUser = data.offlineUser;
     user.loginCode = data.loginCode;
@@ -611,6 +635,7 @@ export class StudentService {
     student.studentID = data.studentID;
     student.days = data.days;
     student.alternativeMobile = data.alternativeMobile;
+    student.classSection = data.classSection || "-"
 
     student.startDate = getDateOutOfDateTime(data.startDate);
     student.endDate = data.endDate;
@@ -701,6 +726,100 @@ export class StudentService {
     return { student, payments, user, studentAvailability };
   }
 
+  async syncStudentsToCosmosDB(studentIds: string[]) {
+    const errors: {
+      student?: User;
+      studentId: string;
+      "Error Message": string;
+    }[] = [];
+
+    // TODO: Add student id to sync it with cosmosDB
+    const getCosmosBody = (user: User) => {
+      const cosmosUserBody: any = {
+        id: user.id,
+        type: user.type,
+        email: user.email,
+        firstName: user.firstName,
+        middleName: user.middleName,
+        lastName: user.lastName,
+        isAdministrator: false,
+        phoneNumber: user.phoneNumber,
+        userCode: user.userCode,
+        status: user.status,
+        // offlineStudentCode: user.offlineStudentCode,
+        preventAppAccess: user.preventAppAccess,
+        offlineUser: user.offlineUser,
+        loginCode: user.loginCode,
+      };
+      return cosmosUserBody;
+    };
+
+    const cosmosStudents = [];
+    for (const studentId of studentIds) {
+      const query = `SELECT * FROM user WHERE user.id = '${studentId}'`;
+      try {
+        const response = await getManager().query(query);
+        if (response[0]) {
+          cosmosStudents.push(getCosmosBody(response[0]));
+        } else {
+          errors.push({
+            studentId,
+            "Error Message":
+              "Didn't found any record from provided student id.",
+          });
+        }
+      } catch (error) {
+        errors.push({
+          studentId,
+          "Error Message":
+            "Something went wrong while fetching student details from mysql using id.",
+        });
+      }
+    }
+
+    const options = {
+      url: `${this.COSMOS_URL}/api/user/?code=${this.COSMOS_CODE}&multiple=true`,
+      json: true,
+      body: cosmosStudents,
+    };
+
+    await axios.post(options.url, options.body).then(async (res) => {
+      const notValidUsers = res.data.notValidUsers;
+      const resErrors = res.data.errors;
+      notValidUsers.forEach((invalidUser) => {
+        errors.push({
+          studentId: invalidUser?.id,
+          student: invalidUser,
+          "Error Message": "Please provide a valid user",
+        });
+      });
+
+      resErrors.forEach((error) => {
+        errors.push({
+          studentId: error?.student?.id,
+          student: error.student,
+          "Error Message": "Something went wrong, pls try again",
+        });
+      });
+
+      // Removing students from mysql which have any error either from mysql or cosmos db.
+      for (const error of errors) {
+        if (error?.studentId) {
+          const deleteQueries = [
+            `DELETE FROM user WHERE user.id = '${error.studentId}'`,
+            `DELETE FROM student WHERE student.id = '${error.studentId}'`,
+          ];
+          for (const query of deleteQueries) {
+            try {
+              await getManager().query(query);
+            } catch (_) {}
+          }
+        }
+      }
+    });
+    return { status: 200, errors };
+  }
+
   async updateStudentBatchHistoy(studentId: string, batchId: string, classStartDate: any) {
     let studentBatchHistory = new StudentBatchesHistory();
     studentBatchHistory.studentId = studentId;
@@ -723,7 +842,7 @@ export class StudentService {
     }
   }
 
-  async saveStudentSQL(data: any, id, create = false) {
+  async saveStudentSQL(data: any, id, create = false, cosmosSync = true) {
     usersLogger.info(
       `Register user in Admin portal with phoneNumber : ${data?.phoneNumber}`
     );
@@ -784,7 +903,7 @@ export class StudentService {
       if (
         process.env.AUTO_RUN_GENERATE_STUDENT_CODE_DYNAMICALLY !== "NOT_ALLOWED"
       ) {
-        await userSerivce.generateUsersCode();
+        await userSerivce.generateUsersCode({ id, cosmosSync });
       }
 
       return { ...user };

@@ -95,6 +95,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/syncStudentsToCosmos",
+    controller: UserController,
+    action: "syncStudentsToCosmos",
+    authenticate: true,
+  },
+  {
+    method: "post",
     route: "/leads/update/status",
     controller: UserController,
     action: "updateLeadsStatus",
