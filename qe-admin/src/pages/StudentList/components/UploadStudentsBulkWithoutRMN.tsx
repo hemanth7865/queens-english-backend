@@ -9,6 +9,7 @@ import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
 import { downloadCSV } from '@/services/ant-design-pro/downloadCSV';
 import { SPREADSHEETS } from '../../../../config/constants';
+import { getRandomNumber } from '@/services/ant-design-pro/helpers';
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -293,7 +294,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
                             loginCode,
                             studentID: availableStudentIds[currentIndex],
-                            schoolId: selectedSchool
+                            schoolId: selectedSchool,
+                            password: getRandomNumber()
                         };
                         if (!studentData.email || (studentData?.email && studentData?.email?.trim() === '')) {
                             studentData.email = studentData.studentID

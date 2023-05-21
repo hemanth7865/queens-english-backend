@@ -155,4 +155,7 @@ export class Student extends BaseEntity {
 
   @Column({ nullable: true })
   schoolId: string;
+
+  @Column({ nullable: true })
+  password: string;
 }
