@@ -295,6 +295,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             studentID: availableStudentIds[currentIndex],
                             schoolId: selectedSchool
                         };
+                        if (!studentData.email || (studentData?.email && studentData?.email?.trim() === '')) {
+                            studentData.email = studentData.studentID
+                        }
                         currentIndex += 1;
 
                         // TODO : Give phone number a value of studentID if phoneNumber is not exists.
@@ -463,11 +466,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     </div>
                 )}
 
-                <code style={{ maxHeight: "300px", overflow: "auto" }}>
+                {/* <code style={{ maxHeight: "300px", overflow: "auto" }}>
                     <pre>
                         {JSON.stringify(notStoredUsers, null, 4)}
                     </pre>
-                </code>
+                </code> */}
 
                 <code>
                     File must be CSV and in this format:
