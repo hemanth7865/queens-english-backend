@@ -359,8 +359,12 @@ export class StudentService {
 
     if (data.id) {
       oldUser = await this.usersRepository.findOne({ id: data.id });
+      const oldStudent = await this.studentRepository.findOne({ id: data.id });
       if (!data.userCode && oldUser && oldUser.userCode) {
         data.userCode = oldUser.userCode;
+      }
+      if (!data.password && oldStudent && oldStudent.password) {
+        data.password = oldStudent.password;
       }
     }
     // else if(data.offlineStudentCode){
