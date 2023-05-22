@@ -15,6 +15,8 @@ import { useAccess } from 'umi';
 export type AddUserProps = {
     setVisible: () => void;
     onUpdate: () => void;
+    offlineUser: boolean;
+    userType: string;
 };
 
 const { Option } = Select
@@ -35,17 +37,30 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         lastName: '',
         phoneNumber: '',
         email: '',
+        classSection: '',
     })
 
-    const [selectUserType, setSelectUserType] = useState('')
+    const [selectUserType, setSelectUserType] = useState<string>('')
     const [selectedSchool, setSelectSchool] = useState()
-    const [selectOfflineUser, setOfflineUser] = useState('0')
+    const [selectOfflineUser, setOfflineUser] = useState<string>('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('IN')
     const [selectCountryCode, setSelectCountryCode] = useState(91)
     const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
     const access = useAccess();
+
+    useEffect(() => {
+        if (props.offlineUser) {
+            setOfflineUser("1");
+        }
+    }, [props.offlineUser]);
+
+    useEffect(() => {
+        if (props.userType === 'student') {
+            setSelectUserType(props.userType);
+        }
+    }, [props.userType]);
 
     useEffect(() => {
         if (schools.length === 0) {
@@ -67,7 +82,6 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const handleMobileChange = (event) => {
         const number = event.target.value
         const message = isValidPhoneNumber(number, selectCountry ? selectCountry : 'IN')
-        console.log('msg', message, msg)
         const msg = validatePhoneNumberLength(number, selectCountry ? selectCountry : 'IN')
         if (msg === 'TOO_LONG') {
             setError('Phone number is too long')
@@ -146,6 +160,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
             if (selectOfflineUser === "1") {
                 dataForm.schoolId = selectedSchool
+                dataForm.classSection = formData.classSection
             }
 
             try {
@@ -220,7 +235,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                             </Form.Item>
                         </Col>
                         <PhoneNumberCountrySelect handleMobileChange={handleMobileChange} setSelectCountry={setSelectCountry} setSelectCountryCode={setSelectCountryCode} edit={false} />
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 name="Email"
                                 rules={[
@@ -237,39 +252,65 @@ const AddUser: React.FC<AddUserProps> = (props) => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item name="User Type" rules={[{ required: true }]}>
                                 <Select
+                                    defaultValue={props.userType}
+                                    value={selectUserType}
                                     placeholder="User Type"
                                     onChange={(value) => { setSelectUserType(value) }}
+                                    disabled={props.userType === 'student'}
                                 >
                                     {userTypes.map(userType => (<Option value={userType.value}>{userType.text}</Option>))}
                                 </Select>
                             </Form.Item>
                         </Col>
 
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item name="offlineUser">
                                 <Select
+                                    defaultValue={props.offlineUser ? '1':''}
+                                    value={selectOfflineUser}
                                     onChange={(value) => { setOfflineUser(value) }}
+                                    disabled={props.offlineUser}
                                 >
                                     <Option value="0">Online</Option>
                                     <Option value="1">Offline</Option>
                                 </Select>
                             </Form.Item>
                         </Col>
-
-                        <Col span={12}>
-                            <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" }]}>
-                                <Select
-                                    disabled={selectOfflineUser === "0"}
-                                    placeholder="Select School"
-                                    onChange={(value) => { setSelectSchool(value) }}
-                                >
-                                    {schools?.map((s: any) => (<Select.Option value={s?.id}>{`${s?.schoolName} ~ ${s?.schoolCode}`}</Select.Option>))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
+                        {selectOfflineUser === '1' &&
+                            <>
+                                <Col span={12}>
+                                    <Form.Item name="School" rules={[{ required: selectOfflineUser === "1" }]}>
+                                        <Select
+                                            disabled={selectOfflineUser !== "1"}
+                                            placeholder="Select School"
+                                            onChange={(value) => { setSelectSchool(value) }}
+                                        >
+                                            {schools?.map((s: any) => (<Select.Option value={s?.id}>{`${s?.schoolName} ~ ${s?.schoolCode}`}</Select.Option>))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name="Class Section"
+                                        rules={[
+                                            {
+                                                required: false,
+                                                type: 'string'
+                                            }
+                                        ]}
+                                    >
+                                        <Input
+                                            placeholder="ex: 1A / 4C"
+                                            name="classSection"
+                                            onChange={handleInputChange}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </>
+                        }
 
                         <Col span={24}>
                             <Button type="primary" htmlType="submit" block>

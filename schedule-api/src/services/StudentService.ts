@@ -187,7 +187,6 @@ export class StudentService {
     console.log("results size", results.length);
 
     for (const element of results) {
-      console.log("ELEMENT", element)
       let slotsResult: any[] = [];
       let batchCodes: any[] = [];
       let batchIds: any[] = [];

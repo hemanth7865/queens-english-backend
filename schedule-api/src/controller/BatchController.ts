@@ -31,6 +31,16 @@ export class BatchController {
         if (!request.body.studentId) {
             return { status: 400, errors: ['Please Provide Correct Student Information'] };
         }
+        var studentAlreadyExists;
+        if (request.body.batchId) {
+            studentAlreadyExists = await this.batchService.checkStudentExistsInBatch(request.body);
+
+            if(studentAlreadyExists.data.length > 0) {
+                return { status: 400,
+                    errors: [`Student ${studentAlreadyExists.data.firstName} ${studentAlreadyExists.data.middleName} ${studentAlreadyExists.data.lastName} of class ${studentAlreadyExists.data.classSection} already exist in the selected batch.`]
+                }
+            }
+        }
         var batch;
         try {
             batch = await this.batchService.reBatch(request.body);

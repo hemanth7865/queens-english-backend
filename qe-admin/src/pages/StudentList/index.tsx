@@ -202,7 +202,6 @@ const TableList: React.FC = () => {
         request={studentBatches}
         columns={columns}
         toolBarRender={() => [
-          <UploadStudentsBulkWithoutRMN />,
           <DeactiveStudentsInBulk />,
           <Button
             type="primary"

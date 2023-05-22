@@ -41,6 +41,9 @@ import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
 import ProDescriptions from "@ant-design/pro-descriptions";
 import type { FormValueType } from "./components/UpdateForm";
 import UpdateForm from "./components/UpdateForm";
+import UploadStudentsBulkWithoutRMN from '../StudentList/components/UploadStudentsBulkWithoutRMN';
+import AddUser from '../StudentList/components/AddUser';
+
 import {
   isPossiblePhoneNumber,
   isValidPhoneNumber,
@@ -399,12 +402,16 @@ const StudentsBatchList: React.FC = () => {
               fallback={<div> </div>}
             >
               {url.toString().indexOf('/school/') >= 0 &&
-              <Button type="primary" key="primary" style={{ marginRight: '5px' }}
-                disabled={selectedRowKeys.length === 0}
-                onClick={showReassignBatchModal}
-                onChange={setstudentManageradd(true)}>
-                Re-Batch Student
-              </Button>
+                <>
+                  <Button type="primary" key="primary" style={{ marginRight: '5px' }}
+                    disabled={selectedRowKeys.length === 0}
+                    onClick={showReassignBatchModal}
+                    onChange={setstudentManageradd(true)}>
+                    Re-Batch Student
+                  </Button>
+
+                  <UploadStudentsBulkWithoutRMN />,
+                </>
               }
 
               <Button type="primary" key="primary" onClick={showDrawer} onChange={setstudentManageradd(true)}>
@@ -421,7 +428,10 @@ const StudentsBatchList: React.FC = () => {
               width={1100}
               destroyOnClose
             >
-              <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
+              {url.toString().indexOf('/school/') >= 0 ?
+                <AddUser setVisible={setVisible} offlineUser={true} userType={"student"} />
+                : <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
+              }
             </Drawer>
 
             <Drawer

@@ -1156,6 +1156,30 @@ export class BatchService {
     return ids;
   }
 
+  async checkStudentExistsInBatch({ studentId, batchId }: { studentId: string, batchId?: string}) {
+    let studentService = new StudentService();
+    let studentDetail = await studentService.getStudentDetailsById(studentId);
+
+    // Check if the selected student detail is already present in the selected branch
+    var query = `SELECT s.id, s.batchCode, s.classSection, u.firstName, u.lastName, u.middleName FROM qeadmin2.student as s
+    INNER JOIN qeadmin2.classes as c ON s.batchCode = c.batchNumber 
+    INNER JOIN qeadmin2.user as u ON s.id = u.id
+    where c.id = '${batchId}'
+    and u.firstName = '${studentDetail.data.firstName}' and u.lastName = '${studentDetail.data.lastName}'`
+
+    if (studentDetail.data.middleName) {
+      query = query + ` and u.middleName = '${studentDetail.data.middleName}'`
+    }
+
+    if (studentDetail.data.classSection) {
+      query = query + ` and s.classSection = '${studentDetail.data.classSection}'`
+    }
+
+    var details = await getManager().query(query);
+
+    return { success: true, data: details }
+  }
+
   async reBatch({ studentId, batchId, bulkRebatch, removeFromBatch }: { studentId: string, batchId?: string, bulkRebatch?: boolean, removeFromBatch?: boolean }) {
     let studentService = new StudentService();
     let activeBatches = await studentService.getStudentActiveBatches(studentId, true);
