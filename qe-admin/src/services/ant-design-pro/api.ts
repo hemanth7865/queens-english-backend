@@ -406,7 +406,7 @@ export async function getIndividualBatch(
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(`/be/listBatch/${rowid}`, {
+  return request<API.RuleList>(`/be/listBatch/${encodeURIComponent(rowid)}`, {
     method: "GET",
     params: {
       ...params,

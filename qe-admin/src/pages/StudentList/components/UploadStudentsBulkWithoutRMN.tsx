@@ -480,8 +480,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         First Name, Last Name, Middle name, RMN, Email, Teacher Name, Class section
                     </pre>
                     <p style={{ color: "red" }}>
-                        *** Please make sure that the Dummy number/RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
+                        *** Please make sure that the RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
                     </p>
+                    <span style={{ color: "blue" }}>
+                        <b>Mandatory Fields</b> : First Name, Last Name.
+                    </span>
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
