@@ -47,7 +47,7 @@ createConnection()
           if (result instanceof Promise) {
             result.then((result) => {
               if (result !== null && result !== undefined) {
-                console.log("response" + JSON.stringify(result));
+                //console.log("response" + JSON.stringify(result));
                 res.send(result);
               }
             });

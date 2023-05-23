@@ -28,8 +28,18 @@ export class BatchController {
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
-        if (!request.body.studentId || !request.body.batchId) {
-            return { status: 400, errors: ['Please Provide Correct Batch And Student Information'] };
+        if (!request.body.studentId) {
+            return { status: 400, errors: ['Please Provide Correct Student Information'] };
+        }
+        var studentAlreadyExists;
+        if (request.body.batchId) {
+            studentAlreadyExists = await this.batchService.checkStudentExistsInBatch(request.body);
+
+            if(studentAlreadyExists.data.length > 0) {
+                return { status: 400,
+                    errors: [`Student ${studentAlreadyExists.data.firstName} ${studentAlreadyExists.data.middleName} ${studentAlreadyExists.data.lastName} of class ${studentAlreadyExists.data.classSection} already exist in the selected batch.`]
+                }
+            }
         }
         var batch;
         try {
@@ -41,6 +51,26 @@ export class BatchController {
         return batch;
     }
 
+    async bulkReBatchStudents(request: Request, response: Response, next: NextFunction) {
+        var resp = [];
+        const studentIds = request.body.studentIds;
+        await Promise.all(studentIds.map(async (studentId: string) => {
+            resp.push(await this.reBatch({
+                body: {
+                    studentId: studentId,
+                    batchId: request.body.batchId,
+                    bulkRebatch: request.body.bulkRebatch ? request.body.bulkRebatch : false,
+                    removeFromBatch: request.body.removeFromBatch
+                }
+            }, response, next));
+        }));
+        
+        return {
+            "success": true,
+            "data": resp, "total": 1
+        }
+
+    }
 
     async deleteBatch(request: Request, response: Response, next: NextFunction) {
         var batch;
@@ -79,6 +109,7 @@ export class BatchController {
             lessonNumber: request.query['lessonNumber'],
             schoolName: request.query['schoolName'],
             offlineBatch: request.query['offlineBatch'],
+            schoolId: request.query['schoolId']
         }
         let res;
         try {

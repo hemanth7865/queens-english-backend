@@ -149,6 +149,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/bulkReBatchStudents",
+    controller: BatchController,
+    action: "bulkReBatchStudents",
+    authenticate: true,
+  },
+  {
+    method: "post",
     route: "/re-batch",
     controller: BatchController,
     action: "reBatch",
@@ -206,13 +213,6 @@ export const Routes = [
     route: "/batch/:id",
     controller: BatchController,
     action: "remove",
-    authenticate: true,
-  },
-  {
-    method: "post",
-    route: "/createBatch",
-    controller: BatchController,
-    action: "createBatch",
     authenticate: true,
   },
   {
