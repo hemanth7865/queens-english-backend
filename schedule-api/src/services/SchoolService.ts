@@ -233,11 +233,10 @@ export class SchoolService {
             let batch: any;
 
             if (!isNullOrUndefined(request.csv)) {
-                batch = await this.classesRepository.findOne({ where: { id: b } });
+                batch = await this.classesRepository.findOne({ where: [{ id: b },{ batchNumber: b }] });
             } else {
                 batch = await this.classesRepository.findOne({ where: { batchNumber: b } });
             }
-            const students = await this.batchStudentRepository.find({ where: { batchId: batch.id } });
             //Teacher Update
             await this.userRepository.update({ id: batch.teacherId }, { schoolId: request.saveSchool.id, schoolCode: request.saveSchool.schoolCode });
 
@@ -246,35 +245,41 @@ export class SchoolService {
             await this.classesRepository.save(batch);
 
             let studentsData: any;
-            let users: any;
 
-            if (students.length > 0) {
-                for (const s of students) {
-                    studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
-                    if (studentsData) {
-                        if (studentsData.schoolId != request.saveSchool.id) {
-                            studentsData.schoolId = request.saveSchool.id;
-                            await this.studentRepository.save(studentsData);
-                        }
-                    }
-                    users = await this.userRepository.findOne({ where: { id: s.studentId } });
-                    if (users) {
-                        if (users.schoolId != request.saveSchool.id || users.schoolCode != request.saveSchool.schoolCode) {
-                            users.schoolId = request.saveSchool.id;
-                            users.schoolCode = request.saveSchool.schoolCode;
-                            await this.userRepository.save(users);
-                        }
-                    }
-                }
+
+            // Updating Students Table
+            const studentsQuery = `SELECT student.id, student.studentId FROM  batch_students INNER JOIN student ON student.id = batch_students.studentId WHERE batch_students.batchId = '${batch.id}'`;
+            const students = await getManager().query(studentsQuery)
+            if (students && Array.isArray(students) && students.length > 0) {
+                console.log('STUDENTS', students)
+                const studentIds = students.map((e)=>`'${e.id}'`)
+                const studentUpdateQuery = `UPDATE student SET student.schoolId = '${request.saveSchool.id}' WHERE student.id IN (${studentIds.join(',')});`
+                try{
+                    await getManager().query(studentUpdateQuery)
+                }catch(error){}
+            }
+
+            // Updating Users Table
+            const usersQuery = `SELECT user.id FROM  batch_students INNER JOIN user ON user.id = batch_students.studentId WHERE batch_students.batchId = '${batch.id}'`;
+            const users = await getManager().query(usersQuery)
+            if (users && Array.isArray(users) && users.length > 0) {
+                console.log('USERS', users)
+                const userIds = students.map((e)=>`'${e.id}'`)
+                const userUpdateQuery = `UPDATE user SET user.schoolId = '${request.saveSchool.id}', user.schoolCode = '${request.saveSchool.schoolCode}'  WHERE user.id IN (${userIds.join(',')});`
+                try{
+                    await getManager().query(userUpdateQuery)
+                }catch(error){}
             }
 
             let cosmosStudents = []
 
-            for (let user of students) {
-                cosmosStudents.push({
-                    value: user.studentId,
-                    type: 'studentProfile'
-                })
+            if (students.length > 0) {
+                for (let user of students) {
+                    cosmosStudents.push({
+                        value: user.studentId,
+                        type: 'studentProfile'
+                    })
+                }
             }
             try {
                 const cosmosData = {
