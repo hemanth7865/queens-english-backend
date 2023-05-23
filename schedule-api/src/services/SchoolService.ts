@@ -10,6 +10,9 @@ import { Student } from "../entity/Student";
 import { User } from "../entity/User";
 import { isNullOrUndefined } from "util";
 import { BatchService } from "./BatchService";
+import { getRandomNumber } from "../helpers";
+import { StudentService } from "./StudentService";
+const { logger } = require("../Logger.js");
 
 export class SchoolService {
     private schoolRepository = getRepository(School);
@@ -19,6 +22,7 @@ export class SchoolService {
     private studentRepository = getRepository(Student);
     private userRepository = getRepository(User);
     private batchService = new BatchService();
+    private studentService = new StudentService();
     public request: any = {};
 
     async getAllSra() {
@@ -472,16 +476,28 @@ export class SchoolService {
                     continue;
                 }
                 const updatedStudentId = availableStudentIds[idCount];
+                const password = getRandomNumber(6)
                 idCount += 1;
 
-                // Updating student ID
-                const updateQuery = `UPDATE student SET student.studentID = "${updatedStudentId}" WHERE student.id = "${student.id}"`;
-                await getManager().query(updateQuery);
-                updatedStudents.push({
-                    id: student.id,
-                    previousStudentId: student.studentID,
-                    updatedStudentId: updatedStudentId,
+                let user:any = await this.userRepository.findOne({
+                    where: {
+                        id: student.id
+                    }
                 });
+
+                user = {...user, studentID: updatedStudentId, password: password}
+                delete user.studentId
+
+                try {
+                    await this.studentService.saveStudentDetails(user)
+                    updatedStudents.push({
+                        id: student.id,
+                        previousStudentId: student.studentID,
+                        updatedStudentId: updatedStudentId,
+                    });
+                } catch (error) {
+                    logger.error(`While Converting studentId to new format : School : ${school.schoolCode} : Student Id : ${user.id}`, error)
+                }
             }
         }
 
