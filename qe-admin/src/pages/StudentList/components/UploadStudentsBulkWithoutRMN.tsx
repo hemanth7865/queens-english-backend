@@ -1,4 +1,4 @@
-import { Button, message, Modal, Progress, Select, Tooltip } from 'antd';
+import { Button, Checkbox, message, Modal, Progress, Select, Tooltip } from 'antd';
 import { useAccess } from "umi";
 import { useState, useEffect } from 'react'
 
@@ -38,6 +38,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
     const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
+    const [createBatch, setCreateBatch] = useState<boolean>(true);
     const [errors, setErrors] = useState<any[]>([]);
     const [reload, setReload] = useState<number>(0);
 
@@ -110,9 +111,15 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 try {
                     for (const batch of batchesInCsv) {
+                        setStatusMessage(`Fetch ${batch} Details  .....`);
                         let batchData: any = await getIndividualBatch(batch);
                         let classes = batchData.data.classes;
                         if (!classes) {
+                            setStatusMessage(`${batch} Does not exists  .....`)
+                            message.error(`Batch Does not exists: ${batch}.`)
+                        }
+                        if (createBatch && !classes) {
+                            setStatusMessage(`Creating Batch : ${batch} .....`)
                             message.loading(`Creating Batch : ${batch}`, 5)
                             const batchBody: any = {
                                 batchNumber: batch,
@@ -145,9 +152,11 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             })
                             classes = res.data[0]
                             message.success(`Batch created successfully: ${batch}.`)
+                            setStatusMessage(`${batch} Batch created successfully: ....`)
                         }
                         const studentsToCheck = studentsFinal.filter(student => student.batchCode == classes.batchNumber)
                         if (studentsToCheck.length > 0) {
+                            setStatusMessage(`${batch} : Checking Students ....`)
                             const data = { students: studentsToCheck, id: classes.id }
                             const checkStudentBatch = await checkStudentInBatch(data);
                             if (checkStudentBatch.data.length > 0) {
@@ -165,6 +174,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     // }
 
                     for (const batch of batchesInCsv) {
+                        setStatusMessage(`Fetch ${batch} details ....`)
                         const batchData: any = await getIndividualBatch(batch);
                         if (batchData.data.classes) {
                             const batchStudents: any[] = [];
@@ -204,6 +214,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 ])
                             }
                         }
+                        setStatusMessage(`Batched particular students to ${batch} batch ....`)
                         setCurrentRecord((n) => n + 1)
                     }
                     success = true;
@@ -380,10 +391,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     } catch (error) {
                         console.log('error', error)
                     }
+                    setStatusMessage("Creation of students is done .....")
                 }
                 setCurrentRecord((n) => n * 2);
 
                 if (batches.length > 0 && studentsFinal.length > 0) {
+                    setStatusMessage("Handling Batches .....")
                     try {
                         message.loading("Adding Students to their respective batches", 5)
                         const batching = await handleBatching();
@@ -398,6 +411,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 }
 
                 if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
+                    setStatusMessage(`Linking batches to school .... `)
                     const batchesToAdd = [...new Set(batches)]
                     const school = schools.find(obj => obj.id === selectedSchool);
                     const data = {
@@ -417,6 +431,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     }
                 }
 
+                setStatusMessage(`Operations successfully completed.`)
+
+                setCurrentRecord(totalRecords);
                 setIsLoading(false)
                 setReload(e => e + 1)
             };
@@ -494,6 +511,9 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     Open Student Bulk Upload spreadsheet format.
                 </Button>
                 <br />
+                <Checkbox defaultChecked={createBatch} style={{ margin: "10px" }} onChange={() => {
+                    setCreateBatch((e) => !e)
+                }}>Create Batch if Not Exists.</Checkbox>
                 <Select
                     placeholder="Select School"
                     onChange={(value) => setSelectedSchool(value)}
