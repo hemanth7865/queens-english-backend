@@ -313,6 +313,10 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         }
                         currentIndex += 1;
 
+                        if (!studentData.phoneNumber || (studentData?.phoneNumber && studentData?.phoneNumber?.trim() === '')) {
+                            studentData.phoneNumber = studentData.studentID
+                        }
+
                         // TODO : Give phone number a value of studentID if phoneNumber is not exists.
 
 
