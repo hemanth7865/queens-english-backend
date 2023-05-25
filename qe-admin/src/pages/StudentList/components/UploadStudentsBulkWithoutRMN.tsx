@@ -1,4 +1,4 @@
-import { Button, Checkbox, message, Modal, Progress, Select, Tooltip } from 'antd';
+import { Button, Checkbox, Collapse, message, Modal, Progress, Select, Tooltip } from 'antd';
 import { useAccess } from "umi";
 import { useState, useEffect } from 'react'
 
@@ -10,6 +10,8 @@ import { LESSONS } from '../../../../config/lessons';
 import { downloadCSV } from '@/services/ant-design-pro/downloadCSV';
 import { SPREADSHEETS } from '../../../../config/constants';
 import { getRandomNumber } from '@/services/ant-design-pro/helpers';
+const { Panel } = Collapse;
+import "./index.css"
 
 function csvToArray(str: string, delimiter: string = ",") {
     const headers = str.slice(0, str.indexOf("\n")).split(delimiter).map(h => h.replace("\r", ""));
@@ -274,7 +276,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 for (const student of data) {
                     await new Promise((resolve, reject) => setTimeout(resolve, 100));
-                    if (student["First Name"]) {
+                    if (student["First Name"] && student["Last Name"]) {
                         let phoneNumber = student["RMN"];
                         if (student["RMN"]) {
                             if (student["RMN"].split("+")[1]) {
@@ -290,7 +292,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                         const loginCode = loginCodeNumber.toString();
                         const studentData = {
                             firstName: student["First Name"],
-                            lastName: student["Last Name"] || "-",
+                            lastName: student["Last Name"],
                             middleName: student["Middle Name"] || "-",
                             classSection: student["Class section"] || "-",
                             teacherName: student["Teacher Name"],
@@ -317,9 +319,6 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             studentData.phoneNumber = studentData.studentID
                         }
 
-                        // TODO : Give phone number a value of studentID if phoneNumber is not exists.
-
-
                         studentsUploaded.push(studentData);
                         if (student["Class section"]) {
                             batches.push(`${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`);
@@ -344,15 +343,15 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             studentsAdded.push(res);
                         }
                     } else {
-                        message.error(`Student Record Doesn't Have \n First Name Or Dummy Number: \n ${JSON.stringify(student)}.`);
+                        message.error(`Student Record Doesn't Have \n First Name Or Last name: \n ${JSON.stringify(student)}.`);
+                        setErrors((prev) => [...prev, { student, "Error Message": "Student Record Doesn't Have First Name Or Last name" }])
                     }
                     setCurrentRecord((n) => n + 1);
                 }
 
                 for (const studentAdded of studentsAdded) {
                     studentsUploaded.filter((student) => {
-                        // TODO : Check studentID instead of offlineStudentCode or any firstName/lastName
-                        if (student.firstName == studentAdded.firstName && student.lastName == studentAdded.lastName) {
+                        if (student.phoneNumber == studentAdded.phoneNumber) {
                             finalStudentsIds.push(studentAdded.id);
                             studentsFinal.push({ ...student, id: studentAdded.id });
                         }
@@ -435,7 +434,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     }
                 }
 
-                setStatusMessage(`Operations successfully completed.`)
+                setStatusMessage(`Operations successfully completed. ${batches.length === 0 && "Did Not Created Any Batch since there is not class section provided."}`)
 
                 setCurrentRecord(totalRecords);
                 setIsLoading(false)
@@ -497,9 +496,32 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 <code>
                     File must be CSV and in this format:
-                    <pre>
-                        First Name, Last Name, Middle name, RMN, Email, Teacher Name, Class section
-                    </pre>
+                    First Name, Last Name, Middle name, RMN, Email, Class section
+                    <Collapse accordion style={{ margin: "20px 0" }}>
+                        <Panel header="Instructions : " key="1" style={{ fontWeight: 'bold' }}>
+                            <ul>
+                                <li>Class section field :</li>
+                                <ul>
+                                    <li>Class section is used to create a batch and also it's being stored in student details.</li>
+                                    <li>During a Bulk Upload, the School code and Class Section are combined to form a Batch Code.</li>
+                                    <li>For example, if the School code is "ABCD" and the provided Class Section value is "2A", the Batch number will be considered as "ABCD2A".</li>
+                                    <li>If a batch already exists with the created Batch number, the student will be assigned to that batch.</li>
+                                    <li>If a batch does not exist with the created Batch number, the following conditions apply:</li>
+                                    <ul>
+                                        <li>
+                                            If a checkbox is checked, a new batch will be created if it does not exist, and then the student will be assigned to that batch.
+                                        </li>
+                                        <li>
+                                            If the checkbox is not checked, only the student will be created, and no new batch will be created if it does not exist.
+                                        </li>
+                                    </ul>
+
+                                    {/* <li>If batch is not exists with created Batch number, It will check the value of below check box, if the checkbox is checked it means it will create new batch if not exists, and then batch student to particular batch.</li>
+                            <li>If checkbox is not checked, it will only create student, will not create any new batch if not exists.</li> */}
+                                </ul>
+                            </ul>
+                        </Panel>
+                    </Collapse>
                     <p style={{ color: "red" }}>
                         *** Please make sure that the RMN field in CSV does not contain Euler's constant Example "1.00012E+18". Will lead to API fail and add alot of students ***
                     </p>
