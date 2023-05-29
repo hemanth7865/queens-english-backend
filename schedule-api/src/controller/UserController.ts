@@ -91,13 +91,9 @@ export class UserController {
                     );
                     if (similarUserData.length > 0) {
                       const similarStudent = similarUserData.find((user) => {
-                        return (
-                          isDuplicate(request.body, user, "classSection") &&
-                          isDuplicate(request.body, user, "firstName") &&
-                          isDuplicate(request.body, user, "lastName") &&
-                          isDuplicate(request.body, user, "middleName") &&
-                          request.body.schoolId ? isDuplicate(request.body, user, "schoolId") : true
-                        );
+                        const res = isDuplicate(request.body, user, "classSection") && isDuplicate(request.body, user, "firstName") && isDuplicate(request.body, user, "lastName") && isDuplicate(request.body, user, "middleName") && isDuplicate(request.body, user, "schoolId");
+
+                        return res;
                       });
                       if (similarStudent) {
                         return {
