@@ -65,12 +65,16 @@ export class UserController {
                       );
                     };
           
-                    const alreadyExistsQuery = `
+                    let alreadyExistsQuery = `
                           SELECT * FROM user
                           WHERE user.firstName LIKE '%${request.body.firstName}%' AND
                           user.lastName LIKE '%${request.body.lastName}%' AND
-                          user.middleName LIKE '%${request.body.middleName}%'
+                          user.middleName LIKE '%${request.body.middleName}%' 
                       `;
+                    if (request.body?.schoolId) {
+                        alreadyExistsQuery += `AND
+                        user.schoolId LIKE '%${request.body.schoolId}%'`
+                    }
                     let similarUserData = await getManager().query(alreadyExistsQuery);
                     similarUserData = await Promise.all(
                       similarUserData.map(async (user) => {
@@ -91,7 +95,8 @@ export class UserController {
                           isDuplicate(request.body, user, "classSection") &&
                           isDuplicate(request.body, user, "firstName") &&
                           isDuplicate(request.body, user, "lastName") &&
-                          isDuplicate(request.body, user, "middleName")
+                          isDuplicate(request.body, user, "middleName") &&
+                          request.body.schoolId ? isDuplicate(request.body, user, "schoolId") : true
                         );
                       });
                       if (similarStudent) {
