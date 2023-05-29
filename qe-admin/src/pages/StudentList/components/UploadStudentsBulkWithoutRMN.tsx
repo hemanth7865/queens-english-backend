@@ -434,7 +434,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     }
                 }
 
-                setStatusMessage(`Operations successfully completed. ${batches.length === 0 && "Did Not Created Any Batch since there is not class section provided."}`)
+                setStatusMessage(`Operations successfully completed. ${batches.length === 0 ? "Did Not Created Any Batch since there is not class section provided." : ""}`)
 
                 setCurrentRecord(totalRecords);
                 setIsLoading(false)
