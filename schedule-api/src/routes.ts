@@ -95,6 +95,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/syncStudentsToCosmos",
+    controller: UserController,
+    action: "syncStudentsToCosmos",
+    authenticate: true,
+  },
+  {
+    method: "post",
     route: "/leads/update/status",
     controller: UserController,
     action: "updateLeadsStatus",
@@ -138,6 +145,13 @@ export const Routes = [
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
+    authenticate: true,
+  },
+  {
+    method: "post",
+    route: "/bulkReBatchStudents",
+    controller: BatchController,
+    action: "bulkReBatchStudents",
     authenticate: true,
   },
   {
@@ -199,13 +213,6 @@ export const Routes = [
     route: "/batch/:id",
     controller: BatchController,
     action: "remove",
-    authenticate: true,
-  },
-  {
-    method: "post",
-    route: "/createBatch",
-    controller: BatchController,
-    action: "createBatch",
     authenticate: true,
   },
   {
@@ -774,5 +781,17 @@ export const Routes = [
     route: "/bulkRemoveStudentsFromBatch",
     controller: BatchController,
     action: "bulkRemoveStudentsFromBatch",
+  },
+  {
+    method: "get",
+    route: "/getAvailableStudentIds",
+    controller: SchoolController,
+    action: "getAvailableStudentIds",
+  },
+  {
+    method: "post",
+    route: "/updateStudentIdsToNewFormat",
+    controller: SchoolController,
+    action: "updateStudentIdsToNewFormat",
   },
 ];

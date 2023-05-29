@@ -338,11 +338,33 @@ export async function addUserSchedule(options?: { [key: string]: any }) {
   });
 }
 
+/** POST /be/syncStudentsToCosmos */
+export async function syncStudentsToCosmos(options?: { [key: string]: any }) {
+  return request<any>("/be/syncStudentsToCosmos", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
 /** EDIT /be/leads */
 export async function editTeacherSchedule(options?: { [key: string]: any }) {
   return request<any>("/be/leads", {
     method: "POST",
     ...(options || {}),
+  });
+}
+
+/** GET /be/leads */
+export async function getAvailableStudentIds(data: {
+  schoolId: string;
+  count?: number;
+}) {
+  return request<any>("/be/getAvailableStudentIds", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: data,
   });
 }
 
@@ -384,7 +406,7 @@ export async function getIndividualBatch(
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>(`/be/listBatch/${rowid}`, {
+  return request<API.RuleList>(`/be/listBatch/${encodeURIComponent(rowid)}`, {
     method: "GET",
     params: {
       ...params,
@@ -407,6 +429,7 @@ export async function listBatch(
     classStartDate?: string;
     excludedTeacher?: string;
     offlineBatch?: number;
+    schoolId?: string;
   },
   options?: { [key: string]: any }
 ) {
@@ -468,6 +491,14 @@ export async function getTeacherLessons(
 //ADD A NEW BATCH -POST,EDIT EXISTING BATCH -POST
 export async function addeditbatch(options?: { [key: string]: any }) {
   return request<any>("/be/createBatch", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+//Bulk reassign of students to another batch
+export async function bulkReBatchStudents(options?: { [key: string]: any }) {
+  return request<any>("/be/bulkReBatchStudents", {
     method: "POST",
     ...(options || {}),
   });

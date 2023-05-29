@@ -1,8 +1,9 @@
-import { getRepository, Not, IsNull } from "typeorm";
+import { getRepository, Not, IsNull, createQueryBuilder } from "typeorm";
 import { User } from "../entity/User";
 import { generateRandomCode } from "./../utils/batch/getUniqueTeacherCode";
 import axios from "axios";
 import { isNullOrUndefined } from "util";
+import { Student } from "../entity/Student";
 const { usersLogger } = require("../Logger.js");
 
 export class UserService {
@@ -79,16 +80,19 @@ export class UserService {
     }
   }
 
-  async generateUsersCode(): Promise<any> {
+  async generateUsersCode(data?:{ id:string, cosmosSync:boolean }): Promise<any> {
+    const doCosmosSync = !(data.cosmosSync === false)
     const result = {
       success: 0,
       error: 0,
       log: [],
     };
     try {
-      const users = await this.usersRepository.find({
-        where: { userCode: IsNull() },
-      });
+      const users:any = await createQueryBuilder(User, "user")
+      .select("*")
+      .leftJoinAndSelect(Student, "student", "student.id = user.id")
+      .where("user.userCode IS NULL")
+      .getMany();
 
       for (let user of users) {
         try {
@@ -98,7 +102,7 @@ export class UserService {
 
           const code = await this.getUniqueCode();
           user.userCode = code;
-          const cosmosUpdate = {
+          const cosmosUpdate:any = {
             url: `${process.env.COSMOS_URL}/api/user/?code=${process.env.COSMOS_CODE}`,
             json: true,
             body: {
@@ -109,10 +113,17 @@ export class UserService {
               firstName: user.firstName,
               lastName: user.lastName,
               phoneNumber: user.phoneNumber,
-              isAdministrator: false,
+              isAdministrator: false
             },
           };
 
+          if(user.studentID && user.password){
+            cosmosUpdate.body.studentID = user.studentI;
+            cosmosUpdate.body.password = user.password;
+          }
+
+          // Do cosmos sync when its enabled or when its not enabled and id that passed as arg is not same as any other user id.
+          if(doCosmosSync || (user?.id !== data?.id)) {
           await axios
             .put(cosmosUpdate.url, cosmosUpdate.body)
             .then(async (res) => {
@@ -126,6 +137,11 @@ export class UserService {
                 "Failed to update user on cosmos " + error.response.data
               );
             });
+          } else {
+            // When cosmosSync is false
+            await this.usersRepository.update(user.id, user);
+            result.success += 1;
+          }
         } catch (e) {
           result.error += 1;
           usersLogger.error(e.message);

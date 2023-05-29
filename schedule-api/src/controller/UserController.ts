@@ -16,6 +16,8 @@ import { BatchController } from "./BatchController";
 import { Status } from "../helpers/Constants";
 import Referrer from "../model/Referrer";
 import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
+import { SchoolService } from "../services/SchoolService";
+import { getRandomNumber } from "../helpers";
 
 export class UserController {
 
@@ -25,6 +27,7 @@ export class UserController {
     private lessonRepository = getRepository(Lesson);
     private studentService = new StudentService();
     private teacherService = new TeacherService();
+    private schoolService = new SchoolService();
     private userService = new UserService();
     private batchService = new BatchService();
     private batchController = new BatchController();
@@ -35,14 +38,15 @@ export class UserController {
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         this.studentService.request = request;
+        request.query.cosmosSync = request.query?.cosmosSync !== "false";
+        request.query.ignoreDuplicateCheck = request.query?.ignoreDuplicateCheck === "true"
 
         usersLogger.info('Start::UserController::SaveLead');
         usersLogger.info(`Request data ${JSON.stringify(request.body)}`);
 
-        request.query.ignoreDuplicateCheck = request.query?.ignoreDuplicateCheck === "true"
         const ignoreDuplicateCheck = request.query.ignoreDuplicateCheck
 
-        if (!ignoreDuplicateCheck && !request.body.isSibling && !request.body.offlineStudentCode) {
+        if (!ignoreDuplicateCheck && !request.body.isSibling && !request.body.offlineStudentCode && request.body.phoneNumber) {
             const userExists = await (new UserService()).isUserNotSiblingExists("phoneNumber", request.body.phoneNumber, request.body.id);
             if (userExists) {
                 usersLogger.info(`User With That Number Was Found ${userExists?.id}`);
@@ -54,20 +58,67 @@ export class UserController {
 
         try {
             if (request.body.type === 'student') {
+                if (!request.body.id) {
+                    const isDuplicate = (a: any, b: any, column: string) => {
+                      return (
+                        a[column] && b[column] && a[column].trim() === b[column].trim()
+                      );
+                    };
+          
+                    const alreadyExistsQuery = `
+                          SELECT * FROM user
+                          WHERE user.firstName LIKE '%${request.body.firstName}%' AND
+                          user.lastName LIKE '%${request.body.lastName}%' AND
+                          user.middleName LIKE '%${request.body.middleName}%'
+                      `;
+                    let similarUserData = await getManager().query(alreadyExistsQuery);
+                    similarUserData = await Promise.all(
+                      similarUserData.map(async (user) => {
+                        const query = `SELECT classSection FROM student WHERE id = '${user.id}'`;
+                        const studentData = await getManager().query(query);
+                        if (
+                          studentData.length > 0 &&
+                          studentData[0].classSection &&
+                          studentData[0].classSection !== "-"
+                        )
+                          return { ...user, classSection: studentData[0].classSection };
+                        return user;
+                      })
+                    );
+                    if (similarUserData.length > 0) {
+                      const similarStudent = similarUserData.find((user) => {
+                        return (
+                          isDuplicate(request.body, user, "classSection") &&
+                          isDuplicate(request.body, user, "firstName") &&
+                          isDuplicate(request.body, user, "lastName") &&
+                          isDuplicate(request.body, user, "middleName")
+                        );
+                      });
+                      if (similarStudent) {
+                        return {
+                          status: 400,
+                          errors: [
+                            "Student already exists with given Firstname, Lastname, Middle name and Class Section",
+                          ],
+                        };
+                      }
+                    }
+                    if(!request?.body?.studentID && request?.body?.schoolId){
+                        request.body.studentID = await (await this.schoolService.getAvailableStudentIds({schoolId: request.body.schoolId, count: 1})).data[0]
+                    }
+                    if(!request?.body?.password && request?.body?.schoolId) {
+                        request.body.password = getRandomNumber(6)
+                    }
+                }
                 let oldStudentDataQuery = `SELECT * FROM student where id = '${request.body.id}'`;
                 let oldStudentData = await getManager().query(oldStudentDataQuery);
                 // TODO: Reuse studentService Object.
-                const leadIDExists = await (new StudentService()).isLeadIDExists("studentID", request.body.studentID, request.body.id);
 
                 if (request.body.status?.toLowerCase() === 'enrolled' || request.body.status === 'startclasslater') {
                     const validatingStudent = await (new validations()).validateStudent("StudentValidate", request.body, '', '');
                     if (validatingStudent.status == 'Error') {
                         return { status: 400, errors: [validatingStudent.message] };
                     }
-                }
-                if (leadIDExists) {
-                    usersLogger.info(`Student With That studentID Was Found ${leadIDExists?.id}`);
-                    return { status: 400, errors: ['Student already exists with given studentID'] };
                 }
                 if (oldStudentData.length > 0 && oldStudentData[0].status !== Status.INACTIVE && request.body.status === Status.INACTIVE) {
                     var addDateOfInactivationQuery = `Update student set dateOfInactivation = curdate() where id = '${request.body.id}'`
@@ -489,5 +540,21 @@ export class UserController {
             resp = { status: 400, error: error.message }
         }
         return resp;
+    }
+
+    async syncStudentsToCosmos(
+      request: Request,
+      response: Response,
+      next: NextFunction
+    ) {
+      let resp;
+      try {
+        usersLogger.info("Sync Student To Cosmos");
+        resp = await this.studentService.syncStudentsToCosmosDB(request.body);
+      } catch (error) {
+        usersLogger.error("Sync Student Payment Info Error: " + error.message);
+        resp = { status: 400, error: error.message };
+      }
+      return resp;
     }
 }

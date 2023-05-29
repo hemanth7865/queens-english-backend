@@ -1,4 +1,4 @@
-import { getRepository, getManager } from "typeorm";
+import { getRepository, getManager, Like } from "typeorm";
 import { School } from "../entity/School";
 import { SRA } from "../entity/SRA";
 import { Classes } from "../entity/Classes";
@@ -10,6 +10,9 @@ import { Student } from "../entity/Student";
 import { User } from "../entity/User";
 import { isNullOrUndefined } from "util";
 import { BatchService } from "./BatchService";
+import { getRandomNumber } from "../helpers";
+import { StudentService } from "./StudentService";
+const { logger } = require("../Logger.js");
 
 export class SchoolService {
     private schoolRepository = getRepository(School);
@@ -19,6 +22,7 @@ export class SchoolService {
     private studentRepository = getRepository(Student);
     private userRepository = getRepository(User);
     private batchService = new BatchService();
+    private studentService = new StudentService();
     public request: any = {};
 
     async getAllSra() {
@@ -233,11 +237,10 @@ export class SchoolService {
             let batch: any;
 
             if (!isNullOrUndefined(request.csv)) {
-                batch = await this.classesRepository.findOne({ where: { id: b } });
+                batch = await this.classesRepository.findOne({ where: [{ id: b },{ batchNumber: b }] });
             } else {
                 batch = await this.classesRepository.findOne({ where: { batchNumber: b } });
             }
-            const students = await this.batchStudentRepository.find({ where: { batchId: batch.id } });
             //Teacher Update
             await this.userRepository.update({ id: batch.teacherId }, { schoolId: request.saveSchool.id, schoolCode: request.saveSchool.schoolCode });
 
@@ -246,31 +249,39 @@ export class SchoolService {
             await this.classesRepository.save(batch);
 
             let studentsData: any;
-            let users: any;
 
-            if (students.length > 0) {
-                for (const s of students) {
-                    studentsData = await this.studentRepository.findOne({ where: { id: s.studentId } });
-                    if (studentsData) {
-                        studentsData.schoolId = request.saveSchool.id;
-                        await this.studentRepository.save(studentsData);
-                    }
-                    users = await this.userRepository.findOne({ where: { id: s.studentId } });
-                    if (users) {
-                        users.schoolId = request.saveSchool.id;
-                        users.schoolCode = request.saveSchool.schoolCode;
-                        await this.userRepository.save(users);
-                    }
-                }
+
+            // Updating Students Table
+            const studentsQuery = `SELECT student.id, student.studentId FROM  batch_students INNER JOIN student ON student.id = batch_students.studentId WHERE batch_students.batchId = '${batch.id}'`;
+            const students = await getManager().query(studentsQuery)
+            if (students && Array.isArray(students) && students.length > 0) {
+                const studentIds = students.map((e)=>`'${e.id}'`)
+                const studentUpdateQuery = `UPDATE student SET student.schoolId = '${request.saveSchool.id}' WHERE student.id IN (${studentIds.join(',')});`
+                try{
+                    await getManager().query(studentUpdateQuery)
+                }catch(error){}
+            }
+
+            // Updating Users Table
+            const usersQuery = `SELECT user.id FROM  batch_students INNER JOIN user ON user.id = batch_students.studentId WHERE batch_students.batchId = '${batch.id}'`;
+            const users = await getManager().query(usersQuery)
+            if (users && Array.isArray(users) && users.length > 0) {
+                const userIds = students.map((e)=>`'${e.id}'`)
+                const userUpdateQuery = `UPDATE user SET user.schoolId = '${request.saveSchool.id}', user.schoolCode = '${request.saveSchool.schoolCode}'  WHERE user.id IN (${userIds.join(',')});`
+                try{
+                    await getManager().query(userUpdateQuery)
+                }catch(error){}
             }
 
             let cosmosStudents = []
 
-            for (let user of students) {
-                cosmosStudents.push({
-                    value: user.studentId,
-                    type: 'studentProfile'
-                })
+            if (students.length > 0) {
+                for (let user of students) {
+                    cosmosStudents.push({
+                        value: user.studentId,
+                        type: 'studentProfile'
+                    })
+                }
             }
             try {
                 const cosmosData = {
@@ -356,6 +367,144 @@ export class SchoolService {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    async getAvailableStudentIds(request: { schoolId: string; count?: number }) {
+        let { schoolId, count } = request;
+        if (!schoolId || schoolId?.trim() === "") {
+          return {
+            success: false,
+            errorMessage: "Please provide schoolId",
+          };
+        }
+    
+        if (!count) count = 1;
+    
+        const school = await this.schoolRepository.findOne({
+          where: { id: schoolId },
+        });
+        if (!schoolId) {
+          return {
+            success: false,
+            errorMessage: "School does not exists with provided schoolId",
+          };
+        }
+    
+        const existingStudentIds = await this.studentRepository.find({
+          select: ["studentID"],
+          where: {
+            studentID: Like(`${school.schoolCode}____`),
+          },
+        });
+    
+        const result = [];
+        const existingIDSet = new Set(existingStudentIds.map((e) => e.studentID));
+    
+        let i = 1;
+        while (result.length < count && i <= 9999) {
+          const newID: any = `${school.schoolCode}${i.toString().padStart(4, "0")}`;
+          if (!existingIDSet.has(newID)) {
+            result.push(newID);
+          }
+          i++;
+        }
+    
+        return {
+          success: true,
+          data: result,
+        };
+      }
+
+    async updateStudentIdsToNewFormat(schoolCode: string) {
+        if(!schoolCode || schoolCode?.trim() === ''){
+            return {
+                success: false,
+                message: "Please provide a valid school code"
+            }
+        }
+        let updatedStudents = [];
+        let errors = [];
+
+        // Fetching all schools
+        let schoolResponse: any = await this.schoolRepository.find({
+            select: ["id", "schoolCode"],
+            where: {
+                schoolCode: schoolCode
+            }
+        });
+
+        if (schoolResponse.length === 0) {
+            return {
+                success: false,
+                message: "Please provide a valid school code"
+            }
+        }
+
+        const school = schoolResponse[0]
+
+        // Fetching all students linked with this school
+        const studentQuery = `SELECT student.* FROM batch_students
+        INNER JOIN classes ON batch_students.batchId = classes.id
+        INNER JOIN student ON batch_students.studentId = student.id
+        WHERE classes.schoolId = "${school.id}"`;
+
+        let studentsData = await getManager().query(studentQuery);
+        if (studentsData.length > 0 ) {
+            //   Fetching available ids
+            let availableStudentIds: any = [];
+            try {
+                const response = await this.getAvailableStudentIds({
+                    schoolId: school.id,
+                    count: studentsData.length,
+                });
+                if (response.success === false) throw new Error(response.errorMessage);
+                availableStudentIds = response.data;
+            } catch (error) {
+                errors.push(error.message);
+            }
+
+            let idCount = 0;
+            for (const student of studentsData) {
+                // Checking if we don't have any incorrect student to update
+                if (
+                    !student.id ||
+                    (student.studentID &&
+                    student.studentID?.startsWith(school.schoolCode))
+                ) {
+                    continue;
+                }
+                const updatedStudentId = availableStudentIds[idCount];
+                const password = getRandomNumber(6)
+                idCount += 1;
+
+                let user:any = await this.userRepository.findOne({
+                    where: {
+                        id: student.id
+                    }
+                });
+
+                user = {...user, studentID: updatedStudentId, password: password}
+                delete user.studentId
+
+                try {
+                    await this.studentService.saveStudentDetails(user)
+                    updatedStudents.push({
+                        id: student.id,
+                        previousStudentId: student.studentID,
+                        updatedStudentId: updatedStudentId,
+                    });
+                } catch (error) {
+                    logger.error(`While Converting studentId to new format : School : ${school.schoolCode} : Student Id : ${user.id}`, error)
+                }
+            }
+        }
+
+        return {
+            success: true,
+            total: updatedStudents.length,
+            updatedStudents,
+            errors,
+        };
     }
 
 }

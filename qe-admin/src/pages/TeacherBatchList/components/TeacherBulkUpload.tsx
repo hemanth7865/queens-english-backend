@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { addTeacherSchedule, listSchool } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 import { csvToArray } from '@/services/ant-design-pro/helpers';
+import { SPREADSHEETS } from '../../../../config/constants';
 
 const TeacherBulkUpload = () => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
@@ -231,6 +232,10 @@ const TeacherBulkUpload = () => {
                 </code>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
+
+                <Button target='_blank' href={SPREADSHEETS.TEACHER_BULK_UPLOAD} type="dashed" htmlType="submit" style={{ fontWeight: 'bold', margin: "3px" }}>
+                    Open Teacher Bulk Upload spreadsheet format.
+                </Button>
 
                 <br />
                 <Select

@@ -41,6 +41,9 @@ import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
 import ProDescriptions from "@ant-design/pro-descriptions";
 import type { FormValueType } from "./components/UpdateForm";
 import UpdateForm from "./components/UpdateForm";
+import UploadStudentsBulkWithoutRMN from '../StudentList/components/UploadStudentsBulkWithoutRMN';
+import AddUser from '../StudentList/components/AddUser';
+
 import {
   isPossiblePhoneNumber,
   isValidPhoneNumber,
@@ -78,6 +81,7 @@ import access from "@/access";
 import { AlignType } from 'rc-table/lib/interface';
 import Tabsedit from "@/components/Formedit/tabs";
 import HistoryTable from "@/components/HistoryTab/tableView";
+import ReBatch from "@/components/Student/rebatch";
 
 const { TabPane } = Tabs;
 
@@ -99,6 +103,13 @@ const StudentsBatchList: React.FC = () => {
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [visibleHistoryTab, setVisibleHistoryTab] = useState<boolean>(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedStudentData, setSelectedStudentData] = useState<any>()
+  const [reassignModal, setReassignModal] = useState<boolean>(false);
+
+  const showReassignBatchModal = () => {
+    setReassignModal(true)
+  }
 
   //add drawer
   const showDrawer = () => {
@@ -107,6 +118,7 @@ const StudentsBatchList: React.FC = () => {
     setstudentManageredit(false);
   };
   const onClose = () => {
+    setReassignModal(false);
     setVisible(false);
     seteditvisible(false);
   };
@@ -136,6 +148,17 @@ const StudentsBatchList: React.FC = () => {
         />
       ),
       dataIndex: 'name',
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.searchTable.schoolName"
+          defaultMessage="School Name"
+        />
+      ),
+      dataIndex: 'schoolName',
+      hideInTable: url.toString().indexOf('/school/') < 0,
+      // hideInSearch: true,
     },
     {
       title: (
@@ -175,6 +198,7 @@ const StudentsBatchList: React.FC = () => {
         />
       ),
       dataIndex: 'id',
+      hideInTable: url.toString().indexOf('/school/') >= 0,
       copyable: true,
       // hideInSearch: true,
     },
@@ -206,6 +230,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Age"
         />
       ),
+      hideInTable: url.toString().indexOf('/school/') >= 0,
       dataIndex: 'age',
       //hideInSearch: true,
     },
@@ -376,22 +401,66 @@ const StudentsBatchList: React.FC = () => {
               accessible={access.canSuperAdmin}
               fallback={<div> </div>}
             >
+              {url.toString().indexOf('/school/') >= 0 &&
+                <>
+                  <Button type="primary" key="primary" style={{ marginRight: '5px' }}
+                    disabled={selectedRowKeys.length === 0}
+                    onClick={showReassignBatchModal}
+                    onChange={setstudentManageradd(true)}>
+                    Re-Batch Student
+                  </Button>
+
+                  <UploadStudentsBulkWithoutRMN />,
+                </>
+              }
+
               <Button type="primary" key="primary" onClick={showDrawer} onChange={setstudentManageradd(true)}>
                 Add Student
               </Button>
             </Access>
           </div>,
-          <Drawer
-            title="Add Student"
-            placement="right"
-            onClose={onClose}
-            visible={visible}
-            width={1100}
-            destroyOnClose
-          >
-            <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
-          </Drawer>
+          <>
+            <Drawer
+              title="Add Student"
+              placement="right"
+              onClose={onClose}
+              visible={visible}
+              width={1100}
+              destroyOnClose
+            >
+              {url.toString().indexOf('/school/') >= 0 ?
+                <AddUser setVisible={setVisible} offlineUser={true} userType={"student"} />
+                : <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
+              }
+            </Drawer>
+
+            <Drawer
+              title="Re-Batch Student"
+              placement="right"
+              onClose={onClose}
+              visible={reassignModal}
+              width={1100}
+              destroyOnClose
+            >
+              <ReBatch selectedStudentData={selectedStudentData} reassignModal={reassignModal}/>
+            </Drawer>
+          </>
         ]}
+        rowKey={(record) => record.id}
+        pagination={{ position: ['topRight', 'bottomRight'] }}
+        //the checkbox
+        rowSelection={{
+          getCheckboxProps: () => {
+            if (url.toString().indexOf('/school/') < 0) {
+              return {disabled: true}
+            }
+          },
+          preserveSelectedRowKeys: true,
+          onChange: (selectedRows, record) => {
+            setSelectedRowKeys(selectedRows);
+            setSelectedStudentData(record);
+          },
+        }}
       />
 
       <Spin spinning={isLoading}>

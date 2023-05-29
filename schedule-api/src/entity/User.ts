@@ -1,6 +1,15 @@
 import {
-    Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn,
-    ManyToOne, OneToOne, JoinColumn, BaseEntity, OneToMany, PrimaryColumn
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+  BaseEntity,
+  OneToMany,
+  PrimaryColumn,
 } from "typeorm";
 import { Status } from "./Status";
 import { Nationality } from "./Nationality";
@@ -29,6 +38,8 @@ export class User extends BaseEntity {
   firstName: string;
   @Column("text")
   lastName: string;
+  @Column("text")
+  middleName: string;
   @Column({ nullable: true })
   gender: string;
   @Column({ nullable: true })

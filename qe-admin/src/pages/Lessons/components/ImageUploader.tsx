@@ -44,6 +44,10 @@ const ImageUploader = (props: ImageUploaderProps) => {
     };
 
     const uploadImages = async (e: any) => {
+        if (e.target.files[0].size > 102400) {
+            alert("Please upload an image of less than 100 KB");
+            return;
+        }
         if (e.target.files.length > 0) {
             notification.warning({
                 message: "Uploading Your Images",
