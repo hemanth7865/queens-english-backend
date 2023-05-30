@@ -251,7 +251,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 }
 
                 const isDuplicate = (a: any, b: any, column: string) => {
-                    return a[column] && b[column] && a[column].trim() === b[column].trim()
+                    if (!a[column] && !b[column]) return true;
+                    return a[column].trim() === b[column].trim()
                 }
 
                 setStatusMessage("Finding Duplicate Students within CSV...")
@@ -303,6 +304,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             status: "active",
                             // offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
+                            isSibling: 1,
                             offlineUser: 1,
                             batchCode: `${selectedSchool.schoolCode}${student["Class section"]}`,
                             loginCode,
