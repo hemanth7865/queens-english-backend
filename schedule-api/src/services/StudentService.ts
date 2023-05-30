@@ -916,7 +916,7 @@ export class StudentService {
         await userSerivce.generateUsersCode({ id, cosmosSync });
       }
 
-      return { ...user };
+      return { ...user, ...student };
     } catch (error) {
       console.log(error);
       return { status: 500, error: "Unable to register student" };

@@ -353,7 +353,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 for (const studentAdded of studentsAdded) {
                     studentsUploaded.filter((student) => {
-                        if (student.phoneNumber == studentAdded.phoneNumber) {
+                        if (student.studentID == studentAdded.studentID) {
                             finalStudentsIds.push(studentAdded.id);
                             studentsFinal.push({ ...student, id: studentAdded.id });
                         }
