@@ -144,7 +144,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                                 ageGroup: "",
                                 batchAvailability: [{}],
                                 offlineBatch: 1,
-                                schoolId: selectedSchool
+                                schoolId: selectedSchool.id
                             }
                             const res = await addeditbatch({
                                 headers: {
@@ -242,7 +242,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 let availableStudentIds = [];
                 let currentIndex = 0;
                 try {
-                    const response = await getAvailableStudentIds({ schoolId: selectedSchool, count: data.length })
+                    const response = await getAvailableStudentIds({ schoolId: selectedSchool.id, count: data.length })
                     if (response.success === false) throw new Error(response.errorMessage)
                     availableStudentIds = response.data;
                 } catch (error: any) {
@@ -251,7 +251,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 }
 
                 const isDuplicate = (a: any, b: any, column: string) => {
-                    return a[column] && b[column] && a[column].trim() === b[column].trim()
+                    if (!a[column] && !b[column]) return true;
+                    return a[column].trim() === b[column].trim()
                 }
 
                 setStatusMessage("Finding Duplicate Students within CSV...")
@@ -303,11 +304,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                             status: "active",
                             // offlineStudentCode: student["Dummy number"],
                             preventAppAccess: 0,
+                            isSibling: 1,
                             offlineUser: 1,
-                            batchCode: `${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`,
+                            batchCode: `${selectedSchool.schoolCode}${student["Class section"]}`,
                             loginCode,
                             studentID: availableStudentIds[currentIndex],
-                            schoolId: selectedSchool,
+                            schoolId: selectedSchool.id,
                             password: getRandomNumber()
                         };
                         if (!studentData.email || (studentData?.email && studentData?.email?.trim() === '')) {
@@ -321,7 +323,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                         studentsUploaded.push(studentData);
                         if (student["Class section"]) {
-                            batches.push(`${(schools.find((school) => school.id = selectedSchool)).schoolCode}${student["Class section"]}`);
+                            batches.push(`${selectedSchool.schoolCode}${student["Class section"]}`);
                         }
                         const res = await addUserSchedule({
                             headers: {
@@ -351,7 +353,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
                 for (const studentAdded of studentsAdded) {
                     studentsUploaded.filter((student) => {
-                        if (student.phoneNumber == studentAdded.phoneNumber) {
+                        if (student.studentID == studentAdded.studentID) {
                             finalStudentsIds.push(studentAdded.id);
                             studentsFinal.push({ ...student, id: studentAdded.id });
                         }
@@ -416,7 +418,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 if (!!selectedSchool && batches.length > 0 && studentsFinal.length > 0) {
                     setStatusMessage(`Linking batches to school .... `)
                     const batchesToAdd = [...new Set(batches)]
-                    const school = schools.find(obj => obj.id === selectedSchool);
+                    const school = schools.find(obj => obj.id === selectedSchool.id);
                     const data = {
                         batchesToSave: batchesToAdd,
                         saveSchool: school,
@@ -542,9 +544,12 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 }}>Create Batch if Not Exists.</Checkbox>
                 <Select
                     placeholder="Select School"
-                    onChange={(value) => setSelectedSchool(value)}
-                    value={selectedSchool}
-                    defaultValue={selectedSchool}
+                    onChange={(value) => {
+                        const selectedSchool = schools.find((s) => s.id === value);
+                        setSelectedSchool(selectedSchool);
+                    }}
+                    value={selectedSchool ? selectedSchool.id : undefined}
+                    defaultValue={selectedSchool ? selectedSchool.id : undefined}
                     showSearch
                     style={{ margin: "3px", display: "block" }}
                     allowClear
@@ -553,8 +558,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     optionFilterProp='label'
                     disabled={props.disableDropdown}
                     loading={schoolsLoading}
-                >
-                </Select>
+                />
+
                 <form id="uploadForm" action="/be/csv/collection-agents/bulk-assignment" target="_blank" method="post" encType="multipart/form-data" onSubmit={handleUpload}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <input type="file" name="agents" required id="file" />
