@@ -15,6 +15,8 @@ const TeacherBulkUpload = () => {
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
 
+    const url = new URL(window.location.href);
+
     //Role Based Access
     const access = useAccess();
 
@@ -112,7 +114,8 @@ const TeacherBulkUpload = () => {
                             photo: "",
                             startDate: "",
                             type: "teacher",
-                            whatsapp: ""
+                            whatsapp: "",
+                            offlineUser: url.toString().indexOf('/school/') >= 0 ? "1" : "0"
                         }
 
                         if (selectedSchool) {
