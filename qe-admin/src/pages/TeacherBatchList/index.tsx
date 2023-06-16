@@ -928,9 +928,9 @@ const TeacherBatchList: React.FC = () => {
         columns={columns}
         toolBarRender={() => [
           <TeacherBulkUpload />,
-          <Button type="primary" key="primary" onClick={showDrawer}>
-            Add Teacher
-          </Button>,
+          // <Button type="primary" key="primary" onClick={showDrawer}>
+          //   Add Teacher
+          // </Button>,
           <Drawer
             title="Add Teacher"
             placement="right"
