@@ -398,7 +398,7 @@ const StudentsBatchList: React.FC = () => {
         toolBarRender={() => [
           <div>
             <Access
-              accessible={access.canSuperAdmin}
+              accessible={(access.canSuperAdmin || access.canProgramManager)}
               fallback={<div> </div>}
             >
               {url.toString().indexOf('/school/') >= 0 &&
@@ -442,7 +442,7 @@ const StudentsBatchList: React.FC = () => {
               width={1100}
               destroyOnClose
             >
-              <ReBatch selectedStudentData={selectedStudentData} reassignModal={reassignModal}/>
+              <ReBatch selectedStudentData={selectedStudentData} reassignModal={reassignModal} />
             </Drawer>
           </>
         ]}
@@ -452,7 +452,7 @@ const StudentsBatchList: React.FC = () => {
         rowSelection={{
           getCheckboxProps: () => {
             if (url.toString().indexOf('/school/') < 0) {
-              return {disabled: true}
+              return { disabled: true }
             }
           },
           preserveSelectedRowKeys: true,

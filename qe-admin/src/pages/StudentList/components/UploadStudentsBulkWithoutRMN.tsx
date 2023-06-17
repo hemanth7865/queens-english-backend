@@ -452,7 +452,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
     return (
         <>
-            {access.canSuperAdmin && (
+            {(access.canSuperAdmin || access.canProgramManager) && (
                 <>
                     {props.uploadButtonStyle ? (
                         <Button

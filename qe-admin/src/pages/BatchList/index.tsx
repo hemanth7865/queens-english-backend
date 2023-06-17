@@ -744,7 +744,7 @@ const BatchList: React.FC = () => {
             labelWidth: 120,
           }}
           toolBarRender={() => [
-            access.canSuperAdmin ? <BulkUploadBatchesOfSchool /> : <></>,
+            (access.canSuperAdmin || access.canProgramManager) ? <BulkUploadBatchesOfSchool /> : <></>,
             <Button
               type="primary"
               key="primary"
