@@ -161,7 +161,7 @@ const TeacherBulkUpload = () => {
 
     return (
         <>
-            {(access.canSuperAdmin || access.canProgramManager) && (
+            {(access.canSuperAdmin || access.canProgramManager || access.canPMHead) && (
                 <Button
                     type="primary"
                     key="primary"

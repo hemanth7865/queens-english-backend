@@ -398,7 +398,7 @@ const StudentsBatchList: React.FC = () => {
         toolBarRender={() => [
           <div>
             <Access
-              accessible={(access.canSuperAdmin || access.canProgramManager)}
+              accessible={(access.canSuperAdmin || access.canProgramManager || access.canPMHead)}
               fallback={<div> </div>}
             >
               {url.toString().indexOf('/school/') >= 0 &&
