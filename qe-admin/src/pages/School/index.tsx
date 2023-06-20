@@ -212,15 +212,15 @@ const SchoolList: React.FC<SchoolListProps> = () => {
                 request={listSchool}
                 columns={columns}
                 toolBarRender={() => [
-                    <Button
-                        type="primary"
-                        key="primary"
-                        onClick={() => {
-                            setCreate({ operation: 'create' });
-                        }}
-                    >
-                        <PlusOutlined /> Add School
-                    </Button>,
+                    // <Button
+                    //     type="primary"
+                    //     key="primary"
+                    //     onClick={() => {
+                    //         setCreate({ operation: 'create' });
+                    //     }}
+                    // >
+                    //     <PlusOutlined /> Add School
+                    // </Button>,
                     <Button
                         type="primary"
                         key="primary"

@@ -13,5 +13,6 @@ export default function access(initialState: {
     canTeacher: currentUser?.role == "teacher",
     canZoomManage: currentUser?.role == "zoom",
     canProgramManager: currentUser?.role == "programmanager",
+    canPMHead: currentUser?.role == "pmhead"
   };
 }
