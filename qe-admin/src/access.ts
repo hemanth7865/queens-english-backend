@@ -9,7 +9,7 @@ export default function access(initialState: {
     canAdmin: currentUser?.role == "admin",
     canSuperAdmin: currentUser?.role == "superadmin",
     canManage:
-      currentUser?.role == "admin" || currentUser?.role == "superadmin" || currentUser?.role == "programmanager",
+      currentUser?.role == "admin" || currentUser?.role == "superadmin" || currentUser?.role == "programmanager" || currentUser?.role == "pmhead",
     canTeacher: currentUser?.role == "teacher",
     canZoomManage: currentUser?.role == "zoom",
     canProgramManager: currentUser?.role == "programmanager",
