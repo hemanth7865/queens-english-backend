@@ -115,6 +115,14 @@ const SchoolList: React.FC<SchoolListProps> = () => {
                 />
             ),
             dataIndex: "poc",
+            render: (dom, entity:any) => {
+                return (
+                    <div>
+                        {(entity?.poc && Array.isArray(entity?.poc)) ? entity?.poc?.map((poc:any) => <span>{poc?.name} - {poc?.phoneNumber}</span>) : <></>}
+                    </div>
+
+                );
+            },
         },
         {
             title: (

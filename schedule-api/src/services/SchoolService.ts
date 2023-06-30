@@ -163,6 +163,7 @@ export class SchoolService {
             if (element.state) location += ', ' + element.state
             if (element.city) location += ', ' + element.city
 
+            element.poc = (element?.poc && element?.poc.includes("[")) ? JSON.parse(element?.poc) : element?.poc ? [{name: element.poc, phoneNumber: ""}] : [{name: "", phoneNumber: ""}];
             let s = new SchoolView(
                 element.id,
                 element.schoolId,
@@ -170,7 +171,7 @@ export class SchoolService {
                 element.schoolCode,
                 element.locationCode,
                 element.poc,
-                sra.name,
+                sra?.name,
                 sra,
                 classes,
                 classesData,
@@ -335,7 +336,7 @@ export class SchoolService {
             school.schoolId = request.schoolCode + (request.locationCode ?? '');
             school.sraId = request.sraId;
             school.schoolStatus = request.schoolStatus;
-            school.poc = request.poc;
+            school.poc = Array.isArray(request?.poc) ? JSON.stringify(request?.poc) : request.poc;
             school.country = request.country;
             school.state = request.state;
             school.city = request.city;

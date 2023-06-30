@@ -7,7 +7,7 @@ export class SchoolView {
   schoolName?: string;
   schoolCode: string;
   locationCode: string;
-  poc?: string;
+  poc?: any;
   sraName?: string;
   sra?: SRA;
   classes?: Classes[];
@@ -23,7 +23,7 @@ export class SchoolView {
     schoolName?: string,
     schoolCode?: string,
     locationCode?: string,
-    poc?: string,
+    poc?: any,
     sraName?: string,
     sra?: SRA,
     classes?: Classes[],
