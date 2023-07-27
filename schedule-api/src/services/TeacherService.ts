@@ -523,13 +523,13 @@ export class TeacherService {
   }
 
   async listLeadDetails(data: any, parameters: any) {
-    var results: User[] = [];
-    var leadView: LeadView[] = [];
-    var map = new Map();
-    var batchSerivce = new BatchService();
-    var leadTem: Teacher[] = [];
-    var filter = false;
-    var parametersList = [];
+    let results: User[] = [];
+    const leadView: LeadView[] = [];
+    const map = new Map();
+    const batchSerivce = new BatchService();
+    const leadTem: Teacher[] = [];
+    let filter = false;
+    const parametersList = [];
 
     map.set(0, "Sun");
     map.set(1, "Mon");
@@ -539,14 +539,11 @@ export class TeacherService {
     map.set(5, "Fri");
     map.set(6, "Sat");
 
-    var offset = parameters.current;
-    var current = offset;
-    var limit = parameters.pageSize;
-    if (offset == 1) {
-      offset = 0;
-    }
+    let offset = parameters.current;
+    const current = offset;
+    const limit = parameters.pageSize;
 
-    let query_list = [];
+    const query_list = [];
     let query_string = "";
     console.log(parameters);
     const date = parameters.date;
@@ -585,28 +582,28 @@ export class TeacherService {
       console.log("offlineUser ", offlineUser);
     }
 
-    var totalexp = parameters.totalexp;
+    let totalexp = parameters.totalexp;
     if (totalexp) {
       totalexp = parseFloat(totalexp);
       query_string = query_string + ` and le.totalexp =${totalexp} `;
       query_list.push(` le.totalexp =${totalexp} `);
     }
 
-    var classesTaken = parameters.classesTaken;
+    let classesTaken = parameters.classesTaken;
     if (classesTaken) {
       classesTaken = parseInt(classesTaken);
       query_string = query_string + ` and le.classestaken=${classesTaken} `;
       query_list.push(` le.classestaken=${classesTaken} `);
     }
 
-    var status = parameters.status;
+    const status = parameters.status;
     if (status) {
       //  status = parseInt(status);    
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
 
-    var studentID = parameters.studentID;
+    const studentID = parameters.studentID;
 
     if (studentID) {
       //  status = parseInt(status);    
@@ -614,14 +611,14 @@ export class TeacherService {
       query_list.push(` u.status like '${status}' `);
     }
 
-    var batchID = parameters.batchID;
+    const batchID = parameters.batchID;
     if (status) {
       //  status = parseInt(status);    
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
 
-    var ratings = parameters.ratings;
+    let ratings = parameters.ratings;
     if (ratings) {
       ratings = parseInt(ratings);
       query_string = query_string + ` and le.ratings =${ratings} `;
@@ -630,7 +627,7 @@ export class TeacherService {
 
     const keyword = parameters.keyword;
     let query_search: string;
-    if (!!keyword?.length) {
+    if (keyword?.length) {
       query_search = ` (u.firstName like '%${keyword}%' or u.lastName like '%${keyword}%' or u.phoneNumber like '%${keyword}%' )`;
     }
 
@@ -640,10 +637,10 @@ export class TeacherService {
       query_list.push(` s.schoolName like '%${schoolName}%'`);
     }
 
-    var start_slot = parameters.start_slot;
-    var end_slot = parameters.end_slot;
+    let start_slot = parameters.start_slot;
+    let end_slot = parameters.end_slot;
 
-    var week_day = parameters.weekday;
+    let week_day = parameters.weekday;
     if (!week_day) {
       week_day = `1,2,3,4,5,6,7`;
     }
@@ -652,21 +649,21 @@ export class TeacherService {
     let startMin;
     let endMin;
     if (start_slot) {
-      let time = start_slot.split(":");
+      const time = start_slot.split(":");
       start_slot = time[0];
       console.log("time is ", time);
       start_min = time[1];
       startMin = time[0] * 60 + time[1];
     }
     if (end_slot) {
-      let time = end_slot.split(":");
+      const time = end_slot.split(":");
       end_slot = time[0];
       console.log("time is ", time);
       end_min = time[1];
       endMin = time[0] * 60 + time[1];
     }
 
-    var unique = [-1];
+    const unique = [-1];
     console.log(`query string ${query_list}`);
 
     if (start_slot && end_slot) {
@@ -679,7 +676,7 @@ export class TeacherService {
       );
       console.log("elements", slotsResultIds);
       let idsList = [];
-      for (let element of slotsResultIds) {
+      for (const element of slotsResultIds) {
         idsList = [...idsList, "'" + element + "'"];
       }
       usersLogger.info(`Finale query ids ${JSON.stringify(idsList)}`);
@@ -687,7 +684,7 @@ export class TeacherService {
       if (slotsResultIds.length > 0) {
         var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(",")})`;
         console.log("quer", quer);
-        let totalResult = await getManager().query(quer);
+        const totalResult = await getManager().query(quer);
         console.log("totalResult", totalResult);
         query_list.push(` u.id in (${idsList.join(",")})`);
       } else {
@@ -696,14 +693,14 @@ export class TeacherService {
     }
 
     if (parameters.autoSearch) {
-      var teacherIds = await batchSerivce.getBatchesWorkingTeachers(data, { lessonStartTime: parameters.start_slot, frequency: parameters.frequency });
+      const teacherIds = await batchSerivce.getBatchesWorkingTeachers(data, { lessonStartTime: parameters.start_slot, frequency: parameters.frequency });
       if (teacherIds.length > 0) {
         query_list.push(` u.id not in (${teacherIds.map(id => `'${id}'`).join(",")})`);
       }
     }
 
-    var finalQuery;
-    var total;
+    let finalQuery;
+    let total;
 
     if (query_list.length > 0) {
       query_string = " where ";
@@ -718,7 +715,7 @@ export class TeacherService {
       }
     });
 
-    if (!!query_search?.length) {
+    if (query_search?.length) {
       if (query_list.length === 0) {
         query_string += " where ";
       } else {
@@ -733,8 +730,12 @@ export class TeacherService {
 
     console.log("finalQuery", finalQuery);
     results = await getManager().query(finalQuery);
-    total = results.length ? results.length : 0;
-    console.log("results size", results.length);
+
+    const totalQuery = !parameters.type ? `select count(*) as total from user u ${query_string}` :
+    `select count(*) as total from user u left join teacher le on u.id=le.id left join school s on u.schoolId=s.id  ${query_string} ORDER BY u.updated_at DESC; `;
+
+    const totalRes = await getManager().query(totalQuery)
+    total = parseInt(totalRes[0]?.total)
 
     for (const element of results) {
       let slotsResult: any[] = [];
@@ -772,7 +773,7 @@ export class TeacherService {
       }
 
       var studentOrTeacherId = [];
-      var batchCode = '';
+      const batchCode = '';
 
       if (type == 'student') {
 
@@ -802,14 +803,14 @@ export class TeacherService {
       let batchStudents: any[] = [];
       let classesLength = classes.length + 1;
       for (const c of classes) {
-        let classObject: any[] = [];
+        const classObject: any[] = [];
         let studentArray: any[] = [];
         batchStudents = await this.batchStudentRepository.find({ where: { batchId: c.id } });
         let batchStudentlength = batchStudents.length + 1;
         for (const student of batchStudents) {
-          let user = await this.usersRepository.findOne({ where: { id: student.studentId } });
-          let s = await this.studentRepository.findOne({ where: { id: student.studentId } });
-          let studentObject: any[] = [];
+          const user = await this.usersRepository.findOne({ where: { id: student.studentId } });
+          const s = await this.studentRepository.findOne({ where: { id: student.studentId } });
+          const studentObject: any[] = [];
           studentObject.push({
             id: user.id,
             name: s?.studentName ?? user?.firstName + ' ' + user?.lastName,
@@ -832,7 +833,7 @@ export class TeacherService {
         } while (!--classesLength)
       }
 
-      var l = new LeadView(
+      const l = new LeadView(
         element.id,
         element.id,
         yourDate,
@@ -861,8 +862,8 @@ export class TeacherService {
       success: true,
       data: leadView,
       total: parseInt(total),
-      current: current,
-      pageSize: limit,
+      current: parseInt(current),
+      pageSize: parseInt(limit),
     };
   }
 
