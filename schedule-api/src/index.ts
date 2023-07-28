@@ -124,14 +124,3 @@ function authenticateAPIKey(req, res, next) {
 
   next();
 }
-
-/**
- * Connection to MongoDB
- */
-// (async () => {
-//   try {
-//     await mongoose.connect(process.env.MONGODB_URL, MONGOOSE_OPTIONS);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// })();
