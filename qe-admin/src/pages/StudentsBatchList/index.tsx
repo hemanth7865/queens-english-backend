@@ -211,7 +211,7 @@ const StudentsBatchList: React.FC = () => {
       ),
       dataIndex: 'studentID',
       copyable: true,
-      hideInSearch: true,
+      // hideInSearch: true,
     },
     {
       title: (
