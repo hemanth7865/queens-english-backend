@@ -542,6 +542,9 @@ export class TeacherService {
     let offset = parameters.current;
     const current = offset;
     const limit = parameters.pageSize;
+    if (offset > 0) {
+      offset--;
+    }
 
     const query_list = [];
     let query_string = "";
@@ -723,6 +726,9 @@ export class TeacherService {
       }
       query_string += query_search;
     }
+
+    console.log("OFFSET", offset)
+    console.log("LIMIT", limit)
 
     const limitQuery: string = ` LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)}`;
     finalQuery = !parameters.type ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.isSibling, u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} ${limitQuery} ` :
