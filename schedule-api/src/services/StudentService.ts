@@ -101,6 +101,10 @@ export class StudentService {
       console.log("user type ", type);
     }
 
+    if (parameters.schoolName) {
+      query_list.push(` sc.schoolName like '%${parameters.schoolName}%'  `);
+    }
+
     const offlineUser = parameters.offlineUser;
     if(offlineUser <= 1) {
       query_list.push(` u.offlineUser = ${offlineUser}  `);
@@ -118,11 +122,12 @@ export class StudentService {
     var StudentIds = [];
 
     if (parameters.batchCode) {
-      let bathCodeQuery = `SELECT u.id FROM user u join batch_students bs on bs.id = u.id
-      join classes cl on cl.id = bs.batchId
-      where cl.batchNumber like '%${parameters.batchCode}%'`;
+      const batchCodeQuery = `SELECT user.id FROM user 
+      LEFT JOIN batch_students on user.id = batch_students.studentId 
+      LEFT JOIN classes on classes.id = batch_students.batchId 
+      where classes.batchNumber like "%${parameters.batchCode}%";`
 
-      let ids = await getManager().query(bathCodeQuery);
+      let ids = await getManager().query(batchCodeQuery);
       for (let element of ids) {
         StudentIds.push(element.id);
       }
@@ -144,13 +149,9 @@ export class StudentService {
       query_list.push(` u.id in (${[...qIds].join(",")})`);
     }
 
-    let innerJoinPRM: string = "";
-    let PRMSelect: string = "";
     let PRMHaving: string = ``;
     if (prm) {
-      PRMHaving = ` HAVING prm_full_name LIKE '%${prm}%'`;
-      PRMSelect = ", concat(prm.firstName , ' ', prm.lastName) as prm_full_name";
-      innerJoinPRM = "INNER JOIN prm ON prm.id = s.prm_id";
+      query_list.push(` concat(prm.firstName , ' ', prm.lastName) like '%${prm}%' `);
     }
 
     query_list.forEach((value, index) => {
@@ -166,17 +167,17 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , " ", u.middleName, "  ", u.lastName) as name ${PRMSelect}, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
+    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , " ", u.middleName, "  ", u.lastName) as name, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
     u.lastName, u.phoneNumber, u.gender, u.offlineUser, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
     u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classSection, s.password, s.classType, s.age,
     CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,
     CONVERT_TZ(s.classesStartDate, @@session.time_zone, '+11:00') as classesStartDate, s.status as salestatus, s.onboardingIssueReason as onboardingIssueReason,
     s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
     s.salesDataFilled, s.reasonInSAV, s.enrollmentType, CONVERT_TZ(s.dateOfInactivation, @@session.time_zone, '+11:00') as dateOfInactivation, sc.schoolName as schoolName, sc.id as schoolId 
-    from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id ${innerJoinPRM} ${query_string} ${PRMHaving} 
+    from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id LEFT JOIN prm ON prm.id = s.prm_id ${query_string} ${PRMHaving} 
     ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
-    let totalQuery = `SELECT COUNT (*) as total ${PRMSelect} from user as u LEFT JOIN student as s ON s.id = u.id ${innerJoinPRM} ${query_string}`;
+    let totalQuery = `SELECT COUNT(*) as total from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id LEFT JOIN prm ON prm.id = s.prm_id ${query_string} ${PRMHaving} `;
 
     console.log(`query string ${query_list}`);
 
@@ -342,7 +343,7 @@ export class StudentService {
     return {
       success: true,
       data: leadView,
-      total: parseInt(total[0].total),
+      total: parseInt(total[0]?.total),
       current: current,
       pageSize: limit,
     };
