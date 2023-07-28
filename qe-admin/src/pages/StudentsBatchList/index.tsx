@@ -179,7 +179,7 @@ const StudentsBatchList: React.FC = () => {
       ),
       dataIndex: 'email',
       hideInTable: true,
-      copyable: true,
+      hideInSearch: true,
     },
     {
       title: (
@@ -200,7 +200,7 @@ const StudentsBatchList: React.FC = () => {
       dataIndex: 'id',
       hideInTable: url.toString().indexOf('/school/') >= 0,
       copyable: true,
-      // hideInSearch: true,
+      hideInSearch: true,
     },
     {
       title: (
@@ -211,7 +211,7 @@ const StudentsBatchList: React.FC = () => {
       ),
       dataIndex: 'studentID',
       copyable: true,
-      // hideInSearch: true,
+      hideInSearch: true,
     },
     {
       title: (
@@ -232,7 +232,7 @@ const StudentsBatchList: React.FC = () => {
       ),
       hideInTable: url.toString().indexOf('/school/') >= 0,
       dataIndex: 'age',
-      //hideInSearch: true,
+      hideInSearch: true,
     },
     {
       title: (
