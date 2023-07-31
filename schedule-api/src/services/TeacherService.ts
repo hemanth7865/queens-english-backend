@@ -542,6 +542,9 @@ export class TeacherService {
     let offset = parameters.current;
     const current = offset;
     const limit = parameters.pageSize;
+    if (offset > 0) {
+      offset--;
+    }
 
     const query_list = [];
     let query_string = "";
