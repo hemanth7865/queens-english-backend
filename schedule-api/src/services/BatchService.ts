@@ -203,7 +203,8 @@ export class BatchService {
           schoolCode: data.offlineBatch === 0 ? null : data.schoolCode,
           schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
           status: data.status,
-          useJsonLessonScript: data.useJsonLessonScript
+          useJsonLessonScript: data.useJsonLessonScript,
+          requestedUnlockedLessonNumber: data.requestedUnlockedLessonNumber || cosmosBatch.unlockedNumber
         },
       };
 

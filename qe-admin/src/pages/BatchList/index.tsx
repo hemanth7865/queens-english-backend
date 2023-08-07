@@ -77,6 +77,7 @@ const DEFAULT_FORM_DATA = {
   zoomLink: "",
   whatsappLink: "",
   schoolId: undefined,
+  requestedUnlockedLessonNumber: 0,
 };
 
 const PREMADE_FREQUENCY: { label: string, value: string }[] = [
@@ -308,6 +309,7 @@ const BatchList: React.FC = () => {
         students: [...studentList],
         edit,
         schoolId: formData.schoolId,
+        requestedUnlockedLessonNumber: parseInt(`${formData.requestedUnlockedLessonNumber}`),
       };
       setIsLoading(true);
       let currentCompletedLessons = [];
@@ -427,9 +429,20 @@ const BatchList: React.FC = () => {
           // return format(parseISO(entity.lessonStartTime!), "hh:mm") + " - " + format(parseISO(entity.lessonEndTime!), "hh:mm");
 
           setFormData({
-            ...formData, classCode: batchData.classes.classCode,
-            batchNumber: batchData.classes.batchNumber, followupVersion: batchData.classes.followupVersion, useNewZoomLink: batchData.classes.useNewZoomLink,
-            useAutoAttendance: batchData.classes.useAutoAttendance, offlineBatch: batchData.classes.offlineBatch, zoomLink: batchData.classes.zoomLink, zoomInfo: batchData.classes.zoomInfo, whatsappLink: batchData.classes.whatsappLink, schoolId: batchData.classes.schoolId
+            ...formData,
+            classCode: batchData.classes.classCode,
+            batchNumber: batchData.classes.batchNumber,
+            followupVersion: batchData.classes.followupVersion,
+            useNewZoomLink: batchData.classes.useNewZoomLink,
+            useAutoAttendance: batchData.classes.useAutoAttendance,
+            offlineBatch: batchData.classes.offlineBatch,
+            zoomLink: batchData.classes.zoomLink,
+            zoomInfo: batchData.classes.zoomInfo,
+            whatsappLink: batchData.classes.whatsappLink,
+            schoolId: batchData.classes.schoolId,
+            requestedUnlockedLessonNumber:
+              batchDetailsFromCOSMOS.requestedUnlockedLessonNumber ||
+              batchDetailsFromCOSMOS.unlockedNumber,
           });
           setFollowupVersion(batchData.classes.followupVersion);
           setUseNewZoomLink(batchData.classes.useNewZoomLink)
@@ -932,7 +945,7 @@ const BatchList: React.FC = () => {
                             <Form.Item
                               name="BatchTime"
                               rules={[{ required: true, message: "Batch Time" }]}
-                            > {currentRow ? console.log(prePop) : ''}
+                            > 
                               <TimePicker.RangePicker
                                 format={"HH:mm"}
                                 disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i : 1)}
@@ -1095,6 +1108,26 @@ const BatchList: React.FC = () => {
                               </Form.Item>
                             </Col>
                           }
+
+                          {!createBatch && (
+                            <Col span={24}>
+                              <Form.Item
+                                name="requestedUnlockedLessonNumber"
+                                help="All lessons from starting to this lesson will be unlocked."
+                              >
+                                <Input
+                                  type="number"
+                                  placeholder="Unlocked Lesson Number"
+                                  name="requestedUnlockedLessonNumber"
+                                  value={formData.requestedUnlockedLessonNumber}
+                                  defaultValue={
+                                    formData.requestedUnlockedLessonNumber
+                                  }
+                                  onChange={handleFormChange}
+                                />
+                              </Form.Item>
+                            </Col>
+                          )}
 
                           <Col span={24}>
                             <Form.Item
