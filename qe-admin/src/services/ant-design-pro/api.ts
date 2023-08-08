@@ -1341,3 +1341,19 @@ export async function loadJSONFile(url: string) {
     method: "GET",
   });
 }
+
+export async function uploadCsvAndCreateCSVUploadRecord(options?: {
+  [key: string]: any;
+}) {
+  return request<API.RuleList>(`/be/upload/csv?createRecord=true`, {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+export async function updateCSVUploadRecord(options?: { [key: string]: any }) {
+  return request<API.RuleList>(`/be/updateCSVUploadRecord`, {
+    method: "PUT",
+    ...(options || {}),
+  });
+}

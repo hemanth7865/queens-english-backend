@@ -13,6 +13,7 @@ import { LogsProxyController } from "./controller/LogsProxyController";
 import { SchoolController } from "./controller/SchoolController";
 import { UploadFilesController } from "./controller/UploadFilesController";
 import { AWSs3Controller } from "./controller/AWSs3Controller";
+import { CSVUploadController } from "./controller/CSVUploadController";
 
 export const Routes = [
   {
@@ -800,6 +801,13 @@ export const Routes = [
     route: "/upload/csv",
     controller: AWSs3Controller,
     action: "uploadFile",
+    authenticate: true,
+  },
+  {
+    method: "put",
+    route: "/updateCSVUploadRecord",
+    controller: CSVUploadController,
+    action: "saveCSVUploadRecord",
     authenticate: true,
   },
 ];
