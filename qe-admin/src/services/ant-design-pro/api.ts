@@ -1351,9 +1351,9 @@ export async function uploadCsvAndCreateCSVUploadRecord(options?: {
   });
 }
 
-export async function updateCSVUploadRecord(options?: { [key: string]: any }) {
+export async function updateCSVUploadRecord(data) {
   return request<API.RuleList>(`/be/updateCSVUploadRecord`, {
     method: "PUT",
-    ...(options || {}),
+    data,
   });
 }
