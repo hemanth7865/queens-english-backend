@@ -18,7 +18,7 @@ export class CSVUploadService {
     const { id, schoolId, fileName, errors } = data;
     let csvUploadDetails;
     if (id) {
-      csvUploadDetails = this.csvUploadRepository.findOne({ id: id });
+      csvUploadDetails = await this.csvUploadRepository.findOne({ id: id });
     } else {
       csvUploadDetails = new CSVUpload();
       csvUploadDetails.uploadedAt = new Date();
