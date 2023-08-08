@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, BaseEntity, Column } from "typeorm";
 export class CSVUpload extends BaseEntity {
   CSVUpload() {}
   @PrimaryGeneratedColumn("uuid")
-  id: number;
+  id: string;
 
   @Column({ nullable: true, type: "text" })
   schoolId: string;
