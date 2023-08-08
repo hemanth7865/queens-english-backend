@@ -12,6 +12,7 @@ import { CollectionAgentController } from "./controller/CollectionAgentControlle
 import { LogsProxyController } from "./controller/LogsProxyController";
 import { SchoolController } from "./controller/SchoolController";
 import { UploadFilesController } from "./controller/UploadFilesController";
+import { AWSs3Controller } from "./controller/AWSs3Controller";
 
 export const Routes = [
   {
@@ -793,5 +794,12 @@ export const Routes = [
     route: "/updateStudentIdsToNewFormat",
     controller: SchoolController,
     action: "updateStudentIdsToNewFormat",
+  },
+  {
+    method: "post",
+    route: "/upload/csv",
+    controller: AWSs3Controller,
+    action: "uploadFile",
+    authenticate: true,
   },
 ];
