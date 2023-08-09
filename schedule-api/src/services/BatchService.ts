@@ -962,8 +962,8 @@ export class BatchService {
     let studentCount = [];
     let students = [];
     let name = "";
-    const count = await getManager().query(`select count(classes.id) as total, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from classes 
-    ${query_string} ${havingQuery};`);
+    const totalQuery = `select count(classes.id) as total from classes ${query_string} ${havingQuery};`;
+    const count = await getManager().query(totalQuery);
 
     for (const element of results) {
       name = "";
