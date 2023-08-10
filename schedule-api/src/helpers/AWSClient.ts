@@ -14,19 +14,12 @@ const s3Client = new S3Client({
 
 export const uploadFile = async (file, Bucket: string = "eqbulkuploads") => {
   const fileName = `${uuid()}-${file.name}`;
-  const s3 = new S3Client({
-    region: "ap-south-1",
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
-  });
   const command = new PutObjectCommand({
     Bucket,
     Key: fileName,
     Body: file.data,
   });
-  await s3.send(command);
+  await s3Client.send(command);
   return fileName;
 };
 
