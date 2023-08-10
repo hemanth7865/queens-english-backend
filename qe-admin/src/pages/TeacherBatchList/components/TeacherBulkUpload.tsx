@@ -203,8 +203,6 @@ const TeacherBulkUpload = () => {
         }
     }
 
-    console.log("notStoredTeachers", notStoredTeachers)
-
     return (
         <>
             {(access.canSuperAdmin || access.canProgramManager || access.canPMHead) && (
