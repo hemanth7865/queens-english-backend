@@ -1,6 +1,6 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
 import { useState, useEffect } from 'react'
-import { addeditbatch, listSchool, teacherBatches } from "@/services/ant-design-pro/api";
+import { addeditbatch, listSchool, teacherBatches, updateCSVUploadRecord, uploadCsvAndCreateCSVUploadRecord } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
@@ -16,6 +16,8 @@ const BulkUploadBatchesOfSchool = (props: any) => {
     const [notStoredBatches, setNotStoredBatches] = useState<object[]>([])
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
+    const [reload, setReload] = useState<number>(0);
+    const [CSVUploadRecord, setCSVUploadRecord] = useState<any>(null);
 
     useEffect(() => {
         listSchool()
@@ -58,14 +60,54 @@ const BulkUploadBatchesOfSchool = (props: any) => {
         return lesson[0]?.id
     }
 
+    const updateCSVUploadRecordForErrors = async () => {
+        if (CSVUploadRecord && notStoredBatches.length > 0) {
+            const tempTeachersErrors = JSON.parse(JSON.stringify(notStoredBatches));
+            setIsLoading(true)
+            CSVUploadRecord.errors = tempTeachersErrors.map((d: any) => {
+                d["Error Message"] = d["Error Messages"].join(', ');
+                delete d["Error Messages"];
+                return d;
+            });
+            try {
+                await updateCSVUploadRecord(CSVUploadRecord)
+                setCSVUploadRecord(null);
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setIsLoading(false)
+            }
+        }
+    }
+
+    useEffect(() => {
+        updateCSVUploadRecordForErrors();
+    }, [reload])
+
     const handleUpload = async (e: any) => {
         setNotStoredBatches([])
         e.preventDefault();
         setIsLoading(true)
         try {
             const file: any = document.getElementById("file");
+            const actualFile = file.files[0]
 
             const reader = new FileReader();
+
+            async function uploadCSV() {
+                try {
+                    const form = new FormData();
+                    form.append('csv', actualFile);
+                    form.append('uploadType', "Batch Upload");
+                    if (selectedSchool) {
+                        form.append('schoolId', selectedSchool);
+                    }
+                    let response = await uploadCsvAndCreateCSVUploadRecord({ body: form })
+                    setCSVUploadRecord(response)
+                } catch (error) {
+                    console.log(error);
+                }
+            }
 
             reader.onload = async function (e: any) {
                 const text = e.target.result;
@@ -219,9 +261,11 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                     setCurrentRecord((n) => n + 1);
                 }
                 setIsLoading(false)
+                setReload((n) => n + 1);
             };
 
-            reader.readAsText(file.files[0]);
+            await uploadCSV();
+            reader.readAsText(actualFile);
         } catch (e: any) {
             message.error(`Something went wrong: ${e.message}`);
             setIsLoading(false)
