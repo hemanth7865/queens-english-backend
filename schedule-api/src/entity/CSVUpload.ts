@@ -16,6 +16,9 @@ export class CSVUpload extends BaseEntity {
   errors: string;
 
   @Column({ nullable: true, type: "text" })
+  uploadType: string;
+
+  @Column({ nullable: true, type: "text" })
   uploadedBy: string;
 
   @Column({ nullable: true, type: "datetime" })

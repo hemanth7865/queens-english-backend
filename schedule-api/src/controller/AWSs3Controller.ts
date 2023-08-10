@@ -37,6 +37,7 @@ export class AWSs3Controller {
             {
               schoolId: request?.body?.schoolId,
               fileName: fileName,
+              uploadType: request?.body?.uploadType,
             },
             userId.toString()
           );

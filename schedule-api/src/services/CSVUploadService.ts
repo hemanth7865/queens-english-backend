@@ -11,11 +11,12 @@ export class CSVUploadService {
       id?: string;
       schoolId?: string;
       fileName?: string;
+      uploadType?: string;
       errors?: any[];
     },
     userId: string
   ) {
-    const { id, schoolId, fileName, errors } = data;
+    const { id, schoolId, fileName, uploadType, errors } = data;
     let csvUploadDetails;
     if (id) {
       csvUploadDetails = await this.csvUploadRepository.findOne({ id: id });
@@ -24,6 +25,7 @@ export class CSVUploadService {
       csvUploadDetails.uploadedAt = new Date();
     }
     csvUploadDetails.schoolId = schoolId;
+    csvUploadDetails.uploadType = uploadType;
     csvUploadDetails.fileName = fileName;
     csvUploadDetails.errors = errors ? JSON.stringify(errors) : null;
     csvUploadDetails.uploadedBy = userId;
