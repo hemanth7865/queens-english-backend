@@ -5,6 +5,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
 import { csvToArray } from '@/services/ant-design-pro/helpers';
+import { SPREADSHEETS } from '../../../../config/constants';
 
 const dateFromat = 'YYYY-MM-DDTHH:mm:ss.000Z'
 
@@ -344,6 +345,10 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                         </table>
                     </pre>
                 </code>
+
+                <Button target='_blank' href={SPREADSHEETS.BATCH_BULK_UPLOAD} type="dashed" htmlType="submit" style={{ fontWeight: 'bold', margin: "3px" }}>
+                    Open Batch Bulk Upload spreadsheet format.
+                </Button>
 
                 {totalRecords ? <Progress percent={currentRecord ? parseFloat((currentRecord / totalRecords * 100).toFixed(2)) : 0}></Progress> : ""}
 
