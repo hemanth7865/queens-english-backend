@@ -12,13 +12,19 @@ const s3Client = new S3Client({
   },
 });
 
-export const uploadFile = async (file, Bucket: string = "eqbulkuploads") => {
+export const uploadFile = async (
+  file,
+  BucketName: string = "eqbulkuploads"
+) => {
   const fileName = `${uuid()}-${file.name}`;
   const command = new PutObjectCommand({
-    Bucket,
+    Bucket: BucketName,
     Key: fileName,
     Body: file.data,
+    ACL: "public-read",
+    ContentType: file.mimetype,
   });
+
   await s3Client.send(command);
   return fileName;
 };
