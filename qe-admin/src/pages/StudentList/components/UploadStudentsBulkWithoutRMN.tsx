@@ -128,6 +128,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 try {
                     const form = new FormData();
                     form.append('csv', actualFile);
+                    form.append('uploadType', "Student Upload");
                     if (selectedSchool?.id) {
                         form.append('schoolId', selectedSchool?.id);
                     }
