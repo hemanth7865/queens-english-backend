@@ -44,8 +44,9 @@ const TeacherBulkUpload = () => {
 
     const updateCSVUploadRecordForErrors = async () => {
         if (CSVUploadRecord && notStoredTeachers.length > 0) {
+            const tempTeachersErrors = JSON.parse(JSON.stringify(notStoredTeachers));
             setIsLoading(true)
-            CSVUploadRecord.errors = notStoredTeachers.map((d) => {
+            CSVUploadRecord.errors = tempTeachersErrors.map((d: any) => {
                 d["Error Message"] = d["Error Messages"].join(', ');
                 delete d["Error Messages"];
                 return d;
@@ -202,6 +203,8 @@ const TeacherBulkUpload = () => {
         }
     }
 
+    console.log("notStoredTeachers", notStoredTeachers)
+
     return (
         <>
             {(access.canSuperAdmin || access.canProgramManager || access.canPMHead) && (
@@ -229,9 +232,7 @@ const TeacherBulkUpload = () => {
                                             {e["Firstname"] || e["Teacher RMN"] || e["Teacher"]} :
                                         </p>
                                         <p>
-                                            {Array.isArray(e["Error Messages"]) && e["Error Messages"]?.map((error: any, index) => {
-                                                return error + (e["Error Messages"]?.length - 1 === index ? "." : ", ")
-                                            })}
+                                            {Array.isArray(e["Error Messages"]) && e["Error Messages"].join(', ')}
                                         </p>
                                     </div>
                                 </div>
