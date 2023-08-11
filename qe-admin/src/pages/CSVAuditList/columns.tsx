@@ -1,6 +1,7 @@
 import type { ProColumns } from "@ant-design/pro-table";
 import { Button } from "antd";
 import moment from "moment";
+import { FormattedMessage } from "umi";
 
 export const columns: () => ProColumns<any>[] = () => [
   {
@@ -17,9 +18,43 @@ export const columns: () => ProColumns<any>[] = () => [
     hideInSearch: false,
   },
   {
-    title: "Upload Type",
+    title: (
+      <FormattedMessage
+        id="pages.searchTable.uploadType"
+        defaultMessage="Upload Type"
+      />
+    ),
     dataIndex: "uploadType",
-    hideInSearch: false,
+    hideInForm: true,
+    valueEnum: {
+      'Student Upload': {
+        text: (
+          <FormattedMessage
+            id="pages.searchTable.uploadType.student"
+            defaultMessage="Student Upload"
+          />
+        ),
+        status: "Student Upload",
+      },
+      'Teacher Upload': {
+        text: (
+          <FormattedMessage
+            id="pages.searchTable.uploadType.teacher"
+            defaultMessage="Teacher Upload"
+          />
+        ),
+        status: "Teacher Upload",
+      },
+      'Batch Upload': {
+        text: (
+          <FormattedMessage
+            id="pages.searchTable.uploadType.batch"
+            defaultMessage="Batch Upload"
+          />
+        ),
+        status: "Batch Upload",
+      },
+    },
   },
   {
     title: "Uploaded By",
