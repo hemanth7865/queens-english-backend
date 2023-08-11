@@ -83,6 +83,11 @@
         access: "canSuperAdmin, canProgramManager",
       },
       {
+        name: "CSV Audit",
+        path: "/manage/CsvAudit",
+        component: "./CSVAuditList",
+      },
+      {
         name: "Assessment Management",
         path: "/manage/assessmentManager",
         routes: [

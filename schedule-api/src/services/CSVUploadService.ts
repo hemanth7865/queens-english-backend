@@ -53,6 +53,10 @@ export class CSVUploadService {
     var offset = parseInt(parameters.current);
     var current = offset;
 
+    if (offset > 0) {
+      offset = offset - 1;
+    }
+
     let query_list = [];
     let query_string = "";
 
@@ -97,7 +101,7 @@ export class CSVUploadService {
       }
     });
     var query = `select cud.*, school.schoolName, CONCAT(admin.firstname, " ", admin.lastname) as uploadedByName from 
-    csv_upload_details as cud LEFT JOIN school on school.id = cud.schoolId LEFT JOIN admin on admin.id = cud.uploadedBy ${query_string} LIMIT ${
+    csv_upload_details as cud LEFT JOIN school on school.id = cud.schoolId LEFT JOIN admin on admin.id = cud.uploadedBy ${query_string} ORDER BY cud.uploadedAt DESC LIMIT ${
       pageSize >= 0 ? pageSize : 20
     } OFFSET ${(offset >= 0 ? offset : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 

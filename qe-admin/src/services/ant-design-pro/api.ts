@@ -858,6 +858,22 @@ export async function getAllCollectionAgents(
   });
 }
 
+export async function getCSVUploads(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.Any>(`/be/getCSVUploads`, {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 //verify down payment
 export async function verifyDownPayment(options?: { [key: string]: any }) {
   return request<any>(`/be/verifyDownPayment`, {
