@@ -45,7 +45,7 @@ export class CSVUploadController {
       pageSize: request.query["pageSize"],
       date: request.query["date"],
       schoolName: request.query["schoolName"],
-      uploadedBy: request.query["uploadedBy"],
+      uploadedBy: request.query["uploadedByName"],
       uploadType: request.query["uploadType"],
     };
     try {

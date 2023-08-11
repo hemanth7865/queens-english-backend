@@ -66,24 +66,13 @@ export class CSVUploadService {
     }
 
     if (parameters.schoolName) {
-      const schools = await this.schoolRepository.find({
-        where: { schoolName: Like(`%${parameters.schoolName}%`) },
-      });
-      const schoolIds = schools.map((school) => school.id);
-      let schoolIdsString = schoolIds.map((id) => `'${id}'`);
-      if (schoolIds.length > 0) {
-        query_list.push(` cud.schoolId IN (${schoolIdsString}) `);
-      }
+      query_list.push(` school.schoolName LIKE '%${parameters.schoolName}%' `);
     }
 
     if (parameters.uploadedBy) {
-      const Users = await this.adminRepository.find({
-        where: { name: Like(`%${parameters.uploadedBy}%`) },
-      });
-      const userIds = Users.map((user) => user.id);
-      if (userIds.length > 0) {
-        query_list.push(` cud.uploadedBy IN (${userIds.join(",")}) `);
-      }
+      query_list.push(
+        ` CONCAT(admin.firstname,' ',admin.lastname) LIKE '%${parameters.uploadedBy}%' `
+      );
     }
 
     if (parameters.uploadType) {
