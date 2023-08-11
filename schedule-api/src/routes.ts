@@ -810,4 +810,11 @@ export const Routes = [
     action: "saveCSVUploadRecord",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/getCSVUploads",
+    controller: CSVUploadController,
+    action: "getCSVUploads",
+    authenticate: true,
+  },
 ];

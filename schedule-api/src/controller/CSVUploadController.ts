@@ -34,4 +34,28 @@ export class CSVUploadController {
       };
     }
   }
+
+  async getCSVUploads(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
+    var parameters = {
+      current: request.query["current"],
+      pageSize: request.query["pageSize"],
+      date: request.query["date"],
+      schoolName: request.query["schoolName"],
+      uploadedBy: request.query["uploadedBy"],
+      uploadType: request.query["uploadType"],
+    };
+    try {
+      return this.csvUploadService.getCSVUploads(parameters);
+    } catch (e) {
+      return {
+        message:
+          e.message || "Something went wrong while saving CSV upload details.",
+        success: false,
+      };
+    }
+  }
 }
