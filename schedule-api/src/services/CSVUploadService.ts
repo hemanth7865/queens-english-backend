@@ -94,8 +94,6 @@ export class CSVUploadService {
       pageSize >= 0 ? pageSize : 20
     } OFFSET ${(offset >= 0 ? offset : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
-    console.log("QUERY", query);
-
     var results = await getManager().query(query);
     const count = await getManager().query(`select count(*) as total from 
       csv_upload_details as cud LEFT JOIN school on school.id = cud.schoolId LEFT JOIN admin on admin.id = cud.uploadedBy ${query_string};`);
