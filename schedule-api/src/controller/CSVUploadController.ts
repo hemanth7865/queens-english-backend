@@ -43,7 +43,7 @@ export class CSVUploadController {
     var parameters = {
       current: request.query["current"],
       pageSize: request.query["pageSize"],
-      date: request.query["date"],
+      uploadedAt: request.query["uploadedAt"],
       schoolName: request.query["schoolName"],
       uploadedBy: request.query["uploadedByName"],
       uploadType: request.query["uploadType"],

@@ -9,6 +9,7 @@ export const columns: () => ProColumns<any>[] = () => [
     render: (dom, entity) => {
       return moment(entity.uploadedAt).isValid() ? moment(entity.uploadedAt).format("DD/MM/YYYY HH:mm:ss") : "NA";
     },
+    dataIndex: "uploadedAt",
     hideInSearch: false,
     valueType: 'date',
   },

@@ -41,12 +41,11 @@ export class CSVUploadService {
   async getCSVUploads(parameters: {
     current?: string;
     pageSize?: string;
-    date?: string;
+    uploadedAt?: string;
     schoolName?: string;
     uploadedBy?: string;
     uploadType?: string;
   }) {
-    console.log("PARAMETERS: ", parameters);
     var current = parseInt(parameters.current) || 0;
     var pageSize = parseInt(parameters.pageSize) || 20;
 
@@ -60,9 +59,9 @@ export class CSVUploadService {
     let query_list = [];
     let query_string = "";
 
-    const date = parameters.date;
-    if (date) {
-      query_list.push(`cud.uploadedAt like  '%${date}%' `);
+    const uploadedAt = parameters.uploadedAt;
+    if (uploadedAt) {
+      query_list.push(`cud.uploadedAt like  '%${uploadedAt}%' `);
     }
 
     if (parameters.schoolName) {
