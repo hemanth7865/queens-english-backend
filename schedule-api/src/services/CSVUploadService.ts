@@ -67,11 +67,12 @@ export class CSVUploadService {
 
     if (parameters.schoolName) {
       const schools = await this.schoolRepository.find({
-        where: { name: Like(`%${parameters.schoolName}%`) },
+        where: { schoolName: Like(`%${parameters.schoolName}%`) },
       });
       const schoolIds = schools.map((school) => school.id);
+      let schoolIdsString = schoolIds.map((id) => `'${id}'`);
       if (schoolIds.length > 0) {
-        query_list.push(` cud.schoolId IN (${schoolIds.join(",")}) `);
+        query_list.push(` cud.schoolId IN (${schoolIdsString}) `);
       }
     }
 
@@ -104,6 +105,8 @@ export class CSVUploadService {
     csv_upload_details as cud LEFT JOIN school on school.id = cud.schoolId LEFT JOIN admin on admin.id = cud.uploadedBy ${query_string} ORDER BY cud.uploadedAt DESC LIMIT ${
       pageSize >= 0 ? pageSize : 20
     } OFFSET ${(offset >= 0 ? offset : 0) * (pageSize >= 0 ? pageSize : 20)};`;
+
+    console.log("QUERY", query);
 
     var results = await getManager().query(query);
     const count = await getManager().query(`select count(*) as total from 
