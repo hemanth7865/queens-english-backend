@@ -11,7 +11,7 @@ export class creatingCSVDetailsTable1691490996903
                 schoolId VARCHAR(255) NULL,
                 fileName VARCHAR(255) NULL,
                 errors TEXT NULL,
-                uploadType VARCHAR(100) NULL
+                uploadType VARCHAR(100) NULL,
                 uploadedBy VARCHAR(255) NULL,
                 uploadedAt DATETIME NULL)`;
       await queryRunner.query(query);
