@@ -73,8 +73,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
             try {
                 await updateCSVUploadRecord(CSVUploadRecord)
                 setCSVUploadRecord(null);
-            } catch (error) {
-                console.log(error);
+            } catch (_) {
             } finally {
                 setIsLoading(false)
             }

@@ -89,8 +89,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             try {
                 await updateCSVUploadRecord(CSVUploadRecord)
                 setCSVUploadRecord(null);
-            } catch (error) {
-                console.log(error);
+            } catch (_) {
             } finally {
                 setIsLoading(false)
             }
@@ -134,8 +133,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                     }
                     let response = await uploadCsvAndCreateCSVUploadRecord({ body: form })
                     setCSVUploadRecord(response)
-                } catch (error) {
-                    console.log(error);
+                } catch (_) {
                 }
             }
 

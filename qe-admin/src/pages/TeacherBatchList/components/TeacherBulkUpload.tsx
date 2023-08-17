@@ -54,8 +54,7 @@ const TeacherBulkUpload = () => {
             try {
                 await updateCSVUploadRecord(CSVUploadRecord)
                 setCSVUploadRecord(null);
-            } catch (error) {
-                console.log(error);
+            } catch (_) {
             } finally {
                 setIsLoading(false)
             }
@@ -86,8 +85,7 @@ const TeacherBulkUpload = () => {
                     }
                     let response = await uploadCsvAndCreateCSVUploadRecord({ body: form })
                     setCSVUploadRecord(response)
-                } catch (error) {
-                    console.log(error);
+                } catch (_) {
                 }
             }
 
