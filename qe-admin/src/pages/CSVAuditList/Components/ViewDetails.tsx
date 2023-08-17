@@ -38,6 +38,7 @@ const ViewDetails: FC<ViewDetailsProps> = ({ data }) => {
 
   const url = useMemo(() => {
     if (data?.fileName) {
+      // Used aws link to fetch files from aws s3 bucket
       return `https://eqbulkuploads.s3.ap-south-1.amazonaws.com/${data?.fileName}`;
     }
     return ""
