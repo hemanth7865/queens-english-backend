@@ -1,5 +1,6 @@
 import type { ProColumns } from "@ant-design/pro-table";
 import { Button } from "antd";
+import { UPLOAD_TYPES } from "config/constants";
 import moment from "moment";
 import { FormattedMessage } from "umi";
 
@@ -32,28 +33,28 @@ export const columns: () => ProColumns<any>[] = () => [
         text: (
           <FormattedMessage
             id="pages.searchTable.uploadType.student"
-            defaultMessage="Student Upload"
+            defaultMessage={UPLOAD_TYPES.STUDENT}
           />
         ),
-        status: "Student Upload",
+        status: UPLOAD_TYPES.STUDENT,
       },
       'Teacher Upload': {
         text: (
           <FormattedMessage
             id="pages.searchTable.uploadType.teacher"
-            defaultMessage="Teacher Upload"
+            defaultMessage={UPLOAD_TYPES.TEACHER}
           />
         ),
-        status: "Teacher Upload",
+        status: UPLOAD_TYPES.TEACHER,
       },
       'Batch Upload': {
         text: (
           <FormattedMessage
             id="pages.searchTable.uploadType.batch"
-            defaultMessage="Batch Upload"
+            defaultMessage={UPLOAD_TYPES.BATCH}
           />
         ),
-        status: "Batch Upload",
+        status: UPLOAD_TYPES.BATCH,
       },
     },
   },

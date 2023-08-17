@@ -1,5 +1,6 @@
 import { Button, Col, Divider, Row, Table, Tabs } from 'antd'
 import TabPane from 'antd/lib/tabs/TabPane'
+import { UPLOAD_TYPES } from 'config/constants'
 import moment from 'moment'
 import { FC, useMemo } from 'react'
 
@@ -22,19 +23,19 @@ const ViewDetails: FC<ViewDetailsProps> = ({ data }) => {
   const errors = useMemo(() => {
     if (data?.errors) {
       const errorArray = JSON.parse(data?.errors)
-      if (data?.uploadType === "Student Upload") {
+      if (data?.uploadType === UPLOAD_TYPES.STUDENT) {
         return errorArray.map((error: any) => ({
           data: error?.["First Name"] + " " + error?.["Last Name"] + " - " + error?.["RMN"],
           errorMessage: error?.["ErrorMessage"]
         }))
       }
-      if (data?.uploadType === "Teacher Upload") {
+      if (data?.uploadType === UPLOAD_TYPES.TEACHER) {
         return errorArray.map((error: any) => ({
           data: error?.["Teacher"],
           errorMessage: error?.["Error Message"]
         }))
       }
-      if (data?.uploadType === "Batch Upload") {
+      if (data?.uploadType === UPLOAD_TYPES.BATCH) {
         return errorArray.map((error: any) => ({
           data: error?.["Batch code"],
           errorMessage: error?.["Error Message"]

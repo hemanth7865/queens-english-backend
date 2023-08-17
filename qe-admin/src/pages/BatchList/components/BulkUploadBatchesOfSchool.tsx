@@ -5,7 +5,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
 import { csvToArray } from '@/services/ant-design-pro/helpers';
-import { SPREADSHEETS } from '../../../../config/constants';
+import { SPREADSHEETS, UPLOAD_TYPES } from '../../../../config/constants';
 
 const dateFromat = 'YYYY-MM-DDTHH:mm:ss.000Z'
 
@@ -99,7 +99,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
                 try {
                     const form = new FormData();
                     form.append('csv', actualFile);
-                    form.append('uploadType', "Batch Upload");
+                    form.append('uploadType', UPLOAD_TYPES.BATCH);
                     if (selectedSchool) {
                         form.append('schoolId', selectedSchool);
                     }

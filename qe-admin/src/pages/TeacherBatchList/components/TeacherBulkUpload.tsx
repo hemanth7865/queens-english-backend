@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { addTeacherSchedule, listSchool, updateCSVUploadRecord, uploadCsvAndCreateCSVUploadRecord } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 import { csvToArray } from '@/services/ant-design-pro/helpers';
-import { SPREADSHEETS } from '../../../../config/constants';
+import { SPREADSHEETS, UPLOAD_TYPES } from '../../../../config/constants';
 
 const TeacherBulkUpload = () => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
@@ -80,7 +80,7 @@ const TeacherBulkUpload = () => {
                 try {
                     const form = new FormData();
                     form.append('csv', actualFile);
-                    form.append('uploadType', "Teacher Upload");
+                    form.append('uploadType', UPLOAD_TYPES.TEACHER);
                     if (selectedSchool) {
                         form.append('schoolId', selectedSchool);
                     }

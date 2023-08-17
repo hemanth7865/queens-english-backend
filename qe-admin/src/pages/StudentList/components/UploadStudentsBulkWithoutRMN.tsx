@@ -8,7 +8,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
 import { downloadCSV } from '@/services/ant-design-pro/downloadCSV';
-import { SPREADSHEETS } from '../../../../config/constants';
+import { SPREADSHEETS, UPLOAD_TYPES } from '../../../../config/constants';
 import { getRandomNumber } from '@/services/ant-design-pro/helpers';
 const { Panel } = Collapse;
 import "./index.css"
@@ -128,7 +128,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 try {
                     const form = new FormData();
                     form.append('csv', actualFile);
-                    form.append('uploadType', "Student Upload");
+                    form.append('uploadType', UPLOAD_TYPES.STUDENT);
                     if (selectedSchool?.id) {
                         form.append('schoolId', selectedSchool?.id);
                     }

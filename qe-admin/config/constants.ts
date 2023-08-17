@@ -11,3 +11,9 @@ export const SPREADSHEETS = {
   BATCH_BULK_UPLOAD:
     "https://docs.google.com/spreadsheets/d/1e6mR5qQH7kV9wG7WA19TmPYQX4OJAo7K0NCAWD4pcJE/edit?usp=sharing",
 };
+
+export const UPLOAD_TYPES = {
+  STUDENT: "Student Upload",
+  TEACHER: "Teacher Upload",
+  BATCH: "Batch Upload",
+};
