@@ -51,7 +51,7 @@ const CSVAuditList: React.FC = () => {
                     <ProTable<API.RuleListItem, API.PageParams>
                         headerTitle={intl.formatMessage({
                             id: 'pages.searchTable.titleUser',
-                            defaultMessage: 'Collection Agents',
+                            defaultMessage: 'Buk Upload File Audit List',
                         })}
                         actionRef={actionRef}
                         rowKey="key"
