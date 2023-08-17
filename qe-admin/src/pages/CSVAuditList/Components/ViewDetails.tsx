@@ -22,25 +22,16 @@ const ViewDetails: FC<ViewDetailsProps> = ({ data }) => {
   const errors = useMemo(() => {
     if (data?.errors) {
       const errorArray = JSON.parse(data?.errors)
-      if (data?.uploadType === UPLOAD_TYPES.STUDENT) {
-        return errorArray.map((error: any) => ({
-          data: error?.["First Name"] + " " + error?.["Last Name"] + " - " + error?.["RMN"],
-          errorMessage: error?.["ErrorMessage"]
-        }))
-      }
-      if (data?.uploadType === UPLOAD_TYPES.TEACHER) {
-        return errorArray.map((error: any) => ({
-          data: error?.["Teacher"],
-          errorMessage: error?.["Error Message"]
-        }))
-      }
-      if (data?.uploadType === UPLOAD_TYPES.BATCH) {
-        return errorArray.map((error: any) => ({
-          data: error?.["Batch code"],
-          errorMessage: error?.["Error Message"]
-        }))
-      }
-      return errorArray
+      return errorArray.map((error: any) => ({
+        data: data?.uploadType === UPLOAD_TYPES.STUDENT
+          ? error?.["First Name"] + " " + error?.["Last Name"] + " - " + error?.["RMN"]
+          : data?.uploadType === UPLOAD_TYPES.TEACHER
+            ? error?.["Teacher"]
+            : data?.uploadType === UPLOAD_TYPES.BATCH
+              ? error?.["Batch code"]
+              : " ",
+        errorMessage: error?.["Error Message"]
+      }))
     }
     return []
   }, [data?.errors, data?.uploadType])

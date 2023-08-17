@@ -85,7 +85,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const updateCSVUploadRecordForErrors = async () => {
         if (CSVUploadRecord && errors.length > 0) {
             setIsLoading(true)
-            CSVUploadRecord.errors = errors.map((error) => ({ ...error.student, ErrorMessage: error["Error Message"] }));
+            CSVUploadRecord.errors = errors.map((error) => ({ ...error.student, "Error Message": error["Error Message"] }));
             try {
                 await updateCSVUploadRecord(CSVUploadRecord)
                 setCSVUploadRecord(null);
