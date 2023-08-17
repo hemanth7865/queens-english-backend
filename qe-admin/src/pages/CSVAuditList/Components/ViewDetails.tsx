@@ -1,9 +1,8 @@
 import { Button, Col, Divider, Row, Table, Tabs } from 'antd'
 import TabPane from 'antd/lib/tabs/TabPane'
-import { UPLOAD_TYPES } from 'config/constants'
+import { UPLOAD_TYPES } from '../../../../config/constants'
 import moment from 'moment'
 import { FC, useMemo } from 'react'
-
 interface ViewDetailsProps {
   data: {
     errors?: string

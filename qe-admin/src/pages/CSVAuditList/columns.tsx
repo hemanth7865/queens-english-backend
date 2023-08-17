@@ -1,6 +1,6 @@
 import type { ProColumns } from "@ant-design/pro-table";
 import { Button } from "antd";
-import { UPLOAD_TYPES } from "config/constants";
+import { UPLOAD_TYPES } from "../../../config/constants";
 import moment from "moment";
 import { FormattedMessage } from "umi";
 
