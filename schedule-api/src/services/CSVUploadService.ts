@@ -2,6 +2,7 @@ import { getManager, getRepository, Like } from "typeorm";
 import { Admin } from "../entity/Admin";
 import { CSVUpload } from "../entity/CSVUpload";
 import { School } from "../entity/School";
+import { usersLogger } from "../Logger.js";
 
 export class CSVUploadService {
   private csvUploadRepository = getRepository(CSVUpload);
@@ -33,9 +34,15 @@ export class CSVUploadService {
     csvUploadDetails.fileName = fileName;
     csvUploadDetails.errors = errors ? JSON.stringify(errors) : null;
     csvUploadDetails.uploadedBy = userId;
-
-    const response = await this.csvUploadRepository.save(csvUploadDetails);
-    return response;
+    try {
+      const response = await this.csvUploadRepository.save(csvUploadDetails);
+      return response;
+    } catch (e) {
+      usersLogger.info(
+        `Error while creating csv upload record :: ${e?.message}`
+      );
+      throw e;
+    }
   }
 
   async getCSVUploads(parameters: {
