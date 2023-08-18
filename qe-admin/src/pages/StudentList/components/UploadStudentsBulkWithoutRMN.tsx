@@ -2,13 +2,13 @@ import { Button, Checkbox, Collapse, message, Modal, Progress, Select, Tooltip }
 import { useAccess } from "umi";
 import { useState, useEffect } from 'react'
 
-import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, rebatchStudent, bulkRemoveBatchStudents, syncStudentsToCosmos, getAvailableStudentIds } from "@/services/ant-design-pro/api";
+import { addUserSchedule, getIndividualBatch, addeditbatch, listSchool, addBatchToSchool, checkStudentInBatch, syncStudentsToCosmos, getAvailableStudentIds, uploadCsvAndCreateCSVUploadRecord, updateCSVUploadRecord } from "@/services/ant-design-pro/api";
 
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { LESSONS } from '../../../../config/lessons';
 import { downloadCSV } from '@/services/ant-design-pro/downloadCSV';
-import { SPREADSHEETS } from '../../../../config/constants';
+import { SPREADSHEETS, UPLOAD_TYPES } from '../../../../config/constants';
 import { getRandomNumber } from '@/services/ant-design-pro/helpers';
 const { Panel } = Collapse;
 import "./index.css"
@@ -43,6 +43,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
     const [createBatch, setCreateBatch] = useState<boolean>(true);
     const [errors, setErrors] = useState<any[]>([]);
     const [reload, setReload] = useState<number>(0);
+    const [CSVUploadRecord, setCSVUploadRecord] = useState<any>(null);
 
     //Role Based Access
     const access = useAccess();
@@ -81,8 +82,23 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
         downloadCSV(errors.map((error) => ({ ...error.student, Error: error["Error Message"] })))
     }
 
+    const updateCSVUploadRecordForErrors = async () => {
+        if (CSVUploadRecord && errors.length > 0) {
+            setIsLoading(true)
+            CSVUploadRecord.errors = errors.map((error) => ({ ...error.student, "Error Message": error["Error Message"] }));
+            try {
+                await updateCSVUploadRecord(CSVUploadRecord)
+                setCSVUploadRecord(null);
+            } catch (_) {
+            } finally {
+                setIsLoading(false)
+            }
+        }
+    }
+
     useEffect(() => {
         downloadErrorsCSV();
+        updateCSVUploadRecordForErrors();
     }, [reload])
 
     const handleUpload = async (e: any) => {
@@ -91,6 +107,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
         setStatusMessage("");
         try {
             const file: any = document.getElementById("file");
+            const actualFile = file.files[0]
 
             const reader = new FileReader();
 
@@ -105,6 +122,20 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
             const studentsAlreadyInBatch: any[] = [];
 
             let batches: any[] = [];
+
+            async function uploadCSV() {
+                try {
+                    const form = new FormData();
+                    form.append('csv', actualFile);
+                    form.append('uploadType', UPLOAD_TYPES.STUDENT);
+                    if (selectedSchool?.id) {
+                        form.append('schoolId', selectedSchool?.id);
+                    }
+                    let response = await uploadCsvAndCreateCSVUploadRecord({ body: form })
+                    setCSVUploadRecord(response)
+                } catch (_) {
+                }
+            }
 
             async function handleBatching() {
                 const batchesInCsv = [...new Set(batches)];
@@ -443,7 +474,8 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 setReload(e => e + 1)
             };
 
-            reader.readAsText(file.files[0]);
+            await uploadCSV();
+            reader.readAsText(actualFile);
         } catch (e: any) {
             message.error(`Something went wrong: ${e.message}`);
             setIsLoading(false)
@@ -484,7 +516,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
                 {errors.length > 0 && (
                     <div style={{ marginLeft: 10 }}>
                         <span>Bulk upload errors : </span><br />
-                        <Button onClick={() => { downloadErrorsCSV() }} loading={isLoading} type="primary" style={{ margin: "3px" }} shape="round">
+                        <Button onClick={() => { downloadErrorsCSV() }} loading={isLoading} type="danger" style={{ margin: "3px" }} shape="round">
                             Download Bulk Upload Errors CSV
                         </Button>
                     </div>

@@ -1,10 +1,10 @@
 import { Button, message, Modal, Progress, Select } from 'antd';
 import { Access, useAccess } from "umi";
 import { useState, useEffect } from 'react'
-import { addTeacherSchedule, listSchool } from "@/services/ant-design-pro/api";
+import { addTeacherSchedule, listSchool, updateCSVUploadRecord, uploadCsvAndCreateCSVUploadRecord } from "@/services/ant-design-pro/api";
 import { UploadOutlined } from '@ant-design/icons';
 import { csvToArray } from '@/services/ant-design-pro/helpers';
-import { SPREADSHEETS } from '../../../../config/constants';
+import { SPREADSHEETS, UPLOAD_TYPES } from '../../../../config/constants';
 
 const TeacherBulkUpload = () => {
     const [openUpload, setOpenUpload] = useState<boolean>(false);
@@ -14,6 +14,8 @@ const TeacherBulkUpload = () => {
     const [notStoredTeachers, setNotStoredTeachers] = useState<object[]>([])
     const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
+    const [reload, setReload] = useState<number>(0);
+    const [CSVUploadRecord, setCSVUploadRecord] = useState<any>(null);
 
     const url = new URL(window.location.href);
 
@@ -40,14 +42,52 @@ const TeacherBulkUpload = () => {
         return regex.test(email)
     }
 
+    const updateCSVUploadRecordForErrors = async () => {
+        if (CSVUploadRecord && notStoredTeachers.length > 0) {
+            const tempTeachersErrors = JSON.parse(JSON.stringify(notStoredTeachers));
+            setIsLoading(true)
+            CSVUploadRecord.errors = tempTeachersErrors.map((d: any) => {
+                d["Error Message"] = d["Error Messages"].join(', ');
+                delete d["Error Messages"];
+                return d;
+            });
+            try {
+                await updateCSVUploadRecord(CSVUploadRecord)
+                setCSVUploadRecord(null);
+            } catch (_) {
+            } finally {
+                setIsLoading(false)
+            }
+        }
+    }
+
+    useEffect(() => {
+        updateCSVUploadRecordForErrors();
+    }, [reload])
+
     const handleUpload = async (e: any) => {
         e.preventDefault();
         setNotStoredTeachers([])
         setIsLoading(true)
         try {
             const file: any = document.getElementById("file");
+            const actualFile = file.files[0]
 
             const reader = new FileReader();
+
+            async function uploadCSV() {
+                try {
+                    const form = new FormData();
+                    form.append('csv', actualFile);
+                    form.append('uploadType', UPLOAD_TYPES.TEACHER);
+                    if (selectedSchool) {
+                        form.append('schoolId', selectedSchool);
+                    }
+                    let response = await uploadCsvAndCreateCSVUploadRecord({ body: form })
+                    setCSVUploadRecord(response)
+                } catch (_) {
+                }
+            }
 
             reader.onload = async function (e: any) {
                 const text = e.target.result;
@@ -150,9 +190,11 @@ const TeacherBulkUpload = () => {
                     setCurrentRecord((n) => n + 1);
                 }
                 setIsLoading(false)
+                setReload((n) => n + 1);
             };
 
-            reader.readAsText(file.files[0]);
+            await uploadCSV();
+            reader.readAsText(actualFile);
         } catch (e: any) {
             message.error(`Something went wrong: ${e.message}`);
             setIsLoading(false)
@@ -186,9 +228,7 @@ const TeacherBulkUpload = () => {
                                             {e["Firstname"] || e["Teacher RMN"] || e["Teacher"]} :
                                         </p>
                                         <p>
-                                            {Array.isArray(e["Error Messages"]) && e["Error Messages"]?.map((error: any, index) => {
-                                                return error + (e["Error Messages"]?.length - 1 === index ? "." : ", ")
-                                            })}
+                                            {Array.isArray(e["Error Messages"]) && e["Error Messages"].join(', ')}
                                         </p>
                                     </div>
                                 </div>

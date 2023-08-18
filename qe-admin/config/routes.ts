@@ -48,7 +48,7 @@
             path: "/manage/school/StudentBatch",
             component: "./StudentsBatchList",
           },
-        ]
+        ],
       },
       {
         name: "Online Classes",
@@ -69,7 +69,7 @@
             path: "/manage/offline/StudentBatch",
             component: "./StudentsBatchList",
           },
-        ]
+        ],
       },
       {
         name: "Lessons Scripts",
@@ -81,6 +81,11 @@
         path: "/manage/UserBatch",
         component: "./StudentList",
         access: "canSuperAdmin, canProgramManager",
+      },
+      {
+        name: "Audit",
+        path: "/manage/CsvAudit",
+        component: "./CSVAuditList",
       },
       {
         name: "Assessment Management",

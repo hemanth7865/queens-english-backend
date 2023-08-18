@@ -8,4 +8,12 @@ export const SPREADSHEETS = {
     "https://docs.google.com/spreadsheets/d/1SI4ny5hReFKya7zUBUbhgZ0GSTpArcRy1rRLnn1fUSs/edit?usp=sharing",
   TEACHER_BULK_UPLOAD:
     "https://docs.google.com/spreadsheets/d/17ZF9SB3u_tj5RCbiMYw4BEEwiG4Z_IjlwrPd5KnB82c/edit?usp=sharing",
+  BATCH_BULK_UPLOAD:
+    "https://docs.google.com/spreadsheets/d/1e6mR5qQH7kV9wG7WA19TmPYQX4OJAo7K0NCAWD4pcJE/edit?usp=sharing",
+};
+
+export const UPLOAD_TYPES = {
+  STUDENT: "Student Upload",
+  TEACHER: "Teacher Upload",
+  BATCH: "Batch Upload",
 };

@@ -16,6 +16,7 @@
       "winston": "^3.4.0"
    },
    "dependencies": {
+      "@aws-sdk/client-s3": "^3.386.0",
       "@azure/storage-blob": "^12.13.0",
       "body-parser": "^1.18.1",
       "cookie-parser": "^1.4.6",
