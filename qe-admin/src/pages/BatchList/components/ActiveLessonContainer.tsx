@@ -12,7 +12,7 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
     const [lesson, setLesson] = useState(entity.lessonNumber)
     const [edit, setEdit] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [filteredLesson, setFilteredLesson] = useState([])
+    const [filteredLesson, setFilteredLesson] = useState<any[]>([])
 
     const cancel = () => {
         setLesson(entity.lessonNumber)
@@ -21,11 +21,12 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
     }
 
     useEffect(() => {
-        const startLessonNumber = LESSONS.filter((_l) => _l.id === entity?.startingLessonId)[0]?.number || 1
-        const endLessonNumber = LESSONS.filter((_l) => _l.id === entity?.endingLessonId)[0]?.number || 399
-        const actualLesson = LESSONS.filter((_l) => parseInt(_l.number) >= parseInt(startLessonNumber) && parseInt(_l.number) <= parseInt(endLessonNumber))
-        setFilteredLesson(actualLesson)
-    }, [])
+        const startLessonNumber: number = parseInt(LESSONS.find((_l) => _l.id === entity?.startingLessonId)?.number as string ?? 1)
+        const endLessonNumber: number = parseInt(LESSONS.find((_l) => _l.id === entity?.endingLessonId)?.number as string ?? 399)
+        const actualLessons = LESSONS.filter((_l) => parseInt(_l.number) >= startLessonNumber && parseInt(_l.number) <= endLessonNumber)
+        setLesson(entity?.lessonNumber)
+        setFilteredLesson(actualLessons)
+    }, [entity])
 
     const getFormData = async (rowval: any) => {
         const selectedLessonDetails = LESSONS.filter((_l) => _l.number === lesson)[0]!
