@@ -319,13 +319,9 @@ const BatchList: React.FC = () => {
         dataForm.activeLessonId = startLesson;
         const lessons = await getTeacherLessons(currentRow?.id);
         if (lessons.length > 0) {
-          const startLessonNumber = LESSONS.filter((l) =>
-            startLesson ? l.id === startLesson : false
-          )[0]?.number;
+          const startLessonNumber = LESSONS.find((l) => l.id === startLesson)?.number as string;
 
-          const endLessonNumber = LESSONS.filter((l) =>
-            endLesson ? l.id === endLesson : false
-          )[0]?.number;
+          const endLessonNumber = LESSONS.find((l) => l.id === endLesson)?.number as string;
 
           currentCompletedLessons = lessons.filter((e: any) => {
             return (e.isComplete === true) &&
