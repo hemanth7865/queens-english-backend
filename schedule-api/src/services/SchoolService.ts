@@ -12,6 +12,7 @@ import { isNullOrUndefined } from "util";
 import { BatchService } from "./BatchService";
 import { getRandomNumber } from "../helpers";
 import { StudentService } from "./StudentService";
+import { TeacherService } from "./TeacherService";
 const { logger } = require("../Logger.js");
 
 export class SchoolService {
@@ -23,6 +24,7 @@ export class SchoolService {
     private userRepository = getRepository(User);
     private batchService = new BatchService();
     private studentService = new StudentService();
+    private TeacherService = new TeacherService();
     public request: any = {};
 
     async getAllSra() {
@@ -43,7 +45,7 @@ export class SchoolService {
             offset = 0;
         }
 
-        let schools: any[] = [];
+        let schools: School[] = [];
         let query_list = [];
         let query_string = "";
 
@@ -178,7 +180,8 @@ export class SchoolService {
                 element.createdAt.toLocaleDateString('en-IN'),
                 element.schoolStatus,
                 classes.length,
-                location
+                location,
+                Boolean(element.lockLesson),
             );
             schoolView.push(s);
         }
@@ -308,7 +311,7 @@ export class SchoolService {
 
     async saveSchool(request: any) {
         try {
-            let school: any;
+            let school: School;
 
             if (request.operation === OPERATION.ADD) {
 
@@ -328,8 +331,9 @@ export class SchoolService {
                 request.schoolStatus = Status.ACTIVE_CAPS
 
             } else {
-                school = await this.schoolRepository.findOne({ where: { id: request.id } });
+                school = await this.schoolRepository.findOne({ where: { id: request.id }, relations:['classes'] });
             }
+            const prevLockLesson = school.lockLesson;
             school.schoolName = request.schoolName;
             school.schoolCode = request.schoolCode;
             school.locationCode = request.locationCode;
@@ -340,8 +344,22 @@ export class SchoolService {
             school.country = request.country;
             school.state = request.state;
             school.city = request.city;
+            school.lockLesson = request.lockLesson ?? false;
             const saveSchool = await this.schoolRepository.save(school);
 
+            // overwriting the lockLesson feature for teachers if it is changed
+            if (prevLockLesson !== school.lockLesson) {
+                const teachers = school.classes.map((e) => {
+                    if (!e.teacherId) return null;
+                    return {
+                    id: e.teacherId,
+                    lockLesson: school.lockLesson,
+                }}).filter((e) => e !== null);
+                if (teachers.length > 0) {
+                    await this.TeacherService.updateLockLessonFeature(teachers);
+                }
+            }
+            
             if (!isNullOrUndefined(request.batches)) {
                 if (!isNullOrUndefined(request.batches.addBatches) && request.batches.addBatches.length > 0) {
                     request.saveSchool = saveSchool;

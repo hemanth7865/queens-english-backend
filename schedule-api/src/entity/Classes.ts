@@ -145,7 +145,7 @@ export class Classes extends BaseEntity {
   meeting: User;
 
   @OneToOne(() => School, (school) => school.id)
-  @JoinColumn({ name: "id" })
+  @JoinColumn({ name: "schoolId" })
   school: School;
 
   @Column({ nullable: true })

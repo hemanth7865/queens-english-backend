@@ -24,7 +24,7 @@ import {
   Spin,
   Tabs
 } from "antd";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useIntl, FormattedMessage, useAccess } from "umi";
 
 import { PageContainer } from "@ant-design/pro-layout";
@@ -87,6 +87,7 @@ const TeacherBatchList: React.FC = () => {
     // countryCode: selectCountryCode ? selectCountryCode : DEFAULT_COUNTRY_CODE_NUMBER,
     leadAvailability: null,
     status: "",
+    schoolId: "",
   });
 
   const actionRef = useRef<ActionType>();
@@ -99,7 +100,6 @@ const TeacherBatchList: React.FC = () => {
   //state for select option
   const [selectValue, setSelectValue] = useState("");
   const [selectStatus, setSelectStatus] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState("");
 
   //state for adding datepicker
   const [dateJoining, setDateJoining] = useState("");
@@ -107,18 +107,31 @@ const TeacherBatchList: React.FC = () => {
   const [dateBirth, setDateOfBirth] = useState("");
   const [currentRow, setCurrentRow] = useState<any>(null);
 
+  const [isLockLessonChecked, setIsLockLessonChecked] = useState<boolean>(false);
+  const isLockLessonEnabledForSchool = useMemo(() => {
+    const id = formData?.schoolId || tempDataView?.schoolId;
+    return schools.find((school) => school.id === id)?.lockLesson ?? false;
+  }, [tempDataView, schools, formData]);
+
+  const handleLockLessonChange = (e: any) => {
+      setIsLockLessonChecked(e.target.checked);
+      form.setFieldsValue({ lockLesson: e.target.checked });
+  };
+
+
   useEffect(() => {
-    if (schools.length === 0) {
-      listSchool()
-        .then((data: any) => {
-          setSchools(data.data);
-          storeSchoolsIntoLocalStorage(data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [schools]);
+    listSchool()
+      .then((data: any) => {
+        const result = data.data as any[];
+        // sort by name
+        result.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+        setSchools(data.data);
+        storeSchoolsIntoLocalStorage(data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   //add drawer
   const showDrawer = () => {
@@ -128,6 +141,7 @@ const TeacherBatchList: React.FC = () => {
   const onClose = () => {
     setVisible(false);
     seteditvisible(false);
+    setTempDataView({});
   };
 
   const handleMobileChangeCountry = (e: { target: { value: React.SetStateAction<string>; }; }) => {
@@ -392,10 +406,11 @@ const TeacherBatchList: React.FC = () => {
       render: (dom, entity) => {
         return (
           <a
-            onClick={() => {
+            onClick={async () => {
               setCurrentRow(entity);
-              handleOneView(entity.leadId);
-              setShowDetail(true);
+              await handleOneView(entity.leadId).finally(() =>
+                setShowDetail(true)
+              );
             }}
           >
             <EyeOutlined />
@@ -416,11 +431,11 @@ const TeacherBatchList: React.FC = () => {
       render: (dom, entity) => {
         return (
           <a
-            onClick={() => {
+            onClick={async () => {
               setCurrentRow(entity);
-              setShowDetail(true);
-              handleOneView(entity.leadId);
-              showDrawerEdit();
+              await handleOneView(entity.leadId).finally(() =>
+                showDrawerEdit()
+              );
             }}
           >
             <EditOutlined />
@@ -497,7 +512,7 @@ const TeacherBatchList: React.FC = () => {
       //   },
       // ],
       status: selectStatus,
-      schoolId: selectedSchool,
+      schoolId: formData.schoolId,
       leadAvailability: leadArray,
     };
     // async (values: API.LoginParams) => {
@@ -576,8 +591,9 @@ const TeacherBatchList: React.FC = () => {
         },
       ],
       status: selectStatus ? selectStatus : tempDataView.status,
-      schoolId: selectedSchool ? selectedSchool : tempDataView.schoolId,
+      schoolId: formData.schoolId,
       leadAvailability: leadArray,
+      lockLesson: isLockLessonChecked,
     };
     // async (values: API.LoginParams) => {
     if (tempDataView) {
@@ -605,7 +621,6 @@ const TeacherBatchList: React.FC = () => {
   let leadAvailabilities: { start_slot: any; end_slot: any; weekday: any; start_date: string; }[] = [];
   let leadTotal: any[] = [];
   let extraWeek: { start_slot: any; end_slot: any; weekday: any; start_date: any; }[] = [];
-  console.log('LA', leadAvailabilities, leadTotal, extraWeek)
 
   //lead availability
   const WeekdayAvailability = (props: { weekday: React.SetStateAction<{ weekday: string; }>; tempData: any[]; week: {} | null | undefined; }) => {
@@ -872,7 +887,12 @@ const TeacherBatchList: React.FC = () => {
 
   //Using default values for prepopulationg
   const [form] = Form.useForm();
-  const defaultValues = () => {
+  const defaultValues = useCallback(() => {
+    if (Object.keys(tempDataView).length === 0) return;
+  const lockLessonValue = isLockLessonEnabledForSchool
+    ? tempDataView?.teacher[0]?.lockLesson || false
+    : false
+
     form.setFieldsValue({
       firstName: tempDataView.firstName,
       lastName: tempDataView.lastName,
@@ -904,11 +924,15 @@ const TeacherBatchList: React.FC = () => {
       teacherType: "teacher",
       languageKnown: tempDataView.languages,
       schoolName: tempDataView.schoolName,
+      lockLesson: lockLessonValue,
+      schoolId: tempDataView.schoolId,
     });
-  };
+    setIsLockLessonChecked(lockLessonValue);
+  }, [form, tempDataView, isLockLessonEnabledForSchool]);
+
   useEffect(() => {
     defaultValues();
-  }, [tempDataView.firstName, tempDataView.lastName]);
+  }, [defaultValues]);
 
   return (
     <PageContainer>
@@ -1134,7 +1158,10 @@ const TeacherBatchList: React.FC = () => {
                       <Select
                         placeholder="School"
                         onChange={(value) => {
-                          setSelectedSchool(value);
+                          setFormData((prev) => ({
+                            ...prev,
+                            schoolId: value,
+                          }));
                         }}
                         disabled={!access.canSuperAdmin}
                       >
@@ -1184,7 +1211,6 @@ const TeacherBatchList: React.FC = () => {
                             {fields.map(({ key, name, ...restField }) => (
 
                               <Space key={key} style={{ display: 'flex' }} align="baseline">
-                                {console.log('key', key)}
                                 <Form.Item
                                   {...restField}
                                 >
@@ -1219,10 +1245,11 @@ const TeacherBatchList: React.FC = () => {
       <Drawer
         title="Teacher details"
         width={780}
-        visible={showDetail}
+        visible={showDetail || editvisible}
         onClose={() => {
           setShowDetail(false);
           seteditvisible(false);
+          setTempDataView({});
         }}
         closable={true}
       >
@@ -1429,6 +1456,12 @@ const TeacherBatchList: React.FC = () => {
                       {schools?.filter(e => e?.id === tempDataView?.schoolId)[0]!?.schoolName}
                     </p>
                   </Col>
+                  <Col span={6}>
+                    <p>Lock Lesson Feature </p>
+                  </Col>
+                  <Col span={11}>
+                    <>{tempDataView.teacher && tempDataView?.teacher[0]?.lockLesson ? "Enable":"Disable"}</>
+                  </Col>
                 </Row>
                 <br />
                 <Row>
@@ -1565,14 +1598,16 @@ const TeacherBatchList: React.FC = () => {
                       <Form.Item name="schoolId">
                         <Select
                           defaultValue={tempDataView.schoolId}
-                          value={tempDataView.schoolId}
+                          value={formData.schoolId}
                           onChange={(value) => {
-                            setSelectedSchool(value)
+                            setFormData((prev) => ({
+                              ...prev,
+                              schoolId: value,
+                            }));
                           }}
                           disabled={!access.canSuperAdmin}
-                        >
-                          {schools.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
-                        </Select>
+                          options={schools.map((s) => ({ label: `${s.schoolName} ~ ${s.schoolCode}`, value: s.id }))}
+                        />
                       </Form.Item>
                     </Col>
 
@@ -1601,7 +1636,27 @@ const TeacherBatchList: React.FC = () => {
                         </Select>
                       </Form.Item>
                     </Col>
+
+                    <Col span={24}>
+                    <Form.Item
+                        label="Lock lessons feature"
+                        name="lockLesson"
+                        help="This feature will lock the lessons for the teacher and the teacher will not be able to access the lessons while assesment is not completed by all students, ( you can not customize this feature for individual teacher if the feature is disabled for the school )"
+                      >
+                        <Checkbox
+                          disabled={!isLockLessonEnabledForSchool}
+                          style={{
+                            paddingInlineStart: "10px",
+                          }}
+                          checked={isLockLessonChecked}
+                          onChange={handleLockLessonChange}
+                        />
+                      </Form.Item>
+                    </Col>
+
+
                   </Row>
+                  <br />
                   {/* Availability */}
                   <Row gutter={16}>
                     <Col span={12}>
@@ -1653,7 +1708,6 @@ const TeacherBatchList: React.FC = () => {
                               {fields.map(({ key, name, ...restField }) => (
 
                                 <Space key={key} style={{ display: 'flex' }} align="baseline">
-                                  {console.log('key', key)}
                                   <Form.Item
                                     {...restField}
                                   >

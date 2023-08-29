@@ -42,4 +42,7 @@ export class Teacher extends BaseEntity {
     @OneToMany(() => TeacherAvailability, teacherAvailability => teacherAvailability.teacher)
     teacherAvailability: TeacherAvailability[];
 
+    @Column({ type:"boolean", default: false })
+    lockLesson: boolean;
+
 }

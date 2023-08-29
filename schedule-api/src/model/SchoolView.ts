@@ -16,6 +16,7 @@ export class SchoolView {
   schoolStatus?: string;
   numberOfBatches?: number;
   location?: string;
+  lockLesson?: boolean;
 
   public constructor(
     id: string,
@@ -31,7 +32,8 @@ export class SchoolView {
     createdAt?: Date | string,
     schoolStatus?: string,
     numberOfBatches?: number,
-    location?: string
+    location?: string,
+    lockLesson?: boolean
   ) {
     this.id = id;
     this.schoolId = schoolId;
@@ -47,5 +49,6 @@ export class SchoolView {
     this.schoolStatus = schoolStatus;
     this.numberOfBatches = numberOfBatches;
     this.location = location;
+    this.lockLesson = lockLesson;
   }
 }

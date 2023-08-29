@@ -37,4 +37,7 @@ export class School extends BaseEntity {
     state: string;
     @Column({ 'nullable': true })
     city: string;
+    @Column({ type:"boolean", default: false })
+    lockLesson: boolean;
+    
 }

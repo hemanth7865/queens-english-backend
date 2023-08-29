@@ -321,11 +321,23 @@ export class TeacherService {
 
   }
 
-
-  async saveTeacher(data: any, query?: { ignoreDuplicateCheck: boolean }) {
+  async saveTeacher(
+    data: {
+      email: string;
+      lastName: string;
+      type: string;
+      firstName: string;
+      phoneNumber: string;
+      lockLesson: boolean;
+      offlineUser: boolean;
+      id: string;
+      [key: string]: any;
+    },
+    query?: { ignoreDuplicateCheck: boolean }
+  ) {
     const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
-    data.email = data?.email || " "
-    data.lastName = data?.lastName || " "
+    data.email = data?.email || " ";
+    data.lastName = data?.lastName || " ";
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
@@ -344,6 +356,7 @@ export class TeacherService {
           lastName: data.lastName,
           isAdministrator: false,
           phoneNumber: data.phoneNumber,
+          lockLesson: data.lockLesson || false,
         },
       };
 
@@ -379,7 +392,7 @@ export class TeacherService {
         usersLogger.info("Update teacher information");
         usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
         res1 = await axios
-          .post(options.url, options.body)
+          .put(options.url, options.body)
           .then(async (res) => {
             console.log("Posted to cosmos and response is ", res);
             console.log("Id created in cosmos is ", res.data.id);
@@ -434,6 +447,7 @@ export class TeacherService {
 
           teacher.totalexp = parseFloat(element.totalexp);
           if (!teacher.totalexp) teacher.totalexp = 0;
+          teacher.lockLesson = data.lockLesson;
           teacher = await this.teacherRepository.save(teacher);
           user.id = teacher.id;
           user.teacher = [teacher];
@@ -1046,6 +1060,25 @@ export class TeacherService {
         return "success";
       });
     return "Loaded teacher availability ...";
+  }
+
+  async updateLockLessonFeature(
+    data: Array<{ id: string; lockLesson: boolean }>
+  ) {
+    console.log("data", data);
+    const options: any = {
+      url: `${this.COSMOS_URL}/api/user/update-lock-lesson/?code=${this.COSMOS_CODE}`,
+      json: true,
+      body: data
+    };
+    await axios.put(options.url, options.body);
+    for (const teacher of data) {
+      await this.teacherRepository.update(
+        { id: teacher.id },
+        { lockLesson: teacher.lockLesson }
+      );
+    }
+    return data;
   }
 
   async isTeacherExists(column = "phoneNumber", value: string, id: string | undefined): Promise<any> {

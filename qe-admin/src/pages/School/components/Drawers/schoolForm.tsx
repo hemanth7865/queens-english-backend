@@ -5,7 +5,8 @@ import {
     Button,
     Select,
     Spin,
-    notification
+    notification,
+    Checkbox
 } from 'antd';
 import { getSra, createSchool, editSchool, listBatchForSchool, listLocation } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
@@ -35,6 +36,7 @@ export type SchoolFormProps = {
         sraName?: string,
         classObject?: [{ batchId: string, batchNumber?: string, students?: any[] }],
         location?: string;
+        lockLesson?: boolean;
     }
 };
 
@@ -53,6 +55,12 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [loadingCities, setLoadingCities] = useState<boolean>(false);
     const [cities, setCities] = useState<any>([]);
     const [selectedCity, setSelectedCity] = useState<any>(false);
+    const [isLockLessonChecked, setIsLockLessonChecked] = useState<boolean>(false);
+
+    const handleLockLessonChange = (e: any) => {
+        setIsLockLessonChecked(e.target.checked);
+        form.setFieldsValue({ lockLesson: e.target.checked });
+    };
 
     const options = sra.map((item: any) => {
         return <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
@@ -202,7 +210,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             },
             country: value?.country,
             state: value?.state,
-            city: value?.city
+            city: value?.city,
+            lockLesson: value?.lockLesson ?? false,
         };
         setIsLoading(true);
         if (oldData.operation === 'edit') {
@@ -249,39 +258,25 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [form] = Form.useForm()
     const defaultValues = async () => {
         form.setFieldsValue({
-            id: newData ? newData?.id : props.tempData?.id,
-            schoolName: newData ? newData?.schoolName : props.tempData?.schoolName,
-            schoolCode: newData ? newData?.schoolCode : props.tempData?.schoolCode,
-            locationCode: newData ? newData?.locationCode : props.tempData?.locationCode,
-            schoolId: newData ? newData?.schoolId : props.tempData?.schoolId,
-            poc: newData ? newData?.poc : props.tempData?.poc,
-            sra: newData ? newData?.sra : props.tempData?.sra?.id,
-            schoolStatus: newData ? newData?.schoolStatus : props.tempData?.schoolStatus,
-            createdAt: newData ? newData?.createdAt : props.tempData?.createdAt,
-            numberOfBatches: newData ? newData?.batches?.length : props.tempData?.classes?.length,
-            batches: newData ? newData?.batches : props.tempData?.classes?.map((item: any) => item.batchNumber),
-            location: newData ? newData?.location : props.tempData?.location,
+            id: props.tempData?.id,
+            schoolName: props.tempData?.schoolName,
+            schoolCode: props.tempData?.schoolCode,
+            locationCode: props.tempData?.locationCode,
+            schoolId: props.tempData?.schoolId,
+            poc:  props.tempData?.poc,
+            sra:  props.tempData?.sra?.id,
+            schoolStatus: props.tempData?.schoolStatus,
+            createdAt:  props.tempData?.createdAt,
+            numberOfBatches: props.tempData?.classes?.length,
+            batches: props.tempData?.classes?.map((item: any) => item.batchNumber),
+            location: props.tempData?.location,
+            lockLesson: props.tempData?.lockLesson,
         })
+        setIsLockLessonChecked(props.tempData?.lockLesson ?? false)
     };
     useEffect(() => {
         defaultValues()
-    },
-        [
-            newData,
-            props.tempData?.id,
-            props.tempData?.schoolName,
-            props.tempData?.schoolCode,
-            props.tempData?.locationCode,
-            props.tempData?.schoolId,
-            props.tempData?.poc,
-            props.tempData?.sra?.name,
-            props.tempData?.schoolStatus,
-            props.tempData?.createdAt,
-            props.tempData?.classes?.length,
-            props.tempData?.classes?.map((item: any) => item.batchNumber),
-            props.tempData?.location
-        ]
-    )
+    }, [props.tempData])
 
     return (
         <>
@@ -458,6 +453,21 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                         )}
                     </Spin>
 
+                    <Form.Item
+                    label="Lock lessons feature"
+                    name="lockLesson"
+                    help={`This feature will lock the lessons for the students in the school while there is due assessment for the students.\nif the feature is disabled then the feature will be disabled for all the teachers in the school as well.`}
+                    >
+                        <Checkbox
+                        style={
+                            {
+                                paddingInlineStart: "10px",
+                            }
+                        }
+                            checked={isLockLessonChecked}
+                            onChange={handleLockLessonChange}
+                        />
+                    </Form.Item>
                     <Button
                         type="primary"
                         htmlType="submit"
