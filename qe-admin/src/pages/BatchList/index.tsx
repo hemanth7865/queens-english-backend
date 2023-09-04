@@ -860,6 +860,7 @@ const BatchList: React.FC = () => {
                               name="batchNumber"
                               rules={[{ required: true, message: "Batch Number" }]}
                             >
+                              <span className="header-title">Batch Number</span>
                               <Input
                                 type="text"
                                 placeholder="Batch Number"
@@ -871,6 +872,7 @@ const BatchList: React.FC = () => {
                             </Form.Item>
                           </Col>
                           <Col span={12}>
+                            <span className="header-title">Starting Lesson</span>
                             <Form.Item
                               name="startingLessonId"
                               rules={[
@@ -896,6 +898,7 @@ const BatchList: React.FC = () => {
                             </Form.Item>
                           </Col>
                           <Col span={12}>
+                            <span className="header-title">Ending Lesson</span>
                             <Form.Item
                               name="endingLessonId"
                               rules={[
@@ -922,6 +925,7 @@ const BatchList: React.FC = () => {
                             </Form.Item>
                           </Col>
                           <Col span={24}>
+                            <span className="header-title">Starting Date - Ending Date</span>
                             <Form.Item
                               name="dateRangePicker"
                               rules={[{ required: true, message: "Batch Date" }]}
@@ -938,10 +942,11 @@ const BatchList: React.FC = () => {
                             </Form.Item>
                           </Col>
                           <Col span={24}>
+                            <span className="header-title">Starting Time - Ending Time</span>
                             <Form.Item
                               name="BatchTime"
                               rules={[{ required: true, message: "Batch Time" }]}
-                            > 
+                            >
                               <TimePicker.RangePicker
                                 format={"HH:mm"}
                                 disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i : 1)}
@@ -959,6 +964,7 @@ const BatchList: React.FC = () => {
                             </Form.Item>
                           </Col>
                           <Col span={16}>
+                            <span className="header-title">Teacher</span>
                             <Form.Item
                               name="teacherId"
                               rules={[
@@ -995,6 +1001,7 @@ const BatchList: React.FC = () => {
                           </Col>
 
                           <Col span={24}>
+                            <span className="header-title">Frequency</span>
                             <Form.Item
                               name="frequency"
                               rules={[
@@ -1013,6 +1020,7 @@ const BatchList: React.FC = () => {
                           </Col>
 
                           <Col span={24}>
+                            <span className="header-title">Use New Zoom Link</span>
                             <Form.Item
                               name="useNewZoomLink"
                             >
@@ -1034,6 +1042,7 @@ const BatchList: React.FC = () => {
 
 
                           <Col span={24}>
+                            <span className="header-title">Online / Offline Batch</span>
                             <Form.Item
                               name="offlineBatch"
                             >
@@ -1054,6 +1063,7 @@ const BatchList: React.FC = () => {
                           </Col>
 
                           <Col span={24} hidden={!selectedOfflineBatch}>
+                            <span className="header-title">School</span>
                             <Form.Item
                               name="schoolId"
                             >
@@ -1085,6 +1095,7 @@ const BatchList: React.FC = () => {
 
                           {!selectedOfflineBatch &&
                             <Col span={24}>
+                              <span className="header-title">Use Auto Attendance Tracker</span>
                               <Form.Item
                                 name="useAutoAttendance"
                               >
@@ -1107,6 +1118,7 @@ const BatchList: React.FC = () => {
 
                           {!createBatch && (
                             <Col span={24}>
+                              <span className="header-title">Unlocked Lesson Number</span>
                               <Form.Item
                                 name="requestedUnlockedLessonNumber"
                                 help="All lessons from starting to this lesson will be unlocked."
@@ -1126,6 +1138,7 @@ const BatchList: React.FC = () => {
                           )}
 
                           <Col span={24}>
+                            <span className="header-title">Zoom Link</span>
                             <Form.Item
                               name="zoomLink"
                               rules={[{ required: true, message: "Zoom Link" }]}
@@ -1142,6 +1155,7 @@ const BatchList: React.FC = () => {
                           </Col>
 
                           <Col span={24}>
+                            <span className="header-title">Zoom Information</span>
                             <Form.Item
                               name="zoomInfo"
                               rules={[{ required: true, message: "Zoom Information" }]}
@@ -1159,6 +1173,7 @@ const BatchList: React.FC = () => {
 
                           {access.canSuperAdmin && !createBatch && (
                             <Col span={24}>
+                              <span className="header-title">Status</span>
                               <Form.Item
                                 name="status"
                                 rules={[
@@ -1177,6 +1192,7 @@ const BatchList: React.FC = () => {
                           )}
 
                           <Col span={24}>
+                            <span className="header-title">Whatsapp Link</span>
                             <Form.Item
                               name="whatsappLink"
                               rules={[{ required: true, message: "Whatsapp Link" }]}
@@ -1193,6 +1209,7 @@ const BatchList: React.FC = () => {
                           </Col>
 
                           <Col span={24}>
+                            <span className="header-title">Students</span>
                             {studentList ?
                               <DebounceSelect
                                 showSearch
