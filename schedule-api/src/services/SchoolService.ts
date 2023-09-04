@@ -333,6 +333,10 @@ export class SchoolService {
             } else {
                 school = await this.schoolRepository.findOne({ where: { id: request.id }, relations:['classes'] });
             }
+            let inactivateSchool = false;
+            if (request?.id && school?.schoolStatus === Status.ACTIVE_CAPS && request?.schoolStatus === Status.INACTIVE_CAPS) {
+                inactivateSchool = true;
+            }
             const prevLockLesson = school.lockLesson;
             school.schoolName = request.schoolName;
             school.schoolCode = request.schoolCode;
@@ -345,6 +349,18 @@ export class SchoolService {
             school.state = request.state;
             school.city = request.city;
             school.lockLesson = request.lockLesson ?? false;
+
+            if (inactivateSchool) {
+                await this.inactivateSchool(request.id);
+                // Inactive all batches, and users of the school
+            }
+
+            if (inactivateSchool) {
+                return {
+                    success: true
+                }
+            }
+
             const saveSchool = await this.schoolRepository.save(school);
 
             // overwriting the lockLesson feature for teachers if it is changed
@@ -384,7 +400,10 @@ export class SchoolService {
                 data: saveSchool,
             };
         } catch (error) {
-            console.error(error);
+            return {
+                success: false,
+                errorMessage: error.message,
+            }
         }
     }
 
@@ -524,6 +543,28 @@ export class SchoolService {
             updatedStudents,
             errors,
         };
+    }
+
+    async inactivateSchool(schoolId: string) {
+        try{
+            const users = await this.userRepository.find({
+                where: {
+                    schoolId: schoolId
+                }
+            })
+            const classesResponse = await this.batchService.listBatch(null,{ schoolId: schoolId, current:0, pageSize: 100 })
+            const classes = classesResponse.data || []
+
+            console.log("users", users)
+            console.log("classes", classes)
+
+            // TODO: Reuse the same functionality from Mohan's Deactivate ticket.
+
+
+        }catch(error){
+            console.log("Error while inactivating school", error?.message)
+            throw new Error(error?.message)
+        }
     }
 
 }
