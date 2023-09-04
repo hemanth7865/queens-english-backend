@@ -21,3 +21,9 @@
 .viewStudentTable .ant-table-cell {
     padding: 8px 8px !important;
 }
+
+.header-title {
+    text-align: center;
+    opacity: 0.3;
+    font-weight: bold;
+}
