@@ -275,7 +275,7 @@ export class BatchService {
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return { status: false, message: error?.response?.data || "Service Error" };
+      return { status: false, message: error?.response?.data || "Service Error", studentId: error?.response?.studentId };
     } finally {
       await queryRunner.release();
     }
@@ -736,6 +736,7 @@ export class BatchService {
           return await this.addStudentSQL(batchId, student);
         })
         .catch(async (error) => {
+          error.response.studentId = student;
           /**
            * ! Temporary force add student to the batch, to fix records that are currently in a batch on CosmosDB, but not in a batch in AP.
            */
