@@ -612,7 +612,7 @@ const BatchList: React.FC = () => {
       ),
       dataIndex: "lessonNumber",
       render: (dom, entity) => {
-        return access.canSuperAdmin ? <ActiveLessonContainer notificationCall={notificationCall} entity={entity} /> : <>{entity?.lessonNumber}</>
+        return (access.canSuperAdmin || access.canPMHead || access.canProgramManager) ? <ActiveLessonContainer notificationCall={notificationCall} entity={entity} /> : <>{entity?.lessonNumber}</>
       }
     },
     //frequency
@@ -941,7 +941,7 @@ const BatchList: React.FC = () => {
                             <Form.Item
                               name="BatchTime"
                               rules={[{ required: true, message: "Batch Time" }]}
-                            > 
+                            >
                               <TimePicker.RangePicker
                                 format={"HH:mm"}
                                 disabledMinutes={(h) => new Array(60).fill(0).map((_, i) => i !== 0 && i !== 30 ? i : 1)}
