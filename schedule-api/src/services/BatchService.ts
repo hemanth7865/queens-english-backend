@@ -1162,9 +1162,9 @@ export class BatchService {
     let studentDetail = await studentService.getStudentDetailsById(studentId);
 
     // Check if the selected student detail is already present in the selected branch
-    var query = `SELECT s.id, s.batchCode, s.classSection, u.firstName, u.lastName, u.middleName FROM qeadmin2.student as s
-    INNER JOIN qeadmin2.classes as c ON s.batchCode = c.batchNumber 
-    INNER JOIN qeadmin2.user as u ON s.id = u.id
+    var query = `SELECT s.id, s.batchCode, s.classSection, u.firstName, u.lastName, u.middleName FROM student as s
+    INNER JOIN classes as c ON s.batchCode = c.batchNumber 
+    INNER JOIN user as u ON s.id = u.id
     where c.id = '${batchId}'
     and u.firstName = '${studentDetail.data.firstName}' and u.lastName = '${studentDetail.data.lastName}'`
 
