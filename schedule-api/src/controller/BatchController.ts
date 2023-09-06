@@ -54,16 +54,19 @@ export class BatchController {
     async bulkReBatchStudents(request: Request, response: Response, next: NextFunction) {
         var resp = [];
         const studentIds = request.body.studentIds;
-        await Promise.all(studentIds.map(async (studentId: string) => {
-            resp.push(await this.reBatch({
+
+        for (const studentId of studentIds) {
+            const result = await this.reBatch({
                 body: {
                     studentId: studentId,
                     batchId: request.body.batchId,
                     bulkRebatch: request.body.bulkRebatch ? request.body.bulkRebatch : false,
                     removeFromBatch: request.body.removeFromBatch
                 }
-            }, response, next));
-        }));
+            }, response, next);
+    
+            resp.push(result);
+        }
         
         return {
             "success": true,
