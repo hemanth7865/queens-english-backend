@@ -20,7 +20,7 @@ const ReBatch: React.FC<Props> = (props) => {
   const [form] = Form.useForm()
 
   useEffect(() => {
-    listSchool()
+    listSchool({ onlySchools: true })
       .then((data: any) => {
         setSchools(data.data);
       })

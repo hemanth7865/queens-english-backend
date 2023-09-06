@@ -1060,6 +1060,7 @@ export async function listSchool(
   params?: {
     current?: number;
     pageSize?: number;
+    onlySchools?: boolean;
   },
   options?: { [key: string]: any }
 ) {

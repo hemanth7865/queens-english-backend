@@ -31,6 +31,7 @@ export class SchoolController {
             country: request.query['country'],
             state: request.query['state'],
             city: request.query['city'],
+            onlySchools: request.query['onlySchools'] === 'true',
         }
         let res;
         try {
