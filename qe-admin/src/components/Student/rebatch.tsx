@@ -171,7 +171,7 @@ const ReBatch: React.FC<Props> = (props) => {
   ]
   return (
     <>
-      <Spin spinning={isLoading}>
+      <Spin spinning={isLoading} tip={`Rebatching students, this operation might take upto 1-2 minutes, please do not close the window.`}>
         <Table dataSource={selectedStudents} columns={columns} key={key} />
         <Divider style={{ margin: '8px 0' }} />
         <Row gutter={16}>
