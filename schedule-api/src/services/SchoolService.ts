@@ -532,20 +532,26 @@ export class SchoolService {
 
     async deactivateSchool(schoolId: string) {
         try {
+          const response = {
+            batches: {
+              success: 0,
+              failure: 0,
+            },
+            teachers: {
+              success: 0,
+              failure: 0,
+            },
+          };
+    
           const batchResponse = await this.batchService.listBatch(null, {
             schoolId: schoolId,
             current: 0,
             pageSize: 100,
           });
           const batches = batchResponse.data || [];
-          const response = {
-            batch: {
-              success: 0,
-              failure: 0,
-            },
-          };
     
           for (const batch of batches) {
+            if (batch.status === 0) continue;
             const cosmosBatch = await this.batchService.getCosmosBatch(batch.id);
             if (cosmosBatch) {
               try {
@@ -555,16 +561,49 @@ export class SchoolService {
                   status: 0,
                   useNewZoomLink: 0,
                 };
-                const resp:any = await this.batchService.createBatch(batchBody, true);
-                console.log("RESP", resp)
-                if(resp?.status === false) {
-                    response.batch.failure += 1;
-                    continue;
+                const resp: any = await this.batchService.createBatch(
+                  batchBody,
+                  true
+                );
+                if (resp?.status === false) {
+                  response.batches.failure += 1;
+                  continue;
                 }
-                response.batch.success += 1;
+                response.batches.success += 1;
               } catch (error) {
-                response.batch.failure += 1;
+                response.batches.failure += 1;
               }
+            }
+          }
+    
+          const teachersQuery = `SELECT id FROM user where user.schoolId = '${schoolId}' AND user.type = 'teacher'`;
+          const teachersIdsResp = await getManager().query(teachersQuery);
+          const teachersIds = teachersIdsResp.map((e) => e.id);
+    
+          for (const teacherId of teachersIds) {
+            const teacherResp = await this.TeacherService.leadFullDetails(
+              {},
+              teacherId
+            );
+            if (!teacherResp?.success || !teacherResp?.data) continue;
+    
+            const teacher = teacherResp?.data;
+            const teacherBody = {
+              ...teacher,
+              status: 0,
+              lockLesson: true,
+              offlineUser: true,
+            };
+    
+            try {
+              const resp: any = await this.TeacherService.saveTeacher(teacherBody);
+              if (resp?.status === 400 || resp?.status === 501 || resp?.error) {
+                response.teachers.failure += 1;
+                continue;
+              }
+              response.teachers.success += 1;
+            } catch (error) {
+              response.teachers.failure += 1;
             }
           }
     
