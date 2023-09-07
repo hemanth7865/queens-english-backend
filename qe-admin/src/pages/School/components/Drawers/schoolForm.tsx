@@ -182,7 +182,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         try {
             const response = await deactivateSchool(schoolId);
             if (response.error) throw new Error(response.message);
-        } catch (error) {
+            console.log("RESPONSE", response)
+        } catch (error: any) {
             openNotification({
                 success: false,
                 create: false,

@@ -531,33 +531,50 @@ export class SchoolService {
     }
 
     async deactivateSchool(schoolId: string) {
-        try{
-            // const users = await this.userRepository.find({
-            //     where: {
-            //         schoolId: schoolId
-            //     }
-            // })
-            const batchResponse = await this.batchService.listBatch(null,{ schoolId: schoolId, current:0, pageSize: 100 })
-            const batches = batchResponse.data || []
-
-            // console.log("users", users)
-            console.log("classes", batches)
-            return batches;
-            // for(const batch of batches) {
-            //     batch.status = 0;
-            //     try{
-            //         const deactivateBatchRes = await this.batchService.createBatch(batch, true);
-            //     } catch(error){
-            //     }
-            // }
-
-            // TODO: Reuse the same functionality from Mohan's Deactivate ticket.
-
-
-        }catch(error){
-            console.log("Error while inactivating school", error?.message)
-            throw new Error(error?.message)
+        try {
+          const batchResponse = await this.batchService.listBatch(null, {
+            schoolId: schoolId,
+            current: 0,
+            pageSize: 100,
+          });
+          const batches = batchResponse.data || [];
+          const response = {
+            batch: {
+              success: 0,
+              failure: 0,
+            },
+          };
+    
+          for (const batch of batches) {
+            const cosmosBatch = await this.batchService.getCosmosBatch(batch.id);
+            if (cosmosBatch) {
+              try {
+                const batchBody = {
+                  ...cosmosBatch,
+                  edit: true,
+                  status: 0,
+                  useNewZoomLink: 0,
+                };
+                const resp:any = await this.batchService.createBatch(batchBody, true);
+                console.log("RESP", resp)
+                if(resp?.status === false) {
+                    response.batch.failure += 1;
+                    continue;
+                }
+                response.batch.success += 1;
+              } catch (error) {
+                response.batch.failure += 1;
+              }
+            }
+          }
+    
+          return response;
+    
+          // TODO: Reuse the same functionality from Mohan's Deactivate ticket.
+        } catch (error) {
+          console.log("Error while inactivating school", error?.message);
+          throw new Error(error?.message);
         }
-    }
+      }
 
 }
