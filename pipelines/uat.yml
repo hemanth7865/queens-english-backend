@@ -24,10 +24,9 @@ steps:
       runOptions: "commands"
       commands: |
         echo "Clean Local Changes"
-        echo "Checkout Branch $(BRANCH_NAME)"
         cd /home/qeuser/qe-backend && git add . && git stash
         echo "Download Updates"
-        # cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
+        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
         cd /home/qeuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/qeuser/git-checkout.txt && cat /home/qeuser/git-checkout.txt
         cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
