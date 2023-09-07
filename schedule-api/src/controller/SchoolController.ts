@@ -165,4 +165,19 @@ export class SchoolController {
           logger.error(error);
         }
       }
+    
+    async deactivateSchool(request: Request, response: Response, next: NextFunction) {
+        let res;
+        try {
+            const schoolId = request.body.schoolId;
+            if(!schoolId){
+                throw new Error("School Id Not Found");
+            }
+            res = await this.schoolService.deactivateSchool(schoolId);
+            return res;
+        } catch (error) {
+            logger.error(error);
+            response.status(400).json({ message: error.message })
+        }
+    }
 }

@@ -333,10 +333,6 @@ export class SchoolService {
             } else {
                 school = await this.schoolRepository.findOne({ where: { id: request.id }, relations:['classes'] });
             }
-            let inactivateSchool = false;
-            if (request?.id && school?.schoolStatus === Status.ACTIVE_CAPS && request?.schoolStatus === Status.INACTIVE_CAPS) {
-                inactivateSchool = true;
-            }
             const prevLockLesson = school.lockLesson;
             school.schoolName = request.schoolName;
             school.schoolCode = request.schoolCode;
@@ -349,17 +345,6 @@ export class SchoolService {
             school.state = request.state;
             school.city = request.city;
             school.lockLesson = request.lockLesson ?? false;
-
-            if (inactivateSchool) {
-                await this.inactivateSchool(request.id);
-                // Inactive all batches, and users of the school
-            }
-
-            if (inactivateSchool) {
-                return {
-                    success: true
-                }
-            }
 
             const saveSchool = await this.schoolRepository.save(school);
 
@@ -545,18 +530,26 @@ export class SchoolService {
         };
     }
 
-    async inactivateSchool(schoolId: string) {
+    async deactivateSchool(schoolId: string) {
         try{
-            const users = await this.userRepository.find({
-                where: {
-                    schoolId: schoolId
-                }
-            })
-            const classesResponse = await this.batchService.listBatch(null,{ schoolId: schoolId, current:0, pageSize: 100 })
-            const classes = classesResponse.data || []
+            // const users = await this.userRepository.find({
+            //     where: {
+            //         schoolId: schoolId
+            //     }
+            // })
+            const batchResponse = await this.batchService.listBatch(null,{ schoolId: schoolId, current:0, pageSize: 100 })
+            const batches = batchResponse.data || []
 
-            console.log("users", users)
-            console.log("classes", classes)
+            // console.log("users", users)
+            console.log("classes", batches)
+            return batches;
+            // for(const batch of batches) {
+            //     batch.status = 0;
+            //     try{
+            //         const deactivateBatchRes = await this.batchService.createBatch(batch, true);
+            //     } catch(error){
+            //     }
+            // }
 
             // TODO: Reuse the same functionality from Mohan's Deactivate ticket.
 

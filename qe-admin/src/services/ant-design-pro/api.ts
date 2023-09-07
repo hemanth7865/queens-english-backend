@@ -504,6 +504,16 @@ export async function bulkReBatchStudents(options?: { [key: string]: any }) {
   });
 }
 
+export async function deactivateSchool(schoolId: string) {
+  return request<any>("/be/deactivateSchool", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ schoolId }),
+  });
+}
+
 //RESET EXISTING LESSON STATUS
 export async function resetLessonStatus(id?: string, lessonsData?: any) {
   return request<any>(`/be/azure?url=api/classProfile/${id}/lessonStatus`, {
