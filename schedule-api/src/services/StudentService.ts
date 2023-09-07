@@ -486,10 +486,11 @@ export class StudentService {
             return user;
           })
           .catch((error) => {
-            console.log("error", error);
+            console.log("error", error?.message);
             response = {
               status: error.response.status,
               errors: [error.response.data],
+              error: true
             };
             return response;
           });
@@ -498,7 +499,9 @@ export class StudentService {
       return response;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return;
+      return {
+        error: true
+      };
     } finally {
       await queryRunner.release();
     }
