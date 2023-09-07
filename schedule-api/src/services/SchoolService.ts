@@ -541,8 +541,13 @@ export class SchoolService {
               success: 0,
               failure: 0,
             },
+            students: {
+              success: 0,
+              failure: 0,
+            },
           };
     
+          // For batches
           const batchResponse = await this.batchService.listBatch(null, {
             schoolId: schoolId,
             current: 0,
@@ -576,6 +581,7 @@ export class SchoolService {
             }
           }
     
+          // For teachers
           const teachersQuery = `SELECT id FROM user where user.schoolId = '${schoolId}' AND user.type = 'teacher'`;
           const teachersIdsResp = await getManager().query(teachersQuery);
           const teachersIds = teachersIdsResp.map((e) => e.id);
@@ -607,9 +613,37 @@ export class SchoolService {
             }
           }
     
-          return response;
+          // For Students
+          const studentsRes = await this.studentService.listStudentDetails(
+            {},
+            {
+              schoolId: schoolId,
+              type: "student",
+            }
+          );
     
-          // TODO: Reuse the same functionality from Mohan's Deactivate ticket.
+          const students = studentsRes?.data || [];
+    
+          for (const student of students) {
+            const studentBody = {
+              ...student,
+              status: 0,
+            };
+    
+            try {
+              const resp: any = await this.studentService.saveStudentDetails(
+                studentBody
+              );
+              if (resp?.error) {
+                response.students.failure += 1;
+                continue;
+              }
+              response.students.success += 1;
+            } catch (error) {
+              response.students.failure += 1;
+            }
+          }
+          return response;
         } catch (error) {
           console.log("Error while inactivating school", error?.message);
           throw new Error(error?.message);
