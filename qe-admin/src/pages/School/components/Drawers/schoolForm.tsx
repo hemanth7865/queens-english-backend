@@ -8,9 +8,10 @@ import {
     notification,
     Checkbox
 } from 'antd';
-import { getSra, createSchool, editSchool, listBatchForSchool, listLocation } from '@/services/ant-design-pro/api';
+import { getSra, createSchool, editSchool, listBatchForSchool, listLocation, deactivateSchool } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import UploadStudentsBulkWithoutRMN from '@/pages/StudentList/components/UploadStudentsBulkWithoutRMN';
+import { USER_STATUS } from '@/components/Constants/constants';
 
 const { Option } = Select;
 
@@ -45,7 +46,6 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [loadingBatches, setLoadingBatches] = useState<boolean>(false);
     const [sra, setSra] = useState<any>([]);
     const [batches, setBatches] = useState<any>([]);
-    const [newData, setNewdata] = useState<any>(false);
     const [loadingCountries, setLoadingCountries] = useState<boolean>(false);
     const [countries, setCountries] = useState<any>([]);
     const [selectedCountry, setSelectedCountry] = useState<any>(false);
@@ -170,9 +170,30 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         setIsLoading(false);
     }, []);
 
+    const inactivateSchool = async (schoolId: string | undefined) => {
+        if (!schoolId) {
+            openNotification({
+                success: false,
+                create: false,
+                message: "Please provide valid school Id."
+            })
+            return;
+        }
+        try {
+            const response = await deactivateSchool(schoolId);
+            console.log("RESPONSE", response);
+        } catch (error) {
+            console.log(error);
+        }
+        console.log("SCHOOL ID", schoolId);
+    }
+
     const onFinish = async (value: any) => {
         const oldData = props.tempData;
-        setNewdata(value);
+        if (oldData?.schoolStatus !== USER_STATUS.INACTIVE_CAPS && value.schoolStatus === USER_STATUS.INACTIVE_CAPS) {
+            inactivateSchool(oldData?.id);
+            return;
+        }
         async function areArrEqual(arr1: any, arr2: any) {
             if (arr1.length !== arr2.length) return false;
             for (let i = 0; i < arr2.length; i++) {
@@ -250,9 +271,9 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             }
         }
         openNotification(value);
-        setTimeout(() => {
-            window.location.reload();
-        }, 3000);
+        // setTimeout(() => {
+        //     window.location.reload();
+        // }, 3000);
     };
 
     const [form] = Form.useForm()
@@ -263,10 +284,10 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             schoolCode: props.tempData?.schoolCode,
             locationCode: props.tempData?.locationCode,
             schoolId: props.tempData?.schoolId,
-            poc:  props.tempData?.poc,
-            sra:  props.tempData?.sra?.id,
+            poc: props.tempData?.poc,
+            sra: props.tempData?.sra?.id,
             schoolStatus: props.tempData?.schoolStatus,
-            createdAt:  props.tempData?.createdAt,
+            createdAt: props.tempData?.createdAt,
             numberOfBatches: props.tempData?.classes?.length,
             batches: props.tempData?.classes?.map((item: any) => item.batchNumber),
             location: props.tempData?.location,
@@ -282,6 +303,11 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         <>
             <Spin spinning={isLoading} >
                 {contextHolder}
+                <Button type="primary" onClick={() => {
+                    deactivateSchool(props?.tempData?.id);
+                }} style={{ marginBottom: 16 }}>
+                    Deactivate School
+                </Button>
                 <Form
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 14 }}
@@ -454,16 +480,16 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     </Spin>
 
                     <Form.Item
-                    label="Lock lessons feature"
-                    name="lockLesson"
-                    help={`This feature will lock the lessons for the students in the school while there is due assessment for the students.\nif the feature is disabled then the feature will be disabled for all the teachers in the school as well.`}
+                        label="Lock lessons feature"
+                        name="lockLesson"
+                        help={`This feature will lock the lessons for the students in the school while there is due assessment for the students.\nif the feature is disabled then the feature will be disabled for all the teachers in the school as well.`}
                     >
                         <Checkbox
-                        style={
-                            {
-                                paddingInlineStart: "10px",
+                            style={
+                                {
+                                    paddingInlineStart: "10px",
+                                }
                             }
-                        }
                             checked={isLockLessonChecked}
                             onChange={handleLockLessonChange}
                         />
