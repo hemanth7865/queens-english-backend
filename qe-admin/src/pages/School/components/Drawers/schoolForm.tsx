@@ -179,6 +179,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             })
             return;
         }
+        setIsLoading(true);
         try {
             const response = await deactivateSchool(schoolId);
             if (response.error) throw new Error(response.message);
@@ -189,6 +190,8 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                 create: false,
                 message: error?.message
             })
+        } finally {
+            setIsLoading(false);
         }
     }
 
