@@ -181,11 +181,14 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         }
         try {
             const response = await deactivateSchool(schoolId);
-            console.log("RESPONSE", response);
+            if (response.error) throw new Error(response.message);
         } catch (error) {
-            console.log(error);
+            openNotification({
+                success: false,
+                create: false,
+                message: error?.message
+            })
         }
-        console.log("SCHOOL ID", schoolId);
     }
 
     const onFinish = async (value: any) => {
@@ -304,7 +307,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             <Spin spinning={isLoading} >
                 {contextHolder}
                 <Button type="primary" onClick={() => {
-                    deactivateSchool(props?.tempData?.id);
+                    inactivateSchool(props?.tempData?.id);
                 }} style={{ marginBottom: 16 }}>
                     Deactivate School
                 </Button>
