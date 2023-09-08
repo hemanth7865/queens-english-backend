@@ -643,6 +643,11 @@ export class SchoolService {
               response.students.failure += 1;
             }
           }
+    
+          // Changing status of the school to `Inactive`
+          const updateQuery = `UPDATE school SET schoolStatus = 'Inactive' WHERE id = '${schoolId}'`;
+          await getManager().query(updateQuery);
+    
           return response;
         } catch (error) {
           console.log("Error while inactivating school", error?.message);

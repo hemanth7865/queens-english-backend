@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Form,
     Input,
@@ -6,7 +6,8 @@ import {
     Select,
     Spin,
     notification,
-    Checkbox
+    Checkbox,
+    Table
 } from 'antd';
 import { getSra, createSchool, editSchool, listBatchForSchool, listLocation, deactivateSchool } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
@@ -56,6 +57,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [cities, setCities] = useState<any>([]);
     const [selectedCity, setSelectedCity] = useState<any>(false);
     const [isLockLessonChecked, setIsLockLessonChecked] = useState<boolean>(false);
+    const [deactivateResponse, setDeactivateResponse] = useState<any>(null);
 
     const handleLockLessonChange = (e: any) => {
         setIsLockLessonChecked(e.target.checked);
@@ -183,7 +185,13 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         try {
             const response = await deactivateSchool(schoolId);
             if (response.error) throw new Error(response.message);
-            console.log("RESPONSE", response)
+            setDeactivateResponse(response);
+
+            openNotification({
+                success: true,
+                create: false,
+                message: `School ${props?.tempData?.schoolName} has been inactivated successfully.`
+            })
         } catch (error: any) {
             openNotification({
                 success: false,
@@ -278,9 +286,9 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             }
         }
         openNotification(value);
-        // setTimeout(() => {
-        //     window.location.reload();
-        // }, 3000);
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
     };
 
     const [form] = Form.useForm()
@@ -306,15 +314,51 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         defaultValues()
     }, [props.tempData])
 
+
+    const DeactivateTable = () => {
+        if (!deactivateResponse) return null;
+        const columns = [
+            {
+                title: 'Name',
+                dataIndex: 'name',
+                key: 'name',
+            },
+            {
+                title: 'Success',
+                dataIndex: 'success',
+                key: 'success',
+            },
+            {
+                title: 'Failure',
+                dataIndex: 'failure',
+                key: 'failure',
+            }
+        ];
+
+        const data = useMemo(() => {
+            return Object.keys(deactivateResponse)?.map((itemKey: string) => {
+                return {
+                    name: itemKey,
+                    success: deactivateResponse[itemKey].success,
+                    failure: deactivateResponse[itemKey].failure,
+                }
+            })
+        }, [deactivateResponse]);
+
+        return <Table columns={columns} dataSource={data} />;
+    }
+
     return (
         <>
-            <Spin spinning={isLoading} >
+            <Spin spinning={isLoading} tip="Please wait, this might take upto 1-2 mins." >
                 {contextHolder}
                 <Button type="primary" onClick={() => {
                     inactivateSchool(props?.tempData?.id);
-                }} style={{ marginBottom: 16 }}>
+                }} style={{ marginBottom: 16, marginLeft: 20 }}>
                     Deactivate School
                 </Button>
+                <DeactivateTable />
+
                 <Form
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 14 }}
