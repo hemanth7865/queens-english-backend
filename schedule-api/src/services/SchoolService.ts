@@ -632,7 +632,10 @@ export class SchoolService {
     
             try {
               const resp: any = await this.studentService.saveStudentDetails(
-                studentBody
+                studentBody,
+                {
+                  ignoreDuplicateCheck: true,
+                }
               );
               if (resp?.error) {
                 response.students.failure += 1;
