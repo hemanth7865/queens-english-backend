@@ -352,12 +352,17 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         <>
             <Spin spinning={isLoading} tip="Please wait, this might take upto 1-2 mins." >
                 {contextHolder}
-                <Button type="primary" onClick={() => {
-                    inactivateSchool(props?.tempData?.id);
-                }} style={{ marginBottom: 16, marginLeft: 20 }}>
-                    Deactivate School
-                </Button>
-                <DeactivateTable />
+
+                {props?.tempData?.schoolStatus !== "Inactive" && (
+                    <>
+                        <Button type="primary" onClick={() => {
+                            inactivateSchool(props?.tempData?.id);
+                        }} style={{ marginBottom: 16, marginLeft: 20 }}>
+                            Deactivate School
+                        </Button>
+                        <DeactivateTable />
+                    </>
+                )}
 
                 <Form
                     labelCol={{ span: 4 }}
