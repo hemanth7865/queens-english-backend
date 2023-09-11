@@ -192,6 +192,12 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                 create: false,
                 message: `School ${props?.tempData?.schoolName} has been inactivated successfully.`
             })
+            const anyFailure = Object.keys(response).some((key) => response[key].failure > 0)
+            if (!anyFailure) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
         } catch (error: any) {
             openNotification({
                 success: false,
