@@ -231,6 +231,13 @@ export const Routes = [
     authenticate: true,
   },
   {
+    method: "post",
+    route: "/updateBatchStartDate",
+    controller: BatchController,
+    action: "updateBatchStartDate",
+    apiKey: true,
+  },
+  {
     method: "get",
     route: "/session/:id",
     controller: SessionController,

@@ -258,4 +258,31 @@ export class BatchController {
         }
     }
 
+    async updateBatchStartDate(
+    request: Request,
+    response: Response,
+    next: NextFunction
+    ) {
+        try {
+            const { batchId, startDate } = request.body;
+            const res = await this.batchService.updateBatchStartDate(
+                batchId,
+                startDate
+            );
+            if (res.success) {
+                response.status(200).send(res.data);
+            } else {
+                response.status(400).send({
+                    message: "Something went wrong while updating the batch.",
+                    error: res.data,
+                });
+            }
+        } catch (error) {
+            response.status(500).send({
+                message:
+                error?.message || "Some error occurred while updating the batch.",
+            });
+        }
+    }
+
 }

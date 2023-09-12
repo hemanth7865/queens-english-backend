@@ -1368,4 +1368,18 @@ export class BatchService {
       return { message: "Bulk update error" , error: error};
     }
   }
+
+  async updateBatchStartDate(batchId: string, startDate: string) {
+    try {
+      const batch = await this.classesRepository.findOne({ id: batchId });
+      if (batch) {
+        batch.classStartDate = startDate;
+        await this.classesRepository.save(batch);
+        return { success: true, data: batch };
+      }
+    } catch (error) {
+      return { success: false, data: error };
+    }
+  }
+
 }
