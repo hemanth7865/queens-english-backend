@@ -1032,7 +1032,6 @@ export class StudentService {
       .createQueryBuilder(Payment, "payment")
       .where("payment.id = :id", { id: id })
       .getOne();
-    console.log(student);
 
     var quer =
       "select studentId , batchId from batch_students where studentId='" +

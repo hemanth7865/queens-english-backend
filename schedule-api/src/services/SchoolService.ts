@@ -125,38 +125,41 @@ export class SchoolService {
         let batchStudents: any[] = [];
 
         for (const element of schools) {
-            const classes = await this.classesRepository.find({ where: { schoolId: element.id } });
+            let classes:any[] = []
             let classesData: any[] = [];
-            let classesLength = classes.length + 1;
-            for (const c of classes) {
-                let classObject: any[] = [];
-                let studentArray: any[] = [];
-                batchStudents = await this.batchStudentRepository.find({ where: { batchId: c.id } });
-                let batchStudentlength = batchStudents.length + 1;
-                for (const student of batchStudents) {
-                    let user = await this.userRepository.findOne({ where: { id: student.studentId } });
-                    let s = await this.studentRepository.findOne({ where: { id: student.studentId } });
-                    let studentObject: any[] = [];
-                    studentObject.push({
-                        id: user.id,
-                        name: s?.studentName ?? user?.firstName + ' ' + user?.lastName,
-                        email: user?.email ?? user?.customerEmail,
-                        mobile: user?.phoneNumber,
-                        status: s?.status,
-                        schoolId: user?.schoolId ?? s?.schoolId
+            if(!parameters?.onlySchools) {
+                classes = await this.classesRepository.find({ where: { schoolId: element.id } });
+                let classesLength = classes.length + 1;
+                for (const c of classes) {
+                    let classObject: any[] = [];
+                    let studentArray: any[] = [];
+                    batchStudents = await this.batchStudentRepository.find({ where: { batchId: c.id } });
+                    let batchStudentlength = batchStudents.length + 1;
+                    for (const student of batchStudents) {
+                        let user = await this.userRepository.findOne({ where: { id: student.studentId } });
+                        let s = await this.studentRepository.findOne({ where: { id: student.studentId } });
+                        let studentObject: any[] = [];
+                        studentObject.push({
+                            id: user.id,
+                            name: s?.studentName ?? user?.firstName + ' ' + user?.lastName,
+                            email: user?.email ?? user?.customerEmail,
+                            mobile: user?.phoneNumber,
+                            status: s?.status,
+                            schoolId: user?.schoolId ?? s?.schoolId
+                        })
+                        do {
+                            studentArray = [...studentArray, ...studentObject]
+                        } while (!--batchStudentlength)
+                    }
+                    classObject.push({
+                        batchId: c.id,
+                        batchNumber: c.batchNumber,
+                        students: studentArray
                     })
                     do {
-                        studentArray = [...studentArray, ...studentObject]
-                    } while (!--batchStudentlength)
+                        classesData = [...classesData, ...classObject]
+                    } while (!--classesLength)
                 }
-                classObject.push({
-                    batchId: c.id,
-                    batchNumber: c.batchNumber,
-                    students: studentArray
-                })
-                do {
-                    classesData = [...classesData, ...classObject]
-                } while (!--classesLength)
             }
 
             const sra = await this.sraRepository.findOne({ where: { id: element.sraId } });

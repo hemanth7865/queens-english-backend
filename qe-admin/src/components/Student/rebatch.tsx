@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Form, Select, Col, Row, Spin, Button, message, Divider } from 'antd';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Table, Form, Select, Col, Row, Spin, Button, message, Divider, Alert } from 'antd';
 
 import {
   listBatch, listSchool, bulkReBatchStudents,
@@ -16,11 +16,14 @@ const ReBatch: React.FC<Props> = (props) => {
   const [batchList, setBatchList] = useState<any>([]);
   const [selectedBatch, setSelectedBatch] = useState<any>([]);
   const [removeFromBatch, setRemoveFromBatch] = useState<boolean>(false);
+  const [errors, setErrors] = useState<any>([]);
+  const [selectedStudents, setSelectedStudents] = useState<any>();
+  const [key, setKey] = useState(0);
 
   const [form] = Form.useForm()
 
   useEffect(() => {
-    listSchool()
+    listSchool({ onlySchools: true })
       .then((data: any) => {
         setSchools(data.data);
       })
@@ -28,6 +31,24 @@ const ReBatch: React.FC<Props> = (props) => {
         console.log(error);
       });
   }, [])
+
+  useEffect(() => {
+    setSelectedStudents(props.selectedStudentData.map((student: any) => ({ ...student, rebatchStatus: 'ℹ️ Not Started Yet.' })));
+  }, [props.selectedStudentData])
+
+  useEffect(() => {
+    if (errors.length === 0) return;
+    const tempStudents = selectedStudents?.map((student: any) => {
+      const error = errors.find((e: any) => e?.studentId === student.id);
+      student.rebatchStatus = error ? `❌ ${error?.message}` : "✅ Rebatched Successfully.";
+      return student;
+    });
+    setSelectedStudents(tempStudents);
+  }, [errors])
+
+  useEffect(() => {
+    setKey((e) => e + 1);
+  }, [selectedStudents])
 
   const updateSchool = async (val: any) => {
     setSelectedSchool(val);
@@ -61,8 +82,9 @@ const ReBatch: React.FC<Props> = (props) => {
 
   const handleReAssign = async () => {
     setIsLoading(true);
+    setErrors([]);
     const studentIds: any = [];
-    props.selectedStudentData.map((studentsDetail: any) => {
+    selectedStudents.map((studentsDetail: any) => {
       studentIds.push(studentsDetail.id)
     })
 
@@ -81,10 +103,23 @@ const ReBatch: React.FC<Props> = (props) => {
     })
 
     if (batchCall.success) {
-      message.success("Batch Created/Update Successfully.");
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
+      const errors = [];
+      const responses = batchCall.data || [];
+      for (const resp of responses) {
+        if (resp.status === false) {
+          errors.push({ message: resp.message, studentId: resp.studentId });
+        }
+      }
+
+      if (errors.length > 0) {
+        setErrors(errors);
+        message.error("Some students are not rebatched. Please check the status column.");
+      } else {
+        message.success("Batch Created/Update Successfully.");
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
     }
     setIsLoading(false);
   }
@@ -105,7 +140,12 @@ const ReBatch: React.FC<Props> = (props) => {
       dataIndex: 'batchCode',
       key: 'batchCode',
     },
-  ];
+    {
+      title: 'Status',
+      dataIndex: 'rebatchStatus',
+      key: 'rebatchStatus',
+    }
+  ]
 
   const batchColumns = [
     {
@@ -131,8 +171,8 @@ const ReBatch: React.FC<Props> = (props) => {
   ]
   return (
     <>
-      <Spin spinning={isLoading}>
-        <Table dataSource={props.selectedStudentData} columns={columns} />
+      <Spin spinning={isLoading} tip={`Rebatching students, this operation might take upto 1-2 minutes, please do not close the window.`}>
+        <Table dataSource={selectedStudents} columns={columns} key={key} />
         <Divider style={{ margin: '8px 0' }} />
         <Row gutter={16}>
           <Col span={8}>
@@ -215,6 +255,8 @@ const ReBatch: React.FC<Props> = (props) => {
             </Row>
           </>
         }
+        <Alert style={{ marginTop: 20, width: 600 }} message="Please check students in each batch on rebatch operation completion." type="info" showIcon />
+
       </Spin>
     </>
   )
