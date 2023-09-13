@@ -486,10 +486,11 @@ export class StudentService {
             return user;
           })
           .catch((error) => {
-            console.log("error", error);
+            console.log("error", error?.message);
             response = {
               status: error.response.status,
               errors: [error.response.data],
+              error: true
             };
             return response;
           });
@@ -498,7 +499,9 @@ export class StudentService {
       return response;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return;
+      return {
+        error: true
+      };
     } finally {
       await queryRunner.release();
     }
@@ -572,7 +575,7 @@ export class StudentService {
       user.id = id;
     }
 
-    user.startDate = data.startDate;
+    user.startDate = data.startDate || null;
     user.address = data.address;
     user.whatsapp = data.whatsapp;
 
@@ -646,7 +649,7 @@ export class StudentService {
     student.classSection = data.classSection || "-";
     student.password = data.password;
 
-    student.startDate = getDateOutOfDateTime(data.startDate);
+    student.startDate = getDateOutOfDateTime(data.startDate) || null;
     student.endDate = data.endDate;
     student.startLesson = data.startLesson;
     student.bottleSend = data.bottleSend;
@@ -661,7 +664,7 @@ export class StudentService {
     student.plastName = data.plastName;
     student.comments = data.comments;
     student.incentive = data.incentive;
-    student.classesStartDate = getDateOutOfDateTime(data.classesStartDate);
+    student.classesStartDate = getDateOutOfDateTime(data.classesStartDate) || null;
     student.classesPurchase = data.classesPurchase;
     student.classesAttended = data.classesAttended;
     student.classesMissed = data.classesMissed;

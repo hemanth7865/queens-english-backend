@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Form,
     Input,
@@ -6,11 +6,13 @@ import {
     Select,
     Spin,
     notification,
-    Checkbox
+    Checkbox,
+    Table
 } from 'antd';
-import { getSra, createSchool, editSchool, listBatchForSchool, listLocation } from '@/services/ant-design-pro/api';
+import { getSra, createSchool, editSchool, listBatchForSchool, listLocation, deactivateSchool } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import UploadStudentsBulkWithoutRMN from '@/pages/StudentList/components/UploadStudentsBulkWithoutRMN';
+import { USER_STATUS } from '@/components/Constants/constants';
 
 const { Option } = Select;
 
@@ -45,7 +47,6 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [loadingBatches, setLoadingBatches] = useState<boolean>(false);
     const [sra, setSra] = useState<any>([]);
     const [batches, setBatches] = useState<any>([]);
-    const [newData, setNewdata] = useState<any>(false);
     const [loadingCountries, setLoadingCountries] = useState<boolean>(false);
     const [countries, setCountries] = useState<any>([]);
     const [selectedCountry, setSelectedCountry] = useState<any>(false);
@@ -56,6 +57,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
     const [cities, setCities] = useState<any>([]);
     const [selectedCity, setSelectedCity] = useState<any>(false);
     const [isLockLessonChecked, setIsLockLessonChecked] = useState<boolean>(false);
+    const [deactivateResponse, setDeactivateResponse] = useState<any>(null);
 
     const handleLockLessonChange = (e: any) => {
         setIsLockLessonChecked(e.target.checked);
@@ -170,9 +172,49 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         setIsLoading(false);
     }, []);
 
+    const inactivateSchool = async (schoolId: string | undefined) => {
+        if (!schoolId) {
+            openNotification({
+                success: false,
+                create: false,
+                message: "Please provide valid school Id."
+            })
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await deactivateSchool(schoolId);
+            if (response.error) throw new Error(response.message);
+            setDeactivateResponse(response);
+
+            openNotification({
+                success: true,
+                create: false,
+                message: `School ${props?.tempData?.schoolName} has been inactivated successfully.`
+            })
+            const anyFailure = Object.keys(response).some((key) => response[key].failure > 0)
+            if (!anyFailure) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+            }
+        } catch (error: any) {
+            openNotification({
+                success: false,
+                create: false,
+                message: error?.message
+            })
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const onFinish = async (value: any) => {
         const oldData = props.tempData;
-        setNewdata(value);
+        if (oldData?.schoolStatus !== USER_STATUS.INACTIVE_CAPS && value.schoolStatus === USER_STATUS.INACTIVE_CAPS) {
+            inactivateSchool(oldData?.id);
+            return;
+        }
         async function areArrEqual(arr1: any, arr2: any) {
             if (arr1.length !== arr2.length) return false;
             for (let i = 0; i < arr2.length; i++) {
@@ -263,10 +305,10 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             schoolCode: props.tempData?.schoolCode,
             locationCode: props.tempData?.locationCode,
             schoolId: props.tempData?.schoolId,
-            poc:  props.tempData?.poc,
-            sra:  props.tempData?.sra?.id,
+            poc: props.tempData?.poc,
+            sra: props.tempData?.sra?.id,
             schoolStatus: props.tempData?.schoolStatus,
-            createdAt:  props.tempData?.createdAt,
+            createdAt: props.tempData?.createdAt,
             numberOfBatches: props.tempData?.classes?.length,
             batches: props.tempData?.classes?.map((item: any) => item.batchNumber),
             location: props.tempData?.location,
@@ -278,10 +320,56 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         defaultValues()
     }, [props.tempData])
 
+
+    const DeactivateTable = () => {
+        if (!deactivateResponse) return null;
+        const columns = [
+            {
+                title: 'Name',
+                dataIndex: 'name',
+                key: 'name',
+            },
+            {
+                title: 'Success',
+                dataIndex: 'success',
+                key: 'success',
+            },
+            {
+                title: 'Failure',
+                dataIndex: 'failure',
+                key: 'failure',
+            }
+        ];
+
+        const data = useMemo(() => {
+            return Object.keys(deactivateResponse)?.map((itemKey: string) => {
+                return {
+                    name: itemKey,
+                    success: deactivateResponse[itemKey].success,
+                    failure: deactivateResponse[itemKey].failure,
+                }
+            })
+        }, [deactivateResponse]);
+
+        return <Table columns={columns} dataSource={data} />;
+    }
+
     return (
         <>
-            <Spin spinning={isLoading} >
+            <Spin spinning={isLoading} tip="Please wait, this might take upto 1-2 mins." >
                 {contextHolder}
+
+                {props?.tempData?.schoolStatus !== "Inactive" && (
+                    <>
+                        <Button type="primary" onClick={() => {
+                            inactivateSchool(props?.tempData?.id);
+                        }} style={{ marginBottom: 16, marginLeft: 20 }}>
+                            Deactivate School
+                        </Button>
+                        <DeactivateTable />
+                    </>
+                )}
+
                 <Form
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 14 }}
@@ -454,16 +542,16 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                     </Spin>
 
                     <Form.Item
-                    label="Lock lessons feature"
-                    name="lockLesson"
-                    help={`This feature will lock the lessons for the students in the school while there is due assessment for the students.\nif the feature is disabled then the feature will be disabled for all the teachers in the school as well.`}
+                        label="Lock lessons feature"
+                        name="lockLesson"
+                        help={`This feature will lock the lessons for the students in the school while there is due assessment for the students.\nif the feature is disabled then the feature will be disabled for all the teachers in the school as well.`}
                     >
                         <Checkbox
-                        style={
-                            {
-                                paddingInlineStart: "10px",
+                            style={
+                                {
+                                    paddingInlineStart: "10px",
+                                }
                             }
-                        }
                             checked={isLockLessonChecked}
                             onChange={handleLockLessonChange}
                         />

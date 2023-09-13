@@ -38,26 +38,26 @@ export const EmiPaymentStatus = {
 };
 
 export const SUBSCRIPTION_TYPE = {
-  MANUAL: 'Manual',
-  AUTO_DEBIT: 'Auto-Debit'
-}
+  MANUAL: "Manual",
+  AUTO_DEBIT: "Auto-Debit",
+};
 
 export const URLPATH = {
-  PAYMENT: '/manage/paymentDashboard/payment',
-  PAYMENT_ISSUE: '/manage/paymentDashboard/paymentIssue'
-}
+  PAYMENT: "/manage/paymentDashboard/payment",
+  PAYMENT_ISSUE: "/manage/paymentDashboard/paymentIssue",
+};
 
 export const AUTODEBIT_STATUS = {
-  UNSUCCESSFUL_AD: 'unSuccessfullADInstallment',
-  SUCCESSFUL_AD: 'successfullADInstallment'
-}
+  UNSUCCESSFUL_AD: "unSuccessfullADInstallment",
+  SUCCESSFUL_AD: "successfullADInstallment",
+};
 
-export const QE_SUPPORT_WHATSAPP_NUMBER = 8143513850
+export const QE_SUPPORT_WHATSAPP_NUMBER = 8143513850;
 
 export const DEFAULT_TIMINGS_FREQUENCY = {
-  DEFAULT_TIMINGS: ['15:00', '16:30', '18:00', '19:30', '20:30'],
-  DEFAULT_FREQUENCY: ['MWF', 'TTS', 'SS', 'MTWTF', 'TT']
-}
+  DEFAULT_TIMINGS: ["15:00", "16:30", "18:00", "19:30", "20:30"],
+  DEFAULT_FREQUENCY: ["MWF", "TTS", "SS", "MTWTF", "TT"],
+};
 
 export const USER_STATUS = {
   INACTIVE: "inactive",
@@ -68,9 +68,11 @@ export const USER_STATUS = {
   ONBOARDING: "onboarding",
   ONBOARDING_ISSUE: "onboardingIssue",
   ENROLLED_CAPS: "Enrolled",
-}
+  INACTIVE_CAPS: "Inactive",
+  ACTIVE_CAPS: "Active",
+};
 
 export const SECTION_TYPES = {
-  IMAGE: 'image',
-  DESCRIPTION: 'description'
-}
+  IMAGE: "image",
+  DESCRIPTION: "description",
+};

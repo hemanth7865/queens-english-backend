@@ -331,6 +331,7 @@ export class TeacherService {
       lockLesson: boolean;
       offlineUser: boolean;
       id: string;
+      status: number | string;
       [key: string]: any;
     },
     query?: { ignoreDuplicateCheck: boolean }
@@ -338,6 +339,7 @@ export class TeacherService {
     const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
     data.email = data?.email || " ";
     data.lastName = data?.lastName || " ";
+    data.status = data?.status === '0' || data?.status === 0 ? 0 : 1;
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
@@ -357,6 +359,7 @@ export class TeacherService {
           isAdministrator: false,
           phoneNumber: data.phoneNumber,
           lockLesson: data.lockLesson || false,
+          status: data.status,
         },
       };
 
@@ -402,6 +405,7 @@ export class TeacherService {
             return user;
           })
           .catch((error) => {
+            return { status: 400, error: error?.response?.data };
             return Promise.reject(error);
           });
       }

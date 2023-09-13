@@ -158,6 +158,13 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/deactivateSchool",
+    controller: SchoolController,
+    action: "deactivateSchool",
+    authenticate: true,
+  },
+  {
+    method: "post",
     route: "/re-batch",
     controller: BatchController,
     action: "reBatch",

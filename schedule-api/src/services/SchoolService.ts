@@ -345,6 +345,7 @@ export class SchoolService {
             school.state = request.state;
             school.city = request.city;
             school.lockLesson = request.lockLesson ?? false;
+
             const saveSchool = await this.schoolRepository.save(school);
 
             // overwriting the lockLesson feature for teachers if it is changed
@@ -384,7 +385,10 @@ export class SchoolService {
                 data: saveSchool,
             };
         } catch (error) {
-            console.error(error);
+            return {
+                success: false,
+                errorMessage: error.message,
+            }
         }
     }
 
@@ -525,5 +529,133 @@ export class SchoolService {
             errors,
         };
     }
+
+    async deactivateSchool(schoolId: string) {
+        try {
+          const response = {
+            batches: {
+              success: 0,
+              failure: 0,
+            },
+            teachers: {
+              success: 0,
+              failure: 0,
+            },
+            students: {
+              success: 0,
+              failure: 0,
+            },
+          };
+    
+          // For batches
+          const batchResponse = await this.batchService.listBatch(null, {
+            schoolId: schoolId,
+            current: 0,
+            pageSize: 100,
+          });
+          const batches = batchResponse.data || [];
+    
+          for (const batch of batches) {
+            if (batch.status === 0) continue;
+            const cosmosBatch = await this.batchService.getCosmosBatch(batch.id);
+            if (cosmosBatch) {
+              try {
+                const batchBody = {
+                  ...cosmosBatch,
+                  edit: true,
+                  status: 0,
+                  useNewZoomLink: 0,
+                };
+                const resp: any = await this.batchService.createBatch(
+                  batchBody,
+                  true
+                );
+                if (resp?.status === false) {
+                  response.batches.failure += 1;
+                  continue;
+                }
+                response.batches.success += 1;
+              } catch (error) {
+                response.batches.failure += 1;
+              }
+            }
+          }
+    
+          // For teachers
+          const teachersQuery = `SELECT id FROM user where user.schoolId = '${schoolId}' AND user.type = 'teacher'`;
+          const teachersIdsResp = await getManager().query(teachersQuery);
+          const teachersIds = teachersIdsResp.map((e) => e.id);
+    
+          for (const teacherId of teachersIds) {
+            const teacherResp = await this.TeacherService.leadFullDetails(
+              {},
+              teacherId
+            );
+            if (!teacherResp?.success || !teacherResp?.data) continue;
+    
+            const teacher = teacherResp?.data;
+            const teacherBody = {
+              ...teacher,
+              status: 0,
+              lockLesson: true,
+              offlineUser: true,
+            };
+    
+            try {
+              const resp: any = await this.TeacherService.saveTeacher(teacherBody);
+              if (resp?.status === 400 || resp?.status === 501 || resp?.error) {
+                response.teachers.failure += 1;
+                continue;
+              }
+              response.teachers.success += 1;
+            } catch (error) {
+              response.teachers.failure += 1;
+            }
+          }
+    
+          // For Students
+          const studentsRes = await this.studentService.listStudentDetails(
+            {},
+            {
+              schoolId: schoolId,
+              type: "student",
+            }
+          );
+    
+          const students = studentsRes?.data || [];
+    
+          for (const student of students) {
+            const studentBody = {
+              ...student,
+              status: 0,
+            };
+    
+            try {
+              const resp: any = await this.studentService.saveStudentDetails(
+                studentBody,
+                {
+                  ignoreDuplicateCheck: true,
+                }
+              );
+              if (resp?.error) {
+                response.students.failure += 1;
+                continue;
+              }
+              response.students.success += 1;
+            } catch (error) {
+              response.students.failure += 1;
+            }
+          }
+    
+          // Changing status of the school to `Inactive`
+          const updateQuery = `UPDATE school SET schoolStatus = 'Inactive' WHERE id = '${schoolId}'`;
+          await getManager().query(updateQuery);
+    
+          return response;
+        } catch (error) {
+          console.log("Error while inactivating school", error?.message);
+          throw new Error(error?.message);
+        }
+      }
 
 }
