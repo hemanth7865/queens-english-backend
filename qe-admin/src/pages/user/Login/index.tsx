@@ -1,18 +1,16 @@
-import {
-  LockOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { Alert, Button, message, Tabs } from 'antd';
-import React, { useState } from 'react';
-import { ProFormCheckbox, ProFormText, LoginForm } from '@ant-design/pro-form';
-import { useIntl, history, FormattedMessage, SelectLang, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login } from '@/services/ant-design-pro/api';
-import styles from './index.less';
-import { GoogleLogin } from '@react-oauth/google';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import {
+  LockOutlined,
+  UserOutlined
+} from '@ant-design/icons';
+import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { Alert, Button, message, Tabs } from 'antd';
 import jwt_decode from "jwt-decode";
-import { storeSchoolsIntoLocalStorage } from '@/services/ant-design-pro/helpers';
+import React, { useState } from 'react';
+import { FormattedMessage, history, SelectLang, useIntl, useModel } from 'umi';
+import styles from './index.less';
 
 const LoginMessage: React.FC<{
   content: string;
@@ -42,7 +40,6 @@ const Login: React.FC = () => {
         name: `${userInfo.firstname} ${userInfo.lastname}`
       };
     }
-    storeSchoolsIntoLocalStorage()
     if (userInfo) {
       await setInitialState((s) => ({
         ...s,

@@ -1,9 +1,9 @@
-import { Button, message, Modal, Progress, Select } from 'antd';
-import { Access, useAccess } from "umi";
-import { useState, useEffect } from 'react'
 import { addTeacherSchedule, listSchool, updateCSVUploadRecord, uploadCsvAndCreateCSVUploadRecord } from "@/services/ant-design-pro/api";
+import { csvToArray } from '@/services/ant-design-pro/helpers';
 import { UploadOutlined } from '@ant-design/icons';
-import { csvToArray, fetchSchoolsFromStorage } from '@/services/ant-design-pro/helpers';
+import { Button, message, Modal, Progress, Select } from 'antd';
+import { useEffect, useState } from 'react';
+import { useAccess } from "umi";
 import { SPREADSHEETS, UPLOAD_TYPES } from '../../../../config/constants';
 
 const TeacherBulkUpload = () => {
@@ -12,7 +12,7 @@ const TeacherBulkUpload = () => {
     const [totalRecords, setTotalRecords] = useState<number>(0);
     const [currentRecord, setCurrentRecord] = useState<number>(0);
     const [notStoredTeachers, setNotStoredTeachers] = useState<object[]>([])
-    const [schools] = useState<any[]>(fetchSchoolsFromStorage());
+    const [schools, setSchools] = useState<any[]>([]);
     const [selectedSchool, setSelectedSchool] = useState<any>(null);
     const [reload, setReload] = useState<number>(0);
     const [CSVUploadRecord, setCSVUploadRecord] = useState<any>(null);
@@ -21,6 +21,16 @@ const TeacherBulkUpload = () => {
 
     //Role Based Access
     const access = useAccess();
+
+    useEffect(() => {
+        listSchool({ onlySchools: true })
+            .then((data: any) => {
+                setSchools(data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, []);
 
 
     const isValidPhoneNumber = (phoneNumber: string) => {
@@ -279,7 +289,7 @@ const TeacherBulkUpload = () => {
                     showSearch
                     style={{ margin: "3px", display: "block" }}
                     allowClear
-                    options={schools.map((s) => ({ value: s.id, label: `${s.schoolName} ~ ${s.schoolCode}` }))}
+                    options={schools?.map((s) => ({ value: s.id, label: `${s.schoolName} ~ ${s.schoolCode}` }))}
                     optionLabelProp="label"
                     optionFilterProp='label'
                 />

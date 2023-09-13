@@ -1,56 +1,37 @@
 import {
-  PlusOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  ClockCircleOutlined,
-  EditOutlined,
-  MinusCircleOutlined
+  ClockCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined, MinusCircleOutlined, PlusOutlined
 } from "@ant-design/icons";
 import {
-  Button,
-  message,
-  Input,
-  Drawer,
-  Form,
-  Col,
-  Row,
-  Select,
-  DatePicker,
-  Checkbox,
-  TimePicker,
-  Tooltip,
-  notification,
-  Space,
+  Button, Checkbox, Col, DatePicker, Drawer,
+  Form, Input, message, notification, Row,
+  Select, Space,
   Spin,
-  Tabs
+  Tabs, TimePicker,
+  Tooltip
 } from "antd";
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { useIntl, FormattedMessage, useAccess } from "umi";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormattedMessage, useAccess, useIntl } from "umi";
 
 import { PageContainer } from "@ant-design/pro-layout";
-import type { ProColumns, ActionType } from "@ant-design/pro-table";
+import type { ActionType, ProColumns } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
 
 import {
-  teacherBatches,
-  addTeacherSchedule,
-  teacherBatchesView,
-  teacherRemove,
-  listSchool,
+  addTeacherSchedule, listSchool, teacherBatches, teacherBatchesView,
+  teacherRemove
 } from "@/services/ant-design-pro/api";
 
 import {
-  fetchSchoolsFromStorage,
-  handleAPIResponse, storeSchoolsIntoLocalStorage
+  handleAPIResponse
 } from "@/services/ant-design-pro/helpers";
 
-import "./index.css";
-import moment from "moment";
-import { parse, format } from "date-fns";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { format, parse } from "date-fns";
+import moment from "moment";
 import ViewDrawer from '../School/components/Drawers/viewDrawer';
-import TeacherBulkUpload from "./components/TeacherBulkUpload";
 import SchoolChangeContainer from "./components/SchoolChangeContainer";
+import TeacherBulkUpload from "./components/TeacherBulkUpload";
+import "./index.css";
 
 const TeacherBatchList: React.FC = () => {
   const url = new URL(window.location.href);
@@ -60,7 +41,7 @@ const TeacherBatchList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [editvisible, seteditvisible] = useState<boolean>(false);
-  const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage());
+  const [schools, setSchools] = useState<any[]>([]);
   const access = useAccess();
 
   const [formData, setFormData] = useState({
@@ -114,19 +95,18 @@ const TeacherBatchList: React.FC = () => {
   }, [tempDataView, schools, formData]);
 
   const handleLockLessonChange = (e: any) => {
-      setIsLockLessonChecked(e.target.checked);
-      form.setFieldsValue({ lockLesson: e.target.checked });
+    setIsLockLessonChecked(e.target.checked);
+    form.setFieldsValue({ lockLesson: e.target.checked });
   };
 
 
   useEffect(() => {
-    listSchool()
+    listSchool({ onlySchools: true })
       .then((data: any) => {
         const result = data.data as any[];
         // sort by name
         result.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
         setSchools(data.data);
-        storeSchoolsIntoLocalStorage(data.data);
       })
       .catch((error) => {
         console.log(error);
@@ -889,9 +869,9 @@ const TeacherBatchList: React.FC = () => {
   const [form] = Form.useForm();
   const defaultValues = useCallback(() => {
     if (Object.keys(tempDataView).length === 0) return;
-  const lockLessonValue = isLockLessonEnabledForSchool
-    ? tempDataView?.teacher[0]?.lockLesson || false
-    : false
+    const lockLessonValue = isLockLessonEnabledForSchool
+      ? tempDataView?.teacher[0]?.lockLesson || false
+      : false
 
     form.setFieldsValue({
       firstName: tempDataView.firstName,
@@ -1165,7 +1145,7 @@ const TeacherBatchList: React.FC = () => {
                         }}
                         disabled={!access.canSuperAdmin}
                       >
-                        {schools.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
+                        {schools?.map((s) => (<Select.Option value={s.id}>{`${s.schoolName} ~ ${s.schoolCode}`}</Select.Option>))}
                       </Select>
                     </Form.Item>
                   </Col>
@@ -1460,7 +1440,7 @@ const TeacherBatchList: React.FC = () => {
                     <p>Lock Lesson Feature </p>
                   </Col>
                   <Col span={11}>
-                    <>{tempDataView.teacher && tempDataView?.teacher[0]?.lockLesson ? "Enable":"Disable"}</>
+                    <>{tempDataView.teacher && tempDataView?.teacher[0]?.lockLesson ? "Enable" : "Disable"}</>
                   </Col>
                 </Row>
                 <br />
@@ -1606,7 +1586,7 @@ const TeacherBatchList: React.FC = () => {
                             }));
                           }}
                           disabled={!access.canSuperAdmin}
-                          options={schools.map((s) => ({ label: `${s.schoolName} ~ ${s.schoolCode}`, value: s.id }))}
+                          options={schools?.map((s) => ({ label: `${s.schoolName} ~ ${s.schoolCode}`, value: s.id }))}
                         />
                       </Form.Item>
                     </Col>
@@ -1638,7 +1618,7 @@ const TeacherBatchList: React.FC = () => {
                     </Col>
 
                     <Col span={24}>
-                    <Form.Item
+                      <Form.Item
                         label="Lock lessons feature"
                         name="lockLesson"
                         help="This feature will lock the lessons for the teacher and the teacher will not be able to access the lessons while assesment is not completed by all students, ( you can not customize this feature for individual teacher if the feature is disabled for the school )"

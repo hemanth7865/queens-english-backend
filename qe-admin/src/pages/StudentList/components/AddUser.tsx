@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Row, Col, Select, Spin } from 'antd'
+import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { Button, Col, Form, Input, Row, Select, Spin } from 'antd';
+import * as CountryList from 'country-list';
 import {
     isValidPhoneNumber,
-    validatePhoneNumberLength,
-} from 'libphonenumber-js'
-import * as CountryList from 'country-list'
-import { addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
-import { fetchSchoolsFromStorage, handleAPIResponse, storeSchoolsIntoLocalStorage } from "@/services/ant-design-pro/helpers";
-import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+    validatePhoneNumberLength
+} from 'libphonenumber-js';
+import React, { useEffect, useState } from 'react';
 import { useAccess } from 'umi';
 
 //console.log('ccc', CountryList)
@@ -47,7 +47,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
     const [error, setError] = useState('')
     const [selectCountry, setSelectCountry] = useState('IN')
     const [selectCountryCode, setSelectCountryCode] = useState(91)
-    const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
+    const [schools, setSchools] = useState<any[]>([])
     const access = useAccess();
 
     useEffect(() => {
@@ -64,10 +64,9 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
     useEffect(() => {
         if (schools.length === 0) {
-            listSchool()
+            listSchool({ onlySchools: true })
                 .then((data: any) => {
                     setSchools(data.data);
-                    storeSchoolsIntoLocalStorage(data.data);
                 })
                 .catch((error) => {
                     console.log(error);
