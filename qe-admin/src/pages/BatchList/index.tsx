@@ -165,7 +165,7 @@ const BatchList: React.FC = () => {
   //listbatches
   useEffect(() => {
     setSchoolsLoading(true);
-    listSchool()
+    listSchool({ onlySchools: true })
       .then((data: any) => {
         setSchools(data.data);
       })
@@ -1087,7 +1087,7 @@ const BatchList: React.FC = () => {
                                 loading={schoolsLoading}
                               >
                                 {
-                                  schools.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
+                                  schools?.map((s: any) => (<Option key={s.id} value={s.id} label={s.schoolName}>{s.schoolName}</Option>))
                                 }
                               </Select>
                             </Form.Item>

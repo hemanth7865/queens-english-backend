@@ -21,7 +21,7 @@ const BulkUploadBatchesOfSchool = (props: any) => {
     const [CSVUploadRecord, setCSVUploadRecord] = useState<any>(null);
 
     useEffect(() => {
-        listSchool()
+        listSchool({ onlySchools: true })
             .then((data: any) => {
                 setSchools(data.data);
             })

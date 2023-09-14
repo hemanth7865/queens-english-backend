@@ -1,9 +1,8 @@
 import { notification } from "antd";
-import { LESSONS, Lesson } from "../../../config/lessons";
-import { parseISO, format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import moment from "moment";
+import { Lesson, LESSONS } from "../../../config/lessons";
 import type ZoomTypes from "./types/zoom";
-import { listSchool } from "./api";
 
 export const openNotificationWithIcon = (
   type: string,
@@ -299,23 +298,6 @@ export const updateImageSasBlob = (html: string): string => {
   return html;
 };
 
-export const storeSchoolsIntoLocalStorage = async (data?: any[]) => {
-  let schools = [];
-  if (data && data.length > 0) {
-    schools = data;
-  } else {
-    schools = await listSchool()
-      .then((data: any) => data.data)
-      .catch((error: any) => []);
-  }
-  schools = schools.map((e: any) => ({
-    id: e?.id,
-    schoolName: e?.schoolName,
-    schoolCode: e?.schoolCode,
-  }));
-  localStorage.setItem("eq-schools", JSON.stringify(schools));
-};
-
 export const getRandomNumber = (digits: number = 6) => {
   var text = "";
   var possible = "123456789";
@@ -324,13 +306,4 @@ export const getRandomNumber = (digits: number = 6) => {
     text += i > 0 && sup === i ? "0" : possible.charAt(sup);
   }
   return text;
-};
-
-export const fetchSchoolsFromStorage = () => {
-  const schools = localStorage.getItem("eq-schools");
-  return JSON.parse(schools || "[]");
-};
-
-export const removeSchoolsFromStorage = () => {
-  localStorage.removeItem("eq-schools");
 };

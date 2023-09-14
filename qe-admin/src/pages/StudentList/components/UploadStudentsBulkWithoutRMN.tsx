@@ -65,7 +65,7 @@ const UploadStudentsBulkWithoutRMN = (props: any) => {
 
     useEffect(() => {
         setSchoolsLoading(true);
-        listSchool()
+        listSchool({ onlySchools: true })
             .then((data: any) => {
                 setSchools(data.data);
             })

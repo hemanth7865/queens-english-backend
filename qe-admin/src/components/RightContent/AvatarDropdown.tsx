@@ -1,13 +1,12 @@
-import React, { useCallback } from 'react';
+import { outLogin } from '@/services/ant-design-pro/api';
 import { LogoutOutlined } from '@ant-design/icons';
 import { Avatar, Menu, Spin } from 'antd';
-import { history, useModel } from 'umi';
 import { stringify } from 'querystring';
+import type { MenuInfo } from 'rc-menu/lib/interface';
+import React, { useCallback } from 'react';
+import { history, useModel } from 'umi';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from './index.less';
-import { outLogin } from '@/services/ant-design-pro/api';
-import type { MenuInfo } from 'rc-menu/lib/interface';
-import { removeSchoolsFromStorage } from '@/services/ant-design-pro/helpers';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -39,7 +38,6 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
     (event: MenuInfo) => {
       const { key } = event;
       if (key === 'logout') {
-        removeSchoolsFromStorage()
         setInitialState((s) => ({ ...s, currentUser: undefined }));
         loginOut();
         return;

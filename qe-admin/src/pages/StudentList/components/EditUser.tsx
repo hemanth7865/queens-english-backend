@@ -1,19 +1,15 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import { Col, Descriptions, Row, Form, Input, Button, Select, DatePicker, notification, Spin } from 'antd';
-import moment from "moment";
-import { studentBatches, addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
-import { fetchSchoolsFromStorage, handleAPIResponse, storeSchoolsIntoLocalStorage } from "@/services/ant-design-pro/helpers";
-import {
-    isPossiblePhoneNumber,
-    isValidPhoneNumber,
-    validatePhoneNumberLength,
-    parsePhoneNumber,
-    getCountries,
-    getCountryCallingCode
-} from 'libphonenumber-js'
-import * as CountryList from 'country-list'
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
+import { addUserSchedule, listSchool } from "@/services/ant-design-pro/api";
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
+import { Button, Col, Form, Input, Row, Select, Spin } from 'antd';
+import * as CountryList from 'country-list';
+import {
+    getCountries,
+    getCountryCallingCode, isValidPhoneNumber,
+    validatePhoneNumberLength
+} from 'libphonenumber-js';
+import React, { useEffect, useState } from 'react';
 import { useAccess } from 'umi';
 
 export type EditUserProps = {
@@ -42,17 +38,16 @@ const EditUser: React.FC<EditUserProps> = (props) => {
     const [selectCountry, setSelectCountry] = useState('')
     const [selectCountryCode, setSelectCountryCode] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [schools, setSchools] = useState<any[]>(fetchSchoolsFromStorage())
+    const [schools, setSchools] = useState<any[]>([])
     const [selectedSchool, setSelectSchool] = useState()
     const [reload, setReload] = useState(0)
     const access = useAccess();
 
     useEffect(() => {
         if (schools.length === 0) {
-            listSchool()
+            listSchool({ onlySchools: true })
                 .then((data: any) => {
                     setSchools(data.data);
-                    storeSchoolsIntoLocalStorage(data.data);
                 })
                 .catch((error) => {
                     console.log(error);
