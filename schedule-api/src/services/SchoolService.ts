@@ -617,38 +617,45 @@ export class SchoolService {
           }
     
           // For Students
-          const studentsRes = await this.studentService.listStudentDetails(
-            {},
-            {
-              schoolId: schoolId,
-              type: "student",
-            }
-          );
-    
-          const students = studentsRes?.data || [];
-    
-          for (const student of students) {
-            const studentBody = {
-              ...student,
-              status: 0,
-            };
-    
-            try {
-              const resp: any = await this.studentService.saveStudentDetails(
-                studentBody,
-                {
-                  ignoreDuplicateCheck: true,
-                }
-              );
-              if (resp?.error) {
-                response.students.failure += 1;
-                continue;
+          let current = 1;
+          const pageSize = 100;
+          let students = [];
+          do {
+            const studentsRes = await this.studentService.listStudentDetails(
+              {},
+              {
+                schoolId: schoolId,
+                type: "student",
+                pageSize: pageSize,
+                current: current,
               }
-              response.students.success += 1;
-            } catch (error) {
-              response.students.failure += 1;
+            );
+            students = studentsRes?.data || [];
+            current += 1;
+    
+            for (const student of students) {
+              const studentBody = {
+                ...student,
+                status: Status.INACTIVE,
+              };
+    
+              try {
+                const resp: any = await this.studentService.saveStudentDetails(
+                  studentBody,
+                  {
+                    ignoreDuplicateCheck: true,
+                  }
+                );
+                if (resp?.error) {
+                  response.students.failure += 1;
+                  continue;
+                }
+                response.students.success += 1;
+              } catch (error) {
+                response.students.failure += 1;
+              }
             }
-          }
+          } while (students.length > 0);
     
           // Changing status of the school to `Inactive`
           const updateQuery = `UPDATE school SET schoolStatus = 'Inactive' WHERE id = '${schoolId}'`;

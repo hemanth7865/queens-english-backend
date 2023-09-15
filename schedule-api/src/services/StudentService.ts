@@ -105,6 +105,10 @@ export class StudentService {
       query_list.push(` sc.schoolName like '%${parameters.schoolName}%'  `);
     }
 
+    if (parameters.schoolId) {
+      query_list.push(` sc.id like '%${parameters.schoolId}%'  `);
+    }
+
     const offlineUser = parameters.offlineUser;
     if(offlineUser <= 1) {
       query_list.push(` u.offlineUser = ${offlineUser}  `);
