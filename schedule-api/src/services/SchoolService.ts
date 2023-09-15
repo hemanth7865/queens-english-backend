@@ -636,7 +636,7 @@ export class SchoolService {
             for (const student of students) {
               const studentBody = {
                 ...student,
-                status: "inactive",
+                status: Status.INACTIVE,
               };
     
               try {
