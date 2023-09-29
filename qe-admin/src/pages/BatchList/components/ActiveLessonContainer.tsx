@@ -50,6 +50,7 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
                 dataObject.schoolId = batchData?.classes?.schoolId;
 
                 dataObject.activeLessonId = selectedLessonDetails?.id;
+                dataObject.activeLessonNumber = parseInt(selectedLessonDetails?.number);
                 dataObject.classCode = batchData?.classes?.classCode || "";
                 dataObject.batchNumber = batchData.classes.batchNumber;
                 dataObject.zoomLink = batchData?.classes?.zoomLink || "";
@@ -169,9 +170,11 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
                         value={lesson}
                         filterOption={(input, option: any) =>
                             option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }>
-                        {filteredLesson.map((_l) => (<Option key={_l.id} value={_l.number} label={_l.number}>{_l.number}</Option>))}
-                    </Select>
+                        }
+                        options={
+                            filteredLesson.map((_l) => ({ value: _l.number, label: _l.number }))
+                        }
+                    />
                     <Button
                         shape="circle"
                         disabled={parseInt(entity.lessonNumber) === parseInt(lesson)}

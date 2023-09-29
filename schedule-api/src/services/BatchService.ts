@@ -30,6 +30,7 @@ import moment = require("moment");
 import { School } from "../entity/School";
 import { isNullOrUndefined } from "util";
 import { changeBatchEndDate } from "./../helpers/timeStampToDate"
+const { logger } = require("../Logger.js");
 
 
 
@@ -158,10 +159,21 @@ export class BatchService {
           if(!data.activeLessonId){
             if (cosmosBatch.activeLessonId) {
               data.activeLessonId = cosmosBatch.activeLessonId;
+              data.activeLessonNumber = cosmosBatch.activeLessonNumber;
             }
           }
           if (typeof data.useJsonLessonScript === "undefined" || data.useJsonLessonScript === undefined) {
             data.useJsonLessonScript = cosmosBatch.useJsonLessonScript;
+          }
+          if (data?.activeLessonNumber) {
+            const activeLessonRes = await this.resetAactiveLesson(
+              data.id,
+              data.activeLessonNumber
+            );
+            if (activeLessonRes.success) {
+              data.activeLessonId = activeLessonRes.data.activeLessonId;
+              data.activeLessonNumber = activeLessonRes.data.activeLessonNumber;
+            }
           }
         }
         if (!alreadyExists?.id) {
@@ -191,6 +203,7 @@ export class BatchService {
           partitionKey: data.partitionKey,
           classCode: data.classCode,
           activeLessonId: data.activeLessonId,
+          activeLessonNumber: data.activeLessonNumber,
           students: students,
           frequency: data.frequency,
           zoomLink: data.zoomLink,
@@ -204,7 +217,8 @@ export class BatchService {
           schoolStatus: data.offlineBatch === 0 ? null : data.schoolStatus,
           status: data.status,
           useJsonLessonScript: data.useJsonLessonScript,
-          requestedUnlockedLessonNumber: data.requestedUnlockedLessonNumber || cosmosBatch.unlockedNumber
+          requestedUnlockedLessonNumber:
+            data.requestedUnlockedLessonNumber || cosmosBatch.unlockedNumber,
         },
       };
 
@@ -1383,4 +1397,33 @@ export class BatchService {
     }
   }
 
+
+  async resetAactiveLesson(
+    batchId: string,
+    activeLessonNumber: string | number
+  ): Promise<{
+    success: boolean;
+    data: {
+      activeLessonNumber: string;
+      activeLessonId: string;
+    };
+  }> {
+    try {
+      const cosomos_url = COSMOS_API.RESET_ACTIVE_LESSON(batchId);
+
+      const res = await axios.post(cosomos_url, {
+        activeLessonNumber,
+      });
+      return {
+        success: true,
+        data: res.data,
+      };
+    } catch (error) {
+      logger.log(error);
+      return {
+        success: false,
+        data: error,
+      };
+    }
+  }
 }

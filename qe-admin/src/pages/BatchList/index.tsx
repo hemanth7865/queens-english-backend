@@ -78,6 +78,7 @@ const DEFAULT_FORM_DATA = {
   whatsappLink: "",
   schoolId: undefined,
   requestedUnlockedLessonNumber: 0,
+  activeLessonNumber: 0,
 };
 
 const PREMADE_FREQUENCY: { label: string, value: string }[] = [
@@ -310,6 +311,7 @@ const BatchList: React.FC = () => {
         edit,
         schoolId: formData.schoolId,
         requestedUnlockedLessonNumber: parseInt(`${formData.requestedUnlockedLessonNumber}`),
+        activeLessonNumber: parseInt(`${formData.activeLessonNumber}`),
       };
       setIsLoading(true);
       let currentCompletedLessons = [];
@@ -414,6 +416,7 @@ const BatchList: React.FC = () => {
         const batchData = data.data;
 
         batchData.classes.activeLessonId = batchDetailsFromCOSMOS.activeLessonId;
+        batchData.classes.activeLessonNumber = batchDetailsFromCOSMOS.activeLessonNumber;
 
         if (batchData.classes) {
           try {
@@ -439,6 +442,7 @@ const BatchList: React.FC = () => {
             requestedUnlockedLessonNumber:
               batchDetailsFromCOSMOS.requestedUnlockedLessonNumber ||
               batchDetailsFromCOSMOS.unlockedNumber,
+            activeLessonNumber: batchDetailsFromCOSMOS.activeLessonNumber,
           });
           setFollowupVersion(batchData.classes.followupVersion);
           setUseNewZoomLink(batchData.classes.useNewZoomLink)
@@ -1115,6 +1119,28 @@ const BatchList: React.FC = () => {
                               </Form.Item>
                             </Col>
                           }
+
+
+                          {!createBatch && (
+                            <Col span={24}>
+                              <span className="header-title">Active Lesson</span>
+                              <Form.Item
+                                name="activeLessonNumber"
+                                help="All lessons status higher than this lesson will be marked as not completed."
+                              >
+                                <Input
+                                  type="number"
+                                  placeholder="Active Lesson Number"
+                                  name="activeLessonNumber"
+                                  value={formData.activeLessonNumber}
+                                  defaultValue={
+                                    formData.activeLessonNumber
+                                  }
+                                  onChange={handleFormChange}
+                                />
+                              </Form.Item>
+                            </Col>
+                          )}
 
                           {!createBatch && (
                             <Col span={24}>

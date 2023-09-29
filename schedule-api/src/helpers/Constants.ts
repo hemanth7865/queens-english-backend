@@ -88,6 +88,7 @@ export const COSMOS_API = {
     GET_BATCH: (id: string): string => `/api/classProfile/${id}`,
     STORE_SHORT_LINK: "/api/shortlink",
     STORE_CLASS_ATTENDANCE: "/api/classAttendance",
+    RESET_ACTIVE_LESSON: (id: string): string => `/api/classProfile/${id}/resetActiveLesson`,
 };
 
 export const TABLE_NAMES = {
