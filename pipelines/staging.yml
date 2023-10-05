@@ -24,22 +24,22 @@ steps:
       runOptions: "commands"
       commands: |
         echo "Clean Local Changes"
-        cd /home/azureuser/qe-backend && git add . && git stash
+        cd /var/project/qe-backend && git add . && git stash
         echo "Download Updates"
-        cd /home/azureuser/qe-backend && git pull &> /home/azureuser/git-pull.txt && cat /home/azureuser/git-pull.txt
+        cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
-        cd /home/azureuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/azureuser/git-checkout.txt && cat /home/azureuser/git-checkout.txt
-        cd /home/azureuser/qe-backend && git pull &> /home/azureuser/git-pull.txt && cat /home/azureuser/git-pull.txt 
+        cd /var/project/qe-backend && git checkout $(BRANCH_NAME) &> /var/project/git-checkout.txt && cat /var/project/git-checkout.txt
+        cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt 
         echo "Install dependencies"
-        cd /home/azureuser/qe-backend/schedule-api && yarn install &> /home/azureuser/be-install.txt && cat /home/azureuser/be-install.txt
+        cd /var/project/qe-backend/schedule-api && yarn install &> /var/project/be-install.txt && cat /var/project/be-install.txt
         echo "Run Migrations"
-        cd /home/azureuser/qe-backend/schedule-api && yarn migrate
+        cd /var/project/qe-backend/schedule-api && yarn migrate
         echo "Install dependencies"
-        cd /home/azureuser/qe-backend/qe-admin && yarn install &> /home/azureuser/fe-install.txt && cat /home/azureuser/fe-install.txt
+        cd /var/project/qe-backend/qe-admin && yarn install &> /var/project/fe-install.txt && cat /var/project/fe-install.txt
         echo "Build UI"
-        cd /home/azureuser/qe-backend/qe-admin && yarn build &> /home/azureuser/build.txt && cat /home/azureuser/build.txt 
+        cd /var/project/qe-backend/qe-admin && yarn build &> /var/project/build.txt && cat /var/project/build.txt 
         rm -rf /var/www/html/qe-admin
-        cd /home/azureuser/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
+        cd /var/project/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
         rm -rf /var/www/html/qe-admin-ui && cp -r /var/www/html/qe-admin /var/www/html/qe-admin-ui
         pm2 restart all
       readyTimeout: "20000"
