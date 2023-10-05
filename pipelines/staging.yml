@@ -29,7 +29,7 @@ steps:
         cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
         cd /var/project/qe-backend && git checkout $(BRANCH_NAME) &> /var/project/git-checkout.txt && cat /var/project/git-checkout.txt
-        cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt 
+        cd /var/project/qe-backend && git pull -f &> /var/project/git-pull.txt && cat /var/project/git-pull.txt 
         echo "Install dependencies"
         cd /var/project/qe-backend/schedule-api && yarn install &> /var/project/be-install.txt && cat /var/project/be-install.txt
         echo "Run Migrations"
