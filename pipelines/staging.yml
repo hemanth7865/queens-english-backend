@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - feature-release
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
+    BRANCH_NAME: $[ replace(variables['Build.SourceBranch'], 'refs/heads/', '') ]
+
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/pull/') }}:
+    BRANCH_NAME: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
+
+steps:
+  - task: SSH@0
+    displayName: "Connect Staging Server, And Run Deployment Scripts"
+    inputs:
+      sshEndpoint: "QE_PORTAL STAGING"
+      runOptions: "commands"
+      commands: |
+        echo "Clean Local Changes"
+        cd /var/project/qe-backend && git add . && git stash
+        echo "Download Updates"
+        cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt
+        echo "Checkout Branch $(BRANCH_NAME)"
+        cd /var/project/qe-backend && git checkout $(BRANCH_NAME) &> /var/project/git-checkout.txt && cat /var/project/git-checkout.txt
+        cd /var/project/qe-backend && git pull -f &> /var/project/git-pull.txt && cat /var/project/git-pull.txt 
+        echo "Install dependencies"
+        cd /var/project/qe-backend/schedule-api && yarn install &> /var/project/be-install.txt && cat /var/project/be-install.txt
+        echo "Run Migrations"
+        cd /var/project/qe-backend/schedule-api && yarn migrate
+        echo "Install dependencies"
+        cd /var/project/qe-backend/qe-admin && yarn install &> /var/project/fe-install.txt && cat /var/project/fe-install.txt
+        echo "Build UI"
+        cd /var/project/qe-backend/qe-admin && yarn build &> /var/project/build.txt && cat /var/project/build.txt 
+        rm -rf /var/www/html/qe-admin
+        cd /var/project/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
+        rm -rf /var/www/html/qe-admin-ui && cp -r /var/www/html/qe-admin /var/www/html/qe-admin-ui
+        pm2 restart all
+      readyTimeout: "20000"
+      # Don't Show Error Message If Command Fail
+      # failOnStdErr: false
