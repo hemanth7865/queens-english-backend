@@ -1,34 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, notification, Spin, Tabs } from "antd";
-import { getAssessmentQuestions, updateAssessmentContent, getLesson } from "@/services/ant-design-pro/api";
+import { getAssessmentQuestions, updateAssessmentContent, getLesson, getAssessments} from "@/services/ant-design-pro/api";
 import QuestionCard from "./QuestionCard";
-import Assessments from "../../../../data/assessments.json";
 import "./form.css"
 
-export type AssessmentContentQuestion = [
-  {
-    number: string;
-    question: string;
-    answer: string;
-    type: string;
-    imageUrl?: string;
-    uri?: string;
-  }
-];
-
-export type AssessmentContentFormType = {
-  setNumber: string;
-  assessmentId: string;
-  assessmentQuestion: AssessmentContentQuestion;
-  id: string;
-  name: string;
-  lessonNumber: string;
-  lessonId: string;
-  active?: boolean;
-};
-
 export type AssessmentContentFormProps = {
-  assessmentData: AssessmentContentFormType | undefined;
+  assessmentData: API.AssessmentQuestion| undefined;
   operationType: "create" | "update";
   actionRef: any;
   handleDrawerVisiblity: (visible: boolean) => void;
@@ -199,36 +176,67 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   }, [update]);
 
   async function setToCreate(data: any) {
-    setIsLoading(true);
-    const existingSets = await getAssessmentQuestions();
-    const sets = existingSets.data.filter(({ assessmentId }: AssessmentContentFormType) => assessmentId === data.value);
-    setAssessment({ ...assessment, setNumber: `0${sets.length + 1}` });
-    form.setFieldsValue({ setNumber: `0${sets.length + 1}` });
-    await getAssessmentDetails(data, `0${sets.length + 1}`);
-    setUpdate(update + 1);
-    setDisableQuestionsTab(false);
-    setIsLoading(false);
-  }
-
-  async function getAssessmentDetails(data: any, setNumber: string) {
-    const lesson = await getLesson(JSON.stringify(data.lessonNumber));
-    const assessmentData = {
-      lessonNumber: data.lessonNumber.toString(),
-      lessonId: lesson.id,
-      name: data.assessmentName,
-      displayName: data.displayName,
-      assessmentId: data.value,
-      setNumber: setNumber,
-      id: `${data.value}-${setNumber}`,
-      assessmentQuestion: assessment.assessmentQuestion
+    try {
+      setIsLoading(true);
+      const existingSets = await getAssessmentQuestions();
+      const sets = existingSets.data.filter(({ assessmentId }) => assessmentId === data.value);
+      setAssessment({ ...assessment, setNumber: `0${sets.length + 1}` });
+      form.setFieldsValue({ setNumber: `0${sets.length + 1}` });
+      await getAssessmentDetails(data, `0${sets.length + 1}`);
+      setUpdate(update + 1);
+      setDisableQuestionsTab(false);
+    } catch (error) {
+      console.error("Error in setToCreate:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setAssessment(assessmentData);
-    form.setFieldsValue(assessmentData);
+  }
+  async function getAssessmentDetails(data: any, setNumber: string) {
+    try {
+      const lessonNumber = `${data?.lessonNumber}`.padStart(2, "0");
+      const lesson = await getLesson(lessonNumber);
+      const assessmentData = {
+        lessonNumber: data.lessonNumber.toString(),
+        lessonId: lesson?.id,
+        name: data.assessmentName,
+        displayName: data.displayName,
+        assessmentId: data.value,
+        setNumber: setNumber,
+        id: `${data.value}-${setNumber}`,
+        assessmentQuestion: assessment.assessmentQuestion
+      };
+      setAssessment(assessmentData);
+      form.setFieldsValue(assessmentData);
+    } catch (error) {
+      console.error("Error in getAssessmentDetails:", error);
+    }
   }
 
-  const assessmentOptions = Assessments.filter((assessment) => assessment.active).map((assessment) => (
-      { label: `${assessment.displayName} ~ Due at Lesson ${assessment.lessonDue}`, value: assessment.id, key: assessment.id, assessmentName: assessment.name, lessonNumber: assessment.lessonDue, displayName: assessment.displayName }
-    ));
+  const [assessments, setAssessments] = useState<API.AssessmentList>([]);
+  const fetchAssessments = async () => {
+    try {
+      const data = await getAssessments();
+      if (data) setAssessments(data);
+    } catch (error) {
+      console.log("API error", error);
+    }
+  };
+  useEffect(() => {
+    fetchAssessments();
+  }, []);
+
+  const assessmentOptions = assessments
+    .filter((assessment) => assessment.active)
+    .map((assessment) => ({
+      label: `${assessment.displayName} ~ Due at Lesson ${assessment.lessonDue}`,
+      value: assessment.id,
+      key: assessment.id,
+      assessmentName: assessment.name,
+      lessonNumber: assessment.lessonDue,
+      displayName: assessment.name,
+    }));
+
+
 
 
   const openNotificationWithIcon = (type: string, errorType?: string) => {
@@ -274,7 +282,6 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
         },
         body: JSON.stringify(data),
       });
-      setIsLoading(false);
       props.handleDrawerVisiblity(false);
       openNotificationWithIcon('success')
       if (props.actionRef.current) {
@@ -283,8 +290,9 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
       setAssessment({ setNumber: "", assessmentId: "", assessmentQuestion: [], id: "", name: "", lessonNumber: "", lessonId: "", active: true, displayName: "" });
     } catch (error) {
       console.log("API error", error);
-      setIsLoading(false);
       openNotificationWithIcon('error')
+    }finally {
+      setIsLoading(false);
     }
   };
 

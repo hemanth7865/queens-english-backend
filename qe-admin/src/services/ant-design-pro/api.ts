@@ -1317,26 +1317,38 @@ export async function getAssessmentQuestions(
   filter?: { [key: string]: any },
   options?: { [key: string]: any }
 ) {
-  return request<API.AssessmentList>(`/be/azure?url=api/assessmentQuestions`, {
-    method: "GET",
-    params: {
-      ...params,
-    },
-    ...(sort || {}),
-    ...(filter || {}),
-    ...(options || {}),
-  });
+  return request<{ data: API.AssessmentQuestionList; [key: string]: any }>(
+    `/be/azure?url=api/assessmentQuestions`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+      ...(sort || {}),
+      ...(filter || {}),
+      ...(options || {}),
+    }
+  );
 }
 
 export async function getLesson(id?: string) {
-  return request<API.AssessmentList>(`/be/azure?url=api/lesson/${id}`, {
-    method: "GET",
-  });
+  return request<API.Lesson>(
+    `/be/azure?url=api/lesson/${id}`,
+    {
+      method: "GET",
+    }
+  );
 }
 
 // Fetch azure api config data.
 export async function getAzureApiConfigs() {
   return request<API.AssessmentList>(`/be/azure?url=api/config/`, {
+    method: "GET",
+  });
+}
+
+export async function getAssessments(){
+  return request<API.AssessmentList>(`/be/azure?url=api/assessments`, {
     method: "GET",
   });
 }

@@ -49,4 +49,53 @@ declare namespace API {
     type?: string;
     message?: string;
   };
+
+  type AssessmentItem = {
+    id: string;
+    name: string;
+    displayName: string;
+    lessonDue: number;
+    active: boolean;
+  };
+
+  type AssessmentList = AssessmentItem[];
+
+  type AssessmentQuestion = {
+    setNumber: string
+    assessmentId: string
+    assessmentQuestion: {
+      number: number
+      question: string
+      instruction: string
+      answer: string
+      type: string
+      imageUrl: string
+    }[]
+    id: string
+    name: string
+    displayName: string
+    lessonNumber: string
+    lessonId: string
+    active?: boolean
+  }
+
+  type AssessmentQuestionList = AssessmentQuestion[]
+
+  export interface Lesson {
+    id: string
+    number: string
+    type: string
+    practiceProblems: {
+      name: string
+      imageUrl: string
+      questionSoundUrl: string
+      expectedAnswer: string
+      type: string
+      answerSoundUrl?: string
+    }[]
+    exercises: any[]
+    numberOfNewWords: number
+    version: string
+  }  
+   
 }
