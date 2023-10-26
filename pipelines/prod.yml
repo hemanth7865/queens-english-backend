@@ -19,26 +19,26 @@ steps:
   - task: SSH@0
     displayName: "Connect PROD Server, And Run Deployment Scripts"
     inputs:
-      sshEndpoint: "QE_PORTAL PROD"
+      sshEndpoint: "QE_PORTAL PRD"
       runOptions: "commands"
       commands: |
         echo "Clean Local Changes"
-        cd /home/qeuser/qe-backend && git add . && git stash
+        cd /var/project/qe-backend && git add . && git stash
         echo "Download Updates"
-        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt
+        cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
-        cd /home/qeuser/qe-backend && git checkout $(BRANCH_NAME) &> /home/qeuser/git-checkout.txt && cat /home/qeuser/git-checkout.txt
-        cd /home/qeuser/qe-backend && git pull &> /home/qeuser/git-pull.txt && cat /home/qeuser/git-pull.txt 
+        cd /var/project/qe-backend && git checkout $(BRANCH_NAME) &> /var/project/git-checkout.txt && cat /var/project/git-checkout.txt
+        cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt 
         echo "Install dependencies"
-        cd /home/qeuser/qe-backend/schedule-api && yarn install &> /home/qeuser/be-install.txt && cat /home/qeuser/be-install.txt
+        cd /var/project/qe-backend/schedule-api && yarn install &> /var/project/be-install.txt && cat /var/project/be-install.txt
         echo "Run Migrations"
-        cd /home/qeuser/qe-backend/schedule-api && yarn migrate
+        cd /var/project/qe-backend/schedule-api && yarn migrate
         echo "Install dependencies"
-        cd /home/qeuser/qe-backend/qe-admin && yarn install &> /home/qeuser/fe-install.txt && cat /home/qeuser/fe-install.txt
+        cd /var/project/qe-backend/qe-admin && yarn install &> /var/project/fe-install.txt && cat /var/project/fe-install.txt
         echo "Build UI"
-        cd /home/qeuser/qe-backend/qe-admin && yarn build &> /home/qeuser/build.txt && cat /home/qeuser/build.txt 
+        cd /var/project/qe-backend/qe-admin && yarn build &> /var/project/build.txt && cat /var/project/build.txt 
         rm -rf /var/www/html/qe-admin
-        cd /home/qeuser/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
+        cd /var/project/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
         rm -rf /var/www/html/qe-admin-ui && cp -r /var/www/html/qe-admin /var/www/html/qe-admin-ui
         pm2 restart all
       readyTimeout: "20000"
