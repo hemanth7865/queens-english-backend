@@ -266,10 +266,11 @@ export async function studentsBatches(
     current?: number;
     /** 页面的容量 */
     pageSize?: number;
+    [key: string]: any;
   },
   options?: { [key: string]: any }
 ) {
-  return request<API.RuleList>("/be/leadsview", {
+  return request<API.RuleList<API.StudentItem[]>>("/be/leadsview", {
     method: "GET",
     params: {
       ...params,
@@ -1332,12 +1333,9 @@ export async function getAssessmentQuestions(
 }
 
 export async function getLesson(id?: string) {
-  return request<API.Lesson>(
-    `/be/azure?url=api/lesson/${id}`,
-    {
-      method: "GET",
-    }
-  );
+  return request<API.Lesson>(`/be/azure?url=api/lesson/${id}`, {
+    method: "GET",
+  });
 }
 
 // Fetch azure api config data.
@@ -1347,7 +1345,7 @@ export async function getAzureApiConfigs() {
   });
 }
 
-export async function getAssessments(){
+export async function getAssessments() {
   return request<API.AssessmentList>(`/be/azure?url=api/assessments`, {
     method: "GET",
   });

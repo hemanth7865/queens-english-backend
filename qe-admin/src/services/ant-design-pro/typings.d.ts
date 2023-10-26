@@ -54,8 +54,8 @@ declare namespace API {
     progress?: number;
   };
 
-  type RuleList = {
-    data?: RuleListItem[];
+  type RuleList<T = RuleListItem[]> = {
+    data?: T;
     /** 列表的内容总数 */
     total?: number;
     success?: boolean;
@@ -107,7 +107,7 @@ declare namespace API {
     success?: boolean;
   };
 
-  type NoticeIconItemType = 'notification' | 'message' | 'event';
+  type NoticeIconItemType = "notification" | "message" | "event";
 
   type NoticeIconItem = {
     id?: string;
@@ -140,35 +140,163 @@ declare namespace API {
     zoomLink?: string;
     zoomInfo?: string;
     whatsappLink?: string;
-  }
+  };
 
   type SchoolItem = {
     id?: string;
     schoolName?: string;
     createdAt?: string | DateTime;
     batchesNumber?: number;
-  }
+  };
 
   /**Lesson scripts type */
   type LessonScriptExerciseSection = {
-    type?: string ;
+    type?: string;
     image?: string;
     description?: string;
-  }
+  };
 
-  type LessonScriptExercise =  {
+  type LessonScriptExercise = {
     heading?: string;
     subHeading?: string;
     sections?: LessonScriptExerciseSection[];
-  }
+  };
 
   type lessonScripts = {
     id?: string;
     number?: string;
     lessonId?: string;
-    lessonDetails?: LessonScriptExercise [];
+    lessonDetails?: LessonScriptExercise[];
     createdAt?: string | DateTime;
     updatedAt?: string | DateTime;
+  };
+
+  type StudentItem = {
+    id: string;
+    leadId?: string;
+    date: string;
+    phoneNumber: string;
+    email: string;
+    status: string;
+    classesTaken: number;
+    slots: string;
+    type: string;
+    name?: string;
+    batchCode: string;
+    studentID?: string;
+    dob: string;
+    whatsapp?: string;
+    address: any;
+    classType: any;
+    payments: Payment[];
+    paymentid: string;
+    downpayment: string;
+    classessold: string;
+    saleamount: string;
+    plantype: string;
+    studentId: string;
+    subscription: string;
+    subscriptionNo: string;
+    emi: string;
+    emiMonths: string;
+    paymentMode: string;
+    dateofsale: string;
+    classtype: string;
+    notes: string;
+    forceRazorpayMoveSAV: string;
+    emiPaymentStatus: string;
+    duedate: string;
+    age?: string;
+    startDate: string;
+    startLesson?: string;
+    pfirstName: any;
+    plastName: any;
+    course?: string;
+    comments: any;
+    alternativeMobile?: string;
+    firstName: string;
+    lastName: string;
+    teacherName?: string;
+    classesStartDate: string;
+    callStatus?: string;
+    callBackon?: string;
+    bdaName: any;
+    bdmName: any;
+    poc: any;
+    courseFrequency: any;
+    timings?: string;
+    customerEmail?: string;
+    state: any;
+    zoomLink: string;
+    zoomInfo: string;
+    prm_id: number;
+    prm_firstName: string;
+    prm_lastName: string;
+    salestatus: string;
+    salesowner: any;
+    prm: string;
+    waMessageSent?: string;
+    salesDataFilled: any;
+    lsq_user_id: string;
+    lsq_user_name: string;
+    whatsappLink: string;
+    gender: any;
+    batchId: {
+      batchId: string;
+    }[];
+    reasonInSAV: any;
+    onboardingIssueReason: any;
+    batchesClassesStartDate: string;
+    enrollmentType: any;
+    dateOfInactivation: string;
+    schoolName?: string;
+    isSibling: number;
+    offlineUser: number;
+    batchesHistory: BatchesHistory[];
+    userCode?: string;
+    classSection?: string;
+    password?: string;
+    classCode?: string;
+    useAutoAttendance?: number;
+    teacherCode?: string;
+    useNewZoomLink?: number;
+  };
+
+  export interface Payment {
+    id: string;
+    paymentid: string;
+    plantype: string;
+    classtype: string;
+    classessold: number;
+    saleamount: string;
+    dateofsale: any;
+    downpayment: number;
+    duedate: any;
+    no_of_delayed_payments: number;
+    delay_date: any;
+    delay_status: any;
+    notes: string;
+    created_at: string;
+    updated_at: string;
+    studentId: string;
+    emi: string;
+    emiMonths: string;
+    paymentMode: string;
+    subscription: string;
+    subscriptionNo: string;
+    is_down_payment_verified: number;
+    is_down_payment_auto_verified: number;
+    forceRazorpayMoveSAV: number;
+    emiPaymentStatus: string;
+  }
+
+  export interface BatchesHistory {
+    name: string;
+    batchNumber: string;
+    id: string;
+    created_at: string;
+    phoneNumber: string;
+    batchesClassesStartDate?: string;
   }
 
   type Any = any;

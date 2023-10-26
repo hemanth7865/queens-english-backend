@@ -28,9 +28,9 @@ import {
   Alert,
   Space,
   Switch,
-  Spin
+  Spin,
 } from "antd";
-import * as CountryList from 'country-list';
+import * as CountryList from "country-list";
 import React, { useState, useRef } from "react";
 import { useIntl, FormattedMessage, useAccess, Access } from "umi";
 import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
@@ -41,16 +41,16 @@ import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
 import ProDescriptions from "@ant-design/pro-descriptions";
 import type { FormValueType } from "./components/UpdateForm";
 import UpdateForm from "./components/UpdateForm";
-import UploadStudentsBulkWithoutRMN from '../StudentList/components/UploadStudentsBulkWithoutRMN';
-import AddUser from '../StudentList/components/AddUser';
+import UploadStudentsBulkWithoutRMN from "../StudentList/components/UploadStudentsBulkWithoutRMN";
+import AddUser from "../StudentList/components/AddUser";
 
 import {
   isPossiblePhoneNumber,
   isValidPhoneNumber,
   validatePhoneNumberLength,
   parsePhoneNumber,
-  getCountryCallingCode
-} from 'libphonenumber-js'
+  getCountryCallingCode,
+} from "libphonenumber-js";
 import {
   // rule,
   addRule,
@@ -63,9 +63,7 @@ import {
   teacherRemove,
 } from "@/services/ant-design-pro/api";
 
-import {
-  handleAPIResponse
-} from "@/services/ant-design-pro/helpers";
+import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
 import Icon from "@ant-design/icons";
 import "./index.css";
@@ -73,21 +71,22 @@ import Availability from "./availability";
 import moment from "moment";
 import WeekdaySchedule from "./components/WeekdaySchedule";
 import { parse, format } from "date-fns";
-import { Tabs } from 'antd';
+import { Tabs } from "antd";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import Rebatching from "./components/Rebatching";
 import StudentBatchesHistory from "./components/StudentBatchesHistory";
 import access from "@/access";
-import { AlignType } from 'rc-table/lib/interface';
+import { AlignType } from "rc-table/lib/interface";
 import Tabsedit from "@/components/Formedit/tabs";
 import HistoryTable from "@/components/HistoryTab/tableView";
 import ReBatch from "@/components/Student/rebatch";
+import ExportStudentList from "./components/ExportStudentList";
 
 const { TabPane } = Tabs;
 
 const callback = (key) => {
   console.log(key);
-}
+};
 
 const StudentsBatchList: React.FC = () => {
   //Role Based Access
@@ -104,12 +103,16 @@ const StudentsBatchList: React.FC = () => {
   const [editvisible, seteditvisible] = useState<boolean>(false);
   const [visibleHistoryTab, setVisibleHistoryTab] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [selectedStudentData, setSelectedStudentData] = useState<any>()
+  const [selectedStudentData, setSelectedStudentData] = useState<any>();
   const [reassignModal, setReassignModal] = useState<boolean>(false);
+  const [exportProps, setExportProps] = useState<{
+    total: number;
+    [key: string]: any;
+  }>();
 
   const showReassignBatchModal = () => {
-    setReassignModal(true)
-  }
+    setReassignModal(true);
+  };
 
   //add drawer
   const showDrawer = () => {
@@ -147,7 +150,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Name"
         />
       ),
-      dataIndex: 'name',
+      dataIndex: "name",
     },
     {
       title: (
@@ -156,8 +159,8 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="School Name"
         />
       ),
-      dataIndex: 'schoolName',
-      hideInTable: url.toString().indexOf('/school/') < 0,
+      dataIndex: "schoolName",
+      hideInTable: url.toString().indexOf("/school/") < 0,
       // hideInSearch: true,
     },
     {
@@ -167,7 +170,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Primary Mobile No"
         />
       ),
-      dataIndex: 'phoneNumber',
+      dataIndex: "phoneNumber",
       copyable: true,
     },
     {
@@ -177,7 +180,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Email"
         />
       ),
-      dataIndex: 'email',
+      dataIndex: "email",
       hideInTable: true,
       hideInSearch: true,
     },
@@ -188,7 +191,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="PRM Name"
         />
       ),
-      dataIndex: 'prm',
+      dataIndex: "prm",
     },
     {
       title: (
@@ -197,8 +200,8 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="ID"
         />
       ),
-      dataIndex: 'id',
-      hideInTable: url.toString().indexOf('/school/') >= 0,
+      dataIndex: "id",
+      hideInTable: url.toString().indexOf("/school/") >= 0,
       copyable: true,
       hideInSearch: true,
     },
@@ -209,7 +212,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Student ID"
         />
       ),
-      dataIndex: 'studentID',
+      dataIndex: "studentID",
       copyable: true,
       // hideInSearch: true,
     },
@@ -220,7 +223,7 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Batch Code"
         />
       ),
-      dataIndex: 'batchCode',
+      dataIndex: "batchCode",
       //hideInSearch: true,
     },
     {
@@ -230,8 +233,8 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage="Age"
         />
       ),
-      hideInTable: url.toString().indexOf('/school/') >= 0,
-      dataIndex: 'age',
+      hideInTable: url.toString().indexOf("/school/") >= 0,
+      dataIndex: "age",
       hideInSearch: true,
     },
     {
@@ -244,7 +247,7 @@ const StudentsBatchList: React.FC = () => {
       dataIndex: "status",
       hideInForm: true,
       valueEnum: {
-        'enrolled': {
+        enrolled: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.enrolled"
@@ -253,7 +256,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "enrolled",
         },
-        'startclasslater': {
+        startclasslater: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.startclasslater"
@@ -262,7 +265,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "startclasslater",
         },
-        'batching': {
+        batching: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.batching"
@@ -271,7 +274,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "batching",
         },
-        'onboarding': {
+        onboarding: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.onboarding"
@@ -280,7 +283,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "onboarding",
         },
-        'onboardingIssue': {
+        onboardingIssue: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.onboardingIssue"
@@ -289,7 +292,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "onboardingIssue",
         },
-        'active': {
+        active: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.active"
@@ -298,7 +301,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "Active",
         },
-        'inactive': {
+        inactive: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.inactive"
@@ -307,7 +310,7 @@ const StudentsBatchList: React.FC = () => {
           ),
           status: "InActive",
         },
-        'Error': {
+        Error: {
           text: (
             <FormattedMessage
               id="pages.searchTable.nameStatus.error"
@@ -329,7 +332,7 @@ const StudentsBatchList: React.FC = () => {
       dataIndex: "edit",
       hideInSearch: true,
 
-      render: (dom: any, entity: { id: any; }) => {
+      render: (dom: any, entity: { id: any }) => {
         return (
           <a
             onClick={() => {
@@ -354,7 +357,7 @@ const StudentsBatchList: React.FC = () => {
       ),
       dataIndex: "paymentHistory",
       hideInSearch: true,
-      render: (dom: any, entity: { id: any; }) => {
+      render: (dom: any, entity: { id: any }) => {
         return (
           <a
             onClick={() => {
@@ -393,28 +396,57 @@ const StudentsBatchList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
-        request={params => studentsBatches({ ...params, offlineUser: url.toString().indexOf('/school/') >= 0 ? 1 : 0 })}
+        request={async (params) => {
+          try {
+            const res = await studentsBatches({
+              ...params,
+              offlineUser: url.toString().indexOf("/school/") >= 0 ? 1 : 0,
+            });
+            setExportProps({
+              ...params,
+              total: res.total,
+              offlineUser: url.toString().indexOf("/school/") >= 0 ? 1 : 0,
+            });
+            return res;
+          } catch (error) {
+            return error;
+          }
+        }}
         columns={columns}
         toolBarRender={() => [
           <div>
             <Access
-              accessible={(access.canSuperAdmin || access.canProgramManager || access.canPMHead)}
+              accessible={
+                access.canSuperAdmin ||
+                access.canProgramManager ||
+                access.canPMHead
+              }
               fallback={<div> </div>}
             >
-              {url.toString().indexOf('/school/') >= 0 &&
+              <ExportStudentList {...exportProps} />
+
+              {url.toString().indexOf("/school/") >= 0 && (
                 <>
-                  <Button type="primary" key="primary" style={{ marginRight: '5px' }}
+                  <Button
+                    type="primary"
+                    key="primary"
+                    style={{ marginRight: "5px" }}
                     disabled={selectedRowKeys.length === 0}
                     onClick={showReassignBatchModal}
-                    onChange={setstudentManageradd(true)}>
+                    onChange={setstudentManageradd(true)}
+                  >
                     Re-Batch Student
                   </Button>
-
                   <UploadStudentsBulkWithoutRMN />,
                 </>
-              }
+              )}
 
-              <Button type="primary" key="primary" onClick={showDrawer} onChange={setstudentManageradd(true)}>
+              <Button
+                type="primary"
+                key="primary"
+                onClick={showDrawer}
+                onChange={setstudentManageradd(true)}
+              >
                 Add Student
               </Button>
             </Access>
@@ -424,35 +456,47 @@ const StudentsBatchList: React.FC = () => {
               title="Add Student"
               placement="right"
               onClose={onClose}
-              visible={visible}
+              open={visible}
               width={1100}
               destroyOnClose
             >
-              {url.toString().indexOf('/school/') >= 0 ?
-                <AddUser setVisible={setVisible} offlineUser={true} userType={"student"} />
-                : <Tabsedit tmpData={tmpData} studentManageradd={studentManageradd} onChange={handleFormChange} />
-              }
+              {url.toString().indexOf("/school/") >= 0 ? (
+                <AddUser
+                  setVisible={setVisible}
+                  offlineUser={true}
+                  userType={"student"}
+                />
+              ) : (
+                <Tabsedit
+                  tmpData={tmpData}
+                  studentManageradd={studentManageradd}
+                  onChange={handleFormChange}
+                />
+              )}
             </Drawer>
 
             <Drawer
               title="Re-Batch Student"
               placement="right"
               onClose={onClose}
-              visible={reassignModal}
+              open={reassignModal}
               width={1100}
               destroyOnClose
             >
-              <ReBatch selectedStudentData={selectedStudentData} reassignModal={reassignModal} />
+              <ReBatch
+                selectedStudentData={selectedStudentData}
+                reassignModal={reassignModal}
+              />
             </Drawer>
-          </>
+          </>,
         ]}
         rowKey={(record) => record.id}
-        pagination={{ position: ['topRight', 'bottomRight'] }}
+        pagination={{ position: ["topRight", "bottomRight"] }}
         //the checkbox
         rowSelection={{
           getCheckboxProps: () => {
-            if (url.toString().indexOf('/school/') < 0) {
-              return { disabled: true }
+            if (url.toString().indexOf("/school/") < 0) {
+              return { disabled: true };
             }
           },
           preserveSelectedRowKeys: true,
@@ -468,16 +512,22 @@ const StudentsBatchList: React.FC = () => {
           title={!visibleHistoryTab ? "Edit Student" : "History"}
           placement="right"
           onClose={onCloseEdit}
-          visible={visibleEdit}
+          open={visibleEdit}
           width={1200}
-          destroyOnClose>
-          {!visibleHistoryTab ?
-            <Tabsedit tmpData={tmpData} studentManageredit={studentManageredit} onChange={handleFormChange} /> : <HistoryTable tmpData={tmpData} />
-          }
-
+          destroyOnClose
+        >
+          {!visibleHistoryTab ? (
+            <Tabsedit
+              tmpData={tmpData}
+              studentManageredit={studentManageredit}
+              onChange={handleFormChange}
+            />
+          ) : (
+            <HistoryTable tmpData={tmpData} />
+          )}
         </Drawer>
       </Spin>
-    </PageContainer >
+    </PageContainer>
   );
 };
 

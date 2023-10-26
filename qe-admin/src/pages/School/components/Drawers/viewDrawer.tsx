@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Spin, Table, TableColumnsType } from 'antd';
+import React from 'react';
+import { Table, TableColumnsType } from 'antd';
+import ExportStudentList from '@/pages/StudentsBatchList/components/ExportStudentList';
 
 export type ViewSchoolProps = {
     tempData: any;
@@ -56,24 +57,29 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
     };
 
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     return (
-        <>
-            <Spin spinning={isLoading} >
-                <Table
-                    columns={columns}
-                    expandable={{
-                        expandedRowRender: (record) => {
-                            return expandedRowRender(record)
-                        },
-                        rowExpandable: (record) => record.students.length !== 0,
-                    }}
-                    dataSource={data}
-                    size='middle'
-                />
-            </Spin>
-        </>
+      <>
+        <ExportStudentList
+          title="Export all students to CSV"
+          batchCode={props.tempData?.classesData?.map(
+            (item: any) => item.batchNumber
+          )}
+          total={1000}
+        />
+
+        <Table
+          columns={columns}
+          expandable={{
+            expandedRowRender: (record) => {
+              return expandedRowRender(record);
+            },
+            rowExpandable: (record) => record.students.length !== 0,
+          }}
+          dataSource={data}
+          size="middle"
+        />
+      </>
     );
 };
 

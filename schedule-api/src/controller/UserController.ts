@@ -215,6 +215,7 @@ export class UserController {
             frequency: request.query['frequency'],
             autoSearch: request.query['autoSearch'],
             schoolName: request.query['schoolName'],
+            schoolId: request.query['schoolId'],
             offlineUser: parseInt(request.query['offlineUser']),
         }
 

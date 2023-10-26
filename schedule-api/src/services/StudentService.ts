@@ -54,11 +54,6 @@ export class StudentService {
   async listStudentDetails(data: any, parameters: any) {
     var results: any[] = [];
     var leadView: LeadView[] = [];
-    var map = new Map();
-    var leadTem: Teacher[] = [];
-    var filter = false;
-    var parametersList = [];
-    var student: Student[] = [];
 
     var offset = parameters.current;
     var current = offset;
@@ -98,7 +93,6 @@ export class StudentService {
 
     if (type) {
       query_list.push(` u.type like '%${type}%'  `);
-      console.log("user type ", type);
     }
 
     if (parameters.schoolName) {
@@ -112,7 +106,6 @@ export class StudentService {
     const offlineUser = parameters.offlineUser;
     if(offlineUser <= 1) {
       query_list.push(` u.offlineUser = ${offlineUser}  `);
-      console.log("offlineUser ", offlineUser);
     }
 
     if (parameters.studentID) {
@@ -123,20 +116,24 @@ export class StudentService {
       query_list.push(` u.id like '%${parameters.id}%'  `);
     }
 
+    if(parameters.schoolId){
+      query_list.push(` u.schoolId = '${parameters.schoolId}'  `);
+    }
+
     var StudentIds = [];
 
     if (parameters.batchCode) {
+      const isBatchCodeArray = Array.isArray(parameters.batchCode);
       const batchCodeQuery = `SELECT user.id FROM user 
-      LEFT JOIN batch_students on user.id = batch_students.studentId 
-      LEFT JOIN classes on classes.id = batch_students.batchId 
-      where classes.batchNumber like "%${parameters.batchCode}%";`
+        LEFT JOIN batch_students on user.id = batch_students.studentId 
+        LEFT JOIN classes on classes.id = batch_students.batchId 
+        where classes.batchNumber ${isBatchCodeArray ? `IN (${parameters.batchCode?.map((s: any) => `"${s}"`).join(",")})` : `like "%${parameters.batchCode}%"`}`;
 
       let ids = await getManager().query(batchCodeQuery);
       for (let element of ids) {
         StudentIds.push(element.id);
       }
     }
-    console.log("Student ids", StudentIds);
     const keyword = parameters.keyword;
     let query_search: string;
     if (!!keyword?.length) {
@@ -159,7 +156,6 @@ export class StudentService {
     }
 
     query_list.forEach((value, index) => {
-      console.log(query_list.join(" and "));
       if (index != query_list.length - 1) {
         query_string = query_string + query_list[index] + " and ";
       } else {
@@ -183,16 +179,12 @@ export class StudentService {
       } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
     let totalQuery = `SELECT COUNT(*) as total from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id LEFT JOIN prm ON prm.id = s.prm_id ${query_string} ${PRMHaving} `;
 
-    console.log(`query string ${query_list}`);
 
-    console.log("Final query executing ", finalQuery);
 
     results = await getManager().query(finalQuery);
     var total = await getManager().query(totalQuery);
-    console.log("results size", results.length);
 
     for (const element of results) {
-      let slotsResult: any[] = [];
       let batchCodes: any[] = [];
       let batchIds: any[] = [];
       let payment: string;
