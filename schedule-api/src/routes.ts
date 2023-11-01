@@ -331,6 +331,12 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/csvLeadUserUpload",
+    controller: UserController,
+    action: "csvLeadUserUpload",
+  },
+  {
+    method: "post",
     route: "/update-installment-status",
     controller: InstallmentController,
     action: "updateTransctionPaymentStatus",

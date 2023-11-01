@@ -376,8 +376,8 @@ export class StudentService {
     // }
 
     const cosmosUserBody: any = {
-      type: data.type,
-      email: data.email,
+      type: data.type || "student",
+      email: data.email || " ",
       firstName: data.firstName,
       middleName: data.middleName,
       lastName: data.lastName,
@@ -393,6 +393,10 @@ export class StudentService {
       loginCode: data.loginCode,
       studentID: data.studentID,
       password: data.password
+    }
+
+    if(data.lead) {
+      cosmosUserBody.lead = true
     }
 
     if (data.cacheTime) {

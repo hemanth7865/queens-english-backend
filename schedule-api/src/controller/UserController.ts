@@ -36,6 +36,39 @@ export class UserController {
         return this.usersRepository.find();
     }
 
+    async csvLeadUserUpload(
+      request: Request,
+      response: Response,
+      next: NextFunction
+    ) {
+      // CSV File required firstName, lastName, phoneNumber
+      const buffer = request.files.file.data;
+      const data = Buffer.from(buffer).toString();
+      const realData: any = csvToArray(data);
+      const resData: any[] = [];
+  
+      for (const userData of realData) {
+        userData.lead = true;
+        userData.type = "student";
+        if (!userData.email) {
+          userData.email = `${userData.phoneNumber}@gmail.com`;
+        }
+        const res = await this.studentService.saveStudentDetails(userData, {
+          ignoreDuplicateCheck: true,
+          cosmosSync: true,
+        });
+        const dataToPush = { ...userData };
+        if (res.id) {
+          dataToPush.success = true;
+        } else {
+          dataToPush.error = res;
+        }
+        resData.push(dataToPush);
+      }
+  
+      return resData;
+    }
+
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         this.studentService.request = request;
         request.query.cosmosSync = request.query?.cosmosSync !== "false";
