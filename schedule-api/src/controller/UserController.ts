@@ -17,7 +17,7 @@ import { Status } from "../helpers/Constants";
 import Referrer from "../model/Referrer";
 import { SyncStudentPaymentInfo } from "../services/StudentService/SyncStudentPaymentInfo";
 import { SchoolService } from "../services/SchoolService";
-import { getRandomNumber } from "../helpers";
+import { csvToArray, getRandomNumber } from "../helpers";
 
 export class UserController {
 
