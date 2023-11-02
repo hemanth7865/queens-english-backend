@@ -17,7 +17,7 @@ import { CollectionAgentService } from "./CollectionAgentService";
 import { UserService } from "./UserService";
 import { LESSONS } from "./../data/lessons";
 import { LSQUser } from "../entity/LSQUser";
-import { getDateOutOfDateTime } from "./../helpers/index";
+import { getDateOutOfDateTime, getRandomNumber } from "./../helpers/index";
 import { deactivateStudents } from "./../utils/student/deactivateStudents";
 import { validateStudentStatus } from "./../utils/student/validateUpdateStatus";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
@@ -376,8 +376,8 @@ export class StudentService {
     // }
 
     const cosmosUserBody: any = {
-      type: data.type,
-      email: data.email,
+      type: data.type || "student",
+      email: data.email || " ",
       firstName: data.firstName,
       middleName: data.middleName,
       lastName: data.lastName,
@@ -393,6 +393,10 @@ export class StudentService {
       loginCode: data.loginCode,
       studentID: data.studentID,
       password: data.password
+    }
+
+    if(data.lead) {
+      cosmosUserBody.lead = true
     }
 
     if (data.cacheTime) {
@@ -540,6 +544,43 @@ export class StudentService {
     }
 
     return { status: 400, data: "Failed To Update User Status" };
+  }
+
+  async saveB2CUserDetails(data: any) {
+    const cosmosUserBody: any = {
+      phone: data.phoneNumber,
+      code: getRandomNumber(),
+      email: data.email || " ",
+      firstName: data.firstName,
+      lastName: data.lastName,
+      gender: " ",
+      lead: true,
+    };
+
+    const options = {
+      url: `${this.COSMOS_URL}/api/b2cUsers/?code=${this.COSMOS_CODE}`,
+      json: true,
+      body: cosmosUserBody,
+    };
+
+    try {
+      const response = await axios
+        .post(options.url, options.body)
+        .then(async (res) => {
+          return res.data;
+        })
+        .catch((error) => {
+          usersLogger.info(
+            `Error while updating student : ${error.response.data}`
+          );
+          return { status: 400, data: error.response.data };
+        });
+      return response;
+    } catch (error) {
+      return {
+        error: true,
+      };
+    }
   }
 
   async mapStudentData(data: any, id: string, create: boolean = false) {
