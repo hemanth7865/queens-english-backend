@@ -59,7 +59,7 @@ export class UserController {
           userData.email = `${userData.phoneNumber}@gmail.com`;
         }
         const res = await this.studentService.saveStudentDetails(userData, {
-          ignoreDuplicateCheck: true,
+          ignoreDuplicateCheck: false,
           cosmosSync: true,
         });
         const dataToPush = { ...userData };
