@@ -37,75 +37,103 @@ export class UserController {
     }
 
     async csvLeadUserUpload(
-      request: Request,
-      response: Response,
-      next: NextFunction
+        request: Request,
+        response: Response,
+        next: NextFunction
     ) {
-      // CSV File required firstName, lastName, phoneNumber
-      const buffer = request.files.file.data;
-      const data = Buffer.from(buffer).toString();
-      const realData: any = csvToArray(data);
-      const resData: any[] = [];
-  
-      for (const userData of realData) {
-        userData.lead = true;
-        userData.type = "student";
-        if(userData.phoneNumber){
-            if(!userData?.phoneNumber?.startsWith("+91")){
-                userData.phoneNumber = `+91${userData.phoneNumber}`
+        // CSV File required firstName, phoneNumber
+        const buffer = request.files.file.data;
+        const data = Buffer.from(buffer).toString();
+        const realData: any = csvToArray(data);
+        const resData: any[] = [];
+
+        for (const userData of realData) {
+            const { firstName, lastName, phoneNumber } = userData;
+            if (!firstName || !phoneNumber) {
+                resData.push({
+                    ...userData,
+                    error: true,
+                    errorRes: {
+                    message: "Please provide firstName and phoneNumber",
+                    },
+                });
+                continue;
             }
+            if (!lastName) {
+                userData.lastName = firstName;
+            }
+            userData.lead = true;
+            userData.type = "student";
+            if (userData.phoneNumber) {
+                if (!userData?.phoneNumber?.startsWith("+91")) {
+                    userData.phoneNumber = `+91${userData.phoneNumber}`;
+                }
+            }
+            if (!userData.email) {
+                userData.email = `${userData.phoneNumber}@gmail.com`;
+            }
+            const res = await this.studentService.saveStudentDetails(userData, {
+                ignoreDuplicateCheck: false,
+                cosmosSync: true,
+            });
+            const dataToPush = { ...userData };
+            if (res.id) {
+                dataToPush.success = true;
+            } else {
+                dataToPush.error = true;
+                dataToPush.errorRes = res;
+            }
+            resData.push(dataToPush);
         }
-        if (!userData.email) {
-          userData.email = `${userData.phoneNumber}@gmail.com`;
-        }
-        const res = await this.studentService.saveStudentDetails(userData, {
-          ignoreDuplicateCheck: false,
-          cosmosSync: true,
-        });
-        const dataToPush = { ...userData };
-        if (res.id) {
-          dataToPush.success = true;
-        } else {
-          dataToPush.error = true;
-          dataToPush.errorRes = res;
-        }
-        resData.push(dataToPush);
-      }
-  
-      return resData;
+
+        return resData;
     }
 
     async csvLeadB2CUserUpload(
         request: Request,
         response: Response,
         next: NextFunction
-      ) {
+    ) {
         // CSV File required firstName, lastName, phoneNumber
         const buffer = request.files.file.data;
         const data = Buffer.from(buffer).toString();
         const realData: any = csvToArray(data);
         const resData: any[] = [];
-    
-        for (const userData of realData) {
-          userData.lead = true;
-          userData.type = "student";
-          if (!userData.email) {
-            userData.email = `${userData.phoneNumber}@gmail.com`;
-          }
 
-          const res = await this.studentService.saveB2CUserDetails(userData);
-          const dataToPush = { ...userData };
-          if (res.id) {
-            dataToPush.success = true;
-          } else {
-            dataToPush.error = true;
-            dataToPush.errorRes = res;
-          }
-          resData.push(dataToPush);
+        for (const userData of realData) {
+            const { firstName, lastName, phoneNumber } = userData;
+            if (!firstName || !phoneNumber) {
+                resData.push({
+                    ...userData,
+                    error: true,
+                    errorRes: {
+                    message: "Please provide firstName and phoneNumber",
+                    },
+                });
+                continue;
+            }
+            if (!lastName) {
+                userData.lastName = firstName;
+            }
+            userData.lead = true;
+            userData.type = "student";
+            if (!userData.email) {
+                userData.email = `${userData.phoneNumber}@gmail.com`;
+            }
+
+            const res = await this.studentService.saveB2CUserDetails(userData);
+            const dataToPush = { ...userData };
+            if (res.id) {
+                dataToPush.success = true;
+            } else {
+                dataToPush.error = true;
+                dataToPush.errorRes = res;
+            }
+            resData.push(dataToPush);
         }
-    
+
         return resData;
-      }
+    }
 
     async saveLeads(request: Request, response: Response, next: NextFunction) {
         this.studentService.request = request;
