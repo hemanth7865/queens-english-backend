@@ -399,6 +399,10 @@ export class StudentService {
       cosmosUserBody.lead = true
     }
 
+    if(data.source) {
+      cosmosUserBody.source = data.source;
+    }
+
     if (data.cacheTime) {
       cosmosUserBody.cacheTime = data.cacheTime
     }
@@ -555,6 +559,7 @@ export class StudentService {
       lastName: data.lastName,
       gender: " ",
       lead: true,
+      source: data.source
     };
 
     const options = {
