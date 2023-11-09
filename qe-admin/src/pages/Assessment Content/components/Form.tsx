@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Select, notification, Spin, Tabs } from "antd";
-import { getAssessmentQuestions, updateAssessmentContent, getLesson, getAssessments} from "@/services/ant-design-pro/api";
+import { getAssessmentQuestions, updateAssessmentContent, getLesson, getAssessments } from "@/services/ant-design-pro/api";
 import QuestionCard from "./QuestionCard";
 import "./form.css"
 
 export type AssessmentContentFormProps = {
-  assessmentData: API.AssessmentQuestion| undefined;
+  assessmentData: API.AssessmentQuestion | undefined;
   operationType: "create" | "update";
   actionRef: any;
   handleDrawerVisiblity: (visible: boolean) => void;
@@ -136,16 +136,16 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
         ...assessment,
         assessmentQuestion:
           [
-          ...assessment.assessmentQuestion,
-          {
-            number: assessment.assessmentQuestion.length + 1,
-            question: "",
-            instruction: "",
-            answer: "",
-            type: "word",
-            imageUrl: ""
-          }
-        ]
+            ...assessment.assessmentQuestion,
+            {
+              number: assessment.assessmentQuestion.length + 1,
+              question: "",
+              instruction: "",
+              answer: "",
+              type: "word",
+              imageUrl: ""
+            }
+          ]
       })
       setUpdate(update + 1);
     }
@@ -227,8 +227,9 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
 
   const assessmentOptions = assessments
     .filter((assessment) => assessment.active)
+    .sort((a, b) => a.lessonDue - b.lessonDue)
     .map((assessment) => ({
-      label: `${assessment.displayName} ~ Due at Lesson ${assessment.lessonDue}`,
+      label: `Due at Lesson ${assessment.lessonDue}`,
       value: assessment.id,
       key: assessment.id,
       assessmentName: assessment.name,
@@ -291,7 +292,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
     } catch (error) {
       console.log("API error", error);
       openNotificationWithIcon('error')
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
