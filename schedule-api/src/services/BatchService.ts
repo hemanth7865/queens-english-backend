@@ -113,7 +113,7 @@ export class BatchService {
 
       data.students = batchStudent;
 
-      var cosomos_url = "/api/classProfile/" + data.id;
+      var cosomos_url = "/api/classProfile/" + data.id + "?ignoreActiveLessonCheck=true";
 
       data.type = data.type || "classProfile";
       data.followupVersion = data.followupVersion || "v2";
@@ -304,7 +304,7 @@ export class BatchService {
   }
 
   async updateCosmosBatch(batchData: any): Promise<any> {
-    const cosmos_url = "/api/classProfile/" + batchData.id;
+    const cosmos_url = "/api/classProfile/" + batchData.id + "?ignoreActiveLessonCheck=true";
 
     const options = {
       url: cosmos_url,
