@@ -113,7 +113,8 @@ export class BatchService {
 
       data.students = batchStudent;
 
-      var cosomos_url = "/api/classProfile/" + data.id;
+      // ignoreActiveLessonCheck flag is to skip check for active lesson update on Azure API.
+      var cosomos_url = "/api/classProfile/" + data.id + "?ignoreActiveLessonCheck=true";
 
       data.type = data.type || "classProfile";
       data.followupVersion = data.followupVersion || "v2";
@@ -304,7 +305,8 @@ export class BatchService {
   }
 
   async updateCosmosBatch(batchData: any): Promise<any> {
-    const cosmos_url = "/api/classProfile/" + batchData.id;
+    // ignoreActiveLessonCheck flag is to skip check for active lesson update on Azure API.
+    const cosmos_url = "/api/classProfile/" + batchData.id + "?ignoreActiveLessonCheck=true";
 
     const options = {
       url: cosmos_url,
