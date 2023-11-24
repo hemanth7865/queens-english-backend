@@ -1137,6 +1137,7 @@ const BatchList: React.FC = () => {
                                     formData.activeLessonNumber
                                   }
                                   onChange={handleFormChange}
+                                  disabled
                                 />
                               </Form.Item>
                             </Col>
