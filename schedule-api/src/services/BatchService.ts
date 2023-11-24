@@ -257,14 +257,16 @@ export class BatchService {
 
         await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
+        logger.info(`@ BATCH UPDATE : ${JSON.stringify(options.body)}`)
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
-            ;
+            logger.info(`@ BATCH UPDATE SUCCESSFUL.`)
             var batch = await this.updateBatchSql(data);
             return batch;
           })
           .catch((error) => {
+            logger.error(`@ BATCH UPDATE UNSUCCESSFUL. : ${JSON.stringify(error)}`)
             return Promise.reject(error);
           });
       }
@@ -313,12 +315,15 @@ export class BatchService {
       json: true,
       body: batchData,
     };
+    logger.info(`# BATCH UPDATE : ${JSON.stringify(batchData)}`)
     const res1: any = await axios
       .put(options.url, options.body)
       .then(()=>{
+        logger.info(`# BATCH UPDATE SUCCESSFUL.`)
         return Promise.resolve("ClassProfile Updated Successfully.")
       })
       .catch((error) => {
+        logger.error(`# BATCH UPDATE UNSUCCESSFUL. : ${JSON.stringify(error)}`)
         // console.log(error);
         return Promise.reject(error);
       });
