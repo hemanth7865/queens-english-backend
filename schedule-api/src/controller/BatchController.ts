@@ -20,6 +20,7 @@ export class BatchController {
     async createBatch(request: Request, response: Response, next: NextFunction) {
         var batch;
         try {
+            request.body.authUser = request.user;
             batch = await this.batchService.createBatch(request.body);
         } catch (error) {
             console.log()
