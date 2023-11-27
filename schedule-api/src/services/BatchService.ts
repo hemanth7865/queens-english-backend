@@ -64,7 +64,27 @@ export class BatchService {
     return date;
   }
 
+  async logActiveLessonIdChangeEvent(existingBatch:any, updatedBatch:any, authUser?:{email:string}) {
+    if(existingBatch?.activeLessonId && updatedBatch?.activeLessonId){
+      const existingLesson = getLessonByID(existingBatch.activeLessonId)
+      const updatedLesson = getLessonByID(updatedBatch.activeLessonId)
+
+      const dataToLog = {
+        batchId: existingBatch.id || updatedBatch.id, 
+        activeLessonId : existingBatch.activeLessonId,
+        activeLessonNumber : existingLesson?.number || existingBatch?.activeLessonNumber,
+        updatedLessonId : updatedBatch.activeLessonId,
+        updatedLessonNumber : updatedLesson?.number || updatedBatch?.activeLessonNumber,
+        updatedBy : authUser?.email
+      }
+
+      logger.info(`@ BATCH LESSON UPDATE : ${JSON.stringify(dataToLog)}`)
+    }
+  }
+
   async createBatch(data: any, force: boolean = false) {
+    const authUser = data.authUser;
+    delete data.authUser;
     const ENABLE_ZOOM =
       process?.env?.ENABLE_ZOOM && parseInt(process?.env?.ENABLE_ZOOM) === 1;
     const moment = require("moment");
@@ -240,6 +260,9 @@ export class BatchService {
             return Promise.reject(error);
           });
       } else {
+
+        this.logActiveLessonIdChangeEvent(cosmosBatch, options.body, authUser);
+
         const studentsChange = await this.getBatchStudentsChange(data, alreadyExists);
 
         /**
