@@ -666,7 +666,7 @@ export class UserController {
       ) {
         let resp;
         try {
-          resp = await this.studentService.syncStudentsCreatedByTeacher();
+          resp = await this.schoolService.syncStudentsCreatedByTeacher();
         } catch (error) {
           usersLogger.error("Sync Student Payment Info Error: " + error.message);
           resp = { status: 400, error: error.message };
