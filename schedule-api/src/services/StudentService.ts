@@ -1734,6 +1734,33 @@ export class StudentService {
 
   async deactivateStudents(ids: string[]): Promise<any> { };
   async validateStudentStatus(): Promise<any> { };
+
+  async syncStudentsCreatedByTeacher() {
+    // Getting students from CosmosDB
+    const url: string = `${this.COSMOS_URL}/user/studentsCreatedByTeacher?code=${this.COSMOS_CODE}`;
+    try {
+      const data = await axios.get(url).then((res) => {
+        return res?.data || [];
+      });
+
+      // preparing students data classProfileId wise
+      const studentsData: any = {};
+
+      for (const student of data) {
+        if (student.classProfileId) {
+          if (!studentsData[student.classProfileId]) {
+            studentsData[student.classProfileId] = [];
+          }
+          studentsData[student.classProfileId].push(student);
+        }
+      }
+
+      return { status: 200, data: studentsData };
+    } catch (error) {
+      return { status: 400, error: error?.message };
+    }
+  }
+
 }
 
 
