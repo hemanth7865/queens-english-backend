@@ -730,6 +730,8 @@ export class SchoolService {
   async syncStudentsCreatedByTeacher() {
     // Getting students from CosmosDB
     const cosmos_url = COSMOS_API.STUDENTS_CREATED_BY_TEACHER;
+    const unsuccessfulRecords = [];
+    const successfulRecords = [];
     try {
       const data = await axios.get(cosmos_url).then((res) => {
         return res?.data || [];
@@ -749,16 +751,36 @@ export class SchoolService {
 
       const batchIds = Object.keys(studentsData);
       for (const currentBatchId of batchIds) {
+        const allStudentsOfBatch = studentsData[currentBatchId];
         const currentBatch = await this.batchService.getBatchDetails(
           currentBatchId
         );
+
+        if (!currentBatch?.data?.classes) {
+          unsuccessfulRecords.push(
+            allStudentsOfBatch.map((e: any) => ({
+              ...e,
+              message: "Batch does not exists.",
+            }))
+          );
+          continue;
+        }
 
         const schoolId = currentBatch?.data?.classes?.schoolId;
         let school = await this.schoolRepository.findOne({
           where: { id: schoolId },
         });
 
-        const allStudentsOfBatch = studentsData[currentBatchId];
+        if (!school) {
+          unsuccessfulRecords.push(
+            allStudentsOfBatch.map((e: any) => ({
+              ...e,
+              message: "School does not exists.",
+            }))
+          );
+          continue;
+        }
+
         const studentsCreatedSuccessfully = [];
         for (const student of allStudentsOfBatch) {
           student.schoolId = schoolId;
@@ -767,21 +789,25 @@ export class SchoolService {
               await this.getAvailableStudentIds({ schoolId })
             ).data[0];
 
-            if (student.phoneNumber.startsWith(school.schoolCode)) {
+            if (
+              school.schoolCode &&
+              student.phoneNumber.startsWith(school.schoolCode)
+            ) {
               student.phoneNumber = student.studentID;
             }
           }
           if (!student?.password && student?.schoolId) {
             student.password = getRandomNumber(6);
           }
-          console.log("student ==>>", student);
           const res = await this.studentService.saveStudentDetails(student, {
             ignoreDuplicateCheck: false,
             cosmosSync: false,
           });
-          console.log("RES ==>>", res);
           if (res.id) {
             studentsCreatedSuccessfully.push(student);
+            successfulRecords.push(student);
+          } else {
+            unsuccessfulRecords.push(student);
           }
         }
 
@@ -803,7 +829,12 @@ export class SchoolService {
         }
       }
 
-      return { status: 200, message: "Users updates successfully" };
+      return {
+        status: 200,
+        message: "Users updates successfully",
+        successfulRecords: successfulRecords.length,
+        unsuccessfulRecords: unsuccessfulRecords,
+      };
     } catch (error) {
       console.log("ERROR", error);
       return { status: 400, error: error?.message };
