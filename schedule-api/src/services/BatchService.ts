@@ -759,6 +759,18 @@ export class BatchService {
     }
     await this.studentRepository.save(stud);
     await this.userRepository.save(user);
+
+    let existingRecord = await this.batchStudentRepository.findOne({
+      batchId: batchId,
+      studentId: student
+    })
+    
+    if (existingRecord) {
+      existingRecord.updated_at = new Date()
+      const batchStudResp = await this.batchStudentRepository.save(existingRecord);
+      return batchStudResp;
+    }
+
     let batchStud = new BatchStudent();
     batchStud.type = "studentProfile";
     batchStud.studentId = student;
@@ -777,9 +789,11 @@ export class BatchService {
           id: student
         })
         .then(async (res) => {
+          console.log("HELL YEAH")
           return await this.addStudentSQL(batchId, student);
         })
         .catch(async (error) => {
+          console.log("NO NO NO NO")
           error.response.studentId = student;
           /**
            * ! Temporary force add student to the batch, to fix records that are currently in a batch on CosmosDB, but not in a batch in AP.
