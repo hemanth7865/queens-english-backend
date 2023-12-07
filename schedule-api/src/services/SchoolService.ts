@@ -671,6 +671,8 @@ export class SchoolService {
       }
 
       async syncStudentsCreatedByTeacher() {
+        logger.info(`== SYNC STUDENT FROM COSMOS TO MYSQL STARTED ==`)
+        logger.info(`SSFCTM :: SYNC STUDENT FROM COSMOS TO MYSQL STARTED`)
         // Getting students from CosmosDB
         const cosmos_url = COSMOS_API.STUDENTS_CREATED_BY_TEACHER;
         const unsuccessfulRecords = [];
@@ -679,6 +681,7 @@ export class SchoolService {
           const data = await axios.get(cosmos_url).then((res) => {
             return res?.data || [];
           });
+          logger.info(`SSFCTM :: ALL STUDENTS :: ${JSON.stringify(data)}`)
     
           // preparing students data classProfileId wise
           const studentsData: any = {};
@@ -694,12 +697,15 @@ export class SchoolService {
     
           const batchIds = Object.keys(studentsData);
           for (const currentBatchId of batchIds) {
+            logger.info(`SSFCTM :: BATCH ID :: ${currentBatchId}`)
             const allStudentsOfBatch = studentsData[currentBatchId];
             const currentBatch = await this.batchService.getBatchDetails(
               currentBatchId
             );
-    
+
+            
             if (!currentBatch?.data?.classes) {
+              logger.info(`SSFCTM :: BATCH DATA NOT FOUND`)
               unsuccessfulRecords.push(
                 allStudentsOfBatch.map((e: any) => ({
                   ...e,
@@ -708,13 +714,17 @@ export class SchoolService {
               );
               continue;
             }
+
+            logger.info(`SSFCTM :: BATCH DATA FOUND :: ${JSON.stringify(currentBatch.data.classes)}`)
     
             const schoolId = currentBatch?.data?.classes?.schoolId;
+            logger.info(`SSFCTM :: SCHOOL ID :: ${schoolId}`)
             let school = await this.schoolRepository.findOne({
               where: { id: schoolId },
             });
     
             if (!school) {
+              logger.info(`SSFCTM :: SCHOOL DATA NOT FOUND`)
               unsuccessfulRecords.push(
                 allStudentsOfBatch.map((e: any) => ({
                   ...e,
@@ -723,9 +733,14 @@ export class SchoolService {
               );
               continue;
             }
+
+            logger.info(`SSFCTM :: SCHOOL DATA FOUND :: ${JSON.stringify(school)}`)
+
+            logger.info(`SSFCTM :: ALL NEW STUDENTS OF A BATCH :: ${JSON.stringify(allStudentsOfBatch)}`)
     
             const studentsCreatedSuccessfully = [];
             for (const student of allStudentsOfBatch) {
+              logger.info(`SSFCTM :: STUDENT PREV :: ${JSON.stringify(student)}`)
               student.schoolId = schoolId;
               if (!student?.studentID && student?.schoolId) {
                 student.studentID = await (
@@ -742,14 +757,19 @@ export class SchoolService {
               if (!student?.password && student?.schoolId) {
                 student.password = getRandomNumber(6);
               }
+
+              logger.info(`SSFCTM :: STUDENT POST EDITING DATA :: ${JSON.stringify(student)}`)
+              
               const res = await this.studentService.saveStudentDetails(student, {
                 ignoreDuplicateCheck: false,
                 cosmosSync: false,
               });
               if (res.id) {
+                logger.info(`SSFCTM :: STUDENT CREATED SUCCESSFULLY :: ${JSON.stringify(student)}`)
                 studentsCreatedSuccessfully.push(student);
                 successfulRecords.push(student);
               } else {
+                logger.info(`SSFCTM :: STUDENT DID NOT CREATED SUCCESSFULLY :: ${JSON.stringify(student)}`)
                 unsuccessfulRecords.push(student);
               }
             }
@@ -758,6 +778,7 @@ export class SchoolService {
               (e) => e.id
             );
     
+            logger.info(`SSFCTM :: ADDING STUDENTS TO THE BATCH`)
             await this.batchService.addStudents(
               idsOfStudentsBatched,
               currentBatchId
@@ -765,12 +786,15 @@ export class SchoolService {
     
             for (const student of studentsCreatedSuccessfully) {
               student.isCreatedInMySQL = true;
+              logger.info(`SSFCTM :: UPDATING STUDENT TO COSMOS DB :: ${JSON.stringify(student)}`)
               const res = await this.studentService.saveStudentDetails(student, {
                 ignoreDuplicateCheck: false,
-                cosmosSync: false,
+                cosmosSync: true,
               });
             }
           }
+
+          logger.info(`== SYNC STUDENT FROM COSMOS TO MYSQL ENDED ==`)
     
           return {
             status: 200,
@@ -779,6 +803,7 @@ export class SchoolService {
             unsuccessfulRecords: unsuccessfulRecords,
           };
         } catch (error) {
+          logger.info(`== SYNC STUDENT FROM COSMOS TO MYSQL ENDED WITH ERROR :: ${error?.message || " "}`)
           console.log("ERROR", error);
           return { status: 400, error: error?.message };
         }
