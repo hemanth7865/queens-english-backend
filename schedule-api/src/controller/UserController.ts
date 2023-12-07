@@ -658,4 +658,19 @@ export class UserController {
       }
       return resp;
     }
+
+    async syncStudentsCreatedByTeacher(
+        request: Request,
+        response: Response,
+        next: NextFunction
+      ) {
+        let resp;
+        try {
+          resp = await this.schoolService.syncStudentsCreatedByTeacher();
+        } catch (error) {
+          usersLogger.error("Sync Student Payment Info Error: " + error.message);
+          resp = { status: 400, error: error.message };
+        }
+        return resp;
+      }
 }

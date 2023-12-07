@@ -89,6 +89,7 @@ export const COSMOS_API = {
     STORE_SHORT_LINK: "/api/shortlink",
     STORE_CLASS_ATTENDANCE: "/api/classAttendance",
     RESET_ACTIVE_LESSON: (id: string): string => `/api/classProfile/${id}/resetActiveLesson`,
+    STUDENTS_CREATED_BY_TEACHER: `/api/user/studentsCreatedByTeacher`,
 };
 
 export const TABLE_NAMES = {

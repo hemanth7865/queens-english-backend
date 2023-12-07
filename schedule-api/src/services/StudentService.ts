@@ -392,7 +392,8 @@ export class StudentService {
       offlineUser: data.offlineUser,
       loginCode: data.loginCode,
       studentID: data.studentID,
-      password: data.password
+      password: data.password,
+      ...data
     }
 
     if(data.lead) {
