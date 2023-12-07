@@ -789,11 +789,9 @@ export class BatchService {
           id: student
         })
         .then(async (res) => {
-          console.log("HELL YEAH")
           return await this.addStudentSQL(batchId, student);
         })
         .catch(async (error) => {
-          console.log("NO NO NO NO")
           error.response.studentId = student;
           /**
            * ! Temporary force add student to the batch, to fix records that are currently in a batch on CosmosDB, but not in a batch in AP.
