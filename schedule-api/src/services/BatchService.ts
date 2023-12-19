@@ -759,6 +759,18 @@ export class BatchService {
     }
     await this.studentRepository.save(stud);
     await this.userRepository.save(user);
+
+    let existingRecord = await this.batchStudentRepository.findOne({
+      batchId: batchId,
+      studentId: student
+    })
+    
+    if (existingRecord) {
+      existingRecord.updated_at = new Date()
+      const batchStudResp = await this.batchStudentRepository.save(existingRecord);
+      return batchStudResp;
+    }
+
     let batchStud = new BatchStudent();
     batchStud.type = "studentProfile";
     batchStud.studentId = student;

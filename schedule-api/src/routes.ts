@@ -144,6 +144,12 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/sync-job/studentsCreatedByTeacher",
+    controller: UserController,
+    action: "syncStudentsCreatedByTeacher",
+  },
+  {
+    method: "post",
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
