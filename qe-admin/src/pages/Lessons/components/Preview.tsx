@@ -1,8 +1,9 @@
 import { SECTION_TYPES } from '@/components/Constants/constants'
 import { getImageURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
-import { Col, Divider, Row, Select } from 'antd'
-import { useState } from 'react';
+import { Button, Col, Divider, Row, Select } from 'antd'
+import { useState, useEffect } from 'react';
 import { DeviceFrameset } from 'react-device-frameset'
+import { useSpeechSynthesis } from 'react-speech-kit';
 import "../../../../node_modules/react-device-frameset/dist/styles/marvel-devices.min.css";
 
 type Section = {
@@ -29,6 +30,68 @@ const devices = [
 
 const Preview = ({ formData }: { formData: Exercise[] }) => {
     const [device, setDevice] = useState(devices[0])
+    const [valueToSpeak, setValueToSpeak] = useState<any[]>([]);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const { speak, cancel, speaking } = useSpeechSynthesis();
+
+    //console.log("formData = ", formData);
+
+    let textForSpeaking: any[] = [];
+
+    useEffect(() => {
+        parseHTML();
+    }, [formData])
+
+    const parser = new DOMParser();
+    let doc: any = '';
+
+    const parseHTML = async () => {
+        formData.map((exercise, eIndex) => {
+            exercise.sections.map((section, sIndex) => {
+                // //console.log(eIndex, sIndex, section);
+                // doc = parser.parseFromString(section.description, 'text/html');
+
+                // // Find all spans with style="color: blue" and add an id
+                // const blueSpans = doc.querySelectorAll('span[style="color: blue;"]');
+                // console.log('blueSpans = ', blueSpans.length);
+
+                extractContent(section.description);
+
+                console.log("textForSpeaking.length = ", textForSpeaking.length);
+
+            })
+        })
+
+        setValueToSpeak(textForSpeaking);
+    }
+
+    const extractContent = (description: any) => {
+        const blueSpanRegex = /<span style="color: blue;">(.*?)<\/span>/g;
+        const matches = description.match(blueSpanRegex);
+
+        if (matches) {
+            matches.map((match: any) => {
+                const spanContentRegex = /<span style="color: blue;">(.*?)<\/span>/;
+                const contentMatch = match.match(spanContentRegex);
+
+                if (contentMatch) { textForSpeaking.push(contentMatch[1]) }
+            });
+        }
+
+        return [];
+    }
+
+    const speakContent = () => {
+        setIsSpeaking(true);
+        valueToSpeak.map((value, index) => {
+            speak({ text: value })
+        })
+    }
+
+    const stopSpeech = () => {
+        setIsSpeaking(false);
+        cancel();
+    };
 
     return (
         <div
@@ -38,16 +101,38 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                 alignItems: 'center',
             }}
         >
-            <Row style={{ alignItems: 'center', gap: 20 }} >
-                <Select
-                    defaultValue={device.value}
-                    onChange={(e) => setDevice(devices.filter(i => i.value === e)[0])}
-                    options={devices}
-                />
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span>Dimensions</span>
-                    <span>{device.height + " X " + device.width}</span>
-                </div>
+            <Row style={{ width: '100%', alignItems: 'center', justifyContent: 'center', }} >
+                <Col span={6}>
+                    <Select
+                        defaultValue={device.value}
+                        onChange={(e) => setDevice(devices.filter(i => i.value === e)[0])}
+                        options={devices}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {/* <span>Dimensions</span> */}
+                        <span>({device.height + " X " + device.width})</span>
+                    </div>
+                </Col>
+                <Col span={8} offset={6} align="middle">
+                    {!isSpeaking ? (
+                        <Button
+                            type="primary"
+                            key="primary"
+                            onClick={() => speakContent()}
+                        >
+                            Play
+                        </Button>
+                    )
+                        : (
+                            <Button
+                                type="primary"
+                                key="primary"
+                                onClick={stopSpeech}
+                            >
+                                Stop
+                            </Button>
+                        )}
+                </Col>
             </Row>
             <DeviceFrameset
                 device={device.device}
