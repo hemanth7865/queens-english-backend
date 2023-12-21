@@ -63,17 +63,17 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     }
 
     const extractContent = (description: any) => {
-        const blueSpanRegex = /<span style="color: blue;">(.*?)<\/span>/g;
-        const matches = description.match(blueSpanRegex);
+        // Parse the HTML string into a DOM document
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(description, 'text/html');
 
-        if (matches) {
-            matches.map((match: any) => {
-                const spanContentRegex = /<[^>]*style\s*=\s*['"](?:(?=(?:[^"'<>]*['"]){0,2}[^"'<>]*color\s*:\s*blue[^"'<>]*['"]))[^"'<>]*['"][^>]*>(.*?)<\/[^>]*>/;
-                const contentMatch = match.match(spanContentRegex);
+        // Find all elements with style="color: blue"
+        const blueElements = doc.querySelectorAll('[style="color: blue;"]');
 
-                if (contentMatch) { textForSpeaking.push(contentMatch[1]) }
-            });
-        }
+        blueElements.forEach((element) => {
+            const content = element.textContent || element.innerText;
+            textForSpeaking.push(content);
+        })
 
         return [];
     }
