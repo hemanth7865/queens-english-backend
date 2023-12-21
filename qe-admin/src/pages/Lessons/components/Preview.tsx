@@ -68,7 +68,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
 
         if (matches) {
             matches.map((match: any) => {
-                const spanContentRegex = /<span style="color: blue;">(.*?)<\/span>/;
+                const spanContentRegex = /<[^>]*style\s*=\s*['"](?:(?=(?:[^"'<>]*['"]){0,2}[^"'<>]*color\s*:\s*blue[^"'<>]*['"]))[^"'<>]*['"][^>]*>(.*?)<\/[^>]*>/;
                 const contentMatch = match.match(spanContentRegex);
 
                 if (contentMatch) { textForSpeaking.push(contentMatch[1]) }
