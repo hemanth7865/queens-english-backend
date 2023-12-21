@@ -32,9 +32,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     const [device, setDevice] = useState(devices[0])
     const [valueToSpeak, setValueToSpeak] = useState<any[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const { speak, cancel, speaking } = useSpeechSynthesis();
-
-    //console.log("formData = ", formData);
+    const { speak, cancel, voices, speaking } = useSpeechSynthesis();
 
     let textForSpeaking: any[] = [];
 
@@ -48,17 +46,8 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     const parseHTML = async () => {
         formData.map((exercise, eIndex) => {
             exercise.sections.map((section, sIndex) => {
-                // //console.log(eIndex, sIndex, section);
-                // doc = parser.parseFromString(section.description, 'text/html');
-
-                // // Find all spans with style="color: blue" and add an id
-                // const blueSpans = doc.querySelectorAll('span[style="color: blue;"]');
-                // console.log('blueSpans = ', blueSpans.length);
 
                 extractContent(section.description);
-
-                console.log("textForSpeaking.length = ", textForSpeaking.length);
-
             })
         })
 
@@ -84,7 +73,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     const speakContent = () => {
         setIsSpeaking(true);
         valueToSpeak.map((value, index) => {
-            speak({ text: value })
+            speak({ text: value, voice: voices[7] })
         })
     }
 
