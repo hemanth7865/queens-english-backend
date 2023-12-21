@@ -1,7 +1,7 @@
 import { SECTION_TYPES } from '@/components/Constants/constants'
 import { getImageURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
 import { Button, Col, Divider, Row, Select } from 'antd'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DeviceFrameset } from 'react-device-frameset'
 import { useSpeechSynthesis } from 'react-speech-kit';
 import "../../../../node_modules/react-device-frameset/dist/styles/marvel-devices.min.css";
@@ -32,16 +32,24 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     const [device, setDevice] = useState(devices[0])
     const [valueToSpeak, setValueToSpeak] = useState<any[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const { speak, cancel, voices, speaking } = useSpeechSynthesis();
+    const [currentTextIndex, setCurrentTextIndex] = useState(0);
+
+    const onEnd = () => {
+        setCurrentTextIndex(currentTextIndex + 1);
+    };
+    const { speak, cancel, voices, speaking } = useSpeechSynthesis({ onEnd });
 
     let textForSpeaking: any[] = [];
 
     useEffect(() => {
+        if (currentTextIndex > 0) {
+            speakContent();
+        }
+    }, [currentTextIndex]);
+
+    useEffect(() => {
         parseHTML();
     }, [formData])
-
-    const parser = new DOMParser();
-    let doc: any = '';
 
     const parseHTML = async () => {
         formData.map((exercise, eIndex) => {
@@ -72,14 +80,24 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
 
     const speakContent = () => {
         setIsSpeaking(true);
-        valueToSpeak.map((value, index) => {
-            speak({ text: value, voice: voices[7] })
-        })
+        speakValue(valueToSpeak[currentTextIndex]);
     }
 
-    const stopSpeech = () => {
+    const speakValue = (textToSpeak: any) => {
+        setTimeout(() =>
+            speak({
+                text: textToSpeak,
+                voice: voices[7],
+                rate: 0.9,
+            }), 700);
+    }
+
+    const pauseStopSpeech = (isStop?: boolean) => {
         setIsSpeaking(false);
         cancel();
+        if (isStop) {
+            setCurrentTextIndex(0);
+        }
     };
 
     return (
@@ -104,22 +122,32 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                 </Col>
                 <Col span={8} offset={6} align="middle">
                     {!isSpeaking ? (
-                        <Button
+                        <Button style={{ background: '#2E8540', borderColor: '#2E8540' }}
                             type="primary"
-                            key="primary"
+                            key="play"
                             onClick={() => speakContent()}
                         >
                             Play
                         </Button>
                     )
                         : (
-                            <Button
-                                type="primary"
-                                key="primary"
-                                onClick={stopSpeech}
-                            >
-                                Stop
-                            </Button>
+                            <>
+                                <Button
+                                    type="primary"
+                                    key="pause"
+                                    onClick={() => pauseStopSpeech(false)}
+                                >
+                                    Pause
+                                </Button>
+                                <Button style={{ marginLeft: 10 }}
+                                    type="primary"
+                                    key="stop"
+                                    danger
+                                    onClick={() => pauseStopSpeech(true)}
+                                >
+                                    Stop
+                                </Button>
+                            </>
                         )}
                 </Col>
             </Row>
