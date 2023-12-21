@@ -29,29 +29,27 @@ const devices = [
 ]
 
 const Preview = ({ formData }: { formData: Exercise[] }) => {
-
-    let currentIndex = 0;
     const [device, setDevice] = useState(devices[0])
     const [valueToSpeak, setValueToSpeak] = useState<any[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
     const onEnd = () => {
-        console.log('Speech synthesis has ended!');
-        // setCurrentTextIndex(currentTextIndex + 1);
-        currentIndex = currentIndex + 1;
-        speakContent();
+        setCurrentTextIndex(currentTextIndex + 1);
     };
     const { speak, cancel, voices, speaking } = useSpeechSynthesis({ onEnd });
 
     let textForSpeaking: any[] = [];
 
     useEffect(() => {
+        if (currentTextIndex > 0) {
+            speakContent();
+        }
+    }, [currentTextIndex]);
+
+    useEffect(() => {
         parseHTML();
     }, [formData])
-
-    const parser = new DOMParser();
-    let doc: any = '';
 
     const parseHTML = async () => {
         formData.map((exercise, eIndex) => {
@@ -82,21 +80,24 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
 
     const speakContent = () => {
         setIsSpeaking(true);
-        console.log("currentIndex in starting = ", currentIndex);
-        speakValue(valueToSpeak[currentIndex]);
+        speakValue(valueToSpeak[currentTextIndex]);
     }
 
     const speakValue = (textToSpeak: any) => {
-        speak({
-            text: textToSpeak,
-            voice: voices[7],
-        })
+        setTimeout(() =>
+            speak({
+                text: textToSpeak,
+                voice: voices[7],
+                rate: 0.9,
+            }), 700);
     }
 
-    const stopSpeech = () => {
+    const pauseStopSpeech = (isStop?: boolean) => {
         setIsSpeaking(false);
-        console.log("currentIndex at stop = ", currentIndex);
         cancel();
+        if (isStop) {
+            setCurrentTextIndex(0);
+        }
     };
 
     return (
@@ -121,22 +122,32 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                 </Col>
                 <Col span={8} offset={6} align="middle">
                     {!isSpeaking ? (
-                        <Button
+                        <Button style={{ background: '#2E8540', borderColor: '#2E8540' }}
                             type="primary"
-                            key="primary"
+                            key="play"
                             onClick={() => speakContent()}
                         >
                             Play
                         </Button>
                     )
                         : (
-                            <Button
-                                type="primary"
-                                key="primary"
-                                onClick={stopSpeech}
-                            >
-                                Stop
-                            </Button>
+                            <>
+                                <Button
+                                    type="primary"
+                                    key="pause"
+                                    onClick={() => pauseStopSpeech(false)}
+                                >
+                                    Pause
+                                </Button>
+                                <Button style={{ marginLeft: 10 }}
+                                    type="primary"
+                                    key="stop"
+                                    danger
+                                    onClick={() => pauseStopSpeech(true)}
+                                >
+                                    Stop
+                                </Button>
+                            </>
                         )}
                 </Col>
             </Row>
