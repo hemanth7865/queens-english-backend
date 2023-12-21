@@ -1,7 +1,7 @@
 import { SECTION_TYPES } from '@/components/Constants/constants'
 import { getImageURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
 import { Button, Col, Divider, Row, Select } from 'antd'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DeviceFrameset } from 'react-device-frameset'
 import { useSpeechSynthesis } from 'react-speech-kit';
 import "../../../../node_modules/react-device-frameset/dist/styles/marvel-devices.min.css";
@@ -29,10 +29,20 @@ const devices = [
 ]
 
 const Preview = ({ formData }: { formData: Exercise[] }) => {
+
+    let currentIndex = 0;
     const [device, setDevice] = useState(devices[0])
     const [valueToSpeak, setValueToSpeak] = useState<any[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
-    const { speak, cancel, voices, speaking } = useSpeechSynthesis();
+    const [currentTextIndex, setCurrentTextIndex] = useState(0);
+
+    const onEnd = () => {
+        console.log('Speech synthesis has ended!');
+        // setCurrentTextIndex(currentTextIndex + 1);
+        currentIndex = currentIndex + 1;
+        speakContent();
+    };
+    const { speak, cancel, voices, speaking } = useSpeechSynthesis({ onEnd });
 
     let textForSpeaking: any[] = [];
 
@@ -72,13 +82,20 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
 
     const speakContent = () => {
         setIsSpeaking(true);
-        valueToSpeak.map((value, index) => {
-            speak({ text: value, voice: voices[7] })
+        console.log("currentIndex in starting = ", currentIndex);
+        speakValue(valueToSpeak[currentIndex]);
+    }
+
+    const speakValue = (textToSpeak: any) => {
+        speak({
+            text: textToSpeak,
+            voice: voices[7],
         })
     }
 
     const stopSpeech = () => {
         setIsSpeaking(false);
+        console.log("currentIndex at stop = ", currentIndex);
         cancel();
     };
 
