@@ -87,7 +87,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
         setTimeout(() =>
             speak({
                 text: textToSpeak,
-                voice: voices[7],
+                voice: voices[2],
                 rate: 0.9,
             }), 700);
     }
