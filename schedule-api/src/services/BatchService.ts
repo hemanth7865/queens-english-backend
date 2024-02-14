@@ -202,6 +202,16 @@ export class BatchService {
         }
       }
 
+      const allSchoolBatches = await this.getCosmosBatchesBySchoolId(data.schoolId);
+      const assessmentsEnabled = await this.checkPropertyEnabled(
+        allSchoolBatches,
+        "assessmentsEnabled"
+      );
+      const isAssessmentStudentModeEnabled = await this.checkPropertyEnabled(
+        allSchoolBatches,
+        "isAssessmentStudentModeEnabled"
+      );
+
       const options = {
         url: cosomos_url,
         json: true,
@@ -240,6 +250,8 @@ export class BatchService {
           useJsonLessonScript: data.useJsonLessonScript,
           requestedUnlockedLessonNumber:
             data.requestedUnlockedLessonNumber || cosmosBatch.unlockedNumber,
+          assessmentsEnabled,
+          isAssessmentStudentModeEnabled,
         },
       };
 
@@ -329,14 +341,38 @@ export class BatchService {
     return data?.data?.result ? data?.data?.result[0] : null;
   }
 
+  async getCosmosBatchesBySchoolId(schoolId: string): Promise<any> {
+    try {
+      const cosomos_url = COSMOS_API.GET_ALL_SCHOOL_BATCHES(schoolId);
+      const res = await axios.get(cosomos_url);
+      return res.data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+
   async updateCosmosBatch(batchData: any): Promise<any> {
     // ignoreActiveLessonCheck flag is to skip check for active lesson update on Azure API.
     const cosmos_url = "/api/classProfile/" + batchData.id + "?ignoreActiveLessonCheck=true";
 
+    const allSchoolBatches = await this.getCosmosBatchesBySchoolId(batchData.schoolId);
+    const assessmentsEnabled = await this.checkPropertyEnabled(
+      allSchoolBatches,
+      "assessmentsEnabled"
+    );
+    const isAssessmentStudentModeEnabled = await this.checkPropertyEnabled(
+      allSchoolBatches,
+      "isAssessmentStudentModeEnabled"
+    );
     const options = {
       url: cosmos_url,
       json: true,
-      body: batchData,
+      body: {
+        ...batchData,
+        assessmentsEnabled,
+        isAssessmentStudentModeEnabled
+      },
     };
     logger.info(`# BATCH UPDATE : ${JSON.stringify(batchData)}`)
     const res1: any = await axios
@@ -1468,4 +1504,35 @@ export class BatchService {
       };
     }
   }
+
+  /**
+   * Checks if a property is enabled for all batches in the given array.
+   * if the property is not present or is false for all batches, the method returns false.
+   * if the property is true for at least one batch, the method returns true.
+   * @param cosmosBatches - The array of batches to check.
+   * @param propertyName - The name of the property to check.
+   * @returns A Promise that resolves to a boolean indicating if the property is enabled for all batches.
+   */
+  async checkPropertyEnabled(
+    cosmosBatches: any[],
+    propertyName: string
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (Array.isArray(cosmosBatches) && cosmosBatches.length > 0) {
+        const allBatchesDisabled = cosmosBatches.every(
+          (batch: any) =>
+            batch[propertyName] === undefined || batch[propertyName] === false
+        );
+        if (allBatchesDisabled) {
+          return resolve(false);
+        } else {
+          let res =  cosmosBatches.some((batch: any) => batch[propertyName] === true);
+          return resolve(res);
+        }
+      } else {
+        return resolve(false);
+      }
+    });
+  }
+
 }
