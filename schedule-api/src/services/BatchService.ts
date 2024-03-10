@@ -1740,7 +1740,7 @@ export class BatchService {
       total: 0,
       failureBatches: [],
     };
-    const query = `SELECT classes.id FROM classes INNER JOIN user on user.id = classes.teacherId INNER JOIN school on school.id = user.schoolId WHERE classes.schoolId IS NULL and user.schoolId IS NOT NULL`;
+    const query = `SELECT classes.id FROM classes INNER JOIN user on user.id = classes.teacherId INNER JOIN school on school.id = user.schoolId WHERE classes.schoolId IS NULL and user.schoolId IS NOT NULL AND classes.offlineBatch = true`;
     let batchIds = await getManager().query(query);
     batchIds = batchIds?.map((b) => b?.id);
 
@@ -1764,8 +1764,7 @@ export class BatchService {
           });
 
           if (teacher?.schoolId) {
-            classes.schoolId = teacher.schoolId;
-            classes.students = Array.isArray(students)
+            const studentList = Array.isArray(students)
               ? students?.map((elem: any) => {
                   elem.value = elem.studentId;
                   elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
@@ -1773,7 +1772,38 @@ export class BatchService {
                   return elem;
                 })
               : [];
-            const updateResp = (await this.createBatch(classes)) as any;
+
+            const dataForm = {
+              classCode: classes.classCode,
+              batchNumber: classes.batchNumber,
+              zoomLink: classes.zoomLink,
+              zoomInfo: classes.zoomInfo,
+              whatsappLink: classes.whatsappLink,
+              teacherId: classes.teacherId,
+              startingLessonId: classes.startingLessonId,
+              endingLessonId: classes.endingLessonId,
+              classStartDate: classes.classStartDate,
+              classEndDate: classes.classEndDate,
+              lessonStartTime: classes.lessonStartTime,
+              lessonEndTime: classes.lessonEndTime,
+              ageGroup: classes.ageGroup,
+              frequency: classes.frequency,
+              useNewZoomLink: classes.useNewZoomLink,
+              useAutoAttendance: classes.useAutoAttendance,
+              offlineBatch: classes.offlineBatch,
+              followupVersion: classes.followupVersion,
+              activeLessonId: classes?.activeLessonId,
+              status: classes.status,
+              id: classes.id,
+              batchAvailability: [{}],
+              students: [...studentList],
+              schoolId: teacher.schoolId,
+              edit: true,
+              requestedUnlockedLessonNumber: null,
+              activeLessonNumber: null,
+            };
+
+            const updateResp = (await this.createBatch(dataForm)) as any;
             if (updateResp?.status === false) {
               throw new Error(updateResp?.message || "Something went wrong.");
             }
