@@ -289,4 +289,19 @@ export class BatchController {
         }
     }
 
+    async updateAllBatchesWithNoSchoolIdButTeacherHas(
+        request: Request,
+        response: Response
+    ) {
+        try {
+            const res = await this.batchService.updateAllBatchesWithNoSchoolIdButTeacherHas();
+            response.status(200).send({ batches: res });
+        } catch (error) {
+            response.status(500).send({
+                message:
+                error?.message || "Some error occurred while updating the batch.",
+            });
+        }
+    }
+
 }

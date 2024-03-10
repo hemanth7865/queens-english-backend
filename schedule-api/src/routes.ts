@@ -150,6 +150,12 @@ export const Routes = [
   },
   {
     method: "post",
+    route: "/sync-job/updateAllBatchesWithNoSchoolIdButTeacherHas",
+    controller: BatchController,
+    action: "updateAllBatchesWithNoSchoolIdButTeacherHas",
+  },
+  {
+    method: "post",
     route: "/createBatch",
     controller: BatchController,
     action: "createBatch",
