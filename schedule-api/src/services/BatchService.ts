@@ -1731,22 +1731,65 @@ export class BatchService {
   }
 
   async updateAllBatchesWithNoSchoolIdButTeacherHas() {
+    logger.info(
+      `== UPDATE BATCHES WITH NO SCHOOL ID BUT TEACHER HAS JOB STARTED ==`
+    );
+    let response = {
+      success: 0,
+      failure: 0,
+      total: 0,
+      failureBatches: [],
+    };
     const query = `SELECT classes.id FROM classes INNER JOIN user on user.id = classes.teacherId INNER JOIN school on school.id = user.schoolId WHERE classes.schoolId IS NULL and user.schoolId IS NOT NULL`;
     let batchIds = await getManager().query(query);
     batchIds = batchIds?.map((b) => b?.id);
 
-    const currBatchId = batchIds[0];
-    const batchDetails = (await this.getBatchDetails(currBatchId))?.data;
-    if (batchDetails?.classes?.teacherId) {
-      const teacher = await this.userRepository.findOne({
-        where: {
-          id: batchDetails?.classes?.teacherId,
-        },
-      });
+    response.total = batchIds.length;
 
-      console.log("teacher =====>>", teacher);
+    logger.info(`== TOTAL BATCHES == >> ${batchIds.length}`);
+    let count = 1;
+
+    for (const currBatchId of batchIds) {
+      const { classes } = (await this.getBatchDetails(currBatchId))?.data;
+      logger.info(
+        `BATCH NUMBER ==>> ${count}, BATCH ID ==>> ${currBatchId}, BATCH NUMBER ==>> ${classes?.batchNumber}`
+      );
+      try {
+        if (classes?.teacherId) {
+          const teacher = await this.userRepository.findOne({
+            where: {
+              id: classes?.teacherId,
+            },
+          });
+
+          if (teacher.schoolId) {
+            classes.schoolId = teacher.schoolId;
+            await this.createBatch(classes);
+          } else {
+            throw new Error("teacher have no schoolId assigned.");
+          }
+        } else {
+          throw new Error("batch have no teacher assigned.");
+        }
+        response.success += 1;
+      } catch (error) {
+        response.failure += 1;
+        response.failureBatches.push({
+          batchId: classes.id,
+          batchNumber: classes.batchNumber,
+          errorMessage: error?.message || "Something went wrong.",
+        });
+      } finally {
+        count += 1;
+      }
     }
 
-    return batchDetails;
+    logger.info(
+      `== UPDATE BATCHES WITH NO SCHOOL ID BUT TEACHER HAS JOB ENDED == >>> ${JSON.stringify(
+        response
+      )}`
+    );
+
+    return response;
   }
 }
