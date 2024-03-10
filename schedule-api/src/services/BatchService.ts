@@ -1,40 +1,34 @@
-import { Any, getConnection, getRepository, Not } from "typeorm";
-import { NextFunction, Request, Response } from "express";
-import { User } from "../entity/User";
-import { Teacher as Teacher } from "../entity/Teacher";
-import { LeadView } from "../model/LeadView";
-import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
-import { getManager } from "typeorm";
+import { Request } from "express";
+import { getConnection, getManager, getRepository, Not } from "typeorm";
+import { isNullOrUndefined } from "util";
+import { v4 as uuidv4 } from "uuid";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
-import { StudentService } from "./StudentService";
-import { ZoomMeetingService } from "./ZoomMeetingService";
-import { UserZoomLinkService } from "./UserZoomLinkService";
 import { Classes } from "../entity/Classes";
-import { BatchView } from "../model/BatchView";
-import { TeacherView } from "../model/TeacherView";
+import { School } from "../entity/School";
+import { Student } from "../entity/Student";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
-import axios from "./../helpers/axios";
-import {
-  getListOfLessonsIDs,
-  getLessonByID,
-  getLessonByNumber,
-} from "./../data/lessons";
-import { COSMOS_API, Status } from "./../helpers/Constants";
-import { v4 as uuidv4 } from "uuid";
+import { User } from "../entity/User";
+import { UserZoomLink } from "../entity/UserZoomLink";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
-import { UserZoomLink } from "../entity/UserZoomLink";
-import { Student } from "../entity/Student";
-import {
-  updateBatchesTeacherCode,
-  getUniqueCode,
-} from "./../utils/batch/getUniqueTeacherCode";
-import moment = require("moment");
-import { School } from "../entity/School";
-import { isNullOrUndefined } from "util";
+import { BatchView } from "../model/BatchView";
+import { TeacherView } from "../model/TeacherView";
+import { getLessonByID, getLessonByNumber, getListOfLessonsIDs } from "./../data/lessons";
+import axios from "./../helpers/axios";
+import { COSMOS_API, Status } from "./../helpers/Constants";
 import { changeBatchEndDate } from "./../helpers/timeStampToDate";
+import {
+  getUniqueCode,
+  updateBatchesTeacherCode,
+} from "./../utils/batch/getUniqueTeacherCode";
+import { StudentService } from "./StudentService";
+import { UserZoomLinkService } from "./UserZoomLinkService";
+import { ZoomMeetingService } from "./ZoomMeetingService";
+import moment = require("moment");
 const { logger } = require("../Logger.js");
+
+
 
 export class BatchService {
   private classesRepository = getRepository(Classes);
@@ -47,7 +41,8 @@ export class BatchService {
   private studentRepository = getRepository(Student);
   private schoolRepository = getRepository(School);
 
-  BatchService() {}
+
+  BatchService() { }
 
   constructor() {
     axios.defaults;
@@ -65,27 +60,21 @@ export class BatchService {
     return date;
   }
 
-  async logActiveLessonIdChangeEvent(
-    existingBatch: any,
-    updatedBatch: any,
-    authUser?: { email: string }
-  ) {
-    if (existingBatch?.activeLessonId && updatedBatch?.activeLessonId) {
-      const existingLesson = getLessonByID(existingBatch.activeLessonId);
-      const updatedLesson = getLessonByID(updatedBatch.activeLessonId);
+  async logActiveLessonIdChangeEvent(existingBatch:any, updatedBatch:any, authUser?:{email:string}) {
+    if(existingBatch?.activeLessonId && updatedBatch?.activeLessonId){
+      const existingLesson = getLessonByID(existingBatch.activeLessonId)
+      const updatedLesson = getLessonByID(updatedBatch.activeLessonId)
 
       const dataToLog = {
-        batchId: existingBatch.id || updatedBatch.id,
-        activeLessonId: existingBatch.activeLessonId,
-        activeLessonNumber:
-          existingLesson?.number || existingBatch?.activeLessonNumber,
-        updatedLessonId: updatedBatch.activeLessonId,
-        updatedLessonNumber:
-          updatedLesson?.number || updatedBatch?.activeLessonNumber,
-        updatedBy: authUser?.email,
-      };
+        batchId: existingBatch.id || updatedBatch.id, 
+        activeLessonId : existingBatch.activeLessonId,
+        activeLessonNumber : existingLesson?.number || existingBatch?.activeLessonNumber,
+        updatedLessonId : updatedBatch.activeLessonId,
+        updatedLessonNumber : updatedLesson?.number || updatedBatch?.activeLessonNumber,
+        updatedBy : authUser?.email
+      }
 
-      logger.info(`@ BATCH LESSON UPDATE : ${JSON.stringify(dataToLog)}`);
+      logger.info(`@ BATCH LESSON UPDATE : ${JSON.stringify(dataToLog)}`)
     }
   }
 
@@ -98,10 +87,10 @@ export class BatchService {
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
     var batchStudent: BatchStudent[] = [];
-    var students: { id: string; type: string }[] = [];
+    var students: { id: string, type: string }[] = [];
     let create: boolean = false;
     data.sync_zoom_status = 0;
-
+    
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -112,8 +101,7 @@ export class BatchService {
           return { status: false, message: "School not found" };
         }
         data.schoolName = data.offlineBatch === 0 ? null : school.schoolName;
-        data.schoolStatus =
-          data.offlineBatch === 0 ? null : school.schoolStatus;
+        data.schoolStatus = data.offlineBatch === 0 ? null : school.schoolStatus;
         data.schoolCode = data.offlineBatch === 0 ? null : school.schoolCode;
       }
 
@@ -127,7 +115,8 @@ export class BatchService {
         for (const element of data.students) {
           var batchStud = new BatchStudent();
           batchStud.type = element.type;
-          if (element.value) batchStud.studentId = element.value;
+          if (element.value)
+            batchStud.studentId = element.value;
           batchStud.created_at = new Date();
           batchStud.updated_at = new Date();
           batchStud.type = "studentProfile";
@@ -141,8 +130,7 @@ export class BatchService {
       data.students = batchStudent;
 
       // ignoreActiveLessonCheck flag is to skip check for active lesson update on Azure API.
-      var cosomos_url =
-        "/api/classProfile/" + data.id + "?ignoreActiveLessonCheck=true";
+      var cosomos_url = "/api/classProfile/" + data.id + "?ignoreActiveLessonCheck=true";
 
       data.type = data.type || "classProfile";
       data.followupVersion = data.followupVersion || "v2";
@@ -153,7 +141,7 @@ export class BatchService {
       data.classEndDate = this.fixDate(data.classEndDate);
       data.lessonStartTime = this.fixDate(data.lessonStartTime);
       data.lessonEndTime = this.fixDate(data.lessonEndTime);
-      data.status = data.status === 0 ? 0 : 1;
+      data.status = data.status === 0 ? 0 : 1
 
       const dateValidate = [
         moment(data.classStartDate).format("YYYY-MM-DD"),
@@ -168,18 +156,13 @@ export class BatchService {
 
       let alreadyExists;
 
-      let studentHasBatch: boolean | string = !force
-        ? await this.checkStudentsBatches(students, data)
-        : false;
+      let studentHasBatch: boolean | string = !force ? await this.checkStudentsBatches(students, data) : false;
 
       if (studentHasBatch) {
-        return {
-          status: false,
-          message: "One or more students is in another batch",
-        };
+        return { status: false, message: "One or more students is in another batch" };
       }
 
-      let cosmosBatch: any = {};
+      let cosmosBatch:any = {};
       if (create) {
         data.classCode = await getUniqueCode("classCode");
         alreadyExists = await this.batchExists(data);
@@ -187,19 +170,16 @@ export class BatchService {
           return { status: false, message: "Batch Number Already Exists" };
         }
       } else if (!create) {
-        alreadyExists = await this.batchExists(data, "id");
+        alreadyExists = await this.batchExists(data, 'id');
         cosmosBatch = await this.getCosmosBatch(data.id);
         if (cosmosBatch) {
-          if (!data.activeLessonId) {
+          if(!data.activeLessonId){
             if (cosmosBatch.activeLessonId) {
               data.activeLessonId = cosmosBatch.activeLessonId;
               data.activeLessonNumber = cosmosBatch.activeLessonNumber;
             }
           }
-          if (
-            typeof data.useJsonLessonScript === "undefined" ||
-            data.useJsonLessonScript === undefined
-          ) {
+          if (typeof data.useJsonLessonScript === "undefined" || data.useJsonLessonScript === undefined) {
             data.useJsonLessonScript = cosmosBatch.useJsonLessonScript;
           }
           if (data?.activeLessonNumber) {
@@ -218,9 +198,7 @@ export class BatchService {
         }
       }
 
-      const allSchoolBatches = await this.getCosmosBatchesBySchoolId(
-        data.schoolId
-      );
+      const allSchoolBatches = await this.getCosmosBatchesBySchoolId(data.schoolId);
       const assessmentsEnabled = await this.checkPropertyEnabled(
         allSchoolBatches,
         "assessmentsEnabled"
@@ -279,10 +257,7 @@ export class BatchService {
           .post(options.url, options.body)
           .then(async (res) => {
             var batch = await this.createBatchSql(data);
-            await this.addStudentsBatchesHistory(
-              students.map((i) => i.id),
-              data.id
-            );
+            await this.addStudentsBatchesHistory(students.map(i => i.id), data.id);
             await axios.put(options.url, options.body).catch((error) => {
               return Promise.reject(error);
             });
@@ -293,12 +268,10 @@ export class BatchService {
             return Promise.reject(error);
           });
       } else {
+
         this.logActiveLessonIdChangeEvent(cosmosBatch, options.body, authUser);
 
-        const studentsChange = await this.getBatchStudentsChange(
-          data,
-          alreadyExists
-        );
+        const studentsChange = await this.getBatchStudentsChange(data, alreadyExists);
 
         /**
          * Add Students To Batch
@@ -306,26 +279,25 @@ export class BatchService {
         await this.addStudents(studentsChange.add, data.id);
 
         if (force || (data?.edit && studentsChange.remove.length > 0)) {
-          /**
-           * Remove Students From Batch
-           */
-          await this.removeStudents(studentsChange.remove, data.id);
+        /**
+        * Remove Students From Batch
+        */
+        await this.removeStudents(studentsChange.remove, data.id);
         }
+
 
         await this.addStudentsBatchesHistory(studentsChange.add, data.id);
 
-        logger.info(`@ BATCH UPDATE : ${JSON.stringify(options.body)}`);
+        logger.info(`@ BATCH UPDATE : ${JSON.stringify(options.body)}`)
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
-            logger.info(`@ BATCH UPDATE SUCCESSFUL.`);
+            logger.info(`@ BATCH UPDATE SUCCESSFUL.`)
             var batch = await this.updateBatchSql(data);
             return batch;
           })
           .catch((error) => {
-            logger.error(
-              `@ BATCH UPDATE UNSUCCESSFUL. : ${JSON.stringify(error)}`
-            );
+            logger.error(`@ BATCH UPDATE UNSUCCESSFUL. : ${JSON.stringify(error)}`)
             return Promise.reject(error);
           });
       }
@@ -347,15 +319,11 @@ export class BatchService {
       }
 
       await meetingService.syncZoomLinksWithCosmos();
-
+      
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      return {
-        status: false,
-        message: error?.response?.data || error?.message || "Service Error",
-        studentId: error?.response?.studentId,
-      };
+      return { status: false, message: error?.response?.data || "Service Error", studentId: error?.response?.studentId };
     } finally {
       await queryRunner.release();
     }
@@ -379,14 +347,12 @@ export class BatchService {
     }
   }
 
+
   async updateCosmosBatch(batchData: any): Promise<any> {
     // ignoreActiveLessonCheck flag is to skip check for active lesson update on Azure API.
-    const cosmos_url =
-      "/api/classProfile/" + batchData.id + "?ignoreActiveLessonCheck=true";
+    const cosmos_url = "/api/classProfile/" + batchData.id + "?ignoreActiveLessonCheck=true";
 
-    const allSchoolBatches = await this.getCosmosBatchesBySchoolId(
-      batchData.schoolId
-    );
+    const allSchoolBatches = await this.getCosmosBatchesBySchoolId(batchData.schoolId);
     const assessmentsEnabled = await this.checkPropertyEnabled(
       allSchoolBatches,
       "assessmentsEnabled"
@@ -401,18 +367,18 @@ export class BatchService {
       body: {
         ...batchData,
         assessmentsEnabled,
-        isAssessmentStudentModeEnabled,
+        isAssessmentStudentModeEnabled
       },
     };
-    logger.info(`# BATCH UPDATE : ${JSON.stringify(batchData)}`);
+    logger.info(`# BATCH UPDATE : ${JSON.stringify(batchData)}`)
     const res1: any = await axios
       .put(options.url, options.body)
-      .then(() => {
-        logger.info(`# BATCH UPDATE SUCCESSFUL.`);
-        return Promise.resolve("ClassProfile Updated Successfully.");
+      .then(()=>{
+        logger.info(`# BATCH UPDATE SUCCESSFUL.`)
+        return Promise.resolve("ClassProfile Updated Successfully.")
       })
       .catch((error) => {
-        logger.error(`# BATCH UPDATE UNSUCCESSFUL. : ${JSON.stringify(error)}`);
+        logger.error(`# BATCH UPDATE UNSUCCESSFUL. : ${JSON.stringify(error)}`)
         // console.log(error);
         return Promise.reject(error);
       });
@@ -421,7 +387,7 @@ export class BatchService {
   }
 
   async deleteBatch(data: any) {
-    const alreadyExists: any = await this.batchExists(data, "id");
+    const alreadyExists: any = await this.batchExists(data, 'id');
     if (!alreadyExists?.id) {
       return { status: false, message: "Batch Not Found" };
     }
@@ -444,16 +410,10 @@ export class BatchService {
     return { message: "Batch Deleted Successfully" };
   }
 
-  async batchExists(
-    data: Classes,
-    column = "batchNumber"
-  ): Promise<boolean | Classes> {
+  async batchExists(data: Classes, column = "batchNumber"): Promise<boolean | Classes> {
     let result: boolean | Classes = false;
 
-    const batch = await this.classesRepository
-      .createQueryBuilder("classes")
-      .where("classes." + column + " = :val", { val: data[column] })
-      .getOne();
+    const batch = await this.classesRepository.createQueryBuilder("classes").where("classes." + column + " = :val", { val: data[column] }).getOne();
 
     if (batch) {
       result = batch;
@@ -465,7 +425,7 @@ export class BatchService {
   async checkStudentsBatches(students: any, data: any): Promise<any> {
     let result = false;
     if (data.csvUpload) {
-      result = false;
+      result = false
     } else {
       const checkBatches = await this.checkStudentBatches(students, data);
       if (checkBatches.length > 0) {
@@ -478,19 +438,14 @@ export class BatchService {
   async checkStudentBatches(students: any, data: Classes): Promise<any> {
     const result = [];
     for (const student of students) {
-      const batch = await this.batchStudentRepository.findOne({
-        studentId: student.id,
-        batchId: Not(data.id),
-      });
+      const batch = await this.batchStudentRepository.findOne({ studentId: student.id, batchId: Not(data.id) })
       if (batch) {
-        const batchData = await this.classesRepository.findOne({
-          id: batch.batchId,
-        });
+        const batchData = await this.classesRepository.findOne({ id: batch.batchId });
         const user = await this.userRepository.findOne({ id: batch.studentId });
         result.push({
           message: `Student ${user?.firstName} ${user?.lastName} - ${user?.phoneNumber} Already In Batch ${batchData.batchNumber}`,
           batch: batchData,
-          student: user,
+          student: user
         });
       }
     }
@@ -498,11 +453,8 @@ export class BatchService {
     return result;
   }
 
-  async getBatchStudentsChange(
-    batch: Classes,
-    oldBatch: Classes
-  ): Promise<{ add: string[]; remove: string[] }> {
-    let result: { add: string[]; remove: string[] } = { add: [], remove: [] };
+  async getBatchStudentsChange(batch: Classes, oldBatch: Classes): Promise<{ add: string[], remove: string[] }> {
+    let result: { add: string[], remove: string[] } = { add: [], remove: [] };
 
     const students = await getRepository(BatchStudent)
       .createQueryBuilder("batchStudent")
@@ -514,19 +466,20 @@ export class BatchService {
     /**
      * Get IDs Of Current Students
      */
-    result.remove = students.map((student) => student.studentId);
+    result.remove = students.map(student => student.studentId);
 
-    batch.students.map((student) => {
+    batch.students.map(student => {
       /**
        * Add New Added Students
        */
       if (!result.remove.includes(student.studentId)) {
         result.add.push(student.studentId);
-      } else {
-        /**
-         * Keep Students That Are Already In The Batch
-         */
-        result.remove = result.remove.filter((id) => id !== student.studentId);
+      }
+      /**
+       * Keep Students That Are Already In The Batch
+       */
+      else {
+        result.remove = result.remove.filter(id => id !== student.studentId);
       }
     });
 
@@ -543,16 +496,13 @@ export class BatchService {
         .where("batchStudent.batchId = :id", { id: batch.id })
         .getMany();
 
+
       const moment = require("moment");
 
       let ages = [];
 
       ages = students.map((i: any) => {
-        return moment(new Date()).diff(
-          moment(i.student?.dob, "YYYY-MM-DD"),
-          "years",
-          true
-        );
+        return moment(new Date()).diff(moment(i.student?.dob, "YYYY-MM-DD"), 'years', true)
       });
 
       let minAge: number = 0;
@@ -578,12 +528,8 @@ export class BatchService {
         batch.maxAge = parseInt(String(maxAge));
       }
 
-      if (
-        batch.minAge &&
-        batch.maxAge &&
-        typeof batch.minAge === "number" &&
-        typeof batch.maxAge === "number"
-      ) {
+
+      if (batch.minAge && batch.maxAge && typeof batch.minAge === "number" && typeof batch.maxAge === "number") {
         const allowedAges: any[] = [];
 
         const sub: number = batch.maxAge - batch.minAge;
@@ -604,10 +550,7 @@ export class BatchService {
         batch.ages = JSON.stringify(allowedAges);
       }
 
-      const classes = await this.classesRepository.update(
-        { id: batch.id },
-        { ages: batch.ages, minAge: batch.minAge, maxAge: batch.maxAge }
-      );
+      const classes = await this.classesRepository.update({ id: batch.id }, { ages: batch.ages, minAge: batch.minAge, maxAge: batch.maxAge });
 
       return classes;
     } catch (e) {
@@ -658,12 +601,7 @@ export class BatchService {
       classes.status = data.status == 0 ? 0 : 1;
       if (!isNullOrUndefined(data.schoolId)) {
         classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
-        classes.schoolName =
-          data.offlineBatch === 0
-            ? null
-            : await this.schoolRepository
-                .findOne({ id: data.schoolId })
-                .then((res) => res.schoolName);
+        classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((res) => res.schoolName)
       }
       if (typeof data.useNewZoomLink != "undefined") {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
@@ -722,27 +660,18 @@ export class BatchService {
           for (const element of data.students) {
             var batchStud = new BatchStudent();
             if (!isNullOrUndefined(data.schoolId)) {
-              const student = await this.studentRepository.findOne({
-                id: element.studentId,
-              });
-              const user = await this.userRepository.findOne({
-                id: element.studentId,
-              });
+              const student = await this.studentRepository.findOne({ id: element.studentId });
+              const user = await this.userRepository.findOne({ id: element.studentId });
               if (student) {
-                student.schoolId =
-                  data.offlineBatch === 0 ? null : data.schoolId;
+                student.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
                 await this.studentRepository.save(student);
               }
               if (user) {
                 user.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
-                user.schoolCode =
-                  data.offlineBatch === 0
-                    ? null
-                    : await this.schoolRepository
-                        .findOne({
-                          id: data.schoolId,
-                        })
-                        .then((res) => res.schoolCode);
+                user.schoolCode = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({
+                  id:
+                    data.schoolId,
+                }).then((res) => res.schoolCode);
                 await this.userRepository.save(user);
               }
             }
@@ -780,7 +709,7 @@ export class BatchService {
 
   async updateBatchSql(data: any) {
     try {
-      const oldBatch = await this.classesRepository.findOne({ id: data.id });
+      const oldBatch = await this.classesRepository.findOne({ id: data.id })
       var classes = new Classes();
       classes.classCode = data.classCode;
       classes.batchNumber = data.batchNumber;
@@ -810,12 +739,7 @@ export class BatchService {
       classes.sync_zoom_status = 0;
       if (data.schoolId) {
         classes.schoolId = data.offlineBatch === 0 ? null : data.schoolId;
-        classes.schoolName =
-          data.offlineBatch === 0
-            ? null
-            : await this.schoolRepository
-                .findOne({ id: data.schoolId })
-                .then((school) => school.schoolName);
+        classes.schoolName = data.offlineBatch === 0 ? null : await this.schoolRepository.findOne({ id: data.schoolId }).then((school) => school.schoolName);
       }
 
       if (typeof data.useAutoAttendance != "undefined") {
@@ -843,10 +767,7 @@ export class BatchService {
         classes.updated_at = new Date();
       }
 
-      const batch = await this.classesRepository.update(
-        { id: classes.id },
-        classes
-      );
+      const batch = await this.classesRepository.update({ id: classes.id }, classes);
       await this.updateBatchAgeGroup(classes);
       return batch;
     } catch (error) {
@@ -855,13 +776,12 @@ export class BatchService {
     }
   }
 
-  async addStudentSQL(batchId: string, student: string) {
-    const classes = await this.classesRepository.findOne({ id: batchId });
-    const school = await this.schoolRepository.findOne({
-      id: classes.schoolId,
-    });
-    const stud = await this.studentRepository.findOne({ id: student });
-    const user = await this.userRepository.findOne({ id: student });
+
+  async addStudentSQL(batchId: string, student: string){
+    const classes = await this.classesRepository.findOne({ id: batchId })
+    const school = await this.schoolRepository.findOne({ id: classes.schoolId })
+    const stud = await this.studentRepository.findOne({ id: student })
+    const user = await this.userRepository.findOne({ id: student })
     if (stud && school && school.id) {
       stud.schoolId = school.id;
     }
@@ -874,14 +794,12 @@ export class BatchService {
 
     let existingRecord = await this.batchStudentRepository.findOne({
       batchId: batchId,
-      studentId: student,
-    });
-
+      studentId: student
+    })
+    
     if (existingRecord) {
-      existingRecord.updated_at = new Date();
-      const batchStudResp = await this.batchStudentRepository.save(
-        existingRecord
-      );
+      existingRecord.updated_at = new Date()
+      const batchStudResp = await this.batchStudentRepository.save(existingRecord);
       return batchStudResp;
     }
 
@@ -900,7 +818,7 @@ export class BatchService {
       let res1 = await axios
         .post("/api/classProfile/" + batchId + "/students", {
           type: "studentProfile",
-          id: student,
+          id: student
         })
         .then(async (res) => {
           return await this.addStudentSQL(batchId, student);
@@ -910,10 +828,7 @@ export class BatchService {
           /**
            * ! Temporary force add student to the batch, to fix records that are currently in a batch on CosmosDB, but not in a batch in AP.
            */
-          if (
-            error?.response?.data?.toLowerCase() ===
-            "Student already enrolled in class".toLowerCase()
-          ) {
+          if(error?.response?.data?.toLowerCase() === "Student already enrolled in class".toLowerCase()){
             return await this.addStudentSQL(batchId, student);
           }
           return Promise.reject(error);
@@ -928,8 +843,8 @@ export class BatchService {
         await axios
           .delete("/api/classProfile/" + batchId + "/students/" + student)
           .then(async () => {
-            const stud = await this.studentRepository.findOne({ id: student });
-            const user = await this.userRepository.findOne({ id: student });
+            const stud = await this.studentRepository.findOne({ id: student })
+            const user = await this.userRepository.findOne({ id: student })
             if (stud) {
               stud.schoolId = null;
             }
@@ -939,10 +854,7 @@ export class BatchService {
             }
             await this.studentRepository.save(stud);
             await this.userRepository.save(user);
-            await this.batchStudentRepository.delete({
-              studentId: student,
-              batchId,
-            });
+            await this.batchStudentRepository.delete({ studentId: student, batchId });
           })
           .catch((error) => {
             return Promise.reject(error);
@@ -984,22 +896,16 @@ export class BatchService {
     }
 
     if (parameters.startingLessonId) {
-      query_list.push(
-        ` classes.startingLessonId = '${parameters.startingLessonId}' `
-      );
+      query_list.push(` classes.startingLessonId = '${parameters.startingLessonId}' `);
     }
 
     if (parameters.lessonNumber) {
-      let activeLessonId: string | number = getLessonByNumber(
-        parameters.lessonNumber
-      )?.id;
+      let activeLessonId: string | number = getLessonByNumber(parameters.lessonNumber)?.id;
       query_list.push(` classes.activeLessonId = '${activeLessonId}' `);
     }
 
     if (parameters.schoolName) {
-      query_list.push(
-        ` classes.schoolName like  '%${parameters.schoolName}%' `
-      );
+      query_list.push(` classes.schoolName like  '%${parameters.schoolName}%' `);
     }
 
     if (parameters.offlineBatch) {
@@ -1014,75 +920,54 @@ export class BatchService {
      */
     if (parameters.lessonGap && parameters.activeLessonId) {
       if (parameters.activeLessonId) {
-        let lessonNumber: string | number = getLessonByID(
-          parameters.activeLessonId
-        )?.number;
+        let lessonNumber: string | number = getLessonByID(parameters.activeLessonId)?.number;
 
         if (lessonNumber) {
           // getListOfLessonsIDs
           lessonNumber = parseInt(lessonNumber);
-          let lessonsNumbers: string[] = [
-            lessonNumber < 10 ? `0${lessonNumber}` : `${lessonNumber}`,
-          ];
+          let lessonsNumbers: string[] = [lessonNumber < 10 ? `0${lessonNumber}` : `${lessonNumber}`];
           let lessonGap = parseInt(parameters.lessonGap);
-          for (
-            let i = lessonNumber + 1;
-            i <= lessonNumber + lessonGap && i <= 300;
-            i++
-          ) {
+          for (let i = lessonNumber + 1; i <= lessonNumber + lessonGap && i <= 300; i++) {
             lessonsNumbers.push(i < 10 ? `0${i}` : `${i}`);
           }
-          for (
-            let i = lessonNumber - 1;
-            i >= lessonNumber - lessonGap && i > 0;
-            i--
-          ) {
+          for (let i = lessonNumber - 1; i >= lessonNumber - lessonGap && i > 0; i--) {
             lessonsNumbers.push(i < 10 ? `0${i}` : `${i}`);
           }
 
           const lessonsIDs = getListOfLessonsIDs(lessonsNumbers);
 
-          const lessonsIDsQuery = `(${lessonsIDs
-            .map((id) => `'${id}'`)
-            .join(",")})`;
+          const lessonsIDsQuery = `(${lessonsIDs.map(id => `'${id}'`).join(",")})`;
 
           /**
            * TODO: Make query simple once deploy current active lesson
            */
-          query_list.push(
-            ` ((classes.activeLessonId IS NOT NULL AND classes.activeLessonId IN ${lessonsIDsQuery}) OR (classes.activeLessonId IS NULL AND classes.startingLessonId IN ${lessonsIDsQuery})) `
-          );
+          query_list.push(` ((classes.activeLessonId IS NOT NULL AND classes.activeLessonId IN ${lessonsIDsQuery}) OR (classes.activeLessonId IS NULL AND classes.startingLessonId IN ${lessonsIDsQuery})) `);
+
         }
+
       }
     } else {
       if (parameters.activeLessonId) {
-        query_list.push(
-          ` classes.activeLessonId = '${parameters.activeLessonId}' `
-        );
+        query_list.push(` classes.activeLessonId = '${parameters.activeLessonId}' `);
       }
     }
 
     if (parameters.lessonStartTime) {
-      query_list.push(
-        ` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `
-      );
+      query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
     }
 
     if (parameters.lessonEndTime) {
-      query_list.push(
-        ` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `
-      );
+      query_list.push(` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
     }
 
     if (parameters.classStartDate) {
-      query_list.push(
-        ` classes.classStartDate LIKE '%${parameters.classStartDate}%' AND classes.status != 4 `
-      );
+      query_list.push(` classes.classStartDate LIKE '%${parameters.classStartDate}%' AND classes.status != 4 `);
     }
 
     if (parameters.classEndDate) {
       query_list.push(` classes.classEndDate >= '${parameters.classEndDate}' `);
     }
+
 
     if (parameters.excludedTeacher) {
       query_list.push(` classes.teacherId != '${parameters.excludedTeacher}' `);
@@ -1098,7 +983,9 @@ export class BatchService {
 
     if (parameters.age) {
       orderClause = ` abs(round((classes.minAge+classes.maxAge)/2,0) - ${age}) ASC, students_count DESC `;
-    } else {
+    }
+
+    else {
       orderClause = ` classes.created_at DESC `;
     }
 
@@ -1129,9 +1016,7 @@ export class BatchService {
     }
 
     if (start_slot && end_slot) {
-      query_list.push(
-        `  ${startMin} >= classes.startMin and ${endMin}<= classes.endMin;`
-      );
+      query_list.push(`  ${startMin} >= classes.startMin and ${endMin}<= classes.endMin;`);
     }
 
     let teacher = parameters.teacher;
@@ -1160,11 +1045,7 @@ export class BatchService {
     current--;
     var quer = `select classes.id, classes.batchNumber, classes.minAge, classes.maxAge, classes.lessonStartTime, classes.teacherId, classes.lessonEndTime, classes.activeLessonId, classes.startingLessonId, classes.endingLessonId, classes.classStartDate, 
     classes.classEndDate, classes.created_at, classes.teacherId, classes.frequency, (SELECT COUNT(*) FROM batch_students WHERE batch_students.batchId = classes.id) as students_count, (SELECT COUNT(*) FROM batch_students INNER JOIN student as s on s.id = batch_students.studentId WHERE batch_students.batchId = classes.id AND s.course IN ("DISE - 1:1", "IELTS - 1:1")) AS students_one_to_one_count from 
-    classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${
-      pageSize >= 0 ? pageSize : 20
-    } OFFSET ${
-      (current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)
-    };`;
+    classes ${query_string} ${havingQuery} ORDER BY ${orderClause} LIMIT ${pageSize >= 0 ? pageSize : 20} OFFSET ${(current >= 0 ? current : 0) * (pageSize >= 0 ? pageSize : 20)};`;
 
     var results = await getManager().query(quer);
     let studentCount = [];
@@ -1190,12 +1071,10 @@ export class BatchService {
         .getOne();
 
       for (let student of studentCount) {
-        students.push(
-          await getManager()
-            .createQueryBuilder(User, "user")
-            .where("user.id = :id", { id: student.studentId })
-            .getOne()
-        );
+        students.push(await getManager()
+          .createQueryBuilder(User, "user")
+          .where("user.id = :id", { id: student.studentId })
+          .getOne());
       }
 
       if (user && user.firstName && user.lastName) {
@@ -1205,28 +1084,20 @@ export class BatchService {
       let endTime;
       let status;
       if (classes.lessonStartTime && classes.lessonStartTime.split("T")[1]) {
-        startTime = classes.lessonStartTime
-          .split("T")[1]
-          ?.substring(0, "00:00".length);
+        startTime = classes.lessonStartTime.split("T")[1]?.substring(0, "00:00".length);
       } else {
         startTime = "";
       }
 
       if (classes.lessonEndTime && classes.lessonEndTime.split("T")[1]) {
-        endTime = classes.lessonEndTime
-          .split("T")[1]
-          ?.substring(0, "00:00".length);
+        endTime = classes.lessonEndTime.split("T")[1]?.substring(0, "00:00".length);
       } else {
         endTime = "";
       }
 
-      status = classes.status == 0 ? 0 : 1;
-      let school = await this.schoolRepository.findOne({
-        where: { id: classes.schoolId },
-      });
-      let lessonNumber: string | number = getLessonByID(
-        classes.activeLessonId
-      )?.number;
+      status = classes.status == 0 ? 0 : 1 ;
+      let school = await this.schoolRepository.findOne({ where: { id: classes.schoolId } });
+      let lessonNumber: string | number = getLessonByID(classes.activeLessonId)?.number;
       let view = new BatchView(
         element.id,
         classes.created_at,
@@ -1235,11 +1106,7 @@ export class BatchService {
         name,
         studentCount.length,
         `${startTime}-${endTime}`,
-        classes?.classStartDate && classes?.classEndDate
-          ? classes.classStartDate.split("T")[0] +
-            " To " +
-            classes.classEndDate.split("T")[0]
-          : "NA",
+        classes?.classStartDate && classes?.classEndDate ? classes.classStartDate.split("T")[0] + " To " + classes.classEndDate.split("T")[0] : "NA",
         status,
         students,
         classes.startingLessonId,
@@ -1281,10 +1148,7 @@ export class BatchService {
       .createQueryBuilder(Classes, "classes")
       .leftJoin("classes.teacher", "teacher")
       .addSelect(["teacher.firstName", "teacher.lastName"])
-      .where("classes.id = :id or classes.batchNumber = :batchNumber", {
-        id: batchId,
-        batchNumber: batchId,
-      })
+      .where("classes.id = :id or classes.batchNumber = :batchNumber", { id: batchId, batchNumber: batchId })
       .getOne();
     const batchavail = await getManager()
       .createQueryBuilder(BatchAvailability, "batchAvailability")
@@ -1308,12 +1172,8 @@ export class BatchService {
       ])
       .where("batchStudent.batchId = :id", { id: classes?.id })
       .getRawMany();
-    const zoomMeeting = await this.zoomMeetingRepository.findOne({
-      batch_id: classes?.id,
-    });
-    const zoomUser = await this.zoomUserRepository.findOne({
-      user_id: classes?.teacherId,
-    });
+    const zoomMeeting = await this.zoomMeetingRepository.findOne({ batch_id: classes?.id });
+    const zoomUser = await this.zoomUserRepository.findOne({ user_id: classes?.teacherId });
     teacherView.classes = classes;
     teacherView.batchAvailability = [batchavail];
     teacherView.students = students.map((student): any => ({
@@ -1343,30 +1203,25 @@ export class BatchService {
     };
   }
 
+
   async getBatchesWorkingTeachers(request: Request, parameters) {
     let query_list = [];
     let query_string = "";
     const moment = require("moment");
 
     if (parameters.lessonStartTime) {
-      query_list.push(
-        ` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `
-      );
+      query_list.push(` classes.lessonStartTime LIKE '%${parameters.lessonStartTime}%' `);
     }
 
     if (parameters.lessonEndTime) {
-      query_list.push(
-        ` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `
-      );
+      query_list.push(` classes.lessonEndTime LIKE '%${parameters.lessonEndTime}%' `);
     }
 
     if (parameters.frequency) {
       query_list.push(` classes.frequency = '${parameters.frequency}' `);
     }
 
-    query_list.push(
-      ` classes.classEndDate >= '${moment().format("YYYY-MM-DD")}' `
-    );
+    query_list.push(` classes.classEndDate >= '${moment().format("YYYY-MM-DD")}' `);
 
     if (query_list.length > 0) {
       query_string = " where ";
@@ -1385,19 +1240,13 @@ export class BatchService {
     var ids = [];
 
     for (const element of results) {
-      ids.push(element.teacherId);
+      ids.push(element.teacherId)
     }
 
     return ids;
   }
 
-  async checkStudentExistsInBatch({
-    studentId,
-    batchId,
-  }: {
-    studentId: string;
-    batchId?: string;
-  }) {
+  async checkStudentExistsInBatch({ studentId, batchId }: { studentId: string, batchId?: string}) {
     let studentService = new StudentService();
     let studentDetail = await studentService.getStudentDetailsById(studentId);
 
@@ -1406,45 +1255,29 @@ export class BatchService {
     INNER JOIN classes as c ON s.batchCode = c.batchNumber 
     INNER JOIN user as u ON s.id = u.id
     where c.id = '${batchId}'
-    and u.firstName = '${studentDetail.data.firstName}' and u.lastName = '${studentDetail.data.lastName}'`;
+    and u.firstName = '${studentDetail.data.firstName}' and u.lastName = '${studentDetail.data.lastName}'`
 
     if (studentDetail.data.middleName) {
-      query = query + ` and u.middleName = '${studentDetail.data.middleName}'`;
+      query = query + ` and u.middleName = '${studentDetail.data.middleName}'`
     }
 
     if (studentDetail.data.classSection) {
-      query =
-        query + ` and s.classSection = '${studentDetail.data.classSection}'`;
+      query = query + ` and s.classSection = '${studentDetail.data.classSection}'`
     }
 
     var details = await getManager().query(query);
 
-    return { success: true, data: details };
+    return { success: true, data: details }
   }
 
-  async reBatch({
-    studentId,
-    batchId,
-    bulkRebatch,
-    removeFromBatch,
-  }: {
-    studentId: string;
-    batchId?: string;
-    bulkRebatch?: boolean;
-    removeFromBatch?: boolean;
-  }) {
+  async reBatch({ studentId, batchId, bulkRebatch, removeFromBatch }: { studentId: string, batchId?: string, bulkRebatch?: boolean, removeFromBatch?: boolean }) {
     let studentService = new StudentService();
-    let activeBatches = await studentService.getStudentActiveBatches(
-      studentId,
-      true
-    );
+    let activeBatches = await studentService.getStudentActiveBatches(studentId, true);
     /**
      * Remove Student From Current Active Batches
      */
     for (let batch of activeBatches.data) {
-      batch.students = batch.students.filter(
-        (student: BatchStudent) => student.studentId != studentId
-      );
+      batch.students = batch.students.filter((student: BatchStudent) => student.studentId != studentId);
       batch.batchAvailability = [{}];
       batch.edit = true;
       if (batch.teacher) {
@@ -1452,24 +1285,19 @@ export class BatchService {
       }
       batch.students = batch.students.map((student: BatchStudent) => {
         return {
-          value: student.studentId,
-        };
+          value: student.studentId
+        }
       });
 
       let res = await this.createBatch(batch, true);
     }
 
-    let result = {};
+    let result = {}
     /** Add Student To Batch */
     if (!removeFromBatch) {
       let batchDetails = await this.getBatchDetails(batchId);
 
-      const batch: any = {
-        ...batchDetails.data.classes,
-        batchAvailability: [{}],
-        students: batchDetails.data.students,
-        edit: true,
-      };
+      const batch: any = { ...batchDetails.data.classes, batchAvailability: [{}], students: batchDetails.data.students, edit: true };
 
       const studentsIDs = [];
       batch.students = batch.students.map((student: BatchStudent) => {
@@ -1490,11 +1318,7 @@ export class BatchService {
     return result;
   }
 
-  async addStudentsBatchesHistory(
-    students: string[],
-    batchId: string,
-    status: boolean = true
-  ) {
+  async addStudentsBatchesHistory(students: string[], batchId: string, status: boolean = true) {
     const studentsBatchesHistory = [];
     for (let i = 0; i < students.length; i++) {
       let studentBatchesHistory = new StudentBatchesHistory();
@@ -1512,11 +1336,11 @@ export class BatchService {
 
   async updateBatchZoomInfoAndWACSV(data: any, query: { test: boolean }) {
     let result = {
-      updated: 0,
-      notFound: 0,
-      errors: 0,
-      skipped: 0,
-      notFoundBatches: [],
+      "updated": 0,
+      "notFound": 0,
+      "errors": 0,
+      "skipped": 0,
+      "notFoundBatches": []
     };
 
     for (let d of data) {
@@ -1527,7 +1351,7 @@ export class BatchService {
             "Zoom Link": d["Zoom Link"],
             "WhatsApp Group Invite link": d["What's app group link"],
             "Zoom Information": `Meeting ID: ${d["Meeting ID"]}`,
-          };
+          }
         }
 
         if (!d.batch_code) {
@@ -1539,9 +1363,7 @@ export class BatchService {
         const zoomInfo = d["Zoom Information"]?.replace(/\n/g, "<br />");
         const whatsappLink = d["WhatsApp Group Invite link"];
 
-        let batch = await this.classesRepository.findOne({
-          batchNumber: batchCode,
-        });
+        let batch = await this.classesRepository.findOne({ batchNumber: batchCode });
 
         if (!batch) {
           result.notFound++;
@@ -1549,22 +1371,17 @@ export class BatchService {
           continue;
         }
 
-        if (
-          !(
-            (!batch.zoomLink || batch.zoomLink.length < 5) &&
-            (!batch.zoomInfo || batch.zoomInfo.length < 5) &&
-            (!batch.whatsappLink || batch.whatsappLink.length < 5)
-          )
-        ) {
+        if (!(
+          (!batch.zoomLink || batch.zoomLink.length < 5) &&
+          (!batch.zoomInfo || batch.zoomInfo.length < 5) &&
+          (!batch.whatsappLink || batch.whatsappLink.length < 5)
+        )) {
           result.skipped++;
           continue;
         }
 
         if (!query.test) {
-          await this.classesRepository.update(
-            { id: batch.id },
-            { zoomLink, zoomInfo, whatsappLink }
-          );
+          await this.classesRepository.update({ id: batch.id }, { zoomLink, zoomInfo, whatsappLink });
         }
         result.updated++;
       } catch (e) {
@@ -1576,42 +1393,35 @@ export class BatchService {
   }
 
   async syncClassStartDate() {
-    const futureDate = moment()
-      .add(process.env.START_DATE, "days")
-      .format("YYYY-MM-DD");
-    const students = await this.studentRepository.find({
-      where: { status: Status.STARTCLASSLATER },
-    });
+    const futureDate = moment().add(process.env.START_DATE, 'days').format("YYYY-MM-DD")
+    const students = await this.studentRepository.find({ where: { status: Status.STARTCLASSLATER } });
     for (let s of students) {
       if (s.classesStartDate == futureDate) {
-        await this.studentRepository.update(
-          { id: s.id },
-          { status: Status.BATCHING }
-        );
+        await this.studentRepository.update({ id: s.id }, { status: Status.BATCHING });
       }
     }
-    return { success: true, data: students };
+    return { success: true, data: students }
   }
 
   async updateBatchEndDate(data: any) {
     /**Query to fetch all batch based on the date */
-    const { currentDate, updatedDate, isEndDay } = data;
+    const {currentDate, updatedDate, isEndDay} = data;
     const results = {
-      updated: 0,
-      notUpdated: 0,
-      updatedIds: [],
-    };
-    try {
+      "updated": 0,
+      "notUpdated": 0,
+      "updatedIds": [],
+    }
+    try{
       const query = `select DISTINCT id from classes where CONCAT(YEAR(classes.classEndDate),'-',MONTH(classes.classEndDate)) = '${currentDate}'`;
       let getEndDateLists = await getManager().query(query);
       /**Get the last date */
-      if (isEndDay) {
+      if(isEndDay){
         let lastDate;
-        if (currentDate.length === 6) {
-          const finalDate = currentDate.split("");
+        if(currentDate.length === 6){
+          const finalDate = currentDate.split('');
           const currentSplice = finalDate.splice(-1, 0, 0);
-          lastDate = finalDate.join("");
-        } else {
+          lastDate = finalDate.join('');
+        }else{
           lastDate = currentDate;
         }
         const lastDateQuery = `select DISTINCT id from classes where classes.classEndDate LIKE '${lastDate}-31%'`;
@@ -1619,40 +1429,32 @@ export class BatchService {
         getEndDateLists = getEndDateLists.concat(endDateList);
       }
 
-      for (const batches of getEndDateLists) {
+      for(const batches of getEndDateLists) {
         let batchInfo = await this.getBatchDetails(batches.id);
         let batchData = batchInfo.data;
         const classes = batchData.classes;
         const students = batchData.students;
-        if (batchData.students.length === 0) {
+        if(batchData.students.length === 0){
           results.notUpdated++;
           continue;
         }
-
+        
         /**Update the endDate and call the function */
-        const updatedClassEndDate = changeBatchEndDate(
-          batchData.classes.classEndDate,
-          updatedDate
-        );
+        const updatedClassEndDate = changeBatchEndDate(batchData.classes.classEndDate, updatedDate);
         classes.classEndDate = updatedClassEndDate;
-        for (const studentData of students) {
+        for(const studentData of students){
           studentData["value"] = studentData.studentId;
           studentData["key"] = studentData.id;
         }
-        const batch: any = {
-          ...classes,
-          students: students,
-          batchAvailability: batchData.batchAvailability,
-          edit: true,
-        };
+        const batch: any = { ...classes, students: students, batchAvailability: batchData.batchAvailability, edit: true};
         await this.createBatch(batch);
         results.updated++;
         results.updatedIds.push(batch.id);
       }
-      return { message: "Updated enddate Successfully", result: results };
-    } catch (error) {
-      console.log("error", results);
-      return { message: "Bulk update error", error: error };
+      return { message: "Updated enddate Successfully" , result: results};
+    }catch(error) {
+      console.log('error', results);
+      return { message: "Bulk update error" , error: error};
     }
   }
 
@@ -1668,6 +1470,7 @@ export class BatchService {
       return { success: false, data: error };
     }
   }
+
 
   async resetAactiveLesson(
     batchId: string,
@@ -1719,9 +1522,7 @@ export class BatchService {
         if (allBatchesDisabled) {
           return resolve(false);
         } else {
-          let res = cosmosBatches.some(
-            (batch: any) => batch[propertyName] === true
-          );
+          let res =  cosmosBatches.some((batch: any) => batch[propertyName] === true);
           return resolve(res);
         }
       } else {
@@ -1834,4 +1635,5 @@ export class BatchService {
 
     return response;
   }
+
 }
