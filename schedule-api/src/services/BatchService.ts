@@ -267,7 +267,7 @@ export class BatchService {
           status: data.status,
           useJsonLessonScript: data.useJsonLessonScript,
           requestedUnlockedLessonNumber:
-            data.requestedUnlockedLessonNumber || cosmosBatch.unlockedNumber,
+            data?.requestedUnlockedLessonNumber || cosmosBatch?.unlockedNumber,
           assessmentsEnabled,
           isAssessmentStudentModeEnabled,
         },
@@ -353,7 +353,7 @@ export class BatchService {
       await queryRunner.rollbackTransaction();
       return {
         status: false,
-        message: error?.response?.data || "Service Error",
+        message: error?.response?.data || error?.message || "Service Error",
         studentId: error?.response?.studentId,
       };
     } finally {
@@ -1750,7 +1750,8 @@ export class BatchService {
     let count = 1;
 
     for (const currBatchId of batchIds) {
-      const { classes } = (await this.getBatchDetails(currBatchId))?.data;
+      const { classes, students } = (await this.getBatchDetails(currBatchId))
+        ?.data;
       logger.info(
         `BATCH NUMBER ==>> ${count}, BATCH ID ==>> ${currBatchId}, BATCH NUMBER ==>> ${classes?.batchNumber}`
       );
@@ -1762,9 +1763,20 @@ export class BatchService {
             },
           });
 
-          if (teacher.schoolId) {
+          if (teacher?.schoolId) {
             classes.schoolId = teacher.schoolId;
-            await this.createBatch(classes);
+            classes.students = Array.isArray(students)
+              ? students?.map((elem: any) => {
+                  elem.value = elem.studentId;
+                  elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
+                  elem.key = elem.id;
+                  return elem;
+                })
+              : [];
+            const updateResp = (await this.createBatch(classes)) as any;
+            if (updateResp?.status === false) {
+              throw new Error(updateResp?.message || "Something went wrong.");
+            }
           } else {
             throw new Error("teacher have no schoolId assigned.");
           }
