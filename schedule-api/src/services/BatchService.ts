@@ -1,35 +1,31 @@
-import { Any, getConnection, getRepository, Not } from "typeorm";
-import { NextFunction, Request, Response } from "express";
-import { User } from "../entity/User";
-import { Teacher as Teacher } from "../entity/Teacher";
-import { LeadView } from "../model/LeadView";
-import { TeacherAvailability as TeacherAvailability } from "../entity/TeacherAvailability";
-import { getManager } from "typeorm";
+import { Request } from "express";
+import { getConnection, getManager, getRepository, Not } from "typeorm";
+import { isNullOrUndefined } from "util";
+import { v4 as uuidv4 } from "uuid";
 import { BatchAvailability } from "../entity/BatchAvailability";
 import { BatchStudent } from "../entity/BatchStudent";
-import { StudentService } from "./StudentService";
-import { ZoomMeetingService } from "./ZoomMeetingService";
-import { UserZoomLinkService } from "./UserZoomLinkService";
 import { Classes } from "../entity/Classes";
-import { BatchView } from "../model/BatchView";
-import { TeacherView } from "../model/TeacherView";
+import { School } from "../entity/School";
+import { Student } from "../entity/Student";
 import { StudentBatchesHistory } from "../entity/StudentBatchesHistory";
-import axios from "./../helpers/axios";
-import { getListOfLessonsIDs, getLessonByID, getLessonByNumber } from "./../data/lessons";
-import { COSMOS_API, Status } from "./../helpers/Constants";
-import { v4 as uuidv4 } from "uuid";
+import { User } from "../entity/User";
+import { UserZoomLink } from "../entity/UserZoomLink";
 import { ZoomMeeting } from "../entity/ZoomMeeting";
 import { ZoomUser } from "../entity/ZoomUser";
-import { UserZoomLink } from "../entity/UserZoomLink";
-import { Student } from "../entity/Student";
+import { BatchView } from "../model/BatchView";
+import { TeacherView } from "../model/TeacherView";
+import { getLessonByID, getLessonByNumber, getListOfLessonsIDs } from "./../data/lessons";
+import axios from "./../helpers/axios";
+import { COSMOS_API, Status } from "./../helpers/Constants";
+import { changeBatchEndDate } from "./../helpers/timeStampToDate";
 import {
-  updateBatchesTeacherCode,
   getUniqueCode,
+  updateBatchesTeacherCode,
 } from "./../utils/batch/getUniqueTeacherCode";
+import { StudentService } from "./StudentService";
+import { UserZoomLinkService } from "./UserZoomLinkService";
+import { ZoomMeetingService } from "./ZoomMeetingService";
 import moment = require("moment");
-import { School } from "../entity/School";
-import { isNullOrUndefined } from "util";
-import { changeBatchEndDate } from "./../helpers/timeStampToDate"
 const { logger } = require("../Logger.js");
 
 
@@ -249,7 +245,7 @@ export class BatchService {
           status: data.status,
           useJsonLessonScript: data.useJsonLessonScript,
           requestedUnlockedLessonNumber:
-            data.requestedUnlockedLessonNumber || cosmosBatch.unlockedNumber,
+            data?.requestedUnlockedLessonNumber || cosmosBatch?.unlockedNumber,
           assessmentsEnabled,
           isAssessmentStudentModeEnabled,
         },
@@ -1533,6 +1529,111 @@ export class BatchService {
         return resolve(false);
       }
     });
+  }
+
+  async updateAllBatchesWithNoSchoolIdButTeacherHas() {
+    logger.info(
+      `== UPDATE BATCHES WITH NO SCHOOL ID BUT TEACHER HAS JOB STARTED ==`
+    );
+    let response = {
+      success: 0,
+      failure: 0,
+      total: 0,
+      failureBatches: [],
+    };
+    const query = `SELECT classes.id FROM classes INNER JOIN user on user.id = classes.teacherId INNER JOIN school on school.id = user.schoolId WHERE classes.schoolId IS NULL and user.schoolId IS NOT NULL`;
+    let batchIds = await getManager().query(query);
+    batchIds = batchIds?.map((b) => b?.id);
+
+    response.total = batchIds.length;
+
+    logger.info(`== TOTAL BATCHES == >> ${batchIds.length}`);
+    let count = 1;
+
+    for (const currBatchId of batchIds) {
+      const { classes, students } = (await this.getBatchDetails(currBatchId))
+        ?.data;
+      logger.info(
+        `BATCH NUMBER ==>> ${count}, BATCH ID ==>> ${currBatchId}, BATCH NUMBER ==>> ${classes?.batchNumber}`
+      );
+      try {
+        if (classes?.teacherId) {
+          const teacher = await this.userRepository.findOne({
+            where: {
+              id: classes?.teacherId,
+            },
+          });
+
+          if (teacher?.schoolId) {
+            const studentList = Array.isArray(students)
+              ? students?.map((elem: any) => {
+                  elem.value = elem.studentId;
+                  elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
+                  elem.key = elem.id;
+                  return elem;
+                })
+              : [];
+
+            const dataForm = {
+              classCode: classes.classCode,
+              batchNumber: classes.batchNumber,
+              zoomLink: classes.zoomLink,
+              zoomInfo: classes.zoomInfo,
+              whatsappLink: classes.whatsappLink,
+              teacherId: classes.teacherId,
+              startingLessonId: classes.startingLessonId,
+              endingLessonId: classes.endingLessonId,
+              classStartDate: classes.classStartDate,
+              classEndDate: classes.classEndDate,
+              lessonStartTime: classes.lessonStartTime,
+              lessonEndTime: classes.lessonEndTime,
+              ageGroup: classes.ageGroup,
+              frequency: classes.frequency,
+              useNewZoomLink: classes.useNewZoomLink,
+              useAutoAttendance: classes.useAutoAttendance,
+              offlineBatch: 1,
+              followupVersion: classes.followupVersion,
+              activeLessonId: classes?.activeLessonId,
+              status: classes.status,
+              id: classes.id,
+              batchAvailability: [{}],
+              students: [...studentList],
+              schoolId: teacher.schoolId,
+              edit: true,
+              requestedUnlockedLessonNumber: null,
+              activeLessonNumber: null,
+            };
+
+            const updateResp = (await this.createBatch(dataForm)) as any;
+            if (updateResp?.status === false) {
+              throw new Error(updateResp?.message || "Something went wrong.");
+            }
+          } else {
+            throw new Error("teacher have no schoolId assigned.");
+          }
+        } else {
+          throw new Error("batch have no teacher assigned.");
+        }
+        response.success += 1;
+      } catch (error) {
+        response.failure += 1;
+        response.failureBatches.push({
+          batchId: classes.id,
+          batchNumber: classes.batchNumber,
+          errorMessage: error?.message || "Something went wrong.",
+        });
+      } finally {
+        count += 1;
+      }
+    }
+
+    logger.info(
+      `== UPDATE BATCHES WITH NO SCHOOL ID BUT TEACHER HAS JOB ENDED == >>> ${JSON.stringify(
+        response
+      )}`
+    );
+
+    return response;
   }
 
 }
