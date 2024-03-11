@@ -1541,7 +1541,7 @@ export class BatchService {
       total: 0,
       failureBatches: [],
     };
-    const query = `SELECT classes.id FROM classes INNER JOIN user on user.id = classes.teacherId INNER JOIN school on school.id = user.schoolId WHERE classes.schoolId IS NULL and user.schoolId IS NOT NULL AND classes.offlineBatch = true`;
+    const query = `SELECT classes.id FROM classes INNER JOIN user on user.id = classes.teacherId INNER JOIN school on school.id = user.schoolId WHERE classes.schoolId IS NULL and user.schoolId IS NOT NULL`;
     let batchIds = await getManager().query(query);
     batchIds = batchIds?.map((b) => b?.id);
 
@@ -1591,7 +1591,7 @@ export class BatchService {
               frequency: classes.frequency,
               useNewZoomLink: classes.useNewZoomLink,
               useAutoAttendance: classes.useAutoAttendance,
-              offlineBatch: classes.offlineBatch,
+              offlineBatch: 1,
               followupVersion: classes.followupVersion,
               activeLessonId: classes?.activeLessonId,
               status: classes.status,
