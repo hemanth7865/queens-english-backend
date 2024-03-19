@@ -261,6 +261,7 @@ export class BatchService {
             await axios.put(options.url, options.body).catch((error) => {
               return Promise.reject(error);
             });
+            
             return batch;
           })
           .catch((error) => {

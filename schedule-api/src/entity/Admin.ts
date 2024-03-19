@@ -34,4 +34,7 @@ export class Admin extends BaseEntity {
     @Column({ 'nullable': false, type: "text" })
     role: string;
 
+    @Column({'nullable': false, type: "text"})
+    status: string;
+
 }

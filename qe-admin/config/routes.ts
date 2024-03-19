@@ -137,6 +137,12 @@
         component: "./Attendance",
       },
       {
+        name: "Employees",
+        path: "/manage/employees",
+        component: "./Employees",
+        access: "canSuperAdmin",
+      },
+      {
         name: "Lessons",
         path: "/manage/lessons",
         component: "./LessonsList",

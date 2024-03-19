@@ -15,7 +15,7 @@ export class LoginController {
         try {
           const foundGoogleUser = await this.adminRepository.findOne({
             select: ["firstname", "lastname", "email", "phone", "role"],
-            where: { email: req.email },
+            where: { email: req.email  },
           });
           if (foundGoogleUser) {
             const tokenPayload = {
@@ -69,7 +69,7 @@ export class LoginController {
       try {
         const foundUser = await this.adminRepository.findOne({
           select: ["firstname", "lastname", "email", "phone", "role"],
-          where: { email: req.username, password: req.password },
+          where: { email: req.username, password: req.password, status: 'active' },
         });
       
         console.log("found user", foundUser, req);
@@ -121,6 +121,8 @@ export class LoginController {
       }
     }
   }
+
+ 
 
   async logout(request: Request, response: Response, next: NextFunction) {
     const options = {

@@ -239,6 +239,44 @@ export async function teacherRemove(id, options?: { [key: string]: any }) {
   });
 }
 
+// ############################ Employee API ############################# //
+
+
+export async function getAllEmployee(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any }
+) {
+  return request<API.RuleList>("/be/employees", {
+    method: "GET",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+
+
+export async function addNewEmployee(options?: { [key: string]: any }) {
+  return request<any>("/be/employees", {
+    method: "POST",
+    ...(options || {}),
+  });
+}
+
+export async function updateExistEmployee(options?: { [key: string]: any }) {
+  // console.log("option of update employee",option)
+  return request<any>("/be/employees", {
+    method: "PATCH",
+    ...(options || {}),
+  });
+}
+
+
+
 //student get all method
 export async function studentBatches(
   params: {
@@ -1393,4 +1431,6 @@ export async function updateCSVUploadRecord(data) {
     method: "PUT",
     data,
   });
+  
+  
 }

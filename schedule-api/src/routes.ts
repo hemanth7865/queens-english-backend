@@ -14,6 +14,7 @@ import { SchoolController } from "./controller/SchoolController";
 import { UploadFilesController } from "./controller/UploadFilesController";
 import { AWSs3Controller } from "./controller/AWSs3Controller";
 import { CSVUploadController } from "./controller/CSVUploadController";
+import { EmployeeController } from "./controller/EmployeeController";
 
 export const Routes = [
   {
@@ -855,4 +856,25 @@ export const Routes = [
     action: "getCSVUploads",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/employees",
+    controller: EmployeeController,
+    action: "getEmployees",
+    authenticate: true
+  },
+  {
+    method: "post",
+    route: "/employees",
+    controller: EmployeeController,
+    action: "createEmployees",
+    authenticate: true
+  },
+  {
+    method: "patch",
+    route: "/employees",
+    controller: EmployeeController,
+    action: "updateEmployees",
+    authenticate: true
+  }
 ];

@@ -6,7 +6,7 @@
   // vs code editor settings
   // "editor.renderWhitespace": "boundary",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "editor.formatOnSave": true,
   "cSpell.words": [
