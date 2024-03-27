@@ -87,7 +87,8 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                 const data: any = await getAllLessonScripts({ id: lessonId, pageSize: 1 })
                 if (data.data?.length !== 0) {
                     const existingLesson = data.data[0];
-                    setFormData(existingLesson.lessonDetails);
+                    const updatedData = updateHTMLOfSection(existingLesson.lessonDetails);
+                    setFormData(updatedData);
                     setAlreadyExist(true)
                 } else {
                     setAlreadyExist(false)
@@ -96,6 +97,74 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
             setLoading(false)
         })()
     }, [selectedLessonId, edit])
+
+    // Function to identify and mark the block start and block end in the HTML content
+    const updateHTMLOfSection = (currentData: any) => {
+        const updateData = currentData;
+
+        const parser = new DOMParser();
+        updateData.forEach((exerciseData: any) => {
+            exerciseData.sections.forEach((sectionData: any) => {
+                const htmlDoc = parser.parseFromString(sectionData.description, 'text/html');
+                // condition to check if the HTML content already contains the block splits
+                // If it already has ## block in it, then it means the lesson is already saved based on the blocks.
+                // If not, then we need to identify where the <strong> tag that has its first word as repeat
+                // And based on it we need to add the block start and block end
+                if (!htmlDoc?.activeElement?.textContent?.toLowerCase().includes('## block')) {
+                    const strongElements = htmlDoc.querySelectorAll('strong');
+
+                    strongElements.forEach(strongElement => {
+                        const words = strongElement.textContent?.trim().split(' ');
+                        if (words && words.length > 0 && words[0].toLowerCase().includes('repeat')) {
+                            // Find the parent element of the <strong> element
+                            const parentElement = strongElement.parentNode;
+
+                            // Create a new <p> element for "## Block Starts ##"
+                            const blockStartsDiv = document.createElement('p');
+                            blockStartsDiv.style.fontWeight = 'bold';
+                            blockStartsDiv.textContent = '## Block Starts ##';
+
+                            // Create a new <p> element for "## Block ends ##"
+                            const blockEndsElement = document.createElement('p');
+                            blockEndsElement.style.fontWeight = 'bold';
+                            blockEndsElement.textContent = '## Block Ends ##';
+
+                            // Find the character after the word "step"
+                            const stepIndex = words.findIndex(word => word.toLowerCase().includes('step'));
+
+                            if (stepIndex !== -1 && stepIndex < words.length - 1) {
+                                const nextCharacter = words[stepIndex + 1].toLowerCase();
+                                // Traverse upwards to find a suitable preceding element
+                                let currentNode = parentElement;
+                                while (currentNode !== null) {
+                                    // Check if the current node is an element node and its content starts with the next character
+                                    if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode?.textContent?.trim().toLowerCase().startsWith(`${nextCharacter}.`)) {
+                                        currentNode?.parentNode?.insertBefore(blockStartsDiv, currentNode);
+                                        break; // Stop traversal once the element is found and processed
+                                    }
+                                    // Move to the parent node
+                                    currentNode = currentNode.previousSibling ?? currentNode.parentNode;
+                                }
+                            }
+                            // Check if the parent element is <li>
+                            if (parentElement?.tagName?.toLowerCase() === 'li') {
+                                // Find the grandparent of the <strong> element
+                                const grandparentElement = parentElement.parentNode;
+
+                                // Insert the <div> element after the grandparent element
+                                grandparentElement?.parentNode?.insertBefore(blockEndsElement, grandparentElement.nextSibling);
+                            } else {
+                                // Insert the <div> element after the parent element
+                                parentElement?.parentNode?.insertBefore(blockEndsElement, strongElement.nextSibling);
+                            }
+                        }
+                        sectionData.description = htmlDoc.body.innerHTML;
+                    })
+                }
+            });
+        });
+        return updateData;
+    }
 
     const onSubmit = async () => {
         setLoading(true);
@@ -276,7 +345,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                         <Row style={{ justifyContent: 'space-between', flexFlow: 'row' }}>
 
                                                             <h2>{`Exercise ${index + 1}`}</h2>
-                                                            <span className="headingContainer" style={{width: '50%', margin: '0px 0.5em'}}>
+                                                            <span className="headingContainer" style={{ width: '50%', margin: '0px 0.5em' }}>
                                                                 <Form.Item
                                                                     rules={[
                                                                         { required: true, message: "Missing Heading" }
@@ -286,14 +355,15 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                                 </Form.Item>
                                                                 <Form.Item name="isAccepted">
                                                                     <Checkbox
-                                                                    defaultChecked={exercise.newHeading}
-                                                                    onChange={(e) => {
-                                                                        exercise.newHeading = !exercise.newHeading}
-                                                                    }>
-                                                                    New Heading - {exercise.newHeading}</Checkbox>
+                                                                        defaultChecked={exercise.newHeading}
+                                                                        onChange={(e) => {
+                                                                            exercise.newHeading = !exercise.newHeading
+                                                                        }
+                                                                        }>
+                                                                        New Heading - {exercise.newHeading}</Checkbox>
                                                                 </Form.Item>
                                                             </span>
-                                                            <span style={{width: '30%', margin: '0px 0.5em'}}>
+                                                            <span style={{ width: '30%', margin: '0px 0.5em' }}>
                                                                 <Form.Item>
                                                                     <Input defaultValue={exercise.subHeading} placeholder="Enter Sub Heading" onChange={(e) => updateExerciseData(index, 'subHeading', e.target.value)} />
                                                                 </Form.Item>
@@ -350,7 +420,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                                         }
 
                                                         <Form.Item>
-                                                            <Button style={{fontWeight: 'bold', color: '#1e90ff'}}
+                                                            <Button style={{ fontWeight: 'bold', color: '#1e90ff' }}
                                                                 type="dashed"
                                                                 shape="round"
                                                                 onClick={() => {
@@ -367,7 +437,7 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
 
                                         {/* This is the Dynamic Exercise Adder */}
                                         <Button
-                                        style={{fontWeight: 'bold', color: '#1e90ff'}}
+                                            style={{ fontWeight: 'bold', color: '#1e90ff' }}
                                             type="dashed"
                                             onClick={() => {
                                                 addExercise();
@@ -388,8 +458,8 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                 </TabPane>
             </Tabs>
             <Button
-            style={{fontWeight: 'bold'}}
-            type="primary" block shape="round" disabled={!selectedLessonId || loading || (!edit && alreadyExist)} onClick={() => form.submit()}>
+                style={{ fontWeight: 'bold' }}
+                type="primary" block shape="round" disabled={!selectedLessonId || loading || (!edit && alreadyExist)} onClick={() => form.submit()}>
                 Submit
             </Button>
         </>
