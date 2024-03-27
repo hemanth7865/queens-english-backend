@@ -20,4 +20,6 @@ schedule-api/ormlogs.log
 schedule-api/src/data/lessonsList.ts
 package-lock.json
 qe-admin/package-lock.json
+qe-admin/yarn.lock.json
 schedule-api/package-lock.json
+schedule-api/yarn.lock.json

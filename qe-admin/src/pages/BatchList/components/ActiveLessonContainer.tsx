@@ -1,8 +1,10 @@
-import { addeditbatch, getIndividualBatch } from '@/services/ant-design-pro/api'
+import { changeActiveLesson } from '@/services/ant-design-pro/api'
 import { LESSONS } from '../../../../config/lessons'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
     Button,
+    Input,
+    Modal,
     Select,
     Spin,
 } from "antd";
@@ -21,177 +23,163 @@ const ActiveLessonContainer = ({ entity, notificationCall }: any) => {
     }
 
     useEffect(() => {
-        const startLessonNumber: number = parseInt(LESSONS.find((_l) => _l.id === entity?.startingLessonId)?.number as string ?? 1)
-        const endLessonNumber: number = parseInt(LESSONS.find((_l) => _l.id === entity?.endingLessonId)?.number as string ?? 399)
-        const actualLessons = LESSONS.filter((_l) => parseInt(_l.number) >= startLessonNumber && parseInt(_l.number) <= endLessonNumber)
+        const startLessonNumber: number = parseInt(LESSONS.find((_l: { id: any; }) => _l.id === entity?.startingLessonId)?.number as string ?? 1)
+        const endLessonNumber: number = parseInt(LESSONS.find((_l: { id: any; }) => _l.id === entity?.endingLessonId)?.number as string ?? 399)
+        const actualLessons = LESSONS.filter((_l: { number: string; }) => parseInt(_l.number) >= startLessonNumber && parseInt(_l.number) <= endLessonNumber)
         setLesson(entity?.lessonNumber)
         setFilteredLesson(actualLessons)
     }, [entity])
 
-    const getFormData = async (rowval: any) => {
-        const selectedLessonDetails = LESSONS.filter((_l) => _l.number === lesson)[0]!
-        return await getIndividualBatch(rowval.id)
-            .then((data: any) => {
-                const batchData = data.data;
-                const dataObject: any = {}
+    const [iSreasonModalVisible, setReasonModalVisible] = useState(false);
+    const [reason, setReason] = useState('');
 
-                dataObject.id = batchData.classes.id;
-                dataObject.batchAvailability = [{}]
-
-                let reformatData: any[] = batchData?.students.map((elem: any) => {
-                    elem.value = elem.studentId
-                    elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
-                    elem.key = elem.id
-                    return elem
-                }) || []
-
-                dataObject.students = [...reformatData]
-                dataObject.edit = true;
-                dataObject.schoolId = batchData?.classes?.schoolId;
-
-                dataObject.activeLessonId = selectedLessonDetails?.id;
-                dataObject.activeLessonNumber = parseInt(selectedLessonDetails?.number);
-                dataObject.classCode = batchData?.classes?.classCode || "";
-                dataObject.batchNumber = batchData.classes.batchNumber;
-                dataObject.zoomLink = batchData?.classes?.zoomLink || "";
-                dataObject.zoomInfo = batchData?.classes?.zoomInfo || "";
-                dataObject.whatsappLink = batchData?.classes?.whatsappLink || "";
-
-                dataObject.teacherId = batchData?.classes?.teacherId;
-                dataObject.startingLessonId = batchData?.classes?.startingLessonId;
-                dataObject.endingLessonId = batchData?.classes?.endingLessonId;
-                dataObject.classStartDate = batchData?.classes?.classStartDate;
-                dataObject.classEndDate = batchData?.classes?.classEndDate;
-                dataObject.lessonStartTime = batchData?.classes?.lessonStartTime;
-                dataObject.lessonEndTime = batchData?.classes?.lessonEndTime;
-                dataObject.ageGroup = batchData?.classes?.ageGroup;
-                dataObject.frequency = batchData?.classes?.frequency;
-                dataObject.useNewZoomLink = batchData?.classes?.useNewZoomLink;
-                dataObject.useAutoAttendance = batchData?.classes?.useAutoAttendance;
-                dataObject.offlineBatch = batchData?.classes?.offlineBatch;
-                dataObject.followupVersion = batchData?.classes?.followupVersion;
-                dataObject.followupVersion = batchData?.classes?.followupVersion;
-
-                return dataObject;
-            })
-            .catch((error) => {
-                console.log(error);
-                return false;
-            })
-    };
-
-    const createEditBatch = async (data?: any) => {
-        const msg = await addeditbatch({
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (msg.success) {
-            if (msg.data[0]?.message) {
+    const handleSubmit = useCallback(async () => {
+        try {
+            setLoading(true);
+            const res = await changeActiveLesson(entity.id, lesson, reason)
+            if (res?.success) {
                 notificationCall.open({
-                    message: msg.data[0].message || "Some error occured",
-                    icon: <CloseCircleTwoTone twoToneColor='red' />
-                });
-            } else {
-                notificationCall.open({
-                    message: "Batch Active Lesson Updated Successfully.",
-                    icon: <CheckCircleTwoTone color='green' />
+                    message: "Active lesson changed successfully",
+                    icon: <CheckCircleTwoTone twoToneColor='green' />
                 });
                 setLoading(false);
+                setReasonModalVisible(false);
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
             }
-        }
-    }
+        } catch (error: any) {
+            setLoading(false);
+            notificationCall.open({
+                message: error.message || "Something went wrong",
+                icon: <CloseCircleTwoTone twoToneColor='red' />
+            });
+        };
+    }, [entity, lesson, reason]);
 
-    const handleSubmit = async () => {
-        if (confirm('Are you sure you want to change active lesson ?')) {
-            try {
-                setLoading(true);
-                const dataForm = await getFormData(entity)
-                if (!dataForm) {
-                    notificationCall.open({
-                        message: "Something went wrong, while fetching batch data.",
-                        icon: <CloseCircleTwoTone twoToneColor='red' />
-                    });
-                    setLoading(false);
-                    return;
-                }
-                await createEditBatch(dataForm);
-                setLoading(false);
-            } catch (error: any) {
-                setLoading(false);
-                notificationCall.open({
-                    message: error.message || "Something went wrong",
-                    icon: <CloseCircleTwoTone twoToneColor='red' />
-                });
-            };
-        }
+
+    const handleCancel = () => {
+        setReasonModalVisible(false);
     }
+    const handleOk = useCallback(async () => {
+        if (reason === '' || reason === null || reason === undefined) {
+            notificationCall.open({
+                message: "Please enter reason",
+                icon: <CloseCircleTwoTone twoToneColor='red' />
+            });
+            return;
+        }
+        await handleSubmit();
+
+    }, [reason, handleSubmit]);
+
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-        }}>
-            {loading ? <Spin /> : (<>
-                {!edit && (
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        width: '80%',
-                    }}>
-                        {lesson}
-                        <a
-                            onClick={() => {
-                                setEdit(true)
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+            }}
+        >
+            <Modal
+                title="Lesson Status"
+                open={iSreasonModalVisible}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel} disabled={loading}>
+                        Cancel
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        onClick={handleOk}
+                        disabled={
+                            reason === "" || reason === null || reason === undefined
+                        }
+                        loading={loading}
+                    >
+                        Submit
+                    </Button>,
+                ]}
+            >
+                <p>Are you sure you want to change active lesson?</p>
+                <p>If yes, please enter reason for changing active lesson.</p>
+                <label htmlFor="reason">Reason</label>
+                <Input.TextArea
+                    rows={4}
+                    id="reason"
+                    placeholder="Please write reason for changing active lesson"
+                    onChange={(e) => {
+                        setReason(e.target.value);
+                    }}
+                    required
+                />
+            </Modal>
+            {loading ? (
+                <Spin />
+            ) : (
+                <>
+                    {!edit && (
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                width: "80%",
                             }}
                         >
-                            <EditOutlined />
-                        </a>
-                    </div>
-                )}
-                {edit && (<div style={{
-                    display: 'flex',
-                    flexWrap: 'nowrap',
-                    gap: '5px',
-                    width: '100%'
-                }}>
-                    <Select
-                        showSearch
-                        onChange={(value) => {
-                            setLesson(value)
-                        }}
-                        value={lesson}
-                        filterOption={(input, option: any) =>
-                            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
-                        options={
-                            filteredLesson.map((_l) => ({ value: _l.number, label: _l.number }))
-                        }
-                    />
-                    <Button
-                        shape="circle"
-                        disabled={parseInt(entity.lessonNumber) === parseInt(lesson)}
-                        onClick={handleSubmit}
-                    >
-                        <CheckOutlined />
-                    </Button>
-                    <Button
-                        danger
-                        shape="circle"
-                        onClick={cancel}
-                    >
-                        <CloseOutlined />
-                    </Button>
-                </div>
-                )}
-            </>)}
+                            {lesson}
+                            <a
+                                onClick={() => {
+                                    setEdit(true);
+                                }}
+                            >
+                                <EditOutlined />
+                            </a>
+                        </div>
+                    )}
+                    {edit && (
+                        <div
+                            style={{
+                                display: "flex",
+                                flexWrap: "nowrap",
+                                gap: "5px",
+                                width: "100%",
+                            }}
+                        >
+                            <Select
+                                showSearch
+                                onChange={(value) => {
+                                    setLesson(value);
+                                }}
+                                value={lesson}
+                                filterOption={(input, option: any) =>
+                                    option?.children
+                                        .toLowerCase()
+                                        .indexOf(input.toLowerCase()) >= 0
+                                }
+                                options={filteredLesson.map((_l) => ({
+                                    value: _l.number,
+                                    label: _l.number,
+                                }))}
+                            />
+                            <Button
+                                shape="circle"
+                                disabled={parseInt(entity.lessonNumber) === parseInt(lesson)}
+                                onClick={() => {
+                                    setReasonModalVisible(true);
+                                }}
+                            >
+                                <CheckOutlined />
+                            </Button>
+                            <Button danger shape="circle" onClick={cancel}>
+                                <CloseOutlined />
+                            </Button>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 }

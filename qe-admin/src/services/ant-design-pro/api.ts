@@ -535,6 +535,20 @@ export async function addeditbatch(options?: { [key: string]: any }) {
   });
 }
 
+export async function changeActiveLesson(
+  batchId: string,
+  lessonNumber: number,
+  reason: string
+) {
+  return request<any>(`/be/batch/changeActiveLesson`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ batchId, lessonNumber, reason }),
+  });
+}
+
 //Bulk reassign of students to another batch
 export async function bulkReBatchStudents(options?: { [key: string]: any }) {
   return request<any>("/be/bulkReBatchStudents", {
@@ -1356,7 +1370,7 @@ export async function getAssessmentQuestions(
   filter?: { [key: string]: any },
   options?: { [key: string]: any }
 ) {
-  return request<{ data: API.AssessmentQuestionList; [key: string]: any }>(
+  return request<{ data: API.AssessmentQuestionList;[key: string]: any }>(
     `/be/azure?url=api/assessmentQuestions`,
     {
       method: "GET",

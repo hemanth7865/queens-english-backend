@@ -1,3 +1,5 @@
+import { EVENT_CODE_OPERATIONS, OperationTypes } from "../types";
+
 const getDateOutOfDateTime = (date?: any): any => {
   return date ? date.split("T")[0].split(" ")[0] : date;
 };
@@ -35,4 +37,37 @@ function csvToArray(str: string, delimiter: string = ",") {
   return arr;
 }
 
-export { getDateOutOfDateTime, getRandomNumber, csvToArray };
+const getEventCodeAndObserVation = (operation: OperationTypes) => {
+  switch (operation) {
+    case OperationTypes.reassignEq: {
+      return EVENT_CODE_OPERATIONS.REASSIGN_EQ;
+    }
+    case OperationTypes.reassignSchool: {
+      return EVENT_CODE_OPERATIONS.REASSIGN_SCHOOL;
+    }
+    case OperationTypes.rescheduleEq: {
+      return EVENT_CODE_OPERATIONS.RESCHEDULE_EQ;
+    }
+    case OperationTypes.rescheduleSchool: {
+      return EVENT_CODE_OPERATIONS.RESCHEDULE_SCHOOL;
+    }
+    case OperationTypes.checkIn: {
+      return EVENT_CODE_OPERATIONS.CHECKIN;
+    }
+    case OperationTypes.changeAssessmentStatus: {
+      return EVENT_CODE_OPERATIONS.CHANGE_ASSESSMENT_STATUS;
+    }
+    case OperationTypes.changeActiveLesson: {
+      return EVENT_CODE_OPERATIONS.CHANGE_ACTIVE_LESSON;
+    }
+    default: {
+      return EVENT_CODE_OPERATIONS.DEFAULT;
+    }
+  }
+};
+export {
+  getDateOutOfDateTime,
+  getRandomNumber,
+  csvToArray,
+  getEventCodeAndObserVation,
+};

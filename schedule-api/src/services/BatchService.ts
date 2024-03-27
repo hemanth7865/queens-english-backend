@@ -26,6 +26,9 @@ import { StudentService } from "./StudentService";
 import { UserZoomLinkService } from "./UserZoomLinkService";
 import { ZoomMeetingService } from "./ZoomMeetingService";
 import moment = require("moment");
+import { NoteService } from "./NoteService";
+import { Admin } from "../entity/Admin";
+import { OperationTypes } from "../types";
 const { logger } = require("../Logger.js");
 
 
@@ -40,6 +43,8 @@ export class BatchService {
   private zoomUserRepository = getRepository(ZoomUser);
   private studentRepository = getRepository(Student);
   private schoolRepository = getRepository(School);
+  private adminRepository = getRepository(Admin);
+  private noteService = new NoteService();
 
 
   BatchService() { }
@@ -183,7 +188,7 @@ export class BatchService {
             data.useJsonLessonScript = cosmosBatch.useJsonLessonScript;
           }
           if (data?.activeLessonNumber) {
-            const activeLessonRes = await this.resetAactiveLesson(
+            const activeLessonRes = await this.resetAactiveLessonInCosmos(
               data.id,
               data.activeLessonNumber
             );
@@ -1473,7 +1478,7 @@ export class BatchService {
   }
 
 
-  async resetAactiveLesson(
+  async resetAactiveLessonInCosmos(
     batchId: string,
     activeLessonNumber: string | number
   ): Promise<{
@@ -1635,6 +1640,59 @@ export class BatchService {
     );
 
     return response;
+  }
+
+  
+  /**
+   * Changes the active lesson for a batch and sync the change to CosmosDB.
+   * 
+   * @param batchId - The ID of the batch.
+   * @param lessonNumber - The number of the lesson to set as active.
+   * @param changingReason - The reason for changing the active lesson.
+   * @param authedUser - The authenticated user making the change.
+   * @returns An object indicating the success of the operation and any additional data.
+   */
+  async changeActiveLesson(
+    batchId: string,
+    lessonNumber: string | number,
+    changingReason: string,
+    authedUser: any
+  ) {
+    try {
+      const userEmail = authedUser?.email ?? null;
+      const user = await this.adminRepository.findOne({ email: userEmail });
+      if (!user) {
+        return { success: false, data: "User not found" };
+      }
+      const batch = await this.classesRepository.findOne({ id: batchId });
+      if (batch) {
+        const activeLessonNumber = String(lessonNumber).padStart(2, "0");
+        const activeLesson = getLessonByNumber(activeLessonNumber);
+        if (!activeLesson) {
+          return { success: false, data: "Lesson not found" };
+        }
+        const currentActiveLesson = getLessonByID(batch.activeLessonId);
+        batch.activeLessonId = activeLesson?.id;
+
+        await this.classesRepository.save(batch);
+        await this.resetAactiveLessonInCosmos(batchId, activeLessonNumber);
+        const message = `Active lesson updated from ${currentActiveLesson.number} to ${activeLesson.number} by ${user.firstname} ${user.lastname} (${user.email})\n
+        Batch Details:\n
+        Batch ID: ${batch.id}\n
+        Batch Number: ${batch.batchNumber}`;
+        await this.noteService.createNote({
+          schoolId: batch.schoolId,
+          note: changingReason,
+          message,
+          userId: user.id,
+          operation: OperationTypes.changeActiveLesson,
+        });
+
+        return { success: true, data: "Active lesson updated successfully" };
+      }
+    } catch (error) {
+      return { success: false, data: error };
+    }
   }
 
 }

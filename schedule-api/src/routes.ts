@@ -856,25 +856,36 @@ export const Routes = [
     action: "getCSVUploads",
     authenticate: true,
   },
+
+  {
+    method: "post",
+    route: "/batch/changeActiveLesson",
+    controller: BatchController,
+    action: "changeActiveLesson",
+    authenticate: true,
+  },
+
   {
     method: "get",
     route: "/employees",
     controller: EmployeeController,
     action: "getEmployees",
-    authenticate: true
+    authenticate: true,
   },
+
   {
     method: "post",
     route: "/employees",
     controller: EmployeeController,
     action: "createEmployees",
-    authenticate: true
+    authenticate: true,
   },
+
   {
     method: "patch",
     route: "/employees",
     controller: EmployeeController,
     action: "updateEmployees",
-    authenticate: true
-  }
+    authenticate: true,
+  },
 ];

@@ -36,8 +36,9 @@ export class BatchController {
         if (request.body.batchId) {
             studentAlreadyExists = await this.batchService.checkStudentExistsInBatch(request.body);
 
-            if(studentAlreadyExists.data.length > 0) {
-                return { status: 400,
+            if (studentAlreadyExists.data.length > 0) {
+                return {
+                    status: 400,
                     errors: [`Student ${studentAlreadyExists.data.firstName} ${studentAlreadyExists.data.middleName} ${studentAlreadyExists.data.lastName} of class ${studentAlreadyExists.data.classSection} already exist in the selected batch.`]
                 }
             }
@@ -65,10 +66,10 @@ export class BatchController {
                     removeFromBatch: request.body.removeFromBatch
                 }
             }, response, next);
-    
+
             resp.push(result);
         }
-        
+
         return {
             "success": true,
             "data": resp, "total": 1
@@ -263,9 +264,9 @@ export class BatchController {
     }
 
     async updateBatchStartDate(
-    request: Request,
-    response: Response,
-    next: NextFunction
+        request: Request,
+        response: Response,
+        next: NextFunction
     ) {
         try {
             const { batchId, startDate } = request.body;
@@ -284,7 +285,39 @@ export class BatchController {
         } catch (error) {
             response.status(500).send({
                 message:
-                error?.message || "Some error occurred while updating the batch.",
+                    error?.message || "Some error occurred while updating the batch.",
+            });
+        }
+    }
+
+    async changeActiveLesson(
+        request: Request,
+        response: Response,
+    ) {
+        try {
+            const { batchId, lessonNumber, reason } = request.body;
+            const user = request.user;
+            if (!reason || !lessonNumber || !batchId) {
+                let message = "Please provide a ";
+                if (!reason) message += "reason";
+                else if (!lessonNumber) message += "lesson number";
+                else if (!batchId) message += "batch id";
+                message += " to change the active lesson.";
+                response.status(400).send({ message });
+            }
+
+            const res = await this.batchService.changeActiveLesson(batchId, lessonNumber, reason, user);
+            if (!!res && res?.success) {
+                response.status(200).send(res);
+            } else {
+                response.status(400).send({
+                    message: "Something went wrong while updating the batch.",
+                });
+            }
+        } catch (error) {
+            response.status(500).send({
+                message:
+                    error?.message || "Some error occurred while updating the batch.",
             });
         }
     }
