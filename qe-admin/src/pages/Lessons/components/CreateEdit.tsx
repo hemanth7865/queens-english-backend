@@ -103,32 +103,28 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
         const updateData = currentData;
 
         const parser = new DOMParser();
-
-        const fullHTMLData = parser.parseFromString(currentData, 'text/html');
-
-        // condition to check if the HTML content already contains the block splits
-        // If it already has ## block in it, then it means the lesson is already saved based on the blocks.
-        // If not, then we need to identify where the <strong> tag with its first word as repeat occurs
-        // And based on it we need to add the block start and block end
-        if (!fullHTMLData?.body?.textContent?.toLowerCase().includes('## block')) {
-            updateData.forEach((exerciseData: any) => {
-                exerciseData.sections.forEach((sectionData: any) => {
-                    const htmlDoc = parser.parseFromString(sectionData.description, 'text/html');
+        updateData.forEach((exerciseData: any) => {
+            exerciseData.sections.forEach((sectionData: any) => {
+                const htmlDoc = parser.parseFromString(sectionData.description, 'text/html');
+                // condition to check if the HTML content already contains the block splits
+                // If it already has ## block in it, then it means the lesson is already saved based on the blocks.
+                // If not, then we need to identify where the <strong> tag that has its first word as repeat
+                // And based on it we need to add the block start and block end
+                if (!htmlDoc?.activeElement?.textContent?.toLowerCase().includes('## block')) {
                     const strongElements = htmlDoc.querySelectorAll('strong');
 
                     strongElements.forEach(strongElement => {
                         const words = strongElement.textContent?.trim().split(' ');
-                        console.log("strongElement = ", strongElement);
                         if (words && words.length > 0 && words[0].toLowerCase().includes('repeat')) {
                             // Find the parent element of the <strong> element
                             const parentElement = strongElement.parentNode;
 
-                            // Create a new <div> element for "## Block Starts ##"
-                            const blockStartsDiv = document.createElement('div');
+                            // Create a new <p> element for "## Block Starts ##"
+                            const blockStartsDiv = document.createElement('p');
                             blockStartsDiv.style.fontWeight = 'bold';
                             blockStartsDiv.textContent = '## Block Starts ##';
 
-                            // Create a new <div> element for "## Block ends ##"
+                            // Create a new <p> element for "## Block ends ##"
                             const blockEndsElement = document.createElement('p');
                             blockEndsElement.style.fontWeight = 'bold';
                             blockEndsElement.textContent = '## Block Ends ##';
@@ -164,9 +160,9 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                         }
                         sectionData.description = htmlDoc.body.innerHTML;
                     })
-                });
+                }
             });
-        }
+        });
         return updateData;
     }
 
