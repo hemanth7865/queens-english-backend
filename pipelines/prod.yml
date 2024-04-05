@@ -24,8 +24,6 @@ steps:
       commands: |
         echo "Clean Local Changes"
         cd /var/project/qe-backend && git add . && git stash
-        echo "Checkout to master Branch"
-        cd /var/project/qe-backend && git checkout master &> /var/project/git-checkout.txt && cat /var/project/git-checkout.txt
         echo "Download Updates"
         cd /var/project/qe-backend && git pull &> /var/project/git-pull.txt && cat /var/project/git-pull.txt
         echo "Checkout Branch $(BRANCH_NAME)"
