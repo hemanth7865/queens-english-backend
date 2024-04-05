@@ -6,7 +6,7 @@
   "scripts": {
     "admin-https-proxy": "local-ssl-proxy --source 8001 --target 8000",
     "analyze": "cross-env ANALYZE=1 umi build",
-    "build": "umi build",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && umi build",
     "deploy": "npm run build && npm run gh-pages",
     "dev": "npm run start:dev",
     "gh-pages": "gh-pages -d dist",
