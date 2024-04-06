@@ -39,7 +39,7 @@ steps:
         echo "Build UI"
         cat /var/project/fe-install.txt
         cd /var/project/qe-backend/qe-admin && yarn build &> /var/project/build.txt && cat /var/project/build.txt 
-        rm -rf /var/www/html/qe-admin
+        sudo rm -rf /var/www/html/qe-admin
         cd /var/project/qe-backend/qe-admin && mv dist /var/www/html/qe-admin
         rm -rf /var/www/html/qe-admin-ui && cp -r /var/www/html/qe-admin /var/www/html/qe-admin-ui
         pm2 restart all
