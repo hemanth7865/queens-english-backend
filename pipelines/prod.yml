@@ -22,6 +22,7 @@ steps:
       sshEndpoint: "QE_PORTAL PRD"
       runOptions: "commands"
       commands: |
+        export PUPPETEER_SKIP_DOWNLOAD=true
         echo "Clean Local Changes"
         cd /var/project/qe-backend && git add . && git stash
         echo "Download Updates"
