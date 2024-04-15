@@ -110,14 +110,14 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                 // If it already has ## block in it, then it means the lesson is already saved based on the blocks.
                 // If not, then we need to identify where the <strong> tag that has its first word as repeat
                 // And based on it we need to add the block start and block end
-                if (!htmlDoc?.activeElement?.textContent?.toLowerCase().includes('## block')) {
+                if (!htmlDoc?.activeElement?.textContent?.toLowerCase()?.includes('## block')) {
                     const strongElements = htmlDoc.querySelectorAll('strong');
 
                     strongElements.forEach(strongElement => {
-                        const words = strongElement.textContent?.trim().split(' ');
+                        const words = strongElement.textContent?.trim()?.split(' ');
                         if (words && words.length > 0 && words[0].toLowerCase().includes('repeat')) {
                             // Find the parent element of the <strong> element
-                            const parentElement = strongElement.parentNode;
+                            const parentElement: any = strongElement?.parentNode;
 
                             // Create a new <p> element for "## Block Starts ##"
                             const blockStartsDiv = document.createElement('p');
@@ -130,32 +130,38 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                             blockEndsElement.textContent = '## Block Ends ##';
 
                             // Find the character after the word "step"
-                            const stepIndex = words.findIndex(word => word.toLowerCase().includes('step'));
+                            const stepIndex = words?.findIndex(word => word?.toLowerCase()?.includes('step'));
 
                             if (stepIndex !== -1 && stepIndex < words.length - 1) {
-                                const nextCharacter = words[stepIndex + 1].toLowerCase();
+                                const nextCharacter = words[stepIndex + 1]?.toLowerCase();
                                 // Traverse upwards to find a suitable preceding element
-                                let currentNode = parentElement;
-                                while (currentNode !== null) {
+                                let currentNode: any = parentElement;
+                                while (currentNode !== null && currentNode !== undefined) {
                                     // Check if the current node is an element node and its content starts with the next character
-                                    if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode?.textContent?.trim().toLowerCase().startsWith(`${nextCharacter}.`)) {
-                                        currentNode?.parentNode?.insertBefore(blockStartsDiv, currentNode);
+                                    if (currentNode?.nodeType === Node.ELEMENT_NODE && currentNode?.textContent?.trim()?.toLowerCase()?.startsWith(`${nextCharacter}.`)) {
+                                        try {
+                                            currentNode?.parentNode?.insertBefore(blockStartsDiv, currentNode);
+                                        } catch (_) { }
                                         break; // Stop traversal once the element is found and processed
                                     }
                                     // Move to the parent node
-                                    currentNode = currentNode.previousSibling ?? currentNode.parentNode;
+                                    currentNode = currentNode?.previousSibling ?? currentNode?.parentNode;
                                 }
                             }
                             // Check if the parent element is <li>
                             if (parentElement?.tagName?.toLowerCase() === 'li') {
                                 // Find the grandparent of the <strong> element
-                                const grandparentElement = parentElement.parentNode;
+                                const grandparentElement = parentElement?.parentNode;
 
                                 // Insert the <div> element after the grandparent element
-                                grandparentElement?.parentNode?.insertBefore(blockEndsElement, grandparentElement.nextSibling);
+                                try {
+                                    grandparentElement?.parentNode?.insertBefore(blockEndsElement, grandparentElement?.nextSibling);
+                                } catch (_) { }
                             } else {
                                 // Insert the <div> element after the parent element
-                                parentElement?.parentNode?.insertBefore(blockEndsElement, strongElement.nextSibling);
+                                try {
+                                    strongElement?.parentElement?.insertAdjacentElement('afterend', blockEndsElement)
+                                } catch (_) { }
                             }
                         }
                         sectionData.description = htmlDoc.body.innerHTML;
