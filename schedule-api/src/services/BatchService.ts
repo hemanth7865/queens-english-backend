@@ -1686,11 +1686,16 @@ export class BatchService {
           message,
           userId: user.id,
           operation: OperationTypes.changeActiveLesson,
+        }).catch((error) => {
+          logger.error(`Error creating note for changing active lesson: ${JSON.stringify(error)}`);
         });
 
         return { success: true, data: "Active lesson updated successfully" };
+      } else {
+        return { success: false, data: "Batch not found" };
       }
     } catch (error) {
+      logger.error(`Error changing active lesson: ${JSON.stringify(error)}`);
       return { success: false, data: error };
     }
   }

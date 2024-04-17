@@ -7,9 +7,6 @@ import { Classes } from "../entity/Classes";
 import { UserMaster } from "../entity/UserMaster";
 import { parse } from 'csv-parse';
 
-var moment = require('moment');
-const cron = require('node-cron');
-
 export class BatchController {
 
     private usersRepository = getRepository(User);
@@ -312,6 +309,7 @@ export class BatchController {
             } else {
                 response.status(400).send({
                     message: "Something went wrong while updating the batch.",
+                    error : res?.data,
                 });
             }
         } catch (error) {
