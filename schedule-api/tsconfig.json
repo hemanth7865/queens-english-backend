@@ -4,7 +4,7 @@
          "es6",
          "dom",
          "esnext.asynciterable",
-         "ESNext",
+         "ESNext"
       ],
       "target": "es6",
       "module": "commonjs",
