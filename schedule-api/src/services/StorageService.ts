@@ -1,10 +1,10 @@
-import { uploadFile } from "../helpers/AWSClient";
+import { uploadBulkUploadCSVFile } from "../helpers/AzureStorageClient";
 
-export class AWSService {
+export class StorageService {
   async uploadFile(file: any) {
     try {
       if (file) {
-        return await uploadFile(file);
+        return await uploadBulkUploadCSVFile(file);
       }
     } catch (e) {
       throw new Error(
