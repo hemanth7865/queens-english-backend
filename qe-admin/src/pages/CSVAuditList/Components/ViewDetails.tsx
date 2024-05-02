@@ -3,6 +3,7 @@ import TabPane from 'antd/lib/tabs/TabPane'
 import { UPLOAD_TYPES } from '../../../../config/constants'
 import moment from 'moment'
 import { FC, useMemo } from 'react'
+import { getStorageFileURL } from '@/services/ant-design-pro/helpers'
 interface ViewDetailsProps {
   data: {
     errors?: string
@@ -38,8 +39,7 @@ const ViewDetails: FC<ViewDetailsProps> = ({ data }) => {
 
   const url = useMemo(() => {
     if (data?.fileName) {
-      // Used aws link to fetch files from aws s3 bucket
-      return `https://eqbulkuploads.s3.ap-south-1.amazonaws.com/${data?.fileName}`;
+      return data?.fileName?.startsWith("assets") ? getStorageFileURL(data?.fileName) : `https://eqbulkuploads.s3.ap-south-1.amazonaws.com/${data?.fileName}`;
     }
     return ""
   }, [data?.fileName])

@@ -3,6 +3,7 @@ import { Button } from "antd";
 import { UPLOAD_TYPES } from "../../../config/constants";
 import moment from "moment";
 import { FormattedMessage } from "umi";
+import { getStorageFileURL } from "@/services/ant-design-pro/helpers";
 
 export const columns: () => ProColumns<any>[] = () => [
   {
@@ -68,7 +69,7 @@ export const columns: () => ProColumns<any>[] = () => [
     dataIndex: "fileName",
     hideInSearch: true,
     render: (dom, entity) => {
-      const url = `https://eqbulkuploads.s3.ap-south-1.amazonaws.com/${entity.fileName}`;
+      const url = entity?.fileName?.startsWith("assets") ? getStorageFileURL(entity?.fileName) : `https://eqbulkuploads.s3.ap-south-1.amazonaws.com/${entity?.fileName}`;
       return <Button type="primary" key="primary">
         <a href={url} target="_blank">
           Download
