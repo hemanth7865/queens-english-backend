@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { notification } from "antd";
 import { uploadImagesStorage } from "@/services/ant-design-pro/api";
-import { getImageURL } from "@/services/ant-design-pro/helpers";
+import { getStorageFileURL } from "@/services/ant-design-pro/helpers";
 
 const UploadImage = ({ images, setImages }: any) => {
     const input = useRef<null | HTMLInputElement>(null);
@@ -94,7 +94,7 @@ export const ImagesData = ({ images }: { images: string[] }) => {
                 {
                     images.map(image => {
                         return (
-                            <img alt="Lesson Image" src={getImageURL(image)} key={image} />
+                            <img alt="Lesson Image" src={getStorageFileURL(image)} key={image} />
                         )
                     })
                 }

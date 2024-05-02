@@ -2,7 +2,7 @@ import { CloseOutlined } from '@ant-design/icons';
 import { Card, Input, Select, Form, Modal } from 'antd';
 import React, { useEffect } from 'react';
 import './form.css';
-import { getImageURL } from '@/services/ant-design-pro/helpers';
+import { getStorageFileURL } from '@/services/ant-design-pro/helpers';
 import ImageUploader from './ImageUploader';
 
 const typeOptions = [{ value: 'word', label: 'word' }, { value: 'image', label: 'image' }]
@@ -27,7 +27,7 @@ export type QuestionCardProps = {
 
 const QuestionCard: React.FC<QuestionCardProps> = (props) => {
     const [form] = Form.useForm();
-    const [imageURI, setImageURI] = React.useState<any>(props.imageUrl ? getImageURL(props.imageUrl) : undefined);
+    const [imageURI, setImageURI] = React.useState<any>(props.imageUrl ? getStorageFileURL(props.imageUrl) : undefined);
     const [openModal, setOpenModal] = React.useState<any>(false);
 
     const defaultValues = () => {
@@ -43,7 +43,7 @@ const QuestionCard: React.FC<QuestionCardProps> = (props) => {
     useEffect(() => {
         defaultValues();
         if (props.imageUrl) {
-            setImageURI(getImageURL(props.imageUrl));
+            setImageURI(getStorageFileURL(props.imageUrl));
         } else {
             setImageURI(undefined);
         }

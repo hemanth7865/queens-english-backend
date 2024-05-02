@@ -1,7 +1,7 @@
 import { SECTION_TYPES } from "@/components/Constants/constants";
 import { Card, Col, Divider, Image, List, Row, Spin, Table, TableColumnsType } from "antd";
 import React, { useState, useEffect } from "react";
-import { getImageURL, updateImageSasBlob } from "@/services/ant-design-pro/helpers";
+import { getStorageFileURL, updateImageSasBlob } from "@/services/ant-design-pro/helpers";
 import { getAllLessonScripts } from "@/services/ant-design-pro/api";
 
 interface ViewProps {
@@ -54,7 +54,7 @@ const View: React.FC<ViewProps> = ({ data }) => {
 
     const expandedRowRender = (record: any) => {
         return <List
-        className="exerciseContainer"
+            className="exerciseContainer"
             dataSource={record.sections}
             itemLayout="vertical"
             size="default"
@@ -63,18 +63,18 @@ const View: React.FC<ViewProps> = ({ data }) => {
                 <>
                     <Row>
                         <Col span={12}> <b>Heading</b> <h5>{record.heading}</h5> </Col>
-                        <Col span={6}> <b>New Heading</b> <h5>{record.newHeading ? 'Yes': 'No'}</h5> </Col>
+                        <Col span={6}> <b>New Heading</b> <h5>{record.newHeading ? 'Yes' : 'No'}</h5> </Col>
                         <Col span={6}> <b>SubHeading</b> <h5>{record.subHeading}</h5> </Col>
                     </Row>
                     {record.image && (
                         <>
-                        test
+                            test
                             <Divider />
                             <Row justify={"center"}>
                                 <Image
                                     width={150}
                                     height={150}
-                                    src={getImageURL(record.image)}
+                                    src={getStorageFileURL(record.image)}
                                     alt="exercise-image"
                                     style={{ objectFit: 'contain' }}
                                 />
