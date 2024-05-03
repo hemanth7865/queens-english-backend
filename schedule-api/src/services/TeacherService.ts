@@ -12,11 +12,10 @@ import { School } from "../entity/School";
 import { Classes } from "../entity/Classes";
 import { BatchStudent } from "../entity/BatchStudent";
 const { usersLogger } = require("../Logger.js");
-const fs = require('fs');
-const csv = require('csv-parser');
+const fs = require("fs");
+const csv = require("csv-parser");
 
 export class TeacherService {
-
   private usersRepository = getRepository(User);
   private teacherAvailabilityRepository = getRepository(TeacherAvailability);
   private teacherRepository = getRepository(Teacher);
@@ -27,8 +26,7 @@ export class TeacherService {
   private batchStudentRepository = getRepository(BatchStudent);
   private studentRepository = getRepository(Student);
 
-
-  TeacherService() { }
+  TeacherService() {}
 
   async availableTeachers(data: any, parameters: any) {
     var results: User[] = [];
@@ -101,7 +99,7 @@ export class TeacherService {
 
     var status = parameters.status;
     if (status) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
@@ -109,14 +107,14 @@ export class TeacherService {
     var studentID = parameters.studentID;
 
     if (studentID) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
 
     var batchID = parameters.batchID;
     if (status) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
@@ -179,7 +177,9 @@ export class TeacherService {
       usersLogger.info(`Finale query ids ${JSON.stringify(idsList)}`);
 
       if (slotsResultIds.length > 0) {
-        var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(",")})`;
+        var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(
+          ","
+        )})`;
         console.log("quer", quer);
         let totalResult = await getManager().query(quer);
         console.log("totalResult", totalResult);
@@ -188,7 +188,6 @@ export class TeacherService {
         query_list.push(`  u.id in (-1) `);
       }
     }
-
 
     var finalQuery;
     var total;
@@ -217,10 +216,13 @@ export class TeacherService {
 
     console.log("value sis ", query_string);
 
-    finalQuery = !parameters.type ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit ` :
-      `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id ${query_string} limit `
+    finalQuery = !parameters.type
+      ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} limit `
+      : `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type from user u left join teacher le on u.id=le.id ${query_string} limit `;
 
-    finalQuery = finalQuery + (offset >= 0 ? offset * limit : 0) +
+    finalQuery =
+      finalQuery +
+      (offset >= 0 ? offset * limit : 0) +
       "," +
       (limit >= 0 ? limit : 20) +
       `;`;
@@ -266,10 +268,9 @@ export class TeacherService {
       }
 
       var studentOrTeacherId = [];
-      var batchCode = '';
+      var batchCode = "";
 
-      if (type == 'student') {
-
+      if (type == "student") {
         var quer =
           "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
           element.id +
@@ -318,7 +319,6 @@ export class TeacherService {
       current: current,
       pageSize: limit,
     };
-
   }
 
   async saveTeacher(
@@ -339,12 +339,12 @@ export class TeacherService {
     const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
     data.email = data?.email || " ";
     data.lastName = data?.lastName || " ";
-    data.status = data?.status === '0' || data?.status === 0 ? 0 : 1;
+    data.status = data?.status === "0" || data?.status === 0 ? 0 : 1;
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
     try {
-      usersLogger.info('Save/Update User details in cosmos DB');
+      usersLogger.info("Save/Update User details in cosmos DB");
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
@@ -360,11 +360,12 @@ export class TeacherService {
           phoneNumber: data.phoneNumber,
           lockLesson: data.lockLesson || false,
           status: data.status,
+          demoAccount: data?.demoAccount ?? false,
         },
       };
 
-      if(typeof data.offlineUser !== 'undefined'){
-        options.body.offlineUser = data.offlineUser
+      if (typeof data.offlineUser !== "undefined") {
+        options.body.offlineUser = data.offlineUser;
       }
 
       if (data.id) {
@@ -373,7 +374,7 @@ export class TeacherService {
 
       var status;
       var res1 = {};
-      console.log("options", options)
+      console.log("options", options);
       if (!data.id) {
         res1 = await axios
           .post(options.url, options.body)
@@ -386,14 +387,14 @@ export class TeacherService {
             return user;
           })
           .catch((error) => {
-
             usersLogger.info(`Posted to cosmos and response is ${error}`);
             return { status: 400, error: error?.response?.data };
-            return Promise.reject(error);
           });
       } else {
         usersLogger.info("Update teacher information");
-        usersLogger.info(`Update Cosmos Request ${JSON.stringify(options.body)}`);
+        usersLogger.info(
+          `Update Cosmos Request ${JSON.stringify(options.body)}`
+        );
         res1 = await axios
           .put(options.url, options.body)
           .then(async (res) => {
@@ -406,7 +407,6 @@ export class TeacherService {
           })
           .catch((error) => {
             return { status: 400, error: error?.response?.data };
-            return Promise.reject(error);
           });
       }
 
@@ -438,7 +438,9 @@ export class TeacherService {
           if (data.id) {
             teacher.id = data.id;
           }
-          teacher.joiningdate = element.joiningdate ? element.joiningdate : new Date();
+          teacher.joiningdate = element.joiningdate
+            ? element.joiningdate
+            : new Date();
           teacher.resume = "Resume";
           teacher.video = "video";
           teacher.teachertype = element.teacher_type;
@@ -459,13 +461,14 @@ export class TeacherService {
         }
       }
 
-
       let i = 0;
       if (data.leadAvailability) {
         for (let element of data.leadAvailability) {
           //data.leadAvailability.forEach(async (element) => {
           var availability = new TeacherAvailability();
-          availability.start_date = element.startDate ? element.startDate : null;
+          availability.start_date = element.startDate
+            ? element.startDate
+            : null;
           availability.start_slot = element.start_slot;
           console.log("start slot" + element.start_slot);
           if (element?.start_slot) {
@@ -496,17 +499,16 @@ export class TeacherService {
         }
       }
 
-      console.log("leadAvailability", teacherAvailability);
-
       user.teacherAvailability = teacherAvailability;
       user.firstName = data.firstName;
       user.lastName = data.lastName;
       user.gender = data.gender;
       user.phoneNumber = data.phoneNumber;
       user.email = data.email;
-      
-      if(typeof data.offlineUser !== 'undefined'){
-        user.offlineUser = data.offlineUser
+      user.demoAccount = data?.demoAccount ?? false;
+
+      if (typeof data.offlineUser !== "undefined") {
+        user.offlineUser = data.offlineUser;
       }
 
       if (data.status) {
@@ -518,25 +520,20 @@ export class TeacherService {
       user.address = data.address;
       user.whatsapp = data.whatsapp;
       if (data.dob) {
-        console.log('dob is');
-        console.log(data.dob);
         user.dob = data.dob;
       }
       user.status = data.status;
       user.photo = data.photo;
       user.languages = data.languages;
-      user.created_at = new Date();
+      user.created_at = user.created_at ? user.created_at : new Date();
       user.updated_at = new Date();
       if (data.schoolId) {
-        user.schoolId = data.schoolId
+        user.schoolId = data.schoolId;
       }
-      // console.log("user", user);
       user = await this.usersRepository.save(user);
       return user;
     } catch (error) {
-      console.log(error);
       throw new Error("Excetion while stroing teacher");
-      return { status: 500, error: 'Unable to update/register user' };
     }
   }
 
@@ -566,7 +563,6 @@ export class TeacherService {
 
     const query_list = [];
     let query_string = "";
-    console.log(parameters);
     const date = parameters.date;
     if (date) {
       query_string = query_string + ` and le.joiningdate =  '${date}' `;
@@ -597,7 +593,7 @@ export class TeacherService {
     }
 
     const offlineUser = parameters.offlineUser;
-    if(offlineUser <= 1) {
+    if (offlineUser <= 1) {
       query_string = query_string + ` and u.offlineUser = ${offlineUser}`;
       query_list.push(` u.offlineUser = ${offlineUser}  `);
       console.log("offlineUser ", offlineUser);
@@ -619,7 +615,7 @@ export class TeacherService {
 
     const status = parameters.status;
     if (status) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
@@ -627,14 +623,14 @@ export class TeacherService {
     const studentID = parameters.studentID;
 
     if (studentID) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
 
     const batchID = parameters.batchID;
     if (status) {
-      //  status = parseInt(status);    
+      //  status = parseInt(status);
       query_string = query_string + ` and u.status like '${status}' `;
       query_list.push(` u.status like '${status}' `);
     }
@@ -654,7 +650,7 @@ export class TeacherService {
 
     const schoolName = parameters.schoolName;
     if (schoolName) {
-      query_string = query_string + ` and s.schoolName like '%${schoolName}%'`
+      query_string = query_string + ` and s.schoolName like '%${schoolName}%'`;
       query_list.push(` s.schoolName like '%${schoolName}%'`);
     }
 
@@ -703,7 +699,9 @@ export class TeacherService {
       usersLogger.info(`Finale query ids ${JSON.stringify(idsList)}`);
 
       if (slotsResultIds.length > 0) {
-        var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(",")})`;
+        var quer = `select teacherId as id, weekday , start_slot, end_slot from teacher_availability where teacherId  in (${idsList.join(
+          ","
+        )})`;
         console.log("quer", quer);
         const totalResult = await getManager().query(quer);
         console.log("totalResult", totalResult);
@@ -714,9 +712,14 @@ export class TeacherService {
     }
 
     if (parameters.autoSearch) {
-      const teacherIds = await batchSerivce.getBatchesWorkingTeachers(data, { lessonStartTime: parameters.start_slot, frequency: parameters.frequency });
+      const teacherIds = await batchSerivce.getBatchesWorkingTeachers(data, {
+        lessonStartTime: parameters.start_slot,
+        frequency: parameters.frequency,
+      });
       if (teacherIds.length > 0) {
-        query_list.push(` u.id not in (${teacherIds.map(id => `'${id}'`).join(",")})`);
+        query_list.push(
+          ` u.id not in (${teacherIds.map((id) => `'${id}'`).join(",")})`
+        );
       }
     }
 
@@ -745,18 +748,22 @@ export class TeacherService {
       query_string += query_search;
     }
 
-    const limitQuery: string = ` LIMIT ${limit >= 0 ? limit : 20} OFFSET ${(offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)}`;
-    finalQuery = !parameters.type ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.isSibling, u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} ${limitQuery} ` :
-      `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type, s.schoolName as schoolName, s.id as schoolId from user u left join teacher le on u.id=le.id left join school s on u.schoolId=s.id  ${query_string} ORDER BY u.updated_at DESC ${limitQuery}; `;
+    const limitQuery: string = ` LIMIT ${limit >= 0 ? limit : 20} OFFSET ${
+      (offset >= 0 ? offset : 0) * (limit >= 0 ? limit : 20)
+    }`;
+    finalQuery = !parameters.type
+      ? `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name, u.isSibling, u.phoneNumber, u.email, u.status as status, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type from user u ${query_string} ${limitQuery} `
+      : `select SQL_CALC_FOUND_ROWS concat(u.firstName , "  ", u.lastName) as name,  u.phoneNumber, u.email, concat(le.totalexp , "" , " Years") as exp, u.status as status, le.ratings as ratings, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, '' as slots, le.teachertype as leadtype, le.joiningdate as joiningdate, le.ratings as ratings, le.classestaken as classestaken, u.id as cosmos_ref, u.type, s.schoolName as schoolName, s.id as schoolId from user u left join teacher le on u.id=le.id left join school s on u.schoolId=s.id  ${query_string} ORDER BY u.updated_at DESC ${limitQuery}; `;
 
     console.log("finalQuery", finalQuery);
     results = await getManager().query(finalQuery);
 
-    const totalQuery = !parameters.type ? `select count(*) as total from user u ${query_string}` :
-    `select count(*) as total from user u left join teacher le on u.id=le.id left join school s on u.schoolId=s.id  ${query_string} ORDER BY u.updated_at DESC; `;
+    const totalQuery = !parameters.type
+      ? `select count(*) as total from user u ${query_string}`
+      : `select count(*) as total from user u left join teacher le on u.id=le.id left join school s on u.schoolId=s.id  ${query_string} ORDER BY u.updated_at DESC; `;
 
-    const totalRes = await getManager().query(totalQuery)
-    total = parseInt(totalRes[0]?.total)
+    const totalRes = await getManager().query(totalQuery);
+    total = parseInt(totalRes[0]?.total);
 
     for (const element of results) {
       let slotsResult: any[] = [];
@@ -794,10 +801,9 @@ export class TeacherService {
       }
 
       var studentOrTeacherId = [];
-      const batchCode = '';
+      const batchCode = "";
 
-      if (type == 'student') {
-
+      if (type == "student") {
         var quer =
           "select id,batchNumber from classes where id = (select batchId from batch_students where studentId='" +
           element.id +
@@ -817,41 +823,53 @@ export class TeacherService {
         });
       }
 
-      const user = await this.usersRepository.findOne({ where: { id: element.id } });
-      const school = await this.schoolRepository.findOne({ where: { id: user.schoolId } });
-      const classes = await this.classesRepository.find({ where: { teacherId: element.id } });
+      const user = await this.usersRepository.findOne({
+        where: { id: element.id },
+      });
+      const school = await this.schoolRepository.findOne({
+        where: { id: user.schoolId },
+      });
+      const classes = await this.classesRepository.find({
+        where: { teacherId: element.id },
+      });
       let classesData: any[] = [];
       let batchStudents: any[] = [];
       let classesLength = classes.length + 1;
       for (const c of classes) {
         const classObject: any[] = [];
         let studentArray: any[] = [];
-        batchStudents = await this.batchStudentRepository.find({ where: { batchId: c.id } });
+        batchStudents = await this.batchStudentRepository.find({
+          where: { batchId: c.id },
+        });
         let batchStudentlength = batchStudents.length + 1;
         for (const student of batchStudents) {
-          const user = await this.usersRepository.findOne({ where: { id: student.studentId } });
-          const s = await this.studentRepository.findOne({ where: { id: student.studentId } });
+          const user = await this.usersRepository.findOne({
+            where: { id: student.studentId },
+          });
+          const s = await this.studentRepository.findOne({
+            where: { id: student.studentId },
+          });
           const studentObject: any[] = [];
           studentObject.push({
             id: user.id,
-            name: s?.studentName ?? user?.firstName + ' ' + user?.lastName,
+            name: s?.studentName ?? user?.firstName + " " + user?.lastName,
             email: user?.email ?? user?.customerEmail,
             mobile: user?.phoneNumber,
             status: s?.status,
-            schoolId: user?.schoolId ?? s?.schoolId
-          })
+            schoolId: user?.schoolId ?? s?.schoolId,
+          });
           do {
-            studentArray = [...studentArray, ...studentObject]
-          } while (!--batchStudentlength)
+            studentArray = [...studentArray, ...studentObject];
+          } while (!--batchStudentlength);
         }
         classObject.push({
           batchId: c.id,
           batchNumber: c.batchNumber,
-          students: studentArray
-        })
+          students: studentArray,
+        });
         do {
-          classesData = [...classesData, ...classObject]
-        } while (!--classesLength)
+          classesData = [...classesData, ...classObject];
+        } while (!--classesLength);
       }
 
       const l = new LeadView(
@@ -888,7 +906,6 @@ export class TeacherService {
     };
   }
 
-
   async getMatchedTeacherIds(week_day: string, startMin, endMin) {
     let slotsResultIds = [];
     let searchIds;
@@ -908,12 +925,10 @@ export class TeacherService {
           slotsResultIds = [...slotsResultIds, el.id];
         }
       }
-
     }
     usersLogger.info(`Filterd ids  ${JSON.stringify(slotsResultIds)}`);
     return slotsResultIds;
   }
-
 
   async leadFullDetails(data: any, teacherId: number) {
     var map = new Map();
@@ -991,7 +1006,6 @@ export class TeacherService {
     return { success: true, data: users, total: 1, current: 1, pageSize: 1 };
   }
 
-
   async updateTeacherAvailability() {
     var map = new Map();
     map.set("Sun", 0);
@@ -1001,9 +1015,10 @@ export class TeacherService {
     map.set("Thu", 4);
     map.set("Fri", 5);
     map.set("Sat", 6);
-    await fs.createReadStream(process.env.FILE_PATH)
+    await fs
+      .createReadStream(process.env.FILE_PATH)
       .pipe(csv())
-      .on('data', async function (data) {
+      .on("data", async function (data) {
         let teacherRecord = new Teacher();
         let userRecord = new User();
         try {
@@ -1011,16 +1026,22 @@ export class TeacherService {
 
           // userRecord = await (new UserService).isUserExists("phoneNumber", data.rmn, '');
 
-          userRecord = await await getRepository(User).findOne({ phoneNumber: Like(`%${data.rmn}%`) });
+          userRecord = await await getRepository(User).findOne({
+            phoneNumber: Like(`%${data.rmn}%`),
+          });
           if (userRecord) {
             usersLogger.info(`Processing record with phoneNumber ${data.rmn}`);
             usersLogger.info(`User id is  ${userRecord.teacherId}`);
-            teacherRecord = await getRepository(Teacher).findOne({ id: Like(`%${userRecord.id}%`) });
+            teacherRecord = await getRepository(Teacher).findOne({
+              id: Like(`%${userRecord.id}%`),
+            });
 
-            data.weekday.split("-").forEach(async element => {
+            data.weekday.split("-").forEach(async (element) => {
               let i = 0;
               var availability = new TeacherAvailability();
-              availability.start_date = data.start_date ? data.start_date : null;
+              availability.start_date = data.start_date
+                ? data.start_date
+                : null;
 
               if (data.start_time) {
                 let time = data.start_time.split(":");
@@ -1037,7 +1058,9 @@ export class TeacherService {
               }
 
               availability.weekday = parseInt(map.get(element));
-              availability.teacher = await getRepository(Teacher).findOne({ id: userRecord.id });
+              availability.teacher = await getRepository(Teacher).findOne({
+                id: userRecord.id,
+              });
               availability.created_at = new Date();
               availability.updated_at = new Date();
               availability = await getRepository(TeacherAvailability).save(
@@ -1045,22 +1068,20 @@ export class TeacherService {
               );
               console.log(availability);
               teacherAvailability[i++] = availability;
-
             });
             usersLogger.info(`Teacher Id updating ... ${data.rmn}`);
             userRecord.teacherAvailability = teacherAvailability;
             await getRepository(User).save(userRecord);
             return "Loaded teacher availability ...";
           } else {
-            usersLogger.info(`User record not found for user ${data.rmn}`)
+            usersLogger.info(`User record not found for user ${data.rmn}`);
           }
-        }
-        catch (err) {
+        } catch (err) {
           usersLogger.info(`user not found with phoneNumber ${data.rmn}`);
           usersLogger.info(err);
         }
       })
-      .on('end', async function () {
+      .on("end", async function () {
         return "success";
       });
     return "Loaded teacher availability ...";
@@ -1073,7 +1094,7 @@ export class TeacherService {
     const options: any = {
       url: `${this.COSMOS_URL}/api/user/update-lock-lesson/?code=${this.COSMOS_CODE}`,
       json: true,
-      body: data
+      body: data,
     };
     await axios.put(options.url, options.body);
     for (const teacher of data) {
@@ -1085,10 +1106,14 @@ export class TeacherService {
     return data;
   }
 
-  async isTeacherExists(column = "phoneNumber", value: string, id: string | undefined): Promise<any> {
+  async isTeacherExists(
+    column = "phoneNumber",
+    value: string,
+    id: string | undefined
+  ): Promise<any> {
     let where: any = { [column]: value };
     if (id) {
-      where['id'] = Not(id);
+      where["id"] = Not(id);
     }
     try {
       const user = await this.teacherRepository.findOne({ where });
@@ -1098,5 +1123,4 @@ export class TeacherService {
       return false;
     }
   }
-
 }

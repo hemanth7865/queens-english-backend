@@ -1,57 +1,22 @@
-// @ts-nocheck
-import { PlusOutlined, ClockCircleOutlined, EyeOutlined, EditTwoTone } from '@ant-design/icons';
-import { NotificationInstance as RCNotificationInstance } from 'rc-notification/lib/Notification';
-import { Button, message, Input, Drawer, Tooltip, Row } from 'antd';
+import { EditTwoTone } from '@ant-design/icons';
+import { Button, notification, Drawer, Row } from 'antd';
 import React, { useState, useRef } from 'react';
 import { useIntl, FormattedMessage } from 'umi';
-import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
-import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import ProDescriptions from '@ant-design/pro-descriptions';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import { studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
-import AddUser from './components/AddUser';
-import EditUser from './components/EditUser';
-import ViewStudent from './components/ViewStudent';
-import UploadStudentsBulkWithoutRMN from './components/UploadStudentsBulkWithoutRMN';
-import DeactiveStudentsInBulk from './components/DeactiveStudentsInBulk';
 
-/**
- * @en-US Add node
- * @zh-CN 添加节点
- * @param fields
- */
+import { studentBatches, userBatchesView } from '@/services/ant-design-pro/api';
+import DeactiveStudentsInBulk from './components/DeactiveStudentsInBulk';
+import UserForm from './components/UserForm';
 
 const TableList: React.FC = () => {
-  /**
-   * @en-US Pop-up window of new window
-   * @zh-CN 新建窗口的弹窗
-   *  */
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  /**
-   * @en-US The pop-up window of the distribution update window
-   * @zh-CN 分布更新窗口的弹窗
-   * */
-  const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
-
-  const [showDetail, setShowDetail] = useState<boolean>(false);
-
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [currentRowEdit, setCurrentRowEdit] = useState();
-
   const [visible, setVisible] = useState<boolean>(false);
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
-  const [tempData, setTempData] = useState();
-  const [tempDataEdit, setTempDataEdit] = useState({});
+  const [tempDataEdit, setTempDataEdit] = useState<undefined | any>(undefined);
 
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
+
   const intl = useIntl();
 
   const showDrawer = () => {
@@ -62,29 +27,18 @@ const TableList: React.FC = () => {
     setVisible(false);
   };
 
-  const handleOneDisplay = async (id) => {
+  const handleOneDisplay = async (id: any) => {
     try {
       let msg = await userBatchesView(id);
-      if (msg.status === "ok") {
-        console.log("API call successfull", msg);
-      }
-      setTempDataEdit(msg.data);
+      setTempDataEdit(msg?.data);
+      setVisibleEdit(true);
       console.log('view one', msg);
     } catch (error) {
       console.log("error", error);
     }
   }
 
-  const openNotificationWithIcon = (type, msg = { status: 200, data: '' }, userType = 'Teacher') => {
-    notification[type]({
-      message: type === 'error' ? msg.data : 'Successfully Registered or Updated  ' + userType + ' !!!! ',
-      description:
-        '',
-    });
-    setTimeout(() => {
-      window.location.reload()
-    }, 1000);
-  };
+
 
 
   const columns: ProColumns<API.RuleListItem>[] = [
@@ -155,7 +109,7 @@ const TableList: React.FC = () => {
         />
       ),
       dataIndex: "schoolName",
-      render: (dom, entity) => {
+      render: (dom, entity: any) => {
         return <Row justify={'space-between'}>
           <span>{entity?.school?.schoolName}</span>
         </Row>
@@ -171,14 +125,12 @@ const TableList: React.FC = () => {
       ),
       dataIndex: "edit",
       hideInSearch: true,
-      render: (dom, entity) => {
+      render: (_, entity: any) => {
         return (
           <a
-            onClick={() => {
-              console.log('entity', entity)
-              handleOneDisplay(entity.id)
-              setVisibleEdit(true)
-              setTempData(entity);
+            onClick={async () => {
+              await handleOneDisplay(entity?.id)
+
             }}>
             <EditTwoTone />
           </a>
@@ -214,10 +166,12 @@ const TableList: React.FC = () => {
             title="Add User"
             placement="right"
             onClose={onClose}
-            visible={visible}
+            open={visible}
             width={500}
           >
-            <AddUser setVisible={setVisible} />
+            <UserForm userData={tempDataEdit} visible={visible}
+              isEdit={false}
+            />
           </Drawer>
         ]}
       />
@@ -229,9 +183,11 @@ const TableList: React.FC = () => {
         onClose={() => {
           setVisibleEdit(false)
         }}
-        visible={visibleEdit}
+        open={visibleEdit}
         width={500}>
-        <EditUser data={tempDataEdit} visible={visibleEdit} setVisible={setVisibleEdit} />
+        <UserForm userData={tempDataEdit} visible={visibleEdit}
+          isEdit={true}
+        />
       </Drawer>
     </PageContainer>
   );

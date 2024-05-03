@@ -12,3 +12,4 @@ database/connections
 src/commands/result.txt
 src/data/lessonsList.ts
 package-lock.json
+yarn.lock

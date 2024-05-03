@@ -1,22 +1,15 @@
-// @ts-nocheck
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import { addNewEmployee, updateExistEmployee } from "@/services/ant-design-pro/api";
 import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
-import { placeOrder } from "@/services/swagger/store";
 import { Button, Col, Form, Input, Row, Select, Spin } from 'antd';
-
-import {
-
-    isValidPhoneNumber,
-    validatePhoneNumberLength
-} from 'libphonenumber-js';
 import React, { useCallback, useEffect, useState } from 'react';
 
 export type EditEmployeeProps = {
-    employeeData: {};
+    edit: boolean;
+    employeeData: {
+        [key: string]: any;
+    };
     visible: '';
-    setVisible: () => void;
-    onUpdate: () => void;
 };
 
 const { Option } = Select;
@@ -27,7 +20,7 @@ const pmhead = { text: "PM Head", value: "pmhead" };
 const ProgramManager = { text: "Program Manager", value: "programmanager" };
 const Sales = { text: "Sales", value: "sales" };
 const Saleshead = { text: "Saleshead", value: "saleshead" };
-const Finance ={ text :"Finance", value: "finance" }
+const Finance = { text: "Finance", value: "finance" }
 
 const employeeRoles = [
     Superadmin,
@@ -41,8 +34,7 @@ const employeeRoles = [
 
 const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
 
-    const { edit, visible, setVisible, employeeData } = props
-    const { firstname, lastname, email, phone, key, status, id, role } = employeeData ? employeeData : '';
+    const { edit, visible, employeeData } = props;
 
     const initialFormData = {
         firstname: '',
@@ -56,52 +48,21 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
     const [formData, setFormData] = useState(initialFormData);
 
     const [selectedEmployee, setSelectedEmployee] = useState<{ role: string, status: string }>({ role: '', status: '' });
-    const [selectedCountry, setSelectedCountry] = useState({ code: 'IN', dialCode: 91 });
 
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [reload, setReload] = useState(0);
 
-    const refresh = () => setReload((e) => e + 1);
 
 
     //validation for phone number
-    const handleMobileChange = (event: any) => {
-        const number = event.target.value
-
-        const message = isValidPhoneNumber(number, selectedCountry.code ? selectedCountry.code : 'IN')
-
-        const msg = validatePhoneNumberLength(number, selectedCountry.code ? selectedCountry.code : 'IN')
-
-        switch (msg) {
-            case 'TOO_LONG':
-                setError('Phone number is too long')
-                break;
-            case 'TOO_SHORT':
-                setError('Phone number is too short')
-                break;
-            case 'NOT_A_NUMBER':
-                setError('Not a Number')
-                break;
-            case 'INVALID_COUNTRY':
-                setError('Please Select country first')
-                break;
-            case undefined:
-                setError('')
-                break;
-            default:
-                setError('Phone number is Invalid')
-        }
-
+    const handleMobileChange = (value: string) => {
+        const number = value;
         setFormData((value) => ({
             ...value,
-            phone: event.target.value
+            phone: number
         }))
 
 
-        if (message === false && msg === undefined) {
-            setError('Enter a valid Mobile Number')
-        }
+
     }
 
     // validation messages for name, email and type fields
@@ -127,11 +88,8 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
     };
 
     const onFinish = async () => {
-        if (error) return;
 
         setIsLoading(true);
-
-        var code = selectedCountry ? selectedCountry.dialCode : '91';
 
         let dataForm: any = {
             id: props?.employeeData?.id,
@@ -157,7 +115,6 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
             } catch (error) {
                 handleAPIResponse({ status: 400 }, "Employee Updated Successfully", "Failed To Update Employee");
             } finally {
-                props.setVisible(false);
                 setIsLoading(false);
             }
         }
@@ -175,7 +132,6 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
             } catch (error) {
                 handleAPIResponse({ status: 400 }, "Employee Added Successfully", "Failed To Add Employee", false);
             } finally {
-                props.setVisible(false);
                 setIsLoading(false);
             }
         }
@@ -184,33 +140,36 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
     const [form] = Form.useForm();
 
     const defaultValues = useCallback(() => {
+        if (!visible) return;
+        if (edit) {
 
-        const last10Digits = phone?.substring(phone?.length - 10);
-
-        const dataToSaveInState = {
-            firstname: firstname,
-            lastname: lastname,
-            phone: last10Digits || "",
-            email: email,
-            role: role,
-            status: status
+            const dataToSaveInState = {
+                firstname: employeeData?.firstname,
+                lastname: employeeData?.lastname,
+                phone: employeeData?.phone,
+                email: employeeData?.email,
+                role: employeeData?.role,
+                status: employeeData?.status
+            }
+            form.setFieldsValue(dataToSaveInState);
+            setFormData(dataToSaveInState);
+        } else {
+            form.resetFields();
+            setFormData(initialFormData);
         }
-        form.setFieldsValue(dataToSaveInState);
-        setFormData(dataToSaveInState);
-    }, [firstname, lastname, phone, email, role, status, edit])
+    }, [employeeData, edit, visible]);
 
     useEffect(() => {
         defaultValues();
     }, [defaultValues]);
 
     return (
-        <div>
+        <>
             <Spin spinning={isLoading}>
                 <Form
                     form={form}
                     onFinish={onFinish}
                     validateMessages={validateMessages}
-                    key={reload}
                 >
                     <Row gutter={16}>
                         {/* ############# firstname ############# */}
@@ -250,12 +209,8 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
                         {/* ############### country code ################ */}
 
                         <PhoneNumberCountrySelect
-                            key={props?.employeeData?.id}
                             handleMobileChange={handleMobileChange}
-                            setSelectedCountry={setSelectedCountry}
-                            defaultValue={props?.employeeData?.phone}
-                            value={formData?.phone}
-                           
+                            phoneNumberName="phone"
                         />
 
 
@@ -279,7 +234,7 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
                                 />
                             </Form.Item>
                         </Col>
-                         {/* ##################### role ########################3 */}
+                        {/* ##################### role ########################3 */}
                         <Col span={12}>
                             <Form.Item name="role">
                                 <Select
@@ -291,7 +246,7 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                         {/* ##################### status ########################3 */}
+                        {/* ##################### status ########################3 */}
                         <Col span={12}>
                             <Form.Item name="status">
                                 <Select
@@ -313,7 +268,7 @@ const EmployeeForm: React.FC<EditEmployeeProps> = (props) => {
                     </Row>
                 </Form>
             </Spin>
-        </div>
+        </>
     );
 };
 

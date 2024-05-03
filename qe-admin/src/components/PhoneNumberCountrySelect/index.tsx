@@ -1,82 +1,124 @@
-import React, { useState } from 'react';
-import { Col, Form, Input, Select } from 'antd';
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { Col, Form, Input, Select } from "antd";
 import {
-  getCountries,
-  getCountryCallingCode
-} from 'libphonenumber-js'
-import * as CountryList from 'country-list'
+  validatePhoneNumberLength,
+  parsePhoneNumber,
+  getCountryCallingCode,
+  isValidPhoneNumber
+} from "libphonenumber-js";
+import * as CountryList from "country-list";
 
 const { Option } = Select;
 
+type PhoneNumberCountrySelectProps = {
+  handleMobileChange: (value: string) => void;
+  phoneNumberName?: string;
+  countryCodeName?: string;
+  placeholder?: string;
+  edit?: boolean;
+};
+
 const PhoneNumberCountrySelect = ({
   handleMobileChange,
-  formData,
   phoneNumberName = "phoneNumber",
-  countryCodeName = "countryCode",
   placeholder = "Enter Mobile Number",
-  setSelectCountry = (data: any) => { },
-  setSelectCountryCode = (data: any) => { },
-  edit = false, defaultValue }: any) => {
-  const [selectCountry, setSelectCountryLocal] = useState('');
-  const [localValue, setLocalValue] = useState(defaultValue);
-  const [selectCountryCode, setSelectCountryCodeLocal] = useState(91)
+  edit = false,
+}: PhoneNumberCountrySelectProps) => {
+  const formInstance = Form.useFormInstance();
+  const fieldValue = Form.useWatch(phoneNumberName, formInstance);
+  const [countryCallingCode, setCountryCallingCode] = useState("+91");
+  const [countryCode, setCountryCode] = useState("IN");
 
-  const allCountries = CountryList.getData()
-  const defaultCountry = allCountries.filter((country: any) => country.name === 'India')
+  const allCountries = useMemo(() => CountryList.getData(), []);
 
-  //Displaying all countries in select option
-  const handleCountry = (value: string) => {
-    console.log('selected country', value)
-    if (value) {
-      const code = CountryList.getCode(value)
-      const codeNumber: any = getCountryCallingCode(code)
-      //console.log('code', code, codeNumber)
-      setSelectCountryLocal(code)
-      setSelectCountryCodeLocal(codeNumber)
+  const handleCountry = useCallback((value: string) => {
+    const code = getCountryCallingCode(value as any);
+    setCountryCode(value);
+    setCountryCallingCode("+" + code);
+  }, []);
 
-      setSelectCountry(code)
-      setSelectCountryCode(codeNumber)
+  useEffect(() => {
+    if (!fieldValue) return;
+    try {
+      const parsed = parsePhoneNumber(fieldValue);
+      const code = parsed.countryCallingCode;
+      const value = parsed.number.replace(`+${code}`, "");
+      setCountryCallingCode("+" + code);
+      setCountryCode(parsed.country ?? "IN");
+      formInstance.setFieldsValue({ [phoneNumberName]: value });
+    } catch (error) {
+      console.error("Failed to parse phone number:", error);
     }
-  }
+  }, [fieldValue, phoneNumberName]);
 
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length === 0) {
+      handleMobileChange("");
+      formInstance.setFieldsValue({ [phoneNumberName]: "" });
+      return;
+    }
+    formInstance.setFieldsValue({ [phoneNumberName]: value });
+    handleMobileChange(countryCallingCode + value);
+  }, [countryCallingCode, formInstance, handleMobileChange, phoneNumberName]);
 
   return (
     <>
-      {
-        !edit && <Col span={12} key={phoneNumberName + defaultValue}>
-          <Form.Item
-            name={countryCodeName}>
-            <Select placeholder="Select a country" onChange={handleCountry} defaultValue={defaultCountry.map((name: any) => name.name)}>
-              {allCountries.map((country: any) => {
-                return <Option value={country.name} key={country.code}>{country.name}</Option>
-              })}
+      {!edit && (
+        <Col span={12} key={phoneNumberName}>
+          <Form.Item>
+            <Select
+              placeholder="Select a country"
+              onChange={handleCountry}
+              value={countryCode}
+              defaultValue={countryCode}
+            >
+              {allCountries.map(({ name, code }) => (
+                <Option value={code} key={code}>
+                  {name}
+                </Option>
+              ))}
             </Select>
-
           </Form.Item>
         </Col>
-      }
+      )}
       <Col span={12}>
-        <Form.Item name={phoneNumberName}
+        <Form.Item
+          name={phoneNumberName}
           rules={[
-            (edit && localValue?.startsWith("+91", 0)) || !edit && selectCountryCode == 91 ?
-              { required: true, pattern: !edit ? /^[0-9]{10}$/ : /^\+[0-9]{12}$/, message: "Make Sure To Write Correct Phone Number" } :
-              { required: true, pattern: !edit ? /^[0-9]+$/ : /^\+[0-9]{10,15}$/, message: "Make Sure To Write Correct Phone Number" }
+            { required: true, message: "Please enter your mobile number!" },
+            ({ }) => ({
+              validator(rule, value) {
+                const number = `${countryCallingCode}${value}`.replace("+", "")
+                try {
+                  if (!isValidPhoneNumber(number, countryCode as any)) {
+                    return Promise.reject("Please enter a valid mobile number!");
+                  }
+                  const length = validatePhoneNumberLength(number, countryCode as any)
+                  if (length) {
+                    return Promise.reject("Please enter a valid mobile number!");
+                  }
+
+                  return Promise.resolve();
+
+                } catch (error) {
+                  console.error("Failed to validate phone number:", error);
+                  return Promise.reject("Please enter a valid mobile number!");
+                }
+              }
+            })
           ]}
         >
           <Input
             placeholder={placeholder}
             name={phoneNumberName}
-            onChange={(e) => { handleMobileChange(e); setLocalValue(e.target.value); }}
-            defaultValue={defaultValue}
-            addonBefore={!edit && "+" + selectCountryCode}
+            onChange={onChange}
+            addonBefore={countryCallingCode}
           />
         </Form.Item>
       </Col>
     </>
-  )
-}
+  );
+};
 
-export default PhoneNumberCountrySelect
-
-
-
+export default PhoneNumberCountrySelect;

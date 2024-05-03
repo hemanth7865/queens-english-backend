@@ -1,92 +1,36 @@
-// @ts-nocheck
 import {
-  PlusOutlined,
-  DeleteOutlined,
   EyeOutlined,
-  ClockCircleOutlined,
-  UploadOutlined,
   EditOutlined,
-  CopyOutlined,
 } from "@ant-design/icons";
 import {
   Button,
-  message,
-  Input,
+
   Drawer,
-  Form,
-  Col,
-  Row,
-  Select,
-  DatePicker,
-  Modal,
-  Checkbox,
-  TimePicker,
-  Tooltip,
-  Upload,
-  RangePicker,
-  notification,
-  Alert,
-  Space,
-  Switch,
+
   Spin,
 } from "antd";
-import * as CountryList from "country-list";
 import React, { useState, useRef } from "react";
 import { useIntl, FormattedMessage, useAccess, Access } from "umi";
-import { PageContainer, FooterToolbar } from "@ant-design/pro-layout";
+import { PageContainer } from "@ant-design/pro-layout";
 import type { ProColumns, ActionType } from "@ant-design/pro-table";
 import ProTable from "@ant-design/pro-table";
-import { ModalForm, ProFormText, ProFormTextArea } from "@ant-design/pro-form";
-import type { ProDescriptionsItemProps } from "@ant-design/pro-descriptions";
-import ProDescriptions from "@ant-design/pro-descriptions";
-import type { FormValueType } from "./components/UpdateForm";
-import UpdateForm from "./components/UpdateForm";
 import UploadStudentsBulkWithoutRMN from "../StudentList/components/UploadStudentsBulkWithoutRMN";
-import AddUser from "../StudentList/components/AddUser";
+
 
 import {
-  isPossiblePhoneNumber,
-  isValidPhoneNumber,
-  validatePhoneNumberLength,
-  parsePhoneNumber,
-  getCountryCallingCode,
-} from "libphonenumber-js";
-import {
-  // rule,
-  addRule,
-  updateRule,
-  removeRule,
   studentsBatches,
-  addTeacherSchedule,
-  teacherBatchesView,
-  studentsBatchesView,
-  teacherRemove,
+
 } from "@/services/ant-design-pro/api";
 
-import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
-import Icon from "@ant-design/icons";
 import "./index.css";
-import Availability from "./availability";
-import moment from "moment";
-import WeekdaySchedule from "./components/WeekdaySchedule";
-import { parse, format } from "date-fns";
-import { Tabs } from "antd";
-import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
-import Rebatching from "./components/Rebatching";
-import StudentBatchesHistory from "./components/StudentBatchesHistory";
-import access from "@/access";
-import { AlignType } from "rc-table/lib/interface";
+
 import Tabsedit from "@/components/Formedit/tabs";
 import HistoryTable from "@/components/HistoryTab/tableView";
 import ReBatch from "@/components/Student/rebatch";
 import ExportStudentList from "./components/ExportStudentList";
+import UserForm from "../StudentList/components/UserForm";
 
-const { TabPane } = Tabs;
-
-const callback = (key) => {
-  console.log(key);
-};
 
 const StudentsBatchList: React.FC = () => {
   //Role Based Access
@@ -97,10 +41,8 @@ const StudentsBatchList: React.FC = () => {
   const [tmpData, setTmpData] = useState<any>();
   const [studentManageredit, setstudentManageredit] = useState<boolean>(false);
   const [studentManageradd, setstudentManageradd] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [visibleEdit, setVisibleEdit] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
-  const [editvisible, seteditvisible] = useState<boolean>(false);
   const [visibleHistoryTab, setVisibleHistoryTab] = useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedStudentData, setSelectedStudentData] = useState<any>();
@@ -129,7 +71,6 @@ const StudentsBatchList: React.FC = () => {
   //edit drawer
   const showDrawerEdit = () => {
     setVisibleEdit(true);
-    seteditvisible(true);
     setstudentManageredit(true);
     setstudentManageradd(false);
   };
@@ -332,7 +273,7 @@ const StudentsBatchList: React.FC = () => {
       dataIndex: "edit",
       hideInSearch: true,
 
-      render: (dom: any, entity: { id: any }) => {
+      render: (dom: any, entity: any) => {
         return (
           <a
             onClick={() => {
@@ -373,16 +314,6 @@ const StudentsBatchList: React.FC = () => {
     },
   ];
 
-  const handleFormChange = (e, value) => {
-    setFormData((value) => ({
-      ...value,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  if (access.canSuperAdmin) {
-    // User is Super Admin
-  }
 
   return (
     <PageContainer>
@@ -392,7 +323,6 @@ const StudentsBatchList: React.FC = () => {
           defaultMessage: "Student Management",
         })}
         actionRef={actionRef}
-        rowKey="key"
         search={{
           labelWidth: 120,
         }}
@@ -433,7 +363,7 @@ const StudentsBatchList: React.FC = () => {
                     style={{ marginRight: "5px" }}
                     disabled={selectedRowKeys.length === 0}
                     onClick={showReassignBatchModal}
-                    onChange={setstudentManageradd(true)}
+                    onChange={() => setstudentManageradd(true)}
                   >
                     Re-Batch Student
                   </Button>
@@ -445,7 +375,7 @@ const StudentsBatchList: React.FC = () => {
                 type="primary"
                 key="primary"
                 onClick={showDrawer}
-                onChange={setstudentManageradd(true)}
+                onChange={() => setstudentManageradd(true)}
               >
                 Add Student
               </Button>
@@ -461,10 +391,16 @@ const StudentsBatchList: React.FC = () => {
               destroyOnClose
             >
               {url.toString().indexOf("/school/") >= 0 ? (
-                <AddUser
-                  setVisible={setVisible}
-                  offlineUser={true}
-                  userType={"student"}
+                <UserForm
+                  userData={{
+                    offlineUser: "1",
+                    type: "student"
+                  }}
+                  visible={visible}
+                  disabled={{
+                    offlineUser: true,
+                    type: true,
+                  }}
                 />
               ) : (
                 <Tabsedit
@@ -490,7 +426,7 @@ const StudentsBatchList: React.FC = () => {
             </Drawer>
           </>,
         ]}
-        rowKey={(record) => record.id}
+        rowKey={(record: any) => record?.id ?? Math.random()}
         pagination={{ position: ["topRight", "bottomRight"] }}
         //the checkbox
         rowSelection={{
@@ -507,7 +443,7 @@ const StudentsBatchList: React.FC = () => {
         }}
       />
 
-      <Spin spinning={isLoading}>
+      <Spin>
         <Drawer
           title={!visibleHistoryTab ? "Edit Student" : "History"}
           placement="right"

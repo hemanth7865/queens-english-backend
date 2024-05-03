@@ -45,12 +45,27 @@ createConnection()
             next
           );
           if (result instanceof Promise) {
-            result.then((result) => {
-              if (result !== null && result !== undefined) {
-                //console.log("response" + JSON.stringify(result));
-                res.send(result);
-              }
-            });
+            result
+              .then((result) => {
+                if (result !== null && result !== undefined) {
+                  try {
+                    if (typeof result === "object") {
+                      res.json(JSON.parse(JSON.stringify(result)));
+                    } else {
+                      res.send(`${result}`);
+                    }
+                  } catch (_) {
+                    if (!res.headersSent) {
+                      res.send("Internal server error");
+                    }
+                  }
+                }
+              })
+              .catch((_) => {
+                if (!res.headersSent) {
+                  res.status(500).send("Internal server error");
+                }
+              });
           }
         }
       );

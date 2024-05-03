@@ -70,7 +70,8 @@ export class StudentService {
     const name = parameters.name ? parameters.name : parameters.keyword;
     if (name) {
       query_list.push(
-        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ""
+        ` (u.firstName like '%${name}%' or u.lastName like '%${name}%' ${
+          parameters.keyword ? 'or u.phoneNumber LIKE "%' + name + '%"' : ""
         }) `
       );
     }
@@ -104,7 +105,7 @@ export class StudentService {
     }
 
     const offlineUser = parameters.offlineUser;
-    if(offlineUser <= 1) {
+    if (offlineUser <= 1) {
       query_list.push(` u.offlineUser = ${offlineUser}  `);
     }
 
@@ -116,7 +117,7 @@ export class StudentService {
       query_list.push(` u.id like '%${parameters.id}%'  `);
     }
 
-    if(parameters.schoolId){
+    if (parameters.schoolId) {
       query_list.push(` u.schoolId = '${parameters.schoolId}'  `);
     }
 
@@ -127,7 +128,13 @@ export class StudentService {
       const batchCodeQuery = `SELECT user.id FROM user 
         LEFT JOIN batch_students on user.id = batch_students.studentId 
         LEFT JOIN classes on classes.id = batch_students.batchId 
-        where classes.batchNumber ${isBatchCodeArray ? `IN (${parameters.batchCode?.map((s: any) => `"${s}"`).join(",")})` : `like "%${parameters.batchCode}%"`}`;
+        where classes.batchNumber ${
+          isBatchCodeArray
+            ? `IN (${parameters.batchCode
+                ?.map((s: any) => `"${s}"`)
+                .join(",")})`
+            : `like "%${parameters.batchCode}%"`
+        }`;
 
       let ids = await getManager().query(batchCodeQuery);
       for (let element of ids) {
@@ -152,7 +159,9 @@ export class StudentService {
 
     let PRMHaving: string = ``;
     if (prm) {
-      query_list.push(` concat(prm.firstName , ' ', prm.lastName) like '%${prm}%' `);
+      query_list.push(
+        ` concat(prm.firstName , ' ', prm.lastName) like '%${prm}%' `
+      );
     }
 
     query_list.forEach((value, index) => {
@@ -175,11 +184,10 @@ export class StudentService {
     s.callBackon, s.bdaName, s.bdmName,  s.poc, s.teacherName, p.paymentid, s.courseFrequency, s.timings, s.prm_id, s.lsq_users_ID, s.salesowner, s.waMessageSent,
     s.salesDataFilled, s.reasonInSAV, s.enrollmentType, CONVERT_TZ(s.dateOfInactivation, @@session.time_zone, '+11:00') as dateOfInactivation, sc.schoolName as schoolName, sc.id as schoolId 
     from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id LEFT JOIN prm ON prm.id = s.prm_id ${query_string} ${PRMHaving} 
-    ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20
-      } OFFSET ${((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)};`;
+    ORDER BY u.updated_at DESC LIMIT ${limit >= 0 ? limit : 20} OFFSET ${
+      ((offset >= 1 ? offset : 1) - 1) * (limit >= 0 ? limit : 20)
+    };`;
     let totalQuery = `SELECT COUNT(*) as total from user as u LEFT JOIN student as s ON s.id = u.id LEFT JOIN school as sc ON sc.id = u.schoolId LEFT JOIN payment as p On p.id = u.id LEFT JOIN prm ON prm.id = s.prm_id ${query_string} ${PRMHaving} `;
-
-
 
     results = await getManager().query(finalQuery);
     var total = await getManager().query(totalQuery);
@@ -203,7 +211,8 @@ export class StudentService {
           "select id,batchNumber,zoomLink, zoomInfo, whatsappLink, classCode, teacherCode, useNewZoomLink, useAutoAttendance, offlineBatch, schoolName, schoolId from classes where id IN (select batchId from batch_students where studentId='" +
           element.id +
           "');";
-        var quer2 = "select batchId from batch_students where studentId='" +
+        var quer2 =
+          "select batchId from batch_students where studentId='" +
           element.id +
           "';";
 
@@ -317,9 +326,15 @@ export class StudentService {
         element.batchId,
         element.reasonInSAV,
         element.onboardingIssueReason,
-        batchesHistory.length != 0 ? batchesHistory[0].batchesClassesStartDate ? batchesHistory[0].batchesClassesStartDate : '' : '',
+        batchesHistory.length != 0
+          ? batchesHistory[0].batchesClassesStartDate
+            ? batchesHistory[0].batchesClassesStartDate
+            : ""
+          : "",
         element.enrollmentType,
-        element.dateOfInactivation ? element.dateOfInactivation.toISOString().split("T")[0] : "",
+        element.dateOfInactivation
+          ? element.dateOfInactivation.toISOString().split("T")[0]
+          : ""
       );
       l.batchId = batchId;
       l.isSibling = element.isSibling;
@@ -345,7 +360,10 @@ export class StudentService {
     };
   }
 
-  async saveStudentDetails(data: any, query?: { ignoreDuplicateCheck?: boolean, cosmosSync?: boolean }) {
+  async saveStudentDetails(
+    data: any,
+    query?: { ignoreDuplicateCheck?: boolean; cosmosSync?: boolean }
+  ) {
     const ignoreDuplicateCheck = query?.ignoreDuplicateCheck;
     const cosmosSync = query?.cosmosSync;
     let response;
@@ -393,19 +411,20 @@ export class StudentService {
       loginCode: data.loginCode,
       studentID: data.studentID,
       password: data.password,
-      ...data
+      demoAccount: data?.demoAccount ?? false,
+      ...data,
+    };
+
+    if (data.lead) {
+      cosmosUserBody.lead = true;
     }
 
-    if(data.lead) {
-      cosmosUserBody.lead = true
-    }
-
-    if(data.source) {
+    if (data.source) {
       cosmosUserBody.source = data.source;
     }
 
     if (data.cacheTime) {
-      cosmosUserBody.cacheTime = data.cacheTime
+      cosmosUserBody.cacheTime = data.cacheTime;
     }
 
     const options = {
@@ -462,9 +481,16 @@ export class StudentService {
             });
         } else {
           try {
-            data.id = await getUniqueUserID("id")
-            usersLogger.info(`Data id created manually from admin portal is : ${data.id}`);
-            var user = await this.saveStudentSQL(data, data.id, true, cosmosSync);
+            data.id = await getUniqueUserID("id");
+            usersLogger.info(
+              `Data id created manually from admin portal is : ${data.id}`
+            );
+            var user = await this.saveStudentSQL(
+              data,
+              data.id,
+              true,
+              cosmosSync
+            );
             usersLogger.info(
               `Successfully registered user: ${data.phoneNumber}`
             );
@@ -495,7 +521,7 @@ export class StudentService {
             response = {
               status: error.response.status,
               errors: [error.response.data],
-              error: true
+              error: true,
             };
             return response;
           });
@@ -505,7 +531,7 @@ export class StudentService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
       return {
-        error: true
+        error: true,
       };
     } finally {
       await queryRunner.release();
@@ -560,7 +586,7 @@ export class StudentService {
       lastName: data.lastName,
       gender: " ",
       lead: true,
-      source: data.source
+      source: data.source,
     };
 
     const options = {
@@ -609,6 +635,7 @@ export class StudentService {
     user.preventAppAccess = data.preventAppAccess;
     user.offlineUser = data.offlineUser;
     user.loginCode = data.loginCode;
+    user.demoAccount = data?.demoAccount ?? false;
 
     if (data.id) {
       user.id = data.id;
@@ -707,7 +734,8 @@ export class StudentService {
     student.plastName = data.plastName;
     student.comments = data.comments;
     student.incentive = data.incentive;
-    student.classesStartDate = getDateOutOfDateTime(data.classesStartDate) || null;
+    student.classesStartDate =
+      getDateOutOfDateTime(data.classesStartDate) || null;
     student.classesPurchase = data.classesPurchase;
     student.classesAttended = data.classesAttended;
     student.classesMissed = data.classesMissed;
@@ -725,7 +753,7 @@ export class StudentService {
     student.courseFrequency = data.courseFrequency;
     student.timings = data.timings;
     student.salesowner = data.salesowner;
-    student.status = data.status == 'Won' ? 'enrolled' : data.status;
+    student.status = data.status == "Won" ? "enrolled" : data.status;
     student.prm_id = data.prm_id;
     student.lsq_users_ID = data.lsq_users_ID;
     student.waMessageSent = data.waMessageSent;
@@ -736,16 +764,22 @@ export class StudentService {
     student.enrollmentType = data.enrollmentType;
 
     if (data?.schoolId) {
-      user.schoolId = data.schoolId
-      student.schoolId = data.schoolId
+      user.schoolId = data.schoolId;
+      student.schoolId = data.schoolId;
     }
 
     if (create) {
       const lqsClient = new LQSService();
-      student.prm_id = parseInt(await (await lqsClient.getPRMsAvailability())[0].id);
+      student.prm_id = parseInt(
+        await (
+          await lqsClient.getPRMsAvailability()
+        )[0].id
+      );
 
       const collectionAgent = new CollectionAgentService();
-      student.collection_agent_id = await (await collectionAgent.getAvailabileCollectionAgents())[0].id;
+      student.collection_agent_id = await (
+        await collectionAgent.getAvailabileCollectionAgents()
+      )[0].id;
     }
 
     if (data.studentAvailability) {
@@ -806,7 +840,7 @@ export class StudentService {
         offlineUser: user.offlineUser,
         loginCode: user.loginCode,
         studentID: user.studentID,
-        password: user.password
+        password: user.password,
       };
       return cosmosUserBody;
     };
@@ -877,18 +911,21 @@ export class StudentService {
     return { status: 200, errors };
   }
 
-  async updateStudentBatchHistoy(studentId: string, batchId: string, classStartDate: any) {
+  async updateStudentBatchHistoy(
+    studentId: string,
+    batchId: string,
+    classStartDate: any
+  ) {
     let studentBatchHistory = new StudentBatchesHistory();
     studentBatchHistory.studentId = studentId;
     studentBatchHistory.batchId = batchId;
     studentBatchHistory.active = true;
     studentBatchHistory.batchesClassesStartDate = classStartDate;
     try {
-      const isBatchHistory = await this.studentBatchesHistory.findOne(
-        {
-          studentId: studentId,
-          batchesClassesStartDate: classStartDate,
-        });
+      const isBatchHistory = await this.studentBatchesHistory.findOne({
+        studentId: studentId,
+        batchesClassesStartDate: classStartDate,
+      });
       if (!isBatchHistory) {
         usersLogger.info(`Update the student batch history for ${studentId}`);
         await this.studentBatchesHistory.save(studentBatchHistory);
@@ -930,7 +967,7 @@ export class StudentService {
           newPayment,
           this.request.user || {}
         );
-        if(logResponse != null){
+        if (logResponse != null) {
           await logResponse.save();
         }
       }
@@ -952,7 +989,11 @@ export class StudentService {
       //update to student history here
       if (data.batchesClassesStartDate && data.batchId.length != 0) {
         const batchId = data.batchId[0].batchId;
-        await this.updateStudentBatchHistoy(data.id, batchId, data.batchesClassesStartDate);
+        await this.updateStudentBatchHistoy(
+          data.id,
+          batchId,
+          data.batchesClassesStartDate
+        );
       }
 
       usersLogger.info(`Student object inserted  ${JSON.stringify(student)}`);
@@ -1044,7 +1085,7 @@ export class StudentService {
     student.assesmentDate = element.assesmentDate;
     student.courseFrequency = element.courseFrequency;
     student.salesowner = element.salesowner;
-    student.status = element.status == 'Won' ? 'enrolled' : element.status;
+    student.status = element.status == "Won" ? "enrolled" : element.status;
     student.timings = element.timings;
     student.wabatch = element.wabatch;
     student.salesDataFilled = element.salesDataFilled;
@@ -1097,15 +1138,24 @@ export class StudentService {
     batchDetails.forEach((element) => {
       zoomInfoDetails.push(element.zoomInfo);
       zoomLinkDetails.push(element.zoomLink);
-      whatsappLinkDetails.push(element.whatsappLink)
+      whatsappLinkDetails.push(element.whatsappLink);
     });
     console.log("batchdode", zoomInfoDetails);
 
-    let batchesHistory = await getManager().query(this.BATCHES_HISTORY_QUERY.replace(":studentId", id));
+    let batchesHistory = await getManager().query(
+      this.BATCHES_HISTORY_QUERY.replace(":studentId", id)
+    );
 
     const response = {
-      ...users, ...student, batchCode: studentOrTeacherId.join(","), zoomInfo: zoomInfoDetails.join(","), zoomLink: zoomLinkDetails.join(","), whatsappLink: whatsappLinkDetails.join(","), batchesHistory, ...payment
-    }
+      ...users,
+      ...student,
+      batchCode: studentOrTeacherId.join(","),
+      zoomInfo: zoomInfoDetails.join(","),
+      zoomLink: zoomLinkDetails.join(","),
+      whatsappLink: whatsappLinkDetails.join(","),
+      batchesHistory,
+      ...payment,
+    };
 
     if (!response.isSibling) {
       response.isSibling = (await this.usersRepository.findOne({
@@ -1194,7 +1244,6 @@ export class StudentService {
       data: results,
     };
   }
-
 
   async updateStudentsCSV(data: any, query: { test: false }) {
     const moment = require("moment");
@@ -1328,7 +1377,7 @@ export class StudentService {
         student.payment.plantype = d["Type of Sale"];
         student.payment.subscription = d["Subscription"];
         student.payment.subscriptionNo = d["Sub Reference ID (if autodebit)"];
-        student.payment.notes = d["Notes"]
+        student.payment.notes = d["Notes"];
 
         student.payment = [student.payment];
 
@@ -1576,9 +1625,11 @@ export class StudentService {
              */
             if (d["PRM"] === "Sukhmanjeet") {
               const lqsClient = new LQSService();
-              student.prm_id = parseInt(await (
-                await lqsClient.getPRMsAvailability()
-              )[0].id);
+              student.prm_id = parseInt(
+                await (
+                  await lqsClient.getPRMsAvailability()
+                )[0].id
+              );
             } else {
               result.notFoundPRMs.push({
                 prm: d["PRM"],
@@ -1610,9 +1661,9 @@ export class StudentService {
           student.startLesson =
             d["Start Lesson"] && d["Start Lesson"].length > 0
               ? "lesson " +
-              d["Start Lesson"].split(" ")[
-              d["Start Lesson"].split(" ").length - 1
-              ]
+                d["Start Lesson"].split(" ")[
+                  d["Start Lesson"].split(" ").length - 1
+                ]
               : undefined;
           user.status = allowedStatuses[d["Status"]];
 
@@ -1655,7 +1706,6 @@ export class StudentService {
     return result;
   }
 
-
   async updateStudentsCollectionExpertsCSV(
     data: any,
     query: { test: boolean; clear: boolean } = { test: false, clear: false }
@@ -1667,7 +1717,6 @@ export class StudentService {
       errors: 0,
       notFoundCEs: [],
     };
-
 
     if (query.clear) {
       let qe = `UPDATE student SET collection_agent_id = NULL`;
@@ -1682,7 +1731,7 @@ export class StudentService {
             continue;
           }
 
-          const condition = { where: { studentID: d[primaryColumn] } }
+          const condition = { where: { studentID: d[primaryColumn] } };
           let student = await this.studentRepository.findOne(condition);
 
           if (!student?.id) {
@@ -1698,14 +1747,16 @@ export class StudentService {
           if (CE?.id) {
             result.updated++;
             if (!query.test) {
-              await this.studentRepository.update({ id: student.id }, { collection_agent_id: CE.id })
+              await this.studentRepository.update(
+                { id: student.id },
+                { collection_agent_id: CE.id }
+              );
             }
           } else {
             result.notFoundCEs.push({
               id: d["Student ID"],
             });
           }
-
         } catch (e) {
           console.log(e);
           result.errors++;
@@ -1718,14 +1769,18 @@ export class StudentService {
     return result;
   }
 
-  async isLeadIDExists(column: string, value: string, id: string | undefined): Promise<any> {
+  async isLeadIDExists(
+    column: string,
+    value: string,
+    id: string | undefined
+  ): Promise<any> {
     let where: any = { [column]: value };
     if (id) {
-      where['id'] = Not(id);
+      where["id"] = Not(id);
     }
     try {
       const user = await this.studentRepository.findOne({ where });
-      console.log('user leadID', user)
+      console.log("user leadID", user);
       return user;
     } catch (e) {
       usersLogger.error(e);
@@ -1733,10 +1788,9 @@ export class StudentService {
     }
   }
 
-  async deactivateStudents(ids: string[]): Promise<any> { };
-  async validateStudentStatus(): Promise<any> { };
+  async deactivateStudents(ids: string[]): Promise<any> {}
+  async validateStudentStatus(): Promise<any> {}
 }
-
 
 StudentService.prototype.deactivateStudents = deactivateStudents;
 StudentService.prototype.validateStudentStatus = validateStudentStatus;

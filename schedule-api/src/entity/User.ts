@@ -64,20 +64,8 @@ export class User extends BaseEntity {
   type: string;
   @Column({ nullable: true, type: "date" })
   dob: Date;
-  /*@ManyToOne(
-        () => Status,
-        (nationality) => nationality.id   
-        )
-        nationality: Nationality;*/
-
   @Column({ nullable: true })
   status: string;
-  /*@ManyToOne(
-        () => Status,
-        (status) => status.id   
-        )
-        @JoinColumn()
-        status: Status;*/
   @Column({ nullable: true, type: "text" })
   photo: string;
   @Column({ nullable: true, type: "text" })
@@ -127,6 +115,9 @@ export class User extends BaseEntity {
   @OneToOne(() => Teacher)
   @JoinColumn()
   teacherData: Teacher;
+
+  @Column({ nullable: false, default: false, type: "boolean" })
+  demoAccount: boolean;
 
   teacher: Teacher[];
   payment: Payment[];

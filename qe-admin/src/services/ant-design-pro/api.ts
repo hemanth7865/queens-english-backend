@@ -213,7 +213,7 @@ export async function studentsBatchesView(
 //api for user batches for id
 export async function userBatchesView(
   id,
-  params: {
+  params?: {
     // query
     /** 当前的页码 */
     current?: number;
