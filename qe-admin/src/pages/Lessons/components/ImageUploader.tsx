@@ -3,7 +3,7 @@ import { DeleteOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { Modal, notification, Spin } from 'antd';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 import { uploadImagesStorage } from '@/services/ant-design-pro/api';
-import { getImageURL } from '@/services/ant-design-pro/helpers';
+import { getStorageFileURL } from '@/services/ant-design-pro/helpers';
 
 
 export type ImageUploaderProps = {
@@ -101,14 +101,14 @@ const ImageUploader = (props: ImageUploaderProps) => {
                         props?.imageURI && props?.imageURI?.trim()?.length > 0 ?
                             <div className='image'>
                                 <img
-                                    src={getImageURL(props.imageURI)}
+                                    src={getStorageFileURL(props.imageURI)}
                                     alt="exercise-image"
                                     className="image_image"
                                 />
                                 <div className="image_overlay">
                                     <EyeOutlined
                                         onClick={() => onPreview({
-                                            url: getImageURL(props.imageURI),
+                                            url: getStorageFileURL(props.imageURI),
                                             uid: '-1',
                                             name: `Exercise ${props.exerciseNumber + 1}`,
                                         })}

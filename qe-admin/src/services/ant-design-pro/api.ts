@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import { request } from "umi";
-import { getImageURL } from "./helpers";
+import { getStorageFileURL } from "./helpers";
 
 const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
@@ -1289,7 +1289,7 @@ export async function getAllLessonScripts(
         lessonScript.payloadPath &&
         typeof lessonScript.payloadPath === "string"
       ) {
-        const payloadPath = getImageURL(lessonScript.payloadPath);
+        const payloadPath = getStorageFileURL(lessonScript.payloadPath);
         const lessonDetails = await loadJSONFile(payloadPath);
         lessonScript.lessonDetails = lessonDetails;
         response.data[0] = lessonScript;

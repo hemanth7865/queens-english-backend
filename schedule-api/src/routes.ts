@@ -12,7 +12,7 @@ import { CollectionAgentController } from "./controller/CollectionAgentControlle
 import { LogsProxyController } from "./controller/LogsProxyController";
 import { SchoolController } from "./controller/SchoolController";
 import { UploadFilesController } from "./controller/UploadFilesController";
-import { AWSs3Controller } from "./controller/AWSs3Controller";
+import { StorageController } from "./controller/StorageController";
 import { CSVUploadController } from "./controller/CSVUploadController";
 import { EmployeeController } from "./controller/EmployeeController";
 
@@ -838,8 +838,8 @@ export const Routes = [
   {
     method: "post",
     route: "/upload/csv",
-    controller: AWSs3Controller,
-    action: "uploadFile",
+    controller: StorageController,
+    action: "uploadBulkUploadCSVFile",
     authenticate: true,
   },
   {

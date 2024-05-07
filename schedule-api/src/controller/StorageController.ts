@@ -1,15 +1,19 @@
 import { NextFunction, Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { Admin } from "../entity/Admin";
-import { AWSService } from "../services/AWSService";
+import { StorageService } from "../services/StorageService";
 import { CSVUploadService } from "../services/CSVUploadService";
 
-export class AWSs3Controller {
-  private awsService = new AWSService();
+export class StorageController {
+  private storageService = new StorageService();
   private csvUploadService = new CSVUploadService();
   private adminRepository = getRepository(Admin);
 
-  async uploadFile(request: Request, response: Response, next: NextFunction) {
+  async uploadBulkUploadCSVFile(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) {
     const requestQuery = request.query;
     const createRecord = requestQuery.createRecord === "true";
 
@@ -25,7 +29,7 @@ export class AWSs3Controller {
       const file = request?.files?.csv;
 
       if (file) {
-        const fileName = await this.awsService.uploadFile(file);
+        const fileName = await this.storageService.uploadFile(file);
         if (fileName) {
           if (!createRecord) {
             return {

@@ -253,7 +253,7 @@ export function csvToArray(str: string, delimiter: string = ",") {
   return arr;
 }
 
-export const getImageURL = (image: string | undefined) => {
+export const getStorageFileURL = (image: string | undefined) => {
   if (!image) return;
   if (image.startsWith("http")) return image;
   // @ts-expect-error

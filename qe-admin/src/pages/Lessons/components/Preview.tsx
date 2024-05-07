@@ -1,5 +1,5 @@
 import { SECTION_TYPES } from '@/components/Constants/constants'
-import { getImageURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
+import { getStorageFileURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
 import { Button, Col, Divider, Row, Select } from 'antd'
 import { useState, useEffect, useRef } from 'react';
 import { DeviceFrameset } from 'react-device-frameset'
@@ -207,7 +207,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                     <Row>
                                         <div className='image'>
                                             <img
-                                                src={getImageURL(exercise.image)}
+                                                src={getStorageFileURL(exercise.image)}
                                                 alt="exercise-image"
                                                 className="image_image"
                                             />

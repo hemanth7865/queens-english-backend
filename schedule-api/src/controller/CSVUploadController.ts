@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { Admin } from "../entity/Admin";
-import { AWSService } from "../services/AWSService";
+import { StorageService } from "../services/StorageService";
 import { CSVUploadService } from "../services/CSVUploadService";
 
 export class CSVUploadController {
