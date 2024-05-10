@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Checkbox, Col, Form, Row, Select, Spin } from "antd";
+import { Button, Checkbox, Col, Form, Input, Row, Select, Spin } from "antd";
 import PhoneNumberCountrySelect from "@/components/PhoneNumberCountrySelect";
 import { listSchool, addUserSchedule } from "@/services/ant-design-pro/api";
 
@@ -235,23 +235,67 @@ const UserForm: React.FC<UserFormProps> = ({
         <Spin spinning={isLoading}>
             <Form form={form} onFinish={onFinish} layout="vertical">
                 <Row gutter={16}>
-                    <FormItem
-                        label="First Name"
-                        name="firstName"
-                        onChange={handleInputChange}
-                    />
-                    <FormItem
-                        label="Last Name"
-                        name="lastName"
-                        onChange={handleInputChange}
-                    />
+                    <Col span={12}>
+                        <Form.Item
+                            label="First Name"
+                            name="firstName"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter the First Name",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="text"
+                                placeholder="First Name"
+                                name="firstName"
+                                value={formData.firstName}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Last Name"
+                            name="lastName"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter the Last Name",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="text"
+                                placeholder="Last Name"
+                                name="lastName"
+                                value={formData.lastName}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Item>
+                    </Col>
                     <PhoneNumberCountrySelect handleMobileChange={onPhoneNumberChange} />
-                    <FormItem
-                        label="Email"
-                        name="email"
-                        type="email"
-                        onChange={handleInputChange}
-                    />
+                    <Col span={12}>
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please enter the Email",
+                                },
+                            ]}
+                        >
+                            <Input
+                                type="email"
+                                placeholder="Email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Item>
+                    </Col>
                     <UserTypeSelect
                         value={formData.type}
                         onChange={(value: string) =>
@@ -283,12 +327,26 @@ const UserForm: React.FC<UserFormProps> = ({
                                     }}
                                 />
                                 {!isEdit && (
-                                    <FormItem
-                                        label="Class Section"
-                                        placeholder="ex: 1A / 4C"
-                                        name="classSection"
-                                        onChange={handleInputChange}
-                                    />
+                                    <Col span={12}>
+                                        <Form.Item
+                                            label="Class Section"
+                                            name="classSection"
+                                            rules={[
+                                                {
+                                                    required: true,
+                                                    message: "Please enter the Class Section",
+                                                },
+                                            ]}
+                                        >
+                                            <Input
+                                                type="text"
+                                                placeholder="Class Section"
+                                                name="classSection"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                            />
+                                        </Form.Item>
+                                    </Col>
                                 )}
                             </Row>
                         </Col>

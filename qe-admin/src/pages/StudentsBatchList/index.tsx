@@ -65,7 +65,6 @@ const StudentsBatchList: React.FC = () => {
   const onClose = () => {
     setReassignModal(false);
     setVisible(false);
-    seteditvisible(false);
   };
 
   //edit drawer
@@ -280,7 +279,6 @@ const StudentsBatchList: React.FC = () => {
               setTmpData(entity);
               showDrawerEdit();
               setVisibleEdit(true);
-              seteditvisible(true);
               setstudentManageredit(true);
             }}
           >
