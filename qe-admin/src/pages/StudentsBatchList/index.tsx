@@ -65,7 +65,6 @@ const StudentsBatchList: React.FC = () => {
   const onClose = () => {
     setReassignModal(false);
     setVisible(false);
-    seteditvisible(false);
   };
 
   //edit drawer
@@ -280,7 +279,6 @@ const StudentsBatchList: React.FC = () => {
               setTmpData(entity);
               showDrawerEdit();
               setVisibleEdit(true);
-              seteditvisible(true);
               setstudentManageredit(true);
             }}
           >
@@ -406,7 +404,6 @@ const StudentsBatchList: React.FC = () => {
                 <Tabsedit
                   tmpData={tmpData}
                   studentManageradd={studentManageradd}
-                  onChange={handleFormChange}
                 />
               )}
             </Drawer>
@@ -456,7 +453,6 @@ const StudentsBatchList: React.FC = () => {
             <Tabsedit
               tmpData={tmpData}
               studentManageredit={studentManageredit}
-              onChange={handleFormChange}
             />
           ) : (
             <HistoryTable tmpData={tmpData} />

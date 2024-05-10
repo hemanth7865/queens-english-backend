@@ -6,13 +6,13 @@ import { handleAPIResponse } from "@/services/ant-design-pro/helpers";
 
 
 export type TabseditProps = {
-  tmpData: {};
-  salesAlert: '';
-  studentManageredit: '';
-  studentManageradd: '';
-  welcomepage: '';
-  onboardpage: '',
-  startclasslaterpage: '',
+  tmpData: any;
+  salesAlert?: '';
+  studentManageredit?: boolean;
+  studentManageradd?: boolean;
+  welcomepage?: '';
+  onboardpage?: '',
+  startclasslaterpage?: '',
 };
 
 const Tabsedit: React.FC<TabseditProps> = (props) => {
@@ -62,7 +62,7 @@ const Tabsedit: React.FC<TabseditProps> = (props) => {
   return (
     <div>
       <Spin spinning={isLoading}>
-        <Studentdetailsedit tempData={tmpData} submit={submit} updateTempData={updateTempData} salesAlert={props.salesAlert} studentManageredit={props.studentManageredit} studentManageradd={props.studentManageradd} welcomepage={props.welcomepage} onboardpage={props.onboardpage} startclasslaterpage={props.startclasslaterpage} />
+        <Studentdetailsedit tempData={tmpData} submit={submit} updateTempData={updateTempData} salesAlert={props?.salesAlert || ''} studentManageredit={props?.studentManageredit || false} studentManageradd={props?.studentManageradd || false} welcomepage={props?.welcomepage || ''} onboardpage={props?.onboardpage || ''} startclasslaterpage={props?.startclasslaterpage || ''} />
       </Spin>
     </div>
   );
