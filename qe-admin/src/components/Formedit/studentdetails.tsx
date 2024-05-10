@@ -91,8 +91,8 @@ export type StudentdetailseditProps = {
   submit: (data: any) => any;
   updateTempData: (data: any) => any;
   salesAlert: '';
-  studentManageredit: '';
-  studentManageradd: '';
+  studentManageredit: boolean;
+  studentManageradd: boolean;
   welcomepage: '';
   onboardpage: '',
   startclasslaterpage: '',

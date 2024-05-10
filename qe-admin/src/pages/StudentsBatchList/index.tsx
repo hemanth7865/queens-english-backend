@@ -406,7 +406,6 @@ const StudentsBatchList: React.FC = () => {
                 <Tabsedit
                   tmpData={tmpData}
                   studentManageradd={studentManageradd}
-                  onChange={handleFormChange}
                 />
               )}
             </Drawer>
@@ -456,7 +455,6 @@ const StudentsBatchList: React.FC = () => {
             <Tabsedit
               tmpData={tmpData}
               studentManageredit={studentManageredit}
-              onChange={handleFormChange}
             />
           ) : (
             <HistoryTable tmpData={tmpData} />
