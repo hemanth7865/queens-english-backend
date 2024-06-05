@@ -241,7 +241,6 @@ export async function teacherRemove(id, options?: { [key: string]: any }) {
 
 // ############################ Employee API ############################# //
 
-
 export async function getAllEmployee(
   params: {
     current?: number;
@@ -258,8 +257,6 @@ export async function getAllEmployee(
   });
 }
 
-
-
 export async function addNewEmployee(options?: { [key: string]: any }) {
   return request<any>("/be/employees", {
     method: "POST",
@@ -274,8 +271,6 @@ export async function updateExistEmployee(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
-
-
 
 //student get all method
 export async function studentBatches(
@@ -1361,7 +1356,7 @@ export async function getAssessmentQuestions(
   params?: {
     pageSize?: number;
     current?: number;
-    keyword?: string;
+    [key: string]: any;
   },
   sort?: {
     field?: string;
@@ -1369,13 +1364,16 @@ export async function getAssessmentQuestions(
   },
   filter?: { [key: string]: any },
   options?: { [key: string]: any }
-) {
-  return request<{ data: API.AssessmentQuestionList;[key: string]: any }>(
+): Promise<{ data: API.AssessmentQuestionList; [key: string]: any }> {
+  const isFreeSpeech =
+    typeof params?.isFreeSpeech === "boolean" ? params.isFreeSpeech : false;
+  return request<{ data: API.AssessmentQuestionList; [key: string]: any }>(
     `/be/azure?url=api/assessmentQuestions`,
     {
       method: "GET",
       params: {
         ...params,
+        isFreeSpeech,
       },
       ...(sort || {}),
       ...(filter || {}),
@@ -1397,10 +1395,20 @@ export async function getAzureApiConfigs() {
   });
 }
 
-export async function getAssessments() {
-  return request<API.AssessmentList>(`/be/azure?url=api/assessments`, {
-    method: "GET",
-  });
+export async function getAssessments(params?: {
+  pageSize?: number;
+  current?: number;
+  [key: string]: any;
+}): Promise<{ data: API.AssessmentList; [key: string]: any }> {
+  return request<{ data: API.AssessmentList; [key: string]: any }>(
+    `/be/azure?url=api/assessments`,
+    {
+      method: "GET",
+      params: {
+        ...params,
+      },
+    }
+  );
 }
 
 export async function updateAssessmentContent(options?: {
@@ -1445,6 +1453,26 @@ export async function updateCSVUploadRecord(data) {
     method: "PUT",
     data,
   });
-  
-  
+}
+
+export async function createOrUpdateFreeSpeechAssessment(
+  data: {
+    [key: string]: any;
+  },
+  update?: boolean
+) {
+  if (!update && data?.id) {
+    throw new Error("id is not required for create");
+  }
+
+  if (!data?.id && update) {
+    throw new Error("id is required for update");
+  }
+  return request<any>(`/be/azure?url=api/assessments`, {
+    method: update ? "PUT" : "POST",
+    data: {
+      ...data,
+      isFreeSpeech: true,
+    },
+  });
 }

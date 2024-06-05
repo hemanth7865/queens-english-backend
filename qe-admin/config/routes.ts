@@ -101,6 +101,11 @@
             path: "/manage/assessmentManager/assessmentContent",
             component: "./Assessment Content",
           },
+          {
+            name: "Free Speech Assessment",
+            path: "/manage/assessmentManager/freeSpeechAssessment",
+            component: "./FreeSpeechAssessment",
+          },
         ],
       },
       {

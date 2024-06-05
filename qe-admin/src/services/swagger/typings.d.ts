@@ -8,7 +8,7 @@ declare namespace API {
     quantity?: number;
     shipDate?: string;
     /** Order Status */
-    status?: 'placed' | 'approved' | 'delivered';
+    status?: "placed" | "approved" | "delivered";
     complete?: boolean;
   };
 
@@ -41,7 +41,7 @@ declare namespace API {
     photoUrls: string[];
     tags?: Tag[];
     /** pet status in the store */
-    status?: 'available' | 'pending' | 'sold';
+    status?: "available" | "pending" | "sold";
   };
 
   type ApiResponse = {
@@ -56,46 +56,49 @@ declare namespace API {
     displayName: string;
     lessonDue: number;
     active: boolean;
+    isFreeSpeech?: boolean;
+    date?: string;
   };
 
   type AssessmentList = AssessmentItem[];
 
   type AssessmentQuestion = {
-    setNumber: string
-    assessmentId: string
+    setNumber?: string;
+    assessmentId: string;
     assessmentQuestion: {
-      number: number
-      question: string
-      instruction: string
-      answer: string
-      type: string
-      imageUrl: string
-    }[]
-    id: string
-    name: string
-    displayName: string
-    lessonNumber: string
-    lessonId: string
-    active?: boolean
-  }
+      number: number;
+      question: string;
+      instruction?: string;
+      answer?: string;
+      type?: string;
+      imageUrl?: string;
+    }[];
+    id: string;
+    name: string;
+    displayName: string;
+    lessonNumber?: string;
+    lessonId?: string;
+    active: boolean;
+    isFreeSpeech?: boolean;
+    date?: string;
+  };
 
-  type AssessmentQuestionList = AssessmentQuestion[]
+  type AssessmentQuestionList = AssessmentQuestion[];
 
   export interface Lesson {
-    id: string
-    number: string
-    type: string
+    id: string;
+    number: string;
+    type: string;
     practiceProblems: {
-      name: string
-      imageUrl: string
-      questionSoundUrl: string
-      expectedAnswer: string
-      type: string
-      answerSoundUrl?: string
-    }[]
-    exercises: any[]
-    numberOfNewWords: number
-    version: string
-  }  
-   
+      name: string;
+      imageUrl: string;
+      questionSoundUrl: string;
+      expectedAnswer: string;
+      type: string;
+      answerSoundUrl?: string;
+    }[];
+    exercises: any[];
+    numberOfNewWords: number;
+    version: string;
+  }
 }

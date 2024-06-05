@@ -178,8 +178,9 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   async function setToCreate(data: any) {
     try {
       setIsLoading(true);
-      const existingSets = await getAssessmentQuestions();
-      const sets = existingSets.data.filter(({ assessmentId }) => assessmentId === data.value);
+      const { data: sets } = await getAssessmentQuestions({
+        assessmentId: data.value,
+      });
       setAssessment({ ...assessment, setNumber: `0${sets.length + 1}` });
       form.setFieldsValue({ setNumber: `0${sets.length + 1}` });
       await getAssessmentDetails(data, `0${sets.length + 1}`);
@@ -215,7 +216,7 @@ const AssessmentContentForm: React.FC<AssessmentContentFormProps> = (props) => {
   const [assessments, setAssessments] = useState<API.AssessmentList>([]);
   const fetchAssessments = async () => {
     try {
-      const data = await getAssessments();
+      const { data } = await getAssessments({ isFreeSpeech: false })
       if (data) setAssessments(data);
     } catch (error) {
       console.log("API error", error);
