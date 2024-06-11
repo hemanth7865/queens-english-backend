@@ -888,4 +888,11 @@ export const Routes = [
     action: "updateEmployees",
     authenticate: true,
   },
+
+  {
+    method: "post",
+    route: "/syncStudentsFromCosmosToSQL",
+    controller: BatchController,
+    action: "syncStudentsFromCosmosToSQL",
+  },
 ];

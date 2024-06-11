@@ -1700,4 +1700,82 @@ export class BatchService {
     }
   }
 
+  // sync students from cosmos to SQL
+  async syncStudentsFromCosmosToSQLByBatchId(batchId: string) {
+    const classes = await this.classesRepository.findOne({ id: batchId });
+    const school = await this.schoolRepository.findOne({
+      id: classes.schoolId,
+    });
+
+    // get all students from cosmos
+    const cosomos_url = COSMOS_API.GET_ALL_STUDENTS_BY_BATCH_ID(batchId);
+
+    const { data } = await axios.get<
+      (User & { studentID?: string; classSection?: any })[]
+    >(cosomos_url);
+
+    for (let student of data) {
+      const stud = await this.studentRepository.findOne({ id: student.id });
+      const user = await this.userRepository.findOne({ id: student.id });
+
+      if (!stud) {
+        let newStudent = new Student();
+        newStudent.id = student.id;
+        newStudent.schoolId = school.id;
+        newStudent.studentID = student.studentID;
+        newStudent.studentName = student.firstName;
+        newStudent.batchCode = classes.batchNumber;
+        newStudent.classSection = student.classSection;
+        newStudent.studentName = student.firstName;
+        await this.studentRepository.save(newStudent);
+      }
+
+      if (!user) {
+        let newUser = new User();
+        newUser.id = student.id;
+        newUser.schoolId = school.id;
+        newUser.schoolCode = school.schoolCode;
+        newUser.firstName = student.firstName;
+        newUser.lastName = student.lastName;
+        newUser.email = student.email || "";
+        newUser.phoneNumber = student.phoneNumber || "";
+        newUser.type = "student";
+        newUser.offlineUser = student.offlineUser || 1;
+        newUser.status = student.status || "active";
+        await this.userRepository.save(newUser);
+      }
+
+      let existingRecord = await this.batchStudentRepository.findOne({
+        batchId: batchId,
+        studentId: student.id,
+      });
+
+      if (!existingRecord) {
+        let batchStud = new BatchStudent();
+        batchStud.type = "studentProfile";
+        batchStud.studentId = student.id;
+        batchStud.batchId = batchId;
+        batchStud.created_at = new Date();
+        batchStud.updated_at = new Date();
+        batchStud = await this.batchStudentRepository.save(batchStud);
+      }
+    }
+
+    return { success: true, data: data };
+  }
+
+
+  /**
+   * Synchronizes all students from Cosmos DB to SQL database.
+   * 
+   * @returns A promise that resolves to an object with a `success` property indicating the success of the synchronization.
+   */
+  async syncAllStudentsFromCosmosToSQL() {
+      const classes = await this.classesRepository.find();
+      for (let c of classes) {
+          await this.syncStudentsFromCosmosToSQLByBatchId(c.id);
+          await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 5 second before next batch to avoid rate limiting by CosmosDB
+      }
+      return { success: true };
+  }
 }

@@ -1390,7 +1390,7 @@ export async function getLesson(id?: string) {
 
 // Fetch azure api config data.
 export async function getAzureApiConfigs() {
-  return request<API.AssessmentList>(`/be/azure?url=api/config/`, {
+  return request<API.AssessmentList>(`/be/azure?url=api/config`, {
     method: "GET",
   });
 }

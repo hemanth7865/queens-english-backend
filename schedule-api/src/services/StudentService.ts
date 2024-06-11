@@ -176,7 +176,7 @@ export class StudentService {
       query_string = " where " + query_string;
     }
 
-    var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , " ", u.middleName, "  ", u.lastName) as name, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
+var finalQuery = `select SQL_CALC_FOUND_ROWS concat(u.firstName , " ", IFNULL(u.middleName, "-"), "  ", u.lastName) as name, u.userCode, u.isSibling, s.studentID, s.callStatus, u.firstName, 
     u.lastName, u.phoneNumber, u.gender, u.offlineUser, u.email, u.customerEmail, u.status as status, CONVERT_TZ(u.dob, @@session.time_zone, '+11:00') as dob, u.alternativeMobile,
     u.whatsapp, u.address, u.state, u.id  as teacherId , u.id as userId, u.id, u.id as cosmos_ref, u.type, s.classSection, s.password, s.classType, s.age,
     CONVERT_TZ(s.startDate, @@session.time_zone, '+11:00') as startDate, s.startLesson, s.pfirstName, s.plastName, s.course, s.comments,

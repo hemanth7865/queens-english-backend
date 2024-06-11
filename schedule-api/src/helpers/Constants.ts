@@ -91,6 +91,7 @@ export const COSMOS_API = {
     RESET_ACTIVE_LESSON: (id: string): string => `/api/classProfile/${id}/resetActiveLesson`,
     STUDENTS_CREATED_BY_TEACHER: `/api/user/studentsCreatedByTeacher`,
     GET_ALL_SCHOOL_BATCHES:(schoolId:string) => `api/teacher/get-all-class-profiles-by-school-id?schoolId=${schoolId}`,
+    GET_ALL_STUDENTS_BY_BATCH_ID:(batchId:string) => `api/user?classProfileId=${batchId}`,
 };
 
 export const TABLE_NAMES = {
