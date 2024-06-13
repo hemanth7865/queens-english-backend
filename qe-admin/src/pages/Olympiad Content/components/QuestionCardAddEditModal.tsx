@@ -62,6 +62,8 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
         (value) => {
             let options = questionRecord.options;
             let correctOption = questionRecord.correctOption;
+            let expectedAnswer = questionRecord.expectedAnswer;
+            let topic = questionRecord.topic;
             if (value === "MCQ" || value === "LISTENING") {
                 if (!options || options.length === 0) {
                     options = [
@@ -72,15 +74,28 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                     ];
                     correctOption = "a";
                 }
+                expectedAnswer = "";
+                topic = "";
             } else {
                 options = [];
                 correctOption = "";
             }
+
+            if (value === "SPEAKING") {
+                topic = ""
+            }
+
+            if (value === "GENERAL") {
+                expectedAnswer = ""
+            }
+
             setQuestionRecord((pre) => ({
                 ...pre,
                 type: value,
                 options,
                 correctOption,
+                expectedAnswer,
+                topic
             }));
         },
         [questionRecord]
@@ -217,95 +232,125 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                         />
                     </div>
                     {(questionRecord.type === "MCQ" ||
-                        questionRecord.type === "LISTENING") && (
-                            <div>
-                                <Typography.Title level={5}>Options</Typography.Title>
-                                <Space
-                                    direction="vertical"
-                                    style={{
-                                        rowGap: 10,
-                                        width: "100%",
-                                        paddingLeft: 10,
-                                        paddingRight: 10,
-                                    }}
-                                >
-                                    {questionRecord.options?.map((option, index) => (
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "flex-end",
-                                                justifyContent: "space-between",
-                                                columnGap: 10,
-                                            }}
-                                            key={option.option}
-                                        >
-                                            <div style={{ flex: 1 }}>
+                        questionRecord.type === "LISTENING") ? (
+                        <div>
+                            <Typography.Title level={5}>Options</Typography.Title>
+                            <Space
+                                direction="vertical"
+                                style={{
+                                    rowGap: 10,
+                                    width: "100%",
+                                    paddingLeft: 10,
+                                    paddingRight: 10,
+                                }}
+                            >
+                                {questionRecord.options?.map((option, index) => (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "flex-end",
+                                            justifyContent: "space-between",
+                                            columnGap: 10,
+                                        }}
+                                        key={option.option}
+                                    >
+                                        <div style={{ flex: 1 }}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "flex-end",
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <Typography.Title level={5}>
+                                                    Option {option.option}
+                                                </Typography.Title>
                                                 <div
                                                     style={{
                                                         display: "flex",
-                                                        alignItems: "flex-end",
-                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        justifyContent: "flex-end",
+                                                        columnGap: 10,
                                                     }}
                                                 >
-                                                    <Typography.Title level={5}>
-                                                        Option {option.option}
-                                                    </Typography.Title>
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "flex-end",
-                                                            columnGap: 10,
+                                                    <Text style={{ margin: 0, padding: 0 }}>
+                                                        Correct Answer :{" "}
+                                                    </Text>
+                                                    <Switch
+                                                        checked={
+                                                            questionRecord.correctOption === option.option
+                                                        }
+                                                        size="small"
+                                                        onChange={() => {
+                                                            setQuestionRecord((pre) => ({
+                                                                ...pre,
+                                                                correctOption: option.option,
+                                                            }));
                                                         }}
-                                                    >
-                                                        <Text style={{ margin: 0, padding: 0 }}>
-                                                            Correct Answer :{" "}
-                                                        </Text>
-                                                        <Switch
-                                                            checked={
-                                                                questionRecord.correctOption === option.option
-                                                            }
-                                                            size="small"
-                                                            onChange={() => {
-                                                                setQuestionRecord((pre) => ({
-                                                                    ...pre,
-                                                                    correctOption: option.option,
-                                                                }));
-                                                            }}
-                                                        />
-                                                    </div>
+                                                    />
                                                 </div>
-                                                <Input
-                                                    defaultValue={option.value}
-                                                    value={option.value}
-                                                    onChange={(e) => {
-                                                        const updatedOptions = questionRecord.options || [];
-                                                        updatedOptions[index].value = e.target.value;
-                                                        setQuestionRecord((pre) => ({
-                                                            ...pre,
-                                                            options: [...updatedOptions],
-                                                        }));
-                                                    }}
-                                                    placeholder="Option Value"
-                                                />
                                             </div>
-                                            <Button
-                                                type="primary"
-                                                shape="circle"
-                                                danger
-                                                icon={<DeleteFilled />}
-                                                onClick={() => {
-                                                    handleRemoveOption(option.option);
+                                            <Input
+                                                defaultValue={option.value}
+                                                value={option.value}
+                                                onChange={(e) => {
+                                                    const updatedOptions = questionRecord.options || [];
+                                                    updatedOptions[index].value = e.target.value;
+                                                    setQuestionRecord((pre) => ({
+                                                        ...pre,
+                                                        options: [...updatedOptions],
+                                                    }));
                                                 }}
+                                                placeholder="Option Value"
                                             />
                                         </div>
-                                    ))}
-                                    <Button type="primary" shape="round" onClick={handleAddOption}>
-                                        Add Option
-                                    </Button>
-                                </Space>
-                            </div>
-                        )}
+                                        <Button
+                                            type="primary"
+                                            shape="circle"
+                                            danger
+                                            icon={<DeleteFilled />}
+                                            onClick={() => {
+                                                handleRemoveOption(option.option);
+                                            }}
+                                        />
+                                    </div>
+                                ))}
+                                <Button type="primary" shape="round" onClick={handleAddOption}>
+                                    Add Option
+                                </Button>
+                            </Space>
+                        </div>
+                    ) : questionRecord.type === "SPEAKING" ? (
+                        <div>
+                            <Typography.Title level={5}>Expected Answer</Typography.Title>
+                            <Input
+                                defaultValue={questionRecord.expectedAnswer}
+                                value={questionRecord.expectedAnswer}
+                                onChange={(e) => {
+                                    setQuestionRecord((pre) => ({
+                                        ...pre,
+                                        expectedAnswer: e.target.value,
+                                    }));
+                                }}
+                                placeholder="Enter Expected Answer."
+                            />
+                        </div>
+                    ) : questionRecord.type === "GENERAL" ? (
+                        <div>
+                            <Typography.Title level={5}>Topic</Typography.Title>
+                            <Input
+                                defaultValue={questionRecord.topic}
+                                value={questionRecord.topic}
+                                onChange={(e) => {
+                                    setQuestionRecord((pre) => ({
+                                        ...pre,
+                                        topic: e.target.value,
+                                    }));
+                                }}
+                                placeholder="Enter Topic."
+                            />
+                        </div>
+                    ) : null}
                 </Space>
             </Spin>
         </Modal>

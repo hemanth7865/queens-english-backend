@@ -57,6 +57,18 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
                     })}
                 </div>
             )}
+            {question.type === "SPEAKING" && (
+                <div style={{ marginTop: 10 }}>
+                    <h3>Expected Answer: </h3>
+                    <p>{question.expectedAnswer}</p>
+                </div>
+            )}
+            {question.type === "GENERAL" && (
+                <div style={{ marginTop: 10 }}>
+                    <h3>Topic: </h3>
+                    <p>{question.topic}</p>
+                </div>
+            )}
         </Card>
     );
 };

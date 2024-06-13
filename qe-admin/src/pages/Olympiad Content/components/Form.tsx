@@ -187,7 +187,7 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
         </Spin>
       )}
       <Spin spinning={isLoading}>
-        <Space direction="horizontal" size={16} wrap>
+        <Space direction="horizontal" size={16} wrap align="start">
           {olympiadQuestion?.questions?.map((question) => <QuestionCard key={question.id} question={question} handleEdit={handleEditQuestion} />)}
         </Space>
       </Spin>
