@@ -44,8 +44,6 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
         setQuestionRecord(initialQuestionRecord);
     }, [selectedQuestion]);
 
-    console.log("questionRecord", questionRecord);
-
     const handleTypeChange = useCallback(
         (value) => {
             let options = questionRecord.options;
@@ -67,28 +65,62 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
         [questionRecord]
     );
 
-    const rearrangeOptions = (options: Option[]) => {
-        return options;
-    }
+    const rearrangeOptions = (
+        options: Option[]
+    ): { options: Option[]; updatedCurrentAnswer: string | null } => {
+        const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
+        options.sort((a, b) => a.option.localeCompare(b.option));
+
+        let updatedCurrentAnswer = null;
+
+        options.forEach((option, index) => {
+            if (option.option !== LETTERS[index]) {
+                if (option.option === questionRecord.correctOption) {
+                    updatedCurrentAnswer = LETTERS[index];
+                }
+                option.option = LETTERS[index];
+            }
+        });
+
+        return { options, updatedCurrentAnswer };
+    };
 
     const handleAddOption = useCallback(() => {
-        let updatedOptions = questionRecord.options || []
+        let updatedOptions = questionRecord.options || [];
         updatedOptions.push({
-            option: 'z',
-            value: ''
-        })
-        updatedOptions = rearrangeOptions(updatedOptions)
-        setQuestionRecord({ ...questionRecord, options: updatedOptions })
-    }, [questionRecord])
+            option: "f",
+            value: "",
+        });
+        const { options, updatedCurrentAnswer } = rearrangeOptions(updatedOptions);
+        setQuestionRecord({
+            ...questionRecord,
+            options: options,
+            correctOption: updatedCurrentAnswer
+                ? updatedCurrentAnswer
+                : questionRecord.correctOption,
+        });
+    }, [questionRecord]);
 
-    const handleRemoveOption = useCallback((option: string) => {
-        if (option === questionRecord.correctOption) {
-            questionRecord.correctOption = ""
-        }
-        let updatedOptions = questionRecord.options?.filter((curOp) => curOp.option !== option) || []
-        updatedOptions = rearrangeOptions(updatedOptions);
-        setQuestionRecord({ ...questionRecord, options: updatedOptions })
-    }, [questionRecord])
+    const handleRemoveOption = useCallback(
+        (option: string) => {
+            if (option === questionRecord.correctOption) {
+                questionRecord.correctOption = "";
+            }
+            let updatedOptions =
+                questionRecord.options?.filter((curOp) => curOp.option !== option) ||
+                [];
+            const { options, updatedCurrentAnswer } =
+                rearrangeOptions(updatedOptions);
+            setQuestionRecord({
+                ...questionRecord,
+                options: options,
+                correctOption: updatedCurrentAnswer
+                    ? updatedCurrentAnswer
+                    : questionRecord.correctOption,
+            });
+        },
+        [questionRecord]
+    );
 
     return (
         <Modal open={open} onCancel={onCancel}>
@@ -130,7 +162,14 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                             }}
                         >
                             {questionRecord.options?.map((option, index) => (
-                                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', columnGap: 10 }}>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                        justifyContent: "space-between",
+                                        columnGap: 10,
+                                    }}
+                                >
                                     <div style={{ flex: 1 }}>
                                         <div
                                             style={{
@@ -154,7 +193,9 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                                                     Correct Answer :{" "}
                                                 </Text>
                                                 <Switch
-                                                    checked={questionRecord.correctOption === option.option}
+                                                    checked={
+                                                        questionRecord.correctOption === option.option
+                                                    }
                                                     size="small"
                                                     onChange={() => {
                                                         setQuestionRecord((pre) => ({
@@ -179,12 +220,20 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                                             placeholder="Option Value"
                                         />
                                     </div>
-                                    <Button type="primary" shape="circle" danger icon={<DeleteFilled />} onClick={() => {
-                                        handleRemoveOption(option.option)
-                                    }} />
+                                    <Button
+                                        type="primary"
+                                        shape="circle"
+                                        danger
+                                        icon={<DeleteFilled />}
+                                        onClick={() => {
+                                            handleRemoveOption(option.option);
+                                        }}
+                                    />
                                 </div>
                             ))}
-                            <Button type="primary" shape="round" onClick={handleAddOption}>Add Option</Button>
+                            <Button type="primary" shape="round" onClick={handleAddOption}>
+                                Add Option
+                            </Button>
                         </Space>
                     </div>
                 )}
