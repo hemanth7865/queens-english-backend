@@ -37,9 +37,26 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
             style={{ width: 300 }}
         >
             <Tag color={color}>{question.type}</Tag>
-            <p>Card content</p>
-            <p>Card content</p>
-            <p>Card content</p>
+            {["LISTENING", "MCQ"].includes(question.type) && (
+                <div style={{ marginTop: 10 }}>
+                    <h3>Options: </h3>
+                    {question.options?.map((option) => {
+                        const isCorrectAnswer = option.option === question.correctOption;
+                        return (
+                            <h4
+                                key={option.option}
+                                style={{
+                                    margin: 0,
+                                    color: isCorrectAnswer ? "green" : "black",
+                                    fontWeight: isCorrectAnswer ? "bolder" : "normal",
+                                }}
+                            >
+                                {option.option}: {option.value}
+                            </h4>
+                        );
+                    })}
+                </div>
+            )}
         </Card>
     );
 };
