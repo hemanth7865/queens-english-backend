@@ -121,7 +121,7 @@ const OlympiadContentTable: React.FC = () => {
             </div>
           ]}
         />
-        <Drawer open={visible} onClose={() => { setVisible(false); setData(undefined); }} destroyOnClose width={1300} title="Add Olympiad Content">
+        <Drawer open={visible} onClose={() => { setVisible(false); setData(undefined); }} destroyOnClose width={1300} title={`${operation === "update" ? "Edit" : "Add"} Olympiad Content`}>
           <OlympiadContentForm olympiadData={data} operationType={operation} actionRef={actionRef} handleDrawerVisiblity={(visibility: boolean | ((prevState: boolean) => boolean)) => setVisible(visibility)} />
         </Drawer>
       </>

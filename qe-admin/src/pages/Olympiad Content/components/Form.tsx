@@ -1,7 +1,9 @@
-import { Button, Form, Spin } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Select, Space, Spin, Tag, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
-import { OlympiadContentFormType } from "../OlympiadUtils";
+import { GRADES, LEVELS, OlympiadContentFormType } from "../OlympiadUtils";
 import "./form.css";
+import QuestionCard from "./QuestionCard";
 
 export type OlympiadContentFormProps = {
   olympiadData: OlympiadContentFormType | undefined;
@@ -44,16 +46,96 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
     console.log("handleAddQuestionCard")
   }
 
+  const levelOptions = LEVELS
+    .map((level) => ({
+      label: `Level ${level}`,
+      value: level,
+      key: level,
+    }));
+
+  const gradeOptions = GRADES
+    .map((grade) => ({
+      label: `${grade}`,
+      value: grade,
+      key: grade,
+    }));
+
+  const handleChange = (key: string, value: string) => {
+    setOlympiadQuestion((question) => {
+      const newQuestion: any = { ...question }
+      newQuestion[key] = value
+      return newQuestion;
+    })
+  }
+
+  const defaultValues = () => {
+    form.setFieldsValue({
+      id: olympiadQuestion.id ?? "",
+      level: olympiadQuestion.level || null,
+      grade: olympiadQuestion.grade || null,
+    });
+  };
+
+  useEffect(() => {
+    defaultValues();
+  }, [olympiadQuestion]);
+
   return (
     <>
-      <Spin spinning={isLoading}>
-        <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px", backgroundColor: "black", color: "white" }} block shape="round">+ Add Question</Button>
-      </Spin>
-      <Spin spinning={isLoading}>
-        <Button type="primary" htmlType="submit" block shape="round" form="assessmentQuestionsForm" key="submit">
-          Submit
-        </Button>
-      </Spin>
+      <Form
+        form={form}
+        name="olympiadContentForm"
+        onFinish={onFinish}
+        autoComplete="off"
+        id="olympiadQuestionsForm"
+        layout="inline"
+        style={{ marginBottom: 10 }}
+      >
+        <Form.Item
+          label="Select Level"
+          name="level"
+          rules={[{ required: true, message: "Please select a Level!" }]}
+        >
+          <Select
+            placeholder="Select a level"
+            optionFilterProp="children"
+            options={levelOptions}
+            clearIcon
+            onChange={(value) => {
+              handleChange("level", value)
+            }}
+            disabled={operationType === "update"}
+            value={olympiadQuestion.level}
+            style={{ width: 200 }}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Select Grade"
+          name="grade"
+          rules={[{ required: true, message: "Please select a Grade!" }]}
+        >
+          <Select
+            placeholder="Select a grade"
+            optionFilterProp="children"
+            options={gradeOptions}
+            clearIcon
+            onChange={(value) => {
+              handleChange("grade", value)
+            }}
+            disabled={operationType === "update"}
+            value={olympiadQuestion.grade}
+            style={{ width: 200 }}
+          />
+        </Form.Item>
+      </Form>
+      {olympiadQuestion.level && olympiadQuestion.grade && (
+        <Spin spinning={isLoading}>
+          <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px" }} block shape="round">+ Add Question</Button>
+        </Spin>
+      )}
+      <Space direction="horizontal" size={16} wrap>
+        {olympiadQuestion?.questions?.map((question) => <QuestionCard question={question} />)}
+      </Space>
     </>
   );
 };
