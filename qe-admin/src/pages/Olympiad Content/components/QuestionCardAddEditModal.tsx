@@ -10,9 +10,16 @@ import {
     Typography,
 } from "antd";
 import { FC, useCallback, useEffect, useState } from "react";
-import { OlympiadContentFormType, OlympiadQuestionArray, Option, TYPES } from "../OlympiadUtils";
+import {
+    OlympiadContentFormType,
+    OlympiadQuestionArray,
+    Option,
+    TYPES,
+} from "../OlympiadUtils";
 import { DeleteFilled } from "@ant-design/icons";
 import { saveOlympiadQuestion } from "@/services/ant-design-pro/api";
+import { getStorageFileURL } from "@/services/ant-design-pro/helpers";
+import ImageUploader from "./ImageUploader";
 
 interface QuestionCardAddEditModalProps {
     open: boolean;
@@ -20,7 +27,7 @@ interface QuestionCardAddEditModalProps {
     selectedQuestion: OlympiadQuestionArray | null;
     selectedLevel: string;
     selectedGrade: string;
-    handleSuccess: (data: OlympiadContentFormType) => void
+    handleSuccess: (data: OlympiadContentFormType) => void;
 }
 
 const initialQuestionRecord: OlympiadQuestionArray = {
@@ -37,7 +44,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
     selectedQuestion,
     selectedGrade,
     selectedLevel,
-    handleSuccess
+    handleSuccess,
 }) => {
     const typeOptions = TYPES.map((type) => ({
         label: `${type}`,
@@ -49,6 +56,9 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
         initialQuestionRecord
     );
     const [loading, setLoading] = useState<boolean>(false);
+    const [imageURI, setImageURI] = useState<string | undefined>(
+        questionRecord?.image ? getStorageFileURL(questionRecord.image) : undefined
+    );
 
     useEffect(() => {
         if (selectedQuestion) {
@@ -57,6 +67,14 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
         }
         setQuestionRecord(initialQuestionRecord);
     }, [selectedQuestion]);
+
+    useEffect(() => {
+        if (questionRecord.image) {
+            setImageURI(getStorageFileURL(questionRecord.image));
+        } else {
+            setImageURI(undefined);
+        }
+    }, [questionRecord]);
 
     const handleTypeChange = useCallback(
         (value) => {
@@ -82,11 +100,11 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
             }
 
             if (value === "SPEAKING") {
-                topic = ""
+                topic = "";
             }
 
             if (value === "GENERAL") {
-                expectedAnswer = ""
+                expectedAnswer = "";
             }
 
             setQuestionRecord((pre) => ({
@@ -95,7 +113,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                 options,
                 correctOption,
                 expectedAnswer,
-                topic
+                topic,
             }));
         },
         [questionRecord]
@@ -176,20 +194,25 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
             const dataToShare = {
                 grade: selectedGrade,
                 level: selectedLevel,
-                questionRecord: questionRecord
-            }
-            const response = await saveOlympiadQuestion(dataToShare)
-            console.log("response", response)
+                questionRecord: questionRecord,
+            };
+            const response = await saveOlympiadQuestion(dataToShare);
+            console.log("response", response);
             if (response?.error) {
-                throw new Error(response?.msg)
+                throw new Error(response?.msg);
             }
             if (!response.id) {
-                throw new Error("Something went wrong, couldn't found the id of the record.")
+                throw new Error(
+                    "Something went wrong, couldn't found the id of the record."
+                );
             }
-            handleSuccess(response)
-            openNotificationWithIcon("success", "Question Added / Updated Successfully.");
+            handleSuccess(response);
+            openNotificationWithIcon(
+                "success",
+                "Question Added / Updated Successfully."
+            );
         } catch (error: any) {
-            const errorMessage = error?.message || "Something went wrong."
+            const errorMessage = error?.message || "Something went wrong.";
             openNotificationWithIcon("error", errorMessage);
         } finally {
             setLoading(false);
@@ -221,6 +244,26 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                             placeholder="Enter Question"
                         />
                     </div>
+                    <ImageUploader
+                        imageURI={imageURI}
+                        setImageURI={(data) => setImageURI(data)}
+                        data={{
+                            grade: selectedGrade,
+                            level: selectedLevel,
+                        }}
+                        handleContentChange={(data) => {
+                            console.log("data ====>>", data);
+
+                            if (data?.imageUrl) {
+                                setQuestionRecord((pre) => ({ ...pre, image: data.imageUrl }));
+                            } else {
+                                setQuestionRecord((pre) => ({ ...pre, image: "" }));
+                            }
+                        }}
+                        setParentLoading={(loading) => {
+                            setLoading(loading);
+                        }}
+                    />
                     <div>
                         <Typography.Title level={5}>Type</Typography.Title>
                         <Select
@@ -231,8 +274,8 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                             onChange={handleTypeChange}
                         />
                     </div>
-                    {(questionRecord.type === "MCQ" ||
-                        questionRecord.type === "LISTENING") ? (
+                    {questionRecord.type === "MCQ" ||
+                        questionRecord.type === "LISTENING" ? (
                         <div>
                             <Typography.Title level={5}>Options</Typography.Title>
                             <Space

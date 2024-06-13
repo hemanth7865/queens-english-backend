@@ -2,6 +2,7 @@ import { Button, Card, Tag, Tooltip } from "antd";
 import { FC } from "react";
 import { OlympiadQuestionArray } from "../OlympiadUtils";
 import { EditOutlined } from "@ant-design/icons";
+import { getStorageFileURL } from "@/services/ant-design-pro/helpers";
 
 interface QuestionCardProps {
     question: OlympiadQuestionArray;
@@ -35,6 +36,19 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
                 </Tooltip>
             }
             style={{ width: 300 }}
+            cover={
+                <>
+                    {question?.image && (
+                        <div className="image">
+                            <img
+                                src={getStorageFileURL(question.image)}
+                                alt="question-image"
+                                className="image_image"
+                            />
+                        </div>
+                    )}
+                </>
+            }
         >
             <Tag color={color}>{question.type}</Tag>
             {["LISTENING", "MCQ"].includes(question.type) && (

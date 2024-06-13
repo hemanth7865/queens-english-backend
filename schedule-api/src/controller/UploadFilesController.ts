@@ -15,7 +15,7 @@ export class UploadFilesController {
                     request.files.images = [request.files.images];
                 }
                 for (let image of request.files.images) {
-                    const fileName = query.type === "assessment-question-image" ? query.name : uuid() + image.name
+                    const fileName = query.type === "assessment-question-image" ? query.name : uuid() + '__' + image.name
                     const size = image.data.byteLength;
                     const blobContainerClient = await getBlobClient(containerPath);
                     const blockBlobClient = blobContainerClient.getBlockBlobClient(fileName);
