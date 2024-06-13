@@ -1,7 +1,12 @@
 import { getOlympiadQuestions } from "@/services/ant-design-pro/api";
 import { Button, Form, Select, Space, Spin } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
-import { GRADES, LEVELS, OlympiadContentFormType, OlympiadQuestionArray } from "../OlympiadUtils";
+import {
+  GRADES,
+  LEVELS,
+  OlympiadContentFormType,
+  OlympiadQuestionArray,
+} from "../OlympiadUtils";
 import "./form.css";
 import QuestionCard from "./QuestionCard";
 import QuestionCardAddEditModal from "./QuestionCardAddEditModal";
@@ -17,85 +22,87 @@ const initialOlympiadQuestion: OlympiadContentFormType = {
   grade: "",
   id: "",
   level: "",
-  questions: []
-}
+  questions: [],
+};
 
 const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
   olympiadData,
-  operationType
+  operationType,
 }) => {
   const [form] = Form.useForm();
-  const [olympiadQuestion, setOlympiadQuestion] = useState<OlympiadContentFormType>(initialOlympiadQuestion);
+  const [olympiadQuestion, setOlympiadQuestion] =
+    useState<OlympiadContentFormType>(initialOlympiadQuestion);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<OlympiadQuestionArray | null>(null);
+  const [selectedQuestion, setSelectedQuestion] =
+    useState<OlympiadQuestionArray | null>(null);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (operationType === "create") {
       setOlympiadQuestion(initialOlympiadQuestion);
-      setSelectedLevel(null)
-      setSelectedGrade(null)
+      setSelectedLevel(null);
+      setSelectedGrade(null);
       return;
     }
     if (olympiadData) {
-      setOlympiadQuestion(olympiadData)
-      setSelectedLevel(olympiadData.level)
-      setSelectedGrade(olympiadData.grade)
+      setOlympiadQuestion(olympiadData);
+      setSelectedLevel(olympiadData.level);
+      setSelectedGrade(olympiadData.grade);
       return;
     }
-    setOlympiadQuestion(initialOlympiadQuestion)
-    setSelectedLevel(null)
-    setSelectedGrade(null)
-  }, [olympiadData, operationType])
+    setOlympiadQuestion(initialOlympiadQuestion);
+    setSelectedLevel(null);
+    setSelectedGrade(null);
+  }, [olympiadData, operationType]);
 
   const onFinish = () => {
-    console.log("FINISHED")
-  }
+    console.log("FINISHED");
+  };
   const handleAddQuestion = () => {
-    console.log("handleAddQuestion")
-    setShowModal(true)
-    setSelectedQuestion(null)
-  }
+    setShowModal(true);
+    setSelectedQuestion(null);
+  };
   const handleEditQuestion = (question: OlympiadQuestionArray) => {
-    console.log("handleEditQuestion")
-    setShowModal(true)
-    setSelectedQuestion(question)
-  }
+    setShowModal(true);
+    setSelectedQuestion(question);
+  };
   const handleCancel = () => {
-    setShowModal(false)
-    setSelectedQuestion(null)
-  }
+    setShowModal(false);
+    setSelectedQuestion(null);
+  };
   const handleSuccess = (data: OlympiadContentFormType) => {
-    handleCancel()
-    setOlympiadQuestion(data)
-  }
+    handleCancel();
+    setOlympiadQuestion(data);
+  };
 
-  const levelOptions = LEVELS
-    .map((level) => ({
-      label: `Level ${level}`,
-      value: level,
-      key: level,
-    }));
+  useEffect(() => {
+    setCount((count) => count + 1);
+  }, [showModal]);
 
-  const gradeOptions = GRADES
-    .map((grade) => ({
-      label: `${grade}`,
-      value: grade,
-      key: grade,
-    }));
+  const levelOptions = LEVELS.map((level) => ({
+    label: `Level ${level}`,
+    value: level,
+    key: level,
+  }));
+
+  const gradeOptions = GRADES.map((grade) => ({
+    label: `${grade}`,
+    value: grade,
+    key: grade,
+  }));
 
   const handleChange = (key: string, value: string) => {
     if (key === "level") {
-      setSelectedLevel(value)
+      setSelectedLevel(value);
     }
     if (key === "grade") {
-      setSelectedGrade(value)
+      setSelectedGrade(value);
     }
-  }
+  };
 
   const defaultValues = () => {
     form.setFieldsValue({
@@ -112,26 +119,24 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
   const handleFetchExistingOlympiadQuestion = useCallback(async () => {
     if (!selectedGrade || !selectedLevel) return;
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const { data } = await getOlympiadQuestions({
         level: selectedLevel,
-        grade: selectedGrade
-      })
-      const existingRecord = data?.[0]
+        grade: selectedGrade,
+      });
+      const existingRecord = data?.[0];
       if (existingRecord) {
-        setOlympiadQuestion(existingRecord)
+        setOlympiadQuestion(existingRecord);
       }
     } catch (error) {
-
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [selectedGrade, selectedLevel])
+  }, [selectedGrade, selectedLevel]);
 
   useEffect(() => {
-    handleFetchExistingOlympiadQuestion()
-  }, [handleFetchExistingOlympiadQuestion])
-
+    handleFetchExistingOlympiadQuestion();
+  }, [handleFetchExistingOlympiadQuestion]);
 
   return (
     <>
@@ -155,7 +160,7 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
             options={levelOptions}
             clearIcon
             onChange={(value) => {
-              handleChange("level", value)
+              handleChange("level", value);
             }}
             disabled={operationType === "update"}
             value={selectedLevel}
@@ -173,7 +178,7 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
             options={gradeOptions}
             clearIcon
             onChange={(value) => {
-              handleChange("grade", value)
+              handleChange("grade", value);
             }}
             disabled={operationType === "update"}
             value={selectedGrade}
@@ -183,17 +188,37 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
       </Form>
       {selectedLevel && selectedGrade && (
         <Spin spinning={isLoading}>
-          <Button onClick={handleAddQuestion} style={{ marginBottom: "8px" }} block shape="round">+ Add Question</Button>
+          <Button
+            onClick={handleAddQuestion}
+            style={{ marginBottom: "8px" }}
+            block
+            shape="round"
+          >
+            + Add Question
+          </Button>
         </Spin>
       )}
       <Spin spinning={isLoading}>
         <Space direction="horizontal" size={16} wrap align="start">
-          {olympiadQuestion?.questions?.map((question) => <QuestionCard key={question.id} question={question} handleEdit={handleEditQuestion} />)}
+          {olympiadQuestion?.questions?.map((question) => (
+            <QuestionCard
+              key={question.id}
+              question={question}
+              handleEdit={handleEditQuestion}
+            />
+          ))}
         </Space>
       </Spin>
       {selectedGrade && selectedLevel && (
-        <QuestionCardAddEditModal open={showModal} onCancel={handleCancel} selectedQuestion={selectedQuestion} selectedLevel={selectedLevel}
-          selectedGrade={selectedGrade} handleSuccess={handleSuccess} />
+        <QuestionCardAddEditModal
+          key={count}
+          open={showModal}
+          onCancel={handleCancel}
+          selectedQuestion={selectedQuestion}
+          selectedLevel={selectedLevel}
+          selectedGrade={selectedGrade}
+          handleSuccess={handleSuccess}
+        />
       )}
     </>
   );

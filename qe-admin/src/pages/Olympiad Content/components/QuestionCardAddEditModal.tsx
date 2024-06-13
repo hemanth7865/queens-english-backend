@@ -90,7 +90,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                             value: "",
                         },
                     ];
-                    correctOption = "a";
+                    correctOption = "";
                 }
                 expectedAnswer = "";
                 topic = "";
@@ -197,7 +197,6 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                 questionRecord: questionRecord,
             };
             const response = await saveOlympiadQuestion(dataToShare);
-            console.log("response", response);
             if (response?.error) {
                 throw new Error(response?.msg);
             }
@@ -252,8 +251,6 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                             level: selectedLevel,
                         }}
                         handleContentChange={(data) => {
-                            console.log("data ====>>", data);
-
                             if (data?.imageUrl) {
                                 setQuestionRecord((pre) => ({ ...pre, image: data.imageUrl }));
                             } else {
