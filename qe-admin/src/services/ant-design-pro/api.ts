@@ -2,6 +2,10 @@
 // @ts-nocheck
 import { request } from "umi";
 import { getStorageFileURL } from "./helpers";
+import {
+  OlympiadContentFormType,
+  OlympiadQuestionArray,
+} from "@/pages/Olympiad Content/OlympiadUtils";
 
 const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
@@ -1403,6 +1407,25 @@ export async function getOlympiadQuestions(
       ...(sort || {}),
       ...(filter || {}),
       ...(options || {}),
+    }
+  );
+}
+
+type ErrorType = {
+  error: boolean;
+  msg: string;
+};
+
+export async function saveOlympiadQuestion(data: {
+  grade: string;
+  level: string;
+  questionRecord: OlympiadQuestionArray;
+}): Promise<OlympiadContentFormType & ErrorType> {
+  return request<OlympiadContentFormType & ErrorType>(
+    `/be/azure?url=api/olympiadQuestions`,
+    {
+      method: "POST",
+      data,
     }
   );
 }

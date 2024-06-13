@@ -69,6 +69,10 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
     setShowModal(false)
     setSelectedQuestion(null)
   }
+  const handleSuccess = (data: OlympiadContentFormType) => {
+    handleCancel()
+    setOlympiadQuestion(data)
+  }
 
   const levelOptions = LEVELS
     .map((level) => ({
@@ -189,7 +193,7 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
       </Spin>
       {selectedGrade && selectedLevel && (
         <QuestionCardAddEditModal open={showModal} onCancel={handleCancel} selectedQuestion={selectedQuestion} selectedLevel={selectedLevel}
-          selectedGrade={selectedGrade} />
+          selectedGrade={selectedGrade} handleSuccess={handleSuccess} />
       )}
     </>
   );
