@@ -1,6 +1,6 @@
-import { EditOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Select, Space, Spin, Tag, Tooltip } from "antd";
-import React, { useEffect, useState } from "react";
+import { getOlympiadQuestions } from "@/services/ant-design-pro/api";
+import { Button, Form, Select, Space, Spin } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
 import { GRADES, LEVELS, OlympiadContentFormType } from "../OlympiadUtils";
 import "./form.css";
 import QuestionCard from "./QuestionCard";
@@ -25,18 +25,26 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [olympiadQuestion, setOlympiadQuestion] = useState<OlympiadContentFormType>(initialOlympiadQuestion);
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (operationType === "create") {
       setOlympiadQuestion(initialOlympiadQuestion);
+      setSelectedLevel(null)
+      setSelectedGrade(null)
       return;
     }
     if (olympiadData) {
       setOlympiadQuestion(olympiadData)
+      setSelectedLevel(olympiadData.level)
+      setSelectedGrade(olympiadData.grade)
       return;
     }
     setOlympiadQuestion(initialOlympiadQuestion)
+    setSelectedLevel(null)
+    setSelectedGrade(null)
   }, [olympiadData, operationType])
 
   const onFinish = () => {
@@ -61,11 +69,12 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
     }));
 
   const handleChange = (key: string, value: string) => {
-    setOlympiadQuestion((question) => {
-      const newQuestion: any = { ...question }
-      newQuestion[key] = value
-      return newQuestion;
-    })
+    if (key === "level") {
+      setSelectedLevel(value)
+    }
+    if (key === "grade") {
+      setSelectedGrade(value)
+    }
   }
 
   const defaultValues = () => {
@@ -79,6 +88,30 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
   useEffect(() => {
     defaultValues();
   }, [olympiadQuestion]);
+
+  const handleFetchExistingOlympiadQuestion = useCallback(async () => {
+    if (!selectedGrade || !selectedLevel) return;
+    try {
+      setIsLoading(true)
+      const { data } = await getOlympiadQuestions({
+        level: selectedLevel,
+        grade: selectedGrade
+      })
+      const existingRecord = data?.[0]
+      if (existingRecord) {
+        setOlympiadQuestion(existingRecord)
+      }
+    } catch (error) {
+
+    } finally {
+      setIsLoading(false)
+    }
+  }, [selectedGrade, selectedLevel])
+
+  useEffect(() => {
+    handleFetchExistingOlympiadQuestion()
+  }, [handleFetchExistingOlympiadQuestion])
+
 
   return (
     <>
@@ -105,7 +138,7 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
               handleChange("level", value)
             }}
             disabled={operationType === "update"}
-            value={olympiadQuestion.level}
+            value={selectedLevel}
             style={{ width: 200 }}
           />
         </Form.Item>
@@ -123,19 +156,21 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
               handleChange("grade", value)
             }}
             disabled={operationType === "update"}
-            value={olympiadQuestion.grade}
+            value={selectedGrade}
             style={{ width: 200 }}
           />
         </Form.Item>
       </Form>
-      {olympiadQuestion.level && olympiadQuestion.grade && (
+      {selectedLevel && selectedGrade && (
         <Spin spinning={isLoading}>
           <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px" }} block shape="round">+ Add Question</Button>
         </Spin>
       )}
-      <Space direction="horizontal" size={16} wrap>
-        {olympiadQuestion?.questions?.map((question) => <QuestionCard question={question} />)}
-      </Space>
+      <Spin spinning={isLoading}>
+        <Space direction="horizontal" size={16} wrap>
+          {olympiadQuestion?.questions?.map((question) => <QuestionCard question={question} />)}
+        </Space>
+      </Spin>
     </>
   );
 };
