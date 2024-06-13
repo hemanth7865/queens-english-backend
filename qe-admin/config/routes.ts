@@ -109,6 +109,17 @@
         ],
       },
       {
+        name: "Olympiad Management",
+        path: "/manage/olympiadManager",
+        routes: [
+          {
+            name: "Olympiad Content",
+            path: "/manage/olympiadManager/olympiadContent",
+            component: "./Olympiad Content",
+          },
+        ],
+      },
+      {
         name: "Payment Management",
         path: "/manage/paymentDashboard",
         routes: [

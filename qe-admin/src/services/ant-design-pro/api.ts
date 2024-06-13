@@ -1382,6 +1382,31 @@ export async function getAssessmentQuestions(
   );
 }
 
+export async function getOlympiadQuestions(
+  params?: {
+    pageSize?: number;
+    current?: number;
+    [key: string]: any;
+  },
+  sort?: {
+    field?: string;
+    order?: number;
+  },
+  filter?: { [key: string]: any },
+  options?: { [key: string]: any }
+): Promise<{ data: API.OlympiadQuestionList; [key: string]: any }> {
+  return request<{ data: API.OlympiadQuestionList; [key: string]: any }>(
+    `/be/azure?url=api/olympiadQuestions`,
+    {
+      method: "GET",
+      params: params,
+      ...(sort || {}),
+      ...(filter || {}),
+      ...(options || {}),
+    }
+  );
+}
+
 export async function getLesson(id?: string) {
   return request<API.Lesson>(`/be/azure?url=api/lesson/${id}`, {
     method: "GET",
