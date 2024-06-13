@@ -41,3 +41,9 @@ export const GRADES = [
   "11",
   "12",
 ];
+export const TYPES: QuestionType[] = [
+  "MCQ",
+  "LISTENING",
+  "SPEAKING",
+  "GENERAL",
+];

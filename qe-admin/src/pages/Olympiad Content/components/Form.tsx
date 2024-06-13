@@ -1,9 +1,10 @@
 import { getOlympiadQuestions } from "@/services/ant-design-pro/api";
 import { Button, Form, Select, Space, Spin } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
-import { GRADES, LEVELS, OlympiadContentFormType } from "../OlympiadUtils";
+import { GRADES, LEVELS, OlympiadContentFormType, OlympiadQuestionArray } from "../OlympiadUtils";
 import "./form.css";
 import QuestionCard from "./QuestionCard";
+import QuestionCardAddEditModal from "./QuestionCardAddEditModal";
 
 export type OlympiadContentFormProps = {
   olympiadData: OlympiadContentFormType | undefined;
@@ -29,6 +30,10 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
   const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<OlympiadQuestionArray | null>(null);
+
   useEffect(() => {
     if (operationType === "create") {
       setOlympiadQuestion(initialOlympiadQuestion);
@@ -50,8 +55,19 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
   const onFinish = () => {
     console.log("FINISHED")
   }
-  const handleAddQuestionCard = () => {
-    console.log("handleAddQuestionCard")
+  const handleAddQuestion = () => {
+    console.log("handleAddQuestion")
+    setShowModal(true)
+    setSelectedQuestion(null)
+  }
+  const handleEditQuestion = (question: OlympiadQuestionArray) => {
+    console.log("handleEditQuestion")
+    setShowModal(true)
+    setSelectedQuestion(question)
+  }
+  const handleCancel = () => {
+    setShowModal(false)
+    setSelectedQuestion(null)
   }
 
   const levelOptions = LEVELS
@@ -163,14 +179,18 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
       </Form>
       {selectedLevel && selectedGrade && (
         <Spin spinning={isLoading}>
-          <Button onClick={handleAddQuestionCard} style={{ marginBottom: "8px" }} block shape="round">+ Add Question</Button>
+          <Button onClick={handleAddQuestion} style={{ marginBottom: "8px" }} block shape="round">+ Add Question</Button>
         </Spin>
       )}
       <Spin spinning={isLoading}>
         <Space direction="horizontal" size={16} wrap>
-          {olympiadQuestion?.questions?.map((question) => <QuestionCard question={question} />)}
+          {olympiadQuestion?.questions?.map((question) => <QuestionCard key={question.id} question={question} handleEdit={handleEditQuestion} />)}
         </Space>
       </Spin>
+      {selectedGrade && selectedLevel && (
+        <QuestionCardAddEditModal open={showModal} onCancel={handleCancel} selectedQuestion={selectedQuestion} selectedLevel={selectedLevel}
+          selectedGrade={selectedGrade} />
+      )}
     </>
   );
 };
