@@ -47,7 +47,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
     handleSuccess,
 }) => {
     const typeOptions = TYPES.map((type) => ({
-        label: `${type.replace('_', ' ')}`,
+        label: `${type.replace("_", " ")}`,
         value: type,
         key: type,
     }));
@@ -61,12 +61,12 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
     );
 
     useEffect(() => {
-        if (selectedQuestion) {
+        if (open && selectedQuestion) {
             setQuestionRecord(selectedQuestion);
             return;
         }
         setQuestionRecord(initialQuestionRecord);
-    }, [selectedQuestion]);
+    }, [selectedQuestion, open]);
 
     useEffect(() => {
         if (questionRecord.image) {

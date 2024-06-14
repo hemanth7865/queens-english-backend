@@ -1430,6 +1430,19 @@ export async function saveOlympiadQuestion(data: {
   );
 }
 
+export async function deleteOlympiadQuestion(data: {
+  id: string;
+  questionId: string;
+}): Promise<OlympiadContentFormType & ErrorType> {
+  return request<OlympiadContentFormType & ErrorType>(
+    `/be/azure?url=api/olympiadQuestions`,
+    {
+      method: "DELETE",
+      data,
+    }
+  );
+}
+
 export async function getLesson(id?: string) {
   return request<API.Lesson>(`/be/azure?url=api/lesson/${id}`, {
     method: "GET",

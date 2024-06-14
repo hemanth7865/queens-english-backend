@@ -10,6 +10,7 @@ import {
 import "./form.css";
 import QuestionCard from "./QuestionCard";
 import QuestionCardAddEditModal from "./QuestionCardAddEditModal";
+import QuestionDeleteModal from "./QuestionDeleteModal";
 
 export type OlympiadContentFormProps = {
   olympiadData: OlympiadContentFormType | undefined;
@@ -37,9 +38,9 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [selectedQuestion, setSelectedQuestion] =
     useState<OlympiadQuestionArray | null>(null);
-  const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (operationType === "create") {
@@ -70,18 +71,19 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
     setShowModal(true);
     setSelectedQuestion(question);
   };
+  const handleDelete = (question: OlympiadQuestionArray) => {
+    setShowDeleteModal(true);
+    setSelectedQuestion(question);
+  };
   const handleCancel = () => {
     setShowModal(false);
+    setShowDeleteModal(false);
     setSelectedQuestion(null);
   };
   const handleSuccess = (data: OlympiadContentFormType) => {
     handleCancel();
     setOlympiadQuestion(data);
   };
-
-  useEffect(() => {
-    setCount((count) => count + 1);
-  }, [showModal]);
 
   const levelOptions = LEVELS.map((level) => ({
     label: `Level ${level}`,
@@ -205,18 +207,27 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
               key={question.id}
               question={question}
               handleEdit={handleEditQuestion}
+              handleDelete={handleDelete}
             />
           ))}
         </Space>
       </Spin>
       {selectedGrade && selectedLevel && (
         <QuestionCardAddEditModal
-          key={count}
           open={showModal}
           onCancel={handleCancel}
           selectedQuestion={selectedQuestion}
           selectedLevel={selectedLevel}
           selectedGrade={selectedGrade}
+          handleSuccess={handleSuccess}
+        />
+      )}
+      {olympiadQuestion.id && (
+        <QuestionDeleteModal
+          open={showDeleteModal}
+          onCancel={handleCancel}
+          olympiadId={olympiadQuestion.id}
+          selectedQuestion={selectedQuestion}
           handleSuccess={handleSuccess}
         />
       )}

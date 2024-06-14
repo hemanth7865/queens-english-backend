@@ -1,15 +1,20 @@
 import { Button, Card, Tag, Tooltip } from "antd";
 import { FC } from "react";
 import { OlympiadQuestionArray } from "../OlympiadUtils";
-import { EditOutlined } from "@ant-design/icons";
+import { DeleteFilled, EditOutlined } from "@ant-design/icons";
 import { getStorageFileURL } from "@/services/ant-design-pro/helpers";
 
 interface QuestionCardProps {
     question: OlympiadQuestionArray;
     handleEdit: (question: OlympiadQuestionArray) => void;
+    handleDelete: (question: OlympiadQuestionArray) => void;
 }
 
-const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
+const QuestionCard: FC<QuestionCardProps> = ({
+    question,
+    handleEdit,
+    handleDelete,
+}) => {
     const color =
         question.type === "MCQ"
             ? "magenta"
@@ -24,16 +29,30 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
             size="small"
             title={question.question}
             extra={
-                <Tooltip title="edit">
-                    <Button
-                        onClick={() => {
-                            handleEdit(question);
-                        }}
-                        type="primary"
-                        shape="circle"
-                        icon={<EditOutlined />}
-                    />
-                </Tooltip>
+                <>
+                    <Tooltip title="edit">
+                        <Button
+                            onClick={() => {
+                                handleEdit(question);
+                            }}
+                            type="primary"
+                            shape="circle"
+                            icon={<EditOutlined />}
+                        />
+                    </Tooltip>
+                    <Tooltip title="delete">
+                        <Button
+                            style={{ marginLeft: 5 }}
+                            onClick={() => {
+                                handleDelete(question);
+                            }}
+                            type="ghost"
+                            shape="circle"
+                            danger
+                            icon={<DeleteFilled />}
+                        />
+                    </Tooltip>
+                </>
             }
             style={{ width: 300 }}
             cover={
