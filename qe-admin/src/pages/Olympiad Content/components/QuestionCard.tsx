@@ -50,7 +50,7 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
                 </>
             }
         >
-            <Tag color={color}>{question.type?.replace("_", "")}</Tag>
+            <Tag color={color}>{question.type?.replace("_", " ")}</Tag>
             {question.type === "MCQ" && (
                 <div style={{ marginTop: 10 }}>
                     <h3>Options: </h3>

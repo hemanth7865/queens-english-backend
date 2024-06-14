@@ -47,7 +47,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
     handleSuccess,
 }) => {
     const typeOptions = TYPES.map((type) => ({
-        label: `${type}`,
+        label: `${type.replace('_', ' ')}`,
         value: type,
         key: type,
     }));
