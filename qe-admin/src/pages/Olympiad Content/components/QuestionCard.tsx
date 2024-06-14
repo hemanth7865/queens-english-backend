@@ -51,7 +51,7 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
             }
         >
             <Tag color={color}>{question.type}</Tag>
-            {["LISTENING", "MCQ"].includes(question.type) && (
+            {question.type === "MCQ" && (
                 <div style={{ marginTop: 10 }}>
                     <h3>Options: </h3>
                     {question.options?.map((option) => {

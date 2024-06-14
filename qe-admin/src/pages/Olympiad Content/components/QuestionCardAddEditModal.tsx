@@ -82,7 +82,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
             let correctOption = questionRecord.correctOption;
             let expectedAnswer = questionRecord.expectedAnswer;
             let topic = questionRecord.topic;
-            if (value === "MCQ" || value === "LISTENING") {
+            if (value === "MCQ") {
                 if (!options || options.length === 0) {
                     options = [
                         {
@@ -271,8 +271,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                             onChange={handleTypeChange}
                         />
                     </div>
-                    {questionRecord.type === "MCQ" ||
-                        questionRecord.type === "LISTENING" ? (
+                    {questionRecord.type === "MCQ" ? (
                         <div>
                             <Typography.Title level={5}>Options</Typography.Title>
                             <Space
