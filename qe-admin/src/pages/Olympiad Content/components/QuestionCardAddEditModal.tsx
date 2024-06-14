@@ -99,7 +99,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                 correctOption = "";
             }
 
-            if (value === "SPEAKING") {
+            if (value === "FREE_SPEECH") {
                 topic = "";
             }
 
@@ -359,7 +359,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
                                 </Button>
                             </Space>
                         </div>
-                    ) : questionRecord.type === "SPEAKING" ? (
+                    ) : questionRecord.type === "FREE_SPEECH" ? (
                         <div>
                             <Typography.Title level={5}>Expected Answer</Typography.Title>
                             <Input

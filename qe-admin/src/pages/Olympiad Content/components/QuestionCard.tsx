@@ -13,7 +13,7 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
     const color =
         question.type === "MCQ"
             ? "magenta"
-            : question.type === "SPEAKING"
+            : question.type === "FREE_SPEECH"
                 ? "red"
                 : question.type === "GENERAL"
                     ? "blue"
@@ -50,7 +50,7 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
                 </>
             }
         >
-            <Tag color={color}>{question.type}</Tag>
+            <Tag color={color}>{question.type?.replace("_", "")}</Tag>
             {question.type === "MCQ" && (
                 <div style={{ marginTop: 10 }}>
                     <h3>Options: </h3>
@@ -71,7 +71,7 @@ const QuestionCard: FC<QuestionCardProps> = ({ question, handleEdit }) => {
                     })}
                 </div>
             )}
-            {question.type === "SPEAKING" && (
+            {question.type === "FREE_SPEECH" && (
                 <div style={{ marginTop: 10 }}>
                     <h3>Expected Answer: </h3>
                     <p>{question.expectedAnswer}</p>

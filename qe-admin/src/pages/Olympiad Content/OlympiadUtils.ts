@@ -1,4 +1,4 @@
-export type QuestionType = "MCQ" | "SPEAKING" | "GENERAL";
+export type QuestionType = "MCQ" | "FREE_SPEECH" | "GENERAL";
 export type Option = {
   option: string;
   value: string;
@@ -41,8 +41,4 @@ export const GRADES = [
   "11",
   "12",
 ];
-export const TYPES: QuestionType[] = [
-  "MCQ",
-  "SPEAKING",
-  "GENERAL",
-];
+export const TYPES: QuestionType[] = ["MCQ", "FREE_SPEECH", "GENERAL"];
