@@ -226,6 +226,7 @@ const QuestionCardAddEditModal: FC<QuestionCardAddEditModalProps> = ({
             okButtonProps={{ loading }}
             okText={"Save Question"}
             onOk={handleSave}
+            closable={false}
         >
             <Spin spinning={loading}>
                 <Space direction="vertical" style={{ rowGap: 16, width: "100%" }}>

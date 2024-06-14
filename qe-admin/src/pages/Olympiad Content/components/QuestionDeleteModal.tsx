@@ -75,6 +75,7 @@ const QuestionDeleteModal: FC<QuestionCardAddEditModalProps> = ({
             okText={"Yes, delete this question."}
             cancelText={"No, I clicked this by mistake."}
             onOk={handleSave}
+            closable={false}
         >
             <Spin spinning={loading}>
                 <Space direction="vertical" style={{ rowGap: 16, width: "100%" }}>
