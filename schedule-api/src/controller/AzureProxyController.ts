@@ -20,8 +20,8 @@ export class AzureProxyController {
           return Promise.reject(error);
         });
     } catch (e) {
-      console.log(e);
-      return { error: true, msg: e.message };
+      // console.log(e);
+      return { error: true, msg: e?.response?.data || e?.message };
     }
   }
 

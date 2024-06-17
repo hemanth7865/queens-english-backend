@@ -2,6 +2,10 @@
 // @ts-nocheck
 import { request } from "umi";
 import { getStorageFileURL } from "./helpers";
+import {
+  OlympiadContentFormType,
+  OlympiadQuestionArray,
+} from "@/pages/Olympiad Content/OlympiadUtils";
 
 const API_URL = `/`; //process.env.API_URL;
 const API_KEY = ``; //process.env.API_KEY;
@@ -1378,6 +1382,63 @@ export async function getAssessmentQuestions(
       ...(sort || {}),
       ...(filter || {}),
       ...(options || {}),
+    }
+  );
+}
+
+export async function getOlympiadQuestions(
+  params?: {
+    pageSize?: number;
+    current?: number;
+    [key: string]: any;
+  },
+  sort?: {
+    field?: string;
+    order?: number;
+  },
+  filter?: { [key: string]: any },
+  options?: { [key: string]: any }
+): Promise<{ data: API.OlympiadQuestionList; [key: string]: any }> {
+  return request<{ data: API.OlympiadQuestionList; [key: string]: any }>(
+    `/be/azure?url=api/olympiadQuestions`,
+    {
+      method: "GET",
+      params: params,
+      ...(sort || {}),
+      ...(filter || {}),
+      ...(options || {}),
+    }
+  );
+}
+
+type ErrorType = {
+  error: boolean;
+  msg: string;
+};
+
+export async function saveOlympiadQuestion(data: {
+  grade: string;
+  level: string;
+  questionRecord: OlympiadQuestionArray;
+}): Promise<OlympiadContentFormType & ErrorType> {
+  return request<OlympiadContentFormType & ErrorType>(
+    `/be/azure?url=api/olympiadQuestions`,
+    {
+      method: "POST",
+      data,
+    }
+  );
+}
+
+export async function deleteOlympiadQuestion(data: {
+  id: string;
+  questionId: string;
+}): Promise<OlympiadContentFormType & ErrorType> {
+  return request<OlympiadContentFormType & ErrorType>(
+    `/be/azure?url=api/olympiadQuestions`,
+    {
+      method: "DELETE",
+      data,
     }
   );
 }
