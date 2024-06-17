@@ -60,9 +60,6 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
     setSelectedGrade(null);
   }, [olympiadData, operationType]);
 
-  const onFinish = () => {
-    console.log("FINISHED");
-  };
   const handleAddQuestion = () => {
     setShowModal(true);
     setSelectedQuestion(null);
@@ -145,7 +142,6 @@ const AssessmentContentForm: React.FC<OlympiadContentFormProps> = ({
       <Form
         form={form}
         name="olympiadContentForm"
-        onFinish={onFinish}
         autoComplete="off"
         id="olympiadQuestionsForm"
         layout="inline"

@@ -1,89 +1,95 @@
- .question-image {
-    width: 100%;
-        height: 100%;
-    }
-    
-    .image {
-        position: relative;
-        height: 130px;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-    }
-    
-    .image_img {
-        display: block;
-        height: 100%;
-    }
+.question-image {
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 130px;
+}
+
+.image_img {
+  display: block;
+  height: 100%;
+}
+
 .image_overlay {
-        position: absolute;
-            width: 150px;
-            height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-        opacity: 0;
-    transition: opacity 0.25s ease-in-out;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 100%;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
 }
 
 .image_overlay:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
 div.ant-upload {
-    width: 100%;
-        height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 2px;
-    position: relative;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
 }
 
 input[type="file"] {
-    display: none;
+  display: none;
 }
 
 .custom-file-upload {
-    border: 1px solid #ccc;
-    display: flex;
-    padding: 6px 12px;
-    cursor: pointer;
-    border-radius: 15px;
-    margin-top: 25px;
-    align-items: center;
-    justify-content: center;
-    border: dashed 1px #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 25px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border: dashed 1px #ccc;
+  border-radius: 15px;
+  cursor: pointer;
 }
 
 .custom-file-upload:hover {
-    color: dodgerblue;
-    border: dashed 1px dodgerblue;
+  color: dodgerblue;
+  border: dashed 1px dodgerblue;
 }
 
 .question-cards {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
+
 .question-cards .ant-card-head {
-    background: rgb(235, 234, 234);
-    border-radius: 15px 15px 0px 0px;
-    font-size: 1em;
-    padding: 0 8px;
-    min-height: 30px;
+  min-height: 30px;
+  padding: 0 8px;
+  font-size: 1em;
+  background: rgb(235, 234, 234);
+  border-radius: 15px 15px 0px 0px;
 }
-.question-cards .ant-card-head-title, .question-cards .ant-card-extra{
-    padding: 8px 0;
+
+.question-cards .ant-card-head-title,
+.question-cards .ant-card-extra {
+  padding: 8px 0;
 }
+
 .question-cards .ant-form-item {
-    margin-bottom: 1em;
+  margin-bottom: 1em;
 }
+
 .overlay-props {
-    margin: 15px;
+  margin: 15px;
 }
 
 .overlay-props:hover {
-    color: dodgerblue
+  color: dodgerblue;
 }

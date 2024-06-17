@@ -52,6 +52,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = (props: any) => {
     };
 
     const handleImageChange = async (e: any) => {
+        if (!e.target.files[0]) {
+            alert("Please select an image.");
+            return;
+        }
         if (e.target.files[0].size > 204800) {
             alert("Please upload an image of less than 200 KB");
             return;
