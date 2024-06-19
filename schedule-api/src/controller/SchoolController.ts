@@ -1,19 +1,18 @@
 import { NextFunction, Request, Response } from "express";
-import { getRepository, getManager, createQueryBuilder } from "typeorm";
-import { School } from "../entity/School";
-import { SRA } from "../entity/SRA";
-import { Classes } from "../entity/Classes";
+import { getRepository } from "typeorm";
+import { Admin } from "../entity/Admin";
+import { OPERATION } from "../helpers/Constants";
+import { NoteService } from "../services/NoteService";
 import { SchoolService } from "../services/SchoolService";
-import { Constants, OPERATION } from "../helpers/Constants";
-import { logger } from "./../Logger.js";
 import { UserService } from "../services/UserService";
+import { OperationTypes } from "../types";
+import { logger } from "./../Logger.js";
 
 export class SchoolController {
-    private schoolRepository = getRepository(School);
-    private sraRepository = getRepository(SRA);
-    private classesRepository = getRepository(Classes);
+    private adminRepository = getRepository(Admin);
     private schoolService = new SchoolService();
     private userService = new UserService();
+    private noteService = new NoteService();
 
     async listSchools(request: Request, response: Response, next: NextFunction) {
         var parameters = {
@@ -174,11 +173,37 @@ export class SchoolController {
       ) {
         let res;
         try {
+          if (!request?.user?.email)
+            throw new Error("User email not found in request.");
+          const userData = await this.adminRepository.findOne({
+            where: { email: request.user.email },
+          });
+          if (!userData) throw new Error("User not found.");
+    
           const schoolId = request.body.schoolId;
           if (!schoolId) {
             throw new Error("School Id Not Found");
           }
           res = await this.schoolService.deactivateSchool(schoolId);
+    
+          await this.noteService
+            .createNote({
+              schoolId: schoolId,
+              note: "",
+              message: `School Deactivated By ${userData.firstname || ""} ${
+                userData.lastname || ""
+              }.`,
+              userId: userData.id,
+              operation: OperationTypes.NONE,
+            })
+            .catch((error) => {
+              logger.error(
+                `Error creating note for deactivating school: ${JSON.stringify(
+                  error
+                )}`
+              );
+            });
+    
           return res;
         } catch (error) {
           logger.error(error);

@@ -10,7 +10,7 @@ export class NoteService {
   private notesRepository = getRepository(Notes);
   private eventsRepository = getRepository(Events);
 
-  NoteService() { }
+  NoteService() {}
 
   async createNote(data: {
     schoolId: string;
@@ -23,10 +23,7 @@ export class NoteService {
     try {
       const note = new Notes();
       note.id = uuidV4();
-      if (
-        data.operation === OperationTypes.changeActiveLesson &&
-        !data.eventId
-      ) {
+      if (!data.eventId) {
         const system_Generated_Event = await this.eventsRepository.findOne({
           where: { eventName: "System Generated" },
         });
