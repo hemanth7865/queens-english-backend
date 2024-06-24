@@ -362,7 +362,9 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                 {props?.tempData?.schoolStatus !== "Inactive" && (
                     <>
                         <Button type="primary" onClick={() => {
-                            inactivateSchool(props?.tempData?.id);
+                            if (confirm("Are you sure you want to deactivate this school?")) {
+                                inactivateSchool(props?.tempData?.id);
+                            }
                         }} style={{ marginBottom: 16, marginLeft: 20 }}>
                             Deactivate School
                         </Button>
