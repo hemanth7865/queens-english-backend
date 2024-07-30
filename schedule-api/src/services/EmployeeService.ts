@@ -2,16 +2,13 @@ import { getRepository } from "typeorm";
 import { Admin } from "../entity/Admin";
 import { User } from "../entity/User";
 import { TeacherService } from "./TeacherService";
-// import { Teacher as Teacher } from "../entity/Teacher";
-// import { StudentService } from "./StudentService";
+import { AzureProxyController } from "../controller/AzureProxyController";
 
 class EmployeeService {
   private usersRepository = getRepository(User);
 
   private employeeRepository = getRepository(Admin);
   private TeacherService = new TeacherService();
-  // private studentService = new StudentService();
-  // private teacherRepository = getRepository(Teacher);
 
   //   private studentAndTeacherRepository = getRepository(User);
   async getEmployee(request: any) {
@@ -98,6 +95,11 @@ class EmployeeService {
       newEmployee.status = request.status;
       newEmployee = await this.employeeRepository.save(newEmployee);
 
+      // trigger genrating Free speaking assessment credentials for all pms whoe don't have
+      await AzureProxyController.request("api/user/generateFSACredentials", {
+        method: "post",
+      });
+
       return {
         success: true,
         data: newEmployee,
@@ -140,8 +142,7 @@ class EmployeeService {
         const users = await this.usersRepository.find({
           where: { email: request.employeeData.email },
         });
-        
-        
+
         for (const user of users) {
           try {
             const teacherResp = await this.TeacherService.leadFullDetails(
@@ -173,18 +174,6 @@ class EmployeeService {
           }
         }
       }
-//       SELECT * FROM query_admin.user;-- 
-
-
-        // UPDATE user AS ut
-        // JOIN (
-        //     SELECT id
-        //     FROM user
-        //     WHERE email = 'manish.prajapati@theenglishquest.com'
-        // ) AS sub ON ut.id = sub.id
-        // SET ut.status = 'inactive';
-
-        // select * from user where email = "manish.prajapati@theenglishquest.com";
       return {
         success: true,
         data: updatedEmployee,

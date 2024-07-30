@@ -14,14 +14,14 @@ export class BatchController {
     private batchService = new BatchService();
 
     async createBatch(request: Request, response: Response, next: NextFunction) {
-        var batch;
         try {
             request.body.authUser = request.user;
-            batch = await this.batchService.createBatch(request.body);
+            const batch = await this.batchService.createBatch(request.body);
+            return { success: true, data: [batch], total: 1 };
         } catch (error) {
             console.log(error);
+            return { success: false, data: null, error: error?.message || "Something went wrong in batch creation" };
         }
-        return { success: true, data: [batch], total: 1 };
     }
 
     async reBatch(request: Request, response: Response, next: NextFunction) {
@@ -415,5 +415,25 @@ export class BatchController {
                     error?.message || "Some error occurred while updating the batch.",
             });
         }
+    }
+
+
+    async updateClassSections(
+        request: Request,
+        response: Response,
+        next: NextFunction
+    ) {
+        try {
+            const { id, classSections, db } = request.body;
+            if (!id || !classSections) {
+                response.status(400).send({ message: "Please provide batchId and classSections." });
+                return;
+            }
+            await this.batchService.updateClassSections(id, classSections, db);
+            response.status(200).send({ message: "Updated class sections successfully." });
+        } catch (error) {
+            response.status(500).send({ message: error.message });
+        }
+
     }
 }

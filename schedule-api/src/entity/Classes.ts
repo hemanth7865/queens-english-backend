@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn, Double, BaseEntity, OneToMany, PrimaryColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  OneToOne,
+  JoinColumn,
+  BaseEntity,
+  OneToMany,
+  PrimaryColumn,
+} from "typeorm";
 import { BatchAvailability } from "./BatchAvailability";
 import { BatchStudent } from "./BatchStudent";
 import { School } from "./School";
@@ -8,7 +16,7 @@ import { ZoomMeeting } from "./ZoomMeeting";
 @Entity("classes")
 export class Classes extends BaseEntity {
   name: string;
-  Classes() {}
+  Classes() { }
 
   @PrimaryColumn()
   id: string;
@@ -153,4 +161,7 @@ export class Classes extends BaseEntity {
 
   @Column({ nullable: true })
   schoolName: string;
+
+  @Column({ type: "json", nullable: true })
+  classSections: string[] | null;
 }

@@ -122,7 +122,7 @@ const BatchList: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<number>();
   const [selectedUseNewZoomLink, setUseNewZoomLink] = useState(0);
   const [selectedUseAutoAttendnace, setUseAutoAttendnace] = useState(getParam('useAutoAttendance') || 0);
-  const [selectedOfflineBatch, setOfflineBatch] = useState(getParam('offlineBatch') || 0);
+  const [selectedOfflineBatch, setOfflineBatch] = useState(parseInt(`${getParam('offlineBatch') || 0}`));
   const [followupVersion, setFollowupVersion] = useState("v2");
   const [isLoading, setIsLoading] = useState(false);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
@@ -1061,6 +1061,7 @@ const BatchList: React.FC = () => {
                                     { label: "Online Batch.", value: 0 },
                                   ]
                                 }
+                                disabled
                                 defaultValue={!createBatch ? prePop?.batchData?.classes?.offlineBatch : selectedOfflineBatch}
                               />
                             </Form.Item>

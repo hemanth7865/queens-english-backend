@@ -895,4 +895,11 @@ export const Routes = [
     controller: BatchController,
     action: "syncStudentsFromCosmosToSQL",
   },
+  {
+    method: "post",
+    route: "/updateClassSections",
+    controller: BatchController,
+    action: "updateClassSections",
+    apiKey: true,
+  }
 ];

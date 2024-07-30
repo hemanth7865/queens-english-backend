@@ -65,18 +65,18 @@ export class BatchService {
     return date;
   }
 
-  async logActiveLessonIdChangeEvent(existingBatch:any, updatedBatch:any, authUser?:{email:string}) {
-    if(existingBatch?.activeLessonId && updatedBatch?.activeLessonId){
+  async logActiveLessonIdChangeEvent(existingBatch: any, updatedBatch: any, authUser?: { email: string }) {
+    if (existingBatch?.activeLessonId && updatedBatch?.activeLessonId) {
       const existingLesson = getLessonByID(existingBatch.activeLessonId)
       const updatedLesson = getLessonByID(updatedBatch.activeLessonId)
 
       const dataToLog = {
-        batchId: existingBatch.id || updatedBatch.id, 
-        activeLessonId : existingBatch.activeLessonId,
-        activeLessonNumber : existingLesson?.number || existingBatch?.activeLessonNumber,
-        updatedLessonId : updatedBatch.activeLessonId,
-        updatedLessonNumber : updatedLesson?.number || updatedBatch?.activeLessonNumber,
-        updatedBy : authUser?.email
+        batchId: existingBatch.id || updatedBatch.id,
+        activeLessonId: existingBatch.activeLessonId,
+        activeLessonNumber: existingLesson?.number || existingBatch?.activeLessonNumber,
+        updatedLessonId: updatedBatch.activeLessonId,
+        updatedLessonNumber: updatedLesson?.number || updatedBatch?.activeLessonNumber,
+        updatedBy: authUser?.email
       }
 
       logger.info(`@ BATCH LESSON UPDATE : ${JSON.stringify(dataToLog)}`)
@@ -95,7 +95,7 @@ export class BatchService {
     var students: { id: string, type: string }[] = [];
     let create: boolean = false;
     data.sync_zoom_status = 0;
-    
+
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
@@ -167,7 +167,7 @@ export class BatchService {
         return { status: false, message: "One or more students is in another batch" };
       }
 
-      let cosmosBatch:any = {};
+      let cosmosBatch: any = {};
       if (create) {
         data.classCode = await getUniqueCode("classCode");
         alreadyExists = await this.batchExists(data);
@@ -178,7 +178,7 @@ export class BatchService {
         alreadyExists = await this.batchExists(data, 'id');
         cosmosBatch = await this.getCosmosBatch(data.id);
         if (cosmosBatch) {
-          if(!data.activeLessonId){
+          if (!data.activeLessonId) {
             if (cosmosBatch.activeLessonId) {
               data.activeLessonId = cosmosBatch.activeLessonId;
               data.activeLessonNumber = cosmosBatch.activeLessonNumber;
@@ -266,7 +266,7 @@ export class BatchService {
             await axios.put(options.url, options.body).catch((error) => {
               return Promise.reject(error);
             });
-            
+
             return batch;
           })
           .catch((error) => {
@@ -285,10 +285,10 @@ export class BatchService {
         await this.addStudents(studentsChange.add, data.id);
 
         if (force || (data?.edit && studentsChange.remove.length > 0)) {
-        /**
-        * Remove Students From Batch
-        */
-        await this.removeStudents(studentsChange.remove, data.id);
+          /**
+          * Remove Students From Batch
+          */
+          await this.removeStudents(studentsChange.remove, data.id);
         }
 
 
@@ -325,7 +325,7 @@ export class BatchService {
       }
 
       await meetingService.syncZoomLinksWithCosmos();
-      
+
       return res1;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -379,7 +379,7 @@ export class BatchService {
     logger.info(`# BATCH UPDATE : ${JSON.stringify(batchData)}`)
     const res1: any = await axios
       .put(options.url, options.body)
-      .then(()=>{
+      .then(() => {
         logger.info(`# BATCH UPDATE SUCCESSFUL.`)
         return Promise.resolve("ClassProfile Updated Successfully.")
       })
@@ -783,7 +783,7 @@ export class BatchService {
   }
 
 
-  async addStudentSQL(batchId: string, student: string){
+  async addStudentSQL(batchId: string, student: string) {
     const classes = await this.classesRepository.findOne({ id: batchId })
     const school = await this.schoolRepository.findOne({ id: classes.schoolId })
     const stud = await this.studentRepository.findOne({ id: student })
@@ -802,7 +802,7 @@ export class BatchService {
       batchId: batchId,
       studentId: student
     })
-    
+
     if (existingRecord) {
       existingRecord.updated_at = new Date()
       const batchStudResp = await this.batchStudentRepository.save(existingRecord);
@@ -834,7 +834,7 @@ export class BatchService {
           /**
            * ! Temporary force add student to the batch, to fix records that are currently in a batch on CosmosDB, but not in a batch in AP.
            */
-          if(error?.response?.data?.toLowerCase() === "Student already enrolled in class".toLowerCase()){
+          if (error?.response?.data?.toLowerCase() === "Student already enrolled in class".toLowerCase()) {
             return await this.addStudentSQL(batchId, student);
           }
           return Promise.reject(error);
@@ -1101,7 +1101,7 @@ export class BatchService {
         endTime = "";
       }
 
-      status = classes.status == 0 ? 0 : 1 ;
+      status = classes.status == 0 ? 0 : 1;
       let school = await this.schoolRepository.findOne({ where: { id: classes.schoolId } });
       let lessonNumber: string | number = getLessonByID(classes.activeLessonId)?.number;
       let view = new BatchView(
@@ -1252,7 +1252,7 @@ export class BatchService {
     return ids;
   }
 
-  async checkStudentExistsInBatch({ studentId, batchId }: { studentId: string, batchId?: string}) {
+  async checkStudentExistsInBatch({ studentId, batchId }: { studentId: string, batchId?: string }) {
     let studentService = new StudentService();
     let studentDetail = await studentService.getStudentDetailsById(studentId);
 
@@ -1411,23 +1411,23 @@ export class BatchService {
 
   async updateBatchEndDate(data: any) {
     /**Query to fetch all batch based on the date */
-    const {currentDate, updatedDate, isEndDay} = data;
+    const { currentDate, updatedDate, isEndDay } = data;
     const results = {
       "updated": 0,
       "notUpdated": 0,
       "updatedIds": [],
     }
-    try{
+    try {
       const query = `select DISTINCT id from classes where CONCAT(YEAR(classes.classEndDate),'-',MONTH(classes.classEndDate)) = '${currentDate}'`;
       let getEndDateLists = await getManager().query(query);
       /**Get the last date */
-      if(isEndDay){
+      if (isEndDay) {
         let lastDate;
-        if(currentDate.length === 6){
+        if (currentDate.length === 6) {
           const finalDate = currentDate.split('');
           const currentSplice = finalDate.splice(-1, 0, 0);
           lastDate = finalDate.join('');
-        }else{
+        } else {
           lastDate = currentDate;
         }
         const lastDateQuery = `select DISTINCT id from classes where classes.classEndDate LIKE '${lastDate}-31%'`;
@@ -1435,32 +1435,32 @@ export class BatchService {
         getEndDateLists = getEndDateLists.concat(endDateList);
       }
 
-      for(const batches of getEndDateLists) {
+      for (const batches of getEndDateLists) {
         let batchInfo = await this.getBatchDetails(batches.id);
         let batchData = batchInfo.data;
         const classes = batchData.classes;
         const students = batchData.students;
-        if(batchData.students.length === 0){
+        if (batchData.students.length === 0) {
           results.notUpdated++;
           continue;
         }
-        
+
         /**Update the endDate and call the function */
         const updatedClassEndDate = changeBatchEndDate(batchData.classes.classEndDate, updatedDate);
         classes.classEndDate = updatedClassEndDate;
-        for(const studentData of students){
+        for (const studentData of students) {
           studentData["value"] = studentData.studentId;
           studentData["key"] = studentData.id;
         }
-        const batch: any = { ...classes, students: students, batchAvailability: batchData.batchAvailability, edit: true};
+        const batch: any = { ...classes, students: students, batchAvailability: batchData.batchAvailability, edit: true };
         await this.createBatch(batch);
         results.updated++;
         results.updatedIds.push(batch.id);
       }
-      return { message: "Updated enddate Successfully" , result: results};
-    }catch(error) {
+      return { message: "Updated enddate Successfully", result: results };
+    } catch (error) {
       console.log('error', results);
-      return { message: "Bulk update error" , error: error};
+      return { message: "Bulk update error", error: error };
     }
   }
 
@@ -1528,7 +1528,7 @@ export class BatchService {
         if (allBatchesDisabled) {
           return resolve(false);
         } else {
-          let res =  cosmosBatches.some((batch: any) => batch[propertyName] === true);
+          let res = cosmosBatches.some((batch: any) => batch[propertyName] === true);
           return resolve(res);
         }
       } else {
@@ -1573,11 +1573,11 @@ export class BatchService {
           if (teacher?.schoolId) {
             const studentList = Array.isArray(students)
               ? students?.map((elem: any) => {
-                  elem.value = elem.studentId;
-                  elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
-                  elem.key = elem.id;
-                  return elem;
-                })
+                elem.value = elem.studentId;
+                elem.label = `${elem?.student?.firstName} ${elem?.student?.lastName} - ${elem?.student?.phoneNumber}`;
+                elem.key = elem.id;
+                return elem;
+              })
               : [];
 
             const dataForm = {
@@ -1642,7 +1642,7 @@ export class BatchService {
     return response;
   }
 
-  
+
   /**
    * Changes the active lesson for a batch and sync the change to CosmosDB.
    * 
@@ -1771,11 +1771,41 @@ export class BatchService {
    * @returns A promise that resolves to an object with a `success` property indicating the success of the synchronization.
    */
   async syncAllStudentsFromCosmosToSQL() {
-      const classes = await this.classesRepository.find();
-      for (let c of classes) {
-          await this.syncStudentsFromCosmosToSQLByBatchId(c.id);
-          await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 5 second before next batch to avoid rate limiting by CosmosDB
-      }
-      return { success: true };
+    const classes = await this.classesRepository.find();
+    for (let c of classes) {
+      await this.syncStudentsFromCosmosToSQLByBatchId(c.id);
+      await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 5 second before next batch to avoid rate limiting by CosmosDB
+    }
+    return { success: true };
+  }
+
+
+  async updateClassSections(id: string, classSections: string[], db?: "sql" | "cosmos"): Promise<void> {
+    const batch = await this.classesRepository.findOne({ id });
+    if (!batch) {
+      throw new Error('Class not found');
+    }
+
+    batch.classSections = classSections;
+    switch (db) {
+      case "sql":
+        await this.classesRepository.save(batch);
+        break;
+
+      case "cosmos":
+        await this.updateCosmosBatch(batch).catch((error) =>
+          logger.error(`Error updating CosmosDB batch ${batch.id}: ${JSON.stringify(error)}`)
+        );
+        break;
+
+      default:
+        await this.classesRepository.save(batch);
+        await this.updateCosmosBatch(batch).catch((error) =>
+          logger.error(`Error updating CosmosDB batch ${batch.id}: ${JSON.stringify(error)}`)
+        );
+        break;
+    }
+
+
   }
 }

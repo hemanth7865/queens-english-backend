@@ -37,6 +37,11 @@
             name: "Batch",
             path: "/manage/school/batch",
             component: "./BatchList",
+            hideInMenu: true,
+          },
+          {
+            name: "Batch",
+            path: "/manage/school/batch?offlineBatch=1",
           },
           {
             name: "Teacher",
@@ -52,21 +57,21 @@
       },
       {
         name: "Online Classes",
-        path: "/manage/offline",
+        path: "/manage/online",
         routes: [
           {
             name: "Batch",
-            path: "/manage/offline/batch",
+            path: "/manage/online/batch",
             component: "./BatchList",
           },
           {
             name: "Teacher",
-            path: "/manage/offline/teacherBatch",
+            path: "/manage/online/teacherBatch",
             component: "./TeacherBatchList",
           },
           {
             name: "Student",
-            path: "/manage/offline/StudentBatch",
+            path: "/manage/online/StudentBatch",
             component: "./StudentsBatchList",
           },
         ],
