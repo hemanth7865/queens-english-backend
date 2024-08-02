@@ -758,7 +758,7 @@ export class BatchService {
         }
       }
 
-      if (typeof data.useNewZoomLink != "undefined") {
+      if (typeof data.useNewZoomLink != "undefined" && data.useNewZoomLink) {
         classes.useNewZoomLink = parseInt(data.useNewZoomLink);
       }
 
