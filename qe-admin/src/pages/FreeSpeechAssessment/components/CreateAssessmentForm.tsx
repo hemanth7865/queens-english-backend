@@ -3,7 +3,6 @@ import { Form, Input, Button, Select, notification } from "antd";
 import {
     createOrUpdateFreeSpeechAssessment
 } from "@/services/ant-design-pro/api";
-import { DatePicker } from 'antd';
 import moment from 'moment';
 export type CreateAssessmentFormProps = {
     onSuccess?: () => void;
@@ -51,17 +50,29 @@ const CreateAssessmentForm: React.FC<CreateAssessmentFormProps> = ({
                 name: assessmentData.name,
                 date: moment(assessmentData.date, 'DD-MM-YYYY'),
                 displayName: assessmentData.displayName,
-                active: assessmentData.active
+                active: assessmentData.active,
+                lessonDue: assessmentData.lessonDue
+
             });
         } else {
             form.setFieldsValue({
                 name: "",
                 date: "",
                 displayName: "",
-                active: true
+                active: true,
+                lessonDue: "",
             });
         }
     }, [assessmentData]);
+
+    const assessmentOptions = Array(299).fill(1)
+        .map((_, index) => ({
+            label: `Due at Lesson ${index + 1}`,
+            value: index + 1,
+            key: index + 1,
+        }));
+
+
 
     return (
         <Form
@@ -85,9 +96,19 @@ const CreateAssessmentForm: React.FC<CreateAssessmentFormProps> = ({
                 <Input placeholder="Enter Assessment Name" defaultValue={assessmentData?.name} disabled={assessmentData?.name ? true : false} />
             </Form.Item>
 
-            <Form.Item label="Date" name="date" rules={[{ required: true }]}>
-                <DatePicker format="DD-MM-YYYY" defaultValue={assessmentData?.date ? moment(assessmentData.date, 'DD-MM-YYYY') : undefined} />
+            <Form.Item
+                label="Select the due lesson"
+                name="lessonDue"
+                rules={[{ required: true, message: "Please select an Assessment to proceed!" }]}
+            >
+                <Select
+                    placeholder="Select the due lesson"
+                    optionFilterProp="children"
+                    options={assessmentOptions}
+                    clearIcon
+                />
             </Form.Item>
+
 
             <Form.Item name="displayName" label="Display Name" rules={[{ required: true }]}
                 help="This name will be displayed to students"
