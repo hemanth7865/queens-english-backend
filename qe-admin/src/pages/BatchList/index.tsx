@@ -318,7 +318,19 @@ const BatchList: React.FC = () => {
       let message = '';
 
       if (currentRow?.id && (currentRow?.startingLessonId !== startLesson || currentRow?.endingLessonId !== endLesson)) {
+        const activeLessonNumber = LESSONS.find((l) => l.id === dataForm.activeLessonId)?.number;
+        const startLessonNumber = LESSONS.find((l) => l.id === startLesson)?.number;
+        const endLessonNumber = LESSONS.find((l) => l.id === endLesson)?.number;
+
+        if (Number(startLessonNumber) > Number(endLessonNumber)) {
+          throw new Error("Start lesson cannot be greater than end lesson.");
+        }
+
+        if (Number(activeLessonNumber) < Number(startLessonNumber)) {
         dataForm.activeLessonId = startLesson;
+        } else if (Number(activeLessonNumber) > Number(endLessonNumber)) {
+          dataForm.activeLessonId = endLesson;
+        }
         const lessons = await getTeacherLessons(currentRow?.id);
         if (lessons.length > 0) {
           const startLessonNumber = LESSONS.find((l) => l.id === startLesson)?.number as string;
@@ -338,7 +350,7 @@ const BatchList: React.FC = () => {
           setCompletedLessonMessage(message);
         }
       }
-
+      dataForm.activeLessonNumber = parseInt(LESSONS.find((l) => l.id === dataForm.activeLessonId)?.number as string)
       setBatchData(dataForm);
       if (currentCompletedLessons.length > 0) {
         setCompletedLessonModal(true);
