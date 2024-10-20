@@ -115,10 +115,10 @@ const SchoolList: React.FC<SchoolListProps> = () => {
                 />
             ),
             dataIndex: "poc",
-            render: (dom, entity:any) => {
+            render: (dom, entity: any) => {
                 return (
                     <div>
-                        {(entity?.poc && Array.isArray(entity?.poc)) ? entity?.poc?.map((poc:any) => <span>{poc?.name} - {poc?.phoneNumber}</span>) : <></>}
+                        {(entity?.poc && Array.isArray(entity?.poc)) ? entity?.poc?.map((poc: any) => <span>{poc?.name} - {poc?.phoneNumber}</span>) : <></>}
                     </div>
 
                 );
@@ -220,15 +220,15 @@ const SchoolList: React.FC<SchoolListProps> = () => {
                 request={listSchool}
                 columns={columns}
                 toolBarRender={() => [
-                    // <Button
-                    //     type="primary"
-                    //     key="primary"
-                    //     onClick={() => {
-                    //         setCreate({ operation: 'create' });
-                    //     }}
-                    // >
-                    //     <PlusOutlined /> Add School
-                    // </Button>,
+                    <Button
+                        type="primary"
+                        key="primary"
+                        onClick={() => {
+                            setCreate({ operation: 'create' });
+                        }}
+                    >
+                        <PlusOutlined /> Add School
+                    </Button>,
                     <Button
                         type="primary"
                         key="primary"
