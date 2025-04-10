@@ -40,7 +40,7 @@ export class AzureProxyController {
         });
     } catch (e) {
       console.log(e);
-      return { error: true, msg: e.message };
+      return { error: true, msg: e.message, "url": url };
     }
   }
 
