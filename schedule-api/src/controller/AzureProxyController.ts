@@ -20,8 +20,11 @@ export class AzureProxyController {
   }
 
   async fileProxy(request: Request, response: Response, next: NextFunction) {
-    const url = request.query.url as string;
-    request.query.url = undefined;
+    let url = request.query.url as string;
+    url = url?.split("?")[0]
+    url = `${url}?sp=racwd&st=2025-04-01T17:58:34Z&se=2026-04-01T01:58:34Z&sv=2024-11-04&sr=c&sig=QTJETyNsHVcXgDde13dEXMPwG5YM6KQpwKZl%2Fi%2Bb9HY%3D`
+    // request.query.url = undefined;
+    request.query = {}
     try {
       return await defaultAxios({
         method: request.method as any,
