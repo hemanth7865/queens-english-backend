@@ -257,7 +257,7 @@ export function csvToArray(str: string, delimiter: string = ",") {
 
 export const getStorageFileURL = (image: string | undefined) => {
   if (!image) return;
-  if (image.startsWith("http")) return image;
+  if (image.startsWith("http")) return `${image.split("?")[0]}${BLOB_SAS}`;
   // @ts-expect-error
   return joinAssets(BLOB_URL, BLOB_SAS, image);
 };
