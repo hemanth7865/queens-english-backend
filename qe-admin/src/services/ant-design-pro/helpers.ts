@@ -4,6 +4,8 @@ import moment from "moment";
 import { Lesson, LESSONS } from "../../../config/lessons";
 import type ZoomTypes from "./types/zoom";
 
+const BLOB_SAS = "?sp=racwd&st=2025-04-01T17:58:34Z&se=2026-04-01T01:58:34Z&sv=2024-11-04&sr=c&sig=QTJETyNsHVcXgDde13dEXMPwG5YM6KQpwKZl%2Fi%2Bb9HY%3D"
+
 export const openNotificationWithIcon = (
   type: string,
   message: string,
@@ -271,7 +273,7 @@ export const joinAssets = (
   if (assetPath.startsWith("/")) {
     assetPath = assetPath.slice(1);
   }
-  return `${blobUrl}/${assetPath}${blobSas}`;
+  return `${blobUrl}/${assetPath?.split("?")[0]}${blobSas}`;
 };
 
 export const updateImageSasBlob = (html: string): string => {
