@@ -1189,6 +1189,19 @@ export async function generateMissingAssessmentsForBatch(options: {
   );
 }
 
+export async function fetchSchoolById(
+  schoolId: string,
+  options?: { [key: string]: any }
+) {
+  return request<any>(
+    `/be/azure?url=api/school/${schoolId}&excludeDetails=true`,
+    {
+      method: "GET",
+      ...(options || {}),
+    }
+  );
+}
+
 export async function generateSchoolOtp(
   schoolId: string,
   options?: { [key: string]: any }

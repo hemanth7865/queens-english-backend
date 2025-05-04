@@ -1,7 +1,7 @@
-import React from 'react';
-import { Table, TableColumnsType, Button, notification, Tooltip } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, TableColumnsType, Button, notification, Tooltip, Spin } from 'antd';
 import ExportStudentList from '@/pages/StudentsBatchList/components/ExportStudentList';
-import { generateSchoolOtp } from '@/services/ant-design-pro/api';
+import { generateSchoolOtp, fetchSchoolById } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CopyOutlined } from '@ant-design/icons';
 
 export type ViewSchoolProps = {
@@ -25,17 +25,35 @@ interface ExpandedDataType {
 }
 
 const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
+  const [otp, setOtp] = useState<string | null>(null);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [schoolData, setSchoolData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);  // Loading state
 
-  const [otp, setOtp] = React.useState<string | null>(null);
-  const [otpLoading, setOtpLoading] = React.useState(false);
+  useEffect(() => {
+    const fetchSchoolData = async () => {
+      if (!props.tempData?.schoolId) return;
+      try {
+        setIsLoading(true);
+        const res = await fetchSchoolById(props.tempData?.schoolId);
+        setSchoolData(res);
+        if (res?.otp) {
+          setOtp(res.otp);
+        }
+      } catch (error) {
+        console.error('Error fetching school data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSchoolData();
+  }, [props.tempData?.schoolId]);
 
   const onGenerateOtp = async () => {
     setOtpLoading(true);
     try {
-      const res = await generateSchoolOtp(props.tempData?.schoolId, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-
+      const res = await generateSchoolOtp(props.tempData?.schoolId);
       setOtp(res.schoolOtp);
       notification.open({
         message: 'OTP Generated',
@@ -92,16 +110,23 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
       { title: 'Status', dataIndex: 'status', key: 'status' }
     ];
 
-    return <Table columns={expandedColumns} dataSource={record.students} pagination={false} size='middle' />;
+    return <Table columns={expandedColumns} dataSource={record.students} pagination={false} size="middle" />;
   };
+
+  // Show loading spinner when data is still loading
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px 0' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <>
       <ExportStudentList
         title="Export all students to CSV"
-        batchCode={props.tempData?.classesData?.map(
-          (item: any) => item.batchNumber
-        )}
+        batchCode={props.tempData?.classesData?.map((item: any) => item.batchNumber)}
         total={1000}
       />
 
@@ -140,14 +165,23 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
             Generate OTP
           </Button>
         )}
+
+        {/* If OTP exists, show View OTP button */}
+        {schoolData?.otp && !otp && (
+          <Button
+            type="dashed"
+            style={{ marginLeft: 16 }}
+            onClick={() => setOtp(schoolData?.otp)}
+          >
+            View OTP
+          </Button>
+        )}
       </div>
 
       <Table
         columns={columns}
         expandable={{
-          expandedRowRender: (record) => {
-            return expandedRowRender(record);
-          },
+          expandedRowRender: (record) => expandedRowRender(record),
           rowExpandable: (record) => record.students.length !== 0,
         }}
         dataSource={data}
