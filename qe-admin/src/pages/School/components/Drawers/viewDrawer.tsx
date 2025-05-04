@@ -33,10 +33,10 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
 
   useEffect(() => {
     const fetchSchoolData = async () => {
-      if (!props.tempData?.schoolId) return;
+      if (!props.tempData?.id) return;
       try {
         setIsLoading(true);
-        const res = await fetchSchoolById(props.tempData?.schoolId);
+        const res = await fetchSchoolById(props.tempData?.id);
         setSchoolData(res);
 
         if (res?.schoolOtp?.otp && res?.schoolOtp?.creationTime) {
@@ -58,12 +58,12 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
     };
 
     fetchSchoolData();
-  }, [props.tempData?.schoolId]);
+  }, [props.tempData?.id]);
 
   const onGenerateOtp = async () => {
     setOtpLoading(true);
     try {
-      const res = await generateSchoolOtp(props.tempData?.schoolId);
+      const res = await generateSchoolOtp(props.tempData?.id);
       setOtp(res.schoolOtp);
       setIsOtpExpired(false); // Reset expired state when a new OTP is generated
       notification.open({
