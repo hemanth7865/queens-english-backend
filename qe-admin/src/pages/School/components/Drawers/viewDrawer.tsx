@@ -135,7 +135,7 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
 
   return (
     <>
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
         <ExportStudentList
           title="Export all students to CSV"
           batchCode={props.tempData?.classesData?.map((item: any) => item.batchNumber)}
