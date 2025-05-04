@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableColumnsType, Button, notification, Tooltip, Spin } from 'antd';
+import { Table, TableColumnsType, Button, notification, Tooltip, Spin, Tag } from 'antd';
 import ExportStudentList from '@/pages/StudentsBatchList/components/ExportStudentList';
 import { generateSchoolOtp, fetchSchoolById } from '@/services/ant-design-pro/api';
 import { CheckCircleTwoTone, CopyOutlined } from '@ant-design/icons';
@@ -28,7 +28,8 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
   const [otp, setOtp] = useState<string | null>(null);
   const [otpLoading, setOtpLoading] = useState(false);
   const [schoolData, setSchoolData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);  // Loading state
+  const [isLoading, setIsLoading] = useState(true);
+  const [isOtpExpired, setIsOtpExpired] = useState(false);
 
   useEffect(() => {
     const fetchSchoolData = async () => {
@@ -37,8 +38,17 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
         setIsLoading(true);
         const res = await fetchSchoolById(props.tempData?.schoolId);
         setSchoolData(res);
-        if (res?.otp) {
-          setOtp(res.otp);
+
+        if (res?.schoolOtp?.otp && res?.schoolOtp?.creationTime) {
+          // Check if OTP is expired
+          const creationTime = new Date(res?.schoolOtp?.creationTime);
+          const currentTime = new Date();
+          const diffInMillis = currentTime.getTime() - creationTime.getTime();
+          const diffInYears = diffInMillis / (1000 * 3600 * 24 * 365); // Convert to years
+
+          if (diffInYears >= 1) {
+            setIsOtpExpired(true); // OTP is expired if diff is greater than or equal to 1 year
+          }
         }
       } catch (error) {
         console.error('Error fetching school data:', error);
@@ -55,6 +65,7 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
     try {
       const res = await generateSchoolOtp(props.tempData?.schoolId);
       setOtp(res.schoolOtp);
+      setIsOtpExpired(false); // Reset expired state when a new OTP is generated
       notification.open({
         message: 'OTP Generated',
         description: `The OTP is ${res.schoolOtp}`,
@@ -155,7 +166,7 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
               />
             </Tooltip>
           </div>
-        ) : (
+        ) : !schoolData?.schoolOtp?.otp ? (
           <Button
             type="primary"
             onClick={onGenerateOtp}
@@ -164,14 +175,32 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
           >
             Generate OTP
           </Button>
+        ) : null}
+
+        {/* If OTP exists and expired, show expired warning */}
+        {isOtpExpired && (
+          <Tag color="red" style={{ marginLeft: 16 }}>
+            OTP Expired
+          </Tag>
         )}
 
-        {/* If OTP exists, show View OTP button */}
-        {schoolData?.otp && !otp && (
+        {/* If OTP exists and expired, provide a regenerate OTP button */}
+        {isOtpExpired && (
           <Button
             type="dashed"
             style={{ marginLeft: 16 }}
-            onClick={() => setOtp(schoolData?.otp)}
+            onClick={onGenerateOtp}
+          >
+            Regenerate OTP
+          </Button>
+        )}
+
+        {/* If OTP exists, show View OTP button */}
+        {schoolData?.schoolOtp?.otp && !otp && !isOtpExpired && (
+          <Button
+            type="dashed"
+            style={{ marginLeft: 16 }}
+            onClick={() => setOtp(schoolData?.schoolOtp?.otp)}
           >
             View OTP
           </Button>
