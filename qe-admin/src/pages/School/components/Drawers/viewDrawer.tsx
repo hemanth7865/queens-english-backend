@@ -154,7 +154,6 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
                   fontSize: '16px',
                   fontWeight: 'bold',
                   marginRight: '16px',
-                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
                 }}
               >
                 {otp}
