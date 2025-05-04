@@ -1206,11 +1206,13 @@ export async function generateSchoolOtp(
   schoolId: string,
   options?: { [key: string]: any }
 ) {
-  return request<any>(`/be/azure?url=api/school/generateOtp`, {
-    method: "POST",
-    body: JSON.stringify({ schoolId }),
-    ...(options || {}),
-  });
+  return request<any>(
+    `/be/azure?url=api/school/generateOtp&schoolId=${schoolId}`,
+    {
+      method: "POST",
+      ...(options || {}),
+    }
+  );
 }
 
 //API to save student school in Cosmos
