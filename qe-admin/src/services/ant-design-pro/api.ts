@@ -1206,7 +1206,7 @@ export async function generateSchoolOtp(
   schoolId: string,
   options?: { [key: string]: any }
 ) {
-  return request<any>(`/be/azure?url=api/school/generate-otp`, {
+  return request<any>(`/be/azure?url=api/school/generateOtp`, {
     method: "POST",
     body: JSON.stringify({ schoolId }),
     ...(options || {}),
