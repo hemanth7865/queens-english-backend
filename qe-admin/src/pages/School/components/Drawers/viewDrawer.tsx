@@ -64,11 +64,11 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
     setOtpLoading(true);
     try {
       const res = await generateSchoolOtp(props.tempData?.id);
-      setOtp(res.schoolOtp);
+      setOtp(res.otp);
       setIsOtpExpired(false); // Reset expired state when a new OTP is generated
       notification.open({
         message: 'OTP Generated',
-        description: `The OTP is ${res.schoolOtp}`,
+        description: `The OTP is ${res.otp}`,
         icon: <CheckCircleTwoTone twoToneColor="green" />,
       });
     } catch (error: any) {
@@ -135,76 +135,79 @@ const ViewDrawer: React.FC<ViewSchoolProps> = (props) => {
 
   return (
     <>
-      <ExportStudentList
-        title="Export all students to CSV"
-        batchCode={props.tempData?.classesData?.map((item: any) => item.batchNumber)}
-        total={1000}
-      />
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <ExportStudentList
+          title="Export all students to CSV"
+          batchCode={props.tempData?.classesData?.map((item: any) => item.batchNumber)}
+          total={1000}
+        />
 
-      {/* OTP Section */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-        {otp ? (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#f0f0f0',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                marginRight: '16px',
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-              }}
-            >
-              {otp}
+        {/* OTP Section */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {otp ? (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#f0f0f0',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  marginRight: '16px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                {otp}
+              </div>
+              <Tooltip title="Copy OTP">
+                <Button
+                  icon={<CopyOutlined />}
+                  onClick={onCopyOtp}
+                  style={{ marginLeft: 8 }}
+                />
+              </Tooltip>
             </div>
-            <Tooltip title="Copy OTP">
-              <Button
-                icon={<CopyOutlined />}
-                onClick={onCopyOtp}
-                style={{ marginLeft: 8 }}
-              />
-            </Tooltip>
-          </div>
-        ) : !schoolData?.schoolOtp?.otp ? (
-          <Button
-            type="primary"
-            onClick={onGenerateOtp}
-            loading={otpLoading}
-            style={{ marginBottom: 16 }}
-          >
-            Generate OTP
-          </Button>
-        ) : null}
+          ) : !schoolData?.schoolOtp?.otp ? (
+            <Button
+              type="primary"
+              onClick={onGenerateOtp}
+              loading={otpLoading}
+              style={{ marginBottom: 16 }}
+            >
+              Generate OTP
+            </Button>
+          ) : null}
 
-        {/* If OTP exists and expired, show expired warning */}
-        {isOtpExpired && (
-          <Tag color="red" style={{ marginLeft: 16 }}>
-            OTP Expired
-          </Tag>
-        )}
+          {/* If OTP exists and expired, show expired warning */}
+          {isOtpExpired && (
+            <Tag color="red" style={{ marginLeft: 16 }}>
+              OTP Expired
+            </Tag>
+          )}
 
-        {/* If OTP exists and expired, provide a regenerate OTP button */}
-        {isOtpExpired && (
-          <Button
-            type="dashed"
-            style={{ marginLeft: 16 }}
-            onClick={onGenerateOtp}
-          >
-            Regenerate OTP
-          </Button>
-        )}
+          {/* If OTP exists and expired, provide a regenerate OTP button */}
+          {isOtpExpired && (
+            <Button
+              type="dashed"
+              style={{ marginLeft: 16 }}
+              onClick={onGenerateOtp}
+            >
+              Regenerate OTP
+            </Button>
+          )}
 
-        {/* If OTP exists, show View OTP button */}
-        {schoolData?.schoolOtp?.otp && !otp && !isOtpExpired && (
-          <Button
-            type="dashed"
-            style={{ marginLeft: 16 }}
-            onClick={() => setOtp(schoolData?.schoolOtp?.otp)}
-          >
-            View OTP
-          </Button>
-        )}
+          {/* If OTP exists, show View OTP button */}
+          {schoolData?.schoolOtp?.otp && !otp && !isOtpExpired && (
+            <Button
+              type="dashed"
+              style={{ marginLeft: 16 }}
+              onClick={() => setOtp(schoolData?.schoolOtp?.otp)}
+            >
+              View OTP
+            </Button>
+          )}
+        </div>
+
       </div>
 
       <Table
