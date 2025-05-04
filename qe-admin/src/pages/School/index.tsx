@@ -240,7 +240,7 @@ const SchoolList: React.FC<SchoolListProps> = () => {
             />
             <Drawer visible={!!view} onClose={() => { setView(null); }} width="800px">
                 <h1>View School</h1>
-                <ViewDrawer tempData={view} />
+                <ViewDrawer tempData={view} key={view?.id} />
             </Drawer>
             <Drawer visible={!!edit} onClose={() => {
                 setEdit(null);
