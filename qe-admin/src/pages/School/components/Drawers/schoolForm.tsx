@@ -211,90 +211,90 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
 
     const onFinish = async (value: any) => {
         const oldData = props.tempData;
-        if (oldData?.schoolStatus !== USER_STATUS.INACTIVE_CAPS && value.schoolStatus === USER_STATUS.INACTIVE_CAPS) {
+        const isEditing = oldData.operation === 'edit';
+        const isCreating = oldData.operation === 'create';
+
+        const toUpper = (str: string) => str?.toUpperCase();
+
+        if (
+            !isCreating &&
+            oldData?.schoolStatus !== USER_STATUS.INACTIVE_CAPS &&
+            value.schoolStatus === USER_STATUS.INACTIVE_CAPS
+        ) {
             inactivateSchool(oldData?.id);
             return;
         }
-        async function areArrEqual(arr1: any, arr2: any) {
+
+        const areBatchesEqual = (arr1: any[], arr2: any[]): boolean => {
             if (arr1.length !== arr2.length) return false;
-            for (let i = 0; i < arr2.length; i++) {
-                if (arr1[i]?.batchNumber !== arr2[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        const sameBatches = oldData.operation === 'create' ? false : await areArrEqual(oldData.classes, value.batches)
-        const newBatches = value.batches?.map((item: any) => {
-            return item
-        })
-        const oldBatches = oldData?.classes?.map((item: any) => {
-            return item.batchNumber
-        })
-        const batchesToRemove = oldBatches?.filter((item: any) => !newBatches?.includes(item))
-        const batchesToAdd = newBatches?.filter((item: any) => !oldBatches?.includes(item))
+            return arr1.every((item, index) => item?.batchNumber === arr2[index]);
+        };
+
+        const sameBatches = !isCreating && areBatchesEqual(oldData?.classes ?? [], value.batches);
+
+        const oldBatches = oldData?.classes?.map((c: any) => c.batchNumber) || [];
+        const newBatches = value.batches || [];
+
+        const batchesToRemove = oldBatches.filter((b: any) => !newBatches.includes(b));
+        const batchesToAdd = newBatches.filter((b: any) => !oldBatches.includes(b));
+
         const dataForm = {
             id: value?.id,
             schoolName: value?.schoolName,
-            schoolCode: value?.schoolCode?.toUpperCase(),
-            locationCode: value?.locationCode?.toUpperCase(),
-            schoolId: value?.schoolCode?.toUpperCase() + value?.locationCode?.toUpperCase(),
+            schoolCode: toUpper(value?.schoolCode),
+            locationCode: toUpper(value?.locationCode),
+            schoolId: toUpper(value?.schoolCode) + toUpper(value?.locationCode),
             poc: value?.poc,
             sraId: value?.sra,
             schoolStatus: value?.schoolStatus,
             batches: sameBatches ? null : {
                 addBatches: batchesToAdd,
-                removeBatches: batchesToRemove
+                removeBatches: batchesToRemove,
             },
             cosmosBatches: {
                 sendBatches: value?.batches,
-                removeBatches: batchesToRemove
+                removeBatches: batchesToRemove,
             },
             country: value?.country,
             state: value?.state,
             city: value?.city,
             lockLesson: value?.lockLesson ?? false,
         };
-        setIsLoading(true);
-        if (oldData.operation === 'edit') {
-            const edit = await editSchool({
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataForm),
-            });
-            setIsLoading(false);
-            if (edit.errorMessage) {
-                value.success = false
-                value.create = false
-                value.message = edit.errorMessage
+
+        try {
+            setIsLoading(true);
+
+            const response = isEditing
+                ? await editSchool({
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dataForm),
+                })
+                : await createSchool({
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dataForm),
+                });
+
+            value.success = !response.errorMessage;
+            value.create = isCreating;
+            value.message = response.errorMessage || response.message;
+
+            if (value.success) {
+                openNotification(value);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
             } else {
-                value.success = true
-                value.create = false
-                value.message = edit.message
+                openNotification(value);
             }
-        } else {
-            const create = await createSchool({
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataForm),
-            });
+        } catch (error: any) {
+            console.error("Request failed:", error);
+            value.success = false;
+            value.create = isCreating;
+            value.message = "Something went wrong. Please try again.";
+            openNotification(value);
+        } finally {
             setIsLoading(false);
-            if (create.errorMessage) {
-                value.success = false
-                value.create = true
-                value.message = create.errorMessage
-            } else {
-                value.success = true
-                value.create = true
-                value.message = create.message
-            }
         }
-        openNotification(value);
-        setTimeout(() => {
-            window.location.reload();
-        }, 3000);
     };
 
     const [form] = Form.useForm()
@@ -359,7 +359,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
             <Spin spinning={isLoading} tip="Please wait, this might take upto 1-2 mins." >
                 {contextHolder}
 
-                {props?.tempData?.schoolStatus !== "Inactive" && (
+                {props?.tempData?.operation !== 'create' && props?.tempData?.schoolStatus !== "Inactive" && (
                     <>
                         <Button type="primary" onClick={() => {
                             if (confirm("Are you sure you want to deactivate this school?")) {
