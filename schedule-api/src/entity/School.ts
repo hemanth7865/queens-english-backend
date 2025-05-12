@@ -11,6 +11,8 @@ export class School extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
     @Column()
+    leadId: string;
+    @Column()
     schoolName: string;
     @Column()
     schoolCode: string;
