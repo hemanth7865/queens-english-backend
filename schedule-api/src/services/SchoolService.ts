@@ -418,7 +418,7 @@ export class SchoolService {
 
       // overwriting the lockLesson feature for teachers if it is changed
       if (prevLockLesson !== school.lockLesson) {
-        const teachers = school.classes
+        const teachers = (school?.classes ?? [])
           .map((e) => {
             if (!e.teacherId) return null;
             return {
