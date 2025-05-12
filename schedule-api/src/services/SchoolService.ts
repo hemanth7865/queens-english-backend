@@ -392,7 +392,7 @@ export class SchoolService {
         school = new School();
         school.createdAt = new Date();
         request.schoolStatus = Status.ACTIVE_CAPS;
-        school.leadId = null;
+        school.leadId = "";
       } else {
         school = await this.schoolRepository.findOne({
           where: { id: request.id },
