@@ -451,9 +451,13 @@ export class SchoolService {
 
       const saveSchool = await this.schoolRepository.save(school);
 
-      let cosmosSchoolResp = null;
-      if (saveSchool) {
-        cosmosSchoolResp = await this.updateCosmosSchool(saveSchool);
+      const savedSchool = await this.schoolRepository.findOne({
+        where: { id: saveSchool.id },
+        relations: ["sra"],
+      });
+
+      if (savedSchool) {
+        await this.updateCosmosSchool(savedSchool);
       }
 
       // overwriting the lockLesson feature for teachers if it is changed
@@ -499,7 +503,7 @@ export class SchoolService {
 
       return {
         success: true,
-        data: { ...saveSchool, cosmosSchoolResp },
+        data: saveSchool,
       };
     } catch (error) {
       return {
