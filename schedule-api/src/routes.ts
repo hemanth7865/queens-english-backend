@@ -758,6 +758,12 @@ export const Routes = [
     action: "addSchool",
   },
   {
+    method: "delete",
+    route: "/deleteSchool",
+    controller: SchoolController,
+    action: "deleteSchool",
+  },
+  {
     method: "put",
     route: "/editSchool",
     controller: SchoolController,
@@ -901,5 +907,5 @@ export const Routes = [
     controller: BatchController,
     action: "updateClassSections",
     apiKey: true,
-  }
+  },
 ];
