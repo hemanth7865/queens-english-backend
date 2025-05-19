@@ -975,8 +975,4 @@ export class SchoolService {
       return { status: 400, error: error?.message };
     }
   }
-
-  async deleteSchool(schoolId: string) {
-    return await this.schoolRepository.delete({ id: schoolId });
-  }
 }

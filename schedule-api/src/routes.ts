@@ -758,12 +758,6 @@ export const Routes = [
     action: "addSchool",
   },
   {
-    method: "delete",
-    route: "/deleteSchool",
-    controller: SchoolController,
-    action: "deleteSchool",
-  },
-  {
     method: "put",
     route: "/editSchool",
     controller: SchoolController,
