@@ -451,8 +451,9 @@ export class SchoolService {
 
       const saveSchool = await this.schoolRepository.save(school);
 
+      let cosmosSchoolResp = null;
       if (saveSchool) {
-        await this.updateCosmosSchool(saveSchool);
+        cosmosSchoolResp = await this.updateCosmosSchool(saveSchool);
       }
 
       // overwriting the lockLesson feature for teachers if it is changed
@@ -498,7 +499,7 @@ export class SchoolService {
 
       return {
         success: true,
-        data: saveSchool,
+        data: { ...saveSchool, cosmosSchoolResp },
       };
     } catch (error) {
       return {
@@ -509,25 +510,26 @@ export class SchoolService {
   }
 
   async updateCosmosSchool(school: School) {
-    try {
-      await axios.post(
-        `${this.COSMOS_URL}/api/school?code=${this.COSMOS_CODE}`,
-        [school]
-      );
-      return {
-        success: true,
-        message: "School Updated Successfully.",
-      };
-    } catch (error) {
-      logger.error(
-        `Error while updating school in cosmosDB ${school.id}`,
-        error
-      );
-      return {
-        success: false,
-        message: "Error while updating school in cosmosDB.",
-      };
-    }
+    const options = {
+      url: `${this.COSMOS_URL}/api/school?code=${this.COSMOS_CODE}`,
+      json: true,
+      body: [school],
+    };
+
+    await axios
+      .post(options.url, options.body)
+      .then(async (res) => {
+        return {
+          success: true,
+          message: "School Updated Successfully.",
+        };
+      })
+      .catch((error) => {
+        return {
+          success: false,
+          message: `Error while updating school in cosmosDB. ${error}`,
+        };
+      });
   }
 
   async getAvailableStudentIds(request: { schoolId: string; count?: number }) {
