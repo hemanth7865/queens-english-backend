@@ -16,6 +16,12 @@ import { TeacherService } from "./TeacherService";
 const { logger } = require("../Logger.js");
 
 import axios from "./../helpers/axios";
+import {
+  ContractStatus,
+  InitialPaymentStatus,
+  LeadCategory,
+  SchoolStage,
+} from "../types";
 
 export class SchoolService {
   private schoolRepository = getRepository(School);
@@ -28,6 +34,9 @@ export class SchoolService {
   private studentService = new StudentService();
   private TeacherService = new TeacherService();
   public request: any = {};
+
+  private COSMOS_URL = process.env.COSMOS_URL;
+  private COSMOS_CODE = process.env.COSMOS_CODE;
 
   async getAllSra() {
     const sra = await (
@@ -393,6 +402,32 @@ export class SchoolService {
         school.createdAt = new Date();
         request.schoolStatus = Status.ACTIVE_CAPS;
         school.leadId = "";
+
+        school.stage = SchoolStage.ReadyForContract;
+        school.initialPaymentStatus = InitialPaymentStatus.Unpaid;
+        school.contractStatus = ContractStatus.NotSigned;
+
+        const currentYear = new Date().getFullYear();
+        school.saleYear = currentYear.toString();
+
+        school.studentCount = 0;
+        school.address = "";
+        school.territory = "";
+        school.expectedPrice = 0;
+        school.revenue = 0;
+        school.realRevenue = 0;
+        school.paidDate = null;
+        school.postalCode = null;
+        school.leadCategory = LeadCategory.NEW_SALE;
+        school.designation = "";
+        school.leadOwner = "";
+        school.hasTVForITTs = false;
+        school.mapLocationURL = null;
+        school.startDate = null;
+        school.booksDate = null;
+        school.paymentCycle = null;
+        school.paymentType = null;
+        school.initialAmount = null;
       } else {
         school = await this.schoolRepository.findOne({
           where: { id: request.id },
@@ -406,7 +441,7 @@ export class SchoolService {
       school.schoolId = request.schoolCode + (request.locationCode ?? "");
       school.sraId = request.sraId;
       school.schoolStatus = request.schoolStatus;
-      school.poc = Array.isArray(request?.poc)
+      school.poc = Array.isArray(request?.poc ?? [])
         ? JSON.stringify(request?.poc)
         : request.poc;
       school.country = request.country;
@@ -415,6 +450,15 @@ export class SchoolService {
       school.lockLesson = request.lockLesson ?? false;
 
       const saveSchool = await this.schoolRepository.save(school);
+
+      const savedSchool = await this.schoolRepository.findOne({
+        where: { id: saveSchool.id },
+        relations: ["sra"],
+      });
+
+      if (savedSchool) {
+        await this.updateCosmosSchool(savedSchool);
+      }
 
       // overwriting the lockLesson feature for teachers if it is changed
       if (prevLockLesson !== school.lockLesson) {
@@ -465,6 +509,28 @@ export class SchoolService {
       return {
         success: false,
         errorMessage: error.message,
+      };
+    }
+  }
+
+  async updateCosmosSchool(school: School) {
+    try {
+      await axios.post(
+        `${this.COSMOS_URL}/api/school?code=${this.COSMOS_CODE}`,
+        [school]
+      );
+      return {
+        success: true,
+        message: "School Updated Successfully.",
+      };
+    } catch (error) {
+      logger.error(
+        `Error while updating school in cosmosDB ${school.id}`,
+        error
+      );
+      return {
+        success: false,
+        message: "Error while updating school in cosmosDB.",
       };
     }
   }
