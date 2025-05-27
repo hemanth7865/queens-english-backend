@@ -802,35 +802,35 @@ export class SchoolService {
     }
   }
 
-  async deleteSchool(schoolId: string) {
-    try {
-      const response = {
-        batches: {
-          success: 0,
-          failure: 0,
-        },
-        teachers: {
-          success: 0,
-          failure: 0,
-        },
-        students: {
-          success: 0,
-          failure: 0,
-        },
-      };
-      if (schoolId && schoolId?.trim()) {
-        // Changing status of the school to `Inactive`
-        const deleteQuery = `DELETE FROM school WHERE id = '${schoolId}'`;
-        await getManager().query(deleteQuery);
-        response["deleteQuery"] = deleteQuery;
-      }
+  // async deleteSchool(schoolId: string) {
+  //   try {
+  //     const response = {
+  //       batches: {
+  //         success: 0,
+  //         failure: 0,
+  //       },
+  //       teachers: {
+  //         success: 0,
+  //         failure: 0,
+  //       },
+  //       students: {
+  //         success: 0,
+  //         failure: 0,
+  //       },
+  //     };
+  //     if (schoolId && schoolId?.trim()) {
+  //       // Changing status of the school to `Inactive`
+  //       const deleteQuery = `DELETE FROM school WHERE id = '${schoolId}'`;
+  //       await getManager().query(deleteQuery);
+  //       response["deleteQuery"] = deleteQuery;
+  //     }
 
-      return response;
-    } catch (error) {
-      console.log("Error while inactivating school", error?.message);
-      throw new Error(error?.message);
-    }
-  }
+  //     return response;
+  //   } catch (error) {
+  //     console.log("Error while inactivating school", error?.message);
+  //     throw new Error(error?.message);
+  //   }
+  // }
 
   async syncStudentsCreatedByTeacher() {
     logger.info(`== SYNC STUDENT FROM COSMOS TO MYSQL STARTED ==`);
