@@ -416,6 +416,9 @@ export class SchoolService {
         school.paymentType = null;
         school.initialAmount = null;
         school.schoolCode = await this.getUniqueSchoolCode(request.schoolName);
+        if (!school.schoolCode) {
+          throw new Error("Unable to create the School Code, Please retry.");
+        }
         school.schoolId = school.schoolCode + (request.locationCode ?? "");
       } else {
         school = await this.schoolRepository.findOne({
