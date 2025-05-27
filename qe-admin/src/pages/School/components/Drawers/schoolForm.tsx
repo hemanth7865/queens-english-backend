@@ -21,9 +21,9 @@ export type SchoolFormProps = {
         operation?: string,
         id?: string,
         schoolName?: string,
-        schoolCode?: string,
+        // schoolCode?: string,
         locationCode?: string,
-        schoolId?: string,
+        // schoolId?: string,
         poc?: string,
         sra?: {
             id: string,
@@ -241,9 +241,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         const dataForm = {
             id: value?.id,
             schoolName: value?.schoolName,
-            schoolCode: toUpper(value?.schoolCode),
             locationCode: toUpper(value?.locationCode),
-            schoolId: toUpper(value?.schoolCode) + toUpper(value?.locationCode),
             poc: value?.poc,
             sraId: value?.sra,
             schoolStatus: value?.schoolStatus,
@@ -302,9 +300,9 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
         form.setFieldsValue({
             id: props.tempData?.id,
             schoolName: props.tempData?.schoolName,
-            schoolCode: props.tempData?.schoolCode,
+            // schoolCode: props.tempData?.schoolCode,
             locationCode: props.tempData?.locationCode,
-            schoolId: props.tempData?.schoolId,
+            // schoolId: props.tempData?.schoolId,
             poc: props.tempData?.poc,
             sra: props.tempData?.sra?.id,
             schoolStatus: props.tempData?.schoolStatus,
@@ -388,7 +386,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                         }]}>
                         <Input />
                     </Form.Item>
-                    {props?.tempData?.operation === 'create' ? (
+                    {/* {props?.tempData?.operation === 'create' ? (
                         <Form.Item label="School Code" name='schoolCode' rules={[{
                             required: true,
                         }, {
@@ -410,7 +408,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                         }]}>
                             <Input disabled maxLength={5} minLength={3} />
                         </Form.Item>
-                    )}
+                    )} */}
                     {props?.tempData?.operation === 'create' ? (
                         <Form.Item label="Location Code" name='locationCode' rules={[{
                             required: false,
@@ -431,7 +429,7 @@ const SchoolForm: React.FC<SchoolFormProps> = (props) => {
                                     ? Promise.resolve()
                                     : Promise.reject(new Error("No spaces allowed"))
                         }]}>
-                            <Input maxLength={3} minLength={3} />
+                            <Input disabled maxLength={3} minLength={3} />
                         </Form.Item>
                     )}
                     <Form.Item label="School POC" name='poc'>

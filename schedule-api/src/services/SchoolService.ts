@@ -385,19 +385,6 @@ export class SchoolService {
       let school: School;
 
       if (request.operation === OPERATION.ADD) {
-        const currentSchools = await this.schoolRepository.find();
-
-        for (let school of currentSchools) {
-          if (
-            request.schoolCode.toUpperCase() === school.schoolCode.toUpperCase()
-          ) {
-            return {
-              success: true,
-              errorMessage: "School code already exists",
-            };
-          }
-        }
-
         school = new School();
         school.createdAt = new Date();
         request.schoolStatus = Status.ACTIVE_CAPS;
@@ -428,6 +415,8 @@ export class SchoolService {
         school.paymentCycle = null;
         school.paymentType = null;
         school.initialAmount = null;
+        school.schoolCode = await this.getUniqueSchoolCode(request.schoolName);
+        school.schoolId = school.schoolCode + (request.locationCode ?? "");
       } else {
         school = await this.schoolRepository.findOne({
           where: { id: request.id },
@@ -436,9 +425,7 @@ export class SchoolService {
       }
       const prevLockLesson = school.lockLesson;
       school.schoolName = request.schoolName;
-      school.schoolCode = request.schoolCode;
       school.locationCode = request.locationCode;
-      school.schoolId = request.schoolCode + (request.locationCode ?? "");
       school.sraId = request.sraId;
       school.schoolStatus = request.schoolStatus;
       school.poc = Array.isArray(request?.poc ?? [])
@@ -974,5 +961,82 @@ export class SchoolService {
       console.log("ERROR", error);
       return { status: 400, error: error?.message };
     }
+  }
+
+  async getUniqueSchoolCode(rawSchoolName: string) {
+    const schoolRepo = this.schoolRepository;
+    // Removing every extra characters like `.`, `!` and numbers
+    const schoolName = rawSchoolName.replace(/[^a-zA-Z\s]/g, "").toUpperCase();
+    const schoolNameWithoutSpaces = schoolName.replace(/\s/g, "");
+
+    const words = schoolName.split(" ");
+    let schoolCode = "";
+
+    async function getSchoolBySchoolCOde(schoolCode) {
+      return await schoolRepo.findOne({
+        where: { schoolCode: schoolCode },
+      });
+    }
+
+    async function createSchoolCodeCombinations(
+      wordIndex,
+      charIndex,
+      existingString
+    ) {
+      if (schoolCode !== "") return;
+
+      if (existingString.length === 4) {
+        // CHECK if it exists;
+        let existingSchool = await getSchoolBySchoolCOde(existingString);
+        if (!existingSchool) {
+          schoolCode = existingString;
+          return;
+        }
+      }
+      if (wordIndex >= words.length) return;
+      if (charIndex >= words[wordIndex].length) return;
+
+      await createSchoolCodeCombinations(
+        wordIndex + 1,
+        charIndex,
+        existingString + words[wordIndex][charIndex]
+      );
+      await createSchoolCodeCombinations(
+        wordIndex,
+        charIndex + 1,
+        existingString + words[wordIndex][charIndex]
+      );
+      await createSchoolCodeCombinations(
+        wordIndex,
+        charIndex + 1,
+        existingString
+      );
+      await createSchoolCodeCombinations(
+        wordIndex + 1,
+        charIndex,
+        existingString
+      );
+    }
+
+    await createSchoolCodeCombinations(0, 0, "");
+
+    /**
+     * In some cases where schoolName is less than 4 words and the above code is not able to create combinations
+     * In those cases we are adding 0, 1, 2... digits in the end of school name and trying to form a 4 digit unique schoolCode
+     *  */
+    if (schoolCode === "") {
+      let padNumber = 0;
+      let tSchoolName = schoolNameWithoutSpaces.slice(0, 2);
+      do {
+        const tempSchoolCode = tSchoolName.padEnd(4, padNumber.toString());
+        const existingSchool = await getSchoolBySchoolCOde(tempSchoolCode);
+        if (!existingSchool) {
+          schoolCode = tempSchoolCode;
+        }
+        padNumber += 1;
+      } while (schoolCode === "");
+    }
+
+    return schoolCode;
   }
 }
