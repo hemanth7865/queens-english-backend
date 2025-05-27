@@ -361,6 +361,11 @@ export class TeacherService {
           lockLesson: data.lockLesson || false,
           status: data.status,
           demoAccount: data?.demoAccount ?? false,
+          ...(data?.schoolId
+            ? {
+                schoolId: data?.schoolId ?? "",
+              }
+            : {}),
         },
       };
 
