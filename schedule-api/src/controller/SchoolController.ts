@@ -210,4 +210,31 @@ export class SchoolController {
           return { error: true, message: error.message };
         }
       }
+
+      async deleteSchool(
+        request: Request,
+        response: Response,
+        next: NextFunction
+      ) {
+        let res;
+        try {
+          if (!request?.user?.email)
+            throw new Error("User email not found in request.");
+          const userData = await this.adminRepository.findOne({
+            where: { email: request.user.email },
+          });
+          if (!userData) throw new Error("User not found.");
+    
+          const schoolId = request.body.schoolId;
+          if (!schoolId) {
+            throw new Error("School Id Not Found");
+          }
+          res = await this.schoolService.deleteSchool(schoolId);
+    
+          return res;
+        } catch (error) {
+          logger.error(error);
+          return { error: true, message: error.message };
+        }
+      }
 }
