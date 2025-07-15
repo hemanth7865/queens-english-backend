@@ -32,4 +32,61 @@ export class UploadFilesController {
             return { error: true, msg: e.message };
         }
     }
+
+    async uploadPDF(request: Request, response: Response, next: NextFunction) {
+        try {
+            const { pdfType, path: extraPath, name } = request.query;
+    
+            if (!pdfType || typeof pdfType !== "string") {
+                return response.status(400).json({ error: true, msg: "Missing or invalid 'pdfType' parameter." });
+            }
+    
+            const file = request.files?.pdf;
+    
+            if (!file) {
+                return response.status(400).json({ error: true, msg: "No PDF file provided." });
+            }
+    
+            if (Array.isArray(file)) {
+                return response.status(400).json({ error: true, msg: "Only one PDF file allowed at a time." });
+            }
+    
+            if (file.mimetype !== "application/pdf") {
+                return response.status(400).json({ error: true, msg: "Invalid file type. Only PDFs are allowed." });
+            }
+    
+            // Define storage path based on pdfType
+            const basePathMap: Record<string, string> = {
+                FreeSpeaking: "free-speaking-pdfs",
+            };
+    
+            const basePath = basePathMap[pdfType];
+    
+            if (!basePath) {
+                return response.status(400).json({ error: true, msg: `Unsupported pdfType: ${pdfType}` });
+            }
+    
+            const containerPath = `assets/${basePath}${extraPath ? "/" + extraPath : ""}`;
+    
+            // Use provided name or fallback
+            const fileName = typeof name === "string" && name.trim() !== ""
+                ? name
+                : uuid() + '__' + file.name;
+    
+            const size = file.data.byteLength;
+    
+            const blobContainerClient = await getBlobClient(containerPath);
+            const blockBlobClient = blobContainerClient.getBlockBlobClient(fileName);
+            await blockBlobClient.upload(file.data, size);
+    
+            return response.status(200).json({
+                success: true,
+                fileUrl: `${containerPath}/${fileName}`,
+            });
+    
+        } catch (e) {
+            console.error("Upload PDF Error:", e);
+            return response.status(500).json({ error: true, msg: e.message });
+        }
+    }
 }

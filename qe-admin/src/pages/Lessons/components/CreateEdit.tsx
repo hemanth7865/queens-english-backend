@@ -9,6 +9,7 @@ import RichEditor from "./RichEditor";
 import { v4 as uuid } from "uuid";
 import Preview from "./Preview";
 import ImageUploader from "./ImageUploader";
+import PDFUploader from "./PDFUploader";
 
 interface CreateEditProps {
     edit: any,
@@ -330,6 +331,23 @@ const CreateEdit: React.FC<CreateEditProps> = ({ finishUpdateEdit, lessons, edit
                                 <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
                             </Row>
                         }
+
+                        {edit && selectedLessonId && alreadyExist && (
+                            <div style={{
+                                marginTop: 20,
+                                marginBottom: 20,
+                                padding: 16,
+                                border: "1px solid #e0e0e0",
+                                borderRadius: 8,
+                                background: "#fafafa"
+                            }}>
+                                <h3 style={{ marginBottom: 10 }}>📄 Free Speaking PDF</h3>
+                                <PDFUploader
+                                    pdfType="FreeSpeaking"
+                                    fileName={`${edit?.number}.pdf`}
+                                />
+                            </div>
+                        )}
 
                         {selectedLessonId && !loading &&
                             (

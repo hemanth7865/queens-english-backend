@@ -1520,6 +1520,20 @@ export async function uploadImagesStorage(
   });
 }
 
+export async function uploadPDFStorage(
+  params: { pdfType: string; path?: string; name?: string },
+  options?: { [key: string]: any }
+) {
+  return request<{
+    success: boolean;
+    fileUrl: string;
+  }>(`/be/upload/pdf`, {
+    method: "POST",
+    params,
+    ...(options || {}),
+  });
+}
+
 export async function loadJSONFile(url: string) {
   return request<API.RuleList>(`/be/fileProxy?url=${url}`, {
     method: "GET",

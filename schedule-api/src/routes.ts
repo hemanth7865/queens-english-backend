@@ -484,6 +484,13 @@ export const Routes = [
     action: "uploadImages",
     authenticate: true,
   },
+  {
+    method: "post",
+    route: "/upload/pdf",
+    controller: UploadFilesController,
+    action: "uploadPDF",
+    authenticate: true,
+  },
 
   /**
    * Start API/Tests For Zoom
