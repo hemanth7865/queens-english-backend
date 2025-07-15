@@ -1534,6 +1534,17 @@ export async function uploadPDFStorage(
   });
 }
 
+export async function checkPDFExists(
+  params: { pdfType: string; name: string; path?: string },
+  options?: { [key: string]: any }
+) {
+  return request<{ exists: boolean }>(`/be/check-pdf-exists`, {
+    method: "GET",
+    params,
+    ...(options || {}),
+  });
+}
+
 export async function loadJSONFile(url: string) {
   return request<API.RuleList>(`/be/fileProxy?url=${url}`, {
     method: "GET",

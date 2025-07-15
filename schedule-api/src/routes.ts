@@ -491,6 +491,13 @@ export const Routes = [
     action: "uploadPDF",
     authenticate: true,
   },
+  {
+    method: "get",
+    route: "/check-pdf-exists",
+    controller: UploadFilesController,
+    action: "checkPDFExists",
+    authenticate: true,
+  },
 
   /**
    * Start API/Tests For Zoom

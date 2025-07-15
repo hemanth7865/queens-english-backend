@@ -1,4 +1,4 @@
-import { uploadPDFStorage } from '@/services/ant-design-pro/api';
+import { uploadPDFStorage, checkPDFExists } from '@/services/ant-design-pro/api';
 import { getStorageFileURL } from '@/services/ant-design-pro/helpers';
 import { EyeOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, notification, Spin, Typography } from 'antd';
@@ -14,7 +14,6 @@ type PDFUploaderProps = {
 const PDFUploader = ({ pdfType, fileName }: PDFUploaderProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
-    const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [isFileExists, setIsFileExists] = useState<boolean | undefined>(undefined);
     const [pdfUrl, setPdfUrl] = useState<string | undefined>(undefined);
 
@@ -22,26 +21,32 @@ const PDFUploader = ({ pdfType, fileName }: PDFUploaderProps) => {
         FreeSpeaking: 'free-speaking-pdfs',
     };
 
-    const pdfPath = fileName && pdfType && containerMap[pdfType]
-        ? `/assets/${containerMap[pdfType]}/${fileName}`
-        : undefined;
+    const containerPath = pdfType && containerMap[pdfType] ? `assets/${containerMap[pdfType]}` : undefined;
 
     useEffect(() => {
-        if (!pdfPath) return;
+        if (!fileName || !pdfType) return;
 
-        const url = getStorageFileURL(pdfPath);
-        setPdfUrl(url);
+        const checkExists = async () => {
+            try {
+                const res = await checkPDFExists({
+                    pdfType,
+                    name: fileName,
+                });
 
-        const controller = new AbortController();
+                const exists = res?.exists;
+                setIsFileExists(exists);
 
-        if (url) {
-            fetch(url, { method: 'HEAD', signal: controller.signal })
-                .then((res) => setIsFileExists(res.ok))
-                .catch(() => setIsFileExists(false));
-        }
+                if (exists && containerPath) {
+                    const url = getStorageFileURL(`${containerPath}/${fileName}`);
+                    setPdfUrl(url);
+                }
+            } catch (err) {
+                setIsFileExists(false);
+            }
+        };
 
-        return () => controller.abort();
-    }, [pdfPath]);
+        checkExists();
+    }, [fileName, pdfType]);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -75,7 +80,6 @@ const PDFUploader = ({ pdfType, fileName }: PDFUploaderProps) => {
 
             notification.success({ message: 'PDF uploaded successfully' });
 
-            // Update preview state
             const updatedUrl = getStorageFileURL(result.fileUrl);
             setPdfUrl(updatedUrl);
             setIsFileExists(true);
@@ -89,36 +93,26 @@ const PDFUploader = ({ pdfType, fileName }: PDFUploaderProps) => {
         setLoading(false);
     };
 
-    if (isFileExists === undefined) {
-        return <></>
-    }
+    if (isFileExists === undefined) return null;
 
     return (
         <Spin spinning={loading}>
             <div className="pdf-uploader">
                 {isFileExists && pdfUrl ? (
                     <>
-                        <Text type="success">PDF is already uploaded.</Text>
+                        <Text type="success">📄 PDF is already uploaded.</Text>
                         <div style={{ marginTop: 10 }}>
                             <Button
                                 icon={<EyeOutlined />}
-                                onClick={() => setShowPDFPreview(prev => !prev)}
-                                style={{ marginRight: 10 }}
+                                onClick={() => {
+                                    if (pdfUrl) {
+                                        window.open(pdfUrl, '_blank');
+                                    }
+                                }}
                             >
-                                {showPDFPreview ? 'Hide PDF' : 'View PDF'}
+                                View PDF
                             </Button>
                         </div>
-                        {showPDFPreview && (
-                            <div style={{ marginTop: 20 }}>
-                                <iframe
-                                    src={pdfUrl}
-                                    title="Uploaded PDF"
-                                    width="100%"
-                                    height="500px"
-                                    style={{ border: '1px solid #ccc', borderRadius: 4 }}
-                                />
-                            </div>
-                        )}
                     </>
                 ) : (
                     <label className="custom-file-upload">
