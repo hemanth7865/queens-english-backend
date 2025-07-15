@@ -115,18 +115,21 @@ const PDFUploader = ({ pdfType, fileName }: PDFUploaderProps) => {
                         </div>
                     </>
                 ) : (
-                    <label className="custom-file-upload">
-                        <input
-                            type="file"
-                            accept="application/pdf"
-                            style={{ display: 'none' }}
-                            onChange={handleUpload}
-                            ref={fileInputRef}
-                        />
-                        <Button icon={<UploadOutlined />} onClick={() => fileInputRef.current?.click()}>
+                    <div style={{
+                        border: '1px dashed #d9d9d9',
+                        borderRadius: 8,
+                        padding: 16,
+                        display: 'inline-block',
+                        background: '#fff',
+                    }}>
+                        <Button
+                            type="primary"
+                            icon={<UploadOutlined />}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
                             Upload PDF
                         </Button>
-                    </label>
+                    </div>
                 )}
             </div>
         </Spin>
