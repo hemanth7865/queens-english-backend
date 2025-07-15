@@ -115,21 +115,14 @@ const PDFUploader = ({ pdfType, fileName }: PDFUploaderProps) => {
                         </div>
                     </>
                 ) : (
-                    <div style={{
-                        border: '1px dashed #d9d9d9',
-                        borderRadius: 8,
-                        padding: 16,
-                        display: 'inline-block',
-                        background: '#fff',
-                    }}>
-                        <Button
-                            type="primary"
-                            icon={<UploadOutlined />}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            Upload PDF
-                        </Button>
-                    </div>
+                    <Button
+                        style={{ fontWeight: 'bold', color: '#1e90ff' }}
+                        type="dashed"
+                        onClick={() => fileInputRef.current?.click()}
+                        shape="round"
+                    >
+                        <UploadOutlined /> Upload PDF
+                    </Button>
                 )}
             </div>
         </Spin>
