@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --production
+# Install ALL dependencies (including dev deps like ts-node)
+RUN npm install
 
 COPY . .
 
