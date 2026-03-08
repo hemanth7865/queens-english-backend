@@ -1,30 +1,38 @@
-FROM node:20-alpine
+# ---------- Stage 1: Build ----------
+FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Environment
-ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
+ENV NODE_OPTIONS="--openssl-legacy-provider"
 
-# Copy package files first
+# Install Umi CLI
+RUN yarn global add umi
+
+# Copy dependency files first (better cache)
 COPY package.json yarn.lock* package-lock.json* ./
 
 # Install dependencies
 RUN yarn install
 
-# Copy the rest of the project
+# Copy source code
 COPY . .
 
-# Build using project script
-RUN yarn build
+# Build the frontend
+RUN umi build
 
-# Install static server
+
+# ---------- Stage 2: Production ----------
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install lightweight static server
 RUN yarn global add serve
 
-# Expose port
+# Copy only built files from builder
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 8000
 ENV PORT=8000
 
-# Start the frontend
 CMD ["serve", "-s", "dist", "-l", "8000"]
