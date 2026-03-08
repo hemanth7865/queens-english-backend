@@ -1,7 +1,6 @@
-import { defineConfig } from 'umi';
+import { defineConfig } from "umi";
 
 export default defineConfig({
-  presets: ['@umijs/preset-react'],
 
   define: {
     AZURE_CODE: "3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
@@ -15,4 +14,5 @@ export default defineConfig({
   plugins: [
     "react-dev-inspector/plugins/umi/react-inspector",
   ],
+
 });
