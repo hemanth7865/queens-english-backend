@@ -4,12 +4,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --production
+RUN npm install
 
 COPY . .
 
-EXPOSE 5000
+RUN npm install -g ts-node typescript
 
-ENV PORT=5000
+EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["npx", "ts-node", "src/index.ts"]
