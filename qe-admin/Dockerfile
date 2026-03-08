@@ -4,15 +4,16 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Increase memory limit
+# Increase memory limit significantly
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 RUN yarn install --production=false
 
 COPY . .
 
-# Build for production
-RUN yarn build
+# Disable source maps and build for production
+RUN export NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider" && \
+    umi build --no-compression
 
 # Production stage
 FROM node:20-alpine
