@@ -14,24 +14,35 @@ import * as utils from './utils/payment/RazorPayUtils';
 import { MONGOOSE_OPTIONS } from "./helpers/Constants";
 const mongoose = require("mongoose");
 
-export default {
-  utils
-}
+export default { utils }
 
 // create express app
 const app = express();
 
 // get config vars
 dotenv.config();
+app.use(fileUpload());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(CookieParser(process.env.JWT_TOKEN_SECRET));
+app.options("*", cors());
+app.use(cors());
+
+// Start server immediately (don't wait for DB)
+app.listen(3000, () => {
+  console.log("Express server has started on port 3000");
+});
+app.Timeout = 0;
+
+if (process.env.NODE_ENV === "production") {
+  console.log = function () {};
+}
+
+// Try to connect to database (optional - won't crash app if it fails)
 createConnection()
   .then(async (connection) => {
-    app.use(fileUpload());
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(CookieParser(process.env.JWT_TOKEN_SECRET));
-    app.options("*", cors());
-    app.use(cors());
-
+    console.log("Database connected successfully");
+    
     // register express routes from defined application routes
     Routes.forEach((route) => {
       (app as any)[route.method](
@@ -70,57 +81,40 @@ createConnection()
         }
       );
     });
-
-    // start express server
-    app.listen(3000);
-    app.Timeout = 0;
-
-    console.log(
-      "Express server has started on port 3000. Open http://localhost:3000/users to see results"
-    );
-
-    if (process.env.NODE_ENV === "production") {
-      console.log = function () {};
-    }
   })
-  .catch((error) => console.log(error));
+  .catch((error) => {
+    console.log("⚠️ Database connection failed (app will still run):", error.message);
+  });
 
 function bypassAuth(req, res, next) {
     const authHeader = req.headers["authorization"];
     let token = authHeader && authHeader.split(" ")[1];
-
     if (!token) {
       const cookies = req.signedCookies;
       token = cookies["qe-admin-token"];
     }
-
     if (token == null) return next();
     jwt.verify(
       token,
       process.env.JWT_TOKEN_SECRET,
       (err: any, username: any) => {
-        // console.log(err);
         if (err) return next();
         req.user = username;
         next();
       }
     );
-  
 }
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   let token = authHeader && authHeader.split(" ")[1];
-
   if(!token){
     const cookies = req.signedCookies;
     token = cookies["qe-admin-token"];
   }
-
   console.log(token);
-
   if (token == null) return res.sendStatus(401);
   jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err: any, username: any) => {
-    // console.log(err);
     if (err) return res.sendStatus(403);
     req.user = username;
     next();
@@ -132,10 +126,8 @@ function authenticateToken(req, res, next) {
  */
 function authenticateAPIKey(req, res, next) {
   const apiKey = req.query.apiKey;
-
   if (apiKey != process.env.API_KEY) {
     return res.sendStatus(401)
   }
-
   next();
 }
