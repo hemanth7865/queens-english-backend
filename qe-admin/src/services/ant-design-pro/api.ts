@@ -7,7 +7,7 @@ import {
   OlympiadQuestionArray,
 } from "@/pages/Olympiad Content/OlympiadUtils";
 
-const API_URL = `/`; //process.env.API_URL;
+const API_URL = AZURE_URL;
 const API_KEY = ``; //process.env.API_KEY;
 const CODE = AZURE_CODE;
 
