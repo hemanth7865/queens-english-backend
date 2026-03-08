@@ -1,10 +1,7 @@
-import { defineConfig } from "umi";
+import { defineConfig } from 'umi';
 
 export default defineConfig({
-
-  plugins: [
-    "react-dev-inspector/plugins/umi/react-inspector",
-  ],
+  presets: ['@umijs/preset-react'],
 
   define: {
     AZURE_CODE: "3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
@@ -15,4 +12,7 @@ export default defineConfig({
     BLOB_SAS: "BLOB_SAS",
   },
 
+  plugins: [
+    "react-dev-inspector/plugins/umi/react-inspector",
+  ],
 });
