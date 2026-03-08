@@ -5,19 +5,21 @@ WORKDIR /app
 
 ENV NODE_OPTIONS="--openssl-legacy-provider"
 
-# Install Umi CLI
-RUN yarn global add umi
+# Install umi + required plugins
+RUN yarn global add umi \
+    @umijs/preset-react \
+    @umijs/plugin-access \
+    @umijs/plugin-model \
+    @umijs/plugin-locale
 
-# Copy dependency files first (better cache)
+# Copy dependency files
 COPY package.json yarn.lock* package-lock.json* ./
 
-# Install dependencies
 RUN yarn install
 
-# Copy source code
 COPY . .
 
-# Build the frontend
+# Build
 RUN umi build
 
 
@@ -26,13 +28,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install lightweight static server
 RUN yarn global add serve
 
-# Copy only built files from builder
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 8000
-ENV PORT=8000
 
 CMD ["serve", "-s", "dist", "-l", "8000"]
