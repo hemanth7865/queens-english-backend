@@ -17,7 +17,6 @@ qe-admin/data/assessments.json
 .vscode/settings.json
 .sample
 schedule-api/ormlogs.log
-schedule-api/src/data/lessonsList.ts
 package-lock.json
 qe-admin/package-lock.json
 qe-admin/yarn.lock.json
