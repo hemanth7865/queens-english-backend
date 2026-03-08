@@ -1,29 +1,27 @@
-# ---------- Stage 1: Build ----------
+# ---------- Build stage ----------
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 ENV NODE_OPTIONS="--openssl-legacy-provider"
 
-# Install umi + required plugins
-RUN yarn global add umi \
-    @umijs/preset-react \
-    @umijs/plugin-access \
-    @umijs/plugin-model \
-    @umijs/plugin-locale
+# Install umi + preset-react
+RUN yarn global add umi @umijs/preset-react
 
-# Copy dependency files
+# Copy package files
 COPY package.json yarn.lock* package-lock.json* ./
 
+# Install dependencies
 RUN yarn install
 
+# Copy source
 COPY . .
 
-# Build
+# Build project
 RUN umi build
 
 
-# ---------- Stage 2: Production ----------
+# ---------- Production stage ----------
 FROM node:20-alpine
 
 WORKDIR /app
