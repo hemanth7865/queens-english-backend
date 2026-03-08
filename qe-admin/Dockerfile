@@ -7,12 +7,12 @@ COPY package*.json ./
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
-# Install ALL dependencies (don't skip scripts)
+# Install dependencies
 RUN yarn install --frozen-lockfile
 
 COPY . .
 
-# Just build - umi g tmp happens automatically
+# Build for production (umi g tmp happens automatically during build)
 RUN yarn build
 
 EXPOSE 8000
