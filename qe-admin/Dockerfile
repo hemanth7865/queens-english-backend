@@ -1,22 +1,34 @@
 FROM node:20-alpine
 
+# Set working directory
 WORKDIR /app
 
-COPY package*.json ./
+# Install umi CLI globally
+RUN yarn global add umi
 
+# Copy dependency files first (better docker caching)
+COPY package.json yarn.lock* package-lock.json* ./
+
+# Environment settings
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
-# Install dependencies WITHOUT running postinstall scripts
-RUN yarn install --frozen-lockfile --ignore-scripts
+# Install dependencies
+RUN yarn install --frozen-lockfile
 
+# Copy remaining project files
 COPY . .
 
-# Build for production
-RUN yarn build
+# Build the frontend
+RUN umi build
 
+# Expose port
 EXPOSE 8000
 
+# Runtime port for Render
 ENV PORT=8000
 
-CMD ["npx", "serve", "dist", "-l", "8000"]
+# Serve built files
+RUN yarn global add serve
+
+CMD ["serve", "-s", "dist", "-l", "8000"]
