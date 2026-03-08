@@ -235,7 +235,7 @@
   },
   {
     path: "/",
-    redirect: "/manage/school/StudentBatch",
+    redirect: "/user/login",
   },
   {
     component: "./404",
