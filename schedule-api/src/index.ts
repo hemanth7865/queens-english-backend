@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { createConnection } from "typeorm";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
@@ -24,7 +25,7 @@ app.use(CookieParser(process.env.JWT_TOKEN_SECRET));
 app.options("*", cors());
 app.use(cors());
 
-// Start server immediately
+// Start server immediately (don't wait for DB)
 app.listen(3000, () => {
   console.log("Express server has started on port 3000");
 });
@@ -34,44 +35,59 @@ if (process.env.NODE_ENV === "production") {
   console.log = function () {};
 }
 
-// Register routes (without database connection)
-Routes.forEach((route) => {
-  (app as any)[route.method](
-    route.route,
-    route.authenticate ? authenticateToken : bypassAuth,
-    route.apiKey ? authenticateAPIKey : bypassAuth,
-    (req: Request, res: Response, next: Function) => {
-      const result = new (route.controller as any)()[route.action](
-        req,
-        res,
-        next
-      );
-      if (result instanceof Promise) {
-        result
-          .then((result) => {
-            if (result !== null && result !== undefined) {
-              try {
-                if (typeof result === "object") {
-                  res.json(JSON.parse(JSON.stringify(result)));
-                } else {
-                  res.send(`${result}`);
-                }
-              } catch (_) {
-                if (!res.headersSent) {
-                  res.send("Internal server error");
+// Try to connect to database (optional - won't crash if it fails)
+createConnection()
+  .then(async (connection) => {
+    console.log("Database connected successfully");
+    registerRoutes();
+  })
+  .catch((error) => {
+    console.log("⚠️ Database connection failed (running without database):", error.message);
+    console.log("⚠️ Registering routes anyway...");
+    registerRoutes();
+  });
+
+// Register routes function
+function registerRoutes() {
+  Routes.forEach((route) => {
+    (app as any)[route.method](
+      route.route,
+      route.authenticate ? authenticateToken : bypassAuth,
+      route.apiKey ? authenticateAPIKey : bypassAuth,
+      (req: Request, res: Response, next: Function) => {
+        const result = new (route.controller as any)()[route.action](
+          req,
+          res,
+          next
+        );
+        if (result instanceof Promise) {
+          result
+            .then((result) => {
+              if (result !== null && result !== undefined) {
+                try {
+                  if (typeof result === "object") {
+                    res.json(JSON.parse(JSON.stringify(result)));
+                  } else {
+                    res.send(`${result}`);
+                  }
+                } catch (_) {
+                  if (!res.headersSent) {
+                    res.send("Internal server error");
+                  }
                 }
               }
-            }
-          })
-          .catch((_) => {
-            if (!res.headersSent) {
-              res.status(500).send("Internal server error");
-            }
-          });
+            })
+            .catch((_) => {
+              if (!res.headersSent) {
+                res.status(500).send("Internal server error");
+              }
+            });
+        }
       }
-    }
-  );
-});
+    );
+  });
+  console.log("Routes registered successfully");
+}
 
 function bypassAuth(req, res, next) {
     const authHeader = req.headers["authorization"];
