@@ -5,20 +5,17 @@ WORKDIR /app
 
 ENV NODE_OPTIONS="--openssl-legacy-provider"
 
-# Install umi + preset-react
-RUN yarn global add umi @umijs/preset-react
-
-# Copy package files
+# Copy dependency files
 COPY package.json yarn.lock* package-lock.json* ./
 
 # Install dependencies
 RUN yarn install
 
-# Copy source
+# Copy project files
 COPY . .
 
-# Build project
-RUN umi build
+# Build using project umi
+RUN yarn build
 
 
 # ---------- Production stage ----------
