@@ -1,10 +1,8 @@
 import { SECTION_TYPES } from '@/components/Constants/constants'
 import { getStorageFileURL, updateImageSasBlob } from '@/services/ant-design-pro/helpers'
 import { Button, Col, Divider, Row, Select } from 'antd'
-import { useState, useEffect, useRef } from 'react';
-import { DeviceFrameset } from 'react-device-frameset'
+import { useState, useEffect } from 'react';
 import { useSpeechSynthesis } from 'react-speech-kit';
-import "../../../../node_modules/react-device-frameset/dist/styles/marvel-devices.min.css";
 
 type Section = {
     type: string;
@@ -22,22 +20,24 @@ type Exercise = {
 }
 
 const devices = [
-    { label: 'Galaxy S8+', device: 'Samsung Galaxy S5', height: 700, width: 325, value: 0 },
-    { label: 'iPhone XR', device: 'iPhone X', height: 896, width: 414, value: 1 },
-    { label: 'Galaxy S20 Ultra', device: 'Galaxy Note 8', height: 915, width: 412, value: 2 },
-    { label: 'iPad Mini', device: 'iPad Mini', height: 1024, width: 768, value: 3 },
+    { label: 'Galaxy S8+', height: 700, width: 325, value: 0 },
+    { label: 'iPhone XR', height: 896, width: 414, value: 1 },
+    { label: 'Galaxy S20 Ultra', height: 915, width: 412, value: 2 },
+    { label: 'iPad Mini', height: 1024, width: 768, value: 3 },
 ]
 
 const Preview = ({ formData }: { formData: Exercise[] }) => {
+
     const [device, setDevice] = useState(devices[0])
     const [valueToSpeak, setValueToSpeak] = useState<any[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
     const onEnd = () => {
-        setCurrentTextIndex(currentTextIndex + 1);
+        setCurrentTextIndex(prev => prev + 1);
     };
-    const { speak, cancel, voices, speaking } = useSpeechSynthesis({ onEnd });
+
+    const { speak, cancel, voices } = useSpeechSynthesis({ onEnd });
 
     let textForSpeaking: any[] = [];
 
@@ -52,9 +52,11 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     }, [formData])
 
     const parseHTML = async () => {
-        formData.map((exercise, eIndex) => {
-            exercise.sections.map((section, sIndex) => {
 
+        textForSpeaking = [];
+
+        formData.forEach((exercise) => {
+            exercise.sections.forEach((section) => {
                 extractContent(section.description);
             })
         })
@@ -63,11 +65,10 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     }
 
     const extractContent = (description: any) => {
-        // Parse the HTML string into a DOM document
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(description, 'text/html');
 
-        // Find all elements with style="color: blue"
         const blueElements = doc.querySelectorAll('[style="color: blue;"]');
 
         blueElements.forEach((element) => {
@@ -101,6 +102,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
     };
 
     return (
+
         <div
             style={{
                 display: "flex",
@@ -108,7 +110,9 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                 alignItems: 'center',
             }}
         >
-            <Row style={{ width: '100%', alignItems: 'center', justifyContent: 'center', }} >
+
+            <Row style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+
                 <Col span={6}>
                     <Select
                         defaultValue={device.value}
@@ -116,70 +120,79 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                         options={devices}
                     />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        {/* <span>Dimensions</span> */}
                         <span>({device.height + " X " + device.width})</span>
                     </div>
                 </Col>
+
                 <Col span={8} offset={6} align="middle">
+
                     {!isSpeaking ? (
-                        <Button style={{ background: '#2E8540', borderColor: '#2E8540' }}
+                        <Button
+                            style={{ background: '#2E8540', borderColor: '#2E8540' }}
                             type="primary"
-                            key="play"
                             onClick={() => speakContent()}
                         >
                             Play
                         </Button>
-                    )
-                        : (
-                            <>
-                                <Button
-                                    type="primary"
-                                    key="pause"
-                                    onClick={() => pauseStopSpeech(false)}
-                                >
-                                    Pause
-                                </Button>
-                                <Button style={{ marginLeft: 10 }}
-                                    type="primary"
-                                    key="stop"
-                                    danger
-                                    onClick={() => pauseStopSpeech(true)}
-                                >
-                                    Stop
-                                </Button>
-                            </>
-                        )}
+                    ) : (
+                        <>
+                            <Button
+                                type="primary"
+                                onClick={() => pauseStopSpeech(false)}
+                            >
+                                Pause
+                            </Button>
+
+                            <Button
+                                style={{ marginLeft: 10 }}
+                                type="primary"
+                                danger
+                                onClick={() => pauseStopSpeech(true)}
+                            >
+                                Stop
+                            </Button>
+                        </>
+                    )}
+
                 </Col>
+
             </Row>
-            <DeviceFrameset
-                device={device.device}
-                color="black"
-                zoom={0.85}
-                height={device.height}
-                width={device.width}
+
+            <div
                 id="mobileDevice"
-            >
-                <Col style={{
-                    width: "100%",
-                    height: "100%",
-                    marginTop: device.device === "iPhone X" ? 40 : 0,
-                    paddingBottom: device.device === "iPhone X" ? 40 : 20,
-                    padding: 15,
-                    borderRadius: 5,
-                    boxShadow: "0px 10px 50px -30px rgba(0,0,0,0.2)",
+                style={{
+                    width: device.width,
+                    height: device.height,
                     border: "1px solid #efefef",
-                    overflowY: "scroll"
-                }} >
+                    borderRadius: 10,
+                    overflow: "hidden",
+                    background: "#fff",
+                    marginTop: 20,
+                    boxShadow: "0px 10px 50px -30px rgba(0,0,0,0.2)"
+                }}
+            >
+
+                <Col
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        padding: 15,
+                        overflowY: "scroll"
+                    }}
+                >
+
                     {formData.map((exercise, index) => {
+
                         return (
-                            <Col>
+
+                            <Col key={index}>
+
                                 <Row>
-                                    <Col
-                                        span={10}
-                                        style={{
-                                            fontSize: '1em'
-                                        }}
-                                    ><i style={{ fontSize: 30 }}>E</i>xercise {index + 1}</Col>
+
+                                    <Col span={10} style={{ fontSize: '1em' }}>
+                                        <i style={{ fontSize: 30 }}>E</i>xercise {index + 1}
+                                    </Col>
+
                                     <Col
                                         span={14}
                                         style={{
@@ -189,6 +202,7 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                             alignItems: 'end'
                                         }}
                                     >
+
                                         <Row
                                             style={{
                                                 fontSize: '1em',
@@ -196,13 +210,30 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                                 fontWeight: "bold",
                                                 textAlign: 'right'
                                             }}
-                                        >{exercise.heading?.toUpperCase()}</Row>
-                                        {exercise?.subHeading && exercise.subHeading.trim() !== "" && <Row
-                                            style={{ fontSize: '0.8em', textAlign: 'right' }}
-                                        >{exercise.subHeading}</Row>}
+                                        >
+                                            {exercise.heading?.toUpperCase()}
+                                        </Row>
+
+                                        {exercise?.subHeading && exercise.subHeading.trim() !== "" && (
+                                            <Row style={{ fontSize: '0.8em', textAlign: 'right' }}>
+                                                {exercise.subHeading}
+                                            </Row>
+                                        )}
+
                                     </Col>
+
                                 </Row>
-                                <div style={{ margin: "8px 0", borderRadius: 3, height: 5, width: "100%", backgroundColor: "#186E98" }} />
+
+                                <div
+                                    style={{
+                                        margin: "8px 0",
+                                        borderRadius: 3,
+                                        height: 5,
+                                        width: "100%",
+                                        backgroundColor: "#186E98"
+                                    }}
+                                />
+
                                 {exercise?.image && (
                                     <Row>
                                         <div className='image'>
@@ -214,19 +245,45 @@ const Preview = ({ formData }: { formData: Exercise[] }) => {
                                         </div>
                                     </Row>
                                 )}
-                                {exercise?.sections?.map((section) => {
-                                    return <Row>
-                                        {section.type === SECTION_TYPES.DESCRIPTION && section.description && <div id="ViewLessonScriptData" dangerouslySetInnerHTML={{ __html: updateImageSasBlob(section.description) }} />}
-                                    </Row>
+
+                                {exercise?.sections?.map((section, i) => {
+
+                                    return (
+
+                                        <Row key={i}>
+
+                                            {section.type === SECTION_TYPES.DESCRIPTION &&
+                                                section.description && (
+                                                    <div
+                                                        id="ViewLessonScriptData"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: updateImageSasBlob(section.description)
+                                                        }}
+                                                    />
+                                                )}
+
+                                        </Row>
+
+                                    )
+
                                 })}
+
                                 <Divider />
+
                             </Col>
+
                         )
+
                     })}
+
                 </Col>
-            </DeviceFrameset>
+
+            </div>
+
         </div>
+
     )
+
 }
 
 export default Preview
