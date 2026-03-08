@@ -7,17 +7,17 @@ COPY package*.json ./
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Install without running scripts (umi g tmp will fail)
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 COPY . .
 
-# Build for production (umi g tmp happens automatically during build)
+# Build the app
 RUN yarn build
 
 EXPOSE 8000
 
 ENV PORT=8000
 
-# Serve the built files
+# Serve static files
 CMD ["npx", "serve", "dist", "-l", "8000", "-s"]
