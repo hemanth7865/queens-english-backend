@@ -4,21 +4,18 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Set environment
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
-# Install ALL dependencies (needed for build)
 RUN yarn install --frozen-lockfile
 
 COPY . .
 
-# Build for production
+# Skip umi g tmp - let build handle it
 RUN yarn build
 
 EXPOSE 8000
 
 ENV PORT=8000
 
-# Serve the built app
 CMD ["npx", "serve", "dist", "-l", "8000", "-s"]

@@ -9,14 +9,10 @@ var cors = require("cors");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const fileUpload = require('express-fileupload');
-import * as utils from './utils/payment/RazorPayUtils';
-
-export default { utils }
 
 const app = express();
 dotenv.config();
 
-// Middleware setup (run immediately)
 app.use(fileUpload());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -24,17 +20,17 @@ app.use(CookieParser(process.env.JWT_TOKEN_SECRET));
 app.options("*", cors());
 app.use(cors());
 
-// Start server immediately
+// Start server IMMEDIATELY (don't wait for DB)
 app.listen(3000, () => {
-  console.log("Express server started on port 3000");
+  console.log("Server started on port 3000");
 });
 
-// Try to connect to database (optional - won't crash if fails)
-createConnection().then(async (connection) => {
-  console.log("Database connected");
+// Try DB connection (won't crash if fails)
+createConnection().then(() => {
+  console.log("DB connected");
   registerRoutes();
-}).catch((error) => {
-  console.log("⚠️ DB connection failed (app continues):", error.message);
+}).catch((err) => {
+  console.log("DB not available (continuing):", err.message);
   registerRoutes();
 });
 
