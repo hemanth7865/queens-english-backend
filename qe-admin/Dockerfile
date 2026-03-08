@@ -1,23 +1,15 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy dependency files
-COPY package.json package-lock.json ./
+COPY package.json ./
 
-# Install EXACT versions from lockfile
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
-# Copy project
 COPY . .
 
-# Build Umi project
-RUN npx umi build
-
-# Install static server
-RUN npm install -g serve
+RUN npm run build
 
 EXPOSE 8000
 
-# Serve built app with SPA routing
-CMD ["serve", "-s", "dist", "-l", "8000"]
+CMD ["npm","run","serve"]
