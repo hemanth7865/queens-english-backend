@@ -1,29 +1,20 @@
-# ---------- Build stage ----------
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-ENV NODE_OPTIONS="--openssl-legacy-provider"
+COPY package*.json ./
 
-# Copy dependency files
-COPY package.json yarn.lock* package-lock.json* ./
+RUN npm install
 
-# Install dependencies
-RUN yarn install
-
-# Copy project files
 COPY . .
 
-# Build using project umi
-RUN yarn build
+RUN npm run build
 
-
-# ---------- Production stage ----------
 FROM node:20-alpine
 
 WORKDIR /app
 
-RUN yarn global add serve
+RUN npm install -g serve
 
 COPY --from=builder /app/dist ./dist
 
