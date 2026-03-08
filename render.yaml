@@ -1,0 +1,15 @@
+services:
+
+  - type: web
+    name: qe-backend
+    env: docker
+    plan: starter
+    dockerfilePath: ./schedule-api/Dockerfile
+    autoDeploy: true
+
+  - type: web
+    name: qe-frontend
+    env: docker
+    plan: starter
+    dockerfilePath: ./qe-admin/Dockerfile
+    autoDeploy: true
