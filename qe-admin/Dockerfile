@@ -9,7 +9,10 @@ ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
 # Install ALL dependencies (needed for build)
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --ignore-scripts
+
+# Now run the postinstall script manually with proper PATH
+RUN yarn umi g tmp
 
 COPY . .
 
