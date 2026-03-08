@@ -13,11 +13,10 @@ import * as utils from './utils/payment/RazorPayUtils';
 
 export default { utils }
 
-// create express app
 const app = express();
-
-// get config vars
 dotenv.config();
+
+// Middleware setup (run immediately)
 app.use(fileUpload());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,29 +24,20 @@ app.use(CookieParser(process.env.JWT_TOKEN_SECRET));
 app.options("*", cors());
 app.use(cors());
 
-// Start server immediately (don't wait for DB)
+// Start server immediately
 app.listen(3000, () => {
-  console.log("Express server has started on port 3000");
+  console.log("Express server started on port 3000");
 });
-app.Timeout = 0;
 
-if (process.env.NODE_ENV === "production") {
-  console.log = function () {};
-}
+// Try to connect to database (optional - won't crash if fails)
+createConnection().then(async (connection) => {
+  console.log("Database connected");
+  registerRoutes();
+}).catch((error) => {
+  console.log("⚠️ DB connection failed (app continues):", error.message);
+  registerRoutes();
+});
 
-// Try to connect to database (optional - won't crash if it fails)
-createConnection()
-  .then(async (connection) => {
-    console.log("Database connected successfully");
-    registerRoutes();
-  })
-  .catch((error) => {
-    console.log("⚠️ Database connection failed (running without database):", error.message);
-    console.log("⚠️ Registering routes anyway...");
-    registerRoutes();
-  });
-
-// Register routes function
 function registerRoutes() {
   Routes.forEach((route) => {
     (app as any)[route.method](
@@ -55,67 +45,36 @@ function registerRoutes() {
       route.authenticate ? authenticateToken : bypassAuth,
       route.apiKey ? authenticateAPIKey : bypassAuth,
       (req: Request, res: Response, next: Function) => {
-        const result = new (route.controller as any)()[route.action](
-          req,
-          res,
-          next
-        );
+        const result = new (route.controller as any)()[route.action](req, res, next);
         if (result instanceof Promise) {
-          result
-            .then((result) => {
-              if (result !== null && result !== undefined) {
-                try {
-                  if (typeof result === "object") {
-                    res.json(JSON.parse(JSON.stringify(result)));
-                  } else {
-                    res.send(`${result}`);
-                  }
-                } catch (_) {
-                  if (!res.headersSent) {
-                    res.send("Internal server error");
-                  }
-                }
-              }
-            })
-            .catch((_) => {
-              if (!res.headersSent) {
-                res.status(500).send("Internal server error");
-              }
-            });
+          result.then((r) => {
+            if (r != null) {
+              try { res.json(typeof r === "object" ? JSON.parse(JSON.stringify(r)) : `${r}`); }
+              catch (_) { if (!res.headersSent) res.send("Internal server error"); }
+            }
+          }).catch((_) => { if (!res.headersSent) res.status(500).send("Internal server error"); });
         }
       }
     );
   });
-  console.log("Routes registered successfully");
 }
 
 function bypassAuth(req, res, next) {
-    const authHeader = req.headers["authorization"];
-    let token = authHeader && authHeader.split(" ")[1];
-    if (!token) {
-      const cookies = req.signedCookies;
-      token = cookies["qe-admin-token"];
-    }
-    if (token == null) return next();
-    jwt.verify(
-      token,
-      process.env.JWT_TOKEN_SECRET,
-      (err: any, username: any) => {
-        if (err) return next();
-        req.user = username;
-        next();
-      }
-    );
+  const authHeader = req.headers["authorization"];
+  let token = authHeader && authHeader.split(" ")[1];
+  if (!token) { const cookies = req.signedCookies; token = cookies["qe-admin-token"]; }
+  if (token == null) return next();
+  jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err: any, username: any) => {
+    if (err) return next();
+    req.user = username;
+    next();
+  });
 }
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   let token = authHeader && authHeader.split(" ")[1];
-  if(!token){
-    const cookies = req.signedCookies;
-    token = cookies["qe-admin-token"];
-  }
-  console.log(token);
+  if(!token){ const cookies = req.signedCookies; token = cookies["qe-admin-token"]; }
   if (token == null) return res.sendStatus(401);
   jwt.verify(token, process.env.JWT_TOKEN_SECRET, (err: any, username: any) => {
     if (err) return res.sendStatus(403);
@@ -125,9 +84,6 @@ function authenticateToken(req, res, next) {
 }
 
 function authenticateAPIKey(req, res, next) {
-  const apiKey = req.query.apiKey;
-  if (apiKey != process.env.API_KEY) {
-    return res.sendStatus(401)
-  }
+  if (req.query.apiKey != process.env.API_KEY) return res.sendStatus(401);
   next();
 }
