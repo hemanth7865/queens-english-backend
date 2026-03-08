@@ -1,35 +1,24 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
 
-# Increase memory limit significantly
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Set environment variables
+ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
+ENV NODE_ENV=production
 
-RUN yarn install --production=false
+# Install dependencies
+RUN yarn install --frozen-lockfile --production=true
 
 COPY . .
 
-# Disable source maps and build for production
-RUN export NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider" && \
-    umi build --no-compression
-
-# Production stage
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Install serve to run the built app
-RUN npm install -g serve
-
-# Copy built files from builder
-COPY --from=builder /app/dist ./dist
+# Build the app
+RUN yarn build
 
 EXPOSE 8000
 
-ENV NODE_ENV=production
 ENV PORT=8000
 
 # Serve the built files
-CMD ["serve", "-s", "dist", "-l", "8000"]
+CMD ["npx", "serve", "dist", "-l", "8000", "-s"]
