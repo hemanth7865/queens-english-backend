@@ -16,7 +16,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Build project
-RUN yarn build
+RUN npx umi build
 
 # Install serve
 RUN yarn global add serve
