@@ -11,7 +11,7 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-RUN npm install umi@3
+RUN npm install umi@3 --legacy-peer-deps
 RUN npx umi build
 
 RUN yarn global add serve
