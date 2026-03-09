@@ -7,14 +7,13 @@ COPY package*.json ./
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
-RUN yarn install --frozen-lockfile
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
-RUN npm install umi@3 --legacy-peer-deps
-RUN npx umi build
+RUN npx umi@3 build
 
-RUN yarn global add serve
+RUN npm install -g serve
 
 EXPOSE 10000
 
