@@ -5,7 +5,6 @@ export default defineConfig({
   define: {
     AZURE_CODE: "3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
 
-    // IMPORTANT: point to backend server
     AZURE_URL: "https://backend-wtic.onrender.com/",
 
     ZOOM_GENERIC_LINK: "https://admin.thequeensenglish.co/be/",
@@ -14,8 +13,6 @@ export default defineConfig({
     BLOB_SAS: "BLOB_SAS",
   },
 
-  plugins: [
-    "react-dev-inspector/plugins/umi/react-inspector",
-  ],
+  plugins: []
 
 });
