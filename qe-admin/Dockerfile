@@ -4,15 +4,14 @@ WORKDIR /app
 
 # Copy package files first for layer caching
 COPY package*.json ./
-COPY yarn.lock ./ 2>/dev/null || true
 
 # Set environment variables
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
 # Install ALL dependencies (devDependencies needed for build)
-# postinstall is skipped, so no umi g tmp error
-RUN yarn install --frozen-lockfile
+# Use --ignore-scripts to skip postinstall that runs "umi g tmp" before umi is installed
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
