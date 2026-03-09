@@ -1,3 +1,5 @@
+import { defineConfig } from "umi";
+
 export default defineConfig({
 
   base: '/',
@@ -12,6 +14,6 @@ export default defineConfig({
     GOOGLE_CLIENT_ID: "GOOGLE_CLIENT_ID",
     BLOB_URL: "BLOB_URL",
     BLOB_SAS: "BLOB_SAS",
-  },
+  }
 
 });
