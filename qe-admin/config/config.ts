@@ -6,7 +6,7 @@ export default defineConfig({
     AZURE_CODE: "3oRefSONemrd2HatnbHfHLfPMat2fgi2kakJHrCDHhXbmhfDSQ6r8Q==",
 
     // IMPORTANT: point to backend server
-    AZURE_URL: "https://qe-backend.onrender.com/",
+    AZURE_URL: "https://backend-wtic.onrender.com/",
 
     ZOOM_GENERIC_LINK: "https://admin.thequeensenglish.co/be/",
     GOOGLE_CLIENT_ID: "GOOGLE_CLIENT_ID",
