@@ -1,29 +1,18 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 
-# Copy package files first for layer caching
 COPY package*.json ./
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
+RUN npm install
 
-# Install dependencies (postinstall is "echo skipped" - no umi g tmp)
-RUN npm install --production=false
-
-# Copy source code
 COPY . .
 
-# Build using the locally installed umi (via npm script)
+# FIXED: Use npm run build (uses local umi from node_modules)
 RUN npm run build
 
-# Install serve for static file hosting
 RUN npm install -g serve
 
-EXPOSE 8000
+EXPOSE 3000
 
-ENV PORT=8000
-
-# Serve the built dist folder
-CMD ["serve", "dist", "-l", "8000"]
+CMD ["serve", "-s", "dist"]
