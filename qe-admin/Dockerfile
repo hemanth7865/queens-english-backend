@@ -2,29 +2,25 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files first for layer caching
+# Copy package files
 COPY package*.json ./
 
-# Set environment variables
+# Environment variables
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 
-# Install ALL dependencies (devDependencies needed for build)
-# Use --ignore-scripts to skip postinstall that runs "umi g tmp" before umi is installed
-RUN yarn install --frozen-lockfile --ignore-scripts
+# Install dependencies
+RUN yarn install --frozen-lockfile
 
-# Copy source code
+# Copy project
 COPY . .
 
-# Build for production (umi build handles everything)
+# Build project
 RUN yarn build
 
-# Install serve for static file hosting
-RUN npm install -g serve
+# Install serve
+RUN yarn global add serve
 
-EXPOSE 8000
+EXPOSE 10000
 
-ENV PORT=8000
-
-# Serve the built dist folder
-CMD ["serve", "dist", "-l", "8000"]
+CMD ["serve", "-s", "dist", "-l", "10000"]
