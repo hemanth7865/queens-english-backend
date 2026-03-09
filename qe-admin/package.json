@@ -22,7 +22,9 @@
     "openapi": "umi openapi",
     "precommit": "lint-staged",
     "prettier": "prettier -c --write \"src/**/*\"",
-    "serve": "umi-serve",
+
+    "serve": "serve -s dist -l $PORT",
+
     "start": "cross-env UMI_ENV=dev umi dev",
     "start:dev": "cross-env DEV=true REACT_APP_ENV=dev MOCK=none UMI_ENV=dev umi dev",
     "start:no-mock": "cross-env MOCK=none UMI_ENV=dev umi dev",
@@ -36,6 +38,7 @@
     "test:component": "umi test ./src/components",
     "tsc": "tsc --noEmit"
   },
+
   "lint-staged": {
     "**/*.less": "stylelint --syntax less",
     "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",
@@ -43,11 +46,13 @@
       "prettier --write"
     ]
   },
+
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "not ie <= 10"
   ],
+
   "dependencies": {
     "@ant-design/icons": "^4.5.0",
     "@ant-design/pro-descriptions": "^1.6.8",
@@ -79,11 +84,12 @@
     "react-helmet-async": "^1.0.4",
     "react-quill": "^2.0.0",
     "react-speech-kit": "^3.0.1",
-    "umi-serve": "^1.9.10",
+    "serve": "^14.2.1",
     "uuid": "^8.3.2",
     "v8-compile-cache": "^2.3.0",
     "yarn": "^1.22.19"
   },
+
   "devDependencies": {
     "@ant-design/pro-cli": "^2.0.2",
     "@types/country-list": "^2.1.4",
@@ -121,9 +127,11 @@
     "typescript": "^4.2.2",
     "umi": "^3.5.20"
   },
+
   "engines": {
     "node": ">=20.9.0"
   },
+
   "gitHooks": {
     "commit-msg": "fabric verify-commit"
   }
